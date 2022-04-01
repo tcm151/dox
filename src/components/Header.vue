@@ -15,13 +15,14 @@
                         required
                     />
                     <input
-                        class="input mx-2"
+                        class="input ml-2 mr-1"
                         type="password"
                         placeholder="password"
                         v-model="password"
                         required
                     />
-                    <button class="button" @click.prevent="login">Login</button>
+                    <button class="button ml-1 mr-2" @click.prevent="login">Login</button>
+                    <router-link class="navbar-item button" to="/register">Register</router-link>
                 </div>
                 <div class="navbar-item" v-else>
                     <button class="button has-text-weight-bold has-background-primary-light">{{ session.user?.username }}</button>

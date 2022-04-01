@@ -1,10 +1,11 @@
 <template>
-    <header>
-        <Header />
-    </header>
-    <router-view>
-
-    </router-view>
+    <Header />
+    <!-- <div class="hero is-fullheight-with-navbar"> -->
+    <div>
+        <router-view>
+    
+        </router-view>
+    </div>
 </template>
 
 <script setup lang="ts">
