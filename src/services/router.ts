@@ -3,7 +3,7 @@ import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Post from "../views/Post.vue"
 import Editor from "../views/Editor.vue"
-
+import Register from "../views/Register.vue"
 
 export const router = createRouter({
     history: createWebHistory(),
@@ -21,12 +21,17 @@ export const router = createRouter({
         {
             name: "Post",
             path: "/posts/:post_id",
-            component: Post
+            component: Post,
         },
         {
             name: "Editor",
             path: "/editor",
-            component: Editor
-        }
+            component: Editor,
+        },
+        {
+            name: "Register",
+            path: "/register",
+            component: Register,
+        },
     ],
 })
