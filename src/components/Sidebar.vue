@@ -1,19 +1,25 @@
 <template>
     <div class="box content">
         <h2>Popular Topics</h2>
-        <p class="my-1">TypeScript</p>
-        <p class="my-1">Vue</p>
-        <p class="my-1">C#</p>
-        <p class="my-1">Python</p>
-        <p class="my-1">Unity</p>
+        <ul class="mx-4">
+            <li class="my-1">TypeScript</li>
+            <li class="my-1">Vue</li>
+            <li class="my-1">C#</li>
+            <li class="my-1">Python</li>
+            <li class="my-1">Unity</li>
+        </ul>
         <h2>Places</h2>
-        <p class="my-1">Profile</p>
-        <p class="my-1">Hot</p>
-        <p class="my-1">Local</p>
-        <p class="my-1">Top Ever</p>
-        <h2>Other</h2>
-        <p class="my-1">Item 1</p>
-        <p class="my-1">Item 2</p>
-        <p class="my-1">Item 3</p>
+        <ul class="mx-4">
+            <li class="my-1">Profile</li>
+            <li class="my-1">Hot</li>
+            <li class="my-1">Local</li>
+            <li class="my-1">Top Ever</li>
+        </ul>
+        <h2>Rules</h2>
+        <ol class="mx-4">
+            <li class="my-1">Upvote things that are high quailty, topical, well formed, helpful, and provide solid discussion upon a certain topic. We do not disencentivize discussion.</li>
+            <li class="my-1">Mark things as misleading when this are not inherently wrong, but might guide someone in the wrong direction, or stray away from the initial topics of the original discussion.</li>
+            <li class="my-1">Downvote only if something blatantly off topic or contains hateful or discriminatory language or rhetoric. Downvotes are not for disagreements. </li>
+        </ol>
     </div>
 </template>
