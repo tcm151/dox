@@ -8,7 +8,7 @@
     </div>
     <div class="card block" v-for="post in posts" :key="post.post_id">
         <div class="media">
-            <div class="media-left mr-0 my-auto">
+            <div class="media-left mr-0 mb-auto">
                 <div class="container p-2">
                     <p
                         @click="upvote(post)"
@@ -31,7 +31,7 @@
                     </div>
                 </header>
                 <div class="card-content p-2">
-                    <div class="content">{{ post.content }}</div>
+                    <div class="content post-body">{{ post.content }}</div>
                 </div>
             </div>
         </div>
@@ -63,11 +63,19 @@ async function getPosts() {
 </script>
 
 <style scoped>
-.vote,
-media {
+.vote, media {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
 }
+
+.media-left {
+    width: 3em;
+}
+
+/* .post-body {
+    max-height: 4em;
+} */
+
 </style>

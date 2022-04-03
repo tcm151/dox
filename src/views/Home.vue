@@ -18,4 +18,5 @@ import Sidebar from '../components/Sidebar.vue';
 const session = computed(() => {
     return store.state.session;
 })
+
 </script>

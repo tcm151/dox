@@ -1,9 +1,7 @@
 <template>
     <Header />
-    <!-- <div class="hero is-fullheight-with-navbar"> -->
     <div>
         <router-view>
-    
         </router-view>
     </div>
 </template>
