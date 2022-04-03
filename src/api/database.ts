@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { User, Post, Comment, Votes } from "./types"
 import { MongoClient, Collection, Db } from "mongodb"
 import { Session } from "../services/store"
-import moment from "moment";
+import moment from "moment"
 
 //- enviroment variables
 let database: Db
@@ -13,7 +13,7 @@ const connectionURI =
     "mongodb+srv://tcm:cooltyler333@assignment-7.0mfdb.mongodb.net/final_project?retryWrites=true&w=majority"
 
 export function currentTime() {
-    return moment().format("YYYY/MM/DD, HH:mm:ss");
+    return moment().format("YYYY/MM/DD, HH:mm:ss")
 }
 
 //> CONNECT TO THE DATABASE AND POPULATE COLLECTIONS
@@ -43,7 +43,9 @@ export function addNewUser() {
         }
 
         // temporary object for new user
-        let newUser = request.query as unknown as User
+        let newUser = request.body as unknown as User
+
+        console.log(newUser);
 
         // check if user exsists with matching data
         const existingEmail = await users_collection.findOne({ email: newUser.email })
@@ -119,9 +121,10 @@ export function getUser() {
 //> FETCH ALL POSTS
 export function getPosts() {
     return async (request: Request, response: Response) => {
-        const allPosts = await posts_collection.find({ post_id: { $exists: true } })
-        .sort({ time: -1})
-        .toArray()
+        const allPosts = await posts_collection
+            .find({ post_id: { $exists: true } })
+            .sort({ time: -1 })
+            .toArray()
         response.status(200).send(allPosts)
     }
 }
@@ -211,7 +214,7 @@ export function modifyDatabase() {
             .aggregate([
                 {
                     $addFields: {
-                        time: "2022/03/30, 14:23:28"
+                        time: "2022/03/30, 14:23:28",
                     },
                 },
                 {
