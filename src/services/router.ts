@@ -3,6 +3,7 @@ import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Post from "../views/Post.vue"
 import Editor from "../views/Editor.vue"
+import Profile from "../views/Profile.vue"
 import Register from "../views/Register.vue"
 
 export const router = createRouter({
@@ -32,6 +33,11 @@ export const router = createRouter({
             name: "Register",
             path: "/register",
             component: Register,
+        },
+        {
+            name: "Profile",
+            path: "/profile",
+            component: Profile,
         },
     ],
 })
