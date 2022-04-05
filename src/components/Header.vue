@@ -1,7 +1,10 @@
 <template>
     <nav class="navbar has-background-primary">
         <div class="navbar-brand">
-            <router-link class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark" to="/">DOX</router-link>
+            <router-link
+                class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark"
+                to="/"
+            >DOX</router-link>
             <p class="navbar-item is-size-4 has-text-weight-semibold pl-0">For Everything</p>
         </div>
         <div class="navbar-menu is-active">
@@ -25,8 +28,10 @@
                     <router-link class="navbar-item button" to="/register">Register</router-link>
                 </div>
                 <div class="navbar-item" v-else>
-                    <button class="button has-text-weight-bold has-background-primary-light">{{ session.user?.username }}</button>
-                    <button class="button mx-2" @click.prevent="goToEditor()">New Post</button>
+                    <button
+                        class="button has-text-weight-bold has-background-primary-light"
+                    >{{ session.user?.username }}</button>
+                    <button type="submit" class="button mx-2" @click.prevent="goToEditor()">New Post</button>
                     <button class="button" @click.prevent="logout">Logout</button>
                 </div>
             </div>
@@ -36,7 +41,7 @@
 
 <script setup lang="ts">
 import axios from "axios";
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import { router } from "../services/router";
 import { Session, store } from "../services/store";
 
@@ -46,25 +51,32 @@ const session = computed(() => {
     return store.state.session;
 })
 
+
 function goToEditor() {
     router.push("/editor");
 }
 
-async function login() {
-    const response = await axios.post<Session>(
-        "http://localhost:8080/authenticate",
-        new URLSearchParams({
-            username: username.value,
-            password: password.value,
-        }))
+const toggleModal = inject("toggleModal") as Function
 
-    store.commit("login", response.data);
-    if (store.getters.getSession.authenticated) {
+async function login() {
+    try {
+        const response = await axios.post<Session>(
+            "http://localhost:8080/authenticate",
+            new URLSearchParams({
+                username: username.value,
+                password: password.value,
+            }))
+
+        store.commit("login", response.data);
         username.value = "";
         password.value = "";
+        router.push("/");
+
+    } catch (error) {
+        console.log(error)
+        toggleModal("Failed to login...")
     }
 
-    router.push("/");
 }
 
 function logout() {

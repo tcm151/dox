@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { User, Post, Comment, Votes } from "./types"
 import { MongoClient, Collection, Db } from "mongodb"
 import { Session } from "../services/store"
+import bcrypt from "bcryptjs"
 import moment from "moment"
 
 //- enviroment variables
@@ -45,7 +46,7 @@ export function addNewUser() {
         // temporary object for new user
         let newUser = request.body as unknown as User
 
-        console.log(newUser);
+        console.log(newUser)
 
         // check if user exsists with matching data
         const existingEmail = await users_collection.findOne({ email: newUser.email })
@@ -86,9 +87,15 @@ export function authenticateUser() {
         }
 
         // check if a user exists with matching credentials
-        const matchingUser = await users_collection.findOne({ username: username, password: password })
+        const matchingUser = await users_collection.findOne({ username: username })
         if (!matchingUser) {
-            response.status(400).send("Username or password were incorrect.")
+            response.status(400).send("No user exists with matching username")
+            return
+        }
+
+        // compare password to matching hash
+        if (!(await bcrypt.compare(password, matchingUser.password))) {
+            response.status(400).send("Password does not match")
             return
         }
 
@@ -121,11 +128,31 @@ export function getUser() {
 //> FETCH ALL POSTS
 export function getPosts() {
     return async (request: Request, response: Response) => {
-        const allPosts = await posts_collection
-            .find({ post_id: { $exists: true } })
-            .sort({ time: -1 })
+        // const posts = await posts_collection
+        //     .find({ post_id: { $exists: true } })
+        //     .sort({ time: -1 })
+        //     .toArray()
+        const posts = await posts_collection
+            .aggregate<Post>([
+                {
+                    $match: {
+                        post_id: { $exists: true }
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "user_id",
+                        foreignField: "user_id",
+                        as: "user",
+                    },
+                },
+                {
+                    $unwind: "$user",
+                },
+            ])
             .toArray()
-        response.status(200).send(allPosts)
+        response.status(200).send(posts)
     }
 }
 
