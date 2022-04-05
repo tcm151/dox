@@ -26,6 +26,9 @@ const options: StoreOptions<State> = {
         },
         getCurrentUser(state): User | null {
             return state.session.user
+        },
+        getCurrentUserId(state): number {
+            return (state.session.user) ? state.session.user.user_id : -1;
         }
     },
     mutations: {

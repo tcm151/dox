@@ -39,4 +39,5 @@ export interface Votes {
     upvotes: number,
     misleading: number,
     downvotes: number,
+    users: number[],
 }

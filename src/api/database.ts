@@ -157,6 +157,7 @@ export function createPost() {
                 upvotes: 0,
                 misleading: 0,
                 downvotes: 0,
+                users: [],
             },
         }
         await posts_collection.insertOne(newPost)
@@ -210,11 +211,11 @@ export function getPostComments() {
 
 export function modifyDatabase() {
     return async (request: Request, response: Response) => {
-        const aggregation = await comments_collection
+        const aggregation = await posts_collection
             .aggregate([
                 {
                     $addFields: {
-                        time: "2022/03/30, 14:23:28",
+                        "votes.users": [],
                     },
                 },
                 {
@@ -254,6 +255,7 @@ export function createComment() {
                 upvotes: 0,
                 misleading: 0,
                 downvotes: 0,
+                users: [],
             },
         }
         await comments_collection.insertOne(newComment)

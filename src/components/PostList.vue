@@ -43,13 +43,48 @@ import axios from 'axios';
 import { onBeforeMount, ref } from 'vue';
 import { Post } from '../api/types';
 import { router } from '../services/router';
+import { store } from '../services/store';
 
 const posts = ref<Post[]>([]);
 onBeforeMount(() => getPosts())
 
-function upvote(post: Post) { post.votes.upvotes += 1 }
-function misleading(post: Post) { post.votes.misleading += 1 }
-function downvote(post: Post) { post.votes.downvotes += 1 }
+function canVote(post: Post) {
+    if (!store.getters.getSession.authenticated) {
+        console.log("You must be logged in to vote.");
+        return false;
+    };
+
+    const user_id = store.getters.getCurrentUserId;
+    if (post.votes.users.includes(user_id)) {
+        console.log("You may only vote on a post once.");
+        return false;
+    };
+
+    return true;
+}
+
+function upvote(post: Post) {
+    if (!canVote(post)) return;
+
+    console.log("Upvoted post!");
+    post.votes.upvotes += 1;
+    post.votes.users.push(store.getters.getCurrentUserId)
+}
+
+function misleading(post: Post) {
+    if (!canVote(post)) return;
+
+    console.log("Post marked misleading...")
+    post.votes.misleading += 1
+    post.votes.users.push(store.getters.getCurrentUserId)
+}
+function downvote(post: Post) {
+    if (!canVote(post)) return;
+
+    console.log("Downvoted post!")
+    post.votes.downvotes += 1
+    post.votes.users.push(store.getters.getCurrentUserId)
+}
 
 
 function openPost(post: Post) {
@@ -63,7 +98,8 @@ async function getPosts() {
 </script>
 
 <style scoped>
-.vote, media {
+.vote,
+media {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -77,5 +113,4 @@ async function getPosts() {
 /* .post-body {
     max-height: 4em;
 } */
-
 </style>
