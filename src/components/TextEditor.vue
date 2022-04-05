@@ -1,5 +1,5 @@
 <template>
-    <form class="box m-5 has-background-light">
+    <form class="box m-5 has-background-light" v-if="session.authenticated">
         <div class="block content">
             <h2>Title</h2>
             <input class="input" v-model="title" />
@@ -11,6 +11,9 @@
         <button class="button" @click.prevent="uploadPost">Post</button>
         <button class="button" @click.prevent="testButton">Date</button>
     </form>
+    <div v-else class="box m-5">
+        <p>You must create an account to post...</p>
+    </div>
 </template>
 
 <script setup lang="ts">

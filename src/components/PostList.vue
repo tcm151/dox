@@ -31,7 +31,8 @@
                     </div>
                 </header>
                 <div class="card-content p-2">
-                    <div class="content post-body">{{ post.content }}</div>
+                    <!-- <div class="content post-body">{{ post.content }}</div> -->
+                    <div class="content post-body">by: {{ post.user?.username }}</div>
                 </div>
             </div>
         </div>
@@ -93,6 +94,7 @@ function openPost(post: Post) {
 
 async function getPosts() {
     const response = await axios.get<Post[]>("http://localhost:8080/posts")
+    console.log(response.data);
     posts.value = response.data;
 }
 </script>

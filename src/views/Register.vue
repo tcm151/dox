@@ -34,11 +34,14 @@
                 <div class="control">
                     <button class="button is-danger">Cancel</button>
                 </div>
+                <div class="control">
+                    <button class="button is-warning" @click.prevent="toggleModal('edit modal from somewhere else...')">Modal</button>
+                </div>
             </div>
         </form>
     </div>
 
-    <div class="modal" v-bind:class="{ 'is-active': showModal }">
+    <!-- <div class="modal" v-bind:class="{ 'is-active': showModal }">
         <div class="modal-background"></div>
         <div class="modal-content">
             <div class="card">
@@ -48,12 +51,17 @@
             </div>
         </div>
         <button class="modal-close is-large" @click.prevent="toggleModal('')"></button>
-    </div>
+    </div> -->
 </template>
 
 <script setup lang="ts">
 import axios from 'axios';
-import { onUpdated, ref } from 'vue';
+import { inject, onUpdated, ref } from 'vue';
+
+import bcrypt from "bcryptjs"
+// const bcrypt = require("brcypt");
+
+const toggleModal = inject("toggleModal") as Function
 
 
 const email = ref("");
@@ -85,15 +93,12 @@ async function registerUser() {
             new URLSearchParams({
                 email: email.value,
                 username: username.value,
-                password: password.value,
+                password: await bcrypt.hash(password.value, 10),
             }))
     }
-    catch
-    {
-        // if (response.status == 400) {
-            toggleModal("Failed to register user.")
-            return;
-        // }
+    catch (error) {
+        toggleModal("Failed to register user.")
+        return;
     }
 
     toggleModal("User registered sucessfully!");
@@ -105,9 +110,9 @@ async function registerUser() {
 
 }
 
-function toggleModal(newContent: string) {
-    modalContent.value = newContent;
-    showModal.value = !showModal.value
-}
+// function toggleModal(newContent: string) {
+//     modalContent.value = newContent;
+//     showModal.value = !showModal.value
+// }
 
 </script>

@@ -10,12 +10,15 @@ export interface User {
     email: string
     username: string
     password: string
+    // posts?: Post[],
+    // comments?: Comment[],
 }
 
 //- post datatype
 export interface Post {
     post_id: number
     user_id: number
+    user?: User,
     title: string
     content: string
     votes: Votes
