@@ -1,5 +1,5 @@
 <template>
-    <Header />
+    <Navbar />
     <div>
         <router-view>
         </router-view>
@@ -11,7 +11,7 @@
 import "./styles/global.scss"
 import { provide, ref } from "vue";
 import Modal from "./components/Modal.vue"
-import Header from "./components/Header.vue"
+import Navbar from "./components/Navbar.vue"
 
 const showModal = ref(false);
 const modalContent = ref("This is the content of the modal!");
