@@ -1,11 +1,11 @@
 <template>
-    <div class="navbar box p-1 is-flex is-flex-direction-row">
+    <!-- <div class="navbar box p-1 is-flex is-flex-direction-row">
         <div class="navbar-brand">
             <p class="navbar-item px-4">Hot</p>
             <p class="navbar-item px-4">Top</p>
             <p class="navbar-item px-4">New</p>
         </div>
-    </div>
+    </div>-->
     <div class="media box p-0 my-4" v-for="post in posts" :key="post.post_id">
         <div class="media-left mr-0 mb-auto">
             <div class="container p-2">
@@ -36,19 +36,19 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { inject, onBeforeMount, ref } from 'vue';
+import { inject } from 'vue';
 import { Post } from '../api/types';
-import { router } from '../services/router';
 import { store } from '../services/store';
+import { router } from '../services/router';
 
-const posts = ref<Post[]>([]);
-onBeforeMount(() => getPosts())
+const props = defineProps<{
+    posts: Post[]
+}>();
 
 const toggleModal = inject("toggleModal") as Function
 
 function formatNumber(number: number): number | string {
-    if (number > 999) return ((number/1000).toFixed(0) + 'k')
+    if (number > 999) return ((number / 1000).toFixed(0) + 'k')
     return number;
 }
 
@@ -63,7 +63,7 @@ function canVote(post: Post) {
         toggleModal("You may only vote on a post once.");
         return false;
     };
-    
+
     return true;
 }
 
@@ -95,11 +95,6 @@ function openPost(post: Post) {
     router.push(`/posts/${post.post_id}`);
 }
 
-async function getPosts() {
-    const response = await axios.get<Post[]>("http://localhost:8080/posts")
-    console.log(response.data);
-    posts.value = response.data;
-}
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
 <template>
     <div class="box m-5" v-if="comments.length > 0">
         <div class="block content" v-for="comment in comments" :key="comment.comment_id">
-            <h5>{{ comment.user?.username }}</h5>
+            <h5>u/{{ comment.user?.username }}</h5>
             <p>{{ comment.content }}</p>
         </div>
     </div>

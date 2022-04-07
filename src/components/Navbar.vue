@@ -9,7 +9,7 @@
         </div>
         <div class="navbar-menu is-active">
             <div class="navbar-end">
-                <div class="navbar-item field is-grouped" v-if="!session.authenticated">
+                <form class="navbar-item field is-grouped" v-if="!session.authenticated">
                     <input
                         class="input"
                         type="username"
@@ -24,14 +24,18 @@
                         v-model="password"
                         required
                     />
-                    <button class="button ml-1 mr-2" @click.prevent="login">Login</button>
+                    <button type="submit" class="button ml-1 mr-2" @click.prevent="login">Login</button>
                     <router-link class="navbar-item button" to="/register">Register</router-link>
-                </div>
+                </form>
                 <div class="navbar-item" v-else>
-                    <button
-                        class="button has-text-weight-bold has-background-primary-light"
-                    >{{ session.user?.username }}</button>
-                    <button type="submit" class="button mx-2" @click.prevent="goToEditor()">New Post</button>
+                    <router-link to="/profile">
+                        <button
+                            class="button has-text-weight-bold has-background-primary-light"
+                        >{{ session.user?.username }}</button>
+                    </router-link>
+                    <router-link to="/editor">
+                        <button class="button mx-2">New Post</button>
+                    </router-link>
                     <button class="button" @click.prevent="logout">Logout</button>
                 </div>
             </div>
@@ -45,16 +49,12 @@ import { computed, inject, ref } from 'vue';
 import { router } from "../services/router";
 import { Session, store } from "../services/store";
 
-const username = ref("");
-const password = ref("");
 const session = computed(() => {
     return store.state.session;
 })
 
-
-function goToEditor() {
-    router.push("/editor");
-}
+const username = ref("");
+const password = ref("");
 
 const toggleModal = inject("toggleModal") as Function
 
@@ -74,13 +74,14 @@ async function login() {
 
     } catch (error) {
         console.log(error)
-        toggleModal("Failed to login...")
+        toggleModal("Failed to login...", "Double check you typed in your username and password correctly")
     }
 
 }
 
 function logout() {
     store.commit("logout");
+    router.push("/");
 }
 
 </script>
