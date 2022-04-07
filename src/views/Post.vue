@@ -26,11 +26,11 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import CommentList from "../components/CommentList.vue"
 import { useRoute } from 'vue-router';
 import { onBeforeMount, ref } from 'vue';
-import { Post, Comment } from '../api/types';
 import { store } from '../services/store';
+import { Post, Comment } from '../api/types';
+import CommentList from "../components/CommentList.vue"
 
 const route = useRoute();
 
@@ -55,15 +55,15 @@ async function postComment() {
         }))
 
     comments.value.push({
+        comment_id: 0,
         user_id: store.getters.getSession.user.user_id,
-        post_id: Number(post.value?.post_id),
         user: store.getters.getCurrentUser,
+        post_id: Number(post.value?.post_id),
         reply_to: Number(post.value?.post_id),
         content: comment.value,
-        comment_id: 0,
         time: "",
         votes: {
-            upvotes: 0,
+            upvotes: 1,
             misleading: 0,
             downvotes: 0,
             users: [],
@@ -73,7 +73,7 @@ async function postComment() {
     toggleCommentBox();
     comment.value = "";
 
-    console.log(response);
+    // console.log(response);
 }
 
 onBeforeMount(async () => {
