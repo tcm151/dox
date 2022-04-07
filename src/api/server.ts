@@ -15,10 +15,9 @@ import * as database from "./database"
 app.get("/posts", database.getPosts())
 app.get("/posts/:post_id", database.getPost())
 app.get("/posts/:post_id/comments", database.getPostComments())
-
 app.get("/users/:user_id", database.getUser())
-
-app.post("/modifyDatabase", database.modifyDatabase())
+app.get("/users/:user_id/posts", database.getUsersPosts())
+app.get("/users/:user_id/comments", database.getUsersComments())
 
 //- post methods
 app.post("/newUser", database.addNewUser())
@@ -26,6 +25,7 @@ app.post("/authenticate", database.authenticateUser())
 app.post("/logout", database.logoutUser())
 app.post("/newPost", database.createPost())
 app.post("/newComment", database.createComment())
+app.post("/modifyDatabase", database.modifyDatabase())
 
 //- server startup sequence
 app.listen(8080, async () => {

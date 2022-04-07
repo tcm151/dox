@@ -14,7 +14,7 @@ const connectionURI =
     "mongodb+srv://tcm:cooltyler333@assignment-7.0mfdb.mongodb.net/final_project?retryWrites=true&w=majority"
 
 export function currentTime() {
-    return moment().format("YYYY/MM/DD, HH:mm:ss")
+    return moment().format("YYYY/MM/DD HH:mm:ss")
 }
 
 //> CONNECT TO THE DATABASE AND POPULATE COLLECTIONS
@@ -136,9 +136,14 @@ export function getPosts() {
             .aggregate<Post>([
                 {
                     $match: {
-                        post_id: { $exists: true }
+                        post_id: { $exists: true },
                     },
                 },
+                // {
+                //     $sort: {
+                //         time: -1,
+                //     },
+                // },
                 {
                     $lookup: {
                         from: "users",
@@ -236,6 +241,20 @@ export function getPostComments() {
     }
 }
 
+export function getUsersPosts() {
+    return async (request: Request, response: Response) => {
+        const posts = await posts_collection.find<Post>({ user_id: Number(request.params.user_id) }).toArray()
+        response.status(200).send(posts)
+    }
+}
+
+export function getUsersComments() {
+    return async (request: Request, response: Response) => {
+        const comments = await comments_collection.find<Comment>({ user_id: Number(request.params.user_id) }).toArray()
+        response.status(200).send(comments)
+    }
+}
+
 export function modifyDatabase() {
     return async (request: Request, response: Response) => {
         const aggregation = await posts_collection
@@ -279,7 +298,7 @@ export function createComment() {
             content: request.body.content,
             time: currentTime(),
             votes: {
-                upvotes: 0,
+                upvotes: 1,
                 misleading: 0,
                 downvotes: 0,
                 users: [],
