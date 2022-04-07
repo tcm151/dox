@@ -1,10 +1,15 @@
 <template>
     <Navbar />
     <div>
-        <router-view>
-        </router-view>
+        <router-view></router-view>
     </div>
-    <Modal :show-modal="showModal" :modal-content="modalContent" @toggle-modal="toggleModal"/>
+    <Modal
+        :show-modal="showModal"
+        :modal-title="modalTitle"
+        :modal-content="modalContent"
+        :modal-footer="modalFooter"
+        @toggle-modal="toggleModal"
+    />
 </template>
 
 <script setup lang="ts">
@@ -14,10 +19,14 @@ import Modal from "./components/Modal.vue"
 import Navbar from "./components/Navbar.vue"
 
 const showModal = ref(false);
-const modalContent = ref("This is the content of the modal!");
+const modalTitle = ref("");
+const modalContent = ref("");
+const modalFooter = ref("");
 
-function toggleModal(content?: string) {
+function toggleModal(title: string, content?: string, footer?: string) {
+    if (title) modalTitle.value = title;
     if (content) modalContent.value = content;
+    if (footer) modalFooter.value = footer;
     showModal.value = !showModal.value;
 }
 
