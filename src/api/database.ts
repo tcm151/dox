@@ -186,9 +186,9 @@ export function createPost() {
             content: request.body.content,
             time: currentTime(),
             votes: {
-                upvotes: 0,
-                misleading: 0,
-                downvotes: 0,
+                upvotes: Math.floor(Math.random() * 100_000),
+                misleading: Math.floor(Math.random() * 25_000),
+                downvotes: Math.floor(Math.random() * 25_000),
                 users: [],
             },
         }

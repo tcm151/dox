@@ -21,13 +21,15 @@ import Sorter from '../components/Sorter.vue';
 const posts = ref<Post[]>([]);
 
 function sortPosts(sortType: string) {
-    console.log(sortType);
+    // console.log(sortType);
     posts.value.sort((first: Post, second: Post) => {
         if (sortType == "new") {
             return (first.time < second.time) ? 1 : -1
         }
         else if (sortType == "top") {
-            return (first.votes.upvotes < second.votes.upvotes) ? 1 : -1
+            const firstScore = first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2);
+            const secondScore = second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2);
+            return (firstScore < secondScore) ? 1 : -1
         }
         else return 0
     })
