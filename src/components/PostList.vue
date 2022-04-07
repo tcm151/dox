@@ -6,34 +6,30 @@
             <p class="navbar-item px-4">New</p>
         </div>
     </div>
-    <div class="card block" v-for="post in posts" :key="post.post_id">
-        <div class="media">
-            <div class="media-left mr-0 mb-auto">
-                <div class="container p-2">
-                    <p
-                        @click="upvote(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-primary"
-                    >{{ post.votes?.upvotes }}</p>
-                    <p
-                        @click="misleading(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning"
-                    >{{ post.votes?.misleading }}</p>
-                    <p
-                        @click="downvote(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger"
-                    >{{ post.votes?.downvotes }}</p>
-                </div>
+    <div class="media box p-0 my-4" v-for="post in posts" :key="post.post_id">
+        <div class="media-left mr-0 mb-auto">
+            <div class="container p-2">
+                <p
+                    @click="upvote(post)"
+                    class="vote is-size-6 has-text-centered has-text-weight-bold has-text-primary"
+                >{{ formatNumber(post.votes?.upvotes) }}</p>
+                <p
+                    @click="misleading(post)"
+                    class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning"
+                >{{ formatNumber(post.votes?.misleading) }}</p>
+                <p
+                    @click="downvote(post)"
+                    class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger"
+                >{{ formatNumber(post.votes?.downvotes) }}</p>
             </div>
-            <div class="media-content" @click="openPost(post)">
-                <header class="card-header has-background-light">
-                    <div class="is-flex is-flex-direciont-row">
-                        <p class="card-header-title is-size-4 p-1 px-4">{{ post.title }}</p>
-                    </div>
-                </header>
-                <div class="card-content p-2">
-                    <!-- <div class="content post-body">{{ post.content }}</div> -->
-                    <div class="content post-body">by: {{ post.user?.username }}</div>
-                </div>
+        </div>
+        <div class="media-content" @click="openPost(post)">
+            <header class="card-header has-background-light">
+                <p class="card-header-title is-size-4 p-1 px-4">{{ post.title }}</p>
+            </header>
+            <div class="tags py-2">
+                <span class="tag is-medium is-primary is-light">u/{{ post.user?.username }}</span>
+                <span class="tag is-medium is-info is-light">{{ post.time }}</span>
             </div>
         </div>
     </div>
@@ -41,7 +37,7 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { onBeforeMount, ref } from 'vue';
+import { inject, onBeforeMount, ref } from 'vue';
 import { Post } from '../api/types';
 import { router } from '../services/router';
 import { store } from '../services/store';
@@ -49,18 +45,25 @@ import { store } from '../services/store';
 const posts = ref<Post[]>([]);
 onBeforeMount(() => getPosts())
 
+const toggleModal = inject("toggleModal") as Function
+
+function formatNumber(number: number): number | string {
+    if (number > 999) return ((number/1000).toFixed(0) + 'k')
+    return number;
+}
+
 function canVote(post: Post) {
     if (!store.getters.getSession.authenticated) {
-        console.log("You must be logged in to vote.");
+        toggleModal("You must be logged in to vote.");
         return false;
     };
 
     const user_id = store.getters.getCurrentUserId;
     if (post.votes.users.includes(user_id)) {
-        console.log("You may only vote on a post once.");
+        toggleModal("You may only vote on a post once.");
         return false;
     };
-
+    
     return true;
 }
 
@@ -109,10 +112,6 @@ media {
 }
 
 .media-left {
-    width: 3em;
+    width: 3.5em;
 }
-
-/* .post-body {
-    max-height: 4em;
-} */
 </style>

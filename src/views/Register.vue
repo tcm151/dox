@@ -40,18 +40,6 @@
             </div>
         </form>
     </div>
-
-    <!-- <div class="modal" v-bind:class="{ 'is-active': showModal }">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="card">
-                <div class="card-content">
-                    <p>{{ modalContent }}</p>
-                </div>
-            </div>
-        </div>
-        <button class="modal-close is-large" @click.prevent="toggleModal('')"></button>
-    </div> -->
 </template>
 
 <script setup lang="ts">
@@ -59,7 +47,6 @@ import axios from 'axios';
 import { inject, onUpdated, ref } from 'vue';
 
 import bcrypt from "bcryptjs"
-// const bcrypt = require("brcypt");
 
 const toggleModal = inject("toggleModal") as Function
 
@@ -71,22 +58,22 @@ const passwordConfirmation = ref("");
 
 const matchingPasswords = ref(true);
 
-const showModal = ref(false);
-const modalContent = ref("");
 
 async function registerUser() {
 
+    //- assure no fields are missing
     if (email.value == "" || username.value == "" || password.value == "" || passwordConfirmation.value == "") {
         toggleModal("Please supply all fields to register.");
         return;
     }
 
+    //- make sure the passwords match
     if (password.value != passwordConfirmation.value) {
         toggleModal("Passwords do not match.");
         return;
     }
 
-
+    //- attempt to register user with request to server
     try {
         const response = await axios.post(
             "http://localhost:8080/newUser",
@@ -96,6 +83,7 @@ async function registerUser() {
                 password: await bcrypt.hash(password.value, 10),
             }))
     }
+    //- catch a failed attempt
     catch (error) {
         toggleModal("Failed to register user.")
         return;
@@ -107,12 +95,6 @@ async function registerUser() {
     username.value = "";
     password.value = "";
     passwordConfirmation.value = "";
-
 }
-
-// function toggleModal(newContent: string) {
-//     modalContent.value = newContent;
-//     showModal.value = !showModal.value
-// }
 
 </script>

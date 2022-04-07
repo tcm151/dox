@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-// import { ref } from "vue";
 
 defineProps({
     showModal: Boolean,
@@ -23,12 +22,5 @@ defineProps({
 defineEmits([
     "toggleModal"
 ]);
-
-// const showModal = ref(false);
-// const modalContent = ref("This is where the content goes!");
-
-// function toggleModal(content: string, truth?: boolean) {
-//     showModal.value = (truth) ? truth : !showModal.value;
-// }
 
 </script>

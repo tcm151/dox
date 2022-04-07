@@ -9,7 +9,6 @@
             <textarea class="textarea" rows="12" v-model="content"></textarea>
         </div>
         <button class="button" @click.prevent="uploadPost">Post</button>
-        <button class="button" @click.prevent="testButton">Date</button>
     </form>
     <div v-else class="box m-5">
         <p>You must create an account to post...</p>
@@ -18,33 +17,37 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { computed, ref } from 'vue';
-import { Post } from '../api/types';
-import { router } from '../services/router';
-import { store } from '../services/store';
 import moment from "moment";
-
-const title = ref("");
-const content = ref("");
+import { Post } from '../api/types';
+import { store } from '../services/store';
+import { router } from '../services/router';
+import { computed, inject, ref } from 'vue';
 
 const session = computed(() => {
     return store.state.session;
 })
 
-function testButton() {
-    console.log(moment().format("MM/DD/YY, HH:mm:ss"))
-}
+const title = ref("");
+const content = ref("");
+
+const toggleModal = inject("toggleModal") as Function
 
 async function uploadPost() {
-    const response = await axios.post<Post>(
-        "http://localhost:8080/newPost",
-        new URLSearchParams({
-            user_id: store.getters.getSession.user.user_id,
-            title: title.value,
-            content: content.value,
-        }))
-    console.log(response.data);
-    router.push(`/posts/${response.data.post_id}`)
+    try {
+        const response = await axios.post<Post>(
+            "http://localhost:8080/newPost",
+            new URLSearchParams({
+                title: title.value,
+                content: content.value,
+                user_id: store.getters.getSession.user.user_id,
+            }))
+        console.log(response.data);
+        router.push(`/posts/${response.data.post_id}`)
+    }
+    catch (error) {
+        console.log(error)
+        toggleModal("Failed to upload post...")
+    }
 }
 
 </script>
