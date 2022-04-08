@@ -3,11 +3,11 @@
         <div class="box m-5">
             <p class="title">{{ session.user?.username }}</p>
         </div>
-        <div class="box m-5">
+        <div class="box m-5 scrollable">
             <p class="title">Posts</p>
             <PostList :posts="posts" />
         </div>
-        <div class="box m-5">
+        <div class="box m-5 scrollable">
             <p class="title">Comments</p>
             <CommentList :comments="comments" />
         </div>
@@ -41,3 +41,10 @@ onBeforeMount(async () => {
 })
 
 </script>
+
+<style scoped>
+.scrollable {
+    max-height: 25em;
+    overflow: auto;
+}
+</style>
