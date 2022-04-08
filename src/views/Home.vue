@@ -12,23 +12,32 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { onBeforeMount, ref } from 'vue';
+import moment from 'moment';
 import { Post } from '../api/types';
+import { onBeforeMount, ref } from 'vue';
+import Sorter from '../components/Sorter.vue';
 import Sidebar from '../components/Sidebar.vue';
 import PostList from '../components/PostList.vue';
-import Sorter from '../components/Sorter.vue';
 
 const posts = ref<Post[]>([]);
 
 function sortPosts(sortType: string) {
-    // console.log(sortType);
     posts.value.sort((first: Post, second: Post) => {
         if (sortType == "new") {
-            return (first.time < second.time) ? 1 : -1
+            const firstTime = moment(first.time)
+            const secondTime = moment(second.time)
+            return (firstTime < secondTime) ? 1 : -1
         }
         else if (sortType == "top") {
             const firstScore = first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2);
             const secondScore = second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2);
+            return (firstScore < secondScore) ? 1 : -1
+        }
+        else if (sortType == "hot") {
+            const timeSinceFirst = moment().diff(first.time, 'days')
+            const timeSinceSecond = moment().diff(second.time, 'days')
+            const firstScore = (first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2)) / (timeSinceFirst + 1);
+            const secondScore = (second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2)) / (timeSinceSecond + 1);
             return (firstScore < secondScore) ? 1 : -1
         }
         else return 0
@@ -38,6 +47,6 @@ function sortPosts(sortType: string) {
 onBeforeMount(async () => {
     const response = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
     posts.value = response.data;
-    sortPosts("top")
+    sortPosts("hot")
 })
 </script>
