@@ -61,7 +61,7 @@ const toggleModal = inject("toggleModal") as Function
 async function login() {
     try {
         const response = await axios.post<Session>(
-            "http://localhost:8080/authenticate",
+            "https://doxforeverything.herokuapp.com/authenticate",
             new URLSearchParams({
                 username: username.value,
                 password: password.value,

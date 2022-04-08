@@ -33,10 +33,10 @@ const posts = ref<Post[]>([]);
 const comments = ref<Comment[]>([]);
 
 onBeforeMount(async () => {
-    const postsResponse = await axios.get(`http://localhost:8080/users/${session.value.user?.user_id}/posts`)
+    const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/posts`)
     posts.value = postsResponse.data;
 
-    const commentsResponse = await axios.get(`http://localhost:8080/users/${session.value.user?.user_id}/comments`)
+    const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/comments`)
     comments.value = commentsResponse.data;
 })
 

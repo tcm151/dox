@@ -36,7 +36,7 @@ function sortPosts(sortType: string) {
 }
 
 onBeforeMount(async () => {
-    const response = await axios.get<Post[]>("http://localhost:8080/posts")
+    const response = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
     posts.value = response.data;
     sortPosts("top")
 })

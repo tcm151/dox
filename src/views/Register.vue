@@ -79,7 +79,7 @@ async function registerUser() {
     //- attempt to register user with request to server
     try {
         const response = await axios.post(
-            "http://localhost:8080/newUser",
+            "https://doxforeverything.herokuapp.com/newUser",
             new URLSearchParams({
                 email: email.value,
                 username: username.value,

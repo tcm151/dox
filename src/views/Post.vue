@@ -46,7 +46,7 @@ function toggleCommentBox() {
 
 async function postComment() {
     const response = await axios.post(
-        "http://localhost:8080/newComment",
+        "https://doxforeverything.herokuapp.com/newComment",
         new URLSearchParams({
             user_id: store.getters.getSession.user.user_id,
             post_id: String(post.value?.post_id),
@@ -77,10 +77,10 @@ async function postComment() {
 }
 
 onBeforeMount(async () => {
-    const postResponse = await axios.get<Post>(`http://localhost:8080/posts/${route.params.post_id}`);
+    const postResponse = await axios.get<Post>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}`);
     post.value = postResponse.data;
 
-    const commentsResponse = await axios.get<Comment[]>(`http://localhost:8080/posts/${route.params.post_id}/comments`)
+    const commentsResponse = await axios.get<Comment[]>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}/comments`)
     comments.value = commentsResponse.data;
 
     console.log(comments.value);

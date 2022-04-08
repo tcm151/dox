@@ -35,7 +35,7 @@ const toggleModal = inject("toggleModal") as Function
 async function uploadPost() {
     try {
         const response = await axios.post<Post>(
-            "http://localhost:8080/newPost",
+            "https://doxforeverything.herokuapp.com/newPost",
             new URLSearchParams({
                 title: title.value,
                 content: content.value,
