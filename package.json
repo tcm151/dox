@@ -4,7 +4,6 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "api": "node --no-warnings --es-module-specifier-resolution=node --loader ts-node/esm ./src/api/server.ts",
         "dev": "vite",
         "build": "vue-tsc --noEmit && vite build",
         "preview": "vite preview"
