@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { Request, response, Response } from "express"
 import { User, Post, Comment, Votes } from "./types"
 import { MongoClient, Collection, Db } from "mongodb"
 import { Session } from "../services/store"
@@ -13,6 +13,7 @@ let comments_collection: Collection<Comment>
 const connectionURI =
     "mongodb+srv://tcm:cooltyler333@assignment-7.0mfdb.mongodb.net/final_project?retryWrites=true&w=majority"
 
+//- CURRENT FORMATED TIME
 export function currentTime() {
     return moment().format("YYYY/MM/DD HH:mm:ss")
 }
@@ -21,7 +22,7 @@ export function currentTime() {
 export async function connectToDatabase(): Promise<void> {
     let connection = await MongoClient.connect(connectionURI)
     if (!connection) {
-        console.log(`Unable to connect to database.}`)
+        log("Failed to connect to database")
         return
     }
 
@@ -29,7 +30,7 @@ export async function connectToDatabase(): Promise<void> {
     users_collection = database.collection("users")
     posts_collection = database.collection("posts")
     comments_collection = database.collection("comments")
-    console.log(`Connected to database: ${database.databaseName}`)
+    log(`Connected to database: ${database.databaseName}`)
     return
 }
 
@@ -45,8 +46,6 @@ export function addNewUser() {
 
         // temporary object for new user
         let newUser = request.body as unknown as User
-
-        console.log(newUser)
 
         // check if user exsists with matching data
         const existingEmail = await users_collection.findOne({ email: newUser.email })
@@ -72,6 +71,7 @@ export function addNewUser() {
 
         // send confirmation response
         response.status(201).send("Created new user sucessfully")
+        log(`Registered new user: ${newUser.username}`)
     }
 }
 
@@ -87,7 +87,7 @@ export function authenticateUser() {
         }
 
         // check if a user exists with matching credentials
-        const matchingUser = await users_collection.findOne({ username: username })
+        const matchingUser = await users_collection.findOne<User>({ username: username })
         if (!matchingUser) {
             response.status(400).send("No user exists with matching username")
             return
@@ -104,34 +104,22 @@ export function authenticateUser() {
             user: matchingUser,
             authenticated: true,
         }
-        console.log(`Authenticated user: ${username}`)
         response.status(200).send(newSession)
+        log(`Authenticated user: ${username}`)
     }
 }
 
-//> LOGOUT THE CURRENT USER
-export function logoutUser() {
-    return async (request: Request, response: Response) => {
-        // request.session.user = undefined;
-        // request.session.authenticated = false;
-        response.status(200).redirect("/")
-    }
-}
-
+//> GET A USER
 export function getUser() {
     return async (request: Request, response: Response) => {
-        const user = await users_collection.findOne({ user_id: Number(request.params.user_id) })
+        const user = await users_collection.findOne<User>({ user_id: Number(request.params.user_id) })
         response.send(200).send(user)
     }
 }
 
 //> FETCH ALL POSTS
-export function getPosts() {
+export function getAllPosts() {
     return async (request: Request, response: Response) => {
-        // const posts = await posts_collection
-        //     .find({ post_id: { $exists: true } })
-        //     .sort({ time: -1 })
-        //     .toArray()
         const posts = await posts_collection
             .aggregate<Post>([
                 {
@@ -161,6 +149,7 @@ export function getPosts() {
     }
 }
 
+//> GET A SINGLE POST
 export function getPost() {
     return async (request: Request, response: Response) => {
         const post = await posts_collection.findOne({ post_id: Number(request.params.post_id) })
@@ -187,7 +176,7 @@ export function createPost() {
             time: currentTime(),
             votes: {
                 upvotes: Math.floor(Math.random() * 100_000),
-                misleading: Math.floor(Math.random() * 25_000),
+                misleading: Math.floor(Math.random() * 10_000),
                 downvotes: Math.floor(Math.random() * 25_000),
                 users: [],
             },
@@ -206,6 +195,7 @@ export function createPost() {
 
         // send confirmation response
         response.status(201).send(newPost)
+        log(`User: ${request.body.user_id} created a new post: ${newPost.post_id}`)
     }
 }
 
@@ -235,22 +225,71 @@ export function getPostComments() {
             ])
             .toArray()
 
-        // console.log(aggregation)
-
+        // send confirmation
         response.status(200).send(aggregation)
     }
 }
 
 export function getUsersPosts() {
     return async (request: Request, response: Response) => {
-        const posts = await posts_collection.find<Post>({ user_id: Number(request.params.user_id) }).toArray()
+        // const posts = await posts_collection.find<Post>({ user_id: Number(request.params.user_id) }).toArray()
+        const posts = await posts_collection
+            .aggregate<Post>([
+                {
+                    $match: {
+                        post_id: { $exists: true },
+                    },
+                },
+                // {
+                //     $sort: {
+                //         time: -1,
+                //     },
+                // },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "user_id",
+                        foreignField: "user_id",
+                        as: "user",
+                    },
+                },
+                {
+                    $unwind: "$user",
+                },
+            ])
+            .toArray()
         response.status(200).send(posts)
     }
 }
 
 export function getUsersComments() {
     return async (request: Request, response: Response) => {
-        const comments = await comments_collection.find<Comment>({ user_id: Number(request.params.user_id) }).toArray()
+        // const comments = await comments_collection.find<Comment>({ user_id: Number(request.params.user_id) }).toArray()
+        const comments = await comments_collection
+            .aggregate<Comment>([
+                {
+                    $match: {
+                        comment_id: { $exists: true },
+                    },
+                },
+                // {
+                //     $sort: {
+                //         time: -1,
+                //     },
+                // },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "user_id",
+                        foreignField: "user_id",
+                        as: "user",
+                    },
+                },
+                {
+                    $unwind: "$user",
+                },
+            ])
+            .toArray()
         response.status(200).send(comments)
     }
 }
@@ -274,6 +313,7 @@ export function modifyDatabase() {
             .toArray()
 
         response.status(200).send(aggregation)
+        log("Database was modified sucessfully")
     }
 }
 
@@ -318,5 +358,10 @@ export function createComment() {
 
         // send confirmation response
         response.status(201).send("Created new comment sucessfully")
+        log(`User: ${request.body.user_id} created new comment: ${newComment.comment_id}`)
     }
+}
+
+export function log(message: string) {
+    console.log(`[${currentTime()}]: ${message}`)
 }
