@@ -1,37 +1,23 @@
 <template>
     <nav class="navbar has-background-primary">
         <div class="navbar-brand">
-            <router-link
-                class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark"
-                to="/"
-            >DOX</router-link>
+            <router-link to="/" class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark">DOX
+            </router-link>
             <p class="navbar-item is-size-4 has-text-weight-semibold pl-0">For Everything</p>
         </div>
         <div class="navbar-menu is-active">
             <div class="navbar-end">
                 <form class="navbar-item field is-grouped" v-if="!session.authenticated">
-                    <input
-                        class="input"
-                        type="username"
-                        placeholder="username"
-                        v-model="username"
-                        required
-                    />
-                    <input
-                        class="input ml-2 mr-1"
-                        type="password"
-                        placeholder="password"
-                        v-model="password"
-                        required
-                    />
+                    <input class="input" type="username" placeholder="username" v-model="username" required />
+                    <input class="input ml-2 mr-1" type="password" placeholder="password" v-model="password" required />
                     <button type="submit" class="button ml-1 mr-2" @click.prevent="login">Login</button>
                     <router-link class="navbar-item button" to="/register">Register</router-link>
                 </form>
                 <div class="navbar-item" v-else>
                     <router-link to="/profile">
-                        <button
-                            class="button has-text-weight-bold has-background-primary-light"
-                        >{{ session.user?.username }}</button>
+                        <button class="button has-text-weight-bold has-background-primary-light">{{
+                            session.user?.username
+                        }}</button>
                     </router-link>
                     <router-link to="/editor">
                         <button class="button mx-2">New Post</button>

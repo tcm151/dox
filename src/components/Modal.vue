@@ -13,7 +13,6 @@
                 <p>{{ modalFooter }}</p>
             </div>
         </div>
-        <!-- <button class="modal-close is-large" @click.prevent="$emit('toggleModal')"></button> -->
     </div>
 </template>
 

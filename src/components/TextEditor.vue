@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import moment from "moment";
 import { Post } from '../api/types';
 import { store } from '../services/store';
 import { router } from '../services/router';

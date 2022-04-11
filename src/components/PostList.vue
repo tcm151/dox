@@ -1,30 +1,35 @@
 <template>
-    <div class="media box p-2 mb-1" v-for="post in posts" :key="post.post_id">
-        <div class="media-left pr-2 m-0">
-            <div class="container">
-                <p
-                    @click="upvote(post)"
-                    class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary"
-                >{{ formatNumber(post.votes?.upvotes) }}</p>
-                <p
-                    @click="misleading(post)"
-                    class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning"
-                >{{ formatNumber(post.votes?.misleading) }}</p>
-                <p
-                    @click="downvote(post)"
-                    class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger"
-                >{{ formatNumber(post.votes?.downvotes) }}</p>
+    <div v-if="posts.length > 0">
+        <div class="media box p-2 mb-1" v-for="post in posts" :key="post.post_id">
+            <div class="media-left pr-2 m-0">
+                <div class="container">
+                    <p @click="upvote(post)"
+                        class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
+                            formatNumber(post.votes?.upvotes)
+                        }}</p>
+                    <p @click="misleading(post)"
+                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
+                            formatNumber(post.votes?.misleading)
+                        }}</p>
+                    <p @click="downvote(post)"
+                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
+                            formatNumber(post.votes?.downvotes)
+                        }}</p>
+                </div>
+            </div>
+            <div class="media-content" @click="openPost(post)">
+                <div class="box m-0 is-shadowless has-background-light p-2">
+                    <p class="title is-5 has-text-weight-bold m-0">{{ post.title }}</p>
+                </div>
+                <div class="level-left pt-1">
+                    <p class="tag mr-1 is-primary is-light">u/{{ post.user?.username }}</p>
+                    <p class="tag mr-1 is-info is-light">{{ post.time }}</p>
+                </div>
             </div>
         </div>
-        <div class="media-content" @click="openPost(post)">
-            <div class="box m-0 is-shadowless has-background-light p-2">
-                <p class="title is-5 has-text-weight-bold m-0">{{ post.title }}</p>
-            </div>
-            <div class="level-left pt-1">
-                <p class="tag mr-1 is-primary is-light">u/{{ post.user?.username }}</p>
-                <p class="tag mr-1 is-info is-light">{{ post.time }}</p>
-            </div>
-        </div>
+    </div>
+    <div class="box content m-5" v-else>
+        <i>There are no posts yet...</i>
     </div>
 </template>
 
