@@ -1,21 +1,34 @@
 <template>
     <div class="modal" v-bind:class="{ 'is-active': showLogin }">
         <div class="modal-background"></div>
-        <div class="modal-card">
-            <div class="modal-card-head">
-                <p class="modal-card-title">Login</p>
-                <button class="delete" @click.prevent="closePopup()"></button>
+        <div class="message is-info is-large mx-6">
+            <div class="message-header">
+                <p>Login</p>
+                <button class="delete" @click.prevent="$emit('closeLogin')"></button>
             </div>
-            <div class="modal-card-body">
-                <form class="navbar-item field is-grouped">
-                    <input class="input" type="username" placeholder="username" v-model="username" required />
-                    <input class="input ml-2 mr-1" type="password" placeholder="password" v-model="password" required />
-                    <button type="submit" class="button ml-1 mr-2" @click.prevent="login">Login</button>
-                    <router-link class="navbar-item button" to="/register">Register</router-link>
+            <div class="message-body p-6">
+                <form class="fields px-6">
+                    <div class="field py-1">
+                        <div class="control">
+                            <input class="input is-medium" type="username" placeholder="username" v-model="username"
+                                required />
+                        </div>
+                    </div>
+                    <div class="field py-1">
+                        <div class="control">
+                            <input class="input is-medium" type="password" placeholder="password" v-model="password"
+                                required />
+                        </div>
+                    </div>
+                    <div class="field py-1 is-grouped is-grouped-centered">
+                        <div class="control buttons">
+                            <button type="submit" class="button is-medium is-primary"
+                                @click.prevent="login()">Login</button>
+                            <button class="button is-medium is-danger"
+                                @click.prevent="$emit('closeLogin')">Cancel</button>
+                        </div>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-card-foot">
-                <p>Footer</p>
             </div>
         </div>
     </div>
@@ -27,20 +40,13 @@ import { inject, ref } from 'vue';
 import { router } from '../services/router';
 import { Session, store } from '../services/store';
 
+defineProps<{ showLogin: boolean }>();
+const emits = defineEmits(['openLogin', 'closeLogin'])
+
 const username = ref("")
 const password = ref("")
-const showLogin = ref(false)
 
 const toggleModal = inject("toggleModal") as Function
-
-function closePopup() {
-    showLogin.value = false;
-}
-
-function logout() {
-    store.commit("logout");
-    router.push("/");
-}
 
 async function login() {
     try {
@@ -54,14 +60,13 @@ async function login() {
         store.commit("login", response.data);
         username.value = "";
         password.value = "";
+        emits("closeLogin");
         router.push("/");
 
     } catch (error) {
         console.log(error)
         toggleModal("Failed to login...", "Double check you typed in your username and password correctly")
     }
-
 }
-
 
 </script>

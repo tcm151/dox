@@ -1,15 +1,20 @@
 <template>
-    <div v-if="session.authenticated">
-        <div class="box m-5">
+    <div class="has-background-light" v-if="session.authenticated">
+        <div class="box my-5">
             <p class="title">{{ session.user?.username }}</p>
+            <p>{{ session.user?.email }}</p>
         </div>
-        <div class="box m-5 scrollable">
+        <div class="box my-5">
             <p class="title">Posts</p>
-            <PostList :posts="posts" />
+            <div class="scrollable">
+                <PostList :posts="posts" />
+            </div>
         </div>
-        <div class="box m-5 scrollable">
+        <div class="box my-5">
             <p class="title">Comments</p>
-            <CommentList :comments="comments" />
+            <div class="scrollable">
+                <CommentList :comments="comments" />
+            </div>
         </div>
     </div>
     <div class="box m-5" v-else>
