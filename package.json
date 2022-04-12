@@ -6,7 +6,9 @@
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc --noEmit && vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "css-watch": "npm run css-build -- --watch",
+        "css-build": "node-sass --omit-source-map-url src/styles/global.scss src/styles/global.css"
     },
     "dependencies": {
         "@netlify/functions": "github:netlify/functions",

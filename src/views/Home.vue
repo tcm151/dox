@@ -1,5 +1,5 @@
 <template>
-    <div class="columns p-4 has-background-light">
+    <div class="columns p-4">
         <div class="column">
             <Sorter @sort="sortPosts" />
             <PostList :posts="posts" />

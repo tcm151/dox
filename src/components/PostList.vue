@@ -19,11 +19,11 @@
             </div>
             <div class="media-content" @click="openPost(post)">
                 <div class="box m-0 is-shadowless has-background-light p-2">
-                    <p class="title is-5 has-text-weight-bold m-0">{{ post.title }}</p>
+                    <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
                 </div>
                 <div class="level-left pt-1">
-                    <p class="tag mr-1 is-primary is-light">u/{{ post.user?.username }}</p>
-                    <p class="tag mr-1 is-info is-light">{{ post.time }}</p>
+                    <p class="tag mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}</p>
+                    <p class="tag mr-1 is-info has-text-weight-medium is-light">{{ post.time }}</p>
                 </div>
             </div>
         </div>

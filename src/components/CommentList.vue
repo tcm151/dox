@@ -13,8 +13,6 @@
 <script setup lang="ts">
 import { Comment } from "../api/types"
 
-defineProps<{
-    comments: Comment[]
-}>()
+defineProps<{ comments: Comment[] }>()
 
 </script>

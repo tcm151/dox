@@ -1,19 +1,16 @@
 <template>
-    <Navbar />
-    <div>
-        <router-view></router-view>
+    <div class="has-background-light">
+        <Navbar />
+        <div class="container">
+            <router-view></router-view>
+        </div>
+        <Modal :show-modal="showModal" :modal-title="modalTitle" :modal-content="modalContent"
+            :modal-footer="modalFooter" @toggle-modal="toggleModal" />
     </div>
-    <Modal
-        :show-modal="showModal"
-        :modal-title="modalTitle"
-        :modal-content="modalContent"
-        :modal-footer="modalFooter"
-        @toggle-modal="toggleModal"
-    />
 </template>
 
 <script setup lang="ts">
-import "./styles/global.scss"
+import "./styles/global.css"
 import { provide, ref } from "vue";
 import Modal from "./components/Modal.vue"
 import Navbar from "./components/Navbar.vue"

@@ -14,15 +14,18 @@
         </div>
         <div class="navbar-menu p-1" v-bind:class="{ 'is-active': showMenu }">
             <div class="navbar-end" v-if="!session.authenticated">
-                <a class="navbar-item is-size-5" @click.prevent="navigateTo('/')">Home</a>
-                <a class="navbar-item is-size-5" @click.prevent="toggleLogin">Login</a>
-                <a class="navbar-item is-size-5" @click.prevent="navigateTo('/register')">Register</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">Home</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="toggleLogin">Login</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold"
+                    @click.prevent="navigateTo('/register')">Register</a>
             </div>
             <div class="navbar-end" v-else>
-                <a class="navbar-item is-size-5" @click.prevent="navigateTo('/')">Home</a>
-                <a class="navbar-item is-size-5" @click.prevent="navigateTo('/profile')">Profile</a>
-                <a class="navbar-item is-size-5" @click.prevent="navigateTo('/editor')">New Post</a>
-                <a class="navbar-item is-size-5" @click.prevent="logout">Logout</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">Home</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold"
+                    @click.prevent="navigateTo('/editor')">Post</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold"
+                    @click.prevent="navigateTo('/profile')">Profile</a>
+                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="logout">Logout</a>
             </div>
         </div>
     </nav>

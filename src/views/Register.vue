@@ -35,10 +35,8 @@
                     <button class="button is-danger">Cancel</button>
                 </div>
                 <div class="control">
-                    <button
-                        class="button is-warning"
-                        @click.prevent="toggleModal('Failed to do something...', 'Additional information about the issue', 'Buttons and stuff')"
-                    >Modal</button>
+                    <button class="button is-warning"
+                        @click.prevent="toggleModal('Failed to do something...', 'Additional information about the issue', 'Buttons and stuff')">Modal</button>
                 </div>
             </div>
         </form>
@@ -50,6 +48,7 @@ import axios from 'axios';
 import { inject, onUpdated, ref } from 'vue';
 
 import bcrypt from "bcryptjs"
+import { router } from '../services/router';
 
 const toggleModal = inject("toggleModal") as Function
 
@@ -92,12 +91,13 @@ async function registerUser() {
         return;
     }
 
-    toggleModal("User registered sucessfully!");
+    // toggleModal("User registered sucessfully!");
 
     email.value = "";
     username.value = "";
     password.value = "";
     passwordConfirmation.value = "";
+    router.push("/")
 }
 
 </script>

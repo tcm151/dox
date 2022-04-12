@@ -13,12 +13,31 @@
                 <p>{{ post?.content }}</p>
             </div>
         </div>
-        <div class="block">
-            <button class="button is-primary" @click="toggleCommentBox">Comment</button>
-            <div v-if="showCommentBox">
-                <textarea cols="30" rows="10" v-model="comment"></textarea>
-                <button class="button" @click="postComment">Submit</button>
+        <div class="block" v-if="session.authenticated">
+            <div class="field is-grouped" v-if="!showCommentBox">
+                <div class="buttons">
+                    <button class="button is-primary" @click="toggleCommentBox">Comment</button>
+                    <button class="button is-info" @click="">Share</button>
+                    <button class="button is-danger" @click="">Report</button>
+                    <!-- <button class="button is-warning" @click="">Edit</button> -->
+                </div>
             </div>
+            <form class=" fields" v-if="showCommentBox">
+                <div class="field">
+                    <div class="control">
+                        <textarea class="textarea" cols="30" rows="10" v-model="comment"></textarea>
+                    </div>
+                </div>
+                <div class="field buttons is-grouped">
+                    <div class="control">
+                        <button class="button is-primary" @click="postComment">Submit</button>
+                        <button class="button is-danger" @click="toggleCommentBox">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div v-else class="box has-background-danger has-text-weight-semibold">
+            <p>You must be logged in to participate</p>
         </div>
     </div>
     <CommentList :comments="comments" />
@@ -27,7 +46,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { useRoute } from 'vue-router';
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import CommentList from "../components/CommentList.vue"
@@ -39,6 +58,8 @@ const comments = ref<Comment[]>([]);
 
 const comment = ref("");
 const showCommentBox = ref(false);
+
+const session = computed(() => store.state.session)
 
 function toggleCommentBox() {
     showCommentBox.value = !showCommentBox.value;

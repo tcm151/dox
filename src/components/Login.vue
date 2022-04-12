@@ -1,7 +1,7 @@
 <template>
     <div class="modal" v-bind:class="{ 'is-active': showLogin }">
         <div class="modal-background"></div>
-        <div class="message is-info is-large mx-6">
+        <div class="modal-content message is-info is-large mx-6">
             <div class="message-header">
                 <p>Login</p>
                 <button class="delete" @click.prevent="$emit('closeLogin')"></button>
@@ -70,3 +70,9 @@ async function login() {
 }
 
 </script>
+
+<style scoped>
+.modal-content {
+    max-width: 512px;
+}
+</style>

@@ -1,17 +1,13 @@
 <template>
-    <div class="navbar box p-1 is-flex is-flex-direction-row">
-        <div class="navbar-brand">
-            <p class="navbar-item px-4" @click="$emit('sort', 'hot')">Hot</p>
-            <p class="navbar-item px-4" @click="$emit('sort', 'top')">Top</p>
-            <p class="navbar-item px-4" @click="$emit('sort', 'new')">New</p>
-        </div>
+    <div class="level level-left is-mobile mb-4">
+        <p class="level-item box p-2 has-text-weight-semibold" @click="$emit('sort', 'hot')">Hot</p>
+        <p class="level-item box p-2 has-text-weight-semibold" @click="$emit('sort', 'top')">Top</p>
+        <p class="level-item box p-2 has-text-weight-semibold" @click="$emit('sort', 'new')">New</p>
     </div>
 </template>
 
 <script setup lang="ts">
 
-defineEmits([
-    'sort'
-])
+defineEmits(['sort'])
 
 </script>
