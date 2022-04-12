@@ -1,5 +1,5 @@
 <template>
-    <div class="columns p-4">
+    <div class="columns p-2">
         <div class="column">
             <Sorter @sort="sortPosts" />
             <PostList :posts="posts" />

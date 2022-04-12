@@ -1,13 +1,13 @@
 <template>
-    <div class="box m-5 has-background-light">
+    <div class="box m-2">
         <div class="block content">
-            <h2 class="mb-1">{{ post?.title }}</h2>
-            <div class="is-flex is-flex-direction-row">
-                <p class="has-text-primary">{{ post?.votes.upvotes }}</p>
-                <p class="has-text-warning px-4">{{ post?.votes.misleading }}</p>
-                <p class="has-text-danger pr-4">{{ post?.votes.downvotes }}</p>
-                <p>{{ post?.time }}</p>
-                <p>{{ post?.user?.username }}</p>
+            <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
+            <div class="level-left tags">
+                <p class="level-item tag is-light is-primary">{{ post?.votes.upvotes }}</p>
+                <p class="level-item tag is-light is-warning">{{ post?.votes.misleading }}</p>
+                <p class="level-item tag is-light is-danger">{{ post?.votes.downvotes }}</p>
+                <p class="level-item tag is-light is-info">{{ post?.time }}</p>
+                <p class="level-item tag is-light is-info mb-auto">u/whoever_posted_this</p>
             </div>
             <div class="block">
                 <p>{{ post?.content }}</p>
@@ -16,16 +16,16 @@
         <div class="block" v-if="session.authenticated">
             <div class="field is-grouped" v-if="!showCommentBox">
                 <div class="buttons">
-                    <button class="button is-primary" @click="toggleCommentBox">Comment</button>
-                    <button class="button is-info" @click="">Share</button>
-                    <button class="button is-danger" @click="">Report</button>
+                    <button class="button is-light is-primary" @click="toggleCommentBox">Comment</button>
+                    <button class="button is-light is-info" @click="">Share</button>
+                    <button class="button is-light is-danger" @click="">Report</button>
                     <!-- <button class="button is-warning" @click="">Edit</button> -->
                 </div>
             </div>
             <form class=" fields" v-if="showCommentBox">
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" cols="30" rows="10" v-model="comment"></textarea>
+                        <textarea class="textarea" rows="5" v-model="comment"></textarea>
                     </div>
                 </div>
                 <div class="field buttons is-grouped">
@@ -40,7 +40,10 @@
             <p>You must be logged in to participate</p>
         </div>
     </div>
-    <CommentList :comments="comments" />
+    <div class="box m-2">
+        <Sorter />
+        <CommentList :comments="comments" />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -50,6 +53,7 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import CommentList from "../components/CommentList.vue"
+import Sorter from '../components/Sorter.vue';
 
 const route = useRoute();
 

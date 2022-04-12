@@ -1,6 +1,6 @@
 <template>
     <div v-if="posts.length > 0">
-        <div class="media box p-2 mb-1" v-for="post in posts" :key="post.post_id">
+        <div class="media box p-2 my-2" v-for="post in posts" :key="post.post_id">
             <div class="media-left pr-2 m-0">
                 <div class="container">
                     <p @click="upvote(post)"

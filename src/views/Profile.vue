@@ -1,19 +1,32 @@
 <template>
     <div v-if="session.authenticated">
-        <div class="box my-5">
-            <p class="title">{{ session.user?.username }}</p>
-            <p>{{ session.user?.email }}</p>
+        <div class="level box my-2 p-4 is-mobile">
+            <div class="level-left">
+                <div class="level-item">
+                    <figure class="image is-96x96">
+                        <img src="https://bulma.io/images/placeholders/96x96.png">
+                    </figure>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <p class="title my-2">{{ session.user?.username }}</p>
+                        <p>{{ session.user?.email }}</p>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <div class="box my-5">
+        <div class="box my-2 p-4">
             <p class="title">Posts</p>
-            <div class="scrollable">
+            <div class="scrollable p-2">
                 <Sorter @sort="sortPosts" />
                 <PostList :posts="posts" />
             </div>
         </div>
-        <div class="box my-5">
+        <div class="box my-2">
             <p class="title">Comments</p>
-            <div class="scrollable">
+            <div class="scrollable p-2">
+                <Sorter @sort="sortComments" />
                 <CommentList :comments="comments" />
             </div>
         </div>
@@ -25,12 +38,13 @@
 
 <script setup lang="ts">
 import axios from 'axios';
+import moment from 'moment';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import { ref, computed, onBeforeMount } from 'vue';
+import Sorter from "../components/Sorter.vue"
 import PostList from '../components/PostList.vue';
 import CommentList from '../components/CommentList.vue';
-import moment from 'moment';
 
 const session = computed(() => {
     return store.state.session;
@@ -70,6 +84,10 @@ function sortPosts(sortType: string) {
         }
         else return 0
     })
+}
+
+function sortComments() {
+
 }
 
 </script>
