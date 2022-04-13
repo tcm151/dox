@@ -2,12 +2,14 @@
     <div class="box m-2">
         <div class="block content">
             <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
-            <div class="level-left tags">
-                <p class="level-item tag is-light is-primary">{{ post?.votes.upvotes }}</p>
-                <p class="level-item tag is-light is-warning">{{ post?.votes.misleading }}</p>
-                <p class="level-item tag is-light is-danger">{{ post?.votes.downvotes }}</p>
-                <p class="level-item tag is-light is-info">{{ timeSince(post?.time) }}</p>
-                <p class="level-item tag is-light is-info mb-auto">u/whoever_posted_this</p>
+            <div class="tags">
+                <p class="tag is-light my-auto is-primary">{{ post?.votes.upvotes }}</p>
+                <p class="tag is-light my-auto is-warning">{{ post?.votes.misleading }}</p>
+                <p class="tag is-light my-auto is-danger">{{ post?.votes.downvotes }}</p>
+                <p class="tag is-light my-auto is-info">{{ timeSince(post?.time) }}</p>
+                <p class="tag is-light my-auto is-info">u/whoever_posted_this</p>
+                <p class="tag is-light my-auto is-primary" v-for="topic in post?.topics">{{ topic }}</p>
+                <!-- <Tag v-for="topic in post?.topics" :contents="topic" /> -->
             </div>
             <div class="block">
                 <p>{{ post?.content }}</p>
@@ -55,6 +57,7 @@ import { Post, Comment } from '../api/types';
 import { timeSince } from '../services/dateTime';
 import Sorter from '../components/Sorter.vue';
 import CommentList from "../components/CommentList.vue"
+import Tag from '../components/Tag.vue';
 
 const route = useRoute();
 
@@ -105,6 +108,8 @@ async function postComment() {
 onBeforeMount(async () => {
     const postResponse = await axios.get<Post>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}`);
     post.value = postResponse.data;
+    console.log(postResponse.data)
+
 
     const commentsResponse = await axios.get<Comment[]>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}/comments`)
     comments.value = commentsResponse.data;

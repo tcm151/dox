@@ -25,6 +25,7 @@
                     <p class="tag mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}</p>
                     <p class="tag mr-1 is-info has-text-weight-medium is-light">{{ post.time }}</p>
                     <p class="tag mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
+                    <p class="tag is-light my-auto is-primary" v-for="topic in post?.topics">{{ topic }}</p>
                 </div>
             </div>
         </div>
