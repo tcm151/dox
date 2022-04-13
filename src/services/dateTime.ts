@@ -1,6 +1,9 @@
 import moment from "moment"
 
-export function timeSince(dateTime: string) {
+export function timeSince(dateTime: string | undefined) {
+    if (dateTime == undefined) {
+        return "\u221E ago"
+    }
     const minutesSince = moment().diff(dateTime, "minutes")
     if (minutesSince <= 60) {
         return `${minutesSince}m ago`
