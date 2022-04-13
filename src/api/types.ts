@@ -23,6 +23,7 @@ export interface Post {
     content: string
     votes: Votes
     time: string
+    topics: string[]
 }
 
 //- comment datatype

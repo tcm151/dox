@@ -1,7 +1,7 @@
 <template>
-    <TextEditor />
+    <PostEditor />
 </template>
 
 <script setup lang="ts">
-import TextEditor from '../components/TextEditor.vue';
+import PostEditor from '../components/PostEditor.vue';
 </script>

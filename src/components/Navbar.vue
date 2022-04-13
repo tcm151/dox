@@ -32,7 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
+import { onBeforeRouteUpdate } from 'vue-router';
 import { router } from '../services/router';
 import { store } from "../services/store";
 import Login from "./Login.vue";
@@ -41,7 +42,8 @@ const session = computed(() => {
     return store.state.session;
 })
 
-onMounted(() => showMenu.value = false)
+//? does not do what intended
+// onBeforeRouteUpdate(() => showMenu.value = false)
 
 const showMenu = ref(false);
 const showLogin = ref(false);
