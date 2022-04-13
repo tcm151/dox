@@ -23,13 +23,12 @@
 </template>
 
 <script setup lang="ts">
-import moment from "moment";
+// import moment from "moment";
 import { Comment } from "../api/types"
+import { timeSince } from "../services/dateTime";
 
 defineProps<{ comments: Comment[] }>()
 
-function timeSince(dateTime: string) {
-    return `${moment().diff(dateTime, 'hours')}h ago`
-}
+
 
 </script>

@@ -24,6 +24,7 @@
                 <div class="level-left pt-1">
                     <p class="tag mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}</p>
                     <p class="tag mr-1 is-info has-text-weight-medium is-light">{{ post.time }}</p>
+                    <p class="tag mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
                 </div>
             </div>
         </div>
@@ -38,6 +39,7 @@ import { inject } from 'vue';
 import { Post } from '../api/types';
 import { store } from '../services/store';
 import { router } from '../services/router';
+import { timeSince } from '../services/dateTime';
 
 defineProps<{
     posts: Post[]

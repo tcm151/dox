@@ -16,7 +16,7 @@
         <div class="field">
             <div class="control">
                 <p class="subtitle is-4 mb-2">Topics</p>
-                <div class="field is-grouped">
+                <div class="field is-grouped is-grouped-multiline">
                     <Tag v-for="topic in topics" :contents="topic" @delete="removeTopic" />
                     <!-- <Tag contents="NFL" /> -->
                 </div>

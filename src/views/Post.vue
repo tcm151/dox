@@ -6,7 +6,7 @@
                 <p class="level-item tag is-light is-primary">{{ post?.votes.upvotes }}</p>
                 <p class="level-item tag is-light is-warning">{{ post?.votes.misleading }}</p>
                 <p class="level-item tag is-light is-danger">{{ post?.votes.downvotes }}</p>
-                <p class="level-item tag is-light is-info">{{ post?.time }}</p>
+                <p class="level-item tag is-light is-info">{{ timeSince(post?.time) }}</p>
                 <p class="level-item tag is-light is-info mb-auto">u/whoever_posted_this</p>
             </div>
             <div class="block">
@@ -52,8 +52,9 @@ import { useRoute } from 'vue-router';
 import { computed, onBeforeMount, ref } from 'vue';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
-import CommentList from "../components/CommentList.vue"
+import { timeSince } from '../services/dateTime';
 import Sorter from '../components/Sorter.vue';
+import CommentList from "../components/CommentList.vue"
 
 const route = useRoute();
 
