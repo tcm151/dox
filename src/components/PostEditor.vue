@@ -1,5 +1,5 @@
 <template>
-    <div class="box m-5 has-background-light" v-if="session.authenticated">
+    <div class="box m-2 has-background-light" v-if="session.authenticated">
         <div class="field">
             <div class="control">
                 <p class="title is-3 mb-4">Title</p>
@@ -55,6 +55,10 @@ const topics = ref<string[]>([])
 const toggleModal = inject("toggleModal") as Function
 
 function addTopic() {
+    if (topics.value.length >= 5) {
+        toggleModal("You can only have 5 topics", "Try to be more specific with which topics you choose.")
+        return;
+    }
     topics.value.push(topicText.value);
     topicText.value = "";
 }

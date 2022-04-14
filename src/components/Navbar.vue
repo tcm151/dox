@@ -24,7 +24,7 @@
                 <a class="navbar-item is-size-5 has-text-weight-semibold"
                     @click.prevent="navigateTo('/editor')">Post</a>
                 <a class="navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/profile')">Profile</a>
+                    @click.prevent="navigateTo('/profile')">Profile - {{ session.user?.username }}</a>
                 <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="logout">Logout</a>
             </div>
         </div>

@@ -21,13 +21,14 @@
                 <div class="box m-0 is-shadowless has-background-light p-2">
                     <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
                 </div>
-                <div class="tags pt-2">
-                    <p class="tag mt-auto is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}</p>
-                    <!-- <p class="tag mt-auto is-info has-text-weight-medium is-light">{{ post.time }}</p> -->
-                    <p class="tag mt-auto is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
-                    <p class="tag mt-auto is-light has-text-weight-medium is-link" v-for="topic in post?.topics">{{
-                        topic
-                    }}</p>
+                <div class="level-left pt-1">
+                    <p class="tag mb-1 mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}
+                    </p>
+                    <p class="tag mb-1 mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
+                    <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">
+                        {{
+                            topic
+                        }}</p>
                 </div>
             </div>
         </div>

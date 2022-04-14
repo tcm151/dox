@@ -1,8 +1,9 @@
 t<template>
     <div class="control">
         <div class="tags has-addons">
-            <div class="tag is-medium is-primary is-light">{{ contents }}</div>
-            <div class="tag is-medium is-danger is-light is-delete" @click.prevent="$emit('delete', contents)"></div>
+            <div class="tag tag-content p-2 is-medium is-primary is-light">{{ contents }}</div>
+            <div class="tag is-medium is-danger is-light is-delete" @click.prevent="$emit('delete', contents)">
+            </div>
         </div>
     </div>
 </template>
@@ -16,6 +17,10 @@ defineEmits(['submit', 'delete'])
 
 <style scoped>
 .tag {
-    border: 2px solid gainsboro;
+    border: 1px solid lightgrey;
+}
+
+.tag-content {
+    border-right: 0px;
 }
 </style>
