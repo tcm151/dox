@@ -1,6 +1,6 @@
 <template>
     <div class="box m-2">
-        <div class="block content">
+        <div class="block">
             <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
             <div class="tags">
                 <p class="tag is-light my-auto is-primary">{{ post?.votes.upvotes }}</p>
@@ -11,9 +11,9 @@
                 <p class="tag is-light my-auto is-primary" v-for="topic in post?.topics">{{ topic }}</p>
                 <!-- <Tag v-for="topic in post?.topics" :contents="topic" /> -->
             </div>
-            <div class="block">
-                <p>{{ post?.content }}</p>
-            </div>
+        </div>
+        <div class="box py-5 my-5 has-background-light is-shadowless">
+            <p>{{ post?.content }}</p>
         </div>
         <div class="block" v-if="session.authenticated">
             <div class="field is-grouped" v-if="!showCommentBox">
