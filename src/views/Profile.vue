@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import { ref, computed, onBeforeMount } from 'vue';
@@ -66,8 +66,8 @@ onBeforeMount(async () => {
 function sortPosts(sortType: string) {
     posts.value.sort((first: Post, second: Post) => {
         if (sortType == "new") {
-            const firstTime = moment(first.time)
-            const secondTime = moment(second.time)
+            const firstTime = DateTime.fromISO(first.time)
+            const secondTime = DateTime.fromISO(second.time)
             return (firstTime < secondTime) ? 1 : -1
         }
         else if (sortType == "top") {
@@ -76,8 +76,8 @@ function sortPosts(sortType: string) {
             return (firstScore < secondScore) ? 1 : -1
         }
         else if (sortType == "hot") {
-            const timeSinceFirst = moment().diff(first.time, 'days')
-            const timeSinceSecond = moment().diff(second.time, 'days')
+            const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
+            const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
             const firstScore = (first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2)) / (timeSinceFirst + 1);
             const secondScore = (second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2)) / (timeSinceSecond + 1);
             return (firstScore < secondScore) ? 1 : -1

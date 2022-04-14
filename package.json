@@ -11,8 +11,6 @@
         "css-build": "node-sass --omit-source-map-url src/styles/global.scss src/styles/global.css"
     },
     "dependencies": {
-        "@netlify/functions": "github:netlify/functions",
-        "@primer/octicons": "^17.0.0",
         "@types/bcryptjs": "^2.4.2",
         "axios": "^0.26.1",
         "bcryptjs": "^2.4.3",
@@ -20,10 +18,8 @@
         "cors": "^2.8.5",
         "express": "^4.17.3",
         "luxon": "^2.3.1",
-        "moment": "^2.29.1",
         "mongodb": "^4.4.1",
         "sass": "^1.49.9",
-        "serverless-http": "^3.0.1",
         "vue": "^3.2.25",
         "vue-router": "^4.0.14",
         "vuex": "^4.0.2",

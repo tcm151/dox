@@ -8,6 +8,7 @@
                 <p class="tag is-light my-auto is-danger">{{ post?.votes.downvotes }}</p>
                 <p class="tag is-light my-auto is-info">{{ timeSince(post?.time) }}</p>
                 <p class="tag is-light my-auto is-info">u/whoever_posted_this</p>
+                <p class="tag is-light my-auto is-info">u/{{ post?.user?.username }}</p>
                 <p class="tag is-light my-auto is-primary" v-for="topic in post?.topics">{{ topic }}</p>
                 <!-- <Tag v-for="topic in post?.topics" :contents="topic" /> -->
             </div>

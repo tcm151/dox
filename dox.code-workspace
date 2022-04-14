@@ -1,11 +1,11 @@
 {
     "folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "..\\dox-api"
-		}
-	],
+        {
+            "path": "."
+        },
+        {
+            "path": "..\\dox-api"
+        }
+    ],
     "settings": {}
 }
