@@ -1,29 +1,33 @@
 // import moment from "moment"
-import luxon from "luxon"
+import * as luxon from "luxon"
 
 export function timeSince(dateTimeString: string | undefined) {
     if (dateTimeString == undefined) {
         return "\u221E ago"
     }
+    const now = luxon.DateTime.now()
     const dateTime = luxon.DateTime.fromISO(dateTimeString)
-    const minutesSince = dateTime.diffNow("minutes").minutes
+    const minutesSince = now.diff(dateTime, "minutes").minutes
     if (minutesSince < 60) {
-        return `${minutesSince}m ago`
+        // console.log(minutesSince)
+        return `${minutesSince.toFixed(0)}m ago`
     }
-    const hoursSince = dateTime.diffNow("hours").hours
+    const hoursSince = now.diff(dateTime, "hours").hours
     if (hoursSince < 24) {
-        return `${hoursSince}h ago`
+        // console.log(hoursSince)
+        return `${hoursSince.toFixed(0)}h ago`
     }
-    const daysSince = dateTime.diffNow("days").days
+    const daysSince = now.diff(dateTime, "days").days
     if (daysSince < 7) {
-        return `${daysSince}d ago`
+        // console.log(daysSince)
+        return `${daysSince.toFixed(0)}d ago`
     }
-    const weeksSince = dateTime.diffNow("weeks").weeks
+    const weeksSince = now.diff(dateTime, "weeks").weeks
     if (weeksSince < 4) {
-        return `${weeksSince}w ago`
+        return `${weeksSince.toFixed(0)}w ago`
     }
-    const monthsSince = dateTime.diffNow("months").months
+    const monthsSince = now.diff(dateTime, "months").months
     if (monthsSince < 12) {
-        return `${monthsSince}m ago`
+        return `${monthsSince.toFixed(0)}m ago`
     }
 }

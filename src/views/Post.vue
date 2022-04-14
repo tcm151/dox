@@ -108,13 +108,12 @@ async function postComment() {
 onBeforeMount(async () => {
     const postResponse = await axios.get<Post>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}`);
     post.value = postResponse.data;
-    console.log(postResponse.data)
-
+    // console.log(postResponse.data)
 
     const commentsResponse = await axios.get<Comment[]>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}/comments`)
     comments.value = commentsResponse.data;
 
-    console.log(comments.value);
+    // console.log(comments.value);
 })
 
 </script>
