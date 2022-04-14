@@ -31,7 +31,7 @@
                 </div>
                 <div class="field buttons is-grouped">
                     <div class="control">
-                        <button class="button is-primary" @click="postComment">Submit</button>
+                        <button class="button is-primary" @click.prevent="postComment">Submit</button>
                         <button class="button is-danger" @click="toggleCommentBox">Cancel</button>
                     </div>
                 </div>
