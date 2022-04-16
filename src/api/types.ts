@@ -10,8 +10,9 @@ export interface User {
     email: string
     username: string
     password: string
-    // following: number[]
-    // followers: number[]
+    topics: string[]
+    following: number[]
+    followers: number[]
     // posts?: Post[],
     // comments?: Comment[],
 }

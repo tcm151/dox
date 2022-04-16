@@ -16,6 +16,12 @@
 
             </div>
         </div>
+        <div class="box">
+            <p class="title">Topics</p>
+            <div class="level">
+                <div class="tag" v-for="topic in session.user?.topics">{{ topic }}</div>
+            </div>
+        </div>
         <div class="box my-2 p-4">
             <p class="title">Posts</p>
             <div class="scrollable p-2">

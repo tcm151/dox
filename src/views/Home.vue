@@ -19,11 +19,13 @@
 import axios from 'axios';
 import { DateTime } from "luxon";
 import { Post } from '../api/types';
+import { store } from '../services/store';
 import { inject, onBeforeMount, ref } from 'vue';
 import Sorter from '../components/Sorter.vue';
 import Sidebar from '../components/Sidebar.vue';
 import PostList from '../components/PostList.vue';
-import { store } from '../services/store';
+
+// const session = computed(() => store.state.session)
 
 onBeforeMount(async () => {
     try {
@@ -31,15 +33,10 @@ onBeforeMount(async () => {
         allPosts.value = allPostsResponse.data;
         allPosts.value = sortPosts(allPosts.value, "hot")
 
-        const feedPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
-        // const feedPostsResponse = await axios.get<Post[]>(`https://doxforeverything.herokuapp.com/feed/${store.state.session.user?.user_id}`)
-        let filteredPosts = feedPostsResponse.data;
-        filteredPosts = filteredPosts.filter((p) => p.user_id == 3)
-        feedPosts.value = filteredPosts;
+        feedPosts.value = allPosts.value.filter((post) => post.topics.some((topic) => store.state.session.user?.topics.includes(topic)))
         feedPosts.value = sortPosts(feedPosts.value, "hot")
 
         posts.value = allPosts.value;
-        // sortBy("new")
     }
     catch (error: any) {
         console.log(error);
@@ -76,26 +73,6 @@ function toggleFilter() {
 function sortBy(sortType: string) {
     currentSortType.value = sortType;
     posts.value = sortPosts(posts.value, sortType);
-    // posts.value.sort((first: Post, second: Post) => {
-    //     if (sortType == "new") {
-    //         const firstTime = DateTime.fromISO(first.time)
-    //         const secondTime = DateTime.fromISO(second.time)
-    //         return (firstTime < secondTime) ? 1 : -1
-    //     }
-    //     else if (sortType == "top") {
-    //         const firstScore = first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2);
-    //         const secondScore = second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2);
-    //         return (firstScore < secondScore) ? 1 : -1
-    //     }
-    //     else if (sortType == "hot") {
-    //         const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
-    //         const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
-    //         const firstScore = (first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2)) / (timeSinceFirst + 1);
-    //         const secondScore = (second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2)) / (timeSinceSecond + 1);
-    //         return (firstScore < secondScore) ? 1 : -1
-    //     }
-    //     else return 0
-    // })
 }
 
 function sortPosts(postList: Post[], sortType: string): Post[] {
