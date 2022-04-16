@@ -67,3 +67,9 @@ function logout() {
 }
 
 </script>
+
+<style scoped>
+.navbar-burger:hover {
+    background-color: whitesmoke;
+}
+</style>

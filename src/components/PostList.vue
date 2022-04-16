@@ -1,6 +1,6 @@
 <template>
     <div v-if="posts.length > 0">
-        <div class="media box p-2 my-2" v-for="post in posts" :key="post.post_id">
+        <div class="media box is-clickable p-2 my-2" v-for="post in posts" :key="post.post_id">
             <div class="media-left pr-2 m-0">
                 <div class="container">
                     <p @click="upvote(post)"
@@ -103,13 +103,13 @@ function openPost(post: Post) {
 </script>
 
 <style scoped>
-.vote,
-media {
+/* .vote,
+.media {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-}
+} */
 
 .media-left {
     width: 3em;

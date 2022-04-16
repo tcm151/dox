@@ -1,7 +1,12 @@
 <template>
     <div class="columns p-2">
         <div class="column">
-            <Sorter @sort="sortPosts" />
+            <div class="level-left">
+                <button @click.prevent="toggleFilter" class="level-item button is-primary has-text-weight-bold">
+                    {{ postFilter }}
+                </button>
+                <Sorter class="level-item" @sort="sortBy" />
+            </div>
             <PostList :posts="posts" />
         </div>
         <div class="column is-4">
@@ -14,15 +19,87 @@
 import axios from 'axios';
 import { DateTime } from "luxon";
 import { Post } from '../api/types';
-import { onBeforeMount, ref } from 'vue';
+import { inject, onBeforeMount, ref } from 'vue';
 import Sorter from '../components/Sorter.vue';
 import Sidebar from '../components/Sidebar.vue';
 import PostList from '../components/PostList.vue';
+import { store } from '../services/store';
+
+onBeforeMount(async () => {
+    try {
+        const allPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
+        allPosts.value = allPostsResponse.data;
+        allPosts.value = sortPosts(allPosts.value, "hot")
+
+        const feedPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
+        // const feedPostsResponse = await axios.get<Post[]>(`https://doxforeverything.herokuapp.com/feed/${store.state.session.user?.user_id}`)
+        let filteredPosts = feedPostsResponse.data;
+        filteredPosts = filteredPosts.filter((p) => p.user_id == 3)
+        feedPosts.value = filteredPosts;
+        feedPosts.value = sortPosts(feedPosts.value, "hot")
+
+        posts.value = allPosts.value;
+        // sortBy("new")
+    }
+    catch (error: any) {
+        console.log(error);
+        toggleModal("Failed to load posts...", "Server may be in a non-functioning state.")
+    }
+
+})
 
 const posts = ref<Post[]>([]);
+const allPosts = ref<Post[]>([])
+const feedPosts = ref<Post[]>([]);
+const currentSortType = ref<string>("");
 
-function sortPosts(sortType: string) {
-    posts.value.sort((first: Post, second: Post) => {
+const toggleModal = inject("toggleModal") as Function;
+
+// const filters = ["All", "Feed"]
+const postFilter = ref<string>("All");
+
+function toggleFilter() {
+    switch (postFilter.value) {
+        case "All":
+            postFilter.value = "Feed";
+            allPosts.value = posts.value;
+            posts.value = feedPosts.value;
+            break;
+        case "Feed":
+            postFilter.value = "All";
+            feedPosts.value = posts.value;
+            posts.value = allPosts.value;
+            break;
+    }
+}
+
+function sortBy(sortType: string) {
+    currentSortType.value = sortType;
+    posts.value = sortPosts(posts.value, sortType);
+    // posts.value.sort((first: Post, second: Post) => {
+    //     if (sortType == "new") {
+    //         const firstTime = DateTime.fromISO(first.time)
+    //         const secondTime = DateTime.fromISO(second.time)
+    //         return (firstTime < secondTime) ? 1 : -1
+    //     }
+    //     else if (sortType == "top") {
+    //         const firstScore = first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2);
+    //         const secondScore = second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2);
+    //         return (firstScore < secondScore) ? 1 : -1
+    //     }
+    //     else if (sortType == "hot") {
+    //         const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
+    //         const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
+    //         const firstScore = (first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2)) / (timeSinceFirst + 1);
+    //         const secondScore = (second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2)) / (timeSinceSecond + 1);
+    //         return (firstScore < secondScore) ? 1 : -1
+    //     }
+    //     else return 0
+    // })
+}
+
+function sortPosts(postList: Post[], sortType: string): Post[] {
+    postList.sort((first: Post, second: Post) => {
         if (sortType == "new") {
             const firstTime = DateTime.fromISO(first.time)
             const secondTime = DateTime.fromISO(second.time)
@@ -42,11 +119,14 @@ function sortPosts(sortType: string) {
         }
         else return 0
     })
+    return postList;
 }
 
-onBeforeMount(async () => {
-    const response = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
-    posts.value = response.data;
-    sortPosts("hot")
-})
 </script>
+
+<style scoped>
+.button {
+    border: 1px solid grey;
+    width: 5em;
+}
+</style>
