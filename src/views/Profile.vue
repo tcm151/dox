@@ -16,10 +16,27 @@
 
             </div>
         </div>
-        <div class="box">
+        <div class="box mb-2">
             <p class="title">Topics</p>
-            <div class="level">
-                <div class="tag" v-for="topic in session.user?.topics">{{ topic }}</div>
+            <div class="field is-grouped is-grouped-multiline">
+                <div class="control" v-for="topic in session.user?.topics">
+                    <div class="tags has-addons">
+                        <div class="tag">{{ topic }}</div>
+                        <div class="tag">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <div class="tag"></div>
+                        <div class="tag">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
         <div class="box my-2 p-4">
@@ -102,5 +119,9 @@ function sortComments() {
 .scrollable {
     max-height: 25em;
     overflow: auto;
+}
+
+.is-add:hover {
+    background-color: silver;
 }
 </style>

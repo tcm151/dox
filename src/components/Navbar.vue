@@ -2,7 +2,13 @@
     <Login :show-login="showLogin" @close-login="toggleLogin" />
     <nav class="navbar has-background-primary">
         <div class="navbar-brand">
-            <router-link to="/" class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark">DOX
+            <router-link to="/" class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark pr-2">
+                <div class="icon-text">
+                    <span class="icon is-medium">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </span>
+                    <span class="my-auto">DOX</span>
+                </div>
             </router-link>
             <p class="navbar-item is-size-4 has-text-weight-semibold pl-0">For Everything</p>
             <div class="navbar-burger button m-3 ml-auto" v-bind:class="{ 'is-active': showMenu }"
