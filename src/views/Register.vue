@@ -34,10 +34,10 @@
                 <div class="control">
                     <button class="button is-danger">Cancel</button>
                 </div>
-                <div class="control">
+                <!-- <div class="control">
                     <button class="button is-warning"
                         @click.prevent="toggleModal('Failed to do something...', 'Additional information about the issue', 'Buttons and stuff')">Modal</button>
-                </div>
+                </div> -->
             </div>
         </form>
     </div>
