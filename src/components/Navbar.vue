@@ -20,10 +20,24 @@
         </div>
         <div class="navbar-menu p-1" v-bind:class="{ 'is-active': showMenu }">
             <div class="navbar-end" v-if="!session.authenticated">
-                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">Home</a>
-                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="toggleLogin">Login</a>
-                <a class="navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/register')">Register</a>
+                <a class="icon-text navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">
+                    <span class="icon">
+                        <i class="fa-solid fa-house"></i>
+                    </span>
+                    <span>Home</span>
+                </a>
+                <a class="icon-text navbar-item is-size-5 has-text-weight-semibold" @click.prevent="toggleLogin">
+                    <span class="icon">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                    </span>
+                    <span>Login</span>
+                </a>
+                <!-- <a class="icon-text navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/register')">
+                    <span class="icon">
+                        <i class="fa-solid fa-house"></i>
+                    </span>
+                    <span>Register</span>
+                </a> -->
             </div>
             <div class="navbar-end" v-else>
                 <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">Home</a>

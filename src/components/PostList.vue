@@ -5,15 +5,15 @@
                 <div class="container">
                     <p @click="upvote(post)"
                         class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
-                            formatNumber(post.votes?.upvotes)
+                                formatNumber(post.votes?.upvotes)
                         }}</p>
                     <p @click="misleading(post)"
                         class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
-                            formatNumber(post.votes?.misleading)
+                                formatNumber(post.votes?.misleading)
                         }}</p>
                     <p @click="downvote(post)"
                         class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
-                            formatNumber(post.votes?.downvotes)
+                                formatNumber(post.votes?.downvotes)
                         }}</p>
                 </div>
             </div>
@@ -22,13 +22,12 @@
                     <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
                 </div>
                 <div class="level-left pt-1">
+                    <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">{{
+                            topic
+                    }}</p>
                     <p class="tag mb-1 mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}
                     </p>
                     <p class="tag mb-1 mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
-                    <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">
-                        {{
-                            topic
-                        }}</p>
                 </div>
             </div>
         </div>

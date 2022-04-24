@@ -24,8 +24,8 @@
                         <div class="control buttons">
                             <button type="submit" class="button is-medium is-primary"
                                 @click.prevent="login()">Login</button>
-                            <button class="button is-medium is-danger"
-                                @click.prevent="$emit('closeLogin')">Cancel</button>
+                            <button class="button is-danger is-medium"
+                                @click.prevent="navigateTo('/register')">Register</button>
                         </div>
                     </div>
                 </form>
@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { inject, ref } from 'vue';
+import { onBeforeRouteUpdate } from 'vue-router';
 import { router } from '../services/router';
 import { Session, store } from '../services/store';
 
@@ -47,6 +48,12 @@ const username = ref("")
 const password = ref("")
 
 const toggleModal = inject("toggleModal") as Function
+
+function navigateTo(route: string) {
+    emits("closeLogin")
+    router.push(route);
+}
+
 
 async function login() {
     try {
