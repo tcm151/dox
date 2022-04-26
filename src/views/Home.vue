@@ -83,15 +83,18 @@ function sortPosts(postList: Post[], sortType: string): Post[] {
             return (firstTime < secondTime) ? 1 : -1
         }
         else if (sortType == "top") {
-            const firstScore = first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2);
-            const secondScore = second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2);
+            const firstScore = first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2);
+            console.log(firstScore)
+            const secondScore = second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2);
+            console.log(secondScore)
+            if (firstScore === secondScore) return (DateTime.fromISO(first.time) < DateTime.fromISO(second.time)) ? 1 : -1
             return (firstScore < secondScore) ? 1 : -1
         }
         else if (sortType == "hot") {
             const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
             const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
-            const firstScore = (first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2)) / (timeSinceFirst + 1);
-            const secondScore = (second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2)) / (timeSinceSecond + 1);
+            const firstScore = (first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2)) / (timeSinceFirst + 1);
+            const secondScore = (second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2)) / (timeSinceSecond + 1);
             return (firstScore < secondScore) ? 1 : -1
         }
         else return 0

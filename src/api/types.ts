@@ -43,8 +43,8 @@ export interface Comment {
 }
 
 export interface Votes {
-    upvotes: number
-    misleading: number
-    downvotes: number
-    users: number[]
+    upvotes: number[]
+    misleading: number[]
+    downvotes: number[]
+    // users: number[]
 }
