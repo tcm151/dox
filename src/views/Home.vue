@@ -2,9 +2,18 @@
     <div class="columns p-2">
         <div class="column">
             <div class="level-left">
-                <button @click.prevent="toggleFilter" class="level-item button is-primary has-text-weight-bold">
-                    {{ postFilter }}
-                </button>
+                <div class="level-left mr-3">
+                    <button class="level-item button is-link has-text-weight-bold"
+                        @click.prevent="navigateTo('/editor')">
+                        <span class="icon">
+                            <i class="fa-solid fa-feather-pointed"></i>
+                        </span>
+                        <span>Post</span>
+                    </button>
+                    <button @click.prevent="toggleFilter" class="level-item button is-primary has-text-weight-bold">
+                        {{ postFilter }}
+                    </button>
+                </div>
                 <Sorter class="level-item" @sort="sortBy" />
             </div>
             <PostList :posts="posts" />
@@ -24,6 +33,8 @@ import { inject, onBeforeMount, ref } from 'vue';
 import Sorter from '../components/Sorter.vue';
 import Sidebar from '../components/Sidebar.vue';
 import PostList from '../components/PostList.vue';
+import { sortPosts } from '../services/sorting';
+import { router } from '../services/router';
 
 // const session = computed(() => store.state.session)
 
@@ -53,17 +64,17 @@ const currentSortType = ref<string>("");
 const toggleModal = inject("toggleModal") as Function;
 
 // const filters = ["All", "Feed"]
-const postFilter = ref<string>("All");
+const postFilter = ref<string>("Popular");
 
 function toggleFilter() {
     switch (postFilter.value) {
-        case "All":
+        case "Popular":
             postFilter.value = "Feed";
             allPosts.value = posts.value;
             posts.value = feedPosts.value;
             break;
         case "Feed":
-            postFilter.value = "All";
+            postFilter.value = "Popular";
             feedPosts.value = posts.value;
             posts.value = allPosts.value;
             break;
@@ -75,31 +86,9 @@ function sortBy(sortType: string) {
     posts.value = sortPosts(posts.value, sortType);
 }
 
-function sortPosts(postList: Post[], sortType: string): Post[] {
-    postList.sort((first: Post, second: Post) => {
-        if (sortType == "new") {
-            const firstTime = DateTime.fromISO(first.time)
-            const secondTime = DateTime.fromISO(second.time)
-            return (firstTime < secondTime) ? 1 : -1
-        }
-        else if (sortType == "top") {
-            const firstScore = first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2);
-            console.log(firstScore)
-            const secondScore = second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2);
-            console.log(secondScore)
-            if (firstScore === secondScore) return (DateTime.fromISO(first.time) < DateTime.fromISO(second.time)) ? 1 : -1
-            return (firstScore < secondScore) ? 1 : -1
-        }
-        else if (sortType == "hot") {
-            const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
-            const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
-            const firstScore = (first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2)) / (timeSinceFirst + 1);
-            const secondScore = (second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2)) / (timeSinceSecond + 1);
-            return (firstScore < secondScore) ? 1 : -1
-        }
-        else return 0
-    })
-    return postList;
+function navigateTo(route: string) {
+    // showMenu.value = false;
+    router.push(route);
 }
 
 </script>
@@ -107,6 +96,6 @@ function sortPosts(postList: Post[], sortType: string): Post[] {
 <style scoped>
 .button {
     border: 1px solid grey;
-    width: 5em;
+    width: 6em;
 }
 </style>

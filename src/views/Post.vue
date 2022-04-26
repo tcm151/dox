@@ -3,16 +3,16 @@
         <div class="block">
             <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
             <div class="tags">
-                <p class="tag mb-1 mr-1 is-light is-primary">{{ post?.votes.upvotes }}</p>
-                <p class="tag mb-1 mr-1 is-light is-warning">{{ post?.votes.misleading }}</p>
-                <p class="tag mb-1 mr-1 is-light is-danger">{{ post?.votes.downvotes }}</p>
+                <p class="tag mb-1 mr-1 is-light is-primary">{{ post?.votes.upvotes.length }}</p>
+                <p class="tag mb-1 mr-1 is-light is-warning">{{ post?.votes.misleading.length }}</p>
+                <p class="tag mb-1 mr-1 is-light is-danger">{{ post?.votes.downvotes.length }}</p>
                 <p class="tag mb-1 mr-1 is-light is-info">{{ timeSince(post?.time) }}</p>
                 <p class="tag mb-1 mr-1 is-light is-info">u/{{ post?.user?.username }}</p>
                 <p class="tag mb-1 mr-1 is-light is-primary" v-for="topic in post?.topics">{{ topic }}</p>
             </div>
         </div>
         <div class="box py-5 my-5 has-background-light is-shadowless">
-            <p>{{ post?.content }}</p>
+            <p class="preserve">{{ post?.content }}</p>
         </div>
         <div class="block" v-if="session.authenticated">
             <div class="field is-grouped" v-if="!showCommentBox">
@@ -116,3 +116,9 @@ onBeforeMount(async () => {
 })
 
 </script>
+
+<style scoped>
+.preserve {
+    white-space: pre-wrap;
+}
+</style>

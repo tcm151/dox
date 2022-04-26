@@ -61,13 +61,13 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { DateTime } from 'luxon';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import { ref, computed, onBeforeMount } from 'vue';
 import Sorter from "../components/Sorter.vue"
 import PostList from '../components/PostList.vue';
 import CommentList from '../components/CommentList.vue';
+import { sortPosts, sortComments } from '../services/sorting';
 
 const session = computed(() => {
     return store.state.session;
@@ -90,37 +90,6 @@ onBeforeMount(async () => {
 function sortBy(sortType: string) {
     currentSortType.value = sortType;
     posts.value = sortPosts(posts.value, sortType);
-}
-
-function sortPosts(postList: Post[], sortType: string): Post[] {
-    postList.sort((first: Post, second: Post) => {
-        if (sortType == "new") {
-            const firstTime = DateTime.fromISO(first.time)
-            const secondTime = DateTime.fromISO(second.time)
-            return (firstTime < secondTime) ? 1 : -1
-        }
-        else if (sortType == "top") {
-            const firstScore = first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2);
-            console.log(firstScore)
-            const secondScore = second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2);
-            console.log(secondScore)
-            if (firstScore === secondScore) return (DateTime.fromISO(first.time) < DateTime.fromISO(second.time)) ? 1 : -1
-            return (firstScore < secondScore) ? 1 : -1
-        }
-        else if (sortType == "hot") {
-            const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
-            const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
-            const firstScore = (first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2)) / (timeSinceFirst + 1);
-            const secondScore = (second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2)) / (timeSinceSecond + 1);
-            return (firstScore < secondScore) ? 1 : -1
-        }
-        else return 0
-    })
-    return postList;
-}
-
-function sortComments() {
-
 }
 
 </script>

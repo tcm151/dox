@@ -57,30 +57,7 @@ const email = ref("");
 const username = ref("");
 const password = ref("");
 const passwordConfirmation = ref("");
-
 const matchingPasswords = ref(true);
-
-async function login() {
-    try {
-        const response = await axios.post<Session>(
-            "https://doxforeverything.herokuapp.com/authenticate",
-            new URLSearchParams({
-                username: username.value,
-                password: password.value,
-            }))
-
-        store.commit("login", response.data);
-        username.value = "";
-        password.value = "";
-        // emits("closeLogin");
-        router.push("/");
-
-    } catch (error) {
-        console.log(error)
-        toggleModal("Failed to login...", "Double check you typed in your username and password correctly")
-    }
-}
-
 
 async function registerUser() {
     //- assure no fields are missing
@@ -120,6 +97,27 @@ async function registerUser() {
     // password.value = "";
     // passwordConfirmation.value = "";
     // router.push("/")
+}
+
+async function login() {
+    try {
+        const response = await axios.post<Session>(
+            "https://doxforeverything.herokuapp.com/authenticate",
+            new URLSearchParams({
+                username: username.value,
+                password: password.value,
+            }))
+
+        store.commit("login", response.data);
+        username.value = "";
+        password.value = "";
+        // emits("closeLogin");
+        router.push("/");
+
+    } catch (error) {
+        console.log(error)
+        toggleModal("Failed to login...", "Double check you typed in your username and password correctly")
+    }
 }
 
 </script>

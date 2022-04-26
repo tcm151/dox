@@ -32,20 +32,35 @@
                     </span>
                     <span>Login</span>
                 </a>
-                <!-- <a class="icon-text navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/register')">
+            </div>
+            <div class="navbar-end" v-else>
+                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
+                    @click.prevent="navigateTo('/')">
                     <span class="icon">
                         <i class="fa-solid fa-house"></i>
                     </span>
-                    <span>Register</span>
-                </a> -->
-            </div>
-            <div class="navbar-end" v-else>
-                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">Home</a>
-                <a class="navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/editor')">Post</a>
-                <a class="navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/profile')">Profile - {{ session.user?.username }}</a>
-                <a class="navbar-item is-size-5 has-text-weight-semibold" @click.prevent="logout">Logout</a>
+                    <span>Home</span>
+                </a>
+                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
+                    @click.prevent="navigateTo('/editor')">
+                    <span class="icon">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </span>
+                    <span>Post</span>
+                </a>
+                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
+                    @click.prevent="navigateTo('/profile')">
+                    <span class="icon">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
+                    <span>{{ session.user?.username }}</span>
+                </a>
+                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold " @click.prevent="logout">
+                    <span class="icon">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </span>
+                    <span>Logout</span>
+                </a>
             </div>
         </div>
     </nav>
