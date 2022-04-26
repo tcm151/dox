@@ -5,15 +5,15 @@
                 <div class="container">
                     <p @click="upvote(post)"
                         class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
-                                formatNumber(post.votes?.upvotes)
+                                formatNumber(post.votes?.upvotes.length)
                         }}</p>
                     <p @click="misleading(post)"
                         class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
-                                formatNumber(post.votes?.misleading)
+                                formatNumber(post.votes?.misleading.length)
                         }}</p>
                     <p @click="downvote(post)"
                         class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
-                                formatNumber(post.votes?.downvotes)
+                                formatNumber(post.votes?.downvotes.length)
                         }}</p>
                 </div>
             </div>
@@ -38,15 +38,14 @@
 </template>
 
 <script setup lang="ts">
+import axios from "axios";
 import { inject } from 'vue';
 import { Post } from '../api/types';
 import { store } from '../services/store';
 import { router } from '../services/router';
 import { timeSince } from '../services/dateTime';
 
-defineProps<{
-    posts: Post[]
-}>();
+defineProps<{ posts: Post[] }>();
 
 const toggleModal = inject("toggleModal") as Function
 
@@ -56,42 +55,80 @@ function formatNumber(number: number): number | string {
     return number;
 }
 
-function canVote(post: Post) {
-    if (!store.getters.getSession.authenticated) {
-        toggleModal("You must be logged in to vote.");
-        return false;
-    };
+// function canVote(post: Post) {
+//     if (!store.getters.getSession.authenticated) {
+//         toggleModal("You must be logged in to vote.");
+//         return false;
+//     };
 
-    const user_id = store.getters.getCurrentUserId;
-    if (post.votes.users.includes(user_id)) {
-        toggleModal("You may only vote on a post once.");
-        return false;
-    };
+//     const user_id = store.getters.getCurrentUserId;
+//     if (post.votes.users.includes(user_id)) {
+//         toggleModal("You may only vote on a post once.");
+//         return false;
+//     };
 
-    return true;
-}
+//     return true;
+// }
+
+// function upvote(post: Post) {
+//     if (!canVote(post)) return;
+
+//     console.log("Upvoted post!");
+//     post.votes.upvotes += 1;
+//     post.votes.users.push(store.getters.getCurrentUserId)
+// }
+
+// function misleading(post: Post) {
+//     if (!canVote(post)) return;
+
+//     console.log("Post marked misleading...")
+//     post.votes.misleading += 1
+//     post.votes.users.push(store.getters.getCurrentUserId)
+// }
+// function downvote(post: Post) {
+//     if (!canVote(post)) return;
+
+//     console.log("Downvoted post!")
+//     post.votes.downvotes += 1
+//     post.votes.users.push(store.getters.getCurrentUserId)
+// }
 
 function upvote(post: Post) {
-    if (!canVote(post)) return;
+    if (!store.state.session.authenticated) {
+        toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
+        return;
+    }
 
-    console.log("Upvoted post!");
-    post.votes.upvotes += 1;
-    post.votes.users.push(store.getters.getCurrentUserId)
+    if (!post.votes.upvotes.includes(store.getters.getCurrentUserId)) post.votes.upvotes.push(store.getters.getCurrentUserId)
+    if (post.votes.misleading.includes(store.getters.getCurrentUserId)) post.votes.misleading = post.votes.misleading.filter(id => id !== store.getters.getCurrentUserId)
+    if (post.votes.downvotes.includes(store.getters.getCurrentUserId)) post.votes.downvotes = post.votes.downvotes.filter(id => id !== store.getters.getCurrentUserId)
+
+    axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
 }
 
 function misleading(post: Post) {
-    if (!canVote(post)) return;
+    if (!store.state.session.authenticated) {
+        toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
+        return;
+    }
 
-    console.log("Post marked misleading...")
-    post.votes.misleading += 1
-    post.votes.users.push(store.getters.getCurrentUserId)
+    if (post.votes.upvotes.includes(store.getters.getCurrentUserId)) post.votes.upvotes = post.votes.upvotes.filter(id => id !== store.getters.getCurrentUserId)
+    if (!post.votes.misleading.includes(store.getters.getCurrentUserId)) post.votes.misleading.push(store.getters.getCurrentUserId)
+    if (post.votes.downvotes.includes(store.getters.getCurrentUserId)) post.votes.downvotes = post.votes.downvotes.filter(id => id !== store.getters.getCurrentUserId)
+
+    axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
 }
 function downvote(post: Post) {
-    if (!canVote(post)) return;
+    if (!store.state.session.authenticated) {
+        toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
+        return;
+    }
 
-    console.log("Downvoted post!")
-    post.votes.downvotes += 1
-    post.votes.users.push(store.getters.getCurrentUserId)
+    if (post.votes.upvotes.includes(store.getters.getCurrentUserId)) post.votes.upvotes = post.votes.upvotes.filter(id => id !== store.getters.getCurrentUserId)
+    if (post.votes.misleading.includes(store.getters.getCurrentUserId)) post.votes.misleading = post.votes.misleading.filter(id => id !== store.getters.getCurrentUserId)
+    if (!post.votes.downvotes.includes(store.getters.getCurrentUserId)) post.votes.downvotes.push(store.getters.getCurrentUserId)
+
+    axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
 }
 
 
