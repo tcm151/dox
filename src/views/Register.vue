@@ -45,10 +45,10 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { inject, onUpdated, ref } from 'vue';
-
 import bcrypt from "bcryptjs"
+import { inject, ref } from 'vue';
 import { router } from '../services/router';
+import { Session, store } from '../services/store';
 
 const toggleModal = inject("toggleModal") as Function
 
@@ -60,9 +60,29 @@ const passwordConfirmation = ref("");
 
 const matchingPasswords = ref(true);
 
+async function login() {
+    try {
+        const response = await axios.post<Session>(
+            "https://doxforeverything.herokuapp.com/authenticate",
+            new URLSearchParams({
+                username: username.value,
+                password: password.value,
+            }))
+
+        store.commit("login", response.data);
+        username.value = "";
+        password.value = "";
+        // emits("closeLogin");
+        router.push("/");
+
+    } catch (error) {
+        console.log(error)
+        toggleModal("Failed to login...", "Double check you typed in your username and password correctly")
+    }
+}
+
 
 async function registerUser() {
-
     //- assure no fields are missing
     if (email.value == "" || username.value == "" || password.value == "" || passwordConfirmation.value == "") {
         toggleModal("Please supply all fields to register.");
@@ -93,11 +113,13 @@ async function registerUser() {
 
     // toggleModal("User registered sucessfully!");
 
-    email.value = "";
-    username.value = "";
-    password.value = "";
-    passwordConfirmation.value = "";
-    router.push("/")
+    login()
+
+    // email.value = "";
+    // username.value = "";
+    // password.value = "";
+    // passwordConfirmation.value = "";
+    // router.push("/")
 }
 
 </script>
