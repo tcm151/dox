@@ -91,10 +91,10 @@ async function postComment() {
         content: comment.value,
         time: "",
         votes: {
-            upvotes: 1,
-            misleading: 0,
-            downvotes: 0,
-            users: [],
+            upvotes: [],
+            misleading: [],
+            downvotes: [],
+            // users: [],
         }
     })
 

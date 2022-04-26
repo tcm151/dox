@@ -75,6 +75,7 @@ const session = computed(() => {
 
 const posts = ref<Post[]>([]);
 const comments = ref<Comment[]>([]);
+const currentSortType = ref<string>("");
 
 onBeforeMount(async () => {
     const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/posts`)
@@ -83,30 +84,39 @@ onBeforeMount(async () => {
     const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/comments`)
     comments.value = commentsResponse.data;
 
-    sortPosts("top")
+    sortBy("top")
 })
 
-function sortPosts(sortType: string) {
-    posts.value.sort((first: Post, second: Post) => {
+function sortBy(sortType: string) {
+    currentSortType.value = sortType;
+    posts.value = sortPosts(posts.value, sortType);
+}
+
+function sortPosts(postList: Post[], sortType: string): Post[] {
+    postList.sort((first: Post, second: Post) => {
         if (sortType == "new") {
             const firstTime = DateTime.fromISO(first.time)
             const secondTime = DateTime.fromISO(second.time)
             return (firstTime < secondTime) ? 1 : -1
         }
         else if (sortType == "top") {
-            const firstScore = first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2);
-            const secondScore = second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2);
+            const firstScore = first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2);
+            console.log(firstScore)
+            const secondScore = second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2);
+            console.log(secondScore)
+            if (firstScore === secondScore) return (DateTime.fromISO(first.time) < DateTime.fromISO(second.time)) ? 1 : -1
             return (firstScore < secondScore) ? 1 : -1
         }
         else if (sortType == "hot") {
             const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), 'days').days
             const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), 'days').days
-            const firstScore = (first.votes.upvotes - first.votes.downvotes - (first.votes.misleading / 2)) / (timeSinceFirst + 1);
-            const secondScore = (second.votes.upvotes - second.votes.downvotes - (second.votes.misleading / 2)) / (timeSinceSecond + 1);
+            const firstScore = (first.votes.upvotes.length - first.votes.downvotes.length - (first.votes.misleading.length / 2)) / (timeSinceFirst + 1);
+            const secondScore = (second.votes.upvotes.length - second.votes.downvotes.length - (second.votes.misleading.length / 2)) / (timeSinceSecond + 1);
             return (firstScore < secondScore) ? 1 : -1
         }
         else return 0
     })
+    return postList;
 }
 
 function sortComments() {
