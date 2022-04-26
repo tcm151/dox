@@ -42,7 +42,7 @@
         </div>
     </div>
     <div class="box m-2">
-        <Sorter />
+        <Sorter @sort="sortBy" />
         <CommentList :comments="comments" />
     </div>
 </template>
@@ -57,19 +57,36 @@ import { timeSince } from '../services/dateTime';
 import Sorter from '../components/Sorter.vue';
 import CommentList from "../components/CommentList.vue"
 import Tag from '../components/Tag.vue';
+import { sortComments } from '../services/sorting';
+
+onBeforeMount(async () => {
+    const postResponse = await axios.get<Post>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}`);
+    post.value = postResponse.data;
+
+    const commentsResponse = await axios.get<Comment[]>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}/comments`)
+    comments.value = commentsResponse.data;
+
+    sortBy("top")
+})
 
 const route = useRoute();
+const session = computed(() => store.state.session)
 
 const post = ref<Post>();
 const comments = ref<Comment[]>([]);
+const currentSortType = ref<string>("hot");
 
 const comment = ref("");
 const showCommentBox = ref(false);
 
-const session = computed(() => store.state.session)
 
 function toggleCommentBox() {
     showCommentBox.value = !showCommentBox.value;
+}
+
+function sortBy(sortType: string) {
+    currentSortType.value = sortType;
+    comments.value = sortComments(comments.value, sortType);
 }
 
 async function postComment() {
@@ -100,20 +117,8 @@ async function postComment() {
 
     toggleCommentBox();
     comment.value = "";
-
-    // console.log(response);
 }
 
-onBeforeMount(async () => {
-    const postResponse = await axios.get<Post>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}`);
-    post.value = postResponse.data;
-    // console.log(postResponse.data)
-
-    const commentsResponse = await axios.get<Comment[]>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}/comments`)
-    comments.value = commentsResponse.data;
-
-    // console.log(comments.value);
-})
 
 </script>
 

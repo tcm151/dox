@@ -1,5 +1,5 @@
 <template>
-    <div class="box m-2 has-background-light" v-if="session.authenticated">
+    <div class="box m-2" v-if="session.authenticated">
         <div class="field">
             <div class="control">
                 <p class="title is-3 mb-4">Title</p>

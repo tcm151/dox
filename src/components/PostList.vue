@@ -55,44 +55,6 @@ function formatNumber(number: number): number | string {
     return number;
 }
 
-// function canVote(post: Post) {
-//     if (!store.getters.getSession.authenticated) {
-//         toggleModal("You must be logged in to vote.");
-//         return false;
-//     };
-
-//     const user_id = store.getters.getCurrentUserId;
-//     if (post.votes.users.includes(user_id)) {
-//         toggleModal("You may only vote on a post once.");
-//         return false;
-//     };
-
-//     return true;
-// }
-
-// function upvote(post: Post) {
-//     if (!canVote(post)) return;
-
-//     console.log("Upvoted post!");
-//     post.votes.upvotes += 1;
-//     post.votes.users.push(store.getters.getCurrentUserId)
-// }
-
-// function misleading(post: Post) {
-//     if (!canVote(post)) return;
-
-//     console.log("Post marked misleading...")
-//     post.votes.misleading += 1
-//     post.votes.users.push(store.getters.getCurrentUserId)
-// }
-// function downvote(post: Post) {
-//     if (!canVote(post)) return;
-
-//     console.log("Downvoted post!")
-//     post.votes.downvotes += 1
-//     post.votes.users.push(store.getters.getCurrentUserId)
-// }
-
 function upvote(post: Post) {
     if (!store.state.session.authenticated) {
         toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
