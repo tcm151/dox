@@ -4,11 +4,11 @@
         <div class="modal-content">
             <div class="message is-danger is-medium">
                 <div class="message-header" v-if="modalTitle">
-                    <p class="">{{ modalTitle }}</p>
+                    <p class="is-size-3">{{ modalTitle }}</p>
                     <button class="delete" @click.prevent="$emit('toggleModal')"></button>
                 </div>
-                <div class="message-body" v-if="modalContent">
-                    <p>{{ modalContent }}</p>
+                <div class="message-body p-5" v-if="modalContent">
+                    <p class="is-size-5">{{ modalContent }}</p>
                 </div>
             </div>
         </div>
@@ -23,8 +23,6 @@ defineProps({
     modalContent: String,
 });
 
-defineEmits([
-    "toggleModal"
-]);
+defineEmits(["toggleModal"]);
 
 </script>

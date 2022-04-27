@@ -1,20 +1,77 @@
 <template>
     <div class="columns p-2">
         <div class="column">
-            <div class="level-left">
-                <div class="level-left mr-3">
-                    <button class="level-item button is-link has-text-weight-bold"
-                        @click.prevent="navigateTo('/editor')">
+            <div class="level mb-2 is-hidden-mobile">
+                <div class="level-left">
+                    <div class="level-item button is-primary has-text-weight-bold" @click.prevent="toggleFilter">
+                        {{ postFilter }}
+                    </div>
+                    <div class="level-item button has-text-weight-semibold" @click.prevent="sortBy('hot')">
+                        <div class="icon-text">
+                            <span class="icon">
+                                <i class="fa-solid fa-fire"></i>
+                            </span>
+                            <span>Hot</span>
+                        </div>
+                    </div>
+                    <div class="level-item button has-text-weight-semibold" @click.prevent="sortBy('top')">
+                        <div class="icon-text">
+                            <span class="icon">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </span>
+                            <span>Top</span>
+                        </div>
+                    </div>
+                    <div class="level-item button has-text-weight-semibold" @click.prevent="sortBy('new')">
+                        <div class="icon-text">
+                            <span class="icon">
+                                <i class="fa-solid fa-egg"></i>
+                            </span>
+                            <span>New</span>
+                        </div>
+                    </div>
+                    <div class="level-item button is-link has-text-weight-bold" @click.prevent="navigateTo('/editor')">
                         <span class="icon">
                             <i class="fa-solid fa-feather-pointed"></i>
                         </span>
                         <span>Post</span>
-                    </button>
-                    <button @click.prevent="toggleFilter" class="level-item button is-primary has-text-weight-bold">
-                        {{ postFilter }}
-                    </button>
+                    </div>
                 </div>
-                <Sorter class="level-item" @sort="sortBy" />
+            </div>
+            <div class="level mb-2 is-mobile is-hidden-tablet">
+                <div class="level-item button filter is-primary has-text-weight-bold" @click.prevent="toggleFilter">
+                    {{ postFilter }}
+                </div>
+                <div class="level-item button has-text-weight-semibold" @click.prevent="sortBy('hot')">
+                    <div class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-fire"></i>
+                        </span>
+                        <!-- <span>Hot</span> -->
+                    </div>
+                </div>
+                <div class="level-item button has-text-weight-semibold" @click.prevent="sortBy('top')">
+                    <div class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </span>
+                        <!-- <span>Top</span> -->
+                    </div>
+                </div>
+                <div class="level-item button has-text-weight-semibold" @click.prevent="sortBy('new')">
+                    <div class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-egg"></i>
+                        </span>
+                        <!-- <span>New</span> -->
+                    </div>
+                </div>
+                <div class="level-item button is-link has-text-weight-bold" @click.prevent="navigateTo('/editor')">
+                    <span class="icon">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </span>
+                    <!-- <span>Post</span> -->
+                </div>
             </div>
             <PostList :posts="posts" />
         </div>
@@ -26,17 +83,13 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { DateTime } from "luxon";
 import { Post } from '../api/types';
 import { store } from '../services/store';
-import { inject, onBeforeMount, ref } from 'vue';
-import Sorter from '../components/Sorter.vue';
+import { router } from '../services/router';
+import { sortPosts } from '../services/sorting';
 import Sidebar from '../components/Sidebar.vue';
 import PostList from '../components/PostList.vue';
-import { sortPosts } from '../services/sorting';
-import { router } from '../services/router';
-
-// const session = computed(() => store.state.session)
+import { inject, onBeforeMount, ref } from 'vue';
 
 onBeforeMount(async () => {
     try {
@@ -63,7 +116,6 @@ const currentSortType = ref<string>("");
 
 const toggleModal = inject("toggleModal") as Function;
 
-// const filters = ["All", "Feed"]
 const postFilter = ref<string>("Popular");
 
 function toggleFilter() {
@@ -87,15 +139,16 @@ function sortBy(sortType: string) {
 }
 
 function navigateTo(route: string) {
-    // showMenu.value = false;
     router.push(route);
 }
-
 </script>
 
 <style scoped>
 .button {
     border: 1px solid grey;
+}
+
+.filter {
     width: 6em;
 }
 </style>

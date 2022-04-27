@@ -3,7 +3,7 @@
         <div class="modal-background"></div>
         <div class="modal-content message is-info is-large mx-6">
             <div class="message-header">
-                <p>Login</p>
+                <p class="is-size-3">Login</p>
                 <button class="delete" @click.prevent="$emit('closeLogin')"></button>
             </div>
             <div class="message-body p-6">

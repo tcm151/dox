@@ -5,15 +5,15 @@
                 <div class="container">
                     <p @click="upvote(post)"
                         class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
-                                formatNumber(post.votes?.upvotes.length)
+                            formatNumber(post.votes?.upvotes.length)
                         }}</p>
                     <p @click="misleading(post)"
                         class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
-                                formatNumber(post.votes?.misleading.length)
+                            formatNumber(post.votes?.misleading.length)
                         }}</p>
                     <p @click="downvote(post)"
                         class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
-                                formatNumber(post.votes?.downvotes.length)
+                            formatNumber(post.votes?.downvotes.length)
                         }}</p>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                 </div>
                 <div class="level-left pt-1">
                     <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">{{
-                            topic
+                        topic
                     }}</p>
                     <p class="tag mb-1 mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}
                     </p>
@@ -110,6 +110,6 @@ function openPost(post: Post) {
 } */
 
 .media-left {
-    width: 3em;
+    width: 2em;
 }
 </style>

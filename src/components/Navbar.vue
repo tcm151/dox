@@ -2,7 +2,7 @@
     <Login :show-login="showLogin" @close-login="toggleLogin" />
     <nav class="navbar has-background-primary">
         <div class="navbar-brand">
-            <router-link to="/" class="navbar-item my-auto is-size-2 has-text-weight-bold has-text-dark pr-2">
+            <router-link to="/" class="navbar-item my-auto is-size-3 has-text-weight-bold has-text-dark pr-2">
                 <div class="icon-text">
                     <span class="icon is-medium">
                         <i class="fa-solid fa-box-archive"></i>
