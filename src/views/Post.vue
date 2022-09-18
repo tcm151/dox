@@ -110,7 +110,7 @@ async function postComment() {
                     <button class="button is-light is-primary" @click="toggleCommentBox">Comment</button>
                     <button class="button is-light is-info" @click="">Share</button>
                     <button class="button is-light is-danger" @click="">Report</button>
-                    <button class="button is-light is-link" v-if="isOwner()" @click="editPost(post)">Edit</button>
+                    <button class="button is-light is-link" v-if="isOwner()" @click="editPost(post!)">Edit</button>
                 </div>
             </div>
             <form class=" fields" v-if="showCommentBox">

@@ -13,3 +13,18 @@
         </ol>
     </div>
 </template>
+
+<style scoped lang="scss">
+.content {
+    text-align: justify;
+    hyphens: auto;
+
+    li::marker {
+        font-weight: 600;
+    }
+
+    li {
+        padding-left: 4px;
+    }
+}
+</style>

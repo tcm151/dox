@@ -138,7 +138,7 @@ function navigateTo(route: string) {
             </div>
             <PostList :posts="posts" />
         </div>
-        <div class="column is-4">
+        <div class="column is-4 pl-0">
             <Sidebar />
         </div>
     </div>
