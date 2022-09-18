@@ -12,8 +12,8 @@
 <script setup lang="ts">
 import "./styles/global.css"
 import { provide, ref } from "vue";
-import Modal from "./components/Modal.vue"
-import Navbar from "./components/Navbar.vue"
+import Modal from "./components/utilities//Modal.vue"
+import Navbar from "./components/nav//Navbar.vue"
 
 const showModal = ref(false);
 const modalTitle = ref("");

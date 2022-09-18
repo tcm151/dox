@@ -1,52 +1,3 @@
-<template>
-    <div class="box m-2">
-        <div class="block">
-            <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
-            <div class="tags">
-                <p class="tag mb-1 mr-1 is-light is-primary">{{ post?.votes.upvotes.length }}</p>
-                <p class="tag mb-1 mr-1 is-light is-warning">{{ post?.votes.misleading.length }}</p>
-                <p class="tag mb-1 mr-1 is-light is-danger">{{ post?.votes.downvotes.length }}</p>
-                <p class="tag mb-1 mr-1 is-light is-info">{{ timeSince(post?.time) }}</p>
-                <p class="tag mb-1 mr-1 is-light is-info">u/{{ post?.user?.username }}</p>
-                <p class="tag mb-1 mr-1 is-light is-primary" v-for="topic in post?.topics">{{ topic }}</p>
-            </div>
-        </div>
-        <div class="box py-5 my-5 has-background-light is-shadowless">
-            <p class="preserve">{{ post?.content }}</p>
-        </div>
-        <div class="block" v-if="session.authenticated">
-            <div class="field is-grouped" v-if="!showCommentBox">
-                <div class="buttons">
-                    <button class="button is-light is-primary" @click="toggleCommentBox">Comment</button>
-                    <button class="button is-light is-info" @click="">Share</button>
-                    <button class="button is-light is-danger" @click="">Report</button>
-                    <!-- <button class="button is-warning" @click="">Edit</button> -->
-                </div>
-            </div>
-            <form class=" fields" v-if="showCommentBox">
-                <div class="field">
-                    <div class="control">
-                        <textarea class="textarea" rows="5" v-model="comment"></textarea>
-                    </div>
-                </div>
-                <div class="field buttons is-grouped">
-                    <div class="control">
-                        <button class="button is-primary" @click.prevent="postComment">Submit</button>
-                        <button class="button is-danger" @click="toggleCommentBox">Cancel</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div v-else class="box has-background-danger has-text-weight-semibold">
-            <p>You must be logged in to participate</p>
-        </div>
-    </div>
-    <div class="box m-2">
-        <Sorter @sort="sortBy" />
-        <CommentList :comments="comments" />
-    </div>
-</template>
-
 <script setup lang="ts">
 import axios from 'axios';
 import { useRoute } from 'vue-router';
@@ -54,9 +5,9 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import { timeSince } from '../services/dateTime';
-import Sorter from '../components/Sorter.vue';
-import CommentList from "../components/CommentList.vue"
-import Tag from '../components/Tag.vue';
+import Sorter from '../components/utilities/Sorter.vue';
+import CommentList from "../components/posts/CommentList.vue"
+import Tag from '../components/utilities/Tag.vue';
 import { sortComments } from '../services/sorting';
 
 onBeforeMount(async () => {
@@ -121,6 +72,56 @@ async function postComment() {
 
 
 </script>
+
+
+<template>
+    <div class="box m-2">
+        <div class="block">
+            <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
+            <div class="tags">
+                <p class="tag mb-1 mr-1 is-light is-primary">{{ post?.votes.upvotes.length }}</p>
+                <p class="tag mb-1 mr-1 is-light is-warning">{{ post?.votes.misleading.length }}</p>
+                <p class="tag mb-1 mr-1 is-light is-danger">{{ post?.votes.downvotes.length }}</p>
+                <p class="tag mb-1 mr-1 is-light is-info">{{ timeSince(post?.time) }}</p>
+                <p class="tag mb-1 mr-1 is-light is-info">u/{{ post?.user?.username }}</p>
+                <p class="tag mb-1 mr-1 is-light is-primary" v-for="topic in post?.topics">{{ topic }}</p>
+            </div>
+        </div>
+        <div class="box py-5 my-5 has-background-light is-shadowless">
+            <p class="preserve">{{ post?.content }}</p>
+        </div>
+        <div class="block" v-if="session.authenticated">
+            <div class="field is-grouped" v-if="!showCommentBox">
+                <div class="buttons">
+                    <button class="button is-light is-primary" @click="toggleCommentBox">Comment</button>
+                    <button class="button is-light is-info" @click="">Share</button>
+                    <button class="button is-light is-danger" @click="">Report</button>
+                    <!-- <button class="button is-warning" @click="">Edit</button> -->
+                </div>
+            </div>
+            <form class=" fields" v-if="showCommentBox">
+                <div class="field">
+                    <div class="control">
+                        <textarea class="textarea" rows="5" v-model="comment"></textarea>
+                    </div>
+                </div>
+                <div class="field buttons is-grouped">
+                    <div class="control">
+                        <button class="button is-primary" @click.prevent="postComment">Submit</button>
+                        <button class="button is-danger" @click="toggleCommentBox">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div v-else class="box has-background-danger has-text-weight-semibold">
+            <p>You must be logged in to participate</p>
+        </div>
+    </div>
+    <div class="box m-2">
+        <Sorter @sort="sortBy" />
+        <CommentList :comments="comments" />
+    </div>
+</template>
 
 <style scoped>
 .preserve {

@@ -33,7 +33,7 @@
         "@types/mongodb": "^4.0.7",
         "@types/vue-router": "^2.0.0",
         "@vitejs/plugin-vue": "^2.2.0",
-        "node-sass": "^7.0.1",
+        "node-sass": "^7.0.3",
         "sass-loader": "^12.6.0",
         "ts-node": "^10.7.0",
         "typescript": "^4.5.4",

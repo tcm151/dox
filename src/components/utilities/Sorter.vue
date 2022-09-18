@@ -1,3 +1,9 @@
+<script setup lang="ts">
+
+defineEmits(['sort'])
+
+</script>
+
 <template>
     <div class="level level-left is-mobile">
         <div class="level-item button has-text-weight-semibold" @click="$emit('sort', 'hot')">
@@ -29,9 +35,3 @@
         <p class="level-item button has-text-weight-semibold" @click="$emit('sort', 'new')">New</p> -->
     </div>
 </template>
-
-<script setup lang="ts">
-
-defineEmits(['sort'])
-
-</script>

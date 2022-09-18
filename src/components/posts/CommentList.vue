@@ -1,39 +1,9 @@
-<template>
-    <div v-if="comments.length > 0">
-        <div class="block my-0" v-for="comment in comments" :key="comment.comment_id">
-            <div class="card is-shadowless">
-                <div class="card-header is-shadowless has-background-grey-lighter">
-                    <p class="card-header-title level-left p-3">u/{{ comment.user?.username }}</p>
-                    <div class="level-left tags">
-                        <p class="tag is-light is-success" @click.prevent="upvote(comment)">{{
-                                comment.votes.upvotes.length
-                        }}</p>
-                        <p class="tag is-light is-warning" @click.prevent="misleading(comment)">{{
-                                comment.votes.misleading.length
-                        }}</p>
-                        <p class="tag is-light is-danger" @click.prevent="downvote(comment)">{{
-                                comment.votes.downvotes.length
-                        }}</p>
-                        <p class="tag is-light is-info">{{ timeSince(comment.time) }}</p>
-                    </div>
-                </div>
-                <div class="message-body p-2">
-                    <p>{{ comment.content }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="box content m-5" v-else>
-        <i>There are no comments yet...</i>
-    </div>
-</template>
-
 <script setup lang="ts">
 import axios from "axios";
 import { inject } from "vue";
-import { Comment } from "../api/types"
-import { timeSince } from "../services/dateTime";
-import { store } from "../services/store";
+import { Comment } from "../../api/types"
+import { timeSince } from "../../services/dateTime";
+import { store } from "../../services/store";
 
 defineProps<{ comments: Comment[] }>()
 
@@ -77,6 +47,69 @@ function downvote(comment: Comment) {
     axios.patch(`https://doxforeverything.herokuapp.com/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }
 
-
-
 </script>
+
+<template>
+    <div v-if="comments.length > 0">
+        <div class="comment" v-for="comment in comments" :key="comment.comment_id">
+            <div class="header">
+                <div class="votes">
+                    <p class="vote tag is-light is-success" @click.prevent="upvote(comment)">{{
+                    comment.votes.upvotes.length
+                    }}</p>
+                    <p class="vote tag is-light is-warning" @click.prevent="misleading(comment)">{{
+                    comment.votes.misleading.length
+                    }}</p>
+                    <p class="vote tag is-light is-danger" @click.prevent="downvote(comment)">{{
+                    comment.votes.downvotes.length
+                    }}</p>
+                    <p class="tag is-light is-info">{{ timeSince(comment.time) }}</p>
+                    <p class="tag is-light is-link">u/{{ comment.user?.username }}</p>
+                    <p class="tag reply-button">Reply</p>
+                </div>
+            </div>
+            <div class="body">
+                <p>{{ comment.content }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="box content m-5" v-else>
+        <i>There are no comments yet...</i>
+    </div>
+</template>
+
+<style scoped lang="scss">
+@import '../../styles/global.scss';
+
+.comment {
+    @include flex-v;
+
+    .header {
+        @include flex-h;
+
+        padding: 4px;
+        font-weight: 500;
+        background-color: ghostwhite;
+
+        .votes {
+            @include flex-h;
+            gap: 4px;
+
+            .vote:hover,
+            .reply-button:hover {
+                filter: brightness(0.95)
+            }
+
+            p {
+                font-size: 12px;
+            }
+        }
+    }
+
+
+    .body {
+        padding: 4px;
+        font-size: 12px;
+    }
+}
+</style>

@@ -1,4 +1,12 @@
-t<template>
+<script setup lang="ts">
+
+defineProps<{ contents: string }>();
+defineEmits(['submit', 'delete'])
+
+</script>
+
+
+<template>
     <div class="control">
         <div class="tags has-addons">
             <div class="tag tag-content p-2 is-medium is-primary is-light">{{ contents }}</div>
@@ -8,12 +16,6 @@ t<template>
     </div>
 </template>
 
-<script setup lang="ts">
-
-defineProps<{ contents: string }>();
-defineEmits(['submit', 'delete'])
-
-</script>
 
 <style scoped>
 .tag {

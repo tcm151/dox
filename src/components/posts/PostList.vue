@@ -1,49 +1,10 @@
-<template>
-    <div v-if="posts.length > 0">
-        <div class="media box is-clickable p-2 my-2" v-for="post in posts" :key="post.post_id">
-            <div class="media-left pr-2 m-0">
-                <div class="container">
-                    <p @click="upvote(post)"
-                        class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
-                            formatNumber(post.votes?.upvotes.length)
-                        }}</p>
-                    <p @click="misleading(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
-                            formatNumber(post.votes?.misleading.length)
-                        }}</p>
-                    <p @click="downvote(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
-                            formatNumber(post.votes?.downvotes.length)
-                        }}</p>
-                </div>
-            </div>
-            <div class="media-content" @click="openPost(post)">
-                <div class="box m-0 is-shadowless has-background-light p-2">
-                    <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
-                </div>
-                <div class="level-left pt-1">
-                    <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">{{
-                        topic
-                    }}</p>
-                    <p class="tag mb-1 mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}
-                    </p>
-                    <p class="tag mb-1 mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="box content m-5" v-else>
-        <i>There are no posts yet...</i>
-    </div>
-</template>
-
 <script setup lang="ts">
 import axios from "axios";
 import { inject } from 'vue';
-import { Post } from '../api/types';
-import { store } from '../services/store';
-import { router } from '../services/router';
-import { timeSince } from '../services/dateTime';
+import { Post } from '../../api/types';
+import { store } from '../../services/store';
+import { router } from '../../services/router';
+import { timeSince } from '../../services/dateTime';
 
 defineProps<{ posts: Post[] }>();
 
@@ -100,16 +61,62 @@ function openPost(post: Post) {
 
 </script>
 
-<style scoped>
-/* .vote,
-.media {
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-} */
+
+<template>
+    <div v-if="posts.length > 0">
+        <div class="post media box is-clickable p-2 my-2" v-for="post in posts" :key="post.post_id">
+            <div class="media-left pr-2 m-0">
+                <div class="votes-left">
+                    <p @click="upvote(post)"
+                        class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
+                        formatNumber(post.votes?.upvotes.length)
+                        }}</p>
+                    <p @click="misleading(post)"
+                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
+                        formatNumber(post.votes?.misleading.length)
+                        }}</p>
+                    <p @click="downvote(post)"
+                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
+                        formatNumber(post.votes?.downvotes.length)
+                        }}</p>
+                </div>
+            </div>
+            <div class="media-content" @click="openPost(post)">
+                <div class="box m-0 is-shadowless has-background-light p-2">
+                    <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
+                </div>
+                <div class="level-left pt-1">
+                    <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">{{
+                    topic
+                    }}</p>
+                    <p class="tag mb-1 mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}
+                    </p>
+                    <p class="tag mb-1 mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="box content m-5" v-else>
+        <i>There are no posts yet...</i>
+    </div>
+</template>
+
+
+<style scoped lang="scss">
+@import '../../styles/global.scss';
 
 .media-left {
     width: 2em;
+}
+
+.votes-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    p:hover {
+        background-color: lightgray;
+        border-radius: 2px;
+    }
 }
 </style>

@@ -1,3 +1,66 @@
+<script setup lang="ts">
+import axios from 'axios';
+import { Post } from '../api/types';
+import { store } from '../services/store';
+import { router } from '../services/router';
+import { sortPosts } from '../services/sorting';
+import Sidebar from '../components/nav/Sidebar.vue';
+import PostList from '../components/posts/PostList.vue';
+import { inject, onBeforeMount, ref } from 'vue';
+
+onBeforeMount(async () => {
+    try {
+        const allPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
+        allPosts.value = allPostsResponse.data;
+        allPosts.value = sortPosts(allPosts.value, "hot")
+
+        feedPosts.value = allPosts.value.filter((post) => post.topics.some((topic) => store.state.session.user?.topics.includes(topic)))
+        feedPosts.value = sortPosts(feedPosts.value, "hot")
+
+        posts.value = allPosts.value;
+    }
+    catch (error: any) {
+        console.log(error);
+        toggleModal("Failed to load posts...", "Server may be in a non-functioning state.")
+    }
+
+})
+
+const posts = ref<Post[]>([]);
+const allPosts = ref<Post[]>([])
+const feedPosts = ref<Post[]>([]);
+const currentSortType = ref<string>("");
+
+const toggleModal = inject("toggleModal") as Function;
+
+const postFilter = ref<string>("Popular");
+
+function toggleFilter() {
+    switch (postFilter.value) {
+        case "Popular":
+            postFilter.value = "Feed";
+            allPosts.value = posts.value;
+            posts.value = feedPosts.value;
+            break;
+        case "Feed":
+            postFilter.value = "Popular";
+            feedPosts.value = posts.value;
+            posts.value = allPosts.value;
+            break;
+    }
+}
+
+function sortBy(sortType: string) {
+    currentSortType.value = sortType;
+    posts.value = sortPosts(posts.value, sortType);
+}
+
+function navigateTo(route: string) {
+    router.push(route);
+}
+</script>
+
+
 <template>
     <div class="columns p-2">
         <div class="column">
@@ -80,68 +143,6 @@
         </div>
     </div>
 </template>
-
-<script setup lang="ts">
-import axios from 'axios';
-import { Post } from '../api/types';
-import { store } from '../services/store';
-import { router } from '../services/router';
-import { sortPosts } from '../services/sorting';
-import Sidebar from '../components/Sidebar.vue';
-import PostList from '../components/PostList.vue';
-import { inject, onBeforeMount, ref } from 'vue';
-
-onBeforeMount(async () => {
-    try {
-        const allPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
-        allPosts.value = allPostsResponse.data;
-        allPosts.value = sortPosts(allPosts.value, "hot")
-
-        feedPosts.value = allPosts.value.filter((post) => post.topics.some((topic) => store.state.session.user?.topics.includes(topic)))
-        feedPosts.value = sortPosts(feedPosts.value, "hot")
-
-        posts.value = allPosts.value;
-    }
-    catch (error: any) {
-        console.log(error);
-        toggleModal("Failed to load posts...", "Server may be in a non-functioning state.")
-    }
-
-})
-
-const posts = ref<Post[]>([]);
-const allPosts = ref<Post[]>([])
-const feedPosts = ref<Post[]>([]);
-const currentSortType = ref<string>("");
-
-const toggleModal = inject("toggleModal") as Function;
-
-const postFilter = ref<string>("Popular");
-
-function toggleFilter() {
-    switch (postFilter.value) {
-        case "Popular":
-            postFilter.value = "Feed";
-            allPosts.value = posts.value;
-            posts.value = feedPosts.value;
-            break;
-        case "Feed":
-            postFilter.value = "Popular";
-            feedPosts.value = posts.value;
-            posts.value = allPosts.value;
-            break;
-    }
-}
-
-function sortBy(sortType: string) {
-    currentSortType.value = sortType;
-    posts.value = sortPosts(posts.value, sortType);
-}
-
-function navigateTo(route: string) {
-    router.push(route);
-}
-</script>
 
 <style scoped>
 .button {

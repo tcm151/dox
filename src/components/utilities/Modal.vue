@@ -1,3 +1,15 @@
+<script setup lang="ts">
+
+defineProps({
+    showModal: Boolean,
+    modalTitle: String,
+    modalContent: String,
+});
+
+defineEmits(["toggleModal"]);
+
+</script>
+
 <template>
     <div class="modal" v-bind:class="{ 'is-active': showModal }">
         <div class="modal-background"></div>
@@ -14,15 +26,3 @@
         </div>
     </div>
 </template>
-
-<script setup lang="ts">
-
-defineProps({
-    showModal: Boolean,
-    modalTitle: String,
-    modalContent: String,
-});
-
-defineEmits(["toggleModal"]);
-
-</script>

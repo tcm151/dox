@@ -1,3 +1,40 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { onBeforeRouteUpdate } from 'vue-router';
+import { router } from '../../services/router';
+import { store } from "../../services/store";
+import Login from "../auth/Login.vue";
+
+const session = computed(() => {
+    return store.state.session;
+})
+
+//? does not do what intended
+// onBeforeRouteUpdate(() => showMenu.value = false)
+
+const showMenu = ref(false);
+const showLogin = ref(false);
+
+function toggleLogin() {
+    showLogin.value = !showLogin.value;
+}
+
+function toggleMenu() {
+    showMenu.value = !showMenu.value;
+}
+
+function navigateTo(route: string) {
+    showMenu.value = false;
+    router.push(route);
+}
+
+function logout() {
+    store.commit("logout");
+    router.push("/");
+}
+
+</script>
+
 <template>
     <Login :show-login="showLogin" @close-login="toggleLogin" />
     <nav class="navbar has-background-primary">
@@ -66,45 +103,15 @@
     </nav>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue';
-import { onBeforeRouteUpdate } from 'vue-router';
-import { router } from '../services/router';
-import { store } from "../services/store";
-import Login from "./Login.vue";
+<style scoped lang="scss">
+@import '../../styles/global.scss';
 
-const session = computed(() => {
-    return store.state.session;
-})
-
-//? does not do what intended
-// onBeforeRouteUpdate(() => showMenu.value = false)
-
-const showMenu = ref(false);
-const showLogin = ref(false);
-
-function toggleLogin() {
-    showLogin.value = !showLogin.value;
-}
-
-function toggleMenu() {
-    showMenu.value = !showMenu.value;
-}
-
-function navigateTo(route: string) {
-    showMenu.value = false;
-    router.push(route);
-}
-
-function logout() {
-    store.commit("logout");
-    router.push("/");
-}
-
-</script>
-
-<style scoped>
 .navbar-burger:hover {
     background-color: whitesmoke;
+}
+
+.navbar-item {
+    border-radius: 5px;
+    color: $dox-black;
 }
 </style>

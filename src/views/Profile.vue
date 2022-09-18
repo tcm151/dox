@@ -1,3 +1,39 @@
+<script setup lang="ts">
+import axios from 'axios';
+import { store } from '../services/store';
+import { Post, Comment } from '../api/types';
+import { ref, computed, onBeforeMount } from 'vue';
+import Sorter from "../components/utilities/Sorter.vue"
+import PostList from '../components/posts/PostList.vue';
+import CommentList from '../components/posts/CommentList.vue';
+import { sortPosts, sortComments } from '../services/sorting';
+
+const session = computed(() => {
+    return store.state.session;
+})
+
+const posts = ref<Post[]>([]);
+const comments = ref<Comment[]>([]);
+const currentSortType = ref<string>("");
+
+onBeforeMount(async () => {
+    const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/posts`)
+    posts.value = postsResponse.data;
+
+    const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/comments`)
+    comments.value = commentsResponse.data;
+
+    sortBy("top")
+})
+
+function sortBy(sortType: string) {
+    currentSortType.value = sortType;
+    posts.value = sortPosts(posts.value, sortType);
+}
+
+</script>
+
+
 <template>
     <div v-if="session.authenticated">
         <div class="level box my-2 p-4 is-mobile">
@@ -58,41 +94,6 @@
         <p>Not logged in.</p>
     </div>
 </template>
-
-<script setup lang="ts">
-import axios from 'axios';
-import { store } from '../services/store';
-import { Post, Comment } from '../api/types';
-import { ref, computed, onBeforeMount } from 'vue';
-import Sorter from "../components/Sorter.vue"
-import PostList from '../components/PostList.vue';
-import CommentList from '../components/CommentList.vue';
-import { sortPosts, sortComments } from '../services/sorting';
-
-const session = computed(() => {
-    return store.state.session;
-})
-
-const posts = ref<Post[]>([]);
-const comments = ref<Comment[]>([]);
-const currentSortType = ref<string>("");
-
-onBeforeMount(async () => {
-    const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/posts`)
-    posts.value = postsResponse.data;
-
-    const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/comments`)
-    comments.value = commentsResponse.data;
-
-    sortBy("top")
-})
-
-function sortBy(sortType: string) {
-    currentSortType.value = sortType;
-    posts.value = sortPosts(posts.value, sortType);
-}
-
-</script>
 
 <style scoped>
 .scrollable {

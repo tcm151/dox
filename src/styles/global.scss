@@ -1,21 +1,57 @@
 @charset "utf-8";
 
+//> FONT
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,800;1,300&display=swap');
-
-// Set your brand colors
-// $purple: #8A4D76;
-// $pink: #FA7C91;
-// $brown: #757763;
-// $beige-light: #D0D1CD;
-// $beige-lighter: #EFF0EB;
-
-// Update Bulma's global variables
 $family-sans-serif: "Montserrat", sans-serif;
-// $grey-dark: $brown;
-// $grey-light: $beige-light;
-// $primary: $purple;
-// $link: $pink;
-// $widescreen-enabled: false;
-// $fullhd-enabled: false;
 
+//> COLORS
+$dox-red: #721817;
+$dox-orange: #FA9F42;
+$dox-blue: #2B4162;
+$dox-green: #0B6E4F;
+$dox-gray: #E0E0E2;
+$dox-black: #1E1E20;
+
+$dox-grey-dark-1: darken($dox-gray, 10%);
+$dox-grey-dark-2: darken($dox-gray, 20%);
+$dox-grey-dark-3: darken($dox-gray, 30%);
+$dox-grey-light-1: lighten($dox-gray, 10%);
+$dox-grey-light-2: lighten($dox-gray, 20%);
+$dox-grey-light-3: lighten($dox-gray, 30%);
+
+
+//> OVERRIDES
+// $primary: $dox-green;
+// $warning: $dox-orange;
+// $danger: $dox-red;
+// $link: $dox-blue;
+
+
+$fullhd-enabled: false;
+$widescreen-enabled: false;
+
+$navbar-breakpoint: 800px;
+
+@mixin flex-v {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+@mixin flex-vw {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+@mixin flex-h {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+@mixin flex-hw {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+//> BULMA
 @import '../../node_modules/bulma/bulma.sass';
+
