@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { useRoute } from 'vue-router';
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, inject, onBeforeMount, ref } from 'vue';
 import { store } from '../services/store';
 import { Post, Comment } from '../api/types';
 import { timeSince } from '../services/dateTime';
@@ -9,6 +9,7 @@ import Sorter from '../components/utilities/Sorter.vue';
 import CommentList from "../components/posts/CommentList.vue"
 import Tag from '../components/utilities/Tag.vue';
 import { sortComments } from '../services/sorting';
+import { router } from '../services/router';
 
 onBeforeMount(async () => {
     const postResponse = await axios.get<Post>(`https://doxforeverything.herokuapp.com/posts/${route.params.post_id}`);
@@ -19,6 +20,8 @@ onBeforeMount(async () => {
 
     sortBy("top")
 })
+
+const toggleModal = inject("toggleModal") as Function;
 
 const route = useRoute();
 const session = computed(() => store.state.session)
@@ -38,6 +41,17 @@ function toggleCommentBox() {
 function sortBy(sortType: string) {
     currentSortType.value = sortType;
     comments.value = sortComments(comments.value, sortType);
+}
+
+function isOwner() {
+    if (session.value.authenticated && session.value.user?.user_id == post.value?.user?.user_id) {
+        return true;
+    }
+    return false;
+}
+
+function editPost(post: Post) {
+    toggleModal("Editing existing posts is currently not supported", "ETA: soon!");
 }
 
 async function postComment() {
@@ -88,7 +102,7 @@ async function postComment() {
             </div>
         </div>
         <div class="box py-5 my-5 has-background-light is-shadowless">
-            <p class="preserve">{{ post?.content }}</p>
+            <p class="preserve" v-html="post?.content"></p>
         </div>
         <div class="block" v-if="session.authenticated">
             <div class="field is-grouped" v-if="!showCommentBox">
@@ -96,7 +110,7 @@ async function postComment() {
                     <button class="button is-light is-primary" @click="toggleCommentBox">Comment</button>
                     <button class="button is-light is-info" @click="">Share</button>
                     <button class="button is-light is-danger" @click="">Report</button>
-                    <!-- <button class="button is-warning" @click="">Edit</button> -->
+                    <button class="button is-light is-link" v-if="isOwner()" @click="editPost(post)">Edit</button>
                 </div>
             </div>
             <form class=" fields" v-if="showCommentBox">
