@@ -112,7 +112,10 @@ function openPost(post: Post) {
 .votes-left {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+
+    p {
+        line-height: 24px;
+    }
 
     p:hover {
         background-color: lightgray;
