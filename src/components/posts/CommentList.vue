@@ -50,7 +50,7 @@ function downvote(comment: Comment) {
 </script>
 
 <template>
-    <div v-if="comments.length > 0">
+    <div class="comment-list" v-if="comments.length > 0">
         <div class="comment" v-for="comment in comments" :key="comment.comment_id">
             <div class="header">
                 <div class="votes">
@@ -69,6 +69,7 @@ function downvote(comment: Comment) {
                 </div>
             </div>
             <div class="body">
+                <div class="comment-line"></div>
                 <p>{{ comment.content }}</p>
             </div>
         </div>
@@ -80,6 +81,13 @@ function downvote(comment: Comment) {
 
 <style scoped lang="scss">
 @import '../../styles/global.scss';
+
+.comment-list {
+    border-right: 2px ghostwhite solid;
+    border-bottom: 2px ghostwhite solid;
+
+    border-radius: 5px;
+}
 
 .comment {
     @include flex-v;
@@ -108,8 +116,19 @@ function downvote(comment: Comment) {
 
 
     .body {
-        padding: 4px;
-        font-size: 12px;
+        @include flex-h;
+        gap: 5px;
+
+
+        .comment-line {
+            width: 4px;
+            background-color: ghostwhite;
+        }
+
+        p {
+            padding: 4px;
+            font-size: 12px;
+        }
     }
 }
 </style>
