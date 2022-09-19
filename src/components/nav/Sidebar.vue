@@ -9,7 +9,7 @@
             <li class="my-1">Downvote only if something blatantly off topic, or contains hateful or discriminatory
                 language or rhetoric. Downvotes are not for disagreements. </li>
             <li class="my-1">Content which is explicitly harmful to an individual or a specific group is 100%
-                unacceptable</li>
+                unacceptable.</li>
         </ol>
     </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { inject } from 'vue';
-import { Post } from '../../api/types';
+import { Post, User } from '../../api/types';
 import { store } from '../../services/store';
 import { router } from '../../services/router';
 import { timeSince } from '../../services/dateTime';
@@ -28,7 +28,6 @@ function upvote(post: Post) {
 
     axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
 }
-
 function misleading(post: Post) {
     if (!store.state.session.authenticated) {
         toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
@@ -54,9 +53,16 @@ function downvote(post: Post) {
     axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
 }
 
-
 function openPost(post: Post) {
     router.push(`/posts/${post.post_id}`);
+}
+
+function goToProfile(user: User) {
+    router.push(`/profile/${user.username}`);
+}
+
+function navigateTo(route: string) {
+    router.push(route);
 }
 
 </script>
@@ -64,7 +70,7 @@ function openPost(post: Post) {
 
 <template>
     <div v-if="posts.length > 0">
-        <div class="post media box is-clickable p-2 my-2" v-for="post in posts" :key="post.post_id">
+        <div class="post media box p-2 my-2" v-for="post in posts" :key="post.post_id">
             <div class="media-left pr-2 m-0">
                 <div class="votes-left">
                     <p @click="upvote(post)"
@@ -81,17 +87,16 @@ function openPost(post: Post) {
                         }}</p>
                 </div>
             </div>
-            <div class="media-content" @click="openPost(post)">
-                <div class="box m-0 is-shadowless has-background-light p-2">
+            <div class="media-content">
+                <div class="post-title box m-0 is-shadowless has-background-light p-2" @click="openPost(post)">
                     <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
                 </div>
-                <div class="level-left pt-1">
-                    <p class="tag mb-1 mr-1 is-light has-text-weight-medium is-link" v-for="topic in post?.topics">{{
-                    topic
-                    }}</p>
-                    <p class="tag mb-1 mr-1 is-primary has-text-weight-medium is-light">u/{{ post.user?.username }}
-                    </p>
-                    <p class="tag mb-1 mr-1 is-info has-text-weight-medium is-light">{{ timeSince(post.time) }}</p>
+                <div class="pills">
+                    <p class="tag topic is-light is-link" v-for="topic in post?.topics"
+                        @click="navigateTo(`/topic/${topic}`)">{{ topic }}</p>
+                    <p class="tag user-profile is-light is-primary" @click="goToProfile(post.user!)">u/{{
+                    post.user?.username }}</p>
+                    <p class="tag is-light is-info ">{{ timeSince(post.time) }}</p>
                 </div>
             </div>
         </div>
@@ -118,8 +123,32 @@ function openPost(post: Post) {
     }
 
     p:hover {
+        cursor: pointer;
         background-color: lightgray;
         border-radius: 2px;
     }
+}
+
+.post-title:hover {
+    cursor: pointer;
+}
+
+.pills {
+    gap: 0.25em;
+    @include flex-hw;
+
+    margin-top: 0.25em;
+
+    .tag {
+        flex: auto;
+    }
+}
+
+.topic {
+    cursor: pointer;
+}
+
+.user-profile:hover {
+    cursor: pointer;
 }
 </style>

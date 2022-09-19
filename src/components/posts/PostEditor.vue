@@ -18,6 +18,18 @@ const topics = ref<string[]>([])
 const toggleModal = inject("toggleModal") as Function
 
 function addTopic() {
+    if (/\s/.test(topicText.value)) {
+        toggleModal("Topic name contains whitespace", "Topics cannot contain any whitespace characters, try removing them")
+        return;
+    }
+    if (topicText.value.length < 2) {
+        toggleModal("Topic name is too short", "Topics must be at least 2 characters, try to be more specific")
+        return;
+    }
+    if (topicText.value.length > 24) {
+        toggleModal("Topic name is too long", "Topics must be shorter than 24 character, try to be more concise")
+        return;
+    }
     if (topics.value.length >= 5) {
         toggleModal("You can only have 5 topics", "Try to be more specific with which topics you choose.")
         return;
@@ -78,7 +90,6 @@ async function uploadPost() {
                 <p class="subtitle is-4 mb-2">Topics</p>
                 <div class="field is-grouped is-grouped-multiline">
                     <Tag v-for="topic in topics" :contents="topic" @delete="removeTopic" />
-                    <!-- <Tag contents="NFL" /> -->
                 </div>
                 <input type="text" class="input" v-model="topicText" v-on:keyup.enter="addTopic">
             </div>

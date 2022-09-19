@@ -7,27 +7,30 @@ export function timeSince(dateTimeString: string | undefined) {
     }
     const now = luxon.DateTime.now()
     const dateTime = luxon.DateTime.fromISO(dateTimeString)
+    const secondsSince = now.diff(dateTime, "seconds").seconds
+    if (secondsSince < 60) {
+        return `${secondsSince.toFixed(0)} seconds ago`
+    }
     const minutesSince = now.diff(dateTime, "minutes").minutes
     if (minutesSince < 60) {
-        // console.log(minutesSince)
-        return `${minutesSince.toFixed(0)}m ago`
+        return `${minutesSince.toFixed(0)} mins ago`
     }
     const hoursSince = now.diff(dateTime, "hours").hours
     if (hoursSince < 24) {
-        // console.log(hoursSince)
-        return `${hoursSince.toFixed(0)}h ago`
+        return `${hoursSince.toFixed(0)} hours ago`
     }
     const daysSince = now.diff(dateTime, "days").days
     if (daysSince < 7) {
-        // console.log(daysSince)
-        return `${daysSince.toFixed(0)}d ago`
+        return `${daysSince.toFixed(0)} days ago`
     }
     const weeksSince = now.diff(dateTime, "weeks").weeks
     if (weeksSince < 4) {
-        return `${weeksSince.toFixed(0)}w ago`
+        return `${weeksSince.toFixed(0)} weeks ago`
     }
     const monthsSince = now.diff(dateTime, "months").months
     if (monthsSince < 12) {
-        return `${monthsSince.toFixed(0)}m ago`
+        return `${monthsSince.toFixed(0)} months ago`
     }
+    const yearsSince = now.diff(dateTime, "years").years
+    return `${yearsSince.toFixed(0)} years ago`
 }

@@ -86,7 +86,7 @@ function logout() {
                     <span>Post</span>
                 </a>
                 <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/profile')">
+                    @click.prevent="navigateTo(`/profile/${session.user?.username}`)">
                     <span class="icon">
                         <i class="fa-solid fa-user"></i>
                     </span>

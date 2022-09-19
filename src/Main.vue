@@ -1,14 +1,3 @@
-<template>
-    <div>
-        <Navbar />
-        <div class="container">
-            <router-view></router-view>
-        </div>
-        <Modal :show-modal="showModal" :modal-title="modalTitle" :modal-content="modalContent"
-            @toggle-modal="toggleModal" />
-    </div>
-</template>
-
 <script setup lang="ts">
 import "./styles/global.css"
 import { provide, ref } from "vue";
@@ -28,3 +17,20 @@ function toggleModal(title: string, content?: string, footer?: string) {
 provide('toggleModal', toggleModal)
 
 </script>
+
+<template>
+    <div>
+        <Navbar />
+        <div class="container">
+            <router-view></router-view>
+        </div>
+        <Modal :show-modal="showModal" :modal-title="modalTitle" :modal-content="modalContent"
+            @toggle-modal="toggleModal" />
+    </div>
+</template>
+
+<style lang="scss">
+html {
+    overflow-y: auto;
+}
+</style>

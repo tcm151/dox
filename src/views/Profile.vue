@@ -1,26 +1,33 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { store } from '../services/store';
-import { Post, Comment } from '../api/types';
+import { useRoute } from 'vue-router';
 import { ref, computed, onBeforeMount } from 'vue';
+import { Post, Comment, User } from '../api/types';
+import { store } from '../services/store';
+import { sortPosts, sortComments } from '../services/sorting';
 import Sorter from "../components/utilities/Sorter.vue"
 import PostList from '../components/posts/PostList.vue';
 import CommentList from '../components/posts/CommentList.vue';
-import { sortPosts, sortComments } from '../services/sorting';
+
+const route = useRoute();
 
 const session = computed(() => {
     return store.state.session;
 })
 
+const user = ref<User>();
 const posts = ref<Post[]>([]);
 const comments = ref<Comment[]>([]);
 const currentSortType = ref<string>("");
 
 onBeforeMount(async () => {
-    const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/posts`)
+    const userResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/username/${route.params.username}`)
+    user.value = userResponse.data;
+
+    const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${user.value?.user_id}/posts`)
     posts.value = postsResponse.data;
 
-    const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/comments`)
+    const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${user.value?.user_id}/comments`)
     comments.value = commentsResponse.data;
 
     sortBy("top")
@@ -45,8 +52,8 @@ function sortBy(sortType: string) {
                 </div>
                 <div class="level-item">
                     <div>
-                        <p class="title my-2">{{ session.user?.username }}</p>
-                        <p>{{ session.user?.email }}</p>
+                        <p class="title my-2">{{ user?.username }}</p>
+                        <p>{{ user?.email }}</p>
                     </div>
                 </div>
 
@@ -55,7 +62,7 @@ function sortBy(sortType: string) {
         <div class="box mb-2">
             <p class="title">Topics</p>
             <div class="field is-grouped is-grouped-multiline">
-                <div class="control" v-for="topic in session.user?.topics">
+                <div class="control" v-for="topic in user?.topics">
                     <div class="tags has-addons">
                         <div class="tag">{{ topic }}</div>
                         <div class="tag">
@@ -78,14 +85,14 @@ function sortBy(sortType: string) {
         <div class="box my-2 p-4">
             <p class="title">Posts</p>
             <div class="scrollable p-2">
-                <Sorter @sort="sortPosts" />
+                <!-- <Sorter @sort="sortPosts" /> -->
                 <PostList :posts="posts" />
             </div>
         </div>
         <div class="box my-2">
             <p class="title">Comments</p>
             <div class="scrollable p-2">
-                <Sorter @sort="sortComments" />
+                <!-- <Sorter @sort="sortComments" /> -->
                 <CommentList :comments="comments" />
             </div>
         </div>
