@@ -27,5 +27,35 @@ async function fetchPosts() {
 </script>
 
 <template>
-    <PostList :posts="topicPosts" />
+    <div class="mx-2">
+        <div class="topic-header box my-2 py-3">
+            <p class="title my-0">{{ route.params.topic }}</p>
+            <button class="button is-primary">
+                <i class="fa-solid fa-plus"></i>
+                <p>Follow</p>
+            </button>
+        </div>
+        <PostList :posts="topicPosts" />
+    </div>
 </template>
+
+<style scoped lang="scss">
+@import '../styles/global.scss';
+
+.topic-header {
+    gap: 1em;
+    @include flex-h;
+    justify-content: space-between;
+
+    button {
+        gap: 0.5em;
+        @include flex-h;
+
+        padding: 0.2em 0.8em;
+
+        p {
+            transform: translateY(1px);
+        }
+    }
+}
+</style>

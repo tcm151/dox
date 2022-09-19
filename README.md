@@ -1,4 +1,4 @@
-A question and answer and discussion board focused on users.
+A question, answer, and discussion board focused on users.
 
 https://doxforeverything.netlify.app/ 
 
