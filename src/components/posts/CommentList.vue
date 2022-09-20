@@ -63,10 +63,10 @@ function downvote(comment: Comment) {
                     <p class="vote tag is-light is-danger" @click.prevent="downvote(comment)">{{
                     comment.votes.downvotes.length
                     }}</p>
-                    <p class="tag is-light is-info">{{ timeSince(comment.time) }}</p>
-                    <p class="tag is-light is-link">u/{{ comment.user?.username }}</p>
-                    <p class="tag reply-button">Reply</p>
                 </div>
+                <p class="tag is-light is-info">{{ timeSince(comment.time) }}</p>
+                <p class="tag is-light is-link">u/{{ comment.user?.username }}</p>
+                <p class="tag reply-button">Reply</p>
             </div>
             <div class="body">
                 <div class="comment-line"></div>
@@ -93,7 +93,7 @@ function downvote(comment: Comment) {
     @include flex-v;
 
     .header {
-        @include flex-h;
+        @include flex-hw;
 
         padding: 0.25em;
         font-weight: 500;
@@ -103,15 +103,16 @@ function downvote(comment: Comment) {
             @include flex-h;
             gap: 0.25em;
 
-            .vote:hover,
-            .reply-button:hover {
-                filter: brightness(0.95)
-            }
+        }
 
-            p {
-                font-weight: 600;
-                font-size: 0.8em;
-            }
+        .vote:hover,
+        .reply-button:hover {
+            filter: brightness(0.95)
+        }
+
+        p {
+            font-weight: 600;
+            font-size: 0.8em;
         }
     }
 
@@ -130,6 +131,10 @@ function downvote(comment: Comment) {
             padding: 0.25em;
             font-weight: 500;
             font-size: 1em;
+
+            hyphens: auto;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
     }
 }

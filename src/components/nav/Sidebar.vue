@@ -47,6 +47,7 @@
     }
 
     li {
+        font-weight: 500;
         font-size: 0.95em;
         padding-left: 0.25em;
     }
@@ -58,6 +59,7 @@
 
     .tag {
         flex: 1 1 0;
+        font-weight: 600;
     }
 }
 
@@ -68,6 +70,10 @@
     textarea {
         min-height: 128px;
         max-height: 512px;
+    }
+
+    button {
+        font-weight: 600;
     }
 }
 </style>

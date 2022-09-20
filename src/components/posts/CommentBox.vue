@@ -2,9 +2,14 @@
 import { ref } from 'vue';
 
 // defineProps<{}>();
-defineEmits(['toggleCommentBox', 'postComment'])
+const emit = defineEmits(['toggleCommentBox', 'postComment'])
 
 const comment = ref("");
+
+function postComment(comment: string) {
+    emit('postComment', comment)
+    emit('toggleCommentBox')
+}
 
 </script>
 
@@ -12,12 +17,12 @@ const comment = ref("");
     <form class="fields">
         <div class="field">
             <div class="control">
-                <textarea class="textarea" rows="5" v-model="comment"></textarea>
+                <textarea class="textarea" rows="4" v-model="comment"></textarea>
             </div>
         </div>
         <div class="field buttons is-grouped">
             <div class="control">
-                <button class="button is-primary" @click.prevent="$emit('postComment', comment)">Submit</button>
+                <button class="button is-primary" @click.prevent="postComment(comment)">Submit</button>
                 <button class="button is-danger" @click="$emit('toggleCommentBox')">Cancel</button>
             </div>
         </div>

@@ -62,37 +62,37 @@ function downvote(post: Post) {
             <div class="media-left pr-2 m-0">
                 <div class="votes-left">
                     <p @click="upvote(post)"
-                        class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
-                        formatNumber(post.votes?.upvotes.length)
-                        }}</p>
+                       class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
+                       formatNumber(post.votes?.upvotes.length)
+                       }}</p>
                     <p @click="misleading(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
-                        formatNumber(post.votes?.misleading.length)
-                        }}</p>
+                       class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
+                       formatNumber(post.votes?.misleading.length)
+                       }}</p>
                     <p @click="downvote(post)"
-                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
-                        formatNumber(post.votes?.downvotes.length)
-                        }}</p>
+                       class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
+                       formatNumber(post.votes?.downvotes.length)
+                       }}</p>
                 </div>
             </div>
             <div class="media-content">
                 <div class="post-title box m-0 is-shadowless has-background-light p-2"
-                    @click="navigateTo(`/posts/${post.post_id}`)">
+                     @click="navigateTo(`/posts/${post.post_id}`)">
                     <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
                 </div>
                 <div class="pills">
                     <p class="tag topic is-light is-link" v-for="topic in post?.topics"
-                        @click="navigateTo(`/topic/${topic}`)">{{ topic }}</p>
+                       @click="navigateTo(`/topic/${topic}`)">{{ topic }}</p>
                     <p class="tag user-profile is-light is-primary"
-                        @click="navigateTo(`/profile/${post.user?.username}`)">u/{{
-                        post.user?.username }}</p>
+                       @click="navigateTo(`/profile/${post.user?.username}`)">u/{{
+                       post.user?.username }}</p>
                     <p class="tag is-light is-info ">{{ timeSince(post.time) }}</p>
                 </div>
             </div>
         </div>
         <div class="box m-0 p-2 pagination is-small is-centered" role="navigation">
-            <a class="pagination-previous is-disabled" title="This is the first page">Previous</a>
-            <a class="pagination-next">Next page</a>
+            <!-- <a class="pagination-previous is-disabled" title="This is the first page">Previous</a> -->
+            <!-- <a class="pagination-next">Next</a> -->
             <ul class="pagination-list">
                 <li><a class="pagination-link is-current">1</a></li>
                 <li><a class="pagination-link">2</a></li>
@@ -144,14 +144,14 @@ function downvote(post: Post) {
 }
 
 .pills {
-    gap: 0.25em;
     @include flex-hw;
+    gap: 0.25em;
 
     margin-top: 0.25em;
 
     .tag {
         flex: 1 1 0;
-        padding: 0.2em 1em;
+        font-weight: 600;
     }
 }
 

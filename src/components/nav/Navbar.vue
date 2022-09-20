@@ -9,9 +9,6 @@ const session = computed(() => {
     return store.state.session;
 })
 
-//? does not do what intended
-// onBeforeRouteUpdate(() => showMenu.value = false)
-
 const showMenu = ref(false);
 const showLogin = ref(false);
 
@@ -23,14 +20,8 @@ function toggleMenu() {
     showMenu.value = !showMenu.value;
 }
 
-// function navigateTo(route: string) {
-//     showMenu.value = false;
-//     router.push(route);
-// }
-
 function logout() {
     store.commit("logout");
-    // router.push("/");
     navigateTo("/")
 }
 
@@ -58,13 +49,13 @@ function logout() {
         </div>
         <div class="navbar-menu p-1" v-bind:class="{ 'is-active': showMenu }">
             <div class="navbar-end" v-if="!session.authenticated">
-                <a class="icon-text navbar-item is-size-5 has-text-weight-semibold" @click.prevent="navigateTo('/')">
+                <a class="navbar-item" @click.prevent="navigateTo('/')">
                     <span class="icon">
                         <i class="fa-solid fa-house"></i>
                     </span>
                     <span>Home</span>
                 </a>
-                <a class="icon-text navbar-item is-size-5 has-text-weight-semibold" @click.prevent="toggleLogin">
+                <a class="navbar-item" @click.prevent="toggleLogin">
                     <span class="icon">
                         <i class="fa-solid fa-right-to-bracket"></i>
                     </span>
@@ -72,28 +63,25 @@ function logout() {
                 </a>
             </div>
             <div class="navbar-end" v-else>
-                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/')">
+                <a class="navbar-item" @click.prevent="navigateTo('/')">
                     <span class="icon">
                         <i class="fa-solid fa-house"></i>
                     </span>
                     <span>Home</span>
                 </a>
-                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo('/editor')">
+                <a class="navbar-item" @click.prevent="navigateTo('/editor')">
                     <span class="icon">
                         <i class="fa-solid fa-feather-pointed"></i>
                     </span>
                     <span>Post</span>
                 </a>
-                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold"
-                    @click.prevent="navigateTo(`/profile/${session.user?.username}`)">
+                <a class="navbar-item" @click.prevent="navigateTo(`/profile/${session.user?.username}`)">
                     <span class="icon">
                         <i class="fa-solid fa-user"></i>
                     </span>
                     <span>{{ session.user?.username }}</span>
                 </a>
-                <a class="icon-text p-2 navbar-item is-size-5 has-text-weight-semibold " @click.prevent="logout">
+                <a class="navbar-item" @click.prevent="logout">
                     <span class="icon">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </span>
@@ -109,6 +97,26 @@ function logout() {
 
 .navbar-burger:hover {
     background-color: whitesmoke;
+}
+
+.navbar-end {
+    .navbar-item {
+        font-weight: 900;
+        font-size: 1.25em;
+        line-height: 1em;
+
+        margin: 0.1em;
+        padding: 0.1em 0.5em;
+
+        .icon {
+            margin-right: 0.2em;
+        }
+    }
+
+    .navbar-item:hover {
+        color: $dox-gray;
+        background-color: hsl(171, 100%, 29%);
+    }
 }
 
 .navbar-item {

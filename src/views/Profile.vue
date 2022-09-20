@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { useRoute } from 'vue-router';
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount, watch } from 'vue';
 import { Post, Comment, User } from '../api/types';
 import { store } from '../services/store';
 import { sortPosts, sortComments } from '../services/sorting';
@@ -9,6 +9,7 @@ import Sorter from "../components/utilities/Sorter.vue"
 import PostList from '../components/posts/PostList.vue';
 import CommentList from '../components/posts/CommentList.vue';
 import Information from '../components/profile/Information.vue';
+import Topics from '../components/profile/Topics.vue';
 
 const route = useRoute();
 
@@ -21,7 +22,10 @@ const posts = ref<Post[]>([]);
 const comments = ref<Comment[]>([]);
 const currentSortType = ref<string>("");
 
-onBeforeMount(async () => {
+onBeforeMount(fetchUserContent)
+watch(() => route.params, () => fetchUserContent())
+
+async function fetchUserContent() {
     const userResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/username/${route.params.username}`)
     user.value = userResponse.data;
 
@@ -32,7 +36,7 @@ onBeforeMount(async () => {
     comments.value = commentsResponse.data;
 
     sortBy("top")
-})
+}
 
 function sortBy(sortType: string) {
     currentSortType.value = sortType;
@@ -43,44 +47,18 @@ function sortBy(sortType: string) {
 
 
 <template>
-    <div>
+    <div class="profile m-2">
         <Information :user="user!" />
-        <div class="box mb-2">
-            <p class="title">Topics</p>
-            <div class="field is-grouped is-grouped-multiline">
-                <div class="control" v-for="topic in user?.topics">
-                    <div class="tags has-addons">
-                        <div class="tag">{{ topic }}</div>
-                        <div class="tag">
-                            <i class="fa-solid fa-xmark"></i>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="control">
-                    <div class="tags has-addons">
-                        <div class="tag"></div>
-                        <div class="tag">
-                            <i class="fa-solid fa-plus"></i>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+        <Topics :user="user!" />
+        <div class="box mb-2 p-4">
+            <p class="title mb-4">Posts</p>
+            <Sorter post-filter="N/A" @sort="sortPosts" />
+            <PostList :posts="posts" />
         </div>
-        <div class="box my-2 p-4">
-            <p class="title">Posts</p>
-            <div class="p-2">
-                <!-- <Sorter @sort="sortPosts" /> -->
-                <PostList :posts="posts" />
-            </div>
-        </div>
-        <div class="box my-2">
-            <p class="title">Comments</p>
-            <div class="p-2">
-                <!-- <Sorter @sort="sortComments" /> -->
-                <CommentList :comments="comments" />
-            </div>
+        <div class="box">
+            <p class="title mb-4">Comments</p>
+            <Sorter post-filter="N/A" @sort="sortComments" />
+            <CommentList :comments="comments" />
         </div>
     </div>
 </template>

@@ -28,8 +28,8 @@ const options: StoreOptions<State> = {
             return state.session.user
         },
         getCurrentUserId(state): number {
-            return (state.session.user) ? state.session.user.user_id : -1;
-        }
+            return state.session.user ? state.session.user.user_id : -1
+        },
     },
     mutations: {
         login(state, session): void {
@@ -37,6 +37,9 @@ const options: StoreOptions<State> = {
         },
         logout(state): void {
             state.session.authenticated = false
+        },
+        updateTopics(state, topics: string[]): void {
+            state.session.user!.topics = topics
         },
     },
 }

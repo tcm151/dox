@@ -3,8 +3,8 @@ import axios from 'axios';
 import { inject, onBeforeMount, ref } from 'vue';
 import { Post } from '../api/types';
 import { store } from '../services/store';
-import { navigateTo, router } from '../services/router';
 import { sortPosts } from '../services/sorting';
+import { navigateTo } from '../services/router';
 import Sorter from '../components/utilities/Sorter.vue';
 import Sidebar from '../components/nav/Sidebar.vue';
 import PostList from '../components/posts/PostList.vue';
@@ -63,7 +63,7 @@ function sortBy(sortType: string) {
     <div class="columns p-2">
         <div class="column">
             <Sorter :post-filter="postFilter" @toggle-filter="toggleFilter" @sort-by="sortBy"
-                @navigate-to="navigateTo" />
+                    @navigate-to="navigateTo" />
             <PostList :posts="posts" />
         </div>
         <div class="column is-4 pl-0">

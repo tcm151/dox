@@ -12,7 +12,7 @@ const session = computed(() => {
 </script>
 
 <template>
-    <div class="profile-header box my-2">
+    <div class="profile-header box p-4 mb-2">
         <figure class="profile-picture image is-96x96">
             <img src="https://bulma.io/images/placeholders/96x96.png">
         </figure>

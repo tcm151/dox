@@ -31,7 +31,7 @@ function editPost(post: Post) {
 </script>
 
 <template>
-    <div v-if="session.authenticated">
+    <div class="interactions mt-2" v-if="session.authenticated">
         <div class="field is-grouped" v-if="!showCommentBox">
             <div class="buttons">
                 <button class="button is-light is-primary" @click="toggleCommentBox">Comment</button>
@@ -41,9 +41,19 @@ function editPost(post: Post) {
             </div>
         </div>
         <CommentBox v-if="showCommentBox" @toggle-comment-box="toggleCommentBox"
-            @post-comment="$emit('postComment', $event)" />
+                    @post-comment="$emit('postComment', $event)" />
     </div>
     <div v-else class="box has-background-danger has-text-weight-semibold">
         <p>You must be logged in to participate</p>
     </div>
 </template>
+
+<style scoped lang="scss">
+@import '../../styles/global.scss';
+
+.buttons {
+    button {
+        font-weight: 500;
+    }
+}
+</style>

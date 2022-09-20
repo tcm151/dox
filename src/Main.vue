@@ -41,7 +41,7 @@ html {
     justify-content: center;
 
     >* {
-        flex: 1 0 auto;
+        flex: 1 1 auto;
         max-width: 1000px;
     }
 }

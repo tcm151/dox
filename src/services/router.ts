@@ -56,7 +56,6 @@ export const router = createRouter({
 
 export function navigateTo(route: string, beforeRoute?: Function, afterRoute?: Function) {
     beforeRoute?.()
-    console.log("NEW ROUTE")
     router.push(route)
     afterRoute?.()
 }
