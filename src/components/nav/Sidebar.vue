@@ -1,7 +1,20 @@
 <template>
-    <div class="box content">
+    <div class="box mb-2 content">
+        <h2>Recommended Topics</h2>
+        <div class="topics">
+            <div class="tag is-light is-link">AskDox</div>
+            <div class="tag is-light is-link">Movies</div>
+            <div class="tag is-light is-link">Unity</div>
+            <div class="tag is-light is-link">DoxUpdates</div>
+            <div class="tag is-light is-link">Programming</div>
+            <div class="tag is-light is-link">Marvel</div>
+            <div class="tag is-light is-link">Warhammer</div>
+            <div class="tag is-light is-link">NFL</div>
+        </div>
+    </div>
+    <div class="box mb-2 content">
         <h2>Rules</h2>
-        <ol class="mx-4">
+        <ol class="ml-3 mr-1">
             <li class="my-1">Upvote things that are high quailty, topical, well formed, helpful, and provide solid
                 discussion upon a certain topic. We do not disencentivize discussion.</li>
             <li class="my-1">Mark things as misleading when the information given is intented to guide someone in
@@ -12,19 +25,49 @@
                 unacceptable.</li>
         </ol>
     </div>
+    <div class="box content">
+        <h2>Submit Feedback</h2>
+        <form class="feedback-form" action="">
+            <textarea class="textarea" rows="4"></textarea>
+            <button type="button" class="button mt-2 is-light">Submit</button>
+        </form>
+    </div>
 </template>
 
 <style scoped lang="scss">
+@import '../../styles/global.scss';
+
 .content {
-    text-align: justify;
     hyphens: auto;
+    text-align: justify;
 
     li::marker {
         font-weight: 600;
+        font-size: 0.95em;
     }
 
     li {
-        padding-left: 4px;
+        font-size: 0.95em;
+        padding-left: 0.25em;
+    }
+}
+
+.topics {
+    @include flex-hw;
+    gap: 0.25em;
+
+    .tag {
+        flex: 1 1 0;
+    }
+}
+
+.feedback-form {
+    @include flex-v;
+    justify-content: right;
+
+    textarea {
+        min-height: 128px;
+        max-height: 512px;
     }
 }
 </style>

@@ -4,6 +4,7 @@ import { inject, onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { Post } from '../api/types';
 import PostList from '../components/posts/PostList.vue';
+import Sorter from '../components/utilities/Sorter.vue';
 
 const route = useRoute();
 const topicPosts = ref<Post[]>([])
@@ -27,7 +28,7 @@ async function fetchPosts() {
 </script>
 
 <template>
-    <div class="mx-2">
+    <div>
         <div class="topic-header box my-2 py-3">
             <p class="title my-0">{{ route.params.topic }}</p>
             <button class="button is-primary">
@@ -35,6 +36,7 @@ async function fetchPosts() {
                 <p>Follow</p>
             </button>
         </div>
+        <Sorter post-filter="N/A" />
         <PostList :posts="topicPosts" />
     </div>
 </template>

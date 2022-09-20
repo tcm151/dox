@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Post } from '../../api/types';
 import { store } from '../../services/store';
-import { router } from '../../services/router';
+import { navigateTo, router } from '../../services/router';
 import { computed, inject, ref } from 'vue';
 import Tag from '../utilities/Tag.vue';
 
@@ -59,6 +59,7 @@ async function uploadPost() {
                 user_id: store.getters.getSession.user.user_id,
             }))
         console.log(response.data);
+        navigateTo(`/posts/${response.data.post_id}`)
         router.push(`/posts/${response.data.post_id}`)
     }
     catch (error) {

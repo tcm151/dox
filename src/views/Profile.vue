@@ -8,6 +8,7 @@ import { sortPosts, sortComments } from '../services/sorting';
 import Sorter from "../components/utilities/Sorter.vue"
 import PostList from '../components/posts/PostList.vue';
 import CommentList from '../components/posts/CommentList.vue';
+import Information from '../components/profile/Information.vue';
 
 const route = useRoute();
 
@@ -42,23 +43,8 @@ function sortBy(sortType: string) {
 
 
 <template>
-    <div v-if="session.authenticated">
-        <div class="level box my-2 p-4 is-mobile">
-            <div class="level-left">
-                <div class="level-item">
-                    <figure class="image is-96x96">
-                        <img src="https://bulma.io/images/placeholders/96x96.png">
-                    </figure>
-                </div>
-                <div class="level-item">
-                    <div>
-                        <p class="title my-2">{{ user?.username }}</p>
-                        <p>{{ user?.email }}</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+    <div>
+        <Information :user="user!" />
         <div class="box mb-2">
             <p class="title">Topics</p>
             <div class="field is-grouped is-grouped-multiline">
@@ -84,21 +70,18 @@ function sortBy(sortType: string) {
         </div>
         <div class="box my-2 p-4">
             <p class="title">Posts</p>
-            <div class="scrollable p-2">
+            <div class="p-2">
                 <!-- <Sorter @sort="sortPosts" /> -->
                 <PostList :posts="posts" />
             </div>
         </div>
         <div class="box my-2">
             <p class="title">Comments</p>
-            <div class="scrollable p-2">
+            <div class="p-2">
                 <!-- <Sorter @sort="sortComments" /> -->
                 <CommentList :comments="comments" />
             </div>
         </div>
-    </div>
-    <div class="box m-5" v-else>
-        <p>Not logged in.</p>
     </div>
 </template>
 

@@ -86,7 +86,7 @@ function downvote(comment: Comment) {
     border-right: 2px ghostwhite solid;
     border-bottom: 2px ghostwhite solid;
 
-    border-radius: 5px;
+    border-radius: 0.25em;
 }
 
 .comment {
@@ -95,13 +95,13 @@ function downvote(comment: Comment) {
     .header {
         @include flex-h;
 
-        padding: 4px;
+        padding: 0.25em;
         font-weight: 500;
         background-color: ghostwhite;
 
         .votes {
             @include flex-h;
-            gap: 4px;
+            gap: 0.25em;
 
             .vote:hover,
             .reply-button:hover {
@@ -109,7 +109,8 @@ function downvote(comment: Comment) {
             }
 
             p {
-                font-size: 12px;
+                font-weight: 600;
+                font-size: 0.8em;
             }
         }
     }
@@ -117,17 +118,18 @@ function downvote(comment: Comment) {
 
     .body {
         @include flex-h;
-        gap: 5px;
+        gap: 0.5em;
 
 
         .comment-line {
-            width: 4px;
+            width: 0.25em;
             background-color: ghostwhite;
         }
 
         p {
-            padding: 4px;
-            font-size: 12px;
+            padding: 0.25em;
+            font-weight: 500;
+            font-size: 1em;
         }
     }
 }

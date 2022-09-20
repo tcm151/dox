@@ -2,7 +2,7 @@
 import axios from 'axios';
 import bcrypt from "bcryptjs"
 import { inject, ref } from 'vue';
-import { router } from '../services/router';
+import { navigateTo, router } from '../services/router';
 import { Session, store } from '../services/store';
 
 const toggleModal = inject("toggleModal") as Function
@@ -67,7 +67,8 @@ async function login() {
         username.value = "";
         password.value = "";
         // emits("closeLogin");
-        router.push("/");
+        // router.push("/");
+        navigateTo("/")
 
     } catch (error) {
         console.log(error)
@@ -80,42 +81,49 @@ async function login() {
 
 
 <template>
-    <div class="columns my-6 is-centered">
-        <form class="column box p-6 is-5">
-            <div class="field">
-                <label class="label">Email</label>
-                <div class="control">
-                    <input class="input" required type="text" v-model="email" />
-                </div>
+    <form class="box p-6 m-6">
+        <div class="field">
+            <label class="label">Email</label>
+            <div class="control">
+                <input class="input" required type="text" v-model="email" />
             </div>
-            <div class="field">
-                <label class="label">Username</label>
-                <div class="control">
-                    <input class="input" required type="text" v-model="username" />
-                </div>
+        </div>
+        <div class="field">
+            <label class="label">Username</label>
+            <div class="control">
+                <input class="input" required type="text" v-model="username" />
             </div>
-            <div class="field">
-                <label class="label">Password</label>
-                <div class="control">
-                    <input class="input" required type="password" v-model="password" />
-                </div>
-                <!-- <p class="help is-danger" v-if="!matchingPasswords">Passwords do not match</p> -->
+        </div>
+        <div class="field">
+            <label class="label">Password</label>
+            <div class="control">
+                <input class="input" required type="password" v-model="password" />
             </div>
-            <div class="field">
-                <label class="label">Confirm Password</label>
-                <div class="control">
-                    <input class="input" required type="password" v-model="passwordConfirmation" />
-                </div>
-                <!-- <p class="help is-danger" v-if="!matchingPasswords">Passwords do not match</p> -->
+            <!-- <p class="help is-danger" v-if="!matchingPasswords">Passwords do not match</p> -->
+        </div>
+        <div class="field">
+            <label class="label">Confirm Password</label>
+            <div class="control">
+                <input class="input" required type="password" v-model="passwordConfirmation" />
             </div>
-            <div class="field columns is-centered is-grouped mt-6">
-                <div class="control">
-                    <button class="button is-primary" @click.prevent="registerUser">Register</button>
-                </div>
-                <div class="control">
-                    <button class="button is-danger">Cancel</button>
-                </div>
+            <!-- <p class="help is-danger" v-if="!matchingPasswords">Passwords do not match</p> -->
+        </div>
+        <div class="buttons field mt-6">
+            <div class="control">
+                <button class="button is-primary" @click.prevent="registerUser">Register</button>
             </div>
-        </form>
-    </div>
+            <div class="control">
+                <button class="button is-danger">Cancel</button>
+            </div>
+        </div>
+    </form>
 </template>
+
+<style scope lang="scss">
+@import '../styles/global.scss';
+
+.buttons {
+    @include flex-h;
+    justify-content: space-evenly;
+}
+</style>

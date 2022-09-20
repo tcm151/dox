@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { inject, ref } from 'vue';
 import { onBeforeRouteUpdate } from 'vue-router';
-import { router } from '../../services/router';
+import { navigateTo, router } from '../../services/router';
 import { Session, store } from '../../services/store';
 
 defineProps<{ showLogin: boolean }>();
@@ -13,10 +13,10 @@ const password = ref("")
 
 const toggleModal = inject("toggleModal") as Function
 
-function navigateTo(route: string) {
-    emits("closeLogin")
-    router.push(route);
-}
+// function navigateTo(route: string, beforeRoute?: Function, afterRoute?: Function) {
+//     emits("closeLogin")
+//     router.push(route);
+// }
 
 
 async function login() {
@@ -32,7 +32,8 @@ async function login() {
         username.value = "";
         password.value = "";
         emits("closeLogin");
-        router.push("/");
+        // router.push("/");
+        navigateTo("/")
 
     } catch (error) {
         console.log(error)
@@ -44,7 +45,7 @@ async function login() {
 
 
 <template>
-    <div class="modal" v-bind:class="{ 'is-active': showLogin }">
+    <div class="login modal" v-bind:class="{ 'is-active': showLogin }">
         <div class="modal-background"></div>
         <div class="modal-content message is-info is-large mx-6">
             <div class="message-header">

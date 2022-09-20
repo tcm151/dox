@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onBeforeRouteUpdate } from 'vue-router';
-import { router } from '../../services/router';
+import { navigateTo, router } from '../../services/router';
 import { store } from "../../services/store";
 import Login from "../auth/Login.vue";
 
@@ -23,14 +23,15 @@ function toggleMenu() {
     showMenu.value = !showMenu.value;
 }
 
-function navigateTo(route: string) {
-    showMenu.value = false;
-    router.push(route);
-}
+// function navigateTo(route: string) {
+//     showMenu.value = false;
+//     router.push(route);
+// }
 
 function logout() {
     store.commit("logout");
-    router.push("/");
+    // router.push("/");
+    navigateTo("/")
 }
 
 </script>
@@ -111,7 +112,7 @@ function logout() {
 }
 
 .navbar-item {
-    border-radius: 5px;
+    border-radius: 0.25em;
     color: $dox-black;
 }
 </style>

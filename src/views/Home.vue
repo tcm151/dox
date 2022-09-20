@@ -3,7 +3,7 @@ import axios from 'axios';
 import { inject, onBeforeMount, ref } from 'vue';
 import { Post } from '../api/types';
 import { store } from '../services/store';
-import { router } from '../services/router';
+import { navigateTo, router } from '../services/router';
 import { sortPosts } from '../services/sorting';
 import Sorter from '../components/utilities/Sorter.vue';
 import Sidebar from '../components/nav/Sidebar.vue';
@@ -56,9 +56,6 @@ function sortBy(sortType: string) {
     posts.value = sortPosts(posts.value, sortType);
 }
 
-function navigateTo(route: string) {
-    router.push(route);
-}
 </script>
 
 

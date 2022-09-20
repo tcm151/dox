@@ -68,13 +68,15 @@ async function postComment(comment: string) {
 
 
 <template>
-    <div class="box m-2 p-4">
-        <Details :post="post!" />
-        <Interactions :post="post" @post-comment="postComment" />
-    </div>
-    <div class="box m-2 p-4">
-        <!-- <Sorter @sort-by="sortBy" /> -->
-        <CommentList :comments="comments" />
+    <div>
+        <div class="box m-2 p-4">
+            <Details :post="post!" />
+            <Interactions :post="post" @post-comment="postComment" />
+        </div>
+        <div class="box m-2 p-4">
+            <Sorter post-filter="N/A" @sort-by="sortBy" />
+            <CommentList :comments="comments" />
+        </div>
     </div>
 </template>
 

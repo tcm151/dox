@@ -19,18 +19,30 @@ provide('toggleModal', toggleModal)
 </script>
 
 <template>
-    <div>
+    <div class="main">
         <Navbar />
-        <div class="container">
+        <div class="router-container">
             <router-view></router-view>
         </div>
-        <Modal :show-modal="showModal" :modal-title="modalTitle" :modal-content="modalContent"
-            @toggle-modal="toggleModal" />
     </div>
+    <Modal :show-modal="showModal" :modal-title="modalTitle" :modal-content="modalContent"
+        @toggle-modal="toggleModal" />
 </template>
 
 <style lang="scss">
+@import './styles/global.scss';
+
 html {
     overflow-y: auto;
+}
+
+.router-container {
+    @include flex-h;
+    justify-content: center;
+
+    >* {
+        flex: 1 0 auto;
+        max-width: 1000px;
+    }
 }
 </style>
