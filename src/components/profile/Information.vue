@@ -12,17 +12,19 @@ const session = computed(() => {
 </script>
 
 <template>
-    <div class="profile-header box p-4 mb-2">
-        <figure class="profile-picture image is-96x96">
-            <img src="https://bulma.io/images/placeholders/96x96.png">
-        </figure>
-        <div class="info" v-if="session.authenticated">
-            <p class="username">{{ user?.username }}</p>
-            <p>{{ user?.email }}</p>
-        </div>
-        <div class="info" v-else>
-            <p class="username">{{ user?.username }}</p>
-            <div class="login-required has-background-danger">Login to view additional information</div>
+    <div class="information box p-4 mb-2">
+        <div class="profile-header">
+            <figure class="profile-picture image is-96x96">
+                <img src="https://bulma.io/images/placeholders/96x96.png">
+            </figure>
+            <div class="info" v-if="session.authenticated">
+                <p class="username">{{ user?.username }}</p>
+                <p>{{ user?.email }}</p>
+            </div>
+            <div class="info" v-else>
+                <p class="username">{{ user?.username }}</p>
+                <div class="login-required has-background-danger">Login to view additional information</div>
+            </div>
         </div>
     </div>
 </template>
@@ -34,7 +36,9 @@ const session = computed(() => {
     @include flex-h;
     gap: 1em;
 
-    margin: 0;
+    .profile-picture {
+        margin-right: 0;
+    }
 }
 
 .info {

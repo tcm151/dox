@@ -3,7 +3,7 @@ import * as luxon from "luxon"
 
 export function timeSince(dateTimeString: string | undefined) {
     if (dateTimeString == undefined) {
-        return "\u221E ago"
+        return "\u221E time ago"
     }
     const now = luxon.DateTime.now()
     const dateTime = luxon.DateTime.fromISO(dateTimeString)
@@ -33,4 +33,8 @@ export function timeSince(dateTimeString: string | undefined) {
     }
     const yearsSince = now.diff(dateTime, "years").years
     return `${yearsSince.toFixed(0)} years ago`
+}
+
+export function currentTime() {
+    return luxon.DateTime.now().toString()
 }

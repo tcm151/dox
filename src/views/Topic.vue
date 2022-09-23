@@ -54,25 +54,37 @@ function followingTopic(topic: string) {
     return (session.value.user?.topics.includes(topic))
 }
 
+function sortBy(sortType: string) {
+
+}
+
 </script>
 
 <template>
     <div class="topic-page m-2">
         <div class="topic-header box mb-2 py-3">
             <p class="title my-0">{{ route.params.topic }}</p>
-            <div v-if="session.authenticated">
-                <button v-if="followingTopic(route.params.topic as string)" class="button is-success"
-                    @click="unfollowTopic(route.params.topic as string)">
-                    <i class="fa-solid fa-check"></i>
-                    <p>Following</p>
+            <Sorter @sort-by="sortBy" />
+            <div class="following" v-if="session.authenticated">
+                <button class="button is-success" v-if="followingTopic(route.params.topic as string)"
+                        @click="unfollowTopic(route.params.topic as string)">
+                    <div class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
+                        <span>Following</span>
+                    </div>
                 </button>
                 <button v-else class="button is-danger" @click="followTopic(route.params.topic as string)">
-                    <i class="fa-solid fa-plus"></i>
-                    <p>Follow</p>
+                    <div class="icon-text">
+                        <span class="icon">
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
+                        <span>Follow</span>
+                    </div>
                 </button>
             </div>
         </div>
-        <Sorter post-filter="N/A" />
         <PostList :posts="topicPosts" />
     </div>
 </template>
@@ -86,17 +98,13 @@ function followingTopic(topic: string) {
     align-items: center;
     gap: 1em;
 
-    button {
-        @include flex-h;
-        gap: 0.5em;
-
-        font-size: 0.8em;
-        padding: 0.1em 0.8em;
-
-        p,
-        i {
-            transform: translateY(1px);
-        }
+    >* {
+        flex: 1 1 0;
     }
+}
+
+.following {
+    @include flex-h;
+    justify-content: right;
 }
 </style>

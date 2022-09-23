@@ -1,15 +1,20 @@
+<script setup lang="ts">
+import Tag from '../utilities/Tag.vue';
+
+</script>
+
 <template>
     <div class="box mb-2 content">
         <h2>Recommended Topics</h2>
         <div class="topics">
-            <div class="tag is-light is-link">AskDox</div>
-            <div class="tag is-light is-link">Movies</div>
-            <div class="tag is-light is-link">Unity</div>
-            <div class="tag is-light is-link">DoxUpdates</div>
-            <div class="tag is-light is-link">Programming</div>
-            <div class="tag is-light is-link">Marvel</div>
-            <div class="tag is-light is-link">Warhammer</div>
-            <div class="tag is-light is-link">NFL</div>
+            <Tag label="AskDox" class="is-light is-link m-0" route="/topic/AskDox" />
+            <Tag label="Movies" class="is-light is-link m-0" route="/topic/Movies" />
+            <Tag label="Unity" class="is-light is-link m-0" route="/topic/Unity" />
+            <Tag label="DoxUpdates" class="is-light is-link m-0" route="/topic/DoxUpdates" />
+            <Tag label="Programming" class="is-light is-link m-0" route="/topic/Programming" />
+            <Tag label="Marvel" class="is-light is-link m-0" route="/topic/Marvel" />
+            <Tag label="Warhammer" class="is-light is-link m-0" route="/topic/Warhammer" />
+            <Tag label="NFL" class="is-light is-link m-0" route="/topic/NFL" />
         </div>
     </div>
     <div class="box mb-2 content">

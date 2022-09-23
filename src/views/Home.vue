@@ -60,18 +60,63 @@ function sortBy(sortType: string) {
 
 
 <template>
-    <div class="columns p-2">
-        <div class="column">
-            <Sorter :post-filter="postFilter" @toggle-filter="toggleFilter" @sort-by="sortBy"
-                    @navigate-to="navigateTo" />
+    <div class="home p-2">
+        <div class="posts">
+            <div class="toolbar">
+                <div class="button is-primary has-text-weight-bold is-hidden-mobile"
+                     @click.prevent="$emit('toggleFilter')">
+                    <span class="icon">
+                        <i class="fa-solid fa-crown"></i>
+                    </span>
+                    <span>{{ postFilter }}</span>
+
+                </div>
+                <div class="button is-primary has-text-weight-bold is-hidden-tablet"
+                     @click.prevent="$emit('toggleFilter')">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <Sorter @sort-by="sortBy" />
+                <div class="button is-link has-text-weight-bold is-hidden-mobile"
+                     @click.prevent="$emit('navigateTo', '/editor')">
+                    <span class="icon">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </span>
+                    <span>Post</span>
+                </div>
+                <div class="button is-link has-text-weight-bold is-hidden-tablet"
+                     @click.prevent="$emit('navigateTo', '/editor')">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                </div>
+            </div>
             <PostList :posts="posts" />
         </div>
-        <div class="column is-4 pl-0">
+        <div class="sidebar">
             <Sidebar />
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
+@import '../styles/global.scss';
 
+.home {
+    @include flex-hw (0.5em);
+
+    .posts {
+        flex: 8 1 400px;
+    }
+
+    .sidebar {
+        flex: 1 1 250px;
+    }
+}
+
+.toolbar {
+    @include flex-hw;
+    gap: 0.5em;
+
+    div {
+        flex: 1 1 0;
+    }
+}
 </style>

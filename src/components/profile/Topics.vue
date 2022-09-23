@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { User } from '../../api/types';
+import Tag from '../utilities/Tag.vue';
 
 defineProps<{ user: User }>()
+
+function toRoute(topic: string) {
+    return `/topic/${topic}`;
+}
 
 </script>
 
@@ -9,7 +14,7 @@ defineProps<{ user: User }>()
     <div class="box p-4 mb-2">
         <p class="title mb-4">Topics</p>
         <div class="followed-topics">
-            <p class="tag is-light is-link" v-for="topic in user?.topics">{{ topic }}</p>
+            <Tag v-for="topic in user?.topics" :label="topic" class="is-light is-link" :route="`/topic/${topic}`" />
         </div>
     </div>
 </template>

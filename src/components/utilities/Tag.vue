@@ -1,28 +1,21 @@
 <script setup lang="ts">
+import { navigateTo } from '../../services/router';
 
-defineProps<{ contents: string }>();
-defineEmits(['submit', 'delete'])
+defineProps<{ label: string, class: string, route: string }>();
 
 </script>
 
 
 <template>
-    <div class="control">
-        <div class="tags has-addons">
-            <div class="tag tag-content p-2 is-medium is-primary is-light">{{ contents }}</div>
-            <div class="tag is-medium is-danger is-light is-delete" @click.prevent="$emit('delete', contents)">
-            </div>
-        </div>
-    </div>
+    <p class="tag" :class="class" @click="navigateTo(route)">{{ label }}</p>
 </template>
 
 
-<style scoped>
-.tag {
-    border: 1px solid lightgrey;
-}
+<style scoped lang="scss">
+@import '../../styles/global.scss';
 
-.tag-content {
-    border-right: 0px;
+.tag:hover {
+    cursor: pointer;
+    filter: brightness(0.95);
 }
 </style>

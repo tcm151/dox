@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Post } from '../../api/types';
 import { timeSince } from '../../services/dateTime';
+import { upvote, misleading, downvote } from '../../services/voting';
+import Tag from '../utilities/Tag.vue';
 
 const props = defineProps<{ post: Post }>();
 
@@ -10,11 +12,13 @@ const props = defineProps<{ post: Post }>();
     <div class="block mb-2">
         <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
         <div class="details mt-2">
-            <p class="vote tag is-light is-primary">{{ post?.votes.upvotes.length }}</p>
-            <p class="vote tag is-light is-warning">{{ post?.votes.misleading.length }}</p>
-            <p class="vote tag is-light is-danger">{{ post?.votes.downvotes.length }}</p>
-            <p class="topic tag is-light is-link" v-for="topic in post?.topics">{{ topic }}</p>
-            <p class="username tag is-light is-primary">u/{{ post?.user?.username }}</p>
+            <p class="vote tag is-light is-success" @click="upvote(post)">{{ post?.votes.upvotes.length }}</p>
+            <p class="vote tag is-light is-warning" @click="misleading(post)">{{ post?.votes.misleading.length }}</p>
+            <p class="vote tag is-light is-danger" @click="downvote(post)">{{ post?.votes.downvotes.length }}</p>
+            <Tag v-for="topic in post?.topics" :label="topic" class="topic is-light is-link"
+                 :route="`/topic/${topic}`" />
+            <Tag :label="`u/${post?.user?.username}`" class="username is-light is-primary"
+                 :route="`/profile/${post?.user?.username}`" />
             <p class="time tag is-light is-info">{{ timeSince(post?.time) }}</p>
         </div>
     </div>
@@ -49,5 +53,10 @@ const props = defineProps<{ post: Post }>();
 
 .preserve {
     white-space: pre-wrap;
+}
+
+.vote:hover {
+    cursor: pointer;
+    filter: brightness(0.95);
 }
 </style>

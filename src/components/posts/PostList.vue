@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import axios from "axios";
 import { inject } from 'vue';
-import { Post, User } from '../../api/types';
-import { store } from '../../services/store';
-import { navigateTo, router } from '../../services/router';
+import { Post } from '../../api/types';
+import { navigateTo } from '../../services/router';
 import { timeSince } from '../../services/dateTime';
+import { upvote, misleading, downvote } from "../../services/voting";
+import Tag from '../utilities/Tag.vue';
 
 defineProps<{ posts: Post[] }>();
 
@@ -16,43 +16,6 @@ function formatNumber(number: number): number | string {
     return number;
 }
 
-function upvote(post: Post) {
-    if (!store.state.session.authenticated) {
-        toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
-        return;
-    }
-
-    if (!post.votes.upvotes.includes(store.getters.getCurrentUserId)) post.votes.upvotes.push(store.getters.getCurrentUserId)
-    if (post.votes.misleading.includes(store.getters.getCurrentUserId)) post.votes.misleading = post.votes.misleading.filter(id => id !== store.getters.getCurrentUserId)
-    if (post.votes.downvotes.includes(store.getters.getCurrentUserId)) post.votes.downvotes = post.votes.downvotes.filter(id => id !== store.getters.getCurrentUserId)
-
-    axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
-}
-function misleading(post: Post) {
-    if (!store.state.session.authenticated) {
-        toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
-        return;
-    }
-
-    if (post.votes.upvotes.includes(store.getters.getCurrentUserId)) post.votes.upvotes = post.votes.upvotes.filter(id => id !== store.getters.getCurrentUserId)
-    if (!post.votes.misleading.includes(store.getters.getCurrentUserId)) post.votes.misleading.push(store.getters.getCurrentUserId)
-    if (post.votes.downvotes.includes(store.getters.getCurrentUserId)) post.votes.downvotes = post.votes.downvotes.filter(id => id !== store.getters.getCurrentUserId)
-
-    axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
-}
-function downvote(post: Post) {
-    if (!store.state.session.authenticated) {
-        toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
-        return;
-    }
-
-    if (post.votes.upvotes.includes(store.getters.getCurrentUserId)) post.votes.upvotes = post.votes.upvotes.filter(id => id !== store.getters.getCurrentUserId)
-    if (post.votes.misleading.includes(store.getters.getCurrentUserId)) post.votes.misleading = post.votes.misleading.filter(id => id !== store.getters.getCurrentUserId)
-    if (!post.votes.downvotes.includes(store.getters.getCurrentUserId)) post.votes.downvotes.push(store.getters.getCurrentUserId)
-
-    axios.patch(`https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`, new URLSearchParams({ votes: JSON.stringify(post.votes) }))
-}
-
 </script>
 
 
@@ -62,7 +25,7 @@ function downvote(post: Post) {
             <div class="media-left pr-2 m-0">
                 <div class="votes-left">
                     <p @click="upvote(post)"
-                       class="vote is-size-8 has-text-centered has-text-weight-bold has-text-primary">{{
+                       class="vote is-size-8 has-text-centered has-text-weight-bold has-text-success">{{
                        formatNumber(post.votes?.upvotes.length)
                        }}</p>
                     <p @click="misleading(post)"
@@ -81,11 +44,10 @@ function downvote(post: Post) {
                     <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
                 </div>
                 <div class="pills">
-                    <p class="tag topic is-light is-link" v-for="topic in post?.topics"
-                       @click="navigateTo(`/topic/${topic}`)">{{ topic }}</p>
-                    <p class="tag user-profile is-light is-primary"
-                       @click="navigateTo(`/profile/${post.user?.username}`)">u/{{
-                       post.user?.username }}</p>
+                    <Tag v-for="topic in post?.topics" :label="topic" class="is-light is-link"
+                         :route="`/topic/${topic}`" />
+                    <Tag :label="`u/${post.user!.username}`" class="is-light is-primary"
+                         :route="`/profile/${post.user?.username}`" />
                     <p class="tag is-light is-info ">{{ timeSince(post.time) }}</p>
                 </div>
             </div>
@@ -130,7 +92,7 @@ function downvote(post: Post) {
 
     p:hover {
         cursor: pointer;
-        background-color: lightgray;
+        background-color: $dox-grey;
         border-radius: 2px;
     }
 }

@@ -6,8 +6,8 @@ const emit = defineEmits(['toggleCommentBox', 'postComment'])
 
 const comment = ref("");
 
-function postComment(comment: string) {
-    emit('postComment', comment)
+function postComment(comment: string, replyTo: number | null) {
+    emit('postComment', { comment: comment, replyTo: replyTo })
     emit('toggleCommentBox')
 }
 
@@ -22,7 +22,7 @@ function postComment(comment: string) {
         </div>
         <div class="field buttons is-grouped">
             <div class="control">
-                <button class="button is-primary" @click.prevent="postComment(comment)">Submit</button>
+                <button class="button is-primary" @click.prevent="postComment(comment, null)">Submit</button>
                 <button class="button is-danger" @click="$emit('toggleCommentBox')">Cancel</button>
             </div>
         </div>

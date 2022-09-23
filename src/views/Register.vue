@@ -2,17 +2,15 @@
 import axios from 'axios';
 import bcrypt from "bcryptjs"
 import { inject, ref } from 'vue';
-import { navigateTo, router } from '../services/router';
+import { navigateTo } from '../services/router';
 import { Session, store } from '../services/store';
 
 const toggleModal = inject("toggleModal") as Function
-
 
 const email = ref("");
 const username = ref("");
 const password = ref("");
 const passwordConfirmation = ref("");
-const matchingPasswords = ref(true);
 
 async function registerUser() {
     //- assure no fields are missing
@@ -43,15 +41,7 @@ async function registerUser() {
         return;
     }
 
-    // toggleModal("User registered sucessfully!");
-
     login()
-
-    // email.value = "";
-    // username.value = "";
-    // password.value = "";
-    // passwordConfirmation.value = "";
-    // router.push("/")
 }
 
 async function login() {
@@ -66,8 +56,6 @@ async function login() {
         store.commit("login", response.data);
         username.value = "";
         password.value = "";
-        // emits("closeLogin");
-        // router.push("/");
         navigateTo("/")
 
     } catch (error) {
@@ -99,14 +87,12 @@ async function login() {
             <div class="control">
                 <input class="input" required type="password" v-model="password" />
             </div>
-            <!-- <p class="help is-danger" v-if="!matchingPasswords">Passwords do not match</p> -->
         </div>
         <div class="field">
             <label class="label">Confirm Password</label>
             <div class="control">
                 <input class="input" required type="password" v-model="passwordConfirmation" />
             </div>
-            <!-- <p class="help is-danger" v-if="!matchingPasswords">Passwords do not match</p> -->
         </div>
         <div class="buttons field mt-6">
             <div class="control">

@@ -39,9 +39,9 @@ function logout() {
                     <span class="my-auto">DOX</span>
                 </div>
             </router-link>
-            <p class="navbar-item is-size-4 has-text-weight-semibold pl-0">For Everything</p>
+            <!-- <p class="navbar-item is-size-4 has-text-weight-semibold pl-0">For Everything</p> -->
             <div class="navbar-burger button m-3 ml-auto" v-bind:class="{ 'is-active': showMenu }"
-                @click.prevent="toggleMenu">
+                 @click.prevent="toggleMenu">
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -114,13 +114,13 @@ function logout() {
     }
 
     .navbar-item:hover {
-        color: $dox-gray;
-        background-color: hsl(171, 100%, 29%);
+        color: $primary;
+        background-color: $primary-light;
     }
 }
 
 .navbar-item {
     border-radius: 0.25em;
-    color: $dox-black;
+    color: $black;
 }
 </style>

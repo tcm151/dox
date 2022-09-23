@@ -36,7 +36,7 @@ export interface Comment {
     user?: User
     post_id: number
     post?: Post
-    reply_to: number
+    reply_to: number | null
     content: string
     votes: Votes
     time: string

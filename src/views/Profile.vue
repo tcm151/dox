@@ -35,13 +35,13 @@ async function fetchUserContent() {
     const commentsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${user.value?.user_id}/comments`)
     comments.value = commentsResponse.data;
 
-    sortBy("top")
+    // sortBy("top")
 }
 
-function sortBy(sortType: string) {
-    currentSortType.value = sortType;
-    posts.value = sortPosts(posts.value, sortType);
-}
+// function sortBy(sortType: string) {
+//     currentSortType.value = sortType;
+//     posts.value = sortPosts(posts.value, sortType);
+// }
 
 </script>
 
@@ -50,26 +50,29 @@ function sortBy(sortType: string) {
     <div class="profile m-2">
         <Information :user="user!" />
         <Topics :user="user!" />
-        <div class="box mb-2 p-4">
-            <p class="title mb-4">Posts</p>
-            <Sorter post-filter="N/A" @sort="sortPosts" />
+        <div class="user-posts box mb-2 p-4">
+            <div class="header">
+                <p class="title my-0">Posts</p>
+                <Sorter @sort-by="sortPosts" />
+            </div>
             <PostList :posts="posts" />
         </div>
         <div class="box">
-            <p class="title mb-4">Comments</p>
-            <Sorter post-filter="N/A" @sort="sortComments" />
-            <CommentList :comments="comments" />
+            <div class="header">
+                <p class="title my-0">Comments</p>
+                <Sorter @sort-by="sortComments" />
+            </div>
+            <CommentList :comments="comments" :replies="[]" />
         </div>
     </div>
 </template>
 
-<style scoped>
-.scrollable {
-    max-height: 25em;
-    overflow: auto;
-}
+<style scoped lang="scss">
+@import '../styles/global.scss';
 
-.is-add:hover {
-    background-color: silver;
+.header {
+    @include flex-h;
+    align-items: center;
+    gap: 1em;
 }
 </style>

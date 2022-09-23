@@ -1,0 +1,23 @@
+@mixin flex-v ($gap: 0em) {
+    gap: $gap;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+@mixin flex-vw ($gap: 0em) {
+    gap: $gap;
+    display: flex;
+    flex-flow: column wrap;
+}
+
+@mixin flex-h ($gap: 0em) {
+    gap: $gap;
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+@mixin flex-hw ($gap: 0em) {
+    gap: $gap;
+    display: flex;
+    flex-flow: row wrap;
+}
