@@ -89,15 +89,18 @@ async function uploadPost() {
         <div class="field">
             <div class="control">
                 <p class="subtitle is-4 mb-2">Topics</p>
-                <div class="field is-grouped is-grouped-multiline">
-                    <Tag v-for="topic in topics" :contents="topic" @delete="removeTopic" />
+                <div class="post-topics">
+                    <div class="tag is-medium is-light is-link" v-for="topic in topics" @click="removeTopic(topic)">
+                        {{ topic }}
+                    </div>
+                    <!-- <Tag v-for="topic in topics" :contents="topic" @delete="removeTopic" /> -->
                 </div>
                 <input type="text" class="input" v-model="topicText" v-on:keyup.enter="addTopic">
             </div>
         </div>
         <div class="field">
             <div class="control">
-                <button class="button" @click.prevent="uploadPost">Post</button>
+                <button class="button is-primary" @click.prevent="uploadPost">Post</button>
             </div>
         </div>
 
@@ -106,3 +109,17 @@ async function uploadPost() {
         <p>You must create an account to post...</p>
     </div>
 </template>
+
+<style scoped lang="scss">
+@import '../../styles/global.scss';
+
+.post-topics {
+    @include flex-hw (0.5em);
+
+    .tag {
+        cursor: pointer;
+        filter: brightness(0.95);
+        margin-bottom: 0.75em;
+    }
+}
+</style>
