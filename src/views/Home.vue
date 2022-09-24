@@ -77,14 +77,14 @@ function sortBy(sortType: string) {
                 </div>
                 <Sorter @sort-by="sortBy" />
                 <div class="button is-link has-text-weight-bold is-hidden-mobile"
-                     @click.prevent="$emit('navigateTo', '/editor')">
+                     @click.prevent="navigateTo('/editor')">
                     <span class="icon">
                         <i class="fa-solid fa-feather-pointed"></i>
                     </span>
                     <span>Post</span>
                 </div>
                 <div class="button is-link has-text-weight-bold is-hidden-tablet"
-                     @click.prevent="$emit('navigateTo', '/editor')">
+                     @click.prevent="navigateTo('/editor')">
                     <i class="fa-solid fa-feather-pointed"></i>
                 </div>
             </div>
