@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { inject, ref } from 'vue';
-import { onBeforeRouteUpdate } from 'vue-router';
-import { navigateTo, router } from '../../services/router';
+import { navigateTo } from '../../services/router';
 import { Session, store } from '../../services/store';
 
 defineProps<{ showLogin: boolean }>();
-const emits = defineEmits(['openLogin', 'closeLogin'])
+const emit = defineEmits(['openLogin', 'closeLogin'])
 
 const username = ref("")
 const password = ref("")
 
 const toggleModal = inject("toggleModal") as Function
 
-// function navigateTo(route: string, beforeRoute?: Function, afterRoute?: Function) {
-//     emits("closeLogin")
-//     router.push(route);
-// }
+function register() {
+    emit('closeLogin');
+    navigateTo('/register');
+}
 
 
 async function login() {
@@ -31,7 +30,7 @@ async function login() {
         store.commit("login", response.data);
         username.value = "";
         password.value = "";
-        emits("closeLogin");
+        emit("closeLogin");
         // router.push("/");
         navigateTo("/")
 
@@ -59,7 +58,7 @@ async function login() {
                 </div>
                 <div class="actions">
                     <button type="submit" class="button is-success" @click.prevent="login()">Login</button>
-                    <button class="button is-danger" @click.prevent="navigateTo('/register')">Register</button>
+                    <button class="button is-danger" @click.prevent="register()">Register</button>
                 </div>
             </form>
         </div>

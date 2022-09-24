@@ -96,7 +96,7 @@ async function login() {
         </div>
         <div class="buttons field mt-6">
             <div class="control">
-                <button class="button is-primary" @click.prevent="registerUser">Register</button>
+                <button class="button is-primary mr-4" @click.prevent="registerUser">Register</button>
             </div>
             <div class="control">
                 <button class="button is-danger">Cancel</button>
