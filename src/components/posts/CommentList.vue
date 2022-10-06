@@ -118,7 +118,7 @@ function submitComment(comment: Comment) {
             </div>
         </div>
     </div>
-    <div class="box content m-5" v-else>
+    <div class="box content my-1 has-background-light is-shadowless" v-else>
         <i>There are no comments yet...</i>
     </div>
 </template>
