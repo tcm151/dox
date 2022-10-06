@@ -3,10 +3,12 @@ import { inject } from 'vue';
 import { Post } from '../../api/types';
 import { navigateTo } from '../../services/router';
 import { timeSince } from '../../services/dateTime';
-import { upvote, misleading, downvote } from "../../services/voting";
 import Tag from '../utilities/Tag.vue';
+import { GetSession } from '../../services/store.new';
 
 defineProps<{ posts: Post[] }>();
+
+const session = GetSession();
 
 const toggleModal = inject("toggleModal") as Function
 
@@ -24,15 +26,15 @@ function formatNumber(number: number): number | string {
         <div class="post media box my-2 p-2" v-for="post in posts" :key="post.post_id">
             <div class="media-left pr-2 m-0">
                 <div class="votes-left">
-                    <p @click="upvote(post)"
+                    <p @click="session.upvote(post)"
                        class="vote is-size-8 has-text-centered has-text-weight-bold has-text-success">{{
                        formatNumber(post.votes?.upvotes.length)
                        }}</p>
-                    <p @click="misleading(post)"
+                    <p @click="session.misleading(post)"
                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-warning">{{
                        formatNumber(post.votes?.misleading.length)
                        }}</p>
-                    <p @click="downvote(post)"
+                    <p @click="session.downvote(post)"
                        class="vote is-size-6 has-text-centered has-text-weight-bold has-text-danger">{{
                        formatNumber(post.votes?.downvotes.length)
                        }}</p>
@@ -64,7 +66,7 @@ function formatNumber(number: number): number | string {
             </ul>
         </div>
     </div>
-    <div class="box content m-5" v-else>
+    <div class="box content my-2" v-else>
         <i>There are no posts yet...</i>
     </div>
 </template>

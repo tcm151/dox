@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { Post } from '../../api/types';
-import { store } from '../../services/store';
 import { navigateTo, router } from '../../services/router';
 import { computed, inject, ref } from 'vue';
 import Tag from '../utilities/Tag.vue';
+import { GetSession } from '../../services/store.new';
+import TextEditor from '../utilities/TextEditor.vue';
 
-const session = computed(() => {
-    return store.state.session;
-})
+const session = GetSession();
 
 const title = ref("");
 const content = ref("");
@@ -56,8 +55,14 @@ async function uploadPost() {
                 title: title.value,
                 content: content.value,
                 topics: JSON.stringify(topics.value),
-                user_id: store.getters.getSession.user.user_id,
+                user_id: String(session.User!.user_id),
             }))
+        console.log({
+            title: title.value,
+            content: content.value,
+            topics: JSON.stringify(topics.value),
+            user_id: String(session.User!.user_id),
+        })
         console.log(response.data);
         navigateTo(`/posts/${response.data.post_id}`)
         router.push(`/posts/${response.data.post_id}`)
@@ -68,11 +73,16 @@ async function uploadPost() {
     }
 }
 
+function updateText(newText: string) {
+    console.log("Text changed!")
+    content.value = newText;
+}
+
 </script>
 
 
 <template>
-    <div class="box m-2" v-if="session.authenticated">
+    <div class="box m-2" v-if="session.isAuthenticated">
         <div class="field">
             <div class="control">
                 <p class="title is-3 mb-4">Title</p>
@@ -82,7 +92,8 @@ async function uploadPost() {
         <div class="field">
             <div class="control">
                 <p class="subtitle is-4 mb-2">Content</p>
-                <textarea class="textarea" rows="8" v-model="content"></textarea>
+                <!-- <textarea class="textarea" rows="8" v-model="content"></textarea> -->
+                <TextEditor :text="content" @text-changed="updateText" />
             </div>
         </div>
 

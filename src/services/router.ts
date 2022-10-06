@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
+import Dev from "../views/Dev.vue"
 import Home from "../views/Home.vue"
 import Post from "../views/Post.vue"
 import Error from "../views/Error.vue"
@@ -45,6 +46,11 @@ export const router = createRouter({
             name: "Topic",
             path: "/topic/:topic",
             component: Topic,
+        },
+        {
+            name: "Dev",
+            path: "/dev",
+            component: Dev,
         },
         {
             name: "404",

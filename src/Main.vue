@@ -4,9 +4,23 @@ import { provide, ref } from "vue";
 import Modal from "./components/utilities//Modal.vue"
 import Navbar from "./components/nav//Navbar.vue"
 
+import EventBus from './services/events'
+
 const showModal = ref(false);
 const modalTitle = ref("");
 const modalContent = ref("");
+
+EventBus.subscribe({
+    trigger: "toggleModal", action: (payload: { title: string, content: string }) => {
+        toggleModal(payload.title, payload.content)
+    }
+})
+
+EventBus.subscribe({
+    trigger: "userNotAuthenticated", action: () => {
+        toggleModal("You must be logged in", "Please login or create an account to interact with others");
+    }
+})
 
 function toggleModal(title: string, content?: string, footer?: string) {
     if (title) modalTitle.value = title;
@@ -26,7 +40,7 @@ provide('toggleModal', toggleModal)
         </div>
     </div>
     <Modal :show-modal="showModal" :modal-title="modalTitle" :modal-content="modalContent"
-        @toggle-modal="toggleModal" />
+           @toggle-modal="toggleModal" />
 </template>
 
 <style lang="scss">

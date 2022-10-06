@@ -2,12 +2,14 @@
 import axios from 'axios';
 import { inject, onBeforeMount, ref } from 'vue';
 import { Post } from '../api/types';
-import { store } from '../services/store';
 import { sortPosts } from '../services/sorting';
 import { navigateTo } from '../services/router';
 import Sorter from '../components/utilities/Sorter.vue';
 import Sidebar from '../components/nav/Sidebar.vue';
 import PostList from '../components/posts/PostList.vue';
+import { GetSession } from '../services/store.new';
+
+const session = GetSession();
 
 onBeforeMount(async () => {
     try {
@@ -15,7 +17,7 @@ onBeforeMount(async () => {
         allPosts.value = allPostsResponse.data;
         allPosts.value = sortPosts(allPosts.value, "hot")
 
-        feedPosts.value = allPosts.value.filter((post) => post.topics.some((topic) => store.state.session.user?.topics.includes(topic)))
+        feedPosts.value = allPosts.value.filter((post) => post.topics.some((topic) => session.User?.topics.includes(topic)))
         feedPosts.value = sortPosts(feedPosts.value, "hot")
 
         posts.value = allPosts.value;
@@ -34,17 +36,17 @@ const currentSortType = ref<string>("");
 
 const toggleModal = inject("toggleModal") as Function;
 
-const postFilter = ref<string>("Popular");
+const postFilter = ref<string>("All");
 
 function toggleFilter() {
     switch (postFilter.value) {
-        case "Popular":
+        case "All":
             postFilter.value = "Feed";
             allPosts.value = posts.value;
             posts.value = feedPosts.value;
             break;
         case "Feed":
-            postFilter.value = "Popular";
+            postFilter.value = "All";
             feedPosts.value = posts.value;
             posts.value = allPosts.value;
             break;
@@ -63,29 +65,22 @@ function sortBy(sortType: string) {
     <div class="home p-2">
         <div class="posts">
             <div class="toolbar">
-                <div class="button is-primary has-text-weight-bold is-hidden-mobile"
-                     @click.prevent="$emit('toggleFilter')">
-                    <span class="icon">
-                        <i class="fa-solid fa-crown"></i>
-                    </span>
-                    <span>{{ postFilter }}</span>
-
+                <div class="toolbar-left">
+                    <div class="button is-primary has-text-weight-bold" @click.prevent="toggleFilter()">
+                        <span class="icon">
+                            <i class="fa-solid fa-crown"></i>
+                        </span>
+                        <span>{{ postFilter }}</span>
+                    </div>
+                    <div class="button is-link has-text-weight-bold" @click.prevent="navigateTo('/editor')">
+                        <span class="icon">
+                            <i class="fa-solid fa-feather-pointed"></i>
+                        </span>
+                        <span>Post</span>
+                    </div>
                 </div>
-                <div class="button is-primary has-text-weight-bold is-hidden-tablet"
-                     @click.prevent="$emit('toggleFilter')">
-                    <i class="fa-solid fa-crown"></i>
-                </div>
-                <Sorter @sort-by="sortBy" />
-                <div class="button is-link has-text-weight-bold is-hidden-mobile"
-                     @click.prevent="navigateTo('/editor')">
-                    <span class="icon">
-                        <i class="fa-solid fa-feather-pointed"></i>
-                    </span>
-                    <span>Post</span>
-                </div>
-                <div class="button is-link has-text-weight-bold is-hidden-tablet"
-                     @click.prevent="navigateTo('/editor')">
-                    <i class="fa-solid fa-feather-pointed"></i>
+                <div class="toolbar-right">
+                    <Sorter @sort-by="sortBy" />
                 </div>
             </div>
             <PostList :posts="posts" />
@@ -96,7 +91,7 @@ function sortBy(sortType: string) {
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import '../styles/global.scss';
 
 .home {
@@ -112,11 +107,25 @@ function sortBy(sortType: string) {
 }
 
 .toolbar {
-    @include flex-hw;
-    gap: 0.5em;
+    @include flex-hw (0.5em);
 
-    div {
-        flex: 1 1 0;
+    .toolbar-left {
+        flex: 2 2;
+        @include flex-h (0.5em);
+
+        .button {
+            flex: 1 1 0;
+        }
+    }
+
+    .toolbar-right {
+        flex: 3 3;
+        @include flex-h (0.5em);
+
+        .button {
+            flex: 1 1;
+            min-width: 92px;
+        }
     }
 }
 </style>

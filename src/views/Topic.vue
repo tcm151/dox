@@ -3,13 +3,11 @@ import axios from 'axios';
 import { computed, inject, onBeforeMount, ref, watch, getCurrentInstance } from 'vue';
 import { useRoute } from 'vue-router';
 import { Post, User } from '../api/types';
-import { store } from '../services/store';
 import Sorter from '../components/utilities/Sorter.vue';
 import PostList from '../components/posts/PostList.vue';
+import { GetSession } from '../services/store.new';
 
-const session = computed(() => {
-    return store.state.session;
-})
+const session = GetSession();
 
 const route = useRoute();
 const topicPosts = ref<Post[]>([])
@@ -31,27 +29,27 @@ async function fetchPosts() {
 }
 
 async function followTopic(topic: string) {
-    session.value.user?.topics.push(topic);
+    session.User?.topics.push(topic);
     axios.patch(
-        `https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/topics`,
+        `https://doxforeverything.herokuapp.com/users/${session.User?.user_id}/topics`,
         new URLSearchParams({
-            topics: JSON.stringify(session.value.user?.topics)
+            topics: JSON.stringify(session.User?.topics)
         }))
-    store.commit('updateTopics', session.value.user?.topics);
+    session.updateTopics(session.User!.topics);
 }
 
 async function unfollowTopic(topic: string) {
-    session.value.user!.topics = session.value.user?.topics.filter(t => t !== topic)!;
+    session.User!.topics = session.User?.topics.filter(t => t !== topic)!;
     axios.patch(
-        `https://doxforeverything.herokuapp.com/users/${session.value.user?.user_id}/topics`,
+        `https://doxforeverything.herokuapp.com/users/${session.User?.user_id}/topics`,
         new URLSearchParams({
-            topics: JSON.stringify(session.value.user?.topics)
+            topics: JSON.stringify(session.User?.topics)
         }))
-    store.commit('updateTopics', session.value.user?.topics);
+    session.updateTopics(session.User!.topics);
 }
 
 function followingTopic(topic: string) {
-    return (session.value.user?.topics.includes(topic))
+    return (session.User?.topics.includes(topic))
 }
 
 function sortBy(sortType: string) {
@@ -64,8 +62,7 @@ function sortBy(sortType: string) {
     <div class="topic-page m-2">
         <div class="topic-header box mb-2 py-3">
             <p class="title my-0">{{ route.params.topic }}</p>
-            <Sorter @sort-by="sortBy" />
-            <div class="following" v-if="session.authenticated">
+            <div class="following" v-if="session.isAuthenticated">
                 <button class="button is-success" v-if="followingTopic(route.params.topic as string)"
                         @click="unfollowTopic(route.params.topic as string)">
                     <div class="icon-text">
@@ -85,6 +82,7 @@ function sortBy(sortType: string) {
                 </button>
             </div>
         </div>
+        <Sorter @sort-by="sortBy" />
         <PostList :posts="topicPosts" />
     </div>
 </template>
@@ -93,13 +91,17 @@ function sortBy(sortType: string) {
 @import '../styles/global.scss';
 
 .topic-header {
-    @include flex-h;
+    @include flex-hw;
     justify-content: space-between;
     align-items: center;
     gap: 1em;
 
     >* {
         flex: 1 1 0;
+    }
+
+    .title {
+        white-space: nowrap;
     }
 }
 

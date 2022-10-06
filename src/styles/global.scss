@@ -14,6 +14,12 @@ $navbar-breakpoint: 600px;
 @import './colors';
 @import './mixins';
 
+.content {
+    blockquote {
+        padding: 0.5em 1em !important;
+    }
+}
+
 //> BULMA
 @import '../../node_modules/bulma/bulma.sass';
 // @import '../../node_modules/bulma/sass/base/_all.sass';

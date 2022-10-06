@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { Post } from '../../api/types';
 import { timeSince } from '../../services/dateTime';
-import { upvote, misleading, downvote } from '../../services/voting';
+import { GetSession } from '../../services/store.new';
 import Tag from '../utilities/Tag.vue';
+import { marked } from 'marked';
 
 const props = defineProps<{ post: Post }>();
+
+const session = GetSession();
+
+function sanitized(text: string) {
+    if (text != null) {
+        return marked.parse(text);
+    }
+}
 
 </script>
 
@@ -12,9 +21,11 @@ const props = defineProps<{ post: Post }>();
     <div class="block mb-2">
         <h2 class="title is-4 mb-2">{{ post?.title }}</h2>
         <div class="details mt-2">
-            <p class="vote tag is-light is-success" @click="upvote(post)">{{ post?.votes.upvotes.length }}</p>
-            <p class="vote tag is-light is-warning" @click="misleading(post)">{{ post?.votes.misleading.length }}</p>
-            <p class="vote tag is-light is-danger" @click="downvote(post)">{{ post?.votes.downvotes.length }}</p>
+            <p class="vote tag is-light is-success" @click="session.upvote(post)">{{ post?.votes.upvotes.length }}</p>
+            <p class="vote tag is-light is-warning" @click="session.misleading(post)">{{ post?.votes.misleading.length
+            }}</p>
+            <p class="vote tag is-light is-danger" @click="session.downvote(post)">{{ post?.votes.downvotes.length }}
+            </p>
             <Tag v-for="topic in post?.topics" :label="topic" class="topic is-light is-link"
                  :route="`/topic/${topic}`" />
             <Tag :label="`u/${post?.user?.username}`" class="username is-light is-primary"
@@ -23,7 +34,7 @@ const props = defineProps<{ post: Post }>();
         </div>
     </div>
     <div class="box p-4 my-2 has-background-light is-shadowless">
-        <p class="post-content preserve" v-html="post?.content"></p>
+        <p class="post-content content" v-html="sanitized(post?.content)"></p>
     </div>
 </template>
 

@@ -2,12 +2,10 @@
 import { computed, ref } from 'vue';
 import { onBeforeRouteUpdate } from 'vue-router';
 import { navigateTo, router } from '../../services/router';
-import { store } from "../../services/store";
+import { GetSession } from '../../services/store.new';
 import Login from "../auth/Login.vue";
 
-const session = computed(() => {
-    return store.state.session;
-})
+const session = GetSession();
 
 const showMenu = ref(false);
 const showLogin = ref(false);
@@ -21,7 +19,7 @@ function toggleMenu() {
 }
 
 function logout() {
-    store.commit("logout");
+    session.logout();
     navigateTo("/")
 }
 
@@ -48,7 +46,7 @@ function logout() {
             </div>
         </div>
         <div class="navbar-menu p-1" v-bind:class="{ 'is-active': showMenu }">
-            <div class="navbar-end" v-if="!session.authenticated">
+            <div class="navbar-end" v-if="!session.isAuthenticated">
                 <a class="navbar-item" @click.prevent="navigateTo('/')">
                     <span class="icon">
                         <i class="fa-solid fa-house"></i>
@@ -75,11 +73,11 @@ function logout() {
                     </span>
                     <span>Post</span>
                 </a>
-                <a class="navbar-item" @click.prevent="navigateTo(`/profile/${session.user?.username}`)">
+                <a class="navbar-item" @click.prevent="navigateTo(`/profile/${session.User?.username}`)">
                     <span class="icon">
                         <i class="fa-solid fa-user"></i>
                     </span>
-                    <span>{{ session.user?.username }}</span>
+                    <span>{{ session.User?.username }}</span>
                 </a>
                 <a class="navbar-item" @click.prevent="logout">
                     <span class="icon">
@@ -122,5 +120,16 @@ function logout() {
 .navbar-item {
     border-radius: 0.25em;
     color: $black;
+}
+
+@media only screen and (max-width: 600px) {
+    .navbar-end {
+        @include flex-v;
+
+        .navbar-item {
+            margin: 0;
+            padding: 0.5em;
+        }
+    }
 }
 </style>

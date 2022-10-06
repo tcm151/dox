@@ -7,5 +7,7 @@
             "path": "..\\dox-api"
         }
     ],
-    "settings": {}
+    "settings": {
+        "sarif-viewer.connectToGithubCodeScanning": "off"
+    }
 }

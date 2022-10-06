@@ -2,9 +2,13 @@
 import axios from 'axios';
 import { inject, ref } from 'vue';
 import { navigateTo } from '../../services/router';
-import { Session, store } from '../../services/store';
+import { GetSession } from '../../services/store.new';
+import { Session } from '../../services/store.new';
 
 defineProps<{ showLogin: boolean }>();
+
+const session = GetSession();
+
 const emit = defineEmits(['openLogin', 'closeLogin'])
 
 const username = ref("")
@@ -27,7 +31,7 @@ async function login() {
                 password: password.value,
             }))
 
-        store.commit("login", response.data);
+        session.login(response.data);
         username.value = "";
         password.value = "";
         emit("closeLogin");

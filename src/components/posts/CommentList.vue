@@ -3,9 +3,11 @@ import axios from "axios";
 import { inject, ref } from "vue";
 import { Comment } from "../../api/types"
 import { timeSince } from "../../services/dateTime";
-import { store } from "../../services/store";
+import { GetSession } from "../../services/store.new";
 import Tag from "../utilities/Tag.vue";
 import CommentBox from "./CommentBox.vue";
+
+const session = GetSession();
 
 const props = defineProps<{ comments: Comment[], replies: Comment[] }>()
 const emit = defineEmits(['submitComment']);
@@ -16,40 +18,40 @@ const commentReply = ref<string>("");
 const replyToComment = ref<number>(-1);
 
 function upvote(comment: Comment) {
-    if (!store.state.session.authenticated) {
+    if (!session.isAuthenticated) {
         toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
         return;
     }
 
-    if (!comment.votes.upvotes.includes(store.getters.getCurrentUserId)) comment.votes.upvotes.push(store.getters.getCurrentUserId)
-    if (comment.votes.misleading.includes(store.getters.getCurrentUserId)) comment.votes.misleading = comment.votes.misleading.filter(id => id !== store.getters.getCurrentUserId)
-    if (comment.votes.downvotes.includes(store.getters.getCurrentUserId)) comment.votes.downvotes = comment.votes.downvotes.filter(id => id !== store.getters.getCurrentUserId)
+    if (!comment.votes.upvotes.includes(session.User!.user_id)) comment.votes.upvotes.push(session.User!.user_id)
+    if (comment.votes.misleading.includes(session.User!.user_id)) comment.votes.misleading = comment.votes.misleading.filter(id => id !== session.User?.user_id)
+    if (comment.votes.downvotes.includes(session.User!.user_id)) comment.votes.downvotes = comment.votes.downvotes.filter(id => id !== session.User?.user_id)
 
     axios.patch(`https://doxforeverything.herokuapp.com/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }
 
 function misleading(comment: Comment) {
-    if (!store.state.session.authenticated) {
+    if (!session.isAuthenticated) {
         toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
         return;
     }
 
-    if (comment.votes.upvotes.includes(store.getters.getCurrentUserId)) comment.votes.upvotes = comment.votes.upvotes.filter(id => id !== store.getters.getCurrentUserId)
-    if (!comment.votes.misleading.includes(store.getters.getCurrentUserId)) comment.votes.misleading.push(store.getters.getCurrentUserId)
-    if (comment.votes.downvotes.includes(store.getters.getCurrentUserId)) comment.votes.downvotes = comment.votes.downvotes.filter(id => id !== store.getters.getCurrentUserId)
+    if (comment.votes.upvotes.includes(session.User!.user_id)) comment.votes.upvotes = comment.votes.upvotes.filter(id => id !== session.User?.user_id)
+    if (!comment.votes.misleading.includes(session.User!.user_id)) comment.votes.misleading.push(session.User!.user_id)
+    if (comment.votes.downvotes.includes(session.User!.user_id)) comment.votes.downvotes = comment.votes.downvotes.filter(id => id !== session.User?.user_id)
 
     axios.patch(`https://doxforeverything.herokuapp.com/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }
 
 function downvote(comment: Comment) {
-    if (!store.state.session.authenticated) {
+    if (!session.isAuthenticated) {
         toggleModal("You must be logged in to vote", "Please login or create an account to interact with others")
         return;
     }
 
-    if (comment.votes.upvotes.includes(store.getters.getCurrentUserId)) comment.votes.upvotes = comment.votes.upvotes.filter(id => id !== store.getters.getCurrentUserId)
-    if (comment.votes.misleading.includes(store.getters.getCurrentUserId)) comment.votes.misleading = comment.votes.misleading.filter(id => id !== store.getters.getCurrentUserId)
-    if (!comment.votes.downvotes.includes(store.getters.getCurrentUserId)) comment.votes.downvotes.push(store.getters.getCurrentUserId)
+    if (comment.votes.upvotes.includes(session.User!.user_id)) comment.votes.upvotes = comment.votes.upvotes.filter(id => id !== session.User?.user_id)
+    if (comment.votes.misleading.includes(session.User!.user_id)) comment.votes.misleading = comment.votes.misleading.filter(id => id !== session.User?.user_id)
+    if (!comment.votes.downvotes.includes(session.User!.user_id)) comment.votes.downvotes.push(session.User!.user_id)
 
     axios.patch(`https://doxforeverything.herokuapp.com/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }

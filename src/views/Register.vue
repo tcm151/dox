@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import axios from 'axios';
 import bcrypt from "bcryptjs"
-import { inject, ref } from 'vue';
+import { ref, inject } from 'vue';
+import { storeKey } from 'vuex';
 import { navigateTo } from '../services/router';
-import { Session, store } from '../services/store';
+import { GetSession } from '../services/store.new';
 
 const toggleModal = inject("toggleModal") as Function
+
+const session = GetSession();
 
 const email = ref("");
 const username = ref("");
@@ -13,19 +16,16 @@ const password = ref("");
 const passwordConfirmation = ref("");
 
 async function registerUser() {
-    //- assure no fields are missing
     if (email.value == "" || username.value == "" || password.value == "" || passwordConfirmation.value == "") {
         toggleModal("Please supply all fields to register.");
         return;
     }
 
-    //- make sure the passwords match
     if (password.value != passwordConfirmation.value) {
         toggleModal("Passwords do not match.");
         return;
     }
 
-    //- attempt to register user with request to server
     try {
         const response = await axios.post(
             "https://doxforeverything.herokuapp.com/newUser",
@@ -35,7 +35,6 @@ async function registerUser() {
                 password: await bcrypt.hash(password.value, 10),
             }))
     }
-    //- catch a failed attempt
     catch (error) {
         toggleModal("Failed to register user.")
         return;
@@ -46,14 +45,14 @@ async function registerUser() {
 
 async function login() {
     try {
-        const response = await axios.post<Session>(
+        const response = await axios.post(
             "https://doxforeverything.herokuapp.com/authenticate",
             new URLSearchParams({
                 username: username.value,
                 password: password.value,
             }))
 
-        store.commit("login", response.data);
+        session.login(response.data);
         username.value = "";
         password.value = "";
         navigateTo("/")
@@ -69,44 +68,56 @@ async function login() {
 
 
 <template>
-    <form class="box p-6 m-6">
-        <div class="field">
-            <label class="label">Email</label>
-            <div class="control">
-                <input class="input" required type="text" v-model="email" />
+    <div class="register">
+        <form class="box p-5 m-5">
+            <div class="field">
+                <label class="label">Email</label>
+                <div class="control">
+                    <input class="input" required type="text" v-model="email" />
+                </div>
             </div>
-        </div>
-        <div class="field">
-            <label class="label">Username</label>
-            <div class="control">
-                <input class="input" required type="text" v-model="username" />
+            <div class="field">
+                <label class="label">Username</label>
+                <div class="control">
+                    <input class="input" required type="text" v-model="username" />
+                </div>
             </div>
-        </div>
-        <div class="field">
-            <label class="label">Password</label>
-            <div class="control">
-                <input class="input" required type="password" v-model="password" />
+            <div class="field">
+                <label class="label">Password</label>
+                <div class="control">
+                    <input class="input" required type="password" v-model="password" />
+                </div>
             </div>
-        </div>
-        <div class="field">
-            <label class="label">Confirm Password</label>
-            <div class="control">
-                <input class="input" required type="password" v-model="passwordConfirmation" />
+            <div class="field">
+                <label class="label">Confirm Password</label>
+                <div class="control">
+                    <input class="input" required type="password" v-model="passwordConfirmation" />
+                </div>
             </div>
-        </div>
-        <div class="buttons field mt-6">
-            <div class="control">
-                <button class="button is-primary mr-4" @click.prevent="registerUser">Register</button>
+            <div class="buttons field mt-6">
+                <div class="control">
+                    <button class="button is-primary mr-4" @click.prevent="registerUser">Register</button>
+                </div>
+                <div class="control">
+                    <button class="button is-danger">Cancel</button>
+                </div>
             </div>
-            <div class="control">
-                <button class="button is-danger">Cancel</button>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </template>
 
 <style scope lang="scss">
 @import '../styles/global.scss';
+
+.register {
+    @include flex-h;
+    justify-content: center;
+
+    .box {
+        flex: 1 1 auto;
+        max-width: 500px;
+    }
+}
 
 .buttons {
     @include flex-h;

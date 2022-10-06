@@ -1,10 +1,14 @@
 import Main from "./Main.vue"
 
 import { createApp } from "vue"
-import { store } from "./services/store"
 import { router } from "./services/router"
-// import { app } from "./api/server"
+import { createPinia } from "pinia"
 
-createApp(Main).use(router).use(store).mount("#app")
+export const app = createApp(Main)
+app.use(router)
 
-// app.emit("start")
+export const pinia = createPinia()
+app.use(pinia)
+
+app.mount("#app")
+// createApp(Main).use(router).use(createPinia()).mount("#app")
