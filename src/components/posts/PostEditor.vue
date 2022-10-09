@@ -25,8 +25,8 @@ function addTopic() {
         toggleModal("Topic name is too short", "Topics must be at least 2 characters, try to be more specific")
         return;
     }
-    if (topicText.value.length > 24) {
-        toggleModal("Topic name is too long", "Topics must be shorter than 24 character, try to be more concise")
+    if (topicText.value.length > 18) {
+        toggleModal("Topic name is too long", "Topics must 18 characters or less, try to be more concise")
         return;
     }
     if (topics.value.length >= 5) {
@@ -85,13 +85,13 @@ function updateText(newText: string) {
     <div class="box m-2" v-if="session.isAuthenticated">
         <div class="field">
             <div class="control">
-                <p class="title is-3 mb-4">Title</p>
+                <p class="title is-3 mb-2">Title</p>
                 <input class="input" v-model="title" />
             </div>
         </div>
         <div class="field">
             <div class="control">
-                <p class="subtitle is-4 mb-2">Content</p>
+                <p class="title is-4 mb-2">Content</p>
                 <!-- <textarea class="textarea" rows="8" v-model="content"></textarea> -->
                 <TextEditor :text="content" @text-changed="updateText" />
             </div>
@@ -99,7 +99,7 @@ function updateText(newText: string) {
 
         <div class="field">
             <div class="control">
-                <p class="subtitle is-4 mb-2">Topics</p>
+                <p class="title is-4 mb-2">Topics</p>
                 <div class="post-topics">
                     <div class="tag is-medium is-light is-link" v-for="topic in topics" @click="removeTopic(topic)">
                         {{ topic }}
@@ -109,7 +109,7 @@ function updateText(newText: string) {
                 <input type="text" class="input" v-model="topicText" v-on:keyup.enter="addTopic">
             </div>
         </div>
-        <div class="field">
+        <div class="field mt-5">
             <div class="control">
                 <button class="button is-primary" @click.prevent="uploadPost">Post</button>
             </div>

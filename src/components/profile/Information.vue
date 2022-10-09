@@ -24,13 +24,38 @@ function follow() {
         return;
     }
 
-    axios.post(`https://doxforeverything.herokuapp.com/user/${props.user.user_id}/following`, new URLSearchParams({ following: JSON.stringify(props.user.following) }))
+    if (props.user.followers.includes(session.User!.user_id)) {
+        EventBus.publish("toggleModal", {
+            title: "Already following user"
+        });
+        return;
+    }
 
     props.user.followers.push(session.User!.user_id);
+    axios.patch(`https://doxforeverything.herokuapp.com/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
+
+    session.User?.following.push(props.user.user_id);
+    axios.patch(`https://doxforeverything.herokuapp.com/users/${session.User?.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User?.following) }))
 }
 
 function unfollow() {
+    if (!session.isAuthenticated) {
+        EventBus.publish("userNotAuthenticated");
+        return;
+    }
+
+    if (!props.user.followers.includes(session.User!.user_id)) {
+        EventBus.publish("toggleModal", {
+            title: "Not following user already"
+        });
+        return;
+    }
+
     props.user.followers = props.user.followers.filter(id => id !== session.User!.user_id);
+    axios.patch(`https://doxforeverything.herokuapp.com/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
+
+    session.User!.following = session.User!.following.filter(id => id !== session.User!.user_id)
+    axios.patch(`https://doxforeverything.herokuapp.com/users/${session.User!.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User!.following) }))
 }
 
 </script>

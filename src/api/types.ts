@@ -27,6 +27,7 @@ export interface Post {
     votes: Votes
     time: string
     topics: string[]
+    comments: number
 }
 
 //- comment datatype
@@ -46,4 +47,22 @@ export interface Votes {
     upvotes: number[]
     misleading: number[]
     downvotes: number[]
+}
+
+export enum Action {
+    Follow,
+    Unfollow,
+    Voted,
+    Reply,
+}
+
+export interface Notification {
+    time: string
+    viewed: boolean
+    user_id: number
+    subject: string
+    context: {
+        type: Action
+        source: number
+    }
 }

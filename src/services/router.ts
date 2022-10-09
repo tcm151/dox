@@ -8,6 +8,7 @@ import Topic from "../views/Topic.vue"
 import Editor from "../views/Editor.vue"
 import Profile from "../views/Profile.vue"
 import Register from "../views/Register.vue"
+import Notifications from "../views/Notifications.vue"
 
 export const router = createRouter({
     history: createWebHistory(),
@@ -46,6 +47,11 @@ export const router = createRouter({
             name: "Topic",
             path: "/topic/:topic",
             component: Topic,
+        },
+        {
+            name: "Notifications",
+            path: "/notifications",
+            component: Notifications,
         },
         {
             name: "Dev",

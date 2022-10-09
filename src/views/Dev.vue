@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TextEditor from '../components/utilities/TextEditor.vue';
+import NotificationList from '../components/profile/NotificationList.vue';
+import { GetSession } from '../services/store.new';
 
-const text = ref("");
+const session = GetSession();
 
 </script>
 
 <template>
     <div class="dev box">
-        <TextEditor :text="text" />
+        <NotificationList :user="session.User!" />
     </div>
 </template>
 

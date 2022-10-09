@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { inject, onBeforeMount, ref } from 'vue';
+import { inject, onBeforeMount, onMounted, ref } from 'vue';
 import { Post } from '../api/types';
 import { sortPosts } from '../services/sorting';
 import { navigateTo } from '../services/router';
@@ -12,15 +12,31 @@ import { GetSession } from '../services/store.new';
 const session = GetSession();
 
 onBeforeMount(async () => {
+
+    session.updateUserData();
+
+    const filter = session.get("filter")
+    postFilter.value = filter ?? "All";
+
     try {
         const allPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
         allPosts.value = allPostsResponse.data;
         allPosts.value = sortPosts(allPosts.value, "hot")
 
-        feedPosts.value = allPosts.value.filter((post) => post.topics.some((topic) => session.User?.topics.includes(topic)))
+        feedPosts.value = allPosts.value.filter((post) =>
+            session.User?.following.includes(post.user_id) ||
+            post.topics.some(topic => session.User?.topics.includes(topic))
+        )
         feedPosts.value = sortPosts(feedPosts.value, "hot")
 
-        posts.value = allPosts.value;
+        switch (postFilter.value) {
+            case "All":
+                posts.value = allPosts.value;
+                break;
+            case "Feed":
+                posts.value = feedPosts.value;
+                break;
+        }
     }
     catch (error: any) {
         console.log(error);
@@ -36,7 +52,7 @@ const currentSortType = ref<string>("");
 
 const toggleModal = inject("toggleModal") as Function;
 
-const postFilter = ref<string>("All");
+const postFilter = ref<string>("LOZER");
 
 function toggleFilter() {
     switch (postFilter.value) {
@@ -44,11 +60,13 @@ function toggleFilter() {
             postFilter.value = "Feed";
             allPosts.value = posts.value;
             posts.value = feedPosts.value;
+            session.set("filter", "Feed")
             break;
         case "Feed":
             postFilter.value = "All";
             feedPosts.value = posts.value;
             posts.value = allPosts.value;
+            session.set("filter", "All")
             break;
     }
 }
@@ -91,7 +109,7 @@ function sortBy(sortType: string) {
     </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../styles/global.scss';
 
 .home {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Tag from '../utilities/Tag.vue';
+import TextEditor from '../utilities/TextEditor.vue';
 
 </script>
 
@@ -33,7 +34,7 @@ import Tag from '../utilities/Tag.vue';
     <div class="box content">
         <h2>Submit Feedback</h2>
         <form class="feedback-form" action="">
-            <textarea class="textarea" rows="4"></textarea>
+            <TextEditor text="" />
             <button type="button" class="button mt-2 is-light">Submit</button>
         </form>
     </div>

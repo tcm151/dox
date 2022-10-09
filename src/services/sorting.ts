@@ -1,5 +1,5 @@
 import { DateTime } from "luxon"
-import { Post, Comment } from "../api/types"
+import { Post, Comment, Notification } from "../api/types"
 
 export function sortPosts(postList: Post[], sortType: string): Post[] {
     return postList.sort((first: Post, second: Post) => {
@@ -10,7 +10,7 @@ export function sortPosts(postList: Post[], sortType: string): Post[] {
     })
 }
 
-function sortNew(p1: Post | Comment, second: Post | Comment) {
+export function sortNew(p1: Post | Comment | Notification, second: Post | Comment | Notification) {
     const firstTime = DateTime.fromISO(p1.time)
     const secondTime = DateTime.fromISO(second.time)
     return firstTime < secondTime ? 1 : -1

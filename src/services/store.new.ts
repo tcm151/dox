@@ -1,14 +1,14 @@
 import axios from "axios"
 import { ref, computed } from "vue"
 import { defineStore } from "pinia"
-import { useLocalStorage } from "@vueuse/core"
+import { useLocalStorage, useSessionStorage } from "@vueuse/core"
 import { Post, User } from "../api/types"
 import EventBus from "../services/events"
+import { log } from "console"
 
 export type Session = {
     authenticated: boolean
     user: User | null
-    cache: Cache
 }
 
 export type Cache = {
@@ -17,11 +17,13 @@ export type Cache = {
 
 export const GetSession = defineStore("session", () => {
     const session = ref(
-        useLocalStorage("session", {
+        useSessionStorage("session", {
             authenticated: false,
             user: null,
         } as Session)
     )
+
+    const cache = ref(useSessionStorage("cache", {} as Cache))
 
     const User = computed(() => session.value.user)
     const isAuthenticated = computed(() => session.value.authenticated)
@@ -35,16 +37,23 @@ export const GetSession = defineStore("session", () => {
         session.value.user = null
     }
 
+    async function updateUserData(): Promise<void> {
+        const response = await axios.get(
+            `https://doxforeverything.herokuapp.com/users/username/${session.value.user?.username}`
+        )
+        session.value.user = response.data
+    }
+
     function updateTopics(topics: string[]): void {
         session.value.user!.topics = topics
     }
 
     function get(key: string) {
-        return session.value.cache[key]
+        return cache.value[key]
     }
 
     function set(key: string, value: any) {
-        session.value.cache[key] = value
+        cache.value[key] = value
     }
 
     function upvote(post: Post) {
@@ -119,6 +128,7 @@ export const GetSession = defineStore("session", () => {
         login,
         logout,
         updateTopics,
+        updateUserData,
         upvote,
         misleading,
         downvote,

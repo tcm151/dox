@@ -49,14 +49,10 @@ function sortUserPosts(sortType: string) {
     </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../styles/global.scss';
 
 .sorting {
     @include flex-h (0.5em);
-
-    >* {
-        flex: 1 1 0;
-    }
 }
 </style>

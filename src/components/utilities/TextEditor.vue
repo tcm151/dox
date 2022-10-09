@@ -34,7 +34,7 @@ function sanitized(text: string) {
         </div>
         <textarea class="textarea" rows="4" v-model="text" @keydown="$emit('textChanged', props.text)"
                   v-if="!showPreview"></textarea>
-        <div class="preview content box mt-0" v-html="sanitized(text)" v-if="showPreview">
+        <div class="preview content box mt-0 is-shadowless" v-html="sanitized(text)" v-if="showPreview">
         </div>
     </form>
 </template>
@@ -85,6 +85,7 @@ function sanitized(text: string) {
 
 .textarea,
 .preview {
+    border: 1px $dox-white solid;
     border-radius: 0 0 0.5em 0.5em;
 }
 

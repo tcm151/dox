@@ -41,16 +41,21 @@ function formatNumber(number: number): number | string {
                 </div>
             </div>
             <div class="media-content">
-                <div class="post-title box m-0 is-shadowless has-background-light p-2"
+                <div class="post-header box m-0 is-shadowless has-background-light px-2 py-1"
                      @click="navigateTo(`/posts/${post.post_id}`)">
-                    <p class="title is-5 has-text-weight-semibold m-0">{{ post.title }}</p>
+                    <p class="post-title">{{ post.title }}</p>
                 </div>
-                <div class="pills">
-                    <Tag v-for="topic in post?.topics" :label="topic" class="is-light is-link"
-                         :route="`/topic/${topic}`" />
-                    <Tag :label="`u/${post.user!.username}`" class="is-light is-primary"
-                         :route="`/profile/${post.user?.username}`" />
-                    <p class="tag is-light is-info ">{{ timeSince(post.time) }}</p>
+                <div class="pills-outside">
+                    <div class="pills" v-if="post?.topics.length > 0">
+                        <Tag v-for="topic in post?.topics" :label="topic" class="is-light is-link"
+                             :route="`/topic/${topic}`" />
+                    </div>
+                    <div class="pills">
+                        <Tag :label="`u/${post.user!.username}`" class="is-light is-primary"
+                             :route="`/profile/${post.user?.username}`" />
+                        <p class="tag is-light is-info ">{{ post.comments }} comments</p>
+                        <p class="tag is-light is-info ">{{ timeSince(post.time) }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,22 +104,36 @@ function formatNumber(number: number): number | string {
     }
 }
 
-.post-title:hover {
+.post-header:hover {
     cursor: pointer;
+}
+
+.post-title {
+    font-weight: 600;
+    font-size: 1.25em;
+    line-height: 1.25em;
 }
 
 .media-content {
     align-self: center;
+    overflow-x: hidden;
+}
+
+.pills-outside {
+    @include flex-hw (0.25em);
+    margin-top: 0.25em;
+
+    .pills {
+        flex: 1 1 auto;
+    }
 }
 
 .pills {
-    @include flex-hw;
-    gap: 0.25em;
-
-    margin-top: 0.25em;
+    @include flex-hw (0.25em);
 
     .tag {
-        flex: 1 1 0;
+        flex: 1 1 auto;
+        padding: 0 1em;
         font-weight: 600;
     }
 }

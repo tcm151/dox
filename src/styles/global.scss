@@ -15,8 +15,21 @@ $navbar-breakpoint: 600px;
 @import './mixins';
 
 .content {
+    p:not(:last-child) {
+        margin-bottom: 0.5em !important;
+    }
+
     blockquote {
-        padding: 0.5em 1em !important;
+        padding: 0.25em 0.5em !important;
+        margin-bottom: 0.5em !important;
+    }
+}
+
+.content-dark {
+    blockquote {
+        font-weight: 600;
+        color: $dox-black-light;
+        background-color: $dox-white !important;
     }
 }
 
