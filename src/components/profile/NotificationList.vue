@@ -17,7 +17,7 @@ function sanitized(text: string) {
 }
 
 onBeforeMount(async () => {
-    const response = await axios.get(`http://localhost:8080/users/${props.user?.user_id}/notifications`)
+    const response = await axios.get(`https://doxforeverything.herokuapp.com/users/${props.user?.user_id}/notifications`)
     notifications.value = response.data;
     notifications.value.sort(sortNew)
 
