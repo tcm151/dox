@@ -39,7 +39,7 @@ export const GetSession = defineStore("session", () => {
 
     async function updateUserData(): Promise<void> {
         const response = await axios.get(
-            `https://doxforeverything.herokuapp.com/users/username/${session.value.user?.username}`
+            `http://172.105.97.135:8080/users/username/${session.value.user?.username}`
         )
         session.value.user = response.data
     }
@@ -72,7 +72,7 @@ export const GetSession = defineStore("session", () => {
             post.votes.downvotes = post.votes.downvotes.filter((id) => id !== session.value.user!.user_id)
 
         axios.patch(
-            `https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`,
+            `http://172.105.97.135:8080/posts/${post.post_id}/votes`,
             new URLSearchParams({ votes: JSON.stringify(post.votes) })
         )
     }
@@ -94,7 +94,7 @@ export const GetSession = defineStore("session", () => {
             post.votes.downvotes = post.votes.downvotes.filter((id) => id !== session.value.user!.user_id)
 
         axios.patch(
-            `https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`,
+            `http://172.105.97.135:8080/posts/${post.post_id}/votes`,
             new URLSearchParams({ votes: JSON.stringify(post.votes) })
         )
     }
@@ -116,7 +116,7 @@ export const GetSession = defineStore("session", () => {
             post.votes.downvotes.push(session.value.user!.user_id)
 
         axios.patch(
-            `https://doxforeverything.herokuapp.com/posts/${post.post_id}/votes`,
+            `http://172.105.97.135:8080/posts/${post.post_id}/votes`,
             new URLSearchParams({ votes: JSON.stringify(post.votes) })
         )
     }

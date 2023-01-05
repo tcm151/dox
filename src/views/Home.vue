@@ -19,14 +19,18 @@ onBeforeMount(async () => {
     postFilter.value = filter ?? "All";
 
     try {
-        const allPostsResponse = await axios.get<Post[]>("https://doxforeverything.herokuapp.com/posts")
+        const allPostsResponse = await axios.get<Post[]>("http://172.105.97.135:8080/posts")
+        console.log(allPostsResponse.data)
         allPosts.value = allPostsResponse.data;
         allPosts.value = sortPosts(allPosts.value, "hot")
 
-        feedPosts.value = allPosts.value.filter((post) =>
-            session.User?.following.includes(post.user_id) ||
-            post.topics.some(topic => session.User?.topics.includes(topic))
-        )
+
+        if (session.User) {
+            feedPosts.value = allPosts.value.filter((post) =>
+                session.User?.following.includes(post.user_id) ||
+                post.topics.some(topic => session.User?.topics.includes(topic))
+            )
+        }
         feedPosts.value = sortPosts(feedPosts.value, "hot")
 
         switch (postFilter.value) {

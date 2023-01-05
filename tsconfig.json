@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        //> NODE
+        "composite": true,
         "target": "esnext",
         "useDefineForClassFields": true,
         "module": "esnext",
@@ -11,6 +13,10 @@
         "esModuleInterop": true,
         "lib": ["esnext", "dom"]
     },
-    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
-    "references": [{ "path": "./tsconfig.node.json" }]
+    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "vite.config.ts"],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
 }

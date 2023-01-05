@@ -25,7 +25,7 @@ function register() {
 async function login() {
     try {
         const response = await axios.post<Session>(
-            "https://doxforeverything.herokuapp.com/authenticate",
+            "http://172.105.97.135:8080/authenticate",
             new URLSearchParams({
                 username: username.value,
                 password: password.value,

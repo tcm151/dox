@@ -50,7 +50,7 @@ async function uploadPost() {
 
     try {
         const response = await axios.post<Post>(
-            "https://doxforeverything.herokuapp.com/newPost",
+            "http://172.105.97.135:8080/newPost",
             new URLSearchParams({
                 title: title.value,
                 content: content.value,

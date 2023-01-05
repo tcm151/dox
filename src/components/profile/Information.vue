@@ -32,10 +32,10 @@ function follow() {
     }
 
     props.user.followers.push(session.User!.user_id);
-    axios.patch(`https://doxforeverything.herokuapp.com/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
+    axios.patch(`http://172.105.97.135:8080/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
 
     session.User?.following.push(props.user.user_id);
-    axios.patch(`https://doxforeverything.herokuapp.com/users/${session.User?.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User?.following) }))
+    axios.patch(`http://172.105.97.135:8080/users/${session.User?.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User?.following) }))
 }
 
 function unfollow() {
@@ -52,10 +52,10 @@ function unfollow() {
     }
 
     props.user.followers = props.user.followers.filter(id => id !== session.User!.user_id);
-    axios.patch(`https://doxforeverything.herokuapp.com/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
+    axios.patch(`http://172.105.97.135:8080/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
 
     session.User!.following = session.User!.following.filter(id => id !== session.User!.user_id)
-    axios.patch(`https://doxforeverything.herokuapp.com/users/${session.User!.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User!.following) }))
+    axios.patch(`http://172.105.97.135:8080/users/${session.User!.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User!.following) }))
 }
 
 </script>

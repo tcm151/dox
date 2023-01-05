@@ -20,10 +20,10 @@ onBeforeMount(fetchUserContent)
 watch(() => route.params, () => fetchUserContent())
 
 async function fetchUserContent() {
-    const userResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/username/${route.params.username}`)
+    const userResponse = await axios.get(`http://172.105.97.135:8080/users/username/${route.params.username}`)
     user.value = userResponse.data;
 
-    const postsResponse = await axios.get(`https://doxforeverything.herokuapp.com/users/${user.value?.user_id}/posts`)
+    const postsResponse = await axios.get(`http://172.105.97.135:8080/users/${user.value?.user_id}/posts`)
     posts.value = postsResponse.data;
 }
 
