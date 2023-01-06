@@ -25,7 +25,7 @@ const toggleModal = inject("toggleModal") as Function;
 onBeforeMount(async () => {
     fetchPosts()
 
-    const response = await axios.get(`http://172.105.97.135:8080/topics/${route.params.topic}/info`)
+    const response = await axios.get(`https://www.tcmdev.ca/topics/${route.params.topic}/info`)
     console.log(response.data);
 
     topic.value = {
@@ -38,7 +38,7 @@ watch(() => route.params, () => fetchPosts())
 
 async function fetchPosts() {
     try {
-        const topicPostsResponse = await axios.get<Post[]>(`http://172.105.97.135:8080/posts/topic/${route.params.topic}`)
+        const topicPostsResponse = await axios.get<Post[]>(`https://www.tcmdev.ca/posts/topic/${route.params.topic}`)
         topicPosts.value = topicPostsResponse.data;
     }
     catch (error: any) {
@@ -50,7 +50,7 @@ async function fetchPosts() {
 async function followTopic(topic: string) {
     session.User?.topics.push(topic);
     axios.patch(
-        `http://172.105.97.135:8080/users/${session.User?.user_id}/topics`,
+        `https://www.tcmdev.ca/users/${session.User?.user_id}/topics`,
         new URLSearchParams({
             topics: JSON.stringify(session.User?.topics)
         }))
@@ -60,7 +60,7 @@ async function followTopic(topic: string) {
 async function unfollowTopic(topic: string) {
     session.User!.topics = session.User?.topics.filter(t => t !== topic)!;
     axios.patch(
-        `http://172.105.97.135:8080/users/${session.User?.user_id}/topics`,
+        `https://www.tcmdev.ca/users/${session.User?.user_id}/topics`,
         new URLSearchParams({
             topics: JSON.stringify(session.User?.topics)
         }))

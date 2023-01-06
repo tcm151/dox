@@ -27,7 +27,7 @@ function upvote(comment: Comment) {
     if (comment.votes.misleading.includes(session.User!.user_id)) comment.votes.misleading = comment.votes.misleading.filter(id => id !== session.User?.user_id)
     if (comment.votes.downvotes.includes(session.User!.user_id)) comment.votes.downvotes = comment.votes.downvotes.filter(id => id !== session.User?.user_id)
 
-    axios.patch(`http://172.105.97.135:8080/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
+    axios.patch(`https://www.tcmdev.ca/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }
 
 function misleading(comment: Comment) {
@@ -40,7 +40,7 @@ function misleading(comment: Comment) {
     if (!comment.votes.misleading.includes(session.User!.user_id)) comment.votes.misleading.push(session.User!.user_id)
     if (comment.votes.downvotes.includes(session.User!.user_id)) comment.votes.downvotes = comment.votes.downvotes.filter(id => id !== session.User?.user_id)
 
-    axios.patch(`http://172.105.97.135:8080/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
+    axios.patch(`https://www.tcmdev.ca/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }
 
 function downvote(comment: Comment) {
@@ -53,7 +53,7 @@ function downvote(comment: Comment) {
     if (comment.votes.misleading.includes(session.User!.user_id)) comment.votes.misleading = comment.votes.misleading.filter(id => id !== session.User?.user_id)
     if (!comment.votes.downvotes.includes(session.User!.user_id)) comment.votes.downvotes.push(session.User!.user_id)
 
-    axios.patch(`http://172.105.97.135:8080/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
+    axios.patch(`https://www.tcmdev.ca/comments/${comment.comment_id}/votes`, new URLSearchParams({ votes: JSON.stringify(comment.votes) }))
 }
 
 function getReplies(originalComment: Comment) {

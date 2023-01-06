@@ -25,7 +25,7 @@ function register() {
 async function login() {
     try {
         const response = await axios.post<Session>(
-            "http://172.105.97.135:8080/authenticate",
+            "https://www.tcmdev.ca/authenticate",
             new URLSearchParams({
                 username: username.value,
                 password: password.value,
