@@ -69,7 +69,7 @@ async function submitComment(params: { comment: string, replyTo: number | null }
 }
 
 function getReplies() {
-    return comments.value.filter(c => c.reply_to === null || c.reply_to === NaN);
+    return comments.value.filter(c => c.reply_to === null || Number.isNaN(c.reply_to));
 }
 
 </script>
