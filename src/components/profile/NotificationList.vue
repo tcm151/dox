@@ -17,7 +17,7 @@ function sanitized(text: string) {
 }
 
 onBeforeMount(async () => {
-    const response = await axios.get(`https://www.tcmdev.ca/users/${props.user?.user_id}/notifications`)
+    const response = await axios.get(`https://www.tcmdev.ca/dox/users/${props.user?.user_id}/notifications`)
     notifications.value = response.data;
     notifications.value.sort(sortNew)
 

@@ -19,7 +19,7 @@ onBeforeMount(async () => {
     postFilter.value = filter ?? "All";
 
     try {
-        const allPostsResponse = await axios.get<Post[]>("https://www.tcmdev.ca/posts")
+        const allPostsResponse = await axios.get<Post[]>("https://www.tcmdev.ca/dox/posts")
         console.log(allPostsResponse.data)
         allPosts.value = allPostsResponse.data;
         allPosts.value = sortPosts(allPosts.value, "hot")

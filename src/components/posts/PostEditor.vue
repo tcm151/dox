@@ -50,7 +50,7 @@ async function uploadPost() {
 
     try {
         const response = await axios.post<Post>(
-            "https://www.tcmdev.ca/newPost",
+            "https://www.tcmdev.ca/dox/newPost",
             new URLSearchParams({
                 title: title.value,
                 content: content.value,

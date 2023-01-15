@@ -14,7 +14,10 @@ function toRoute(topic: string) {
     <div class="box p-4 mb-2">
         <p class="title mb-4">Topics</p>
         <div class="followed-topics">
-            <Tag v-for="topic in user?.topics" :label="topic" class="is-light is-link" :route="`/topic/${topic}`" />
+            <Tag v-for="topic in user?.topics"
+                :label="topic"
+                class="is-light is-link"
+                :route="`/topic/${topic}`" />
         </div>
     </div>
 </template>

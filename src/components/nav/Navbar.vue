@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { onBeforeRouteUpdate } from 'vue-router';
-import { navigateTo, router } from '../../services/router';
+import { ref } from 'vue';
+import { navigateTo } from '../../services/router';
 import { GetSession } from '../../services/store.new';
 import Login from "../auth/Login.vue";
-import Search from './Search.vue';
 
 const session = GetSession();
 

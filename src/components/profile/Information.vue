@@ -32,10 +32,10 @@ function follow() {
     }
 
     props.user.followers.push(session.User!.user_id);
-    axios.patch(`https://www.tcmdev.ca/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
+    axios.patch(`https://www.tcmdev.ca/dox/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
 
     session.User?.following.push(props.user.user_id);
-    axios.patch(`https://www.tcmdev.ca/users/${session.User?.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User?.following) }))
+    axios.patch(`https://www.tcmdev.ca/dox/users/${session.User?.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User?.following) }))
 }
 
 function unfollow() {
@@ -52,10 +52,10 @@ function unfollow() {
     }
 
     props.user.followers = props.user.followers.filter(id => id !== session.User!.user_id);
-    axios.patch(`https://www.tcmdev.ca/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
+    axios.patch(`https://www.tcmdev.ca/dox/users/${props.user.user_id}/followers`, new URLSearchParams({ followers: JSON.stringify(props.user.followers) }))
 
     session.User!.following = session.User!.following.filter(id => id !== session.User!.user_id)
-    axios.patch(`https://www.tcmdev.ca/users/${session.User!.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User!.following) }))
+    axios.patch(`https://www.tcmdev.ca/dox/users/${session.User!.user_id}/following`, new URLSearchParams({ following: JSON.stringify(session.User!.following) }))
 }
 
 </script>

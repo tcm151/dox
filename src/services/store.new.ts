@@ -39,7 +39,7 @@ export const GetSession = defineStore("session", () => {
 
     async function updateUserData(): Promise<void> {
         const response = await axios.get(
-            `https://www.tcmdev.ca/users/username/${session.value.user?.username}`
+            `https://www.tcmdev.ca/dox/users/username/${session.value.user?.username}`
         )
         session.value.user = response.data
     }
@@ -72,7 +72,7 @@ export const GetSession = defineStore("session", () => {
             post.votes.downvotes = post.votes.downvotes.filter((id) => id !== session.value.user!.user_id)
 
         axios.patch(
-            `https://www.tcmdev.ca/posts/${post.post_id}/votes`,
+            `https://www.tcmdev.ca/dox/posts/${post.post_id}/votes`,
             new URLSearchParams({ votes: JSON.stringify(post.votes) })
         )
     }
@@ -94,7 +94,7 @@ export const GetSession = defineStore("session", () => {
             post.votes.downvotes = post.votes.downvotes.filter((id) => id !== session.value.user!.user_id)
 
         axios.patch(
-            `https://www.tcmdev.ca/posts/${post.post_id}/votes`,
+            `https://www.tcmdev.ca/dox/posts/${post.post_id}/votes`,
             new URLSearchParams({ votes: JSON.stringify(post.votes) })
         )
     }
@@ -116,7 +116,7 @@ export const GetSession = defineStore("session", () => {
             post.votes.downvotes.push(session.value.user!.user_id)
 
         axios.patch(
-            `https://www.tcmdev.ca/posts/${post.post_id}/votes`,
+            `https://www.tcmdev.ca/dox/posts/${post.post_id}/votes`,
             new URLSearchParams({ votes: JSON.stringify(post.votes) })
         )
     }

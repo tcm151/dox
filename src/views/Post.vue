@@ -16,10 +16,10 @@ const route = useRoute();
 const session = GetSession();
 
 onBeforeMount(async () => {
-    const postResponse = await axios.get<Post>(`https://www.tcmdev.ca/posts/${route.params.post_id}`);
+    const postResponse = await axios.get<Post>(`https://www.tcmdev.ca/dox/posts/${route.params.post_id}`);
     post.value = postResponse.data;
 
-    const commentsResponse = await axios.get<Comment[]>(`https://www.tcmdev.ca/posts/${route.params.post_id}/comments`)
+    const commentsResponse = await axios.get<Comment[]>(`https://www.tcmdev.ca/dox/posts/${route.params.post_id}/comments`)
     comments.value = commentsResponse.data;
 
     sortBy("top")
@@ -38,7 +38,7 @@ function sortBy(sortType: string) {
 
 async function submitComment(params: { comment: string, replyTo: number | null }) {
     const response = await axios.post(
-        "https://www.tcmdev.ca/newComment",
+        "https://www.tcmdev.ca/dox/newComment",
         new URLSearchParams({
             user_id: String(session.User?.user_id),
             post_id: String(post.value?.post_id),

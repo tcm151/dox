@@ -28,7 +28,7 @@ async function registerUser() {
 
     try {
         const response = await axios.post(
-            "https://www.tcmdev.ca/newUser",
+            "https://www.tcmdev.ca/dox/newUser",
             new URLSearchParams({
                 email: email.value,
                 username: username.value,
@@ -46,7 +46,7 @@ async function registerUser() {
 async function login() {
     try {
         const response = await axios.post(
-            "https://www.tcmdev.ca/authenticate",
+            "https://www.tcmdev.ca/dox/authenticate",
             new URLSearchParams({
                 username: username.value,
                 password: password.value,

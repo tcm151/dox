@@ -32,7 +32,7 @@ function sanitized(text: string) {
                 <!-- <i class="fa-solid fa-cannabis"></i> -->
             </div>
         </div>
-        <textarea class="textarea" rows="4" v-model="text" @keydown="$emit('textChanged', props.text)"
+        <textarea class="textarea" rows="4" v-bind="text" @keydown="$emit('textChanged', props.text)"
                   v-if="!showPreview"></textarea>
         <div class="preview content box mt-0 is-shadowless" v-html="sanitized(text)" v-if="showPreview">
         </div>
