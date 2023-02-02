@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { cp } from 'fs';
 import { Post, Comment } from '~/types/types';
 
 const route = useRoute();
@@ -32,13 +31,14 @@ function submitPostReply() {
         }
     })
 
+    console.log(comment.value)
     postReply.value = "";
     toggleCommentBox();
 }
 
 let commentReply = ref("")
-let showCommentReply = ref(false)
 let commentToReplyTo = ref("")
+
 function toggleReply(comment: Comment) {
     commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
 }
@@ -78,7 +78,7 @@ function submitCommentReply(replyTo: Comment) {
                 {{ topic }}
             </span>
             <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
-            <span class="info">{{ post?.time }}</span>
+            <span class="info">{{ formatDate(post?.time as any) }}</span>
         </div>
         <div class="content my-5">
             {{ post?.content }}
@@ -113,67 +113,30 @@ function submitCommentReply(replyTo: Comment) {
         <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment}">
                 <div class="comment">
-                    <!-- <div class="comment-line"></div> -->
-                    <div class="real">
-                        <div class="header row">
-                            <div class="row votes">
-                                <span class="upvote" @click="vote.upvote(comment.votes)">
-                                    {{comment.votes.upvotes.length}}
-                                </span>
-                                <span class="misleading" @click="vote.misleading(comment.votes)">
-                                    {{comment.votes.misleading.length}}
-                                </span>
-                                <span class="downvote" @click="vote.downvote(comment.votes)">
-                                    {{comment.votes.downvotes.length}}
-                                </span>
-                            </div>
-                            <span class="link">{{ `u/${comment.user?.name}` }}</span>
-                            <span class="link">{{ comment.time }}</span>
-                            <span class="reply" @click="toggleReply(comment)">Reply</span>
+                    <div class="header row-fit g-1">
+                        <div class="votes row">
+                            <span class="upvote" @click="vote.upvote(comment.votes)">
+                                {{comment.votes.upvotes.length}}
+                            </span>
+                            <span class="misleading" @click="vote.misleading(comment.votes)">
+                                {{comment.votes.misleading.length}}
+                            </span>
+                            <span class="downvote" @click="vote.downvote(comment.votes)">
+                                {{comment.votes.downvotes.length}}
+                            </span>
                         </div>
-                        <div class="body p-3">
-                            <p>{{ comment.content }}</p>
-                        </div>
-                        <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
-                            <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
-                            <div class="row g-2 pt-2">
-                                <span class="success" @click="submitCommentReply(comment)">Submit</span>
-                                <span class="danger" @click="toggleReply(comment)">Cancel</span>
-                            </div>
-                        </div>
+                        <span class="link">{{ `u/${comment.user?.name}` }}</span>
+                        <span class="link">{{ formatDate(comment.time as any) }}</span>
+                        <span class="reply" @click="toggleReply(comment)">Reply</span>
                     </div>
-                </div>
-            </template>
-            <!-- TODO: this does not work... -->
-            <template #child="{ item: comment }">
-                <div class="comment">
-                    <!-- <div class="comment-line"></div> -->
-                    <div class="real">
-                        <div class="header row">
-                            <div class="row votes">
-                                <span class="upvote" @click="vote.upvote(comment.votes)">
-                                    {{comment.votes.upvotes.length}}
-                                </span>
-                                <span class="misleading" @click="vote.misleading(comment.votes)">
-                                    {{comment.votes.misleading.length}}
-                                </span>
-                                <span class="downvote" @click="vote.downvote(comment.votes)">
-                                    {{comment.votes.downvotes.length}}
-                                </span>
-                            </div>
-                            <span class="link">{{ `u/${comment.user?.name}` }}</span>
-                            <span class="link">{{ comment.time }}</span>
-                            <span class="reply" @click="toggleReply(comment)">Reply</span>
-                        </div>
-                        <div class="body p-3">
-                            <p>{{ comment.content }}</p>
-                        </div>
-                        <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
-                            <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
-                            <div class="row g-2 pt-2">
-                                <span class="success" @click="submitCommentReply(comment)">Submit</span>
-                                <span class="danger" @click="toggleReply(comment)">Cancel</span>
-                            </div>
+                    <div class="body p-3">
+                        <p>{{ comment.content }}</p>
+                    </div>
+                    <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
+                        <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
+                        <div class="row-fit g-1 pt-2">
+                            <span class="success" @click="submitCommentReply(comment)">Submit</span>
+                            <span class="danger" @click="toggleReply(comment)">Cancel</span>
                         </div>
                     </div>
                 </div>
@@ -184,6 +147,10 @@ function submitCommentReply(replyTo: Comment) {
 
 <style scoped lang="scss">
 @import "~/assets/global.scss";
+
+.content {
+    white-space: pre-wrap;
+}
 
 .post, .comments {
     width: 750px;
@@ -221,27 +188,22 @@ span:hover {
 
 .comment {
     flex: 1 1;
-    @include flex-h;
+    @include flex-v;
 
-    .comment-line {
-        width: 0.25em;
-        margin-right: 0.25rem;
-        border-radius: 0.25em;
+    .reply {
         background-color: $dox-white;
     }
 
-    .real {
-        @include flex-v;
+    .reply:hover {
+        color: $dox-white-ultra;
+        background-color: $dox-grey-light;
+    }
+    
+    .comment-reply {
+        textarea {
+            max-height: 256px;
+        }
     }
 }
 
-.reply {
-    background-color: $dox-white;
-}
-
-.comment-reply {
-    textarea {
-        max-height: 256px;
-    }
-}
 </style>

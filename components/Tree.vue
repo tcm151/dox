@@ -4,26 +4,23 @@ const props = defineProps<{
     children: any[]
     getChildren: Function
 }>()
-
-function computeChildren(item: any) {
-    let children = props.getChildren(item, props.items)
-    console.log(children);
-    return children;
-}
 </script>
 
 <template>
     <div class="tree" v-if="children.length > 0">
-        <div class="item" v-for="item in children" :key="item.id">
-            <slot name="item" :item="item">
-            </slot>
-            <div class="ml-5" v-if="computeChildren(item).length > 0">
-                <Tree :items="items" :children="computeChildren(item)" :get-children="getChildren">
-                    <template #item="{ item: child }">
-                        <slot name="child" :item="child">
-                        </slot>
-                    </template>
-                </Tree>
+        <div class="outside" v-for="item in children" :key="item.id">
+            <div class="comment-line"></div>
+            <div class="item">
+                <slot name="item" :item="item">
+                </slot>
+                <div class="ml-5" v-if="getChildren(item, items).length > 0">
+                    <Tree :items="items" :children="getChildren(item, items)" :get-children="getChildren">
+                        <template v-for="(_, slot) in $slots" v-slot:[slot]="scope: any">
+                            <slot :name="slot" v-bind="scope ?? {}">
+                            </slot>
+                        </template>
+                    </Tree>
+                </div>
             </div>
         </div>
     </div>
@@ -31,6 +28,17 @@ function computeChildren(item: any) {
 
 <style scoped lang="scss">
 @import '~/assets/global.scss';
+
+.comment-line {
+    width: 0.25em;
+    margin-right: 0.25rem;
+    border-radius: 0.25em;
+    background-color: $dox-white;
+}
+
+.outside {
+    @include flex-h;
+}
 
 .item {
     @include flex-v;

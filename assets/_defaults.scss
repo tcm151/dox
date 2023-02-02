@@ -52,8 +52,8 @@ button {
 }
 
 button:hover {
-    // box-shadow: 0 0 0.5rem 1px #999 inset;
-    background-color: $dox-white-dark;
+    color: $dox-white-ultra;
+    background-color: $dox-grey-light;
 }
 
 .grow {
@@ -69,9 +69,22 @@ button:hover {
     > * { flex: 1 0; }
 }
 
+.row-fit {
+    @include flex-h;
+    > * {
+        flex: 0 1;
+        white-space: nowrap;
+    }
+}
+
 .column {
     @include flex-v;
     > * { flex: 0 1; }
+}
+
+.column-fill {
+    @include flex-v;
+    > * { flex: 1 0; }
 }
 
 .container {
