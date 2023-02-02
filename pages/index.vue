@@ -5,27 +5,7 @@ const { data: posts } = await useFetch<Post[]>("/api/posts");
 
 const vote = useVoting();
 
-function getDateString(dateString: string): string {
-    const ms = Date.parse(new Date().toISOString()) - Date.parse(dateString);
-    const hours = ms / 1000 / 60 / 60;
-    const days = hours / 24;
-    const weeks = days / 7;
-    const months = weeks / 4;
-    const years = days / 365;
-    if (days >= 365) {
-        return `${(years).toFixed(0)}y ago`;
-    }
-    if (weeks >= 4) {
-        return `${(months).toFixed(0)}m ago`;
-    }
-    if (days >= 7) {
-        return `${(weeks).toFixed(0)}w ago`;
-    }
-    if (hours >= 24) {
-        return `${(days).toFixed(0)}d ago`;
-    }
-    return `${hours.toFixed(0)}h ago`;
-}
+
 
 const settings = useSettings();
 
@@ -48,7 +28,7 @@ const settings = useSettings();
                 </span>
                 <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
                 <span class="info" style="flex: 0 1">{{ post.comments.length }} comments</span>
-                <span class="info" style="flex: 0 1">{{ getDateString(post.time as any) }}</span>
+                <span class="info" style="flex: 0 1">{{ formatDate(post.time as any) }}</span>
             </div>
         </div>
         <div class="pages">
