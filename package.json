@@ -10,7 +10,8 @@
     "devDependencies": {
         "@pinia-plugin-persistedstate/nuxt": "^1.0.0",
         "@types/marked": "^4.0.8",
-        "nuxt": "3.0.0"
+        "@types/node": "^18.11.18",
+        "nuxt": "^3.1.1"
     },
     "dependencies": {
         "@pinia/nuxt": "^0.4.6",
