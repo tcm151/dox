@@ -1,0 +1,34 @@
+@use "sass:color";
+
+//> COLORS
+$dox-black: #272838;
+$dox-black-light: #393A49;
+$dox-grey-dark: #656672;
+$dox-grey: #90929A;
+$dox-grey-light: #B3B5BB;
+$dox-white-dark: #C0C2C7;
+$dox-white: #D8DADC;
+$dox-white-light: #EBEBEB;
+$dox-white-ultra: #FAFAFA;
+
+$dox-green: #1FAD83;
+$dox-yellow: #FFCF33;
+$dox-red: #F55D3E;
+$dox-purple: #8783D1;
+$dox-blue: #78C3FB;
+
+$dox-green-light: color.scale($dox-green, $lightness: 80%);
+$dox-yellow-light: color.scale($dox-yellow, $lightness: 65%);
+$dox-red-light: color.scale($dox-red, $lightness: 80%);
+$dox-purple-light: color.scale($dox-purple, $lightness: 75%);
+$dox-blue-light: color.scale($dox-blue, $lightness: 70%);
+
+//> OVERRIDES
+$primary: $dox-black;
+$link:    $dox-blue;
+$info:    $dox-purple;
+
+$success: $dox-green;
+$warning: $dox-yellow;
+$danger: $dox-red;
+

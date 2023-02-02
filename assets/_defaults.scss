@@ -1,0 +1,129 @@
+@use "colors";
+
+//> DEFAULT STYLING
+html {
+    height: 100%;
+    overflow: hidden;
+
+    font-weight: 500;
+    font-family: "Montserrat", sans-serif;
+}
+
+body {
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+}
+
+#__nuxt {
+    height: 100%;
+}
+
+a,
+a:hover,
+a:active,
+a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0;
+}
+
+button {
+    padding: 0.5rem 1rem;
+
+    border: none;
+    border-radius: 0.25rem;
+
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+
+    background-color: $dox-white;
+}
+
+button:hover {
+    // box-shadow: 0 0 0.5rem 1px #999 inset;
+    background-color: $dox-white-dark;
+}
+
+.grow {
+    flex: 1 0;
+}
+
+.shrink {
+    flex: 0 1;
+}
+
+.row {
+    @include flex-h;
+    > * { flex: 1 0; }
+}
+
+.column {
+    @include flex-v;
+    > * { flex: 0 1; }
+}
+
+.container {
+    width: fit-content;
+    width: 256px;
+
+    padding: 1rem;
+
+    border-radius: 0.5rem;
+    background-color: #EEE;
+    box-shadow: 0.25rem 0.5rem 1rem -0.25rem #BBBA, 0 0 0.33rem 1px #CCCA;
+}
+
+.form {
+    @include flex-v (0.75rem);
+
+    max-width: 512px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+
+    label {
+        margin-bottom: 0.25rem;
+
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    input, textarea {
+        padding: 0.5rem;
+
+        font-size: 1rem;
+        font-family: inherit;
+        font-weight: 500;
+
+        border: 1px solid #DDD;
+        border-radius: 0.25rem;
+        background-color: $dox-white-ultra;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+    input:hover, input:focus, textarea:hover, textarea:focus {
+        outline: 1px solid $dox-blue;
+    }
+
+    input::placeholder {
+        color: #CCC;
+        font-style: italic;
+    }
+}

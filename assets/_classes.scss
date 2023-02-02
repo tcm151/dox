@@ -1,0 +1,49 @@
+.upvote, .success {
+    color: $dox-green;
+    background-color: $dox-green-light;
+}
+
+.upvote:hover, .success:hover {
+    color: $dox-white-light;
+    background-color: $dox-green;
+}
+
+.misleading, .warning {
+    color: $dox-yellow;
+    background-color: $dox-yellow-light;
+}
+
+.misleading:hover, .warning:hover {
+    color: $dox-white-light;
+    background-color: $dox-yellow;
+}
+
+.downvote, .danger {
+    color: $dox-red;
+    background-color: $dox-red-light;
+}
+
+.downvote:hover, .danger:hover {
+    color: $dox-white-light;
+    background-color: $dox-red;
+}
+
+.topic, .link {
+    color: $dox-purple;
+    background-color: $dox-purple-light;
+}
+
+.topic:hover, .link:hover {
+    color: $dox-white-light;
+    background-color: $dox-purple;
+}
+
+.info {
+    color: $dox-blue;
+    background-color: $dox-blue-light;
+}
+
+.info:hover {
+    color: $dox-white-light;
+    background-color: $dox-blue;
+}
