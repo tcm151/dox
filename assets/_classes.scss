@@ -1,9 +1,9 @@
-.upvote, .success {
+.positive, .success {
     color: $dox-green;
     background-color: $dox-green-light;
 }
 
-.upvote:hover, .success:hover {
+.positive:hover, .success:hover {
     color: $dox-white-light;
     background-color: $dox-green;
 }
@@ -18,12 +18,12 @@
     background-color: $dox-yellow;
 }
 
-.downvote, .danger {
+.negative, .danger {
     color: $dox-red;
     background-color: $dox-red-light;
 }
 
-.downvote:hover, .danger:hover {
+.negative:hover, .danger:hover {
     color: $dox-white-light;
     background-color: $dox-red;
 }

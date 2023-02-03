@@ -17,5 +17,10 @@ export function formatDate(dateString: string): string {
     if (hours >= 24) {
         return `${(days).toFixed(0)}d ago`;
     }
-    return `${hours.toFixed(0)}h ago`;
+    if (hours >= 1) {
+        return `${hours.toFixed(0)}h ago`;
+    }
+    else {
+        return '< 1h ago'
+    }
 }

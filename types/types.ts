@@ -15,9 +15,9 @@ export interface User {
 }
 
 export interface Votes {
-    upvotes: string[]
+    positive: string[]
     misleading: string[]
-    downvotes: string[]
+    negative: string[]
 }
 
 export interface Post {

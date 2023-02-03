@@ -6,7 +6,7 @@ const vote = useVoting();
 const session = getSession();
 
 const { data: post } = useFetch<Post>(`/api/post/${route.params.postId}`)
-const { data: comments } = useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
+const { data: comments, refresh: fetchComments } = useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
 
 let showPostReply = ref(false);
 function toggleCommentBox() {
@@ -24,22 +24,22 @@ function submitPostReply() {
             replyTo: post.value?.id,
             content: postReply.value,
             votes: {
-                upvotes: [session.user!.id],
+                positive: [session.user!.id],
                 misleading: [],
-                downvotes: [],
+                negative: [],
             },
         }
     })
 
-    console.log(comment.value)
-    postReply.value = "";
+    fetchComments();
     toggleCommentBox();
+    postReply.value = "";
 }
 
 let commentReply = ref("")
 let commentToReplyTo = ref("")
 
-function toggleReply(comment: Comment) {
+function replyToComment(comment: Comment) {
     commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
 }
 
@@ -53,13 +53,14 @@ function submitCommentReply(replyTo: Comment) {
             replyTo: replyTo.id,
             content: commentReply.value,
             votes: {
-                upvotes: [session.user!.id],
+                positive: [session.user!.id],
                 misleading: [],
-                downvotes: [],
+                negative: [],
             },
         }
     })
 
+    fetchComments();
     commentReply.value = "";
     commentToReplyTo.value = ""
 }
@@ -70,9 +71,15 @@ function submitCommentReply(replyTo: Comment) {
         <h2 class="mb-2">{{ post?.title }}</h2>
         <div class="row">
             <div class="row votes">
-                <span class="upvote" @click="vote.upvote(post!.votes)">{{ post?.votes.upvotes.length }}</span>
-                <span class="misleading" @click="vote.misleading(post!.votes)">{{ post?.votes.misleading.length }}</span>
-                <span class="downvote" @click="vote.downvote(post!.votes)">{{ post?.votes.downvotes.length }}</span>
+                <span class="positive" @click="vote.positive(post!.id, post!.votes)">
+                    {{ post?.votes.positive.length }}
+                </span>
+                <span class="misleading" @click="vote.misleading(post!.id, post!.votes)">
+                    {{ post?.votes.misleading.length }}
+                </span>
+                <span class="negative" @click="vote.negative(post!.id, post!.votes)">
+                    {{ post?.votes.negative.length }}
+                </span>
             </div>
             <span class="topic" v-for="topic in post?.topics">
                 {{ topic }}
@@ -80,8 +87,7 @@ function submitCommentReply(replyTo: Comment) {
             <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
             <span class="info">{{ formatDate(post?.time as any) }}</span>
         </div>
-        <div class="content my-5">
-            {{ post?.content }}
+        <div class="content mt-5" v-html="renderMarkdown(post?.content)">
         </div>
         <ClientOnly>
             <div class="column g-2" v-if="session.isAuthenticated">
@@ -104,30 +110,36 @@ function submitCommentReply(replyTo: Comment) {
                     </div>
                 </div>
             </div>
-            <div class="row mt-1" v-else>
+            <div class="row" v-else>
                 <button class="danger">You must be logged in to interact with other people.</button>
             </div>
         </ClientOnly>
     </div>
-    <div class="comments m-5 p-5">
+    <div class="comments m-5 p-5" v-if="(comments?.length ?? 0) > 0">
         <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment}">
                 <div class="comment">
                     <div class="header row-fit g-1">
                         <div class="votes row">
-                            <span class="upvote" @click="vote.upvote(comment.votes)">
-                                {{comment.votes.upvotes.length}}
+                            <span class="positive" @click="vote.positive(comment.id, comment.votes)">
+                                {{comment.votes.positive.length}}
                             </span>
-                            <span class="misleading" @click="vote.misleading(comment.votes)">
+                            <span class="misleading" @click="vote.misleading(comment.id, comment.votes)">
                                 {{comment.votes.misleading.length}}
                             </span>
-                            <span class="downvote" @click="vote.downvote(comment.votes)">
-                                {{comment.votes.downvotes.length}}
+                            <span class="negative" @click="vote.negative(comment.id, comment.votes)">
+                                {{comment.votes.negative.length}}
                             </span>
                         </div>
-                        <span class="link">{{ `u/${comment.user?.name}` }}</span>
+                        <span class="link" v-if="comment.user.id === post?.user.id">
+                            {{ `u/${comment.user?.name}` }}
+                            <i class="fa-solid fa-feather-pointed"></i>    
+                        </span>
+                        <span class="link" v-else>
+                            {{ `u/${comment.user?.name}` }}
+                        </span>
                         <span class="link">{{ formatDate(comment.time as any) }}</span>
-                        <span class="reply" @click="toggleReply(comment)">Reply</span>
+                        <span class="reply" @click="replyToComment(comment)">Reply</span>
                     </div>
                     <div class="body p-3">
                         <p>{{ comment.content }}</p>
@@ -136,7 +148,7 @@ function submitCommentReply(replyTo: Comment) {
                         <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
                         <div class="row-fit g-1 pt-2">
                             <span class="success" @click="submitCommentReply(comment)">Submit</span>
-                            <span class="danger" @click="toggleReply(comment)">Cancel</span>
+                            <span class="danger" @click="replyToComment(comment)">Cancel</span>
                         </div>
                     </div>
                 </div>

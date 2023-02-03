@@ -1,19 +1,20 @@
 <template>
-    <div class="about m-5">
+    <div class="about m-5 p-5">
         <div class="column">
-            <h1>What is this all about?</h1>
-            <p>DOX is a flexible forum which can facilitate questions, answers, discussion, and sharing based communities. People are free to talk about whatever they please, and form communities around certains interests, individuals, or topics.</p>
+            <h1>What is this?</h1>
+            <p>DOX is a flexible forum which can facilitate questions, answers, discussion, and sharing based communities. People are free to talk about whatever they want, and form communities around certains interests, topics, events, cultures, individuals... whatever.</p>
         </div>
         <div class="column mt-4">
             <h1>What can I do here?</h1>
-            <p>Everything starts with a simple post. Any verified user can write a post which can be viewed by the public. Every post has a title, some content, and up to 5 related Topics.</p>
-            <p>Topics are one of the main ways to curate your experience on DOX. You can view all of the trending posts using a specific topic, follow topics so they will show up in your feed, use specific topics on your posts so they can best reach the right communities.</p>
-            <p>It is easy to form distinct communities using different topics and blend content between different communities. Having a restriction of 5 topics forces users to choose carefully about which topics best fit the content of their post.</p>
+            <p>Everything starts with a post.</p>
+            <p>Any verified user can write a post which can be viewed by the public. Every post has a title, some content, and up to five related Topics.</p>
+            <p>Topics are one of the main ways to curate your experience on DOX. You can view all of the trending posts using a specific topic, follow topics so they will show up in your feed, and use specific topics on your posts so they can best reach the right communities.</p>
+            <p>It is easy to form distinct communities using different topics, while also promoting the diversification of ideas between communities by mixing topics. Having a restriction of five topics forces users to choose carefully about which topics best fit the content of their post.</p>
         </div>
         <div class="column mt-4">
             <h1>What kind of content is encouraged here?</h1>
             <p>Our community is it's own moderator. Using the simple voting system that DOX is built upon, users take control of what they would like to see and interact with.</p>
-            <p>Every post, comment and interaction on DOX can be given a vote. Either positive, misleading, or negative. And the numbers are not fudged, each vote corresponds to a unique user.</p>
+            <p>Every post, comment and public interaction on DOX can be given a vote. Either positive, misleading, or negative. And the numbers are not fudged, each vote corresponds to a unique user.</p>
             <P>The truth exists upon a specturm, and at DOX we understand that knowledge, understanding, and popular opinion drift over time. Things that were once considered complete fact or utter conspiracy, can pull a complete 180 as time goes on.</P>
             <p>The goal of the voting system is to give our users as much insight into any particular interaction as possible. Using the ratio, quantity, and trends of voting distributions to make a more informed decision on how to interact with certain content.</p>
         </div>
@@ -26,17 +27,29 @@
 </template>
 
 <style scoped lang="scss">
+@import "~/assets/global.scss";
+
 .about {
     display: flex;
     flex-flow: column wrap;
+    border-radius: 0.25rem;
+    background-color: $dox-white-ultra;
 
     div {
         max-width: 666px;
     }
 }
 
+h1 {
+    margin-bottom: 0.5rem;
+}
+
 
 p {
     text-align: justify;
+}
+
+p:not(:last-child) {
+    margin-bottom: 1rem;
 }
 </style>

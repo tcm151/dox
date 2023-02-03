@@ -59,7 +59,6 @@ export const getSession = defineStore("session", () => {
             state.value.user = null;
             console.log("session cleared.")
         }
-        navigateTo("/");
     }
 
     return { state, isAuthenticated, token, user, authenticate, login, logout }

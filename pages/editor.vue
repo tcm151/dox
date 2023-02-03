@@ -38,9 +38,9 @@ async function submit() {
                 title: title.value,
                 content: content.value,
                 votes: {
-                    upvotes: [session.user!.id],
+                    positive: [session.user!.id],
                     misleading: [],
-                    downvotes: [],
+                    negative: [],
                 },
                 time: new Date(),
                 topics: topics.value,

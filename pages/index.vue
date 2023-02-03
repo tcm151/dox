@@ -4,9 +4,6 @@ import { Post } from '~~/types/types';
 const { data: posts } = await useFetch<Post[]>("/api/posts");
 
 const vote = useVoting();
-
-
-
 const settings = useSettings();
 
 </script>
@@ -17,18 +14,20 @@ const settings = useSettings();
             <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${getId(post.id!)}`)">
                 {{ post.title }}
             </h3>
-            <div class="row g-1">
+            <div class="row-wrap g-1">
                 <div class="votes row g-1">
-                    <span class="upvote" @click="vote.upvote(post.votes)">{{ post?.votes.upvotes.length }}</span>
-                    <span class="misleading" @click="vote.misleading(post.votes)">{{ post?.votes.misleading.length }}</span>
-                    <span class="downvote" @click="vote.downvote(post.votes)">{{ post?.votes.downvotes.length }}</span>
+                    <span class="positive" @click="vote.positive(post.id, post.votes)">{{ post?.votes.positive.length }}</span>
+                    <span class="misleading" @click="vote.misleading(post.id, post.votes)">{{ post?.votes.misleading.length }}</span>
+                    <span class="negative" @click="vote.negative(post.id, post.votes)">{{ post?.votes.negative.length }}</span>
                 </div>
                 <span class="topic" v-for="topic in post?.topics">
                     {{ topic }}
                 </span>
-                <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
-                <span class="info" style="flex: 0 1">{{ post.comments.length }} comments</span>
-                <span class="info" style="flex: 0 1">{{ formatDate(post.time as any) }}</span>
+                <div class="details row g-1">
+                    <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
+                    <span class="info">{{ post.comments.length }} comments</span>
+                    <span class="info">{{ formatDate(post.time as any) }}</span>
+                </div>
             </div>
         </div>
         <div class="pages">
@@ -56,12 +55,11 @@ const settings = useSettings();
 
 .feed {
     @include flex-v (0.5rem);
-    width: 750px;
+    flex: 0 1 750px;
 }
 
 .post {
     padding: 0.25rem 0.5rem 0.5rem 0.5rem;
-
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
     transition: transform 128ms;
@@ -70,7 +68,6 @@ const settings = useSettings();
 .post:hover {
     cursor: pointer;
     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-    // transform: scale(102%, 102%);
 }
 
 .post.animate:hover {
@@ -89,6 +86,10 @@ const settings = useSettings();
         font-weight: 800;
         user-select: none;
     }
+}
+
+.topic {
+    flex: 1 1 1rem;
 }
 
 span {

@@ -5,7 +5,7 @@ export const useVoting = defineStore("voting", () => {
 
     const session = getSession();
 
-    function upvote(votes: Votes) {
+    async function positive(id: string, votes: Votes) {
         if (!session.isAuthenticated) {
             // EventBus.publish("toggleModal", {
             //     title: "Not logged in",
@@ -14,20 +14,25 @@ export const useVoting = defineStore("voting", () => {
             return
         }
 
-        if (!votes.upvotes.includes(session.user!.id)) {
-            votes.upvotes.push(session.user!.id)
+        if (!votes.positive.includes(session.user!.id)) {
+            votes.positive.push(session.user!.id)
         }
         if (votes.misleading.includes(session.user!.id)) {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
-        if (votes.downvotes.includes(session.user!.id)) {
-            votes.downvotes = votes.downvotes.filter((id) => id !== session.user!.id)
+        if (votes.negative.includes(session.user!.id)) {
+            votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
         // TODO update database
+        const { data: successful } = await useApi<Response>("/api/vote", {
+            id: id,
+            votes: votes
+        })
+        console.log(successful.value)
     }
 
-    function misleading(votes: Votes) {
+    async function misleading(id: string, votes: Votes) {
         if (!session.isAuthenticated) {
             // EventBus.publish("toggleModal", {
             //     title: "Not logged in",
@@ -36,20 +41,25 @@ export const useVoting = defineStore("voting", () => {
             return
         }
 
-        if (votes.upvotes.includes(session.user!.id)) {
-            votes.upvotes = votes.upvotes.filter((id) => id !== session.user!.id)
+        if (votes.positive.includes(session.user!.id)) {
+            votes.positive = votes.positive.filter((id) => id !== session.user!.id)
         }
         if (!votes.misleading.includes(session.user!.id)) {
             votes.misleading.push(session.user!.id)
         }
-        if (votes.downvotes.includes(session.user!.id)) {
-            votes.downvotes = votes.downvotes.filter((id) => id !== session.user!.id)
+        if (votes.negative.includes(session.user!.id)) {
+            votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
         // TODO update database
+        const { data: successful } = await useApi<Response>("/api/vote", {
+            id: id,
+            votes: votes
+        })
+        console.log(successful.value)
     }
 
-    function downvote(votes: Votes) {
+    async function negative(id: string, votes: Votes) {
         if (!session.isAuthenticated) {
             // EventBus.publish("toggleModal", {
             //     title: "Not logged in",
@@ -58,18 +68,24 @@ export const useVoting = defineStore("voting", () => {
             return
         }
 
-        if (votes.upvotes.includes(session.user!.id)) {
-            votes.upvotes = votes.upvotes.filter((id) => id !== session.user!.id)
+        if (votes.positive.includes(session.user!.id)) {
+            votes.positive = votes.positive.filter((id) => id !== session.user!.id)
         }
         if (votes.misleading.includes(session.user!.id)) {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
-        if (!votes.downvotes.includes(session.user!.id)) {
-            votes.downvotes.push(session.user!.id)
+        if (!votes.negative.includes(session.user!.id)) {
+            votes.negative.push(session.user!.id)
         }
 
         // TODO update database
+        const { data: successful } = await useApi<Response>("/api/vote", {
+            id: id,
+            votes: votes
+        })
+        console.log(votes);
+        console.log(successful.value)
     }
 
-    return { upvote, misleading, downvote }
+    return { positive, misleading, negative }
 })

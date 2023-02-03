@@ -5,6 +5,7 @@ html {
     height: 100%;
     overflow: hidden;
 
+    font-size: 15px;
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
 }
@@ -26,6 +27,16 @@ a:active,
 a:visited {
     color: inherit;
     text-decoration: none;
+}
+
+.content a {
+    color: $dox-blue;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.content a:visited {
+    color: $dox-purple;
 }
 
 h1,
@@ -56,17 +67,25 @@ button:hover {
     background-color: $dox-grey-light;
 }
 
-.grow {
-    flex: 1 0;
+.fill {
+    flex-grow: 1;
 }
 
 .shrink {
-    flex: 0 1;
+    flex-shrink: 1;
 }
 
 .row {
     @include flex-h;
     > * { flex: 1 0; }
+}
+
+.row-wrap {
+    @include flex-hw;
+    > * {
+        flex: 1 0;
+        white-space: nowrap;
+    }
 }
 
 .row-fit {
@@ -79,6 +98,11 @@ button:hover {
 
 .column {
     @include flex-v;
+    > * { flex: 0 1; }
+}
+
+.column-wrap {
+    @include flex-vw;
     > * { flex: 0 1; }
 }
 
