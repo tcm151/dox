@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Post, Comment } from '~/types/types';
 
-const route = useRoute();
 const vote = useVoting();
+const route = useRoute();
 const session = getSession();
 
-const { data: post } = useFetch<Post>(`/api/post/${route.params.postId}`)
+const { data: post, pending } = useFetch<Post>(`/api/post/${route.params.postId}`)
 const { data: comments, refresh: fetchComments } = useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
 
 let showPostReply = ref(false);
@@ -64,6 +64,9 @@ function submitCommentReply(replyTo: Comment) {
     commentReply.value = "";
     commentToReplyTo.value = ""
 }
+
+let editMode = ref(false)
+
 </script>
 
 <template>
@@ -85,9 +88,15 @@ function submitCommentReply(replyTo: Comment) {
                 {{ topic }}
             </span>
             <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
-            <span class="info">{{ formatDate(post?.time as any) }}</span>
+            <ClientOnly>
+                <span class="info">{{ formatDate(post?.time as any) }}</span>
+            </ClientOnly>
         </div>
-        <div class="content mt-5" v-html="renderMarkdown(post?.content)">
+        <ClientOnly>
+            <Markdown class="mt-5" :content="post?.content" />
+        </ClientOnly>
+        <div class="field mb-5" v-if="post && editMode && post?.user.id === session.user?.id">
+            <textarea rows="10" v-model="post.content"></textarea>
         </div>
         <ClientOnly>
             <div class="column g-2" v-if="session.isAuthenticated">
@@ -95,7 +104,7 @@ function submitCommentReply(replyTo: Comment) {
                     <button @click="toggleCommentBox">Comment</button>
                     <button>Reply</button>
                     <button>Share</button>
-                    <button v-if="post?.user.id == session.user?.id">
+                    <button v-if="post?.user.id === session.user?.id" @click="editMode = !editMode">
                         Edit
                     </button>
                     <button class="link" style="flex: 0 1">
@@ -138,7 +147,9 @@ function submitCommentReply(replyTo: Comment) {
                         <span class="link" v-else>
                             {{ `u/${comment.user?.name}` }}
                         </span>
-                        <span class="link">{{ formatDate(comment.time as any) }}</span>
+                        <ClientOnly>
+                            <span class="link">{{ formatDate(comment.time as any) }}</span>
+                        </ClientOnly>
                         <span class="reply" @click="replyToComment(comment)">Reply</span>
                     </div>
                     <div class="body p-3">

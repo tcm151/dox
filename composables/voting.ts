@@ -24,12 +24,10 @@ export const useVoting = defineStore("voting", () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        // TODO update database
         const { data: successful } = await useApi<Response>("/api/vote", {
             id: id,
             votes: votes
         })
-        console.log(successful.value)
     }
 
     async function misleading(id: string, votes: Votes) {
@@ -51,12 +49,10 @@ export const useVoting = defineStore("voting", () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        // TODO update database
         const { data: successful } = await useApi<Response>("/api/vote", {
             id: id,
             votes: votes
         })
-        console.log(successful.value)
     }
 
     async function negative(id: string, votes: Votes) {
@@ -78,13 +74,10 @@ export const useVoting = defineStore("voting", () => {
             votes.negative.push(session.user!.id)
         }
 
-        // TODO update database
         const { data: successful } = await useApi<Response>("/api/vote", {
             id: id,
             votes: votes
         })
-        console.log(votes);
-        console.log(successful.value)
     }
 
     return { positive, misleading, negative }

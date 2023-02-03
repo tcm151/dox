@@ -15,7 +15,7 @@
             <h1>What kind of content is encouraged here?</h1>
             <p>Our community is it's own moderator. Using the simple voting system that DOX is built upon, users take control of what they would like to see and interact with.</p>
             <p>Every post, comment and public interaction on DOX can be given a vote. Either positive, misleading, or negative. And the numbers are not fudged, each vote corresponds to a unique user.</p>
-            <P>The truth exists upon a specturm, and at DOX we understand that knowledge, understanding, and popular opinion drift over time. Things that were once considered complete fact or utter conspiracy, can pull a complete 180 as time goes on.</P>
+            <p>The truth exists upon a spectrum, and at DOX we understand that knowledge, understanding, and popular opinion drift over time. Whether something is considered complete fact or utter conspiracy, can do a complete 180 as time goes on.</p>
             <p>The goal of the voting system is to give our users as much insight into any particular interaction as possible. Using the ratio, quantity, and trends of voting distributions to make a more informed decision on how to interact with certain content.</p>
         </div>
         <div class="column mt-4">
