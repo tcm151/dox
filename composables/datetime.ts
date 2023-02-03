@@ -19,7 +19,7 @@ export function formatDate(dateString: string): string {
         return `${days.toFixed(0)}d ago`;
     }
     if (hours >= 1) {
-        return `${hours.toFixed(0)}hr ago`;
+        return `${hours.toFixed(0)}h ago`;
     }
     if (minutes >= 1) {
         return `${minutes.toFixed(0)}m ago`;
