@@ -3,20 +3,23 @@ import { Votes } from "~/types/types";
 
 export const useVoting = defineStore("voting", () => {
 
+    const hints = useHints();
     const session = getSession();
 
     async function positive(id: string, votes: Votes) {
         if (!session.isAuthenticated) {
-            // EventBus.publish("toggleModal", {
-            //     title: "Not logged in",
-            //     content: "Please login or create an account to interact with others",
-            // })
+            hints.addError("You must be logged in to interact with others.")
             return
         }
 
         if (!votes.positive.includes(session.user!.id)) {
             votes.positive.push(session.user!.id)
         }
+        else {
+            votes.positive = votes.positive.filter((id) => id !== session.user!.id)
+        }
+        
+
         if (votes.misleading.includes(session.user!.id)) {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
@@ -32,18 +35,19 @@ export const useVoting = defineStore("voting", () => {
 
     async function misleading(id: string, votes: Votes) {
         if (!session.isAuthenticated) {
-            // EventBus.publish("toggleModal", {
-            //     title: "Not logged in",
-            //     content: "Please login or create an account to interact with others",
-            // })
+            hints.addError("You must be logged in to interact with others.")
             return
+        }
+
+        if (!votes.misleading.includes(session.user!.id)) {
+            votes.misleading.push(session.user!.id)
+        }
+        else {
+            votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
 
         if (votes.positive.includes(session.user!.id)) {
             votes.positive = votes.positive.filter((id) => id !== session.user!.id)
-        }
-        if (!votes.misleading.includes(session.user!.id)) {
-            votes.misleading.push(session.user!.id)
         }
         if (votes.negative.includes(session.user!.id)) {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
@@ -57,11 +61,15 @@ export const useVoting = defineStore("voting", () => {
 
     async function negative(id: string, votes: Votes) {
         if (!session.isAuthenticated) {
-            // EventBus.publish("toggleModal", {
-            //     title: "Not logged in",
-            //     content: "Please login or create an account to interact with others",
-            // })
+            hints.addError("You must be logged in to interact with others.")
             return
+        }
+
+        if (!votes.negative.includes(session.user!.id)) {
+            votes.negative.push(session.user!.id)
+        }
+        else {
+            votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
         if (votes.positive.includes(session.user!.id)) {
@@ -69,9 +77,6 @@ export const useVoting = defineStore("voting", () => {
         }
         if (votes.misleading.includes(session.user!.id)) {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
-        }
-        if (!votes.negative.includes(session.user!.id)) {
-            votes.negative.push(session.user!.id)
         }
 
         const { data: successful } = await useApi<Response>("/api/vote", {
