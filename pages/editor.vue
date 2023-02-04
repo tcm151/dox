@@ -31,7 +31,7 @@ function removeTopic(topic: string) {
 
 async function submit() {
     try {
-        const { data: post } = useFetch<Post>("/api/post/new", {
+        const { data: post } = await useFetch<Post>("/api/post/new", {
             method: "POST",
             body: {
                 user: session.user!.id,

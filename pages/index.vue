@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { Post } from '~~/types/types';
-
-const { data: posts } = await useFetch<Post[]>("/api/posts");
+const { data: posts } = await useFetch("/api/posts");
 </script>
 
 <template>
