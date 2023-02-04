@@ -21,6 +21,9 @@ export default defineNuxtConfig({
             ],
         },
     },
+    imports: {
+        dirs: ["services/**"],
+    },
     runtimeConfig: {
         surrealDatabaseUrl: process.env.SURREAL_DATABASE_URL,
         surrealUsername: process.env.SURREAL_USERNAME,

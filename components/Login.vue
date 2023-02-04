@@ -7,15 +7,17 @@ const events = useEvents();
 const username = ref("");
 const password = ref("");
 
+const hints = useHints();
+
 const login = async () => {
     try {
-        session.login(username.value, password.value);
+        await session.login(username.value, password.value);
         events.publish("toggleLogin");
         username.value = ""
         password.value = ""
     }
     catch (ex) {
-        console.log(ex);
+        hints.addError("Username or password were incorrect.")
     }
 }
 

@@ -47,7 +47,7 @@ const emit = defineEmits<{
     @include flex-v;
     align-items: center;
     justify-content: center;
-    background-color: #0005;
+    // background-color: #0005;
     animation: blur 64ms forwards;
 }
 
@@ -60,7 +60,7 @@ const emit = defineEmits<{
     width: fit-content;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
-    box-shadow: 0.25rem 0.5rem 1rem -0.25rem #BBBA, 0 0 0.33rem 1px #CCCA;
+    box-shadow: 0.25rem 0.5rem 1rem -0.25rem $dox-white-dark, 0 0 0.33rem 1px $dox-white-dark;
     animation: fade-in 256ms;
 }
 

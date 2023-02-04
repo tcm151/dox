@@ -10,6 +10,12 @@ async function login() {
     }
 }
 
+const hints = useHints();
+
+function addHint() {
+    hints.addSuccess("Hi, this is a hint :)");
+}
+
 </script>
 
 <template>
@@ -23,12 +29,12 @@ async function login() {
         <ClientOnly>
             <Transition name="slide">
                 <div class="right authenticated" v-if="session.isAuthenticated">
-                    <NuxtLink to="/notifications">
+                    <NuxtLink @click="addHint">
                         <i class="fa-solid fa-envelope"></i>
                     </NuxtLink>
                     <NuxtLink to="/">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Home</span>
+                        <i class="fa-solid fa-signs-post"></i>
+                        <span>Feed</span>
                     </NuxtLink>
                     <NuxtLink to="/editor">
                         <i class="fa-solid fa-feather-pointed"></i>
@@ -45,8 +51,8 @@ async function login() {
                 </div>
                 <div class="right anonymous" v-else>
                     <NuxtLink to="/">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Home</span>
+                        <i class="fa-solid fa-signs-post"></i>
+                        <span>Feed</span>
                     </NuxtLink>
                     <a @click="login">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -94,7 +100,7 @@ async function login() {
     a {
         padding: 0.5rem;
 
-        i { margin-right: 0.25rem }
+        i { margin-right: 0.33rem }
         span { font-weight: 700 }
     }
 

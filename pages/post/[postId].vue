@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { UseSeoMetaInput } from '@unhead/vue';
 import { Post, Comment } from '~/types/types';
 
 const vote = useVoting();
@@ -7,6 +8,11 @@ const session = getSession();
 
 const { data: post, pending } = useFetch<Post>(`/api/post/${route.params.postId}`)
 const { data: comments, refresh: fetchComments } = useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
+
+// useServerSeoMeta({
+//     ogTitle: () => post.value?.title ?? route.params.postId[0],
+//     creator: () => post.value?.user.id
+// })
 
 let showPostReply = ref(false);
 function toggleCommentBox() {
@@ -65,7 +71,16 @@ function submitCommentReply(replyTo: Comment) {
     commentToReplyTo.value = ""
 }
 
-let editMode = ref(false)
+let editingPost = ref(false)
+
+function toggleEditPost() {
+    editingPost.value = !editingPost.value;
+}
+
+function saveChanges(item: Post | Comment | null ) {
+    console.log("SAVED! jk.")
+    toggleEditPost();
+}
 
 </script>
 
@@ -95,18 +110,25 @@ let editMode = ref(false)
         <ClientOnly>
             <Markdown class="mt-5" :content="post?.content" />
         </ClientOnly>
-        <div class="field mb-5" v-if="post && editMode && post?.user.id === session.user?.id">
+        <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
             <textarea rows="10" v-model="post.content"></textarea>
         </div>
         <ClientOnly>
             <div class="column g-2" v-if="session.isAuthenticated">
-                <div class="row" v-if="!showPostReply">
+                <div class="row" v-if="!showPostReply && !editingPost">
                     <button @click="toggleCommentBox">Comment</button>
                     <button>Reply</button>
                     <button>Share</button>
-                    <button v-if="post?.user.id === session.user?.id" @click="editMode = !editMode">
+                    <button v-if="post?.user.id === session.user?.id" @click="toggleEditPost()">
                         Edit
                     </button>
+                    <button class="link" style="flex: 0 1">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                </div>
+                <div class="row" v-if="editingPost">
+                    <button @click="saveChanges(post)">Save</button>
+                    <button @click="toggleEditPost()">Cancel</button>
                     <button class="link" style="flex: 0 1">
                         <i class="fa-solid fa-ellipsis"></i>
                     </button>
