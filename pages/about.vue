@@ -12,11 +12,10 @@
             <p>It is easy to form distinct communities using different topics, while also promoting the diversification of ideas between communities by mixing topics. Having a restriction of five topics forces users to choose carefully about which topics best fit the content of their post.</p>
         </div>
         <div class="column mt-4">
-            <h1>What kind of content is encouraged here?</h1>
-            <p>Our community is it's own moderator. Using the simple voting system that DOX is built upon, users take control of what they would like to see and interact with.</p>
-            <p>Every post, comment and public interaction on DOX can be given a vote. Either positive, misleading, or negative. And the numbers are not fudged, each vote corresponds to a unique user.</p>
-            <p>The truth exists upon a spectrum, and at DOX we understand that knowledge, understanding, and popular opinion drift over time. Whether something is considered complete fact or utter conspiracy, can do a complete 180 as time goes on.</p>
-            <p>The goal of the voting system is to give our users as much insight into any particular interaction as possible. Using the ratio, quantity, and trends of voting distributions to make a more informed decision on how to interact with certain content.</p>
+            <h1>Are there any moderators?</h1>
+            <p>Our community is it's own moderator. Using the voting system that DOX is built on top of, users take control of what they want to interact with. Every post, comment and public interaction on DOX can be given a vote. Either positive, misleading, or negative. And the numbers are not fudged, each vote corresponds to a unique user.</p>
+            <p>Truth exists upon a spectrum, and at DOX we understand that knowledge, understanding, and popular opinion drift over time. Whether something is considered complete fact or utter conspiracy, can do a complete 180 as time goes on.</p>
+            <p>The goal of the voting system is to give our users as much insight as possible into every interaction. By using the ratio, quantity, and trends of voting distributions, users can make a more informed decisions on how to interact with certain content.</p>
         </div>
         <div class="column mt-4">
             <h1>What about my privacy?</h1>
@@ -36,7 +35,7 @@
     background-color: $dox-white-ultra;
 
     div {
-        max-width: 666px;
+        max-width: 750px;
     }
 }
 
