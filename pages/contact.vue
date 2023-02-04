@@ -18,14 +18,21 @@ function submitFeedback() {
 </script>
 
 <template>
-    <div class="contact column g-5 m-5 p-5">
-        <div class="links mt">
+    <div class="column g-5 m-5">
+        <div class="links p-5">
             <h1 class="">Contact</h1>
-            <div class="content">
-                <span>Email: </span><a href="mailto:contact@tcmdev.ca">contact@tcmdev.ca</a>
+            <div class="content column g-2">
+                <div>
+                    <span>General: </span>
+                    <a href="mailto:contact@tcmdev.ca">contact@tcmdev.ca</a>
+                </div>
+                <div>
+                    <span>Business: </span>
+                    <a href="mailto:inquiries@tcmdev.ca">inquiries@tcmdev.ca</a>
+                </div>
             </div>
         </div>
-        <div class="feedback">
+        <div class="feedback p-5">
             <h1>Submit Feedback</h1>
             <div class="field mt-2">
                 <textarea v-model="feedback" rows="10"></textarea>
@@ -45,16 +52,16 @@ function submitFeedback() {
 <style scoped lang="scss">
 @import "~/assets/global.scss";
 
-.contact {
+.column {
+    width: 512px;
+}
+
+.links, .feedback {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
 }
 
 .links {
     @include flex-v (0.5rem);
-    width: 256px;
-}
-.feedback {
-    width: 512px;
 }
 </style>

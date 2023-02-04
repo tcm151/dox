@@ -38,7 +38,7 @@ export const getSession = defineStore("session", () => {
         
         await db.authenticate(token);
         const query = [
-            `SELECT id, name, email, dateCreated`,
+            `SELECT id, name, email, dateCreated, followers, following, topics`,
             `FROM user`,
             `WHERE id = $auth.id`,
         ]

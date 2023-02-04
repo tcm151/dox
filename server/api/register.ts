@@ -1,3 +1,4 @@
+import { User } from "~/types/types"
 import { useDatabase } from "../database"
 
 export default defineEventHandler(async (event) => {
@@ -11,5 +12,8 @@ export default defineEventHandler(async (event) => {
         email: email,
         username: username,
         password: password,
+        topics: ["Admin"],
+        followers: [],
+        following: [],
     })
 })

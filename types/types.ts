@@ -12,6 +12,7 @@ export interface User {
     topics: string[]
     following: string[]
     followers: string[]
+    dateCreated: string
 }
 
 export interface Votes {
