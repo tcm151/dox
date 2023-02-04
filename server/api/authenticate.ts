@@ -1,19 +1,13 @@
-import { useDatabaseAuth } from "../database";
+import { queryOne, useDatabase } from "../database";
+import { User } from "~/types/types";
 
 export default defineEventHandler(async (event) => {
-    
     try {
-        const db = await useDatabaseAuth(event);
-        console.log("auth successful.");
-
-        const query = [
-            `SELECT id, name FROM user WHERE id = $auth.id;`,
-        ]
-        let result = await db?.query<any[]>(query.join(" "));
-        return {
-            success: true,
-            user: result![0].result[0],
-        }
+        return await queryOne<User>([
+            `SELECT id, name `,
+            `FROM user`,
+            `WHERE id = $auth.id`,
+        ])
     }
     catch (ex) {
         console.log(ex)
@@ -22,5 +16,4 @@ export default defineEventHandler(async (event) => {
             user: null,
         }
     }
-
 })

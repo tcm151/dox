@@ -5,7 +5,7 @@ export const getId = (id: string) => {
 }
 
 export const useApi = async <T>(route: string, body?: any) => {
-    return useFetch<T>(route, {
+    return await $fetch<T>(route, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${session.token}`,

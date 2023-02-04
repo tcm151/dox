@@ -1,5 +1,11 @@
 import Surreal from 'surrealdb.js';
-import { H3Event } from 'h3';
+
+interface DatabaseResponse<T> {
+    status: string
+    time: string
+    result: T[]
+}
+
 
 export const useDatabase = async () => {
 
@@ -12,17 +18,20 @@ export const useDatabase = async () => {
     return db;
 }
 
-export const useDatabaseAuth = async (event: H3Event) => {
-    const { surrealDatabaseUrl } = useRuntimeConfig();
-    
-    try {
-        const db = new Surreal(surrealDatabaseUrl);
-        const token = getHeader(event, 'Authorization');
-        await db.authenticate(token!);
-        return db;
-    }
-    catch (ex) {
-        console.log(ex);
-        throw ex;
-    }
+export const queryOne = async <T>(sql: string[]) => {
+    const db = await useDatabase();
+    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
+    return response[0].result[0];
+}
+
+export const queryAll = async <T>(sql: string[]) => {
+    const db = await useDatabase();
+    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
+    return response[0].result;
+}
+
+export const multiQuery = async <T>(sql: string[]) => {
+    const db = await useDatabase();
+    let responses = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
+    return responses.map(r => r.result);
 }

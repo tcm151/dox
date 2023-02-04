@@ -1,7 +1,6 @@
-import { defineStore } from "pinia"
 import { Votes } from "~/types/types";
 
-export const useVoting = defineStore("voting", () => {
+export const useVoting = () => {
 
     const hints = useHints();
     const session = getSession();
@@ -18,7 +17,6 @@ export const useVoting = defineStore("voting", () => {
         else {
             votes.positive = votes.positive.filter((id) => id !== session.user!.id)
         }
-        
 
         if (votes.misleading.includes(session.user!.id)) {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
@@ -27,7 +25,7 @@ export const useVoting = defineStore("voting", () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        const { data: successful } = await useApi<Response>("/api/vote", {
+        await useApi("/api/vote", {
             id: id,
             votes: votes
         })
@@ -53,7 +51,7 @@ export const useVoting = defineStore("voting", () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        const { data: successful } = await useApi<Response>("/api/vote", {
+        await useApi("/api/vote", {
             id: id,
             votes: votes
         })
@@ -79,11 +77,11 @@ export const useVoting = defineStore("voting", () => {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
 
-        const { data: successful } = await useApi<Response>("/api/vote", {
+        await useApi("/api/vote", {
             id: id,
             votes: votes
         })
     }
 
     return { positive, misleading, negative }
-})
+}
