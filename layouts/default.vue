@@ -19,7 +19,7 @@ events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
     </Popup>
     
     <div class="page">
-        <div class="slot m-5">
+        <div class="slot">
             <slot />
         </div>
         <footer class="m-5">
@@ -54,6 +54,10 @@ events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
     flex: 1 1 auto;
     @include flex-v;
     align-items: center;
+
+    > div {
+        padding: 1.5rem;
+    }
 }
 </style>
 
