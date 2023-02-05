@@ -125,7 +125,7 @@ button:hover {
 .form {
     @include flex-v (0.75rem);
 
-    max-width: 512px;
+    // max-width: 512px;
 }
 
 .field {
