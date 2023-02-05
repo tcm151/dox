@@ -1,5 +1,5 @@
 <template>
-    <div class="about m-5 p-5">
+    <div class="about p-5">
         <div class="column">
             <h1>What is this?</h1>
             <p>DOX is a flexible forum which can facilitate questions, answers, discussion, and sharing based communities. People are free to talk about whatever they want, and form communities around certains interests, topics, events, cultures, individuals... whatever.</p>

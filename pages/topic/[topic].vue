@@ -8,7 +8,7 @@ const session = getSession();
 </script>
 
 <template>
-    <div class="column g-2 m-5">
+    <div id="topic" class="column g-2">
         <div class="details p-5">
             <div class="column">
                 <div class="header">
@@ -20,7 +20,7 @@ const session = getSession();
                         </ClientOnly>
                     </div>
                 </div>
-                <div class="row g-2 mt-3">
+                <div class="row g-2 mt-4">
                     <div class="link">
                         <p><strong>{{ details?.postCount }}</strong> posts</p>
                     </div>
@@ -30,15 +30,19 @@ const session = getSession();
                 </div>
             </div>
         </div>
-        <Feed :posts="details?.posts" />
+        <Feed :posts="details?.posts ?? []" />
     </div>
 </template>
 
 <style scoped lang="scss">
 @import "~/assets/global.scss";
 
+
+#topic {
+    @include fill-width(750px);
+}
+
 .details {
-    max-width: 750px;
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
 }
@@ -47,6 +51,12 @@ const session = getSession();
     @include flex-h;
     justify-content: space-between;
     align-items: center;
+
+    span {
+        padding: 0.25rem 1rem;
+        font-weight: 700;
+        border-radius: 0.25rem;
+    }
 }
 
 .row {
@@ -54,7 +64,7 @@ const session = getSession();
 }
 
 .info, .link {
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 1rem;
     border-radius: 0.25rem;
 }
 </style>

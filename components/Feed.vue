@@ -20,7 +20,7 @@ const settings = useSettings();
                     <span class="misleading" @click="vote.misleading(post.id, post.votes)">{{ post?.votes.misleading.length }}</span>
                     <span class="negative" @click="vote.negative(post.id, post.votes)">{{ post?.votes.negative.length }}</span>
                 </div>
-                <span class="topic" v-for="topic in post?.topics">
+                <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
                     {{ topic }}
                 </span>
                 <div class="details row g-1">

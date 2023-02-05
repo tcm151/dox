@@ -13,14 +13,22 @@ interface Response {
 
 
 <template>
-    <div class="profile column g-2 m-5 p-5" v-if="session.user">
+    <div class="profile column g-2" v-if="session.user">
         <ClientOnly>
-            <div class="row g-2">
-                <div class="image is-64x64">
-                    <img src="https://bulma.io/images/placeholders/64x64.png">
+            <div class="row g-2 p-5">
+                <div class="image is-96x96 mr-3">
+                    <img src="https://bulma.io/images/placeholders/96x96.png">
                 </div>
                 <div class="column">
-                    <h1>{{ session.user?.name }}</h1>
+                    <div class="header">
+                        <h1>{{ session.user?.name }}</h1>
+                        <div>
+                            <ClientOnly>
+                                <span class="danger" v-if="session.user?.following.includes(session.user?.name)">Unfollow</span>
+                                <span class="success" v-else>Follow</span>
+                            </ClientOnly>
+                        </div>
+                    </div>
                     <div class="follows row g-2">
                         <div class="link">
                             <p><strong>{{ session.user.topics.length }}</strong> topics</p>
@@ -37,10 +45,6 @@ interface Response {
                     </div>
                 </div>
             </div>
-            <div class="row g-2">
-                <button class="success">Follow</button>
-                <button class="danger">Block</button>
-            </div>
         </ClientOnly>
     </div>
 </template>
@@ -49,13 +53,31 @@ interface Response {
 @import "~/assets/global.scss";
 
 .profile {
-    max-width: 750px;
+    @include fill-width(750px);
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+
+    .row {
+        align-items: stretch;   
+    }
+}
+
+.header {
+    flex: 1 1;
+    @include flex-h;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+        padding: 0.25rem 1rem;
+        font-weight: 700;
+        border-radius: 0.25rem;
+    }
 }
 
 .image {
     flex: 0 1;
+    height: 96px;
 
     img {
         border-radius: 0.25rem;
@@ -70,7 +92,7 @@ interface Response {
     }
 
     .info, .link {
-        padding: 0.25rem 0.5rem;
+        padding: 0.25rem 1rem;
         border-radius: 0.25rem;
     }
 }

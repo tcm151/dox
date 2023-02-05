@@ -19,7 +19,7 @@ events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
     </Popup>
     
     <div class="page">
-        <div class="slot">
+        <div class="slot m-5">
             <slot />
         </div>
         <footer class="m-5">
@@ -35,14 +35,12 @@ events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "~/assets/global.scss";
 
 .page {
-    display: flex;
-    flex-direction: column;
+    @include flex-v;
     align-items: center;
-
     height: calc(100% - 35px);
     
     overflow-y: auto;
@@ -52,8 +50,16 @@ events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
 }
 
 .slot {
+    @include fill-width(750px);
     flex: 1 1 auto;
+    @include flex-v;
+    align-items: center;
 }
+</style>
+
+
+<style scoped lang="scss">
+@import "~/assets/global.scss";
 
 footer {
     width: 750px;

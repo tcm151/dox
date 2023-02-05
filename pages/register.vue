@@ -27,7 +27,7 @@ const register = async () => {
 </script>
 
 <template>
-    <div class="register m-5 p-5">
+    <div class="register p-5">
         <h1 class="mb-4">Register</h1>
         <div class="form">
             <div class="field">

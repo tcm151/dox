@@ -59,7 +59,7 @@ async function submit() {
 </script>
 
 <template>
-    <div class="editor m-5 p-5">
+    <div class="editor p-5">
         <h1 class="mb-4">New Post</h1>
         <div class="form">
             <div class="field">
@@ -96,7 +96,7 @@ textarea {
 }
 
 .editor {
-    width: 512px;
+    @include fill-width(512px);
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
 }

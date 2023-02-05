@@ -85,7 +85,7 @@ function saveChanges(item: Post | Comment | null ) {
 </script>
 
 <template>
-    <div class="post m-5 p-5">
+    <div class="post p-5">
         <h2 class="mb-2">{{ post?.title }}</h2>
         <div class="row">
             <div class="row votes">
@@ -146,7 +146,7 @@ function saveChanges(item: Post | Comment | null ) {
             </div>
         </ClientOnly>
     </div>
-    <div class="comments m-5 p-5" v-if="(comments?.length ?? 0) > 0">
+    <div class="comments p-5" v-if="(comments?.length ?? 0) > 0">
         <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment}">
                 <div class="comment">
