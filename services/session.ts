@@ -16,6 +16,7 @@ export const getSession = defineStore("session", () => {
     
     function readToken() {
         token.value = sessionStorage.getItem("token") ?? "";
+        return token.value;
     }
     
     const db = Surreal.Instance;

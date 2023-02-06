@@ -4,12 +4,22 @@ import { Post } from "~/types/types";
 const props = defineProps<{ posts: Post[] }>()
 
 const vote = useVoting();
+const sorting = useSorting();
 const session = getSession();
 const settings = useSettings();
+
+onMounted(() => sorting.sortBy(props.posts, "hot"))
+// onBeforeMount(() => sorting.sortBy(props.posts, "hot"))
+
 </script>
 
 <template>
     <div class="feed">
+        <div class="row g-2">
+            <button @click="sorting.sortBy(posts, 'new')">New</button>
+            <button @click="sorting.sortBy(posts, 'hot')">Hot</button>
+            <button @click="sorting.sortBy(posts, 'top')">Top</button>
+        </div>
         <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
             <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${getId(post.id!)}`)">
                 {{ post.title }}
@@ -24,7 +34,7 @@ const settings = useSettings();
                     {{ topic }}
                 </span>
                 <div class="details row g-1">
-                    <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
+                    <span class="info" @click="navigateTo(`/user/${getId(post.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
                     <span class="info">{{ post.comments.length }} comments</span>
                     <span class="info">{{ formatDate(post.time as any) }}</span>
                 </div>

@@ -107,7 +107,7 @@ function previewChanges() {
                 <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
                     {{ topic }}
                 </span>
-                <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
+                <span class="info" @click="navigateTo(`/user/${getId(post?.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
                     <span class="info">{{ formatDate(post?.time as any) }}</span>
                 </ClientOnly>
