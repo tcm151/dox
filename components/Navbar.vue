@@ -1,6 +1,11 @@
 <script setup lang="ts">
-const session = getSession();
 const events = useEvents();
+
+const session = getSession();
+onMounted(() => {
+    session.readToken();
+    session.authenticate();
+})
 
 async function login() {
     if (!(await session.authenticate())) {

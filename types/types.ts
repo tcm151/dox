@@ -1,6 +1,6 @@
 export interface Session {
     authenticated: boolean
-    token: string
+    // token: string
     user: User | null
 }
 
