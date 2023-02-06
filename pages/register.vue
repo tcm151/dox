@@ -8,13 +8,15 @@ const confirmation = ref("");
 
 const register = async () => {
     try {
+        let json =  {
+            email: email.value,
+            username: username.value,
+            password: password.value,
+        }
+
         await useFetch("/api/register", {
             method: "POST",
-            body: {
-                email: email.value,
-                username: username.value,
-                password: password.value,
-            }
+            body: json,
         })
 
         session.login(username.value, password.value);
@@ -27,28 +29,30 @@ const register = async () => {
 </script>
 
 <template>
-    <div class="register p-5">
-        <h1 class="mb-4">Register</h1>
-        <div class="form">
-            <div class="field">
-                <label>Email</label>
-                <input v-model="email" type="text" placeholder="example@email.com" />
-            </div>
-            <div class="field">
-                <label>Username</label>
-                <input v-model="username" type="text" />
-            </div>
-            <div class="field">
-                <label>Password</label>
-                <input v-model="password" type="password" />
-            </div>
-            <div class="field">
-                <label>Confirm Password</label>
-                <input v-model="confirmation" type="password" />
-            </div>
-            <div class="row g-2 mt-4">
-                <button class="success" @click="register">Register</button>
-                <button class="danger">Cancel</button>
+    <div class="column">
+        <div class="register p-5">
+            <h1 class="mb-4">Register</h1>
+            <div class="form">
+                <div class="field">
+                    <label>Email</label>
+                    <input v-model="email" type="text" placeholder="example@email.com" />
+                </div>
+                <div class="field">
+                    <label>Username</label>
+                    <input v-model="username" type="text" />
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input v-model="password" type="password" />
+                </div>
+                <div class="field">
+                    <label>Confirm Password</label>
+                    <input v-model="confirmation" type="password" />
+                </div>
+                <div class="row g-2 mt-4">
+                    <button class="success" @click="register">Register</button>
+                    <button class="danger">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
