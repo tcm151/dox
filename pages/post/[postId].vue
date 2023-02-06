@@ -82,125 +82,140 @@ function saveChanges(item: Post | Comment | null ) {
     toggleEditPost();
 }
 
+function previewChanges() {
+
+}
+
 </script>
 
 <template>
-    <div class="post p-5">
-        <h2 class="mb-2">{{ post?.title }}</h2>
-        <div class="row">
-            <div class="row votes">
-                <span class="positive" @click="vote.positive(post!.id, post!.votes)">
-                    {{ post?.votes.positive.length }}
+    <div id="post" class="column g-5">
+        <div class="post p-5">
+            <h2 class="mb-2">{{ post?.title }}</h2>
+            <div class="row-wrap g-1">
+                <div class="row votes">
+                    <span class="positive" @click="vote.positive(post!.id, post!.votes)">
+                        {{ post?.votes.positive.length }}
+                    </span>
+                    <span class="misleading" @click="vote.misleading(post!.id, post!.votes)">
+                        {{ post?.votes.misleading.length }}
+                    </span>
+                    <span class="negative" @click="vote.negative(post!.id, post!.votes)">
+                        {{ post?.votes.negative.length }}
+                    </span>
+                </div>
+                <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
+                    {{ topic }}
                 </span>
-                <span class="misleading" @click="vote.misleading(post!.id, post!.votes)">
-                    {{ post?.votes.misleading.length }}
-                </span>
-                <span class="negative" @click="vote.negative(post!.id, post!.votes)">
-                    {{ post?.votes.negative.length }}
-                </span>
+                <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
+                <ClientOnly>
+                    <span class="info">{{ formatDate(post?.time as any) }}</span>
+                </ClientOnly>
             </div>
-            <span class="topic" v-for="topic in post?.topics">
-                {{ topic }}
-            </span>
-            <span class="info">u/{{ post?.user.name ?? "deleted" }}</span>
             <ClientOnly>
-                <span class="info">{{ formatDate(post?.time as any) }}</span>
+                <Markdown class="mt-5" :content="post?.content" />
+            </ClientOnly>
+            <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
+                <textarea rows="10" v-model="post.content"></textarea>
+            </div>
+            <ClientOnly>
+                <div class="column g-2" v-if="session.isAuthenticated">
+                    <div class="row" v-if="!showPostReply && !editingPost">
+                        <button @click="toggleCommentBox">Comment</button>
+                        <button>Reply</button>
+                        <button>Share</button>
+                        <button v-if="post?.user.id === session.user?.id" @click="toggleEditPost()">
+                            Edit
+                        </button>
+                        <button style="flex: 0 1">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                    </div>
+                    <div class="row" v-if="editingPost">
+                        <button @click="previewChanges()">Preview</button>
+                        <button @click="saveChanges(post)">Save</button>
+                        <button @click="toggleEditPost()">Cancel</button>
+                        <button style="flex: 0 1">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                    </div>
+                    <div class="field" v-if="showPostReply">
+                        <textarea rows="5" v-model="postReply"></textarea>
+                        <div class="row mt-2">
+                            <button class="success" @click="submitPostReply">Submit</button>
+                            <button class="danger" @click="toggleCommentBox">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" v-else>
+                    <button class="danger">You must be logged in to interact with other people.</button>
+                </div>
             </ClientOnly>
         </div>
-        <ClientOnly>
-            <Markdown class="mt-5" :content="post?.content" />
-        </ClientOnly>
-        <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
-            <textarea rows="10" v-model="post.content"></textarea>
+        <div class="comments p-5" v-if="(comments?.length ?? 0) > 0">
+            <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
+                <template #item="{ item: comment}">
+                    <div class="comment">
+                        <div class="header row-fit g-1">
+                            <div class="votes row">
+                                <span class="positive" @click="vote.positive(comment.id, comment.votes)">
+                                    {{comment.votes.positive.length}}
+                                </span>
+                                <span class="misleading" @click="vote.misleading(comment.id, comment.votes)">
+                                    {{comment.votes.misleading.length}}
+                                </span>
+                                <span class="negative" @click="vote.negative(comment.id, comment.votes)">
+                                    {{comment.votes.negative.length}}
+                                </span>
+                            </div>
+                            <span class="info" v-if="comment.user.id === post?.user.id">
+                                {{ `u/${comment.user?.name}` }}
+                                <i class="fa-solid fa-feather-pointed"></i>    
+                            </span>
+                            <span class="info" v-else>
+                                {{ `u/${comment.user?.name}` }}
+                            </span>
+                            <ClientOnly>
+                                <span class="info">{{ formatDate(comment.time as any) }}</span>
+                                <span class="reply" @click="replyToComment(comment)">Reply</span>
+                                <span class="edit" v-if="comment.user.id === session.user?.id">Edit</span>
+                            </ClientOnly>
+                        </div>
+                        <div class="body p-3">
+                            <p>{{ comment.content }}</p>
+                        </div>
+                        <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
+                            <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
+                            <div class="row-fit g-1 pt-2">
+                                <span class="success" @click="submitCommentReply(comment)">Submit</span>
+                                <span class="danger" @click="replyToComment(comment)">Cancel</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </Tree>
         </div>
-        <ClientOnly>
-            <div class="column g-2" v-if="session.isAuthenticated">
-                <div class="row" v-if="!showPostReply && !editingPost">
-                    <button @click="toggleCommentBox">Comment</button>
-                    <button>Reply</button>
-                    <button>Share</button>
-                    <button v-if="post?.user.id === session.user?.id" @click="toggleEditPost()">
-                        Edit
-                    </button>
-                    <button class="link" style="flex: 0 1">
-                        <i class="fa-solid fa-ellipsis"></i>
-                    </button>
-                </div>
-                <div class="row" v-if="editingPost">
-                    <button @click="saveChanges(post)">Save</button>
-                    <button @click="toggleEditPost()">Cancel</button>
-                    <button class="link" style="flex: 0 1">
-                        <i class="fa-solid fa-ellipsis"></i>
-                    </button>
-                </div>
-                <div class="field" v-if="showPostReply">
-                    <textarea rows="5" v-model="postReply"></textarea>
-                    <div class="row mt-2">
-                        <button class="success" @click="submitPostReply">Submit</button>
-                        <button class="danger" @click="toggleCommentBox">Cancel</button>
-                    </div>
-                </div>
-            </div>
-            <div class="row" v-else>
-                <button class="danger">You must be logged in to interact with other people.</button>
-            </div>
-        </ClientOnly>
-    </div>
-    <div class="comments p-5" v-if="(comments?.length ?? 0) > 0">
-        <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
-            <template #item="{ item: comment}">
-                <div class="comment">
-                    <div class="header row-fit g-1">
-                        <div class="votes row">
-                            <span class="positive" @click="vote.positive(comment.id, comment.votes)">
-                                {{comment.votes.positive.length}}
-                            </span>
-                            <span class="misleading" @click="vote.misleading(comment.id, comment.votes)">
-                                {{comment.votes.misleading.length}}
-                            </span>
-                            <span class="negative" @click="vote.negative(comment.id, comment.votes)">
-                                {{comment.votes.negative.length}}
-                            </span>
-                        </div>
-                        <span class="link" v-if="comment.user.id === post?.user.id">
-                            {{ `u/${comment.user?.name}` }}
-                            <i class="fa-solid fa-feather-pointed"></i>    
-                        </span>
-                        <span class="link" v-else>
-                            {{ `u/${comment.user?.name}` }}
-                        </span>
-                        <ClientOnly>
-                            <span class="link">{{ formatDate(comment.time as any) }}</span>
-                        </ClientOnly>
-                        <span class="reply" @click="replyToComment(comment)">Reply</span>
-                    </div>
-                    <div class="body p-3">
-                        <p>{{ comment.content }}</p>
-                    </div>
-                    <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
-                        <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
-                        <div class="row-fit g-1 pt-2">
-                            <span class="success" @click="submitCommentReply(comment)">Submit</span>
-                            <span class="danger" @click="replyToComment(comment)">Cancel</span>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </Tree>
     </div>
 </template>
 
 <style scoped lang="scss">
 @import "~/assets/global.scss";
 
+#post {
+    @include fill-width(750px);
+}
+
 .content {
     white-space: pre-wrap;
 }
 
 .post, .comments {
-    width: 750px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
+}
+
+.topic, .info {
+    cursor: pointer;
 }
 
 .row {
@@ -210,6 +225,7 @@ function saveChanges(item: Post | Comment | null ) {
 
 .votes {
     flex: 0 1;
+    cursor: pointer;
 
     span {
         width: 1rem;
@@ -235,11 +251,11 @@ span:hover {
     flex: 1 1;
     @include flex-v;
 
-    .reply {
+    .reply, .edit {
         background-color: $dox-white;
     }
 
-    .reply:hover {
+    .reply:hover, .edit:hover {
         color: $dox-white-ultra;
         background-color: $dox-grey-light;
     }
