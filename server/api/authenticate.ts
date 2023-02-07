@@ -1,5 +1,5 @@
-import { queryOne, useDatabase } from "../database";
 import { User } from "~/types/types";
+import { queryOne } from "../database";
 
 export default defineEventHandler(async (event) => {
     try {

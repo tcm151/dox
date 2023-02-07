@@ -1,5 +1,5 @@
 import { Post } from "~/types/types";
-import { queryOne, useDatabase } from "../../database";
+import { queryOne } from "../../database";
 
 export default defineEventHandler(async (event) => {
     const post = await readBody(event);

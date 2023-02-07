@@ -2,14 +2,10 @@
 export default defineNuxtConfig({
     modules: [
         "@pinia/nuxt",
-        "@pinia-plugin-persistedstate/nuxt"
     ],
-    piniaPersistedstate: {
-        storage: "sessionStorage"
-    },
     app: {
         head: {
-            title: "Dox",
+            title: "DOX",
             link: [
                 {
                     rel: "stylesheet",

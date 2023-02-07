@@ -1,4 +1,4 @@
-import { queryOne, useDatabase } from "../database"
+import { queryOne } from "../database"
 
 export default defineEventHandler(async (event) => {
     const { id, votes } = await readBody(event)

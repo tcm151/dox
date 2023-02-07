@@ -22,10 +22,10 @@ const session = getSession();
                 </div>
                 <div class="row g-2 mt-4">
                     <div class="link">
-                        <p><strong>{{ details?.postCount }}</strong> posts</p>
+                        <p><strong>{{ details?.posts.length }}</strong> posts</p>
                     </div>
                     <div class="info">
-                        <p><strong>{{ details?.followerCount }}</strong> followers</p>
+                        <p><strong>{{ details?.followers.count }}</strong> followers</p>
                     </div>
                 </div>
             </div>

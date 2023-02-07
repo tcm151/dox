@@ -1,8 +1,8 @@
-import { useDatabase } from "~~/server/database";
-
+import { queryOne } from "~~/server/database";
 
 export default defineEventHandler(async (event) => {
     const feedback = await readBody(event);
-    const db = await useDatabase();
-    return await db.create("feedback", feedback);
+    return await queryOne<any>([
+        `CREATE feedback CONTENT ${JSON.stringify(feedback)}`
+    ])
 })

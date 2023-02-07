@@ -9,9 +9,4 @@ export const useSettings = defineStore("settings", () => {
         hoverAnimations: true
     })
     return { state };
-},
-{
-    persist: {
-        storage: persistedState.localStorage,
-    },
 })

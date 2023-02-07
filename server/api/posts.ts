@@ -1,5 +1,5 @@
-import { Post } from "~~/types/types";
-import { queryOne, queryAll, useDatabase } from "../database";
+import { Post } from "~/types/types";
+import { queryAll } from "../database";
 
 export default defineEventHandler(async (event) => {
     return await queryAll<Post>([
