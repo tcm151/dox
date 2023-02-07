@@ -1,3 +1,4 @@
+import { User } from '~/types/types';
 import Surreal from 'surrealdb.js';
 
 interface DatabaseResponse<T> {
@@ -6,9 +7,10 @@ interface DatabaseResponse<T> {
     result: T[]
 }
 
+const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
+let db = new Surreal(surrealDatabaseUrl);
+
 export const useDatabase = async () => {
-    const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
-    const db = new Surreal(surrealDatabaseUrl);
     await db.signin({ user: surrealUsername, pass: surrealPassword });
     await db.use("dev", "dox");
     return db;
@@ -16,9 +18,14 @@ export const useDatabase = async () => {
 
 export const authenticateRequest = async (event: any) => {
     try {
-        const db = await useDatabase()
+        await useDatabase()
         const token = getHeader(event, 'Authorization');
         await db.authenticate(token ?? "");
+        return await queryOne<User>([
+            `SELECT *`,
+            `FROM user`,
+            `WHERE id = $auth.id`,
+        ]);
     }
     catch (ex) {
         throw createError({ statusCode: 401, message: "Failed to authenticate request." })   
@@ -26,19 +33,19 @@ export const authenticateRequest = async (event: any) => {
 }
 
 export const queryOne = async <T>(sql: string[]) => {
-    const db = await useDatabase();
+    await useDatabase();
     let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
     return response[0].result[0];
 }
 
 export const queryAll = async <T>(sql: string[]) => {
-    const db = await useDatabase();
+    await useDatabase();
     let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
     return response[0].result;
 }
 
 export const multiQuery = async <T>(sql: string[]) => {
-    const db = await useDatabase();
+    await useDatabase();
     let responses = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
     return responses.map(r => r.result);
 }

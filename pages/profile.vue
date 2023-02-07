@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const session = getSession();
+
+let auth = ref<any>("")
+async function authenticate() {
+    const response = await useApi(`/api/authenticate`)
+    auth.value = response
+}
 </script>
 
 
@@ -42,6 +48,10 @@ const session = getSession();
                 <span>You are not logged in.</span>
             </div>
         </ClientOnly>
+        <div>
+            <button @click="authenticate">Authenticate</button>
+            <p>{{ auth }}</p>
+        </div>
     </div>
 </template>
 
