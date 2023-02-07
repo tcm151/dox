@@ -3,15 +3,12 @@ const session = getSession();
 
 let feedback = ref("");
 
-function submitFeedback() {
-    const { data: response } = useFetch("/api/feedback/submit", {
-        method: "POST",
-        body: {
-            user: session.user!.id,
+async function submitFeedback() {
+    const result = session.useApi("/api/feedback/submit", {
+        user: session.user!.id,
             content: feedback.value,
             time: new Date(),
-        }
-    });
+    })
 
     feedback.value = "";
 }

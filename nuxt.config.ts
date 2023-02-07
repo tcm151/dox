@@ -27,5 +27,12 @@ export default defineNuxtConfig({
     },
     css: ['@/assets/global.scss'],
     vite: {},
+    nitro: {
+        esbuild: {
+            options: {
+                target: "esnext"
+            }
+        }
+    },
     webpack: {},
 })

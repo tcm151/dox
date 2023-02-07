@@ -2,7 +2,7 @@
 const route = useRoute();
 const topic = route.params.topic as string;
 
-const { data: details } = useFetch(`/api/topic/${topic}`);
+const { data: details } = await useFetch(`/api/topic/${topic}`);
 
 const session = getSession();
 </script>

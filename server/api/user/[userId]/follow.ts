@@ -1,15 +1,13 @@
-import { authenticateRequest, queryOne } from "../../../database";
+import { authenticateRequest, multiQuery } from "../../../database";
 
 export default defineEventHandler(async (event) => {
     const { userId } = event.context.params;
     const auth = await authenticateRequest(event);
-    await queryOne([
+    await multiQuery([
         `UPDATE ${auth.id} SET`,
-        `following += user:${userId}`,
-    ])
-    await queryOne([
+        `following += user:${userId};`,
         `UPDATE user:${userId} SET`,
-        `followers += ${auth.id}`,
+        `followers += ${auth.id};`,
     ])
     return true;
 })

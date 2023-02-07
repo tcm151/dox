@@ -6,8 +6,8 @@ const vote = useVoting();
 const route = useRoute();
 const session = getSession();
 
-const { data: post, pending } = useFetch<Post>(`/api/post/${route.params.postId}`)
-const { data: comments, refresh: fetchComments } = useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
+const { data: post, pending } = await useFetch<Post>(`/api/post/${route.params.postId}`)
+const { data: comments, refresh: fetchComments } = await useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
 
 // useServerSeoMeta({
 //     ogTitle: () => post.value?.title ?? route.params.postId[0],
@@ -20,8 +20,8 @@ function toggleCommentBox() {
 }
 
 let postReply = ref("");
-function submitPostReply() {
-    const { data: comment } = useFetch<Comment>("/api/comment/new", {
+async function submitPostReply() {
+    const { data: comment } = await useFetch<Comment>("/api/comment/new", {
         method: "POST",
         body: {
             time: new Date(),
@@ -49,8 +49,8 @@ function replyToComment(comment: Comment) {
     commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
 }
 
-function submitCommentReply(replyTo: Comment) {
-    const { data: comment } = useFetch<Comment>("/api/comment/new", {
+async function submitCommentReply(replyTo: Comment) {
+    const { data: comment } = await useFetch<Comment>("/api/comment/new", {
         method: "POST",
         body: {
             time: new Date(),

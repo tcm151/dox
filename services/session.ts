@@ -93,12 +93,11 @@ export const getSession = defineStore("session", () => {
 
     //> FOLLOW/UNFOLLOW
     async function follow(target: string) {
-        const response = await useApi(`/api/user/${getId(target)}/follow`);
-        // state.value.user?.following.push(`user:${target}`)
+        await useApi(`/api/user/${target}/follow`);
     }
     
     async function unfollow(target: string) {
-        const response = await useApi(`/api/user/${getId(target)}/unfollow`);
+        await useApi(`/api/user/${target}/unfollow`);
     }
 
     return { state, isAuthenticated, user, readToken, authenticate, login, logout, useApi, follow, unfollow }

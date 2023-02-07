@@ -3,7 +3,7 @@
 const route = useRoute();
 const userId = route.params.userId as string;
 
-const { data: response, refresh } = useFetch(`/api/user/${userId}`)
+const { data: response, refresh } = await useFetch(`/api/user/${userId}`)
 const user = computed(() => response.value?.user);
 const posts = computed(() => response.value?.posts);
 
@@ -11,14 +11,28 @@ const session = getSession();
 
 let following = ref(false);
 
-// onMounted(() => {
-//     following.value = session.user?.following.includes(user.value?.id ?? "") ?? false;
-// })
+async function follow() {
+    console.log(userId)
+    following.value = true;
+    await session.follow(userId)
+    await refresh();
+}
 
-// const events = useEvents();
-// events.subscribe("authenticatedUser", () => {
-//     following.value = session.user?.following.includes(user.value!.id) ?? false;
-// })
+async function unfollow() {
+    console.log(user.value?.id)
+    following.value = false;
+    await session.unfollow(userId)
+    await refresh();
+}
+
+onMounted(() => {
+    following.value = session.user?.following.includes(user.value!.id) ?? false;
+})
+
+const events = useEvents();
+events.subscribe("authenticatedUser", () => {
+    following.value = session.user?.following.includes(user.value!.id) ?? false;
+})
 
 </script>
 
@@ -35,8 +49,8 @@ let following = ref(false);
                         <h1>{{ user?.name }}</h1>
                         <div>
                             <ClientOnly>
-                                <span class="danger" v-if="following" @click="session.unfollow(user!.id)">Unfollow</span>
-                                <span class="success" v-else @click="session.follow(user!.id)">Follow</span>
+                                <span class="danger" v-if="following" @click="unfollow">Unfollow</span>
+                                <span class="success" v-else @click="follow">Follow</span>
                             </ClientOnly>
                         </div>
                     </div>
@@ -58,6 +72,9 @@ let following = ref(false);
             </div>
         </div>
         <Feed :posts="posts ?? []" />
+        <div>
+            <button @click="refresh()">Refresh</button>
+        </div>
     </div>
 </template>
 
