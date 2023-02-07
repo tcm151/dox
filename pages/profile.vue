@@ -3,7 +3,7 @@ const session = getSession();
 
 let auth = ref<any>("")
 async function authenticate() {
-    const response = await useApi(`/api/authenticate`)
+    const response = await session.useApi(`/api/authenticate`)
     auth.value = response
 }
 </script>

@@ -1,11 +1,21 @@
 <script setup lang="ts">
+
 const route = useRoute();
 const userId = route.params.userId as string;
-const { data: response } = useFetch(`/api/user/${userId}`)
+
+const { data: response, refresh } = useFetch(`/api/user/${userId}`)
 const user = computed(() => response.value?.user);
 const posts = computed(() => response.value?.posts);
 
 const session = getSession();
+
+let following = ref(session.user?.following.includes(user.value!.id));
+
+const events = useEvents();
+events.subscribe("authenticatedUser", () => {
+    following.value = session.user?.following.includes(user.value!.id) ?? false;
+})
+
 </script>
 
 
@@ -21,8 +31,8 @@ const session = getSession();
                         <h1>{{ user?.name }}</h1>
                         <div>
                             <ClientOnly>
-                                <span class="not-logged-in" v-if="user?.following.includes(session.user?.id ?? '')">Unfollow</span>
-                                <span class="success" v-else>Follow</span>
+                                <span class="danger" v-if="following" @click="session.unfollow(user!.id)">Unfollow</span>
+                                <span class="success" v-else @click="session.follow(user!.id)">Follow</span>
                             </ClientOnly>
                         </div>
                     </div>

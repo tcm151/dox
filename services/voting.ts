@@ -25,7 +25,7 @@ export const useVoting = () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        await useApi("/api/vote", {
+        await session.useApi("/api/vote", {
             id: id,
             votes: votes
         })
@@ -51,7 +51,7 @@ export const useVoting = () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        await useApi("/api/vote", {
+        await session.useApi("/api/vote", {
             id: id,
             votes: votes
         })
@@ -77,7 +77,7 @@ export const useVoting = () => {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
 
-        await useApi("/api/vote", {
+        await session.useApi("/api/vote", {
             id: id,
             votes: votes
         })

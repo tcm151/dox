@@ -2,8 +2,14 @@ import Surreal from "surrealdb.js"
 import { defineStore } from "pinia"
 import { Session } from "~~/types/types";
 
+const hints = useHints();
+const events = useEvents();
+
 export const getSession = defineStore("session", () => {
     
+    const db = Surreal.Instance;
+    
+    //> SESSION
     const state = ref<Session>({
         authenticated: false,
         user: null
@@ -11,6 +17,7 @@ export const getSession = defineStore("session", () => {
     const isAuthenticated = computed(() => state.value.authenticated)
     const user = computed(() => state.value.user)
 
+    //> TOKEN
     const token = ref("")
     watch(token, (token) => sessionStorage.setItem("token", token));
     
@@ -19,8 +26,7 @@ export const getSession = defineStore("session", () => {
         return token.value;
     }
     
-    const db = Surreal.Instance;
-
+    //> AUTH
     async function authenticate(): Promise<boolean> {
         try {
             await db.connect("https://db.tcmdev.ca/rpc");
@@ -38,11 +44,11 @@ export const getSession = defineStore("session", () => {
                 authenticated: true,
                 user: user,
             }
-
+            
+            events.publish("authenticatedUser");
             return true;
         }
         catch (ex) {
-            // console.log(ex)
             return false;
         }
     }
@@ -68,5 +74,32 @@ export const getSession = defineStore("session", () => {
         }
     }
 
-    return { state, isAuthenticated, user, readToken, authenticate, login, logout }
+    //> API
+    async function useApi<T>(route: string, body?: any) {
+        try {
+            return await $fetch<T>(route, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                },
+                body: body,
+            })
+        }
+        catch (ex) {
+            hints.addError("Failed to authenticate session.");
+            clearError();
+        }
+    }
+
+    //> FOLLOW/UNFOLLOW
+    async function follow(target: string) {
+        const response = await useApi(`/api/user/${getId(target)}/follow`);
+        // state.value.user?.following.push(`user:${target}`)
+    }
+    
+    async function unfollow(target: string) {
+        const response = await useApi(`/api/user/${getId(target)}/unfollow`);
+    }
+
+    return { state, isAuthenticated, user, readToken, authenticate, login, logout, useApi, follow, unfollow }
 })

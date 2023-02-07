@@ -31,7 +31,7 @@ function removeTopic(topic: string) {
 
 async function submit() {
     try {
-        const post = await useApi<Post>("/api/post/new", {
+        const post = await session.useApi<Post>("/api/post/new", {
             user: session.user!.id,
             title: title.value,
             content: content.value,

@@ -3,9 +3,9 @@ import { authenticateRequest, queryOne } from "../../database";
 
 export default defineEventHandler(async (event) => {
     const post = await readBody(event)
-    const user = await authenticateRequest(event);
-    post.user = user.id;
-    post.votes.positive = [user.id]
+    const auth = await authenticateRequest(event);
+    post.user = auth.id;
+    post.votes.positive = [auth.id]
     return await queryOne<Post>([
         `CREATE post CONTENT ${JSON.stringify(post)}`
     ])
