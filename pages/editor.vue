@@ -31,26 +31,21 @@ function removeTopic(topic: string) {
 
 async function submit() {
     try {
-        const { data: post } = await useFetch<Post>("/api/post/new", {
-            method: "POST",
-            body: {
-                user: session.user!.id,
-                title: title.value,
-                content: content.value,
-                votes: {
-                    positive: [session.user!.id],
-                    misleading: [],
-                    negative: [],
-                },
-                time: new Date(),
-                topics: topics.value,
-                comments: [],
-            }
+        const post = await useApi<Post>("/api/post/new", {
+            user: session.user!.id,
+            title: title.value,
+            content: content.value,
+            votes: {
+                positive: [session.user!.id],
+                misleading: [],
+                negative: [],
+            },
+            time: new Date(),
+            topics: topics.value,
+            comments: [],
         })
 
-        console.log(post.value);
-        console.log(post.value?.id);
-        navigateTo(`/post/${post.value?.id?.split(':')[1]}`)
+        navigateTo(`/post/${post?.id.split(':')[1]}`)
     }
     catch (ex) {
         console.log(ex)
