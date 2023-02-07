@@ -9,12 +9,16 @@ const posts = computed(() => response.value?.posts);
 
 const session = getSession();
 
-let following = ref(session.user?.following.includes(user.value!.id));
+let following = ref(false);
 
-const events = useEvents();
-events.subscribe("authenticatedUser", () => {
-    following.value = session.user?.following.includes(user.value!.id) ?? false;
-})
+// onMounted(() => {
+//     following.value = session.user?.following.includes(user.value?.id ?? "") ?? false;
+// })
+
+// const events = useEvents();
+// events.subscribe("authenticatedUser", () => {
+//     following.value = session.user?.following.includes(user.value!.id) ?? false;
+// })
 
 </script>
 
