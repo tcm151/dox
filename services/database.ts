@@ -1,3 +1,4 @@
+const hints = useHints();
 const session = getSession()
 
 export const getId = (id: string | undefined) => {
@@ -5,11 +6,17 @@ export const getId = (id: string | undefined) => {
 }
 
 export const useApi = async <T>(route: string, body?: any) => {
-    return await $fetch<T>(route, {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${session.readToken()}`,
-        },
-        body: body,
-    })
+    try {
+        return await $fetch<T>(route, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${session.readToken()}`,
+            },
+            body: body,
+        })
+    }
+    catch (ex) {
+        hints.addError("Failed to authenticate session.");
+        clearError();
+    }
 }

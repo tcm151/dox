@@ -6,16 +6,23 @@ interface DatabaseResponse<T> {
     result: T[]
 }
 
-
 export const useDatabase = async () => {
-
     const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
-    
     const db = new Surreal(surrealDatabaseUrl);
     await db.signin({ user: surrealUsername, pass: surrealPassword });
     await db.use("dev", "dox");
-    
     return db;
+}
+
+export const authenticateRequest = async (event: any) => {
+    try {
+        const db = await useDatabase()
+        const token = getHeader(event, 'Authorization');
+        await db.authenticate(token ?? "");
+    }
+    catch (ex) {
+        throw createError({ statusCode: 401, message: "Failed to authenticate request." })   
+    }
 }
 
 export const queryOne = async <T>(sql: string[]) => {
