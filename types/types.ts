@@ -1,6 +1,5 @@
 export interface Session {
     authenticated: boolean
-    // token: string
     user: User | null
 }
 
@@ -8,7 +7,6 @@ export interface User {
     id: string
     email: string
     name: string
-    // password?: string
     topics: string[]
     following: string[]
     followers: string[]

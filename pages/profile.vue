@@ -1,11 +1,5 @@
 <script setup lang="ts">
 const session = getSession();
-
-let auth = ref<any>("")
-function authenticate() {
-    const response = useApi(`/api/authenticate`)
-    auth.value = response
-}
 </script>
 
 
@@ -48,10 +42,6 @@ function authenticate() {
                 <span>You are not logged in.</span>
             </div>
         </ClientOnly>
-        <div>
-            <button @click="authenticate">Authenticate</button>
-            <p>{{ auth }}</p>
-        </div>
     </div>
 </template>
 
