@@ -3,7 +3,27 @@ defineProps(['error'])
 </script>
 
 <template>
-    <p>{{ error.statusCode }}</p>
-    <p>{{ error.message }}</p>
-    <p></p>
+    <div class="error p-6">
+        <div class="column g-2 p-5 mx-auto">
+            <h1>{{ error.statusCode }}</h1>
+            <p>{{ error.message }}</p>
+            <button class="success" @click="clearError({ redirect: '/' })">Go Home</button>
+        </div>
+    </div>
 </template>
+
+<style scoped lang="scss">
+@import "~/assets/global.scss";
+.error {
+    height: 100%;
+    background-color: $dox-white-light;
+    
+    .column {
+        @include fill-width (512px);
+
+        align-items: center;
+        border-radius: 0.25rem;
+        background-color: $dox-white-ultra;
+    }
+}
+</style>
