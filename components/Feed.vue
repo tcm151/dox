@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { Post } from "~/types/types";
 
-const props = defineProps<{ posts: Post[] }>()
+const props = defineProps<{
+    posts: Post[]
+    sorting?: boolean
+    pagination?: boolean
+}>()
 
 const vote = useVoting();
 const sorting = useSorting();
@@ -15,7 +19,7 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
 
 <template>
     <div class="feed">
-        <div class="row g-2">
+        <div class="row g-2" v-if="props.sorting">
             <button @click="sorting.sortBy(posts, 'new')">New</button>
             <button @click="sorting.sortBy(posts, 'hot')">Hot</button>
             <button @click="sorting.sortBy(posts, 'top')">Top</button>
@@ -40,7 +44,7 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
                 </div>
             </div>
         </div>
-        <div class="pagination mt-3">
+        <div class="pagination mt-2" v-if="pagination">
             <div class="start">
                 <i class="fa-solid fa-rotate-left"></i>
             </div>

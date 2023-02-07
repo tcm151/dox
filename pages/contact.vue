@@ -18,7 +18,7 @@ function submitFeedback() {
 </script>
 
 <template>
-    <div class="column g-5 m-5">
+    <div class="column g-5">
         <div class="links p-5">
             <h1 class="">Contact</h1>
             <div class="content column g-2">
@@ -53,7 +53,7 @@ function submitFeedback() {
 @import "~/assets/global.scss";
 
 .column {
-    width: 512px;
+    @include fill-width(512px);
 }
 
 .links, .feedback {

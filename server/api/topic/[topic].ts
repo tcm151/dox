@@ -15,6 +15,6 @@ export default defineEventHandler(async (event) => {
             `FROM user`,
             `WHERE topics CONTAINS "${topic}"`,
             `GROUP BY ALL`,
-        ])
+        ]) ?? { count: 0 }
     }
 })
