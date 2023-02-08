@@ -14,6 +14,7 @@ const register = async () => {
             password: password.value,
         }
 
+        // TODO figure out why this errors occasionally
         await useFetch("/api/register", {
             method: "POST",
             body: json,

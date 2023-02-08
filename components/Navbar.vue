@@ -37,7 +37,7 @@ function addHint() {
                     <NuxtLink @click="addHint">
                         <i class="fa-solid fa-envelope"></i>
                     </NuxtLink>
-                    <NuxtLink to="/">
+                    <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
                     </NuxtLink>
@@ -75,12 +75,6 @@ function addHint() {
 
 <style scoped lang="scss">
 @import "~/assets/global.scss";
-
-// .dox {
-//     i, span {
-//         color: $dox-purple;
-//     }
-// }
 
 .nav {
     display: flex;

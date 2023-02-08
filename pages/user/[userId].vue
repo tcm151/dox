@@ -12,14 +12,12 @@ const session = getSession();
 let following = ref(false);
 
 async function follow() {
-    console.log(userId)
     following.value = true;
     await session.follow(userId)
     await refresh();
 }
 
 async function unfollow() {
-    console.log(user.value?.id)
     following.value = false;
     await session.unfollow(userId)
     await refresh();
@@ -55,6 +53,7 @@ events.subscribe("authenticatedUser", () => {
                         </div>
                     </div>
                     <div class="follows row g-2">
+                        <!-- TODO add popups to view these in more detail -->
                         <div class="link">
                             <p><strong>{{ user?.topics.length }}</strong> topics</p>
                         </div>
@@ -72,9 +71,6 @@ events.subscribe("authenticatedUser", () => {
             </div>
         </div>
         <Feed :posts="posts ?? []" />
-        <div>
-            <button @click="refresh()">Refresh</button>
-        </div>
     </div>
 </template>
 
@@ -82,7 +78,7 @@ events.subscribe("authenticatedUser", () => {
 @import "~/assets/global.scss";
 
 .profile-page {
-    @include fill-width(750px);
+    @include fill-width(800px);
 
     .not-logged-in {
         padding: 0.5rem 1rem;

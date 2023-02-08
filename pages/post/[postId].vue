@@ -5,6 +5,7 @@ const route = useRoute();
 const postId = route.params.postId;
 
 const vote = useVoting();
+const hints = useHints();
 const sorting = useSorting();
 const session = getSession();
 
@@ -86,6 +87,12 @@ function previewChanges() {
 
 }
 
+function copyLink() {
+    const postLink = window.location.href
+    navigator.clipboard.writeText(postLink);
+    hints.addSuccess("Copied post URL");
+}
+
 </script>
 
 <template>
@@ -113,9 +120,7 @@ function previewChanges() {
                     <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited as any) }}</span>
                 </ClientOnly>
             </div>
-            <ClientOnly>
-                <Markdown class="mt-5" :content="post?.content" />
-            </ClientOnly>
+            <div class="content mt-5" v-html="renderMarkdown(post?.content)"></div>
             <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
                 <textarea rows="10" v-model="post.content"></textarea>
             </div>
@@ -123,8 +128,8 @@ function previewChanges() {
                 <div class="column g-2" v-if="session.isAuthenticated">
                     <div class="row" v-if="!showPostReply && !editingPost">
                         <button @click="toggleCommentBox">Comment</button>
-                        <button>Reply</button>
-                        <button>Share</button>
+                        <!-- <button>Reply</button> -->
+                        <button @click="copyLink">Share</button>
                         <button v-if="post?.user.id === session.user?.id" @click="toggleEditPost()">
                             Edit
                         </button>
@@ -149,7 +154,7 @@ function previewChanges() {
                     </div>
                 </div>
                 <div class="row" v-else>
-                    <button class="danger">You must be logged in to interact with other people.</button>
+                    <button class="danger">You must be logged in to interact with others.</button>
                 </div>
             </ClientOnly>
         </div>
@@ -178,13 +183,14 @@ function previewChanges() {
                             </span>
                             <ClientOnly>
                                 <span class="info">{{ formatDate(comment.time as any) }}</span>
-                                <span class="reply" @click="replyToComment(comment)">Reply</span>
+                                <span class="reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
+                                <!-- TODO allow users to edit their comments -->
                                 <span class="edit" v-if="comment.user.id === session.user?.id">Edit</span>
                                 <span class="danger" v-if="comment.edited">Edited</span>
                             </ClientOnly>
                         </div>
                         <div class="body p-3">
-                            <p>{{ comment.content }}</p>
+                            <p v-html="renderMarkdown(comment.content)"></p>
                         </div>
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
@@ -204,7 +210,7 @@ function previewChanges() {
 @import "~/assets/global.scss";
 
 #post {
-    @include fill-width(750px);
+    @include fill-width(800px);
 }
 
 .content {

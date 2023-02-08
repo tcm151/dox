@@ -1,28 +1,35 @@
 <script setup lang="ts">
 import { Post } from '~~/types/types';
 
+const hints = useHints();
 const session = getSession();
 
 let title = ref("");
 let content = ref("")
-
 let newTopic = ref("");
 let topics = ref<string[]>([]);
-let isFocused = ref(false)
 
-function isValid() {
+let titleFocused = ref(false)
+let topicsFocused = ref(false)
+
+
+
+function validTitle() {
+    return /.{4,128}/.test(title.value)
+}
+
+function validTopic() {
     return /^\b[A-Za-z]{3,16}\b$/.test(newTopic.value)
 }
 
+
 function addTopic() {
-    if (isValid()) {
+    if (validTopic()) {
         topics.value.push(newTopic.value);
         newTopic.value = "";
         return;
     }
-
-    console.log("Invalid topic.");
-    return;
+    hints.addWarning("Topic is not valid")
 }
 
 function removeTopic(topic: string) {
@@ -30,6 +37,12 @@ function removeTopic(topic: string) {
 }
 
 async function submit() {
+
+    if (!validTitle()) {
+        hints.addError("Title is invalid");
+        return;
+    }
+
     try {
         const post = await session.useApi<Post>("/api/post/new", {
             user: session.user!.id,
@@ -54,31 +67,33 @@ async function submit() {
 </script>
 
 <template>
-    <div class="editor p-5">
-        <h1 class="mb-4">New Post</h1>
-        <div class="form">
-            <div class="field">
-                <label>Title</label>
-                <input v-model="title" type="text" />
-            </div>
-            <div class="field">
-                <label>Content</label>
-                <textarea v-model="content" type="text" rows="8" />
-            </div>
-            <div class="field">
-                <label>Topics</label>
-                <input :class="{ 'invalid': isFocused && !isValid() }" v-model="newTopic" @keyup.enter="addTopic"
-                       @focus="isFocused = true" @blur="isFocused = false" type="text" spellcheck="false">
-                <div class="row g-2 mt-2" v-if="topics.length > 0">
-                    <div class="topic" v-for="topic in topics" @contextmenu.prevent="removeTopic(topic)">
-                        <p>{{ topic }}</p>
+    <div class="column g2">
+        <div class="editor p-5">
+            <h1 class="mb-4">New Post</h1>
+            <div class="form">
+                <div class="field">
+                    <label>Title</label>
+                    <input :class="{ 'invalid': titleFocused && !validTitle() }" v-model="title" @focus="titleFocused = true" @blur="titleFocused = false" type="text" />
+                </div>
+                <div class="field">
+                    <label>Content</label>
+                    <textarea v-model="content" type="text" rows="8" />
+                </div>
+                <div class="field">
+                    <label>Topics</label>
+                    <input :class="{ 'invalid': topicsFocused && !validTopic() }" v-model="newTopic" @keyup.enter="addTopic"
+                           @focus="topicsFocused = true" @blur="topicsFocused = false" type="text" spellcheck="false">
+                    <div class="row g-2 mt-2" v-if="topics.length > 0">
+                        <div class="topic" v-for="topic in topics" @contextmenu.prevent="removeTopic(topic)">
+                            <p>{{ topic }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row g-2 mt-5">
-            <button class="success" @click="submit">Submit</button>
-            <button class="danger">Cancel</button>
+            <div class="row g-2 mt-5">
+                <button class="success" @click="submit">Submit</button>
+                <button class="danger">Cancel</button>
+            </div>
         </div>
     </div>
 </template>
@@ -86,12 +101,11 @@ async function submit() {
 <style scoped lang="scss">
 @import "~/assets/global.scss";
 
-textarea {
-    resize: vertical;
+.column {
+    @include fill-width (512px);
 }
 
 .editor {
-    @include fill-width(512px);
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
 }
@@ -111,6 +125,10 @@ textarea {
 }
 
 .invalid {
-    border: 1px solid red;
+    background-color: $dox-red-light !important;
+}
+
+textarea {
+    resize: vertical;
 }
 </style>

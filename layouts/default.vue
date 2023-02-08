@@ -50,7 +50,7 @@ events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
 }
 
 .slot {
-    @include fill-width(750px);
+    @include fill-width(800px);
     flex: 1 1 auto;
     @include flex-v;
     align-items: center;

@@ -46,6 +46,9 @@ async function authenticate() {
             <button @click="authenticate">Authenticate</button>
             <p>{{ auth }}</p>
         </div>
+        <!-- TODO add support for users to change their passwords -->
+        <!-- TODO add two-factor authentication -->
+        <!-- TODO add settings popup -->
     </div>
 </template>
 
@@ -53,7 +56,7 @@ async function authenticate() {
 @import "~/assets/global.scss";
 
 .profile-page {
-    @include fill-width(750px);
+    @include fill-width(800px);
 
     .not-logged-in {
         padding: 0.5rem 1rem;

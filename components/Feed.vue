@@ -18,6 +18,7 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
 <template>
     <div class="feed">
         <div class="sorting row g-2" v-if="props.sorting">
+            <!-- TODO add feed/add toggle -->
             <button @click="sorting.sortBy(posts, 'new')">New</button>
             <button @click="sorting.sortBy(posts, 'hot')">Hot</button>
             <button @click="sorting.sortBy(posts, 'top')">Top</button>
@@ -42,6 +43,7 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
                 </div>
             </div>
         </div>
+        <!-- TODO add actual pagination support -->
         <div class="pagination" v-if="pagination">
             <i class="fa-solid fa-chevron-left"></i>
             <span>1</span>

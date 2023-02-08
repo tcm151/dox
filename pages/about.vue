@@ -31,7 +31,7 @@
 @import "~/assets/global.scss";
 
 .column {
-    @include fill-width(750px);
+    @include fill-width(800px);
 }
 
 .about {

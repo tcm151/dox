@@ -15,6 +15,7 @@ const session = getSession();
                     <h1>{{ topic }}</h1>
                     <div>
                         <ClientOnly>
+                            <!-- TODO add topic following support -->
                             <span class="danger" v-if="session.user?.topics.includes(topic)">Unfollow</span>
                             <span class="success" v-else>Follow</span>
                         </ClientOnly>
@@ -25,6 +26,7 @@ const session = getSession();
                         <p><strong>{{ details?.posts.length }}</strong> posts</p>
                     </div>
                     <div class="info">
+                        <!-- TODO add popups to view this in more detail -->
                         <p><strong>{{ details?.followers.count }}</strong> followers</p>
                     </div>
                 </div>
@@ -39,7 +41,7 @@ const session = getSession();
 
 
 #topic {
-    @include fill-width(750px);
+    @include fill-width(800px);
 }
 
 .details {
