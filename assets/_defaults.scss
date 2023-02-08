@@ -169,7 +169,7 @@ blockquote {
     margin: 0;
     padding-left: 1rem;
     font-style: italic;
+    border-left: 3px solid $dox-white;
     border-radius: 0.25rem;
-    border-left: 0.25rem $dox-white-dark;
-    background-color: $dox-white;
+    background-color: $dox-white-light;
 }

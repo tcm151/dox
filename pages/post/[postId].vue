@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { UseSeoMetaInput } from '@unhead/vue';
 import { Post, Comment } from '~/types/types';
 
-const vote = useVoting();
 const route = useRoute();
+const postId = route.params.postId;
+
+const vote = useVoting();
+const sorting = useSorting();
 const session = getSession();
 
-const { data: post, pending } = await useFetch<Post>(`/api/post/${route.params.postId}`)
-const { data: comments, refresh: fetchComments } = await useFetch<Comment[]>(`/api/post/${route.params.postId}/comments`)
+const { data: post, pending } = await useFetch<Post>(`/api/post/${postId}`)
+const { data: comments, refresh: fetchComments } = await useFetch<Comment[]>(`/api/post/${postId}/comments`)
+
+onMounted(() => sorting.sortBy(comments.value!, "hot"))
 
 // useServerSeoMeta({
-//     ogTitle: () => post.value?.title ?? route.params.postId[0],
+//     ogTitle: () => post.value?.title ?? postId[0],
 //     creator: () => post.value?.user.id
 // })
 
@@ -21,20 +25,17 @@ function toggleCommentBox() {
 
 let postReply = ref("");
 async function submitPostReply() {
-    const { data: comment } = await useFetch<Comment>("/api/comment/new", {
-        method: "POST",
-        body: {
-            time: new Date(),
-            user: session.user?.id,
-            post: post.value?.id,
-            replyTo: post.value?.id,
-            content: postReply.value,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
-        }
+    await session.useApi<Comment>("/api/comment/new", {
+        time: new Date(),
+        user: session.user?.id,
+        post: post.value?.id,
+        replyTo: post.value?.id,
+        content: postReply.value,
+        votes: {
+            positive: [session.user!.id],
+            misleading: [],
+            negative: [],
+        },
     })
 
     fetchComments();
@@ -50,20 +51,17 @@ function replyToComment(comment: Comment) {
 }
 
 async function submitCommentReply(replyTo: Comment) {
-    const { data: comment } = await useFetch<Comment>("/api/comment/new", {
-        method: "POST",
-        body: {
-            time: new Date(),
-            user: session.user?.id,
-            post: post.value?.id,
-            replyTo: replyTo.id,
-            content: commentReply.value,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
-        }
+    await session.useApi<Comment>("/api/comment/new", {
+        time: new Date(),
+        user: session.user?.id,
+        post: post.value?.id,
+        replyTo: replyTo.id,
+        content: commentReply.value,
+        votes: {
+            positive: [session.user!.id],
+            misleading: [],
+            negative: [],
+        },
     })
 
     fetchComments();
@@ -78,7 +76,9 @@ function toggleEditPost() {
 }
 
 function saveChanges(item: Post | Comment | null ) {
-    console.log("SAVED! jk.")
+    const response = session.useApi(`/api/post/${postId}/edit`, post.value?.content);
+    post.value!.edited = true;
+    console.log(response);
     toggleEditPost();
 }
 
@@ -110,6 +110,7 @@ function previewChanges() {
                 <span class="info" @click="navigateTo(`/user/${getId(post?.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
                     <span class="info">{{ formatDate(post?.time as any) }}</span>
+                    <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited as any) }}</span>
                 </ClientOnly>
             </div>
             <ClientOnly>
@@ -179,6 +180,7 @@ function previewChanges() {
                                 <span class="info">{{ formatDate(comment.time as any) }}</span>
                                 <span class="reply" @click="replyToComment(comment)">Reply</span>
                                 <span class="edit" v-if="comment.user.id === session.user?.id">Edit</span>
+                                <span class="danger" v-if="comment.edited">Edited</span>
                             </ClientOnly>
                         </div>
                         <div class="body p-3">

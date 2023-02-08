@@ -28,6 +28,8 @@ export interface Post {
     votes: Votes
     topics: string[]
     comments: string[]
+    edited?: boolean
+    timeEdited?: string
 }
 
 export interface Comment {
@@ -38,4 +40,6 @@ export interface Comment {
     replyTo: string
     content: string
     votes: Votes
+    edited?: boolean
+    timeEdited?: string
 }
