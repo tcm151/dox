@@ -4,7 +4,7 @@ const { data: posts } = await useFetch("/api/posts");
 
 <template>
     <div class="index">
-        <Feed :posts="posts ?? []" />
+        <Feed :posts="posts ?? []" :sorting="true" :pagination="true" />
     </div>
 </template>
 

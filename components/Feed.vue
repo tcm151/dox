@@ -9,17 +9,15 @@ const props = defineProps<{
 
 const vote = useVoting();
 const sorting = useSorting();
-const session = getSession();
 const settings = useSettings();
 
 onMounted(() => sorting.sortBy(props.posts, "hot"))
-// onBeforeMount(() => sorting.sortBy(props.posts, "hot"))
 
 </script>
 
 <template>
     <div class="feed">
-        <div class="row g-2" v-if="props.sorting">
+        <div class="sorting row g-2" v-if="props.sorting">
             <button @click="sorting.sortBy(posts, 'new')">New</button>
             <button @click="sorting.sortBy(posts, 'hot')">Hot</button>
             <button @click="sorting.sortBy(posts, 'top')">Top</button>
@@ -44,22 +42,14 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
                 </div>
             </div>
         </div>
-        <div class="pagination mt-2" v-if="pagination">
-            <div class="start">
-                <i class="fa-solid fa-rotate-left"></i>
-            </div>
-            <div class="previous">
-                <i class="fa-solid fa-chevron-left"></i>
-            </div>
-            <div class="pages">
-                <div>1</div>
-                <div>2</div>
-                <div>3</div>
-                <i class="fa-solid fa-ellipsis"></i>
-            </div>
-            <div class="next">
-                <i class="fa-solid fa-chevron-right"></i>
-            </div>
+        <div class="pagination" v-if="pagination">
+            <i class="fa-solid fa-chevron-left"></i>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <i class="fa-solid fa-ellipsis"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <i class="fa-solid fa-rotate-left"></i>
         </div>
     </div>
 </template>
@@ -127,23 +117,20 @@ span:hover {
     @include flex-h (0.5rem);
     justify-content: center;
 
-    .pages {
-        @include flex-h (0.5rem);
-        justify-content: center;
-    }
-
-    .start, .previous, .next, .pages > * {
+    span, i {
         width: 2rem;
         padding: 0.25rem 0;
+        font-size: 1rem;
         font-weight: 600;
         text-align: center;
         line-height: 20px;
         border-radius: 0.25rem;
-        background-color: $dox-white-ultra;
+        background-color: $dox-white;
     }
 
-    .start:hover, .previous:hover, .next:hover, .pages > *:hover {
-        background-color: whitesmoke;
+    span:hover, i:hover {
+        color: $dox-white-ultra;
+    background-color: $dox-grey-light;
     }
 }
 </style>

@@ -20,12 +20,6 @@ async function authenticate() {
                     <div class="column">
                         <div class="header">
                             <h1>{{ session.user?.name }}</h1>
-                            <div>
-                                <ClientOnly>
-                                    <span class="not-logged-in" v-if="session.user?.following.includes(session.user?.id)">Unfollow</span>
-                                    <span class="success" v-else>Follow</span>
-                                </ClientOnly>
-                            </div>
                         </div>
                         <div class="follows row g-2">
                             <div class="link">

@@ -1,12 +1,11 @@
-import { User } from '~/types/types';
 import Surreal from 'surrealdb.js';
+import { User } from '~/types/types';
 
 interface DatabaseResponse<T> {
     status: string
     time: string
     result: T[]
 }
-
 
 export const useDatabase = async () => {
     const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
@@ -17,19 +16,14 @@ export const useDatabase = async () => {
 }
 const db = await useDatabase();
 
-
 export const authenticateRequest = async (event: any) => {
     try {
         const { surrealDatabaseUrl } = useRuntimeConfig();
         const db = new Surreal(surrealDatabaseUrl);
         const token = getHeader(event, 'Authorization');
         await db.authenticate(token ?? "");
-        let response = await db.query<any>([
-            `SELECT *`,
-            `FROM user`,
-            `WHERE id = $auth.id`,
-        ].join("\n"))
-        return response[0].result[0];
+        let response = await db.query<any>("SELECT * FROM user WHERE id = $auth.id")
+        return (response[0].result[0] as User);
     }
     catch (ex) {
         throw createError({ statusCode: 401, message: "Failed to authenticate request." })
