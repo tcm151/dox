@@ -10,14 +10,12 @@ let following = ref(false);
 
 async function follow() {
     following.value = true;
-    console.log(topic);
     await session.follow("topic", topic)
     await refresh();
 }
 
 async function unfollow() {
     following.value = false;
-    console.log(topic);
     await session.unfollow("topic", topic)
     await refresh();
 }

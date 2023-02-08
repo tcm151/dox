@@ -2,6 +2,7 @@
 </script>
 
 <template>
+    <!-- TODO add stuff to the home page. i.e trending topics, top of the day, basic info, etc -->
     <div class="grid g-5">
         <div class="box p-5" style="grid-area: center">
 
