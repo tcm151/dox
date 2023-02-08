@@ -1,6 +1,6 @@
 import Surreal from "surrealdb.js"
+import { Session } from "~/types/types";
 import { defineStore } from "pinia"
-import { Session } from "~~/types/types";
 
 const hints = useHints();
 const events = useEvents();
@@ -92,12 +92,36 @@ export const getSession = defineStore("session", () => {
     }
 
     //> FOLLOW/UNFOLLOW
-    async function follow(target: string) {
-        await useApi(`/api/user/${target}/follow`);
+    async function follow(type: "user" | "topic", target: string) {
+        if (!isAuthenticated) {
+            hints.addError("You must be logged into interact with others.");
+            return;
+        }
+        
+        if (type === "user") {
+            await useApi(`/api/user/${target}/follow`);
+            state.value.user?.following.push(`user:${target}`);
+        }
+        if (type === "topic") {
+            await useApi(`/api/topic/${target}/follow`);
+            state.value.user?.topics.push(target);
+        }
     }
     
-    async function unfollow(target: string) {
-        await useApi(`/api/user/${target}/unfollow`);
+    async function unfollow(type: "user" | "topic", target: string) {
+        if (!isAuthenticated) {
+            hints.addError("You must be logged into interact with others.");
+            return;
+        }
+        
+        if (type === "user") {
+            await useApi(`/api/user/${target}/follow`);
+            state.value.user!.following = state.value.user?.following.filter(u => u !== `user:${target}`)!;
+        }
+        if (type === "topic") {
+            await useApi(`/api/topic/${target}/follow`);
+            state.value.user!.topics = state.value.user?.topics.filter(t => t !== target)!;
+        }
     }
 
     return { state, isAuthenticated, user, readToken, authenticate, login, logout, useApi, follow, unfollow }

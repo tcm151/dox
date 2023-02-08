@@ -13,23 +13,23 @@ let following = ref(false);
 
 async function follow() {
     following.value = true;
-    await session.follow(userId)
+    await session.follow("user", userId)
     await refresh();
 }
 
 async function unfollow() {
     following.value = false;
-    await session.unfollow(userId)
+    await session.unfollow("user", userId)
     await refresh();
 }
 
 onMounted(() => {
-    following.value = session.user?.following.includes(user.value!.id) ?? false;
+    following.value = session.user?.following.includes(userId) ?? false;
 })
 
 const events = useEvents();
 events.subscribe("authenticatedUser", () => {
-    following.value = session.user?.following.includes(user.value!.id) ?? false;
+    following.value = session.user?.following.includes(userId) ?? false;
 })
 
 </script>

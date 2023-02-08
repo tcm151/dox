@@ -2,9 +2,34 @@
 const route = useRoute();
 const topic = route.params.topic as string;
 
-const { data: details } = await useFetch(`/api/topic/${topic}`);
+const { data: details, refresh } = await useFetch(`/api/topic/${topic}`);
 
 const session = getSession();
+
+let following = ref(false);
+
+async function follow() {
+    following.value = true;
+    console.log(topic);
+    await session.follow("topic", topic)
+    await refresh();
+}
+
+async function unfollow() {
+    following.value = false;
+    console.log(topic);
+    await session.unfollow("topic", topic)
+    await refresh();
+}
+
+onMounted(() => {
+    following.value = session.user?.topics.includes(topic) ?? false;
+})
+
+const events = useEvents();
+events.subscribe("authenticatedUser", () => {
+    following.value = session.user?.topics.includes(topic) ?? false;
+})
 </script>
 
 <template>
@@ -15,9 +40,8 @@ const session = getSession();
                     <h1>{{ topic }}</h1>
                     <div>
                         <ClientOnly>
-                            <!-- TODO add topic following support -->
-                            <span class="danger" v-if="session.user?.topics.includes(topic)">Unfollow</span>
-                            <span class="success" v-else>Follow</span>
+                            <span class="danger" v-if="following" @click="unfollow">Unfollow</span>
+                            <span class="success" v-else @click="follow">Follow</span>
                         </ClientOnly>
                     </div>
                 </div>
