@@ -28,6 +28,8 @@ const events = useEvents();
 events.subscribe("authenticatedUser", () => {
     following.value = session.user?.topics.includes(topic) ?? false;
 })
+
+let showFollowers = ref(false);
 </script>
 
 <template>
@@ -47,10 +49,12 @@ events.subscribe("authenticatedUser", () => {
                     <div class="link">
                         <p><strong>{{ details?.posts.length }}</strong> posts</p>
                     </div>
-                    <div class="info">
-                        <!-- TODO add popups to view this in more detail -->
+                    <div class="info" @click="showFollowers = !showFollowers">
                         <p><strong>{{ details?.followers.count }}</strong> followers</p>
                     </div>
+                    <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
+                        <!-- TODO show usernames -->
+                    </Popup>
                 </div>
             </div>
         </div>
@@ -90,5 +94,9 @@ events.subscribe("authenticatedUser", () => {
 .info, .link {
     padding: 0.25rem 1rem;
     border-radius: 0.25rem;
+}
+
+.info:hover {
+    cursor: pointer;
 }
 </style>

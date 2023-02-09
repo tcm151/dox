@@ -6,7 +6,7 @@ const username = ref("");
 const password = ref("");
 const confirmation = ref("");
 
-const register = async () => {
+async function register() {
     try {
         let json =  {
             email: email.value,
