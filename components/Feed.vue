@@ -43,8 +43,8 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
                     {{ topic }}
                 </span>
                 <div class="details row g-1">
-                    <span class="info" @click="navigateTo(`/user/${getId(post.user.id)}`)">u/
-                        {{ post?.user.name ?? "deleted" }}
+                    <span class="info" @click="navigateTo(`/user/${getId(post.user.id)}`)">
+                        u/{{ post?.user.name ?? "deleted" }}
                     </span>
                     <span class="info">{{ post.comments.length }} comments</span>
                     <span class="info">{{ formatDate(post.time as any) }}</span>
