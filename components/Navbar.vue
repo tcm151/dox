@@ -34,7 +34,7 @@ function addHint() {
         <ClientOnly>
             <Transition name="slide">
                 <div class="right authenticated" v-if="session.isAuthenticated">
-                    <NuxtLink @click="addHint">
+                    <NuxtLink to="/notifications">
                         <i class="fa-solid fa-envelope"></i>
                     </NuxtLink>
                     <NuxtLink to="/feed">
@@ -55,7 +55,7 @@ function addHint() {
                     </a>
                 </div>
                 <div class="right anonymous" v-else>
-                    <NuxtLink to="/">
+                    <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
                     </NuxtLink>

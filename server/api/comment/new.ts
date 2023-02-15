@@ -14,9 +14,9 @@ export default defineEventHandler(async (event) => {
     
     // get the reply to context
     let replyTo = await queryOne<Post | Comment>([
-        `SELECT id, user.id, user.name`,
+        `SELECT id, content, post, user.id, user.name`,
         `FROM ${comment.replyTo}`,
-        `FETCH user`,
+        `FETCH post, user`,
     ])
     
     // send a notification to relevant user
@@ -24,7 +24,14 @@ export default defineEventHandler(async (event) => {
         `CREATE notification SET`,
         `recipient = ${replyTo.user.id},`,
         `context = ${replyTo.id},`,
-        `message = "${comment.user} responed to ${replyTo.id}",`,
+        `message = "${[
+            `**u/${auth.name}** responded`,
+            `> ${comment.content}\n`,
+            `to your comment`,
+            `> ${replyTo.content}\n`,
+            // TODO need to account for when directly responding to posts
+            // `on the post **${replyTo.post.}**`,
+        ].join("\n")}",`,
         `time = time::now(),`,
         `viewed = false`,
     ])
