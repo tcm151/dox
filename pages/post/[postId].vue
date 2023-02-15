@@ -46,9 +46,14 @@ async function submitPostReply() {
 
 let commentReply = ref("")
 let commentToReplyTo = ref("")
+let commentToEdit = ref("");
 
 function replyToComment(comment: Comment) {
     commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
+}
+
+function editComment(comment: Comment) {
+    commentToEdit.value = (commentToEdit.value !== comment.id) ? comment.id : "";
 }
 
 async function submitCommentReply(replyTo: Comment) {
@@ -68,6 +73,10 @@ async function submitCommentReply(replyTo: Comment) {
     fetchComments();
     commentReply.value = "";
     commentToReplyTo.value = ""
+}
+
+async function saveComment() {
+    // TODO save changes to database
 }
 
 let editingPost = ref(false)
@@ -184,19 +193,23 @@ function copyLink() {
                             <ClientOnly>
                                 <span class="info">{{ formatDate(comment.time as any) }}</span>
                                 <span class="reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
-                                <!-- TODO allow users to edit their comments -->
-                                <span class="edit" v-if="comment.user.id === session.user?.id">Edit</span>
+                                <span class="edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
                                 <span class="danger" v-if="comment.edited">Edited</span>
                             </ClientOnly>
                         </div>
-                        <div class="body p-3">
-                            <p v-html="renderMarkdown(comment.content)"></p>
-                        </div>
+                        <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
                             <div class="row-fit g-1 pt-2">
                                 <span class="success" @click="submitCommentReply(comment)">Submit</span>
                                 <span class="danger" @click="replyToComment(comment)">Cancel</span>
+                            </div>
+                        </div>
+                        <div class="comment-reply field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
+                            <textarea class="textarea" rows="5" :value="comment.content"></textarea>
+                            <div class="row-fit g-1 pt-2">
+                                <span class="success" @click="saveComment">Save</span>
+                                <span class="danger" @click="editComment(comment)">Cancel</span>
                             </div>
                         </div>
                     </div>
