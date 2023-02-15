@@ -9,8 +9,9 @@
                 <p>The place for this, that, and everything.</p>
                 <p><em>The open forum for the modern internet;</em> DOX aims to provide a platform for users to create intimate and diverse communities and engage with other users across limitless subjects.</p>
                 <div class="buttons column g-2">
-                    <button>Write a Post</button>
-                    <button>View Feed</button>
+                    <button @click="navigateTo('/editor')">Write a Post</button>
+                    <button @click="navigateTo('/feed')">View Feed</button>
+                    <button @click="navigateTo('/notifications')">View Notifications</button>
                 </div>
             </div>
         </div>

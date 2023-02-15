@@ -47,13 +47,15 @@ events.subscribe("authenticatedUser", () => {
                         <h1>{{ user?.name }}</h1>
                         <div>
                             <ClientOnly>
+                                <!-- TODO allow voting directly on users profile -->
                                 <span class="danger" v-if="following" @click="unfollow">Unfollow</span>
                                 <span class="success" v-else @click="follow">Follow</span>
                             </ClientOnly>
                         </div>
                     </div>
-                    <div class="follows row g-2">
+                    <div class="follows row-wrap g-2">
                         <!-- TODO add popups to view these in more detail -->
+                        <!-- TODO looks like shit on mobile -->
                         <div class="link">
                             <p><strong>{{ user?.topics.length }}</strong> topics</p>
                         </div>
@@ -70,7 +72,7 @@ events.subscribe("authenticatedUser", () => {
                 </div>
             </div>
         </div>
-        <Feed :posts="posts ?? []" />
+        <Feed :posts="posts ?? []" :sorting="true" :pagination="true" />
     </div>
 </template>
 
@@ -123,6 +125,7 @@ events.subscribe("authenticatedUser", () => {
 
 .follows {
     white-space: nowrap;
+    text-align: center;
 
     strong {
         font-weight: 800;

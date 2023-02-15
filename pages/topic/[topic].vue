@@ -58,7 +58,7 @@ let showFollowers = ref(false);
                 </div>
             </div>
         </div>
-        <Feed :posts="details?.posts ?? []" />
+        <Feed :posts="details?.posts ?? []" :sorting="true" :pagination="true" />
     </div>
 </template>
 
