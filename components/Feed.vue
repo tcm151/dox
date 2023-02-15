@@ -18,7 +18,7 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
 <template>
     <div class="feed">
         <div class="sorting row g-2" v-if="props.sorting">
-            <!-- TODO add feed/add toggle -->
+            <slot name="header" />
             <button @click="sorting.sortBy(posts, 'new')">New</button>
             <button @click="sorting.sortBy(posts, 'hot')">Hot</button>
             <button @click="sorting.sortBy(posts, 'top')">Top</button>
@@ -29,15 +29,23 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
             </h3>
             <div class="row-wrap g-1">
                 <div class="votes row g-1">
-                    <span class="positive" @click="vote.positive(post.id, post.votes)">{{ post?.votes.positive.length }}</span>
-                    <span class="misleading" @click="vote.misleading(post.id, post.votes)">{{ post?.votes.misleading.length }}</span>
-                    <span class="negative" @click="vote.negative(post.id, post.votes)">{{ post?.votes.negative.length }}</span>
+                    <span class="positive" @click="vote.positive(post.id, post.votes)">
+                        {{ post?.votes.positive.length }}
+                    </span>
+                    <span class="misleading" @click="vote.misleading(post.id, post.votes)">
+                        {{ post?.votes.misleading.length }}
+                    </span>
+                    <span class="negative" @click="vote.negative(post.id, post.votes)">
+                        {{ post?.votes.negative.length }}
+                    </span>
                 </div>
                 <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
                     {{ topic }}
                 </span>
                 <div class="details row g-1">
-                    <span class="info" @click="navigateTo(`/user/${getId(post.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
+                    <span class="info" @click="navigateTo(`/user/${getId(post.user.id)}`)">u/
+                        {{ post?.user.name ?? "deleted" }}
+                    </span>
                     <span class="info">{{ post.comments.length }} comments</span>
                     <span class="info">{{ formatDate(post.time as any) }}</span>
                 </div>

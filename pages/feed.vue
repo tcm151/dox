@@ -1,10 +1,41 @@
 <script setup lang="ts">
-const { data: posts } = await useFetch("/api/posts");
+import { Post } from '~/types/types';
+
+const { data: allPosts } = await useFetch("/api/posts");
+
+const session = getSession();
+
+const feedPosts = computed(() => allPosts.value?.filter(p => {
+    return p.topics.some(pt => session.user?.topics.includes(pt))
+        || session.user?.following.includes(p.user.id)
+})!)
+
+let filterType = ref("All")
+let filteredPosts = ref<Post[] | null>([])
+
+onMounted(() => filteredPosts.value = allPosts.value)
+
+function toggleFilter() {
+    switch (filterType.value) {
+        case "All":
+            filterType.value = "Feed";
+            filteredPosts.value = feedPosts.value;
+            return;
+        case "Feed":
+            filterType.value = "All";
+            filteredPosts.value = allPosts.value;
+            return;
+    }
+}
 </script>
 
 <template>
     <div class="index">
-        <Feed :posts="posts ?? []" :sorting="true" :pagination="true" />
+        <Feed :posts="filteredPosts ?? []" :sorting="true" :pagination="true" >
+            <template #header>
+                <button @click="toggleFilter">{{ filterType }}</button>
+            </template>
+        </Feed>
     </div>
 </template>
 
