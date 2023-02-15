@@ -75,8 +75,9 @@ async function submitCommentReply(replyTo: Comment) {
     commentToReplyTo.value = ""
 }
 
-async function saveComment() {
-    // TODO save changes to database
+async function saveComment(comment: Comment) {
+    await session.useApi(`/api/comment/${getId(comment.id)}/edit`, comment.content)
+    commentToEdit.value = "";
 }
 
 let editingPost = ref(false)
@@ -126,7 +127,7 @@ function copyLink() {
                 <span class="info" @click="navigateTo(`/user/${getId(post?.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
                     <span class="info">{{ formatDate(post?.time as any) }}</span>
-                    <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited as any) }}</span>
+                    <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
             <div class="content mt-5" v-html="renderMarkdown(post?.content)"></div>
@@ -192,9 +193,9 @@ function copyLink() {
                             </span>
                             <ClientOnly>
                                 <span class="info">{{ formatDate(comment.time as any) }}</span>
+                                <span class="danger" v-if="comment.edited">Edited {{ formatDate(comment.timeEdited) }}</span>
                                 <span class="reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
                                 <span class="edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
-                                <span class="danger" v-if="comment.edited">Edited</span>
                             </ClientOnly>
                         </div>
                         <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
@@ -206,9 +207,9 @@ function copyLink() {
                             </div>
                         </div>
                         <div class="comment-reply field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
-                            <textarea class="textarea" rows="5" :value="comment.content"></textarea>
+                            <textarea class="textarea" rows="5" v-model="comment.content"></textarea>
                             <div class="row-fit g-1 pt-2">
-                                <span class="success" @click="saveComment">Save</span>
+                                <span class="success" @click="saveComment(comment)">Save</span>
                                 <span class="danger" @click="editComment(comment)">Cancel</span>
                             </div>
                         </div>
