@@ -3,6 +3,14 @@ export interface Session {
     user: User | null
 }
 
+export interface Notification {
+    recipient: User
+    context: Post | Comment
+    message: string
+    time: string
+    viewed: boolean
+}
+
 export interface User {
     id: string
     email: string
