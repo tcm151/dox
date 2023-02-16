@@ -53,7 +53,10 @@ let showFollowers = ref(false);
                         <p><strong>{{ details?.followers.count }}</strong> followers</p>
                     </div>
                     <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
-                        <!-- TODO show usernames -->
+                        <!-- TODO show usernames of followers -->
+                        <span v-for="user in details?.followers">
+                            {{ user }}
+                        </span>
                     </Popup>
                 </div>
             </div>

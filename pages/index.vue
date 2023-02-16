@@ -18,12 +18,14 @@
         <div class="box right content p-5" style="grid-area: right;">
             <h2>Trending Topics</h2>
             <div class="topics my-3">
+                <!-- TODO implement trending topics -->
                 <span class="topic" v-for="index in 10">
                     {{ index }}
                 </span>
             </div>
             <h2>Trending Users</h2>
             <div class="users mt-3">
+                <!-- TODO implement trending users -->
                 <span class="info" v-for="index in 8">
                     {{ index }}
                 </span>

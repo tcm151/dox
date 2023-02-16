@@ -2,22 +2,24 @@
 import { Notification } from '~/types/types';
 
 const session = getSession();
-const notifications = await session.useApi<Notification[]>("/api/profile/notifications");
+let notifications = await session.useApi<Notification[]>("/api/profile/notifications");
 </script>
 
 <template>
     <div id="notifications" class="column g-2">
-        <div v-for="notification in notifications">
-            <div class="notification">
-                <div class="message" v-html="renderMarkdown(notification.message)">
-                </div>
-                <div class="row-fit g-2 mt-2">
-                    <span class="link">Context</span>
-                    <span class="info">{{ formatDate(notification.time) }}</span>
-                    <span class="danger">Dismiss</span>
+        <ClientOnly>
+            <div v-for="notification in notifications">
+                <div class="notification">
+                    <div class="message" v-html="renderMarkdown(notification.message)">
+                    </div>
+                    <div class="row-fit g-2 mt-2">
+                        <span class="link">Context</span>
+                        <span class="info">{{ formatDate(notification.time) }}</span>
+                        <span class="danger">Dismiss</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ClientOnly>
     </div>
 </template>
 

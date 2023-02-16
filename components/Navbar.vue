@@ -2,25 +2,13 @@
 const events = useEvents();
 
 const session = getSession();
-onMounted(() => {
-    session.readToken();
-    session.authenticate();
-})
+onMounted(() => session.authenticate())
 
 async function login() {
     if (!(await session.authenticate())) {
         events.publish('toggleLogin')
-    } else {
-        console.log("Logged in!")
     }
 }
-
-const hints = useHints();
-
-function addHint() {
-    hints.addSuccess("Hi, this is a hint :)");
-}
-
 </script>
 
 <template>

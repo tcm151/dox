@@ -6,6 +6,10 @@ let showLogin = ref(false);
 
 events.subscribe("togglePopup", () => showPopup.value = !showPopup.value)
 events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
+
+onMounted(() => {
+    events.publish("clientStarted");
+})
 </script>
 
 <template>

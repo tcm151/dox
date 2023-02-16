@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
             `WHERE topics CONTAINS "${topic}"`,
             `FETCH user`,
         ]),
+        // TODO include usernames of followers
         followers: await queryOne<{ count: number }>([
             `SELECT count()`,
             `FROM user`,
