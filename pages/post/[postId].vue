@@ -169,6 +169,11 @@ function copyLink() {
             </ClientOnly>
         </div>
         <div class="comments p-5" v-if="(comments?.length ?? 0) > 0">
+            <div class="row g-2 mb-3">
+                <button @click="sorting.sortBy(comments ?? [], 'new')">New</button>
+                <button @click="sorting.sortBy(comments ?? [], 'hot')">Hot</button>
+                <button @click="sorting.sortBy(comments ?? [], 'top')">Top</button>
+            </div>
             <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
                 <template #item="{ item: comment}">
                     <div class="comment">
