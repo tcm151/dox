@@ -46,6 +46,19 @@ let showFollowers = ref(false);
                     </div>
                 </div>
                 <div class="row g-2 mt-4">
+                    <!-- TODO create topics table -->
+                    <!-- TODO allow voting directly on topics -->
+                    <!-- <div class="votes row g-2">
+                        <span class="positive" @click="vote.positive(user!.id, user!.votes)">
+                            {{ user?.votes.positive.length }}
+                        </span>
+                        <span class="misleading" @click="vote.misleading(user!.id, user!.votes)">
+                            {{ user?.votes.misleading.length }}
+                        </span>
+                        <span class="negative" @click="vote.negative(user!.id, user!.votes)">
+                            {{ user?.votes.negative.length }}
+                        </span>
+                    </div> -->
                     <div class="link">
                         <p><strong>{{ details?.posts.length }}</strong> posts</p>
                     </div>
@@ -87,6 +100,17 @@ let showFollowers = ref(false);
         padding: 0.25rem 1rem;
         font-weight: 700;
         border-radius: 0.25rem;
+    }
+}
+
+.votes {
+    flex: 0 1;
+    
+    > * {
+        padding: 0.25rem 1rem;
+        border-radius: 0.25rem;
+        font-weight: 800;
+        user-select: none;
     }
 }
 
