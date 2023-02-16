@@ -1,6 +1,6 @@
 import Surreal from "surrealdb.js"
 import { Session } from "~/types/types";
-import { defineStore } from "pinia"
+import { defineStore, skipHydrate } from "pinia"
 
 const hints = useHints();
 const events = useEvents();
@@ -18,13 +18,7 @@ export const getSession = defineStore("session", () => {
     const user = computed(() => state.value.user)
 
     //> TOKEN
-    const token = ref("")
-    watch(token, (token) => sessionStorage.setItem("token", token));
-    
-    function readToken() {
-        token.value = sessionStorage.getItem("token") ?? "";
-        return token.value;
-    }
+    const token = skipHydrate(useSessionStorage("token", ""));
     
     //> AUTH
     async function authenticate(): Promise<boolean> {
@@ -124,5 +118,5 @@ export const getSession = defineStore("session", () => {
         }
     }
 
-    return { state, isAuthenticated, user, readToken, authenticate, login, logout, useApi, follow, unfollow }
+    return { state, isAuthenticated, user, authenticate, login, logout, useApi, follow, unfollow }
 })
