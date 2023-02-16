@@ -7,6 +7,7 @@ const { data: response, refresh } = await useFetch(`/api/user/${userId}`)
 const user = computed(() => response.value?.user);
 const posts = computed(() => response.value?.posts);
 
+const vote = useVoting();
 const session = getSession();
 
 let following = ref(false);
@@ -37,38 +38,48 @@ events.subscribe("authenticatedUser", () => {
 
 <template>
     <div class="profile-page column g-2">
-        <div class="profile">
-            <div class="row g-2 p-5">
-                <div class="image is-96x96 mr-3">
-                    <img src="https://bulma.io/images/placeholders/96x96.png">
+        <div class="profile column g-2 p-5">
+            <div class="row g-2">
+                <div class="image is-64x64 mr-3">
+                    <img src="https://bulma.io/images/placeholders/64x64.png">
                 </div>
                 <div class="column">
                     <div class="header">
                         <h1>{{ user?.name }}</h1>
                         <div>
                             <ClientOnly>
-                                <!-- TODO allow voting directly on users profile -->
                                 <span class="danger" v-if="following" @click="unfollow">Unfollow</span>
                                 <span class="success" v-else @click="follow">Follow</span>
                             </ClientOnly>
                         </div>
                     </div>
-                    <div class="follows row-wrap g-2">
-                        <!-- TODO add popups to view these in more detail -->
-                        <!-- TODO looks like shit on mobile -->
-                        <div class="link">
-                            <p><strong>{{ user?.topics.length }}</strong> topics</p>
-                        </div>
-                        <div class="info">
-                            <p><strong>{{ user?.followers.length }}</strong> followers</p>
-                        </div>
-                        <div class="info">
-                            <p><strong>{{ user?.following.length }}</strong> following</p>
-                        </div>
-                        <div class="info">
-                            <p>joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong></p>
-                        </div>
-                    </div>
+                </div>
+            </div>
+            <div class="follows row-wrap g-2">
+                <!-- TODO add popups to view these in more detail -->
+                <!-- TODO looks like shit on mobile -->
+                <div class="votes row g-2">
+                    <span class="positive" @click="vote.positive(user!.id, user!.votes)">
+                        {{ user?.votes.positive.length }}
+                    </span>
+                    <span class="misleading" @click="vote.misleading(user!.id, user!.votes)">
+                        {{ user?.votes.misleading.length }}
+                    </span>
+                    <span class="negative" @click="vote.negative(user!.id, user!.votes)">
+                        {{ user?.votes.negative.length }}
+                    </span>
+                </div>
+                <div class="link">
+                    <p><strong>{{ user?.topics.length }}</strong> topics</p>
+                </div>
+                <div class="info">
+                    <p><strong>{{ user?.followers.length }}</strong> followers</p>
+                </div>
+                <div class="info">
+                    <p><strong>{{ user?.following.length }}</strong> following</p>
+                </div>
+                <div class="info">
+                    <p>joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong></p>
                 </div>
             </div>
         </div>
@@ -116,10 +127,21 @@ events.subscribe("authenticatedUser", () => {
 
 .image {
     flex: 0 1;
-    height: 96px;
+    height: 64px;
 
     img {
         border-radius: 0.25rem;
+    }
+}
+
+.votes {
+    flex: 0 1;
+    
+    > * {
+        padding: 0.25rem 1rem;
+        border-radius: 0.25rem;
+        font-weight: 800;
+        user-select: none;
     }
 }
 

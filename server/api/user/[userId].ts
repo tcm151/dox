@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const { userId } = event.context.params;
     return {
         user: await queryOne<User>([
-            `SELECT id, name, dateCreated, followers, following, topics`,
+            `SELECT id, name, dateCreated, votes, followers, following, topics`,
             `FROM user:${userId}`,
         ]),
         posts: await queryAll<Post>([

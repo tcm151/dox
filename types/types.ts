@@ -15,6 +15,7 @@ export interface User {
     id: string
     email: string
     name: string
+    votes: Votes
     topics: string[]
     following: string[]
     followers: string[]
