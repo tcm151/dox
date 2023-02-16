@@ -1,10 +1,16 @@
 <script setup lang="ts">
 const session = getSession();
+const settings = useSettings();
 
 let auth = ref<any>("")
 async function authenticate() {
     const response = await session.useApi(`/api/authenticate`)
     auth.value = response
+}
+
+let showSettings = ref(false);
+function toggleSettings() {
+    showSettings.value = !showSettings.value;
 }
 </script>
 
@@ -42,13 +48,24 @@ async function authenticate() {
                 <span>You are not logged in.</span>
             </div>
         </ClientOnly>
-        <div>
+        <div class="row g-2">
             <button @click="authenticate">Authenticate</button>
+            <button @click="toggleSettings">Settings</button>
+        </div>
+        <div>
             <p>{{ auth }}</p>
         </div>
         <!-- TODO add support for users to change their passwords -->
         <!-- TODO add two-factor authentication -->
         <!-- TODO add settings popup -->
+        <Window :visible="showSettings" title="Settings" @close="toggleSettings">
+            <div class="form">
+                <div class="row-fit g-2">
+                    <input type="checkbox" v-model="settings.state.hoverAnimations">
+                    <label>enable animations</label>
+                </div>
+            </div>
+        </Window>
     </div>
 </template>
 
