@@ -12,6 +12,11 @@ export default defineEventHandler(async (event) => {
         email: email,
         username: username,
         password: password,
+        votes: {
+            positive: [],
+            misleading: [],
+            negative: [],
+        },
         topics: ["Admin"],
         followers: [],
         following: [],
