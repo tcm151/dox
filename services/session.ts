@@ -89,32 +89,36 @@ export const getSession = defineStore("session", () => {
     async function follow(type: "user" | "topic", target: string) {
         if (!isAuthenticated) {
             hints.addError("You must be logged into interact with others.");
-            return;
+            return false;
         }
         
         if (type === "user") {
             await useApi(`/api/user/${target}/follow`);
             state.value.user?.following.push(`user:${target}`);
+            return true;
         }
         if (type === "topic") {
             await useApi(`/api/topic/${target}/follow`);
             state.value.user?.topics.push(target);
+            return true;
         }
     }
     
     async function unfollow(type: "user" | "topic", target: string) {
         if (!isAuthenticated) {
             hints.addError("You must be logged into interact with others.");
-            return;
+            return false;
         }
         
         if (type === "user") {
             await useApi(`/api/user/${target}/follow`);
             state.value.user!.following = state.value.user?.following.filter(u => u !== `user:${target}`)!;
+            return true;
         }
         if (type === "topic") {
             await useApi(`/api/topic/${target}/follow`);
             state.value.user!.topics = state.value.user?.topics.filter(t => t !== target)!;
+            return true;
         }
     }
 
