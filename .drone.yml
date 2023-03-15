@@ -1,10 +1,13 @@
 kind: pipeline
-type: docker
+type: exec
 name: default
+
+platform:
+  os: linux
+  arch: 386
 
 steps:
 - name: hello world
-  image: alpine
   commands:
   - echo hello
   - echo world
