@@ -1,6 +1,10 @@
 kind: pipeline
-type: docker
+type: exec
 name: default
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
 - name: hello world
