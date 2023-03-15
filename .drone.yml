@@ -4,7 +4,7 @@ name: default
 
 platform:
   os: linux
-  arch: 386
+  arch: amd64
 
 steps:
 - name: hello world
