@@ -7,6 +7,6 @@ platform:
   arch: amd64
 
 steps:
-- name: hello world
+- name: find exec dir
   commands:
-  - echo "hello from the cmd line!"
+  - pwd
