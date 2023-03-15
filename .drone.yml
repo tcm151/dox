@@ -7,7 +7,6 @@ platform:
   arch: amd64
 
 steps:
-- name: move to drone-ci dir
+- name: build
   commands:
-  - cd ~/drone-ci
-  - pwd
+  - yarn build
