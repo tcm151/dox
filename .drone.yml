@@ -7,6 +7,10 @@ platform:
   arch: amd64
 
 steps:
-- name: build
+- name: install dependencies
   commands:
+  - yarn install
+
+- name: build app
+  commands: 
   - yarn build
