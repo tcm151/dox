@@ -8,7 +8,6 @@ platform:
 
 steps:
 - name: hello world
-  image: alpine
   commands:
   - echo hello
   - echo world
