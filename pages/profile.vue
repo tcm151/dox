@@ -57,7 +57,6 @@ function toggleSettings() {
         </div>
         <!-- TODO add support for users to change their passwords -->
         <!-- TODO add two-factor authentication -->
-        <!-- TODO add settings popup -->
         <Window :visible="showSettings" title="Settings" @close="toggleSettings">
             <div class="form">
                 <div class="row-fit g-2">
