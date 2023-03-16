@@ -1,5 +1,5 @@
 import { Post } from "~/types/types";
-import { queryOne } from "../../database";
+import { queryOne } from "../../../database";
 
 export default defineEventHandler(async (event) => {
     const { postId } = event.context.params!;

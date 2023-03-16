@@ -4,7 +4,7 @@ const settings = useSettings();
 
 let auth = ref<any>("")
 async function authenticate() {
-    const response = await session.useApi(`/api/authenticate`)
+    const response = await session.useApi(`/api/profile/authenticate`)
     auth.value = response
 }
 
