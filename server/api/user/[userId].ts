@@ -2,7 +2,7 @@ import { Post, User } from "~/types/types";
 import { queryOne, queryAll } from "../../database";
 
 export default defineEventHandler(async (event) => {
-    const { userId } = event.context.params;
+    const { userId } = event.context.params!;
     return {
         user: await queryOne<User>([
             `SELECT id, name, dateCreated, votes, followers, following, topics`,

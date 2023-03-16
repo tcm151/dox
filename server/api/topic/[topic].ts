@@ -2,7 +2,7 @@ import { Post } from "~/types/types";
 import { queryOne, queryAll } from "../../database";
 
 export default defineEventHandler(async (event) => {
-    const { topic } = event.context.params;
+    const { topic } = event.context.params!;
     return  {
         posts: await queryAll<Post>([
             `SELECT *`,
