@@ -1,4 +1,3 @@
-import { User } from "~/types/types"
 import { useDatabase } from "../database"
 
 export default defineEventHandler(async (event) => {

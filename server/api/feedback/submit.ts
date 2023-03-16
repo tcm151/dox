@@ -4,7 +4,8 @@ export default defineEventHandler(async (event) => {
     const feedback = await readBody(event);
     const auth = await authenticateRequest(event);
     feedback.user = auth.id;
-    return await queryOne<any>([
-        `CREATE feedback CONTENT ${JSON.stringify(feedback)}`
-    ])
+    return await queryOne<any>([`
+        CREATE feedback
+        CONTENT ${JSON.stringify(feedback)}
+    `])
 })

@@ -6,7 +6,8 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);
     post.user = auth.id;
     post.votes.positive = [auth.id]
-    return await queryOne<Post>([
-        `CREATE post CONTENT ${JSON.stringify(post)}`
-    ])
+    return await queryOne<Post>([`
+        CREATE post
+        CONTENT ${JSON.stringify(post)}
+    `])
 })
