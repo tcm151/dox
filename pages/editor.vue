@@ -77,6 +77,7 @@ async function submit() {
                 </div>
                 <div class="field">
                     <label>Content</label>
+                    <!-- TODO show markdown preview -->
                     <textarea v-model="content" type="text" rows="16" />
                 </div>
                 <div class="field">
