@@ -40,8 +40,6 @@ function toggleFilter() {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .index {
     @include fill-width(800px);
 }

@@ -71,7 +71,6 @@ function releaseWindow() {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
 
 @keyframes blur {
     from { backdrop-filter: none }

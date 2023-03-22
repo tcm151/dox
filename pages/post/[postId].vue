@@ -226,8 +226,6 @@ function copyLink() {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 #post {
     @include fill-width(800px);
 }

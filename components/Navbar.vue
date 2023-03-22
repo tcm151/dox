@@ -14,7 +14,7 @@ async function login() {
 <template>
     <div class="nav">
         <div class="left">
-            <NuxtLink class="dox" to="/">
+            <NuxtLink class="dox" to="/home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>DOX</span>
             </NuxtLink>
@@ -63,8 +63,6 @@ async function login() {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .nav {
     display: flex;
     flex-direction: row;

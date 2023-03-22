@@ -26,8 +26,16 @@ export default defineNuxtConfig({
         surrealUsername: process.env.SURREAL_USERNAME,
         surrealPassword: process.env.SURREAL_PASSWORD
     },
-    css: ['@/assets/global.scss'],
-    vite: {},
+    // css: ['@/assets/global.scss'],
+    vite: {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: '@import "~/assets/global.scss";\n'
+                }
+            }
+        }
+    },
     nitro: {
         esbuild: {
             options: {

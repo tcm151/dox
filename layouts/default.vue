@@ -40,7 +40,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-@import "~/assets/global.scss";
 
 .page {
     @include flex-v;
@@ -67,7 +66,7 @@ onMounted(() => {
 
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
+
 
 footer {
     width: 750px;

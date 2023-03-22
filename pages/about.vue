@@ -28,8 +28,6 @@
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .column {
     @include fill-width(800px);
 }

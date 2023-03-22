@@ -79,9 +79,6 @@ let showFollowers = ref(false);
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
-
 #topic {
     @include fill-width(800px);
 }

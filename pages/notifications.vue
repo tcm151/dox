@@ -32,8 +32,6 @@ let notifications = await session.useApi<Notification[]>("/api/profile/notificat
 </style>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 #notifications {
     @include fill-width(800px);
 }

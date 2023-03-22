@@ -60,7 +60,6 @@ async function register() {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
 .register {
     width: 256px;
     border-radius: 0.5rem;

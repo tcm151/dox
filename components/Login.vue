@@ -39,8 +39,6 @@ const login = async () => {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .form {
     width: 256px;
 }

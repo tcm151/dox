@@ -21,10 +21,7 @@ body {
     height: 100%;
 }
 
-a,
-a:hover,
-a:active,
-a:visited {
+a, a:hover, a:active, a:visited {
     color: inherit;
     text-decoration: none;
 }
@@ -39,14 +36,10 @@ a:visited {
     color: $dox-purple;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-    margin: 0;
+:not(.content) {
+    h1, h2, h3, h4, h5, h6, p {
+        margin: 0;
+    }
 }
 
 button {

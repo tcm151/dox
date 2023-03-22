@@ -65,8 +65,6 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .feed {
     @include flex-v (0.5rem);
 }

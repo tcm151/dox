@@ -46,8 +46,6 @@ function getColor(hint: Hint) {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .hints {
     bottom: 0;
     width: 100%;

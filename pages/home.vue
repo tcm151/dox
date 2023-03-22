@@ -41,7 +41,6 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
 
 .grid {
     height: 100%;

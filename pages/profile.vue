@@ -69,8 +69,6 @@ function toggleSettings() {
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
 .profile-page {
     @include fill-width(800px);
 

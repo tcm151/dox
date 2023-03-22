@@ -13,7 +13,7 @@ defineProps(['error'])
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
+
 .error {
     height: 100%;
     background-color: $dox-white-light;
