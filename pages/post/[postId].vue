@@ -26,7 +26,7 @@ function toggleCommentBox() {
 
 let postReply = ref("");
 async function submitPostReply() {
-    await session.useApi<Comment>("/api/comment/new", {
+    await session.useApi<Comment>("/api/comment/add", {
         time: new Date(),
         user: session.user?.id,
         post: post.value?.id,
@@ -57,7 +57,7 @@ function editComment(comment: Comment) {
 }
 
 async function submitCommentReply(replyTo: Comment) {
-    await session.useApi<Comment>("/api/comment/new", {
+    await session.useApi<Comment>("/api/comment/add", {
         time: new Date(),
         user: session.user?.id,
         post: post.value?.id,
