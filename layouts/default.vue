@@ -29,7 +29,7 @@ onMounted(() => {
         <footer class="m-5">
             <div class="row px-5">
                 <div class="extras">
-                    <NuxtLink to="/">Home</NuxtLink>
+                    <NuxtLink to="/home">Home</NuxtLink>
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
                 </div>
