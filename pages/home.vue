@@ -16,7 +16,7 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
                 </div>
             </div>
         </div>
-        <div class="box right content p-5" style="grid-area: right;">
+        <div class="box right p-5" style="grid-area: right;">
             <h2>Trending Topics</h2>
             <div class="topics my-3">
                 <span class="topic" v-for="item in trendingTopics">
