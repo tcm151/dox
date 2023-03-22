@@ -1,5 +1,5 @@
 import { Notification } from "~/types/types";
-import { authenticateRequest, queryAll } from "../../database";
+import { authenticateRequest, queryAll } from "../../../database";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);

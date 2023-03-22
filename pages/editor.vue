@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Post } from '~~/types/types';
+import hljs from "highlight.js/lib/common";
 
 const hints = useHints();
 const session = getSession();
@@ -11,6 +12,10 @@ let topics = ref<string[]>([]);
 
 let titleFocused = ref(false)
 let topicsFocused = ref(false)
+
+watch(content, () => {
+    // hljs.highlightAll()
+})
 
 
 function validTitle() {
@@ -127,7 +132,7 @@ function viewDraft(post: Post) {
                 <div class="field">
                     <label>Content</label>
                     <!-- TODO show markdown preview -->
-                    <textarea v-model="content" type="text" rows="16" />
+                    <textarea v-model="content" type="text" rows="16" @change="hljs.highlightAll()" />
                 </div>
                 <div class="field">
                     <label>Topics</label>
@@ -150,6 +155,7 @@ function viewDraft(post: Post) {
             <h1 class="mb-2">{{ title }}</h1>
             <div class="content" v-html="renderMarkdown(content)">
             </div>
+            <span class="watermark" v-if="title === '' && content === ''">Preview</span>
         </section>
         <ClientOnly>
             <Window :visible="showDrafts" title="Drafts" :width="500" @close="showDrafts = false">
@@ -177,9 +183,23 @@ function viewDraft(post: Post) {
     </div>
 </template>
 
+<style lang="scss">
+img {
+    max-width: 100%;
+    max-height: 256px;
+}
+code {
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: 'Roboto Mono', monospace;
+    border-radius: 0.25rem;
+    background-color: $dox-white-light !important;
+}
+</style>
+
 <style scoped lang="scss">
 #editor {
-    @include fill-width (1000px, 1.5rem);
+    @include fill-width (1200px, 1.5rem);
 }
 
 #header {
@@ -195,6 +215,25 @@ function viewDraft(post: Post) {
     min-width: 256px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
+}
+
+.preview {
+    position: relative;
+
+    .watermark {
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        font-size: 6rem;
+        font-weight: 900;
+        opacity: 0.1;
+        color: $dox-purple;
+        text-align: center;
+        text-transform: uppercase;
+        transform: translate(-50%, -50%) rotateZ(38deg);
+        filter: blur(0.25rem);
+
+    }
 }
 
 .content {

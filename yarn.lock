@@ -1496,6 +1496,11 @@ are-we-there-yet@^2.0.0:
     delegates "^1.0.0"
     readable-stream "^3.6.0"
 
+assignment@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/assignment/-/assignment-2.0.0.tgz#ffd17b21bf5d6b22e777b989681a815456a3dd3e"
+  integrity sha512-naMULXjtgCs9SVUEtyvJNt68aF18em7/W+dhbR59kbz9cXWPEvUkCun2tqlgqRPSqZaKPpqLc5ZnwL8jVmJRvw==
+
 async-sema@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/async-sema/-/async-sema-3.1.1.tgz#e527c08758a0f8f6f9f15f799a173ff3c40ea808"
@@ -2669,6 +2674,16 @@ hash-sum@^2.0.0:
   resolved "https://registry.yarnpkg.com/hash-sum/-/hash-sum-2.0.0.tgz#81d01bb5de8ea4a214ad5d6ead1b523460b0b45a"
   integrity sha512-WdZTbAByD+pHfl/g9QSsBIIwy8IT+EsPiKDs0KNX+zSHhdDLFKdZu0BQHljvO+0QI/BasbMSUa8wYNCZTvhslg==
 
+he@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/he/-/he-0.5.0.tgz#2c05ffaef90b68e860f3fd2b54ef580989277ee2"
+  integrity sha512-DoufbNNOFzwRPy8uecq+j+VCPQ+JyDelHTmSgygrA5TsR8Cbw4Qcir5sGtWiusB4BdT89nmlaVDhSJOqC/33vw==
+
+highlight.js@^11.7.0:
+  version "11.7.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-11.7.0.tgz#3ff0165bc843f8c9bce1fd89e2fda9143d24b11e"
+  integrity sha512-1rRqesRFhMO/PRF+G86evnyJkCgaZFOI+Z6kdj15TA18funfoqJXvgPCLSf0SWq3SRfg1j3HlDs8o4s3EGq1oQ==
+
 hookable@^5.4.2, hookable@^5.5.0, hookable@^5.5.1:
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/hookable/-/hookable-5.5.1.tgz#3a842c66be72a9cb14043d8e6afa5bc094c831c5"
@@ -2786,6 +2801,14 @@ inquirer@^9.1.4:
     strip-ansi "^7.0.1"
     through "^2.3.6"
     wrap-ansi "^8.0.1"
+
+insane@^2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/insane/-/insane-2.6.2.tgz#c2ab68bb3e006ab451560d1b446917329c0a8120"
+  integrity sha512-BqEL1CJsjJi+/C/zKZxv31zs3r6zkLH5Nz1WMFb7UBX2KHY2yXDpbFTSEmNHzomBbGDysIfkTX55A0mQZ2CQiw==
+  dependencies:
+    assignment "2.0.0"
+    he "0.5.0"
 
 ioredis@^5.3.1:
   version "5.3.1"

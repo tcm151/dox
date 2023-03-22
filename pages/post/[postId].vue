@@ -225,6 +225,14 @@ function copyLink() {
     </div>
 </template>
 
+<style lang="scss">
+img {
+    max-width: 100%;
+    max-height: 256px;
+}
+</style>
+
+
 <style scoped lang="scss">
 #post {
     @include fill-width(800px);
@@ -271,6 +279,14 @@ span:hover {
 .comment {
     flex: 1 1;
     @include flex-v;
+
+    .body {
+        p {
+            img {
+                max-height: 256px;
+            }
+        }
+    }
 
     .reply, .edit {
         background-color: $dox-white;
