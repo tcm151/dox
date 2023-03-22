@@ -36,8 +36,20 @@ a, a:hover, a:active, a:visited {
     color: $dox-purple;
 }
 
-:not(.content) {
-    h1, h2, h3, h4, h5, h6, p {
+.content br {
+    content: "";
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+// .content > {
+//     :is(h1, h2, h3, h4, h5, h6, p) {
+//         color: red;
+//     }
+// }
+
+:not(.content) > {
+    :is(h1, h2, h3, h4, h5, h6, p) {
         margin: 0;
     }
 }
@@ -160,7 +172,7 @@ button:hover {
 
 blockquote {
     margin: 0;
-    padding-left: 1rem;
+    padding: 0.25rem 1rem;
     font-style: italic;
     border-left: 3px solid $dox-white;
     border-radius: 0.25rem;

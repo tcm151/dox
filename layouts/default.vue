@@ -53,13 +53,13 @@ onMounted(() => {
 }
 
 .slot {
-    @include fill-width(800px);
+    width: 100%;
     flex: 1 1 auto;
     @include flex-v;
     align-items: center;
 
     > div {
-        padding: 1.5rem;
+        padding: 0.5rem 1.5rem;
     }
 }
 </style>

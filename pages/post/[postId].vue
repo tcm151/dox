@@ -130,7 +130,7 @@ function copyLink() {
                     <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
-            <div class="content mt-5" v-html="renderMarkdown(post?.content)"></div>
+            <div class="content my-4" v-html="renderMarkdown(post?.content)"></div>
             <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
                 <textarea rows="10" v-model="post.content"></textarea>
             </div>
@@ -228,10 +228,6 @@ function copyLink() {
 <style scoped lang="scss">
 #post {
     @include fill-width(800px);
-}
-
-.content {
-    white-space: pre-wrap;
 }
 
 .post, .comments {

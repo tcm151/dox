@@ -39,7 +39,7 @@ let notifications = await session.useApi<Notification[]>("/api/profile/notificat
 .notification {
     background-color: $dox-white-ultra;
     border-radius: 0.25rem;
-    padding: 0.5rem;
+    padding: 1rem;
 
     span {
         padding: 0.25rem 0.5rem;

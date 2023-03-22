@@ -67,8 +67,8 @@ async function submit() {
 </script>
 
 <template>
-    <div class="column g2">
-        <div class="editor p-5">
+    <div id="editor" class="row g-3">
+        <section class="editor p-5">
             <h1 class="mb-4">New Post</h1>
             <div class="form">
                 <div class="field">
@@ -95,25 +95,36 @@ async function submit() {
                 <button class="success" @click="submit">Submit</button>
                 <button class="danger">Cancel</button>
             </div>
-        </div>
+        </section>
+        <section class="preview p-5">
+            <h1 class="mb-2">{{ title }}</h1>
+            <div class="content" v-html="renderMarkdown(content)">
+            </div>
+        </section>
     </div>
 </template>
 
 <style scoped lang="scss">
-@import "~/assets/global.scss";
-
-.column {
-    @include fill-width (512px);
+#editor {
+    @include fill-width (1000px, 1.5rem);
 }
 
-.editor {
+.editor, .preview {
+    min-width: 256px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
+}
+
+.content {
+    h1, h2, h3, h4 {
+        margin-bottom: 0.2rem !important;
+    }
 }
 
 .row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .topic {
