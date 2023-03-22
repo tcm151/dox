@@ -4,6 +4,7 @@ export interface Session {
 }
 
 export interface Notification {
+    id: string
     recipient: User
     context: Post | Comment
     message: string
@@ -37,6 +38,17 @@ export interface Post {
     votes: Votes
     topics: string[]
     comments: string[]
+    edited?: boolean
+    timeEdited?: string
+}
+
+export interface Draft {
+    id: string
+    time: string
+    user: User
+    title: string
+    content: string
+    topics: string[]
     edited?: boolean
     timeEdited?: string
 }

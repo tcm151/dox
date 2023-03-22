@@ -1,4 +1,4 @@
-import { Post } from "~/types/types";
+import { Draft } from "~/types/types";
 import { authenticateRequest, queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {
@@ -6,12 +6,12 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);
     let draft = await queryOne<any>([`
         SELECT *
-        FROM post:${draftId}
+        FROM draft:${draftId}
     `])
     if (draft.user === auth.id) {
         const post = await readBody(event);
-        return await queryOne<Post>([`
-            UPDATE post:${draftId} SET
+        return await queryOne<Draft>([`
+            UPDATE draft:${draftId} SET
             title = "${post.title}"
             content = "${post.content}",
             topics = ${post.topics}

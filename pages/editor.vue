@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Post } from '~~/types/types';
+import { Post, Draft } from '~~/types/types';
 import hljs from "highlight.js/lib/common";
+
+hljs.configure({ ignoreUnescapedHTML: true })
 
 const hints = useHints();
 const session = getSession();
@@ -74,19 +76,12 @@ async function saveDraft() {
     // TODO validate post here as well, create separate function
     
     try {
-        const post = await session.useApi<Post>("/api/post/add", {
-            draft: true,
+        const post = await session.useApi<Draft>("/api/profile/drafts/add", {
             user: session.user!.id,
             title: title.value,
             content: content.value,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
             time: new Date(),
             topics: topics.value,
-            comments: [],
         })
         
     }
@@ -103,6 +98,7 @@ let drafts = ref<Post[]>([]);
 async function openDrafts() {
     showDrafts.value = true;
     drafts.value = await session.useApi<Post[]>("/api/profile/drafts") ?? []
+    // let { data, pending, } = await session.useApi<Post[]>("/api/profile/drafts") ?? []
 }
 
 function viewDraft(post: Post) {
@@ -115,7 +111,7 @@ function viewDraft(post: Post) {
 </script>
 
 <template>
-    <div id="editor" class="row g-3">
+    <div id="editor" class="row-wrap g-3">
         <section class="editor p-5">
             <div id="header" class="row mb-4">
                 <h1>New Post</h1>
@@ -132,7 +128,7 @@ function viewDraft(post: Post) {
                 <div class="field">
                     <label>Content</label>
                     <!-- TODO show markdown preview -->
-                    <textarea v-model="content" type="text" rows="16" @change="hljs.highlightAll()" />
+                    <textarea v-model="content" type="text" rows="16" @input="hljs.highlightAll()" />
                 </div>
                 <div class="field">
                     <label>Topics</label>
@@ -158,8 +154,8 @@ function viewDraft(post: Post) {
             <span class="watermark" v-if="title === '' && content === ''">Preview</span>
         </section>
         <ClientOnly>
-            <Window :visible="showDrafts" title="Drafts" :width="500" @close="showDrafts = false">
-                <section class="drafts column">
+            <Window :visible="showDrafts" title="Drafts" @close="showDrafts = false">
+                <section class="drafts column" v-if="drafts.length > 0">
                     <div class="column" v-for="post in drafts" :key="post.id">
                         <h3 class="title mx-1 mb-1">{{ post.title }}</h3>
                         <div class="row g-2">
@@ -178,6 +174,7 @@ function viewDraft(post: Post) {
                         </div>
                     </div>
                 </section>
+                <Spinner fontSize="2rem" :showLoadingText="true" v-else /> 
             </Window>
         </ClientOnly>
     </div>
@@ -212,7 +209,8 @@ code {
 }
 
 .editor, .preview {
-    min-width: 256px;
+    flex: 1 1 500px;
+    min-width: 250px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
 }
@@ -242,12 +240,6 @@ code {
     }
 }
 
-.row {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
 .topic {
     flex: 0 1;
     padding: 0.25rem 0.5rem;
@@ -267,6 +259,12 @@ textarea {
 
 section.drafts {
     @include flex-v (0.5rem);
+    max-width: 750px;
+    
+    h3 {
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
 
     #post-title {
         font-size: 1.25rem;

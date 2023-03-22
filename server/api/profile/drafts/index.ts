@@ -1,13 +1,12 @@
-import { Post } from "~/types/types";
+import { Draft } from "~/types/types";
 import { queryAll, authenticateRequest } from "../../../database";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);
-    return await queryAll<Post>([`
+    return await queryAll<Draft>([`
         SELECT *
-        FROM post
-        WHERE draft = true
-          AND user = ${auth.id}
+        FROM draft
+        WHERE user = ${auth.id}
         ORDER BY time DESC
     `])
 })

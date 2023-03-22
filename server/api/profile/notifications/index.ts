@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
         SELECT *
         FROM notification
         WHERE recipient = ${auth.id}
+          AND viewed = false
         ORDER BY time DESC
         FETCH context
     `])
