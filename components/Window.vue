@@ -10,8 +10,8 @@ const emit = defineEmits<{
     (event: 'close'): void
 }>()
 
-let windowTop = ref((window.innerHeight - props.height!) / 2);
-let windowLeft = ref((window.innerWidth - props.width!) / 2);
+let windowTop = ref((window.visualViewport!.height - props.height!) / 2);
+let windowLeft = ref((window.visualViewport!.width - props.width!) / 2);
 let holdingWindow = ref(false);
 
 function grabWindow(event: MouseEvent) {
