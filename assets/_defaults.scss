@@ -170,9 +170,17 @@ button:hover {
     }
 }
 
+code {
+    display: block;
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 0.25rem;
+    background-color: $dox-white-light;
+}
+
 blockquote {
     margin: 0;
-    padding: 0.25rem 1rem;
+    padding: 0.5rem 1rem;
     font-style: italic;
     border-left: 3px solid $dox-white;
     border-radius: 0.25rem;

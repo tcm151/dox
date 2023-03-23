@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { Post, Draft } from '~~/types/types';
-import hljs from "highlight.js/lib/common";
+import { Post, Draft } from '~/types/types';
 
-hljs.configure({ ignoreUnescapedHTML: true })
 
 const hints = useHints();
 const session = getSession();
@@ -15,10 +13,6 @@ let topics = ref<string[]>([]);
 let titleFocused = ref(false)
 let topicsFocused = ref(false)
 
-watch(content, () => {
-    // hljs.highlightAll()
-})
-
 
 function validTitle() {
     return /.{4,128}/.test(title.value)
@@ -27,7 +21,6 @@ function validTitle() {
 function validTopic() {
     return /^\b[A-Za-z]{3,16}\b$/.test(newTopic.value)
 }
-
 
 function addTopic() {
     if (validTopic()) {
@@ -127,8 +120,7 @@ function viewDraft(post: Post) {
                 </div>
                 <div class="field">
                     <label>Content</label>
-                    <!-- TODO show markdown preview -->
-                    <textarea v-model="content" type="text" rows="16" @input="hljs.highlightAll()" />
+                    <textarea v-model="content" type="text" rows="12" />
                 </div>
                 <div class="field">
                     <label>Topics</label>
@@ -148,10 +140,12 @@ function viewDraft(post: Post) {
             </div>
         </section>
         <section class="preview p-5">
-            <h1 class="mb-2">{{ title }}</h1>
-            <div class="content" v-html="renderMarkdown(content)">
-            </div>
-            <span class="watermark" v-if="title === '' && content === ''">Preview</span>
+            <ClientOnly>
+                <h1 class="mb-2">{{ title }}</h1>
+                <div class="content" v-html="renderMarkdown(content)">
+                </div>
+                <span class="watermark" v-if="title === '' && content === ''">Preview</span>
+            </ClientOnly>
         </section>
         <ClientOnly>
             <Window :visible="showDrafts" title="Drafts" @close="showDrafts = false">
@@ -217,6 +211,7 @@ code {
 
 .preview {
     position: relative;
+    min-height: 200px;
 
     .watermark {
         top: 50%;
@@ -224,13 +219,13 @@ code {
         position: absolute;
         font-size: 6rem;
         font-weight: 900;
-        opacity: 0.1;
+        opacity: 0.05;
         color: $dox-purple;
         text-align: center;
         text-transform: uppercase;
-        transform: translate(-50%, -50%) rotateZ(38deg);
-        filter: blur(0.25rem);
-
+        transform: translate(-50%, -50%);
+        // transform: translate(-50%, -50%) rotateZ(38deg);
+        // filter: blur(0.25rem);
     }
 }
 
