@@ -57,14 +57,16 @@ function toggleSettings() {
         </div>
         <!-- TODO add support for users to change their passwords -->
         <!-- TODO add two-factor authentication -->
-        <Window :visible="showSettings" title="Settings" @close="toggleSettings">
-            <div class="form">
-                <div class="row-fit g-2">
-                    <input type="checkbox" v-model="settings.state.hoverAnimations">
-                    <label>enable animations</label>
+        <ClientOnly>
+            <Window :visible="showSettings" title="Settings" @close="toggleSettings">
+                <div class="form">
+                    <div class="row-fit g-2">
+                        <input type="checkbox" v-model="settings.state.hoverAnimations">
+                        <label>enable animations</label>
+                    </div>
                 </div>
-            </div>
-        </Window>
+            </Window>
+        </ClientOnly>
     </div>
 </template>
 

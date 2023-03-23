@@ -34,6 +34,8 @@ export const getSession = defineStore("session", () => {
             const result: any = await db.query(query.join("\n"));
             const user = result[0].result[0];
             
+            console.log(user)
+
             state.value = {
                 authenticated: true,
                 user: user,

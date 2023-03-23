@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Surreal from 'surrealdb.js';
+
 const session = getSession();
 
 const email = ref("");
@@ -8,16 +10,25 @@ const confirmation = ref("");
 
 async function register() {
     try {
-        let json =  {
-            email: email.value,
-            username: username.value,
-            password: password.value,
-        }
-
         // TODO figure out why this errors occasionally
-        await useFetch("/api/register", {
-            method: "POST",
-            body: json,
+        // FIXME this doens't even work anymore for some reason
+        const { surrealDatabaseUrl } = useRuntimeConfig();
+        const db = new Surreal(surrealDatabaseUrl);
+        const token = await db.signup({
+            NS: "dev",
+            DB: "dox",
+            SC: "account",
+            email: email,
+            username: username,
+            password: password,
+            // votes: {
+            //     positive: [],
+            //     misleading: [],
+            //     negative: [],
+            // },
+            // topics: ["Admin"],
+            // followers: [],
+            // following: [],
         })
 
         session.login(username.value, password.value);
