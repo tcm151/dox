@@ -16,7 +16,8 @@ const login = async () => {
         username.value = ""
         password.value = ""
     }
-    catch (ex) {
+    catch (ex: any) {
+        hints.addError(ex.message)
         hints.addError("Username or password were incorrect.")
     }
 }

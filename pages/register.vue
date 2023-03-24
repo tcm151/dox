@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import Surreal from 'surrealdb.js';
 
+definePageMeta({
+    layout: 'focus'
+})
+
+const hints = useHints();
 const session = getSession();
 
 const email = ref("");
@@ -11,31 +16,28 @@ const confirmation = ref("");
 async function register() {
     try {
         // TODO figure out why this errors occasionally
-        // FIXME this doens't even work anymore for some reason
-        const { surrealDatabaseUrl } = useRuntimeConfig();
-        const db = new Surreal(surrealDatabaseUrl);
-        const token = await db.signup({
-            NS: "dev",
-            DB: "dox",
-            SC: "account",
-            email: email,
-            username: username,
-            password: password,
-            // votes: {
-            //     positive: [],
-            //     misleading: [],
-            //     negative: [],
-            // },
-            // topics: ["Admin"],
-            // followers: [],
-            // following: [],
+        let result = await useFetch("/api/register", {
+            method: "POST",
+            body: {
+                email: email.value,
+                username: username.value,
+                password: password.value
+            },
         })
 
-        session.login(username.value, password.value);
-        navigateTo("/profile")
+        if (result.error.value) {
+            hints.addError(result.error.value.message)
+        }
+        else {
+            hints.addSuccess(result.data.value ?? 'Success!')
+            email.value = ""
+            username.value = ""
+            password.value = ""
+            confirmation.value = ""
+        }
     }
-    catch (ex) {
-        console.log(ex);
+    catch (ex: any) {
+        hints.addError(ex.message)
     }
 }
 </script>
