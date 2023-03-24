@@ -23,6 +23,12 @@ $dox-red-light: color.scale($dox-red, $lightness: 80%);
 $dox-purple-light: color.scale($dox-purple, $lightness: 75%);
 $dox-blue-light: color.scale($dox-blue, $lightness: 70%);
 
+$dox-green-dark: color.scale($dox-green, $lightness: -80%);
+$dox-yellow-dark: color.scale($dox-yellow, $lightness: -65%);
+$dox-red-dark: color.scale($dox-red, $lightness: -80%);
+$dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
+$dox-blue-dark: color.scale($dox-blue, $lightness: -70%);
+
 //> OVERRIDES
 $primary: $dox-black;
 $link:    $dox-blue;
