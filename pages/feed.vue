@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { Post } from '~/types/types';
 
-const { data: allPosts } = await useFetch("/api/posts");
+definePageMeta({
+    layout: 'default'
+})
+
+const { data: allPosts } = await useFetch<Post[]>("/api/posts");
 
 const session = getSession();
 

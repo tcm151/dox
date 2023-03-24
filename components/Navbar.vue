@@ -70,6 +70,8 @@ async function login() {
 
     color: $dox-white-light;
     background-color: $dox-black;
+    // background-clip: text;
+    // background: linear-gradient(45deg, $dox-blue, $dox-purple);
 
     .left {
         @include flex-h;

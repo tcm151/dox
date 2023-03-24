@@ -1,10 +1,19 @@
 <script setup lang="ts">
+definePageMeta({
+    layout: 'minimal'
+})
 let { data: trendingTopics } = useFetch("/api/trending/topics");
 </script>
 
 <template>
     <div class="grid g-5">
-        <div class="box center column p-5" style="grid-area: center">
+        <div class="left">
+            <span>DOX</span>
+            <span>FOR</span>
+            <span>EVERY</span>
+            <span>THING</span>
+        </div>
+        <!-- <div class="box center column p-5" style="grid-area: center">
             <h2>Welcome to DOX</h2>
             <div class="column g-3 mt-3" style="flex: 1 1">
                 <p>The place for this, that, and everything.</p>
@@ -15,7 +24,7 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
                     <button @click="navigateTo('/notifications')">View Notifications</button>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="box right p-5" style="grid-area: right;">
             <h2>Trending Topics</h2>
             <div class="topics my-3">
@@ -43,13 +52,15 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
 <style scoped lang="scss">
 
 .grid {
-    height: 100%;
-    @include fill-width(800px);
+    height: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    padding: 1rem;
     
     display: grid;
-    grid: 2fr 1fr / 3fr 2fr;
-    grid-template-areas: "center right"
-                         "bottom right";
+    grid-template-columns: 3fr 2fr;
+    grid-template-rows: 2fr 1fr;
+    grid-template-areas: "left right"
+                         "bottom bottom";
 }
 
 .box {
@@ -57,17 +68,30 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
     background-color: $dox-white-ultra;
 }
 
-.center {
-    p {
-        text-align: justify;
-        hyphens: auto;
-    }
-
-    .buttons {
-        flex: 1 1;
-        justify-content: flex-end;
+.left {
+    @include flex-v;
+    
+    span {
+        font-size: 10rem;
+        font-weight: 900;
+        line-height: 10rem;
+        background: linear-gradient(55deg, $dox-blue, $dox-purple);
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 }
+
+// .center {
+//     p {
+//         text-align: justify;
+//         hyphens: auto;
+//     }
+
+//     .buttons {
+//         flex: 1 1;
+//         justify-content: flex-end;
+//     }
+// }
 
 .right {
     max-width: 100%;
