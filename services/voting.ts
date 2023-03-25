@@ -1,5 +1,6 @@
 import { Votes } from "~/types";
 
+// FIXME cannot undo votes are voting :(
 export const useVoting = () => {
 
     const hints = useHints();
@@ -25,10 +26,7 @@ export const useVoting = () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        await session.useApi("/api/vote", {
-            id: id,
-            votes: votes
-        })
+        await session.useApi(`/api/vote/${id}/positive`)
     }
 
     async function misleading(id: string, votes: Votes) {
@@ -51,10 +49,7 @@ export const useVoting = () => {
             votes.negative = votes.negative.filter((id) => id !== session.user!.id)
         }
 
-        await session.useApi("/api/vote", {
-            id: id,
-            votes: votes
-        })
+        await session.useApi(`/api/vote/${id}/misleading`)
     }
 
     async function negative(id: string, votes: Votes) {
@@ -77,10 +72,7 @@ export const useVoting = () => {
             votes.misleading = votes.misleading.filter((id) => id !== session.user!.id)
         }
 
-        await session.useApi("/api/vote", {
-            id: id,
-            votes: votes
-        })
+        await session.useApi(`/api/vote/${id}/negative`)
     }
 
     return { positive, misleading, negative }
