@@ -6,13 +6,13 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
 </script>
 
 <template>
-    <div class="grid g-5">
-        <div class="left">
+    <div class="grid g-4">
+        <section class="left">
             <span>DOX</span>
             <span>FOR</span>
             <span>EVERY</span>
             <span>THING</span>
-        </div>
+        </section>
         <!-- <div class="box center column p-5" style="grid-area: center">
             <h2>Welcome to DOX</h2>
             <div class="column g-3 mt-3" style="flex: 1 1">
@@ -25,27 +25,32 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
                 </div>
             </div>
         </div> -->
-        <div class="box right p-5" style="grid-area: right;">
-            <h2>Trending Topics</h2>
-            <div class="topics my-3">
-                <span class="topic" v-for="item in trendingTopics">
-                    {{ item.topic }} +{{ item.count }}
-                </span>
+        <section class="box right p-5" style="grid-area: right;">
+            <div>
+                <h2>Trending Topics</h2>
+                <div class="topics my-2">
+                    <div class="topic" v-for="item in trendingTopics">
+                        <span id="t">{{ item.topic }}</span>
+                        <span id="c">+{{ item.count }}</span>
+                    </div>
+                </div>
             </div>
-            <h2>Trending Users</h2>
-            <div class="users mt-3">
-                <!-- TODO implement trending users -->
-                <span class="info" v-for="index in 8">
-                    {{ index }}
-                </span>
+            <div>
+                <h2>Trending Users</h2>
+                <div class="users mt-2">
+                    <!-- TODO implement trending users -->
+                    <span class="info" v-for="index in 8">
+                        {{ index }}
+                    </span>
+                </div>
             </div>
-        </div>
-        <div class="box bottom content p-5" style="grid-area: bottom">
+        </section>
+        <section class="box bottom content p-5" style="grid-area: bottom">
             <h3>Best of Today</h3>
             <div class="my-3">
                 <p>TBD</p>
             </div>
-        </div>
+        </section>
     </div>
 </template>
 
@@ -57,7 +62,7 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
     padding: 1rem;
     
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 3fr 1fr;
     grid-template-rows: 2fr 1fr;
     grid-template-areas: "left right"
                          "bottom bottom";
@@ -94,17 +99,28 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
 // }
 
 .right {
-    max-width: 100%;
-    text-align: center;
+    @include flex-v;
+    justify-content: space-evenly;
+    min-width: 250px;
+    text-align: left;
 }
 
 .topics, .users {
     @include flex-v (0.5rem);
 
-    span {
-        padding: 0.25rem 0.5rem;
+    .info, .topic {
+        padding: 0.25rem 1rem;
         border-radius: 0.25rem;
         font-weight: 700;
+    }
+
+    .topic {
+        @include flex-h (0.25rem);
+        justify-content: flex-end;
+
+        #t {
+            flex: 1 1
+        }
     }
 }
 </style>

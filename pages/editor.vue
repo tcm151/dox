@@ -104,7 +104,7 @@ function viewDraft(post: Post) {
 </script>
 
 <template>
-    <div id="editor" class="row-wrap g-3">
+    <div id="editor" class="row-wrap g-2">
         <section class="editor p-5">
             <div id="header" class="row mb-4">
                 <h1>New Post</h1>
