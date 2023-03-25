@@ -1,6 +1,6 @@
 import { queryOne, authenticateRequest } from "../database"
 
-// TODO can be abused by authenticated user
+// FIXME can be abused by authenticated user
 export default defineEventHandler(async (event) => {
     const { id, votes } = await readBody(event)
     await authenticateRequest(event);
