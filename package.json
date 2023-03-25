@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@pinia/nuxt": "^0.4.6",
+        "apidoc": "^0.54.0",
         "bulma": "^0.9.4",
         "highlight.js": "^11.7.0",
         "insane": "^2.6.2",
