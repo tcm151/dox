@@ -3,52 +3,55 @@ definePageMeta({
     layout: 'minimal'
 })
 let { data: trendingTopics } = useFetch("/api/trending/topics");
+let { data: trendingUsers } = useFetch("/api/trending/users");
+
 </script>
 
 <template>
     <div class="grid g-4">
         <section class="left">
-            <span>DOX</span>
-            <span>FOR</span>
-            <span>EVERY</span>
-            <span>THING</span>
+            <span id="s1">DOX</span>
+            <span id="s2">FOR</span>
+            <span id="s3">EVERY</span>
+            <span id="s4">THING</span>
+            <div>
+                <p>Information is</p>
+                <p>for everyone.</p>
+            </div>
         </section>
-        <!-- <div class="box center column p-5" style="grid-area: center">
-            <h2>Welcome to DOX</h2>
-            <div class="column g-3 mt-3" style="flex: 1 1">
-                <p>The place for this, that, and everything.</p>
-                <p><em>The open forum for the modern internet;</em> DOX aims to provide a platform for users to create intimate and diverse communities and engage with other users across limitless subjects.</p>
+        <section class="column right g-4" style="grid-area: right">
+            <div class="box trending column g-4 p-5">
+                <div>
+                    <h2>Trending Topics</h2>
+                    <div class="topics my-2">
+                        <div class="topic" v-for="item in trendingTopics">
+                            <span id="t">{{ item.topic }}</span>
+                            <span id="c">+{{ item.count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2>Trending Users</h2>
+                    <div class="users mt-2">
+                        <!-- TODO implement trending users -->
+                        <span class="info" v-for="user in trendingUsers">
+                            <span id="i">{{ user.name }}</span>
+                            <span id="s">+{{ user.score }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="box fill column p-5">
+                <div class="content fill">
+                    <h2 class="mt-0">Welcome to DOX</h2>
+                    <p>The place for this, that, and everything.</p>
+                    <p><em>The open forum for the modern internet;</em> DOX aims to provide a platform for users to create intimate and diverse communities and engage with other users across limitless subjects.</p>
+                </div>
                 <div class="buttons column g-2">
                     <button @click="navigateTo('/feed')">View Feed</button>
                     <button @click="navigateTo('/editor')">Write a Post</button>
                     <button @click="navigateTo('/notifications')">View Notifications</button>
                 </div>
-            </div>
-        </div> -->
-        <section class="box right p-5" style="grid-area: right;">
-            <div>
-                <h2>Trending Topics</h2>
-                <div class="topics my-2">
-                    <div class="topic" v-for="item in trendingTopics">
-                        <span id="t">{{ item.topic }}</span>
-                        <span id="c">+{{ item.count }}</span>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h2>Trending Users</h2>
-                <div class="users mt-2">
-                    <!-- TODO implement trending users -->
-                    <span class="info" v-for="index in 8">
-                        {{ index }}
-                    </span>
-                </div>
-            </div>
-        </section>
-        <section class="box bottom content p-5" style="grid-area: bottom">
-            <h3>Best of Today</h3>
-            <div class="my-3">
-                <p>TBD</p>
             </div>
         </section>
     </div>
@@ -63,9 +66,7 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
     
     display: grid;
     grid-template-columns: 3fr 1fr;
-    grid-template-rows: 2fr 1fr;
     grid-template-areas: "left right"
-                         "bottom bottom";
 }
 
 .box {
@@ -75,33 +76,38 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
 
 .left {
     @include flex-v;
-    
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
     span {
-        font-size: 10rem;
         font-weight: 900;
-        line-height: 10rem;
+        font-size: 12rem;
+        line-height: 9.25rem;
         background: linear-gradient(55deg, $dox-blue, $dox-purple);
         background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+
+    div {
+    margin-top: 2.5rem;
+
+        p {
+            font-weight: 800;
+            font-size: 5rem;
+            line-height: 4.25rem;
+            color: $dox-black;
+        }
+    }
 }
 
-// .center {
-//     p {
-//         text-align: justify;
-//         hyphens: auto;
-//     }
-
-//     .buttons {
-//         flex: 1 1;
-//         justify-content: flex-end;
-//     }
-// }
-
 .right {
+    min-width: 400px;
+}
+
+.trending {
     @include flex-v;
     justify-content: space-evenly;
-    min-width: 250px;
     text-align: left;
 }
 
@@ -114,11 +120,11 @@ let { data: trendingTopics } = useFetch("/api/trending/topics");
         font-weight: 700;
     }
 
-    .topic {
+    .info, .topic {
         @include flex-h (0.25rem);
         justify-content: flex-end;
 
-        #t {
+        #i, #t {
             flex: 1 1
         }
     }

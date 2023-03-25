@@ -13,15 +13,30 @@ const settings = useSettings();
 
 onMounted(() => sorting.sortBy(props.posts, "hot"))
 
+let sortType = ref("hot")
+function sort(type: string) {
+    sortType.value = type
+    sorting.sortBy(props.posts, type)
+}
+
 </script>
 
 <template>
     <div class="feed">
         <div class="sorting row g-2" v-if="props.sorting">
             <slot name="header" />
-            <button @click="sorting.sortBy(posts, 'new')">New</button>
-            <button @click="sorting.sortBy(posts, 'hot')">Hot</button>
-            <button @click="sorting.sortBy(posts, 'top')">Top</button>
+            <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
+                <i class="fa-solid fa-egg"></i>
+                <span>New</span>
+            </button>
+            <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
+                <i class="fa-solid fa-fire"></i>
+                <span>Hot</span>
+            </button>
+            <button @click="sort('top')" :class="{ selected: sortType === 'top' }">
+                <i class="fa-solid fa-ranking-star"></i>
+                <span>Top</span>
+            </button>
         </div>
         <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
             <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${getId(post.id!)}`)">
@@ -69,11 +84,36 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
     @include flex-v (0.5rem);
 }
 
+.sorting {
+    button {
+        @include flex-h (0.5rem);
+        align-items: center;
+        border: 0.2rem solid transparent;
+    }
+
+    .selected {
+        color: $dox-blue;
+        background-color: $dox-blue-light;
+        border: 0.2rem solid $dox-blue;
+    }
+}
+
 .post {
     padding: 0.25rem 0.5rem 0.5rem 0.5rem;
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
     transition: transform 128ms;
+
+    span {
+        padding: 0.25rem 1rem;
+
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+
+        outline: 1px transparent;
+        border-radius: 0.25rem;
+    }
 }
 
 .post:hover {
@@ -101,24 +141,6 @@ onMounted(() => sorting.sortBy(props.posts, "hot"))
 
 .topic {
     flex: 1 1 1rem;
-}
-
-span {
-    padding: 0.25rem 1rem;
-
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-align: center;
-
-    outline: 1px transparent;
-    border-radius: 0.25rem;
-    background-color: #EEE;
-
-    transition: background-color 64ms;
-}
-
-span:hover {
-    background-color: whitesmoke;
 }
 
 .pagination {

@@ -23,7 +23,7 @@
     flex-flow: row wrap;
 }
 
-@mixin fill-width($width, $padding: 1.5rem) {
+@mixin fill-width($width, $padding: 0rem) {
     width: calc(100% - $padding);
     max-width: $width;
 }
