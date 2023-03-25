@@ -9,8 +9,10 @@ const hints = useHints();
 const sorting = useSorting();
 const session = getSession();
 
-const { data: post, pending } = await useFetch<Post>(`/api/post/${postId}`)
-const { data: comments, refresh: fetchComments } = await useFetch<Comment[]>(`/api/post/${postId}/comments`)
+const { data, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
+const post = computed(() => data.value?.post)
+const comments = computed(() => data.value?.comments)
+// const { data: comments, refresh: fetchComments } = await useFetch<Comment[]>(`/api/post/${postId}/comments`)
 
 onMounted(() => sorting.sortBy(comments.value!, "hot"))
 
@@ -39,7 +41,7 @@ async function submitPostReply() {
         },
     })
 
-    fetchComments();
+    refresh();
     toggleCommentBox();
     postReply.value = "";
 }
@@ -70,7 +72,7 @@ async function submitCommentReply(replyTo: Comment) {
         },
     })
 
-    fetchComments();
+    refresh();
     commentReply.value = "";
     commentToReplyTo.value = ""
 }
@@ -106,7 +108,7 @@ function copyLink() {
 </script>
 
 <template>
-    <div id="post" class="column g-5">
+    <div id="post" class="column g-2">
         <div class="post p-5">
             <h2 class="mb-2">{{ post?.title }}</h2>
             <div class="row-wrap g-1">
@@ -149,7 +151,7 @@ function copyLink() {
                     </div>
                     <div class="row" v-if="editingPost">
                         <button @click="previewChanges()">Preview</button>
-                        <button @click="saveChanges(post)">Save</button>
+                        <button @click="saveChanges(post!)">Save</button>
                         <button @click="toggleEditPost()">Cancel</button>
                         <button style="flex: 0 1">
                             <i class="fa-solid fa-ellipsis"></i>
@@ -189,12 +191,9 @@ function copyLink() {
                                     {{comment.votes.negative.length}}
                                 </span>
                             </div>
-                            <span class="info" v-if="comment.user.id === post?.user.id">
+                            <span class="info" @click="navigateTo(`/user/${getId(comment.user.id)}`)">
                                 {{ `u/${comment.user?.name}` }}
-                                <i class="fa-solid fa-feather-pointed"></i>    
-                            </span>
-                            <span class="info" v-else>
-                                {{ `u/${comment.user?.name}` }}
+                                <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === post?.user.id"></i>    
                             </span>
                             <ClientOnly>
                                 <span class="info">{{ formatDate(comment.time as any) }}</span>
