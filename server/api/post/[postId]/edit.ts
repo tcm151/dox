@@ -1,4 +1,4 @@
-import { Post } from "~/types/types";
+import { Post } from "~/types";
 import { authenticateRequest, queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {

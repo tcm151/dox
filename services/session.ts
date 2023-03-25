@@ -1,5 +1,5 @@
 import Surreal from "surrealdb.js"
-import { Session } from "~/types/types";
+import { Session } from "~/types";
 import { defineStore, skipHydrate } from "pinia"
 
 const hints = useHints();

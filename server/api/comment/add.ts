@@ -1,4 +1,4 @@
-import { Post, Comment, Notification } from "~/types/types";
+import { Post, Comment, Notification } from "~/types";
 import { authenticateRequest, queryOne } from "../../database";
 
 export default defineEventHandler(async (event) => {

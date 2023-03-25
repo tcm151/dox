@@ -1,4 +1,4 @@
-import { authenticateRequest, queryOne } from "~~/server/database";
+import { authenticateRequest, queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {
     const feedback = await readBody(event);

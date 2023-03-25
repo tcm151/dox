@@ -1,4 +1,4 @@
-import { Draft } from "~/types/types";
+import { Draft } from "~/types";
 import { authenticateRequest, queryOne } from "../../../database";
 
 export default defineEventHandler(async (event) => {

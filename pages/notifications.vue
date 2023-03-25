@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Notification } from '~/types/types';
+import { Notification } from '~/types'
 
 const session = getSession();
 let notifications = ref(await session.useApi<Notification[]>("/api/profile/notifications"));

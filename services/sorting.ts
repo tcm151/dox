@@ -1,5 +1,5 @@
 import { DateTime } from "luxon"
-import { Post, Comment, Votes } from "~/types/types"
+import { Post, Comment, Votes } from "~/types"
 
 export const useSorting = () => {
 

@@ -1,4 +1,4 @@
-import { Notification } from "~/types/types";
+import { Notification } from "~/types";
 import { authenticateRequest, queryOne } from "../../../../database";
 
 export default defineEventHandler(async (event) => {

@@ -1,5 +1,5 @@
 import Surreal from 'surrealdb.js';
-import { User } from '~/types/types';
+import { User } from '~/types';
 
 interface DatabaseResponse<T> {
     status: string

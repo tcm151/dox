@@ -1,4 +1,4 @@
-import { Comment } from "~/types/types";
+import { Comment } from "~/types";
 import { authenticateRequest, queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {

@@ -1,4 +1,4 @@
-import { Votes } from "~/types/types";
+import { Votes } from "~/types";
 
 export const useVoting = () => {
 

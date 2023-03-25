@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Post, Draft } from '~/types/types';
+import { Post, Draft } from '~/types'
 
 
 const hints = useHints();
