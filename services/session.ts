@@ -8,6 +8,7 @@ const events = useEvents();
 export const getSession = defineStore("session", () => {
     
     const db = Surreal.Instance;
+    db.connect("https://db.tcmdev.ca/rpc")
     
     //> SESSION
     const state = ref<Session>({
@@ -23,7 +24,7 @@ export const getSession = defineStore("session", () => {
     //> AUTH
     async function authenticate(): Promise<boolean> {
         try {
-            await db.connect("https://db.tcmdev.ca/rpc");
+            await db.wait();
             await db.authenticate(token.value);
 
             const query = [
@@ -50,7 +51,7 @@ export const getSession = defineStore("session", () => {
     }
 
     async function login(id: string, password: string) {
-        await db.connect("https://db.tcmdev.ca/rpc");
+        await db.wait();
         token.value = await db.signin({
             NS: "dev",
             DB: "dox",
@@ -81,9 +82,10 @@ export const getSession = defineStore("session", () => {
                 body: body,
             })
         }
-        catch (ex) {
-            hints.addError("Failed to authenticate session.");
-            clearError();
+        catch (ex: any) {
+            hints.addError(ex.message)
+            console.log(ex)
+            clearError()
         }
     }
 

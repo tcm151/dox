@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const hints = useHints();
 const session = getSession();
 const settings = useSettings();
 
@@ -51,6 +52,7 @@ function toggleSettings() {
         <div class="row g-2">
             <button @click="authenticate">Authenticate</button>
             <button @click="toggleSettings">Settings</button>
+            <button @click="hints.addSuccess('Success!')">Success!</button>
         </div>
         <div>
             <p>{{ auth }}</p>

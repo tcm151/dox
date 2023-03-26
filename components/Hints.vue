@@ -52,6 +52,8 @@ function getColor(hint: Hint) {
     position: absolute;
     margin-bottom: 10rem;
     pointer-events: none;
+    isolation: isolate;
+    z-index: 9999;
 }
 
 .list {
