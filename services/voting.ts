@@ -1,6 +1,5 @@
 import { Votes } from "~/types";
 
-// FIXME cannot undo votes are voting :(
 export const useVoting = () => {
 
     const hints = useHints();

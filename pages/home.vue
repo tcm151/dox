@@ -33,7 +33,6 @@ let { data: trendingUsers } = useFetch("/api/trending/users");
                 <div>
                     <h2>Trending Users</h2>
                     <div class="users mt-2">
-                        <!-- TODO implement trending users -->
                         <span class="info" v-for="user in trendingUsers">
                             <span id="i">{{ user.name }}</span>
                             <span id="s">+{{ user.score }}</span>

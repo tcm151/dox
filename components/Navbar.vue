@@ -21,7 +21,6 @@ async function login() {
         </div>
         <ClientOnly>
             <Transition name="slide">
-                <!-- TODO looks like shit on mobile -->
                 <div class="right authenticated" v-if="session.isAuthenticated">
                     <NuxtLink to="/notifications">
                         <i class="fa-solid fa-envelope"></i>

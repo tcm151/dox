@@ -15,7 +15,6 @@ const confirmation = ref("");
 
 async function register() {
     try {
-        // TODO figure out why this errors occasionally
         let result = await useFetch("/api/register", {
             method: "POST",
             body: {
