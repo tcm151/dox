@@ -30,17 +30,21 @@ export const authenticateRequest = async (event: any) => {
     }
 }
 
-export const queryOne = async <T>(sql: string[]) => {
-    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
+interface QueryParameters {
+    [key: string]: any
+}
+
+export const queryOne = async <T>(sql: string[], parameters?: QueryParameters) => {
+    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"), parameters ?? {});
     return response[0].result[0];
 }
 
-export const queryAll = async <T>(sql: string[]) => {
-    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
+export const queryAll = async <T>(sql: string[], parameters?: QueryParameters) => {
+    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"), parameters ?? {});
     return response[0].result;
 }
 
-export const multiQuery = async <T>(sql: string[]) => {
-    let responses = await db.query<DatabaseResponse<T>[]>(sql.join("\n"));
+export const multiQuery = async <T>(sql: string[], parameters?: QueryParameters) => {
+    let responses = await db.query<DatabaseResponse<T>[]>(sql.join("\n"), parameters ?? {});
     return responses.map(r => r.result);
 }
