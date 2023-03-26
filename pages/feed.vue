@@ -5,9 +5,18 @@ definePageMeta({
     layout: 'default'
 })
 
-const session = getSession();
+const hints = useHints()
+const session = getSession()
 
-const { data: allPosts } = await useFetch<Post[]>("/api/posts");
+const { data: allPosts, refresh, error } = await useFetch<Post[]>("/api/posts")
+
+watch(error, (error) => {
+    if (error) {
+        hints.addError("Failed to load posts.")
+        hints.addError(error.message)
+    }
+})
+
 
 const feedPosts = computed(() => {
     return allPosts.value!.filter(p =>
@@ -37,7 +46,7 @@ function toggleFilter() {
 
 <template>
     <section class="feed p-2">
-        <Feed :posts="filteredPosts ?? []" :sorting="true" :pagination="true" >
+        <Feed :posts="filteredPosts ?? []" :sorting="true" :pagination="true" @refresh="refresh">
             <template #header>
                 <button class="filter-type" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>

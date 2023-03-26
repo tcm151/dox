@@ -7,6 +7,10 @@ const props = defineProps<{
     pagination?: boolean
 }>()
 
+const emit = defineEmits<{
+    (event: 'refresh'): void
+}>()
+
 const vote = useVoting();
 const sorting = useSorting();
 const settings = useSettings();
@@ -74,7 +78,7 @@ function sort(type: string) {
             <span>3</span>
             <i class="fa-solid fa-ellipsis"></i>
             <i class="fa-solid fa-chevron-right"></i>
-            <i class="fa-solid fa-rotate-left"></i>
+            <i class="fa-solid fa-rotate-left" @click="emit('refresh')"></i>
         </div>
     </div>
 </template>
