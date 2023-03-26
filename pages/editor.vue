@@ -7,9 +7,9 @@ const session = getSession();
 
 let title = ref("");
 let content = ref("")
-let newTopic = ref("");
 let topics = ref<string[]>([]);
 
+let newTopic = ref("");
 let titleFocused = ref(false)
 let topicsFocused = ref(false)
 
@@ -67,44 +67,59 @@ async function submit() {
 async function saveDraft() {
     
     // TODO validate post here as well, create separate function
-    
-    try {
-        const post = await session.useApi<Draft>("/api/profile/drafts/add", {
+
+    if (draftId.value !== '') {
+        await session.useApi<Draft>(`/api/profile/drafts/${getId(draftId.value)}/update`, {
+            title: title.value,
+            content: content.value,
+            topics: topics.value,
+        })
+        hints.addSuccess("Draft updated")
+    }
+    else {
+        await session.useApi<Draft>("/api/profile/drafts/add", {
             user: session.user!.id,
             title: title.value,
             content: content.value,
             time: new Date(),
             topics: topics.value,
         })
-        
-    }
-    catch (ex) {
-        console.log(ex)
+        hints.addSuccess("Draft saved")
     }
 }
 
 
-let draft = ref(false);
+let draftId = ref('')
 let showDrafts = ref(false)
-let drafts = ref<Post[]>([]);
+let userDrafts = ref<Draft[]>([]);
 
 async function openDrafts() {
     showDrafts.value = true;
-    drafts.value = await session.useApi<Post[]>("/api/profile/drafts") ?? []
+    userDrafts.value = await session.useApi<Draft[]>("/api/profile/drafts") ?? []
     // let { data, pending, } = await session.useApi<Post[]>("/api/profile/drafts") ?? []
 }
 
-function viewDraft(post: Post) {
-    draft.value = true
-    title.value = post.title
-    content.value = post.content
-    topics.value = post.topics
+function viewDraft(draft: Draft) {
+    draftId.value = draft.id
+    title.value = draft.title
+    content.value = draft.content
+    topics.value = draft.topics
     showDrafts.value = false
+}
+
+async function deleteDraft(draft: Draft) {
+    userDrafts.value = userDrafts.value.filter(d => d.id !== draft.id)
+    await session.useApi<Draft>(`/api/profile/drafts/${getId(draft.id)}/delete`)
+}
+
+let showPreview = ref(true)
+function togglePreview() {
+    showPreview.value = !showPreview.value
 }
 </script>
 
 <template>
-    <div id="editor" class="row-wrap g-2">
+    <div id="editor" class="row-wrap g-4">
         <section class="editor p-5">
             <div id="header" class="row mb-4">
                 <h1>New Post</h1>
@@ -124,44 +139,50 @@ function viewDraft(post: Post) {
                 </div>
                 <div class="field">
                     <label>Topics</label>
-                    <input :class="{ 'invalid': topicsFocused && !validTopic() }" v-model="newTopic" @keyup.enter="addTopic"
-                           @focus="topicsFocused = true" @blur="topicsFocused = false" type="text" spellcheck="false">
                     <div class="row g-2 mt-2" v-if="topics.length > 0">
                         <div class="topic" v-for="topic in topics" @contextmenu.prevent="removeTopic(topic)">
                             <p>{{ topic }}</p>
                         </div>
                     </div>
+                    <input :class="{ 'invalid': topicsFocused && !validTopic() }" v-model="newTopic" @keyup.enter="addTopic"
+                           @focus="topicsFocused = true" @blur="topicsFocused = false" type="text" spellcheck="false">
                 </div>
             </div>
             <div class="row g-2 mt-5">
                 <button class="success" @click="submit">Submit</button>
                 <button class="info" @click="saveDraft">Save Draft</button>
+                <button class="link" @click="togglePreview">
+                    <span v-if="!showPreview">Show Preview</span>
+                    <span v-else>Hide Preview</span>
+                </button>
                 <button class="danger">Cancel</button>
             </div>
         </section>
-        <section class="preview p-5">
-            <ClientOnly>
-                <h1 class="mb-2">{{ title }}</h1>
-                <div class="content" v-html="renderMarkdown(content)">
-                </div>
-                <span class="watermark" v-if="title === '' && content === ''">Preview</span>
-            </ClientOnly>
-        </section>
+        <Transition name="preview">
+            <section class="preview p-5" v-if="showPreview">
+                <ClientOnly>
+                    <h1 class="mb-2">{{ title }}</h1>
+                    <div class="content" v-html="renderMarkdown(content)">
+                    </div>
+                    <span class="watermark" v-if="title === '' && content === ''">Preview</span>
+                </ClientOnly>
+            </section>
+        </Transition>
         <ClientOnly>
             <Window :visible="showDrafts" title="Drafts" @close="showDrafts = false">
-                <section class="drafts column" v-if="drafts.length > 0">
-                    <div class="column" v-for="post in drafts" :key="post.id">
-                        <h3 class="title mx-1 mb-1">{{ post.title }}</h3>
+                <section class="drafts column" v-if="userDrafts.length > 0">
+                    <div class="column" v-for="draft in userDrafts" :key="draft.id">
+                        <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
                         <div class="row g-2">
-                            <span class="topic" v-for="topic in post.topics">
+                            <span class="topic" v-for="topic in draft.topics">
                                 {{ topic }}
                             </span>
-                            <span class="info">{{ formatDate(post.time) }}</span>
-                            <button @click="viewDraft(post)">
+                            <span class="info">{{ formatDate(draft.time) }}</span>
+                            <button @click="viewDraft(draft)">
                                 <i class="fa-solid fa-book-open"></i>
                                 <span>View</span>
                             </button>
-                            <button class="danger" @click="viewDraft(post)">
+                            <button class="danger" @click="deleteDraft(draft)">
                                 <i class="fa-solid fa-trash"></i>
                                 <span>Delete</span>
                             </button>
@@ -190,7 +211,8 @@ code {
 
 <style scoped lang="scss">
 #editor {
-    @include fill-width (1200px, 1.5rem);
+    @include fill-width (1200px, 2rem);
+    justify-content: center;
 }
 
 #header {
@@ -205,13 +227,14 @@ code {
 .editor, .preview {
     flex: 1 1 500px;
     min-width: 250px;
+    max-width: 800px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
 }
 
 .preview {
     position: relative;
-    min-height: 200px;
+    min-height: 100px;
 
     .watermark {
         top: 50%;
@@ -224,10 +247,19 @@ code {
         text-align: center;
         text-transform: uppercase;
         transform: translate(-50%, -50%);
-        // transform: translate(-50%, -50%) rotateZ(38deg);
-        // filter: blur(0.25rem);
     }
 }
+
+.preview-enter-active,
+.preview-leave-active {
+    transition: all 256ms ease;
+}
+
+.preview-enter-from,
+.preview-leave-to {
+    opacity: 0;
+}
+
 
 .content {
     h1, h2, h3, h4 {

@@ -9,17 +9,10 @@ export default defineEventHandler(async (event) => {
         FROM draft:${draftId}
     `])
     if (draft.user === auth.id) {
-        const draft = await readBody(event);
         return await queryOne<Draft>([`
-            UPDATE draft:${draftId} SET
-            title = $title,
-            content = $content,
-            topics = $topics,
-            timeEdited = time::now()
-        `], {
-            title: draft.title,
-            content: draft.content,
-            topics: draft.topics,
-        })
+            DELETE draft:${draftId}
+        `])
     }
+
+    return false
 })
