@@ -40,15 +40,12 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-
 .page {
     @include flex-v;
     align-items: center;
     height: calc(100% - 35px);
-    
     overflow-y: auto;
     overflow-x: hidden;
-
     background-color: $dox-white-light;
 }
 
@@ -56,9 +53,9 @@ onMounted(() => {
     width: 100%;
     flex: 1 1 auto;
     @include flex-v;
-    align-items: center;
+    align-items: stretch;
 
-    > div {
+    > div, > section {
         padding: 1rem;
     }
 }
@@ -66,8 +63,6 @@ onMounted(() => {
 
 
 <style scoped lang="scss">
-
-
 footer {
     width: 750px;
 
@@ -92,13 +87,6 @@ footer {
     .icon {
         flex: 0 1;
         height: 2rem;
-        object-fit: contain;
-        filter: grayscale(100%);
-    }
-
-    .powered {
-        flex: 0 1;
-        width: 15rem;
         object-fit: contain;
         filter: grayscale(100%);
     }

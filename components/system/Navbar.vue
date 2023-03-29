@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const events = useEvents();
-
 const session = getSession();
-onMounted(() => session.authenticate())
 
 async function login() {
     if (!(await session.authenticate())) {
@@ -66,7 +64,7 @@ async function login() {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-
+    min-height: 32px;
     color: $dox-white-light;
     background-color: $dox-black;
     // background-clip: text;

@@ -29,7 +29,6 @@
 
 <style scoped lang="scss">
 .column {
-    @include fill-width(800px);
 }
 
 .about {

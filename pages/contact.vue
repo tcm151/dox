@@ -48,7 +48,6 @@ async function submitFeedback() {
 
 <style scoped lang="scss">
 .column {
-    @include fill-width(512px);
 }
 
 .links, .feedback {

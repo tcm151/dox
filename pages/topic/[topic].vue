@@ -80,7 +80,6 @@ let showFollowers = ref(false);
 
 <style scoped lang="scss">
 #topic {
-    @include fill-width(800px);
 }
 
 .details {

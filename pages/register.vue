@@ -15,7 +15,7 @@ const confirmation = ref("");
 
 async function register() {
     try {
-        let result = await useFetch("/api/register", {
+        let result = await useFetch("/api/user/register", {
             method: "POST",
             body: {
                 email: email.value,

@@ -12,7 +12,7 @@ let page = ref(1)
 let pageSize = ref(5)
 
 const { data: allPosts, refresh, error } = await useAsyncData<Post[]>("feed", () => {
-    return $fetch(`/api/posts?page=${page.value}&pageSize=${pageSize.value}`)
+    return $fetch(`/api/post?page=${page.value}&pageSize=${pageSize.value}`)
 })
 
 async function goToPage(pageNumber: number) {
@@ -56,7 +56,7 @@ function toggleFilter() {
 </script>
 
 <template>
-    <section class="feed p-2">
+    <section class="feed p-4">
         <Feed
             :page="page"
             :sorting="true"
@@ -77,7 +77,7 @@ function toggleFilter() {
 
 <style scoped lang="scss">
 .feed {
-    @include fill-width(800px, 0rem);
+    max-width: 800px;
 }
 
 .filter-type {

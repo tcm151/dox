@@ -5,7 +5,7 @@ const session = getSession();
 let notifications = ref(await session.useApi<Notification[]>("/api/profile/notifications"));
 
 async function dismiss(notification: Notification) {
-    notifications.value = notifications.value?.filter(n => n.id !== notification.id)
+    notifications.value = notifications.value!.filter(n => n.id !== notification.id)
     await session.useApi(`/api/profile/notifications/${getId(notification.id)}/dismiss`, notification)
 }
 </script>
@@ -36,7 +36,7 @@ async function dismiss(notification: Notification) {
 
 <style scoped lang="scss">
 #notifications {
-    @include fill-width(800px);
+    max-width: 800px;
 }
 
 .notification {

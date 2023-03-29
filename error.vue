@@ -7,7 +7,7 @@ defineProps(['error'])
         <div class="column g-2 p-5 mx-auto">
             <h1>{{ error.statusCode }}</h1>
             <p>{{ error.message }}</p>
-            <button class="success" @click="clearError({ redirect: '/' })">Go Home</button>
+            <button class="success" @click="clearError({ redirect: '/feed' })">Go Home</button>
         </div>
     </div>
 </template>
@@ -18,8 +18,6 @@ defineProps(['error'])
     background-color: $dox-white-light;
     
     .column {
-        @include fill-width (512px);
-
         align-items: center;
         border-radius: 0.25rem;
         background-color: $dox-white-ultra;

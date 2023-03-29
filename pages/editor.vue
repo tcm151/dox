@@ -147,7 +147,7 @@ function togglePreview() {
                            @focus="topicsFocused = true" @blur="topicsFocused = false" type="text" spellcheck="false">
                 </div>
             </div>
-            <div class="row g-2 mt-5">
+            <div class="row-wrap g-2 mt-5">
                 <button class="success" @click="submit">Submit</button>
                 <button class="info" @click="saveDraft">Save Draft</button>
                 <button class="link" @click="togglePreview">
@@ -211,7 +211,6 @@ code {
 <style scoped lang="scss">
 #editor {
     flex: 1 1;
-    @include fill-width (1200px, 2rem);
     justify-content: center;
 }
 
@@ -233,9 +232,6 @@ code {
             line-height: 1.5rem;
         }
     }
-    span {
-        // line-height: 1rem;
-    }
 }
 
 .editor, .preview {
@@ -254,7 +250,7 @@ code {
         top: 50%;
         left: 50%;
         position: absolute;
-        font-size: 6rem;
+        font-size: 4.5rem;
         font-weight: 900;
         opacity: 0.05;
         color: $dox-purple;

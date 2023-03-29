@@ -1,5 +1,5 @@
 import { Post } from "~/types";
-import { queryAll } from "../database";
+import { queryAll } from "../../database";
 
 export default defineEventHandler(async (event) => {
     let { page, pageSize } = getQuery(event)

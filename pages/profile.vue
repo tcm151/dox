@@ -74,7 +74,6 @@ function toggleSettings() {
 
 <style scoped lang="scss">
 .profile-page {
-    @include fill-width(800px);
 
     .not-logged-in {
         padding: 0.5rem 1rem;

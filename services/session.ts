@@ -1,72 +1,88 @@
-import Surreal from "surrealdb.js"
-import { Session } from "~/types";
+import { Ref } from "vue"
 import { defineStore, skipHydrate } from "pinia"
+import Surreal from "surrealdb.js"
+import { User } from "~/types"
 
 const hints = useHints();
 const events = useEvents();
 
-export const getSession = defineStore("session", () => {
+export interface Session {
+    user: Ref<User | null>
+    isAuthenticated: Ref<boolean>
+    authenticate: Function
+    login: Function
+    logout: Function
+    useApi: <T>(route: string, body?: any) => Promise<T | null>
+    follow: Function
+    unfollow: Function
+}
+
+export const getSession = defineStore("session", (): Session => {
     
     const db = Surreal.Instance;
     db.connect("https://db.tcmdev.ca/rpc")
     
     //> SESSION
-    const state = ref<Session>({
-        authenticated: false,
-        user: null
-    })
-    const isAuthenticated = computed(() => state.value.authenticated)
-    const user = computed(() => state.value.user)
+    const token = skipHydrate(useLocalStorage("token", ""));
+    const isAuthenticated = skipHydrate(useSessionStorage<boolean>("authenticated", false))
+    const user = skipHydrate(useSessionStorage<User | null>("user", {
+        id: '',
+        email: '',
+        name: '',
+        votes: {
+            positive: [],
+            misleading: [],
+            negative: [],
+        },
+        topics: [],
+        following: [],
+        followers: [],
+        dateCreated: 'string',
+    }))
 
-    //> TOKEN
-    const token = skipHydrate(useSessionStorage("token", ""));
-    
     //> AUTH
     async function authenticate(): Promise<boolean> {
         try {
             await db.wait();
             await db.authenticate(token.value);
 
-            const query = [
-                `SELECT id, name, email, dateCreated, followers, following, topics`,
-                `FROM user`,
-                `WHERE id = $auth.id`,
-            ]
-            const result: any = await db.query(query.join("\n"));
-            const user = result[0].result[0];
-            
-            console.log(user)
-
-            state.value = {
-                authenticated: true,
-                user: user,
-            }
-            
+            isAuthenticated.value = true
+            user.value = await useApi<User>('/api/profile')
             events.publish("authenticatedUser");
-            return true;
+            return true
         }
-        catch (ex) {
+        catch (ex: any) {
+            console.log(ex)
             return false;
         }
     }
 
-    async function login(id: string, password: string) {
-        await db.wait();
-        token.value = await db.signin({
-            NS: "dev",
-            DB: "dox",
-            SC: "account",
-            id: id,
-            password: password,
-        })
-        
-        await authenticate();
+    async function login(id: string, password: string): Promise<boolean> {
+        try {
+            await db.wait();
+            token.value = await db.signin({
+                NS: "dev",
+                DB: "dox",
+                SC: "account",
+                id: id,
+                password: password,
+            })
+            
+            isAuthenticated.value = true
+            user.value = await useApi<User>('/api/profile')
+            events.publish("authenticatedUser");
+            return true
+        }
+        catch (ex: any) {
+            console.log(ex)
+            return false;
+        }
     }
 
     function logout(clear: boolean) {
-        state.value.authenticated = false;
+        isAuthenticated.value = false;
         if (clear == true) {
-            state.value.user = null;
+            user.value = null;
             token.value = ""
         }
     }
@@ -74,18 +90,18 @@ export const getSession = defineStore("session", () => {
     //> API
     async function useApi<T>(route: string, body?: any) {
         try {
-            return await $fetch<T>(route, {
+            return $fetch<T>(route, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token.value}`,
                 },
                 body: body,
-            })
+            }) as T
         }
         catch (ex: any) {
             hints.addError(ex.message)
             console.log(ex)
-            clearError()
+            return null
         }
     }
 
@@ -98,12 +114,12 @@ export const getSession = defineStore("session", () => {
         
         if (type === "user") {
             await useApi(`/api/user/${target}/follow`);
-            state.value.user?.following.push(`user:${target}`);
+            user.value?.following.push(`user:${target}`);
             return true;
         }
         if (type === "topic") {
             await useApi(`/api/topic/${target}/follow`);
-            state.value.user?.topics.push(target);
+            user.value?.topics.push(target);
             return true;
         }
     }
@@ -116,15 +132,15 @@ export const getSession = defineStore("session", () => {
         
         if (type === "user") {
             await useApi(`/api/user/${target}/follow`);
-            state.value.user!.following = state.value.user?.following.filter(u => u !== `user:${target}`)!;
+            user.value!.following = user.value?.following.filter(u => u !== `user:${target}`)!;
             return true;
         }
         if (type === "topic") {
             await useApi(`/api/topic/${target}/follow`);
-            state.value.user!.topics = state.value.user?.topics.filter(t => t !== target)!;
+            user.value!.topics = user.value?.topics.filter(t => t !== target)!;
             return true;
         }
     }
 
-    return { state, isAuthenticated, user, authenticate, login, logout, useApi, follow, unfollow }
+    return { user, isAuthenticated, authenticate, login, logout, useApi, follow, unfollow }
 })

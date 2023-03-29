@@ -1,8 +1,3 @@
-export interface Session {
-    authenticated: boolean
-    user: User | null
-}
-
 export interface Notification {
     id: string
     recipient: User

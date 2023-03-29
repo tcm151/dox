@@ -23,11 +23,6 @@
     flex-flow: row wrap;
 }
 
-@mixin fill-width($width, $padding: 0rem) {
-    width: calc(100% - $padding);
-    max-width: $width;
-}
-
 @mixin shadow($size: 0.1rem, $blur: 0.5rem, $spread: 0.1rem, $color: #CCC ) {
     box-shadow: $size 0 $blur $spread $color,
                 0 $size $blur $spread $color,
