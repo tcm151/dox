@@ -4,6 +4,33 @@ export default defineNuxtConfig({
         "@pinia/nuxt",
         "@vueuse/nuxt"
     ],
+    components: [
+        { path: '~/components', pathPrefix: false }
+    ],
+    imports: {
+        dirs: ["services/**"],
+    },
+    vite: {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: '@import "~/assets/scss/global.scss";\n'
+                }
+            }
+        }
+    },
+    nitro: {
+        esbuild: {
+            options: {
+                target: "esnext"
+            }
+        }
+    },
+    runtimeConfig: {
+        surrealDatabaseUrl: process.env.SURREAL_DATABASE_URL,
+        surrealUsername: process.env.SURREAL_USERNAME,
+        surrealPassword: process.env.SURREAL_PASSWORD
+    },
     app: {
         head: {
             title: "DOX",
@@ -18,30 +45,4 @@ export default defineNuxtConfig({
             ],
         },
     },
-    imports: {
-        dirs: ["services/**"],
-    },
-    runtimeConfig: {
-        surrealDatabaseUrl: process.env.SURREAL_DATABASE_URL,
-        surrealUsername: process.env.SURREAL_USERNAME,
-        surrealPassword: process.env.SURREAL_PASSWORD
-    },
-    // css: ['@/assets/global.scss'],
-    vite: {
-        css: {
-            preprocessorOptions: {
-                scss: {
-                    additionalData: '@import "~/assets/global.scss";\n'
-                }
-            }
-        }
-    },
-    nitro: {
-        esbuild: {
-            options: {
-                target: "esnext"
-            }
-        }
-    },
-    webpack: {},
 })

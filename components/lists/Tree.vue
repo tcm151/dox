@@ -27,8 +27,6 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
-@import '~/assets/global.scss';
-
 .comment-line {
     width: 3px;
     margin-right: 0.25rem;

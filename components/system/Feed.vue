@@ -5,10 +5,13 @@ const props = defineProps<{
     posts: Post[]
     sorting?: boolean
     pagination?: boolean
+    page?: number
 }>()
 
 const emit = defineEmits<{
     (event: 'refresh'): void
+    (event: 'page', pageNumber: number): void
+    (event: 'pageSize', size: number): void
 }>()
 
 const vote = useVoting();
@@ -28,6 +31,9 @@ function sort(type: string) {
 <template>
     <div class="feed">
         <div class="sorting row g-2" v-if="props.sorting">
+            <button class="refresh" @click="emit('refresh')">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
             <slot name="header" />
             <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
@@ -72,13 +78,14 @@ function sort(type: string) {
         </div>
         <!-- TODO add actual pagination support -->
         <div class="pagination" v-if="pagination">
-            <i class="fa-solid fa-chevron-left"></i>
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
-            <i class="fa-solid fa-ellipsis"></i>
-            <i class="fa-solid fa-chevron-right"></i>
-            <i class="fa-solid fa-rotate-left" @click="emit('refresh')"></i>
+            <i class="fa-solid fa-caret-left"></i>
+            <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>
+            <span :class="{ current: page! == 2 }" @click="emit('page', 2)">2</span>
+            <span :class="{ current: page! == 3 }" @click="emit('page', 3)">3</span>
+            <span :class="{ current: page! == 4 }" @click="emit('page', 4)">4</span>
+            <span :class="{ current: page! == 5 }" @click="emit('page', 5)">5</span>
+            <!-- <i class="fa-solid fa-ellipsis"></i> -->
+            <i class="fa-solid fa-caret-right"></i>
         </div>
     </div>
 </template>
@@ -90,16 +97,32 @@ function sort(type: string) {
 
 .sorting {
     button {
+        flex: 1 1;
         @include flex-h (0.5rem);
         align-items: center;
-        border: 0.2rem solid transparent;
+        justify-content: center;
+    }
+
+    .refresh {
+        flex: 0 1;
+        color: $dox-white;
+        background-color: $dox-black;
+    }
+
+    .refresh:hover {
+        background-color: $dox-grey-dark;
     }
 
     .selected {
-        color: $dox-blue;
-        background-color: $dox-blue-light;
-        border: 0.2rem solid $dox-blue;
+        color: $dox-white-ultra;
+        background-color: $dox-grey-light;
     }
+
+    // .selected:hover {
+    //     color: $dox-grey-light;
+    //     background-color: $dox-white-light;
+    //     border: 0.2rem solid $dox-grey-light;
+    // }
 }
 
 .post {
@@ -155,7 +178,7 @@ function sort(type: string) {
         width: 2rem;
         padding: 0.25rem 0;
         font-size: 1rem;
-        font-weight: 600;
+        font-weight: 700;
         text-align: center;
         line-height: 20px;
         border-radius: 0.25rem;
@@ -164,7 +187,16 @@ function sort(type: string) {
 
     span:hover, i:hover {
         color: $dox-white-ultra;
-    background-color: $dox-grey-light;
+        background-color: $dox-grey-light;
+    }
+
+    .current {
+        color: $dox-white;
+        background-color: $dox-black;
+    }
+
+    .current:hover {
+        background-color: $dox-grey-dark;
     }
 }
 </style>

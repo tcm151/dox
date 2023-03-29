@@ -15,11 +15,11 @@ let topicsFocused = ref(false)
 
 
 function validTitle() {
-    return /.{4,128}/.test(title.value)
+    return title.value !== '' ? /.{4,128}/.test(title.value) : true
 }
 
 function validTopic() {
-    return /^\b[A-Za-z]{3,16}\b$/.test(newTopic.value)
+    return newTopic.value !== '' ? /^\b[A-Za-z]{3,24}\b$/.test(newTopic.value) : true
 }
 
 function addTopic() {
@@ -96,7 +96,6 @@ let userDrafts = ref<Draft[]>([]);
 async function openDrafts() {
     showDrafts.value = true;
     userDrafts.value = await session.useApi<Draft[]>("/api/profile/drafts") ?? []
-    // let { data, pending, } = await session.useApi<Post[]>("/api/profile/drafts") ?? []
 }
 
 function viewDraft(draft: Draft) {
@@ -137,9 +136,9 @@ function togglePreview() {
                     <label>Content</label>
                     <textarea v-model="content" type="text" rows="12" />
                 </div>
-                <div class="field">
-                    <label>Topics</label>
-                    <div class="row g-2 mt-2" v-if="topics.length > 0">
+                <div class="field topic-input">
+                    <div class="row g-2 mb-2">
+                        <label style="margin-bottom: 0">Topics</label>
                         <div class="topic" v-for="topic in topics" @contextmenu.prevent="removeTopic(topic)">
                             <p>{{ topic }}</p>
                         </div>
@@ -155,7 +154,7 @@ function togglePreview() {
                     <span v-if="!showPreview">Show Preview</span>
                     <span v-else>Hide Preview</span>
                 </button>
-                <button class="danger">Cancel</button>
+                <button class="danger" @click="navigateTo('/')">Cancel</button>
             </div>
         </section>
         <Transition name="preview">
@@ -211,6 +210,7 @@ code {
 
 <style scoped lang="scss">
 #editor {
+    flex: 1 1;
     @include fill-width (1200px, 2rem);
     justify-content: center;
 }
@@ -221,6 +221,20 @@ code {
 
     button {
         max-width: 128px;
+    }
+}
+
+.topic-input {
+    div {
+        align-items: center;
+        
+        label {
+            vertical-align: middle;
+            line-height: 1.5rem;
+        }
+    }
+    span {
+        // line-height: 1rem;
     }
 }
 
@@ -250,13 +264,11 @@ code {
     }
 }
 
-.preview-enter-active,
-.preview-leave-active {
+.preview-enter-active, .preview-leave-active {
     transition: all 256ms ease;
 }
 
-.preview-enter-from,
-.preview-leave-to {
+.preview-enter-from, .preview-leave-to {
     opacity: 0;
 }
 

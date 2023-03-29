@@ -8,7 +8,18 @@ definePageMeta({
 const hints = useHints()
 const session = getSession()
 
-const { data: allPosts, refresh, error } = await useFetch<Post[]>("/api/posts")
+let page = ref(1)
+let pageSize = ref(5)
+
+const { data: allPosts, refresh, error } = await useAsyncData<Post[]>("feed", () => {
+    return $fetch(`/api/posts?page=${page.value}&pageSize=${pageSize.value}`)
+})
+
+async function goToPage(pageNumber: number) {
+    console.log(pageNumber)
+    page.value = pageNumber
+    await refresh({ dedupe: true })
+}
 
 watch(error, (error) => {
     if (error) {
@@ -46,7 +57,14 @@ function toggleFilter() {
 
 <template>
     <section class="feed p-2">
-        <Feed :posts="filteredPosts ?? []" :sorting="true" :pagination="true" @refresh="refresh">
+        <Feed
+            :page="page"
+            :sorting="true"
+            :pagination="true"
+            @page="goToPage"
+            @refresh="refresh"
+            :posts="allPosts ?? []"
+        >
             <template #header>
                 <button class="filter-type" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
@@ -63,7 +81,7 @@ function toggleFilter() {
 }
 
 .filter-type {
-    flex: 0 1 128px;
+    flex: 1 1;
     @include flex-h (0.5rem);
     justify-content: center;
     align-items: center;

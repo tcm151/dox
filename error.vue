@@ -13,7 +13,6 @@ defineProps(['error'])
 </template>
 
 <style scoped lang="scss">
-
 .error {
     height: 100%;
     background-color: $dox-white-light;

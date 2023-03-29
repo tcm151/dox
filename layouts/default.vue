@@ -33,7 +33,7 @@ onMounted(() => {
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
                 </div>
-                <img class="icon" src="~/assets/surrealdb-icon.png">
+                <img class="icon" src="~/assets/images/surrealdb-icon.png">
             </div>
         </footer>
     </div>
