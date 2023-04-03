@@ -235,6 +235,7 @@ img {
 
 <style scoped lang="scss">
 #post {
+    width: calc(100% - 2rem);
     max-width: 800px;
 }
 

@@ -15,13 +15,9 @@ onMounted(() => {
 <template>
     <Navbar />
     <Login :visible="showLogin"/>
-    
-    <Hints />
-    
     <Popup :visible="showPopup" title="Popup" :accept="() => { }" :decline="() => { }">
         <span>This is the default!</span>
     </Popup>
-    
     <div class="page">
         <div class="slot">
             <slot />
@@ -37,13 +33,14 @@ onMounted(() => {
             </div>
         </footer>
     </div>
+    <Hints />
 </template>
 
 <style lang="scss">
 .page {
     @include flex-v;
     align-items: center;
-    height: calc(100% - 35px);
+    height: calc(100vh - 35px);
     overflow-y: auto;
     overflow-x: hidden;
     background-color: $dox-white-light;
@@ -51,9 +48,9 @@ onMounted(() => {
 
 .slot {
     width: 100%;
-    flex: 1 1 auto;
+    flex: 1 1;
     @include flex-v;
-    align-items: stretch;
+    align-items: center;
 
     > div, > section {
         padding: 1rem;
