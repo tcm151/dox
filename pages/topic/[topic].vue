@@ -1,98 +1,106 @@
 <script setup lang="ts">
-const route = useRoute();
-const topic = route.params.topic as string;
+const route = useRoute()
+const topic = route.params.topic as string
 
-const { data: details, refresh } = await useFetch(`/api/topic/${topic}`);
+const { data: topicInfo, refresh } = await useFetch(`/api/topic/${topic}`)
 
-const session = getSession();
+const vote = useVoting()
+const hints = useHints()
+const events = useEvents()
+const session = getSession()
 
-let following = ref(false);
+let showFollowers = ref(false)
+let following = computed(() => session.user?.topics.includes(topic))
 
-async function follow() {
-    following.value = true;
-    await session.follow("topic", topic)
-    await refresh();
+async function followTopic() {
+    try {
+        await session.follow("topic", topic)
+        await refresh();
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
 }
 
-async function unfollow() {
-    following.value = false;
-    await session.unfollow("topic", topic)
-    await refresh();
+async function unfollowTopic() {
+    try {
+        await session.unfollow("topic", topic)
+        await refresh()
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
 }
-
-onMounted(() => {
-    following.value = session.user?.topics.includes(topic) ?? false;
-})
-
-const events = useEvents();
-events.subscribe("authenticatedUser", () => {
-    following.value = session.user?.topics.includes(topic) ?? false;
-})
-
-let showFollowers = ref(false);
 </script>
 
 <template>
-    <div id="topic" class="column g-2">
-        <div class="details p-5">
-            <div class="column">
-                <div class="header">
-                    <h1>{{ topic }}</h1>
-                    <div>
-                        <ClientOnly>
-                            <span class="danger" v-if="following" @click="unfollow">Unfollow</span>
-                            <span class="success" v-else @click="follow">Follow</span>
-                        </ClientOnly>
-                    </div>
+    <article class="topic-info column g-2 p-4">
+        <header class="column p-5">
+            <section class="name-follow">
+                <h1>{{ topic }}</h1>
+                <ClientOnly>
+                    <button class="danger" v-if="following" @click="unfollowTopic">
+                        <span>Unfollow</span>
+                    </button>
+                    <button class="success" v-else @click="followTopic">
+                        <span>Follow</span>
+                    </button>
+                </ClientOnly>
+            </section>
+            <section class="row g-2 mt-4">
+                <!-- TODO create topics table -->
+                <!-- TODO allow voting directly on topics -->
+                <div class="votes row g-2">
+                    <button class="positive" @click="">
+                        <span>{{ 1 }}</span>
+                    </button>
+                    <button class="misleading" @click="">
+                        <span>{{ 1 }}</span>
+                    </button>
+                    <button class="negative" @click="">
+                        <span>{{ 1 }}</span>
+                    </button>
                 </div>
-                <div class="row g-2 mt-4">
-                    <!-- TODO create topics table -->
-                    <!-- TODO allow voting directly on topics -->
-                    <!-- <div class="votes row g-2">
-                        <span class="positive" @click="vote.positive(user!.id, user!.votes)">
-                            {{ user?.votes.positive.length }}
-                        </span>
-                        <span class="misleading" @click="vote.misleading(user!.id, user!.votes)">
-                            {{ user?.votes.misleading.length }}
-                        </span>
-                        <span class="negative" @click="vote.negative(user!.id, user!.votes)">
-                            {{ user?.votes.negative.length }}
-                        </span>
-                    </div> -->
-                    <div class="link">
-                        <p><strong>{{ details?.posts.length }}</strong> posts</p>
-                    </div>
-                    <div class="info" @click="showFollowers = !showFollowers">
-                        <p><strong>{{ details?.followers.count }}</strong> followers</p>
-                    </div>
-                    <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
-                        <!-- TODO show usernames of followers -->
-                        <span v-for="user in details?.followers">
-                            {{ user }}
-                        </span>
-                    </Popup>
-                </div>
-            </div>
-        </div>
-        <Feed :posts="details?.posts ?? []" :sorting="true" :pagination="true" />
-    </div>
+                <button class="link">
+                    <p><strong>{{ topicInfo?.posts.length }}</strong> posts</p>
+                </button>
+                <button class="info" @click="showFollowers = !showFollowers">
+                    <p><strong>{{ topicInfo?.followers.count }}</strong> followers</p>
+                </button>
+                <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
+                    <!-- TODO show usernames of followers -->
+                    <span v-for="user in topicInfo?.followers">
+                        {{ user }}
+                    </span>
+                </Popup>
+            </section>
+        </header>
+        <Feed :posts="topicInfo?.posts ?? []" :sorting="true" :pagination="true" />
+    </article>
 </template>
 
 <style scoped lang="scss">
-#topic {
+
+.topic-info {
+    @include fit-width(800px, 1rem);
 }
 
-.details {
+header {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+    white-space: nowrap;
 }
 
-.header {
+.name-follow {
     @include flex-h;
     justify-content: space-between;
     align-items: center;
 
-    span {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    button {
         padding: 0.25rem 1rem;
         font-weight: 700;
         border-radius: 0.25rem;
@@ -100,8 +108,6 @@ let showFollowers = ref(false);
 }
 
 .votes {
-    flex: 0 1;
-    
     > * {
         padding: 0.25rem 1rem;
         border-radius: 0.25rem;
@@ -110,11 +116,14 @@ let showFollowers = ref(false);
     }
 }
 
-.row {
-    white-space: nowrap;
+section.row {
+    > *:not(.votes) {
+        flex: 1 1;
+    }
 }
 
 .info, .link {
+    font-weight: 500;
     padding: 0.25rem 1rem;
     border-radius: 0.25rem;
 }

@@ -11,7 +11,7 @@ async function dismiss(notification: Notification) {
 </script>
 
 <template>
-    <section id="notifications" class="column g-2">
+    <article class="notifications column g-2 p-4">
         <ClientOnly>
             <div class="notification" v-for="notification in notifications">
                 <div class="message" v-html="renderMarkdown(notification.message)">
@@ -23,19 +23,11 @@ async function dismiss(notification: Notification) {
                 </div>
             </div>
         </ClientOnly>
-    </section>
+    </article>
 </template>
 
-<style lang="scss">
-.message {
-    blockquote {
-        padding: 0.5rem !important;
-    }
-}
-</style>
-
 <style scoped lang="scss">
-#notifications {
+article.notifications {
     width: calc(100% - 2rem);
     max-width: 800px;
 }

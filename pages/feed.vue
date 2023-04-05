@@ -9,10 +9,17 @@ const hints = useHints()
 const session = getSession()
 
 let page = ref(1)
-let pageSize = ref(5)
+let pageSize = ref(25)
 
 const { data: allPosts, refresh, error } = await useAsyncData<Post[]>("feed", () => {
     return $fetch(`/api/post?page=${page.value}&pageSize=${pageSize.value}`)
+})
+
+const feedPosts = computed(() => {
+    return allPosts.value!.filter(p =>
+        p.topics.some(pt => session.user?.topics.includes(pt))
+        || session.user?.following.includes(p.user.id)
+    )
 })
 
 async function goToPage(pageNumber: number) {
@@ -28,13 +35,6 @@ watch(error, (error) => {
     }
 })
 
-
-const feedPosts = computed(() => {
-    return allPosts.value!.filter(p =>
-        p.topics.some(pt => session.user?.topics.includes(pt))
-        || session.user?.following.includes(p.user.id)
-    )
-})
 
 let filterType = ref("All")
 let filteredPosts = ref<Post[] | null>([])
@@ -58,13 +58,12 @@ function toggleFilter() {
 <template>
     <section class="feed p-4">
         <Feed
-            :page="page"
-            :sorting="true"
-            :pagination="true"
-            @page="goToPage"
-            @refresh="refresh"
-            :posts="allPosts ?? []"
-        >
+        :page="page"
+        :sorting="true"
+        :pagination="true"
+        @page="goToPage"
+        @refresh="refresh"
+        :posts="allPosts ?? []">
             <template #header>
                 <button class="filter-type" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
@@ -77,7 +76,7 @@ function toggleFilter() {
 
 <style scoped lang="scss">
 .feed {
-    max-width: 800px;
+    @include fit-width(800px, 1rem);
 }
 
 .filter-type {

@@ -9,9 +9,9 @@ const hints = useHints();
 const sorting = useSorting();
 const session = getSession();
 
-const { data, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
-const post = computed(() => data.value?.post)
-const comments = computed(() => data.value?.comments)
+const { data: response, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
+const post = computed(() => response.value?.post)
+const comments = computed(() => response.value?.comments)
 
 onMounted(() => sorting.sortBy(comments.value!, "hot"))
 
@@ -107,7 +107,7 @@ function copyLink() {
 </script>
 
 <template>
-    <section id="post" class="column g-2">
+    <section id="post" class="column g-2 p-4">
         <div class="post p-5">
             <h2 class="mb-2">{{ post?.title }}</h2>
             <div class="row-wrap g-1">
@@ -235,8 +235,7 @@ img {
 
 <style scoped lang="scss">
 #post {
-    width: calc(100% - 2rem);
-    max-width: 800px;
+    @include fit-width(800px, 1rem);
 }
 
 .post, .comments {

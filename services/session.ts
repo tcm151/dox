@@ -23,8 +23,8 @@ export const getSession = defineStore("session", (): Session => {
     db.connect("https://db.tcmdev.ca/rpc")
     
     //> SESSION
-    const token = skipHydrate(useLocalStorage("token", ""));
     const isAuthenticated = skipHydrate(useSessionStorage<boolean>("authenticated", false))
+    const token = skipHydrate(useLocalStorage<string>("token", ""));
     const user = skipHydrate(useSessionStorage<User | null>("user", {
         id: '',
         email: '',
@@ -112,15 +112,20 @@ export const getSession = defineStore("session", (): Session => {
             return false;
         }
         
-        if (type === "user") {
-            await useApi(`/api/user/${target}/follow`);
-            user.value?.following.push(`user:${target}`);
-            return true;
+        try {
+            if (type === "user") {
+                await useApi(`/api/user/${target}/follow`);
+                user.value?.following.push(`user:${target}`);
+                return true;
+            }
+            if (type === "topic") {
+                await useApi(`/api/topic/${target}/follow`);
+                user.value?.topics.push(target);
+                return true;
+            }
         }
-        if (type === "topic") {
-            await useApi(`/api/topic/${target}/follow`);
-            user.value?.topics.push(target);
-            return true;
+        catch (error: any) {
+            hints.addError(error.message)
         }
     }
     
@@ -130,15 +135,20 @@ export const getSession = defineStore("session", (): Session => {
             return false;
         }
         
-        if (type === "user") {
-            await useApi(`/api/user/${target}/follow`);
-            user.value!.following = user.value?.following.filter(u => u !== `user:${target}`)!;
-            return true;
+        try {
+            if (type === "user") {
+                await useApi(`/api/user/${target}/unfollow`);
+                user.value!.following = user.value?.following.filter(u => u !== `user:${target}`)!;
+                return true;
+            }
+            if (type === "topic") {
+                await useApi(`/api/topic/${target}/unfollow`);
+                user.value!.topics = user.value?.topics.filter(t => t !== target)!;
+                return true;
+            }
         }
-        if (type === "topic") {
-            await useApi(`/api/topic/${target}/follow`);
-            user.value!.topics = user.value?.topics.filter(t => t !== target)!;
-            return true;
+        catch (error: any) {
+            hints.addError(error.message)
         }
     }
 

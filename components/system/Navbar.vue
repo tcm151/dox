@@ -10,16 +10,16 @@ async function login() {
 </script>
 
 <template>
-    <div class="nav">
-        <div class="left">
+    <nav>
+        <section class="left">
             <NuxtLink class="dox" to="/home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>DOX</span>
             </NuxtLink>
-        </div>
+        </section>
         <ClientOnly>
             <Transition name="slide">
-                <div class="right authenticated" v-if="session.isAuthenticated">
+                <section class="right authenticated" v-if="session.isAuthenticated">
                     <NuxtLink to="/notifications">
                         <i class="fa-solid fa-envelope"></i>
                     </NuxtLink>
@@ -39,8 +39,8 @@ async function login() {
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Logout</span>
                     </a>
-                </div>
-                <div class="right anonymous" v-else>
+                </section>
+                <section class="right anonymous" v-else>
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
@@ -53,46 +53,50 @@ async function login() {
                         <i class="fa-solid fa-user-plus"></i>
                         <span>Register</span>
                     </NuxtLink>
-                </div>
+                </section>
             </Transition>
         </ClientOnly>
-    </div>
+    </nav>
 </template>
 
 <style scoped lang="scss">
-.nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+nav {
     min-height: 32px;
+    @include flex-h;
+    justify-content: space-between;
     color: $dox-white-light;
     background-color: $dox-black;
     // background-clip: text;
     // background: linear-gradient(45deg, $dox-blue, $dox-purple);
+}
 
-    .left {
-        @include flex-h;
-    }
+.left {
+    @include flex-h;
+}
 
-    .right {
-        @include flex-h;
+.right {
+    @include flex-h;
 
-        top: 0;
-        right: 0;
-        position: absolute;
-    }
+    top: 0;
+    right: 0;
+    position: absolute;
+}
 
-    a {
-        padding: 0.5rem;
+a {
+    padding: 0.5rem;
 
-        i { margin-right: 0.33rem }
-        span { font-weight: 700 }
-    }
+    i { margin-right: 0.33rem }
+    span { font-weight: 700 }
+}
 
-    a:hover {
-        cursor: pointer;
-        background-color: $dox-black-light;
-    }
+a:hover {
+    cursor: pointer;
+    background-color: $dox-black-light;
+}
+
+@keyframes slide {
+    from { transform: translate(100%, 0) }
+    to { transform: translate(0, 0) }
 }
 
 .slide-enter-active {
@@ -101,14 +105,5 @@ async function login() {
 
 .slide-leave-active {
     animation: slide 128ms ease-in reverse;
-}
-
-@keyframes slide {
-    from {
-        transform: translate(100%, 0);
-    }
-    to {
-        transform: translate(0, 0);
-    }
 }
 </style>

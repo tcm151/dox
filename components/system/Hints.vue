@@ -36,13 +36,11 @@ function getColor(hint: Hint) {
 </script>
 
 <template>
-    <div class="hints">
-        <div class="list">
-            <div class="item" v-for="hint in hints" :style="{ backgroundColor: getColor(hint) }">
-                <div class="message">{{ hint.message }}</div>
-            </div>
+    <aside class="hints">
+        <div class="item" v-for="hint in hints" :style="{ backgroundColor: getColor(hint) }">
+            <p class="message">{{ hint.message }}</p>
         </div>
-    </div>
+    </aside>
 </template>
 
 <style scoped lang="scss">
@@ -50,15 +48,13 @@ function getColor(hint: Hint) {
     bottom: 0;
     width: 100%;
     position: absolute;
+    @include flex-v (0.5rem);
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 10rem;
     pointer-events: none;
     isolation: isolate;
     z-index: 9999;
-}
-
-.list {
-    @include flex-v (0.5rem);
-    align-items: center;
 }
 
 @keyframes fade-in {
@@ -74,7 +70,8 @@ function getColor(hint: Hint) {
     position: relative;
     font-weight: 600;
     border-radius: 0.25rem;
-    box-shadow: 0.25rem 0.25rem 1rem -0.25rem $dox-white-dark, 0 0 0.33rem 1px $dox-white-dark;
+    box-shadow: 0.25rem 0.25rem 1rem -0.25rem $dox-white-dark,
+                0 0 0.33rem 1px $dox-white-dark;
     animation: fade-in 256ms;
     pointer-events: all;
     

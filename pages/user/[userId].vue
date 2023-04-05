@@ -1,141 +1,120 @@
 <script setup lang="ts">
+import { Post, User } from '~~/types';
 
 const route = useRoute();
 const userId = route.params.userId as string;
 
-const { data: response, refresh } = await useFetch(`/api/user/${userId}`)
 const user = computed(() => response.value?.user);
 const posts = computed(() => response.value?.posts);
+const { data: response, refresh } = await useAsyncData<{ user: User, posts: Post[] }>(() => {
+    return $fetch(`/api/user/${userId}`)
+})
 
-const vote = useVoting();
-const session = getSession();
+const vote = useVoting()
+const hints = useHints()
+const events = useEvents()
+const session = getSession()
 
-let following = ref(false);
+let following = computed(() => session.user?.following.includes(`user:${userId}`))
 
-async function follow() {
+async function followUser() {
     if (await session.follow("user", userId)) {
-        following.value = true;
         await refresh();
     }
 }
 
-async function unfollow() {
+async function unfollowUser() {
     if (await session.unfollow("user", userId)) {
-        following.value = false;
         await refresh();
     }
 }
-
-onMounted(() => {
-    following.value = session.user?.following.includes(`user:${userId}`) ?? false;
-})
-
-const events = useEvents();
-events.subscribe("authenticatedUser", () => {
-    following.value = session.user?.following.includes(`user:${userId}`) ?? false;
-})
-
 </script>
 
 
 <template>
-    <div class="profile-page column g-2">
-        <div class="profile column g-2 p-5">
-            <div class="row g-2">
-                <div class="image is-64x64 mr-3">
+    <article class="user column g-2 p-4">
+        <header class="profile column g-2 p-5">
+            <section class="row g-2">
+                <figure class="image is-64x64">
                     <img src="https://bulma.io/images/placeholders/64x64.png">
+                </figure>
+                <div class="name-follow">
+                    <h1>{{ user?.name }}</h1>
+                    <ClientOnly>
+                        <button class="danger" v-if="following" @click="unfollowUser">
+                            <span>Unfollow</span>
+                        </button>
+                        <button class="success" v-else @click="followUser">
+                            <span>Follow</span>
+                        </button>
+                    </ClientOnly>
                 </div>
-                <div class="column">
-                    <div class="header">
-                        <h1>{{ user?.name }}</h1>
-                        <div>
-                            <ClientOnly>
-                                <span class="danger" v-if="following" @click="unfollow">Unfollow</span>
-                                <span class="success" v-else @click="follow">Follow</span>
-                            </ClientOnly>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="follows row-wrap g-2">
+            </section>
+            <section class="follows row-wrap g-2">
                 <!-- TODO add popups to view these in more detail -->
                 <!-- TODO looks like shit on mobile -->
                 <div class="votes row g-2">
-                    <span class="positive" @click="vote.positive(user!.id, user!.votes)">
+                    <button class="positive" @click="vote.positive(user!.id, user!.votes)">
                         {{ user?.votes.positive.length }}
-                    </span>
-                    <span class="misleading" @click="vote.misleading(user!.id, user!.votes)">
+                    </button>
+                    <button class="misleading" @click="vote.misleading(user!.id, user!.votes)">
                         {{ user?.votes.misleading.length }}
-                    </span>
-                    <span class="negative" @click="vote.negative(user!.id, user!.votes)">
+                    </button>
+                    <button class="negative" @click="vote.negative(user!.id, user!.votes)">
                         {{ user?.votes.negative.length }}
-                    </span>
+                    </button>
                 </div>
-                <div class="link">
-                    <p><strong>{{ user?.topics.length }}</strong> topics</p>
-                </div>
-                <div class="info">
-                    <p><strong>{{ user?.followers.length }}</strong> followers</p>
-                </div>
-                <div class="info">
-                    <p><strong>{{ user?.following.length }}</strong> following</p>
-                </div>
-                <div class="info">
-                    <p>joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong></p>
-                </div>
-            </div>
-        </div>
+                <button class="link">
+                    <span><strong>{{ user?.topics.length }}</strong> topics</span>
+                </button>
+                <button class="info">
+                    <span><strong>{{ user?.followers.length }}</strong> followers</span>
+                </button>
+                <button class="info">
+                    <span><strong>{{ user?.following.length }}</strong> following</span>
+                </button>
+                <button class="info">
+                    <span>joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong></span>
+                </button>
+            </section>
+        </header>
         <Feed :posts="posts ?? []" :sorting="true" :pagination="true" />
-    </div>
+    </article>
 </template>
 
 <style scoped lang="scss">
-.profile-page {
-
-    .not-logged-in {
-        padding: 0.5rem 1rem;
-        text-align: center;
-        font-weight: 700;
-        border-radius: 0.25rem;
-        color: $dox-white-ultra;
-        background-color: $dox-red;
-    }
+article.user {
+    @include fit-width(800px, 1rem);
 }
 
 .profile {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
-
-    .row {
-        align-items: stretch;   
-    }
 }
 
-.header {
+.name-follow {
     flex: 1 1;
     @include flex-h;
     justify-content: space-between;
     align-items: center;
 
-    span {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    img {
+        border-radius: 0.25rem;
+    }
+
+    button {
         padding: 0.25rem 1rem;
         font-weight: 700;
         border-radius: 0.25rem;
     }
 }
 
-.image {
-    flex: 0 1;
-    height: 64px;
-
-    img {
-        border-radius: 0.25rem;
-    }
-}
 
 .votes {
-    flex: 0 1;
-    
     > * {
         padding: 0.25rem 1rem;
         border-radius: 0.25rem;
@@ -148,11 +127,16 @@ events.subscribe("authenticatedUser", () => {
     white-space: nowrap;
     text-align: center;
 
+    > *:not(.votes) {
+        flex: 1 1;
+    }
+
     strong {
         font-weight: 800;
     }
 
     .info, .link {
+        font-weight: 500;
         padding: 0.25rem 1rem;
         border-radius: 0.25rem;
     }

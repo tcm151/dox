@@ -18,67 +18,50 @@ onMounted(() => {
     <Popup :visible="showPopup" title="Popup" :accept="() => { }" :decline="() => { }">
         <span>This is the default!</span>
     </Popup>
-    <div class="page">
-        <div class="slot">
-            <slot />
-        </div>
-        <footer class="m-5">
-            <div class="row px-5">
-                <div class="extras">
+    <main class="page">
+        <slot class="slot" />
+        <footer class="row px-5 m-5">
+                <div class="links">
                     <NuxtLink to="/home">Home</NuxtLink>
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
                 </div>
                 <img class="icon" src="~/assets/images/surrealdb-icon.png">
-            </div>
         </footer>
-    </div>
+    </main>
     <Hints />
 </template>
 
 <style lang="scss">
-.page {
+main.page {
     @include flex-v;
     align-items: center;
     height: calc(100vh - 35px);
     overflow-y: auto;
     overflow-x: hidden;
     background-color: $dox-white-light;
-}
 
-.slot {
-    width: 100%;
-    flex: 1 1;
-    @include flex-v;
-    align-items: center;
-
-    > div, > section {
-        padding: 1rem;
+    > article, > section, > div {
+        flex: 1 1;
     }
 }
 </style>
 
 
 <style scoped lang="scss">
-footer {
-    width: 750px;
+footer.row {
+    @include fit-width (800px, 1rem);
+    justify-content: space-between;
+    align-items: center;
 
-    a {
+    .links {
+        @include flex-v (0.25rem);
+        font-weight: 600;
         font-weight: 700;
     }
 
-    a:hover {
+    .links:hover {
         color: #777;
-    }
-
-    .row {
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .extras {
-        @include flex-v (0.25rem);
-        font-weight: 600;
     }
 
     .icon {

@@ -111,23 +111,23 @@ async function deleteDraft(draft: Draft) {
     await session.useApi<Draft>(`/api/profile/drafts/${getId(draft.id)}/delete`)
 }
 
-let showPreview = ref(true)
+let showPreview = ref(false)
 function togglePreview() {
     showPreview.value = !showPreview.value
 }
 </script>
 
 <template>
-    <div id="editor" class="row-wrap g-4">
+    <article id="editor" class="row-wrap g-4 p-4">
         <section class="editor p-5">
-            <div id="header" class="row mb-4">
+            <header id="header" class="row mb-4">
                 <h1>New Post</h1>
                 <button @click="openDrafts">
                     <i class="fa-solid fa-compass-drafting"></i>
                     <span class="ml-2">Drafts</span>
                 </button>
-            </div>
-            <div class="form">
+            </header>
+            <form class="form">
                 <div class="field">
                     <label>Title</label>
                     <input :class="{ 'invalid': titleFocused && !validTitle() }" v-model="title" @focus="titleFocused = true" @blur="titleFocused = false" type="text" />
@@ -146,8 +146,8 @@ function togglePreview() {
                     <input :class="{ 'invalid': topicsFocused && !validTopic() }" v-model="newTopic" @keyup.enter="addTopic"
                            @focus="topicsFocused = true" @blur="topicsFocused = false" type="text" spellcheck="false">
                 </div>
-            </div>
-            <div class="row-wrap g-2 mt-5">
+            </form>
+            <section class="row-wrap g-2 mt-5">
                 <button class="success" @click="submit">Submit</button>
                 <button class="info" @click="saveDraft">Save Draft</button>
                 <button class="link" @click="togglePreview">
@@ -155,7 +155,7 @@ function togglePreview() {
                     <span v-else>Hide Preview</span>
                 </button>
                 <button class="danger" @click="navigateTo('/')">Cancel</button>
-            </div>
+            </section>
         </section>
         <Transition name="preview">
             <section class="preview p-5" v-if="showPreview">
@@ -191,7 +191,7 @@ function togglePreview() {
                 <Spinner fontSize="2rem" :showLoadingText="true" v-else /> 
             </Window>
         </ClientOnly>
-    </div>
+    </article>
 </template>
 
 <style lang="scss">
@@ -212,6 +212,7 @@ code {
 #editor {
     flex: 1 1;
     justify-content: center;
+    @include fit-width (1200px, 1rem);
 }
 
 #header {
