@@ -1,13 +1,18 @@
 <script setup lang="ts">
+import { DateTime } from 'luxon';
 import { Post, Draft } from '~/types'
-
 
 const hints = useHints();
 const session = getSession();
 
-let title = ref("");
-let content = ref("")
-let topics = ref<string[]>([]);
+let draft = ref<Draft>({
+    id: '',
+    time: '',
+    user: session.user,
+    title: '',
+    content: '',
+    topics: [],
+})
 
 let newTopic = ref("");
 let titleFocused = ref(false)
@@ -15,7 +20,7 @@ let topicsFocused = ref(false)
 
 
 function validTitle() {
-    return title.value !== '' ? /.{4,128}/.test(title.value) : true
+    return draft.value.title !== '' ? /.{4,128}/.test(draft.value.title) : true
 }
 
 function validTopic() {
@@ -24,7 +29,7 @@ function validTopic() {
 
 function addTopic() {
     if (validTopic()) {
-        topics.value.push(newTopic.value);
+        draft.value.topics.push(newTopic.value);
         newTopic.value = "";
         return;
     }
@@ -32,7 +37,7 @@ function addTopic() {
 }
 
 function removeTopic(topic: string) {
-    topics.value = topics.value.filter(t => t !== topic);
+    draft.value.topics = draft.value.topics.filter(t => t !== topic);
 }
 
 async function submit() {
@@ -45,21 +50,22 @@ async function submit() {
     try {
         const post = await session.useApi<Post>("/api/post/add", {
             user: session.user!.id,
-            title: title.value,
-            content: content.value,
+            title: draft.value.title,
+            content: draft.value.content,
             votes: {
                 positive: [session.user!.id],
                 misleading: [],
                 negative: [],
             },
-            time: new Date(),
-            topics: topics.value,
+            time: DateTime.now(),
+            topics: draft.value.topics,
             comments: [],
         })
         
-        navigateTo(`/post/${post?.id.split(':')[1]}`)
+        navigateTo(`/post/${extractId(post?.id)}`)
     }
-    catch (ex) {
+    catch (ex: any) {
+        hints.addError(ex.message)
         console.log(ex)
     }
 }
@@ -68,47 +74,32 @@ async function saveDraft() {
     
     // TODO validate post here as well, create separate function
 
-    if (draftId.value !== '') {
-        await session.useApi<Draft>(`/api/profile/drafts/${extractId(draftId.value)}/update`, {
-            title: title.value,
-            content: content.value,
-            topics: topics.value,
+    if (draft.value.id !== '') {
+        await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
+            title: draft.value.title,
+            content: draft.value.content,
+            topics: draft.value.topics,
         })
         hints.addSuccess("Draft updated")
     }
     else {
         await session.useApi<Draft>("/api/profile/drafts/add", {
             user: session.user!.id,
-            title: title.value,
-            content: content.value,
+            title: draft.value.title,
+            content: draft.value.content,
             time: new Date(),
-            topics: topics.value,
+            topics: draft.value.topics,
         })
         hints.addSuccess("Draft saved")
     }
 }
 
 
-let draftId = ref('')
 let showDrafts = ref(false)
-let userDrafts = ref<Draft[]>([]);
 
-async function openDrafts() {
-    showDrafts.value = true;
-    userDrafts.value = await session.useApi<Draft[]>("/api/profile/drafts") ?? []
-}
-
-function viewDraft(draft: Draft) {
-    draftId.value = draft.id
-    title.value = draft.title
-    content.value = draft.content
-    topics.value = draft.topics
+function viewDraft(existingDraft: Draft) {
+    draft.value = existingDraft
     showDrafts.value = false
-}
-
-async function deleteDraft(draft: Draft) {
-    userDrafts.value = userDrafts.value.filter(d => d.id !== draft.id)
-    await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.id)}/delete`)
 }
 
 let showPreview = ref(false)
@@ -119,10 +110,11 @@ function togglePreview() {
 
 <template>
     <article id="editor" class="row-wrap g-4 p-4">
+        <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
         <section class="editor p-5">
             <header id="header" class="row mb-4">
                 <h1>New Post</h1>
-                <button @click="openDrafts">
+                <button @click="showDrafts = true">
                     <i class="fa-solid fa-compass-drafting"></i>
                     <span class="ml-2">Drafts</span>
                 </button>
@@ -130,21 +122,34 @@ function togglePreview() {
             <form class="form">
                 <div class="field">
                     <label>Title</label>
-                    <input :class="{ 'invalid': titleFocused && !validTitle() }" v-model="title" @focus="titleFocused = true" @blur="titleFocused = false" type="text" />
+                    <input
+                        type="text"
+                        v-model="draft.title"
+                        @focus="titleFocused = true"
+                        @blur="titleFocused = false"
+                        :class="{ 'invalid': titleFocused && !validTitle() }"
+                    />
                 </div>
                 <div class="field">
                     <label>Content</label>
-                    <textarea v-model="content" type="text" rows="12" />
+                    <textarea v-model="draft.content" type="text" rows="12" />
                 </div>
                 <div class="field topic-input">
                     <div class="row g-2 mb-2">
                         <label style="margin-bottom: 0">Topics</label>
-                        <div class="topic" v-for="topic in topics" @contextmenu.prevent="removeTopic(topic)">
+                        <div class="topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
                             <p>{{ topic }}</p>
                         </div>
                     </div>
-                    <input :class="{ 'invalid': topicsFocused && !validTopic() }" v-model="newTopic" @keyup.enter="addTopic"
-                           @focus="topicsFocused = true" @blur="topicsFocused = false" type="text" spellcheck="false">
+                    <input
+                        type="text"
+                        v-model="newTopic"
+                        spellcheck="false"
+                        @keyup.enter="addTopic"
+                        @focus="topicsFocused = true"
+                        @blur="topicsFocused = false"
+                        :class="{ 'invalid': topicsFocused && !validTopic() }"
+                    />
                 </div>
             </form>
             <section class="row-wrap g-2 mt-5">
@@ -157,39 +162,13 @@ function togglePreview() {
                 <button class="danger" @click="navigateTo('/')">Cancel</button>
             </section>
         </section>
-        <Transition name="preview">
-            <section class="preview p-5" v-if="showPreview">
-                <ClientOnly>
-                    <h1 class="mb-2">{{ title }}</h1>
-                    <div class="content" v-html="renderMarkdown(content)">
-                    </div>
-                    <span class="watermark" v-if="title === '' && content === ''">Preview</span>
-                </ClientOnly>
-            </section>
-        </Transition>
         <ClientOnly>
-            <Window :visible="showDrafts" title="Drafts" @close="showDrafts = false">
-                <section class="drafts column" v-if="userDrafts.length > 0">
-                    <div class="column" v-for="draft in userDrafts" :key="draft.id">
-                        <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
-                        <div class="row g-2">
-                            <span class="topic" v-for="topic in draft.topics">
-                                {{ topic }}
-                            </span>
-                            <span class="info">{{ formatDate(draft.time) }}</span>
-                            <button @click="viewDraft(draft)">
-                                <i class="fa-solid fa-book-open"></i>
-                                <span>View</span>
-                            </button>
-                            <button class="danger" @click="deleteDraft(draft)">
-                                <i class="fa-solid fa-trash"></i>
-                                <span>Delete</span>
-                            </button>
-                        </div>
+            <section class="preview p-5" v-if="showPreview">
+                    <h1 class="mb-2">{{ draft.title }}</h1>
+                    <div class="content" v-html="renderMarkdown(draft.content)">
                     </div>
-                </section>
-                <Spinner fontSize="2rem" :showLoadingText="true" v-else /> 
-            </Window>
+                    <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
+            </section>
         </ClientOnly>
     </article>
 </template>
@@ -293,42 +272,5 @@ textarea {
     resize: vertical;
 }
 
-section.drafts {
-    @include flex-v (0.5rem);
-    max-width: 750px;
-    
-    h3 {
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
 
-    #post-title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        white-space: nowrap;
-    }    
-
-    .topic, .info, button {
-        font-size: 1rem;
-        font-weight: 700;
-        text-align: center;
-        white-space: nowrap;
-        border-radius: 0.25rem;
-        padding: 0.25rem 1rem;
-    }
-
-    .topic, .info {
-        flex: 1 1 auto;
-    }
-
-    button {
-        flex: 0 1 32px;
-    }
-
-    button {
-        @include flex-h (0.5rem);
-        justify-content: center;
-        align-items: center;
-    }
-}
 </style>

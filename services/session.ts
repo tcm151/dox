@@ -5,7 +5,7 @@ import { User } from "~/types"
 
 export interface Session {
     isAuthenticated: Ref<boolean>
-    user: Ref<User | null>
+    user: Ref<User>
     useApi: <T>(route: string, body?: any) => Promise<T | null>
     authenticate: () => Promise<boolean>
     login: (id: string, password: string) => Promise<boolean>
@@ -25,7 +25,7 @@ export const getSession = defineStore("session", (): Session => {
     //> SESSION
     const isAuthenticated = skipHydrate(useSessionStorage<boolean>("authenticated", false))
     const token = skipHydrate(useLocalStorage<string>("token", ""))
-    const user = skipHydrate(useSessionStorage<User | null>("user", {
+    const user = skipHydrate(useSessionStorage<User>("user", {
         id: '',
         email: '',
         name: '',
