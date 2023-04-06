@@ -52,7 +52,6 @@ async function unfollowUser() {
             </section>
             <section class="follows row-wrap g-2">
                 <!-- TODO add popups to view these in more detail -->
-                <!-- TODO looks like shit on mobile -->
                 <div class="votes row g-2">
                     <button class="positive" @click="vote.positive(user!.id, user!.votes)">
                         {{ user?.votes.positive.length }}

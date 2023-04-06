@@ -76,7 +76,7 @@ function sort(type: string) {
                 </div>
             </div>
         </div>
-        <!-- TODO add actual pagination support -->
+        <!-- TODO allow more than five pages -->
         <div class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left"></i>
             <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>
@@ -84,7 +84,6 @@ function sort(type: string) {
             <span :class="{ current: page! == 3 }" @click="emit('page', 3)">3</span>
             <span :class="{ current: page! == 4 }" @click="emit('page', 4)">4</span>
             <span :class="{ current: page! == 5 }" @click="emit('page', 5)">5</span>
-            <!-- <i class="fa-solid fa-ellipsis"></i> -->
             <i class="fa-solid fa-caret-right"></i>
         </div>
     </div>
