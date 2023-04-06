@@ -162,14 +162,12 @@ function togglePreview() {
                 <button class="danger" @click="navigateTo('/')">Cancel</button>
             </section>
         </section>
-        <ClientOnly>
-            <section class="preview p-5" v-if="showPreview">
-                    <h1 class="mb-2">{{ draft.title }}</h1>
-                    <div class="content" v-html="renderMarkdown(draft.content)">
-                    </div>
-                    <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
-            </section>
-        </ClientOnly>
+        <section class="preview p-5" v-if="showPreview">
+                <h1 class="mb-2">{{ draft.title }}</h1>
+                <div class="content" v-html="renderMarkdown(draft.content)">
+                </div>
+                <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
+        </section>
     </article>
 </template>
 

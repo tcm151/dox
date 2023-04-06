@@ -131,11 +131,11 @@ function copyLink() {
                     <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
+            <div class="content my-4" v-html="renderMarkdown(post?.content)"></div>
+            <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
+                <textarea rows="10" v-model="post.content"></textarea>
+            </div>
             <ClientOnly>
-                <div class="content my-4" v-html="renderMarkdown(post?.content)"></div>
-                <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
-                    <textarea rows="10" v-model="post.content"></textarea>
-                </div>
                 <div class="column g-2" v-if="session.isAuthenticated">
                     <div class="row" v-if="!showPostReply && !editingPost">
                         <button @click="toggleCommentBox">Comment</button>
@@ -201,9 +201,7 @@ function copyLink() {
                                 <span class="edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
                             </ClientOnly>
                         </div>
-                        <ClientOnly>
-                            <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
-                        </ClientOnly>
+                        <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
                             <div class="row-fit g-1 pt-2">

@@ -20,6 +20,7 @@
         "apidoc": "^0.54.0",
         "bulma": "^0.9.4",
         "highlight.js": "^11.7.0",
+        "html-entities": "^2.3.3",
         "insane": "^2.6.2",
         "luxon": "^3.2.1",
         "marked": "^4.2.5",
