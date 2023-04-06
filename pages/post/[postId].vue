@@ -77,7 +77,7 @@ async function submitCommentReply(replyTo: Comment) {
 }
 
 async function saveComment(comment: Comment) {
-    await session.useApi(`/api/comment/${getId(comment.id)}/edit`, comment.content)
+    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, comment.content)
     commentToEdit.value = "";
 }
 
@@ -125,7 +125,7 @@ function copyLink() {
                 <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
                     {{ topic }}
                 </span>
-                <span class="info" @click="navigateTo(`/user/${getId(post?.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
+                <span class="info" @click="navigateTo(`/user/${extractId(post?.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
                     <span class="info">{{ formatDate(post?.time as any) }}</span>
                     <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited!) }}</span>
@@ -190,7 +190,7 @@ function copyLink() {
                                     {{comment.votes.negative.length}}
                                 </span>
                             </div>
-                            <span class="info" @click="navigateTo(`/user/${getId(comment.user.id)}`)">
+                            <span class="info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                                 {{ `u/${comment.user?.name}` }}
                                 <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === post?.user.id"></i>    
                             </span>

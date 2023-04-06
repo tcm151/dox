@@ -49,7 +49,7 @@ function sort(type: string) {
             </button>
         </div>
         <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
-            <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${getId(post.id!)}`)">
+            <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
                 {{ post.title }}
             </h3>
             <div class="row-wrap g-1">
@@ -68,7 +68,7 @@ function sort(type: string) {
                     {{ topic }}
                 </span>
                 <div class="details row g-1">
-                    <span class="info" @click="navigateTo(`/user/${getId(post.user.id)}`)">
+                    <span class="info" @click="navigateTo(`/user/${extractId(post.user.id)}`)">
                         u/{{ post?.user.name ?? "deleted" }}
                     </span>
                     <span class="info">{{ post.comments.length }} comments</span>

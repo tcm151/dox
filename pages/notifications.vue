@@ -6,7 +6,7 @@ let notifications = ref(await session.useApi<Notification[]>("/api/profile/notif
 
 async function dismiss(notification: Notification) {
     notifications.value = notifications.value!.filter(n => n.id !== notification.id)
-    await session.useApi(`/api/profile/notifications/${getId(notification.id)}/dismiss`, notification)
+    await session.useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`, notification)
 }
 </script>
 

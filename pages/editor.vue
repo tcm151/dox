@@ -69,7 +69,7 @@ async function saveDraft() {
     // TODO validate post here as well, create separate function
 
     if (draftId.value !== '') {
-        await session.useApi<Draft>(`/api/profile/drafts/${getId(draftId.value)}/update`, {
+        await session.useApi<Draft>(`/api/profile/drafts/${extractId(draftId.value)}/update`, {
             title: title.value,
             content: content.value,
             topics: topics.value,
@@ -108,7 +108,7 @@ function viewDraft(draft: Draft) {
 
 async function deleteDraft(draft: Draft) {
     userDrafts.value = userDrafts.value.filter(d => d.id !== draft.id)
-    await session.useApi<Draft>(`/api/profile/drafts/${getId(draft.id)}/delete`)
+    await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.id)}/delete`)
 }
 
 let showPreview = ref(false)
