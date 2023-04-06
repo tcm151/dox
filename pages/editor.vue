@@ -191,6 +191,7 @@ code {
 #editor {
     flex: 1 1;
     justify-content: center;
+    align-items: flex-start;
     @include fit-width (1200px, 1rem);
 }
 
@@ -215,7 +216,7 @@ code {
 }
 
 .editor, .preview {
-    flex: 1 1 500px;
+    flex: 1 1 400px;
     min-width: 250px;
     max-width: 800px;
     border-radius: 0.5rem;

@@ -102,10 +102,6 @@ article.user {
         font-size: 1.5rem;
     }
 
-    img {
-        border-radius: 0.25rem;
-    }
-
     button {
         padding: 0.25rem 1rem;
         font-weight: 700;
@@ -113,6 +109,11 @@ article.user {
     }
 }
 
+.image {
+    img {
+        border-radius: 0.25rem;
+    }
+}
 
 .votes {
     > * {

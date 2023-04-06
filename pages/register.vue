@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import Surreal from 'surrealdb.js';
-
 definePageMeta({
     layout: 'focus'
 })
 
 const hints = useHints();
-const session = getSession();
 
 const email = ref("");
 const username = ref("");

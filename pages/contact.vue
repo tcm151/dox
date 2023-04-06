@@ -15,9 +15,9 @@ async function submitFeedback() {
 </script>
 
 <template>
-    <div class="column g-5">
-        <div class="links p-5">
-            <h1 class="">Contact</h1>
+    <article class="column g-4 p-4">
+        <section class="links p-5">
+            <h1>Contact</h1>
             <div class="content column g-2">
                 <div>
                     <span>General: </span>
@@ -28,26 +28,29 @@ async function submitFeedback() {
                     <a href="mailto:inquiries@tcmdev.ca">inquiries@tcmdev.ca</a>
                 </div>
             </div>
-        </div>
-        <div class="feedback p-5">
+        </section>
+        <section class="feedback p-5">
             <h1>Submit Feedback</h1>
             <div class="field mt-2">
                 <textarea v-model="feedback" rows="10"></textarea>
                 <ClientOnly>
-                    <div class="row mt-2" v-if="session.isAuthenticated">
-                        <button class="success" @click="submitFeedback">Submit</button>
-                    </div>
-                    <div class="row mt-2" v-else>
-                        <button class="negative">You must be logged in to submit feedback.</button>
+                    <div class="column mt-3" >
+                        <button class="success" v-if="session.isAuthenticated" @click="submitFeedback">Submit</button>
+                        <button class="negative" v-else>You must be logged in to submit feedback.</button>
                     </div>
                 </ClientOnly>
             </div>
-        </div>
-    </div>
+        </section>
+    </article>
 </template>
 
 <style scoped lang="scss">
-.column {
+article.column {
+    @include fit-width (500px, 1rem);
+}
+
+h1 {
+    font-size: 1.5rem;
 }
 
 .links, .feedback {

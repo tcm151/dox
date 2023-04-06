@@ -12,10 +12,15 @@ const emit = defineEmits<{
 
 const session = getSession()
 
+let loading = ref(false)
 let userDrafts = ref<Draft[]>([])
 
-onMounted(async () => {
-    userDrafts.value = await session.useApi<Draft[]>("/api/profile/drafts") ?? []
+watch(props, async (value) => {
+    if (value.visible) {
+        loading.value = true
+        userDrafts.value = await session.useApi<Draft[]>("/api/profile/drafts") ?? []
+        loading.value = false
+    }
 })
 
 async function deleteDraft(draft: Draft) {
@@ -26,8 +31,13 @@ async function deleteDraft(draft: Draft) {
 
 <template>
     <ClientOnly>
-        <Window :visible="visible" title="Drafts" @close="emit('close')">
-            <section class="drafts column" v-if="userDrafts.length > 0">
+        <Window
+            title="Drafts"
+            :width="800"
+            :visible="visible"
+            @close="emit('close')"
+        >
+            <section class="drafts column" v-if="!loading && userDrafts.length > 0">
                 <div class="column" v-for="draft in userDrafts" :key="draft.id">
                     <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
                     <div class="row g-2">
@@ -46,15 +56,24 @@ async function deleteDraft(draft: Draft) {
                     </div>
                 </div>
             </section>
-            <Spinner fontSize="2rem" :showLoadingText="true" v-else /> 
+            <section class="empty-drafts" v-else-if="!loading">
+                <p>You have no drafts...</p>
+            </section>
+            <section class="loading" v-else>
+                <Spinner fontSize="2rem" :showLoadingText="false" /> 
+            </section>
         </Window>
     </ClientOnly>
 </template>
 
 <style scoped lang="scss">
+
+section {
+    min-height: 256px;
+}
+
 section.drafts {
     @include flex-v (0.5rem);
-    max-width: 750px;
     
     h3 {
         overflow-x: hidden;
@@ -89,5 +108,11 @@ section.drafts {
         justify-content: center;
         align-items: center;
     }
+}
+
+section.empty-drafts, section.loading {
+    @include flex-v;
+    justify-content: center;
+    text-align: center;
 }
 </style>
