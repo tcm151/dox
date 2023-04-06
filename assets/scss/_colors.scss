@@ -38,3 +38,76 @@ $success: $dox-green;
 $warning: $dox-yellow;
 $danger: $dox-red;
 
+.positive, .success {
+    color: $dox-green;
+    background-color: $dox-green-light;
+}
+
+.positive:hover, .success:hover {
+    color: $dox-white-light;
+    background-color: $dox-green;
+}
+
+.misleading, .warning {
+    color: $dox-yellow;
+    background-color: $dox-yellow-light;
+}
+
+.misleading:hover, .warning:hover {
+    color: $dox-white-light;
+    background-color: $dox-yellow;
+}
+
+.negative, .danger {
+    color: $dox-red;
+    background-color: $dox-red-light;
+}
+
+.negative:hover, .danger:hover {
+    color: $dox-white-light;
+    background-color: $dox-red;
+}
+
+.topic, .link {
+    color: $dox-purple;
+    background-color: $dox-purple-light;
+}
+
+.topic:hover, .link:hover {
+    color: $dox-white-light;
+    background-color: $dox-purple;
+}
+
+.topic-dark, .link-dark {
+    color: $dox-purple-light;
+    background-color: $dox-purple;
+    border: 0.2rem solid transparent;
+}
+
+.topic-dark:hover, .link-dark:hover {
+    color: $dox-purple;
+    background-color: $dox-purple-light;
+    border: 0.2rem solid $dox-purple;
+}
+
+.info {
+    color: $dox-blue;
+    background-color: $dox-blue-light;
+}
+
+.info:hover {
+    color: $dox-white-light;
+    background-color: $dox-blue;
+}
+
+.info-dark {
+    color: $dox-blue-light;
+    background-color: $dox-blue;
+    border: 0.2rem solid transparent;
+}
+
+.info-dark:hover {
+    color: $dox-blue;
+    background-color: $dox-blue-light;
+    border: 0.2rem solid $dox-blue;
+}

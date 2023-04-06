@@ -65,38 +65,6 @@ button:hover {
     background-color: $dox-grey-light;
 }
 
-.fill {
-    flex-grow: 1;
-}
-
-.shrink {
-    flex-shrink: 1;
-}
-
-.row {
-    @include flex-h;
-}
-
-.row-wrap {
-    @include flex-hw;
-}
-
-.row-fit {
-    @include flex-h;
-}
-
-.column {
-    @include flex-v;
-}
-
-.column-wrap {
-    @include flex-vw;
-}
-
-.column-fill {
-    @include flex-v;
-}
-
 .form {
     @include flex-v (0.75rem);
 }
