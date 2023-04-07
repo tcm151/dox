@@ -7,7 +7,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (event: 'close'): void
-    (event: 'select', draft: Draft): void
+    (event: 'view', draft: Draft): void
 }>()
 
 const session = getSession()
@@ -45,7 +45,7 @@ async function deleteDraft(draft: Draft) {
                             {{ topic }}
                         </span>
                         <span class="info">{{ formatDate(draft.time) }}</span>
-                        <button @click="emit('select', draft)">
+                        <button @click="emit('view', draft)">
                             <i class="fa-solid fa-book-open"></i>
                             <span>View</span>
                         </button>

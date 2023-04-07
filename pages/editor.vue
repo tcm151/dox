@@ -73,6 +73,10 @@ async function submit() {
 async function saveDraft() {
     
     // TODO validate post here as well, create separate function
+    if (!validTitle()) {
+        hints.addError("Title is invalid");
+        return;
+    }
 
     if (draft.value.id !== '') {
         await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
@@ -83,13 +87,14 @@ async function saveDraft() {
         hints.addSuccess("Draft updated")
     }
     else {
-        await session.useApi<Draft>("/api/profile/drafts/add", {
+        const response = await session.useApi<Draft>("/api/profile/drafts/add", {
             user: session.user!.id,
             title: draft.value.title,
             content: draft.value.content,
             time: new Date(),
             topics: draft.value.topics,
         })
+        draft.value.id = response!.id
         hints.addSuccess("Draft saved")
     }
 }
