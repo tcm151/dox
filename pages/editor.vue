@@ -177,9 +177,15 @@ function togglePreview() {
 </template>
 
 <style lang="scss">
-img {
-    max-width: 100%;
-    max-height: 256px;
+p:has(img) {
+    display: grid;
+    place-items: center;
+    
+    img {
+        margin-inline: auto;
+        max-width: 100%;
+        max-height: 256px;
+    }
 }
 code {
     font-size: 0.95rem;
@@ -191,11 +197,12 @@ code {
 </style>
 
 <style scoped lang="scss">
-#editor {
+article#editor {
     flex: 1 1;
     justify-content: center;
     align-items: flex-start;
     @include fit-width (1200px, 1rem);
+    // overflow-y: hidden;
 }
 
 #header {
@@ -227,8 +234,13 @@ code {
 }
 
 .preview {
+    // overflow-y: hidden;
     position: relative;
     min-height: 100px;
+
+    // div.content {
+    //     overflow-y: auto;
+    // }
 
     .watermark {
         top: 50%;
