@@ -63,6 +63,13 @@ function sort(type: string) {
                     <span class="negative" @click="vote.negative(post.id, post.votes)">
                         {{ post?.votes.negative.length }}
                     </span>
+                    <!-- TODO decide if want to show awards or saves -->
+                    <!-- <span>
+                        <i class="fa-solid fa-crown"></i>
+                    </span>
+                    <span>
+                        <i class="fa-solid fa-box-archive"></i>
+                    </span> -->
                 </div>
                 <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
                     {{ topic }}
