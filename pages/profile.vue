@@ -2,6 +2,8 @@
 const session = getSession();
 const settings = useSettings();
 
+const feed = useFeed()
+
 let auth = ref<any>("")
 async function authenticate() {
     const response = await session.useApi(`/api/profile/authenticate`)
@@ -12,6 +14,13 @@ let showSettings = ref(false);
 function toggleSettings() {
     showSettings.value = !showSettings.value;
 }
+
+async function verifyAccount() {
+    await useFetch("/api/user/verify")
+}
+
+feed.fetch()
+console.log(feed)
 </script>
 
 
@@ -48,8 +57,13 @@ function toggleSettings() {
                 <span>You are not logged in.</span>
             </div>
             <section class="buttons row g-2">
+                <button @click="verifyAccount">Verify</button>
                 <button @click="authenticate">Authenticate</button>
                 <button @click="toggleSettings">Settings</button>
+            </section>
+            <section>
+                <h1>FEED</h1>
+                <p>{{ feed?.[0] }}</p>
             </section>
             <!-- TODO add support for users to change their passwords -->
             <!-- TODO add two-factor authentication -->

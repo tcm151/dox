@@ -12,6 +12,7 @@ export const useDatabase = async () => {
     const db = new Surreal(surrealDatabaseUrl);
     await db.signin({ user: surrealUsername, pass: surrealPassword });
     await db.use("dev", "dox");
+    console.log("Connected to the database.")
     return db;
 }
 const db = await useDatabase();

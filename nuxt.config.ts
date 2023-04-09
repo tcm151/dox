@@ -8,7 +8,7 @@ export default defineNuxtConfig({
         { path: '~/components', pathPrefix: false }
     ],
     imports: {
-        dirs: ["services/**"],
+        dirs: ["services/**", "datasources/**"],
     },
     vite: {
         css: {

@@ -92,7 +92,9 @@ a {
     span {
         font-weight: 700;
     }
-    
+}
+
+.right {
     @media only screen and (max-width: 500px) {
         span { display: none; }
     }

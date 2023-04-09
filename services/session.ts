@@ -5,6 +5,7 @@ import { User } from "~/types"
 
 export interface Session {
     isAuthenticated: Ref<boolean>
+    token: Ref<string>
     user: Ref<User>
     useApi: <T>(route: string, body?: any) => Promise<T | null>
     authenticate: () => Promise<boolean>
@@ -154,5 +155,5 @@ export const getSession = defineStore("session", (): Session => {
         }
     }
 
-    return { user, isAuthenticated, authenticate, login, logout, useApi, follow, unfollow }
+    return { user, token, isAuthenticated, authenticate, login, logout, useApi, follow, unfollow }
 })
