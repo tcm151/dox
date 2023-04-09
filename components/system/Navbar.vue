@@ -87,9 +87,9 @@ a {
     align-items: center;
     padding: 0.75rem 0.75rem;
     line-height: 1rem;
+    font-size: 1.25rem;
 
     span {
-        font-size: 1.2rem;
         font-weight: 700;
     }
     
