@@ -104,13 +104,19 @@ function copyLink() {
     hints.addSuccess("Copied post URL");
 }
 
+let sortType = ref("hot")
+function sort(type: string) {
+    sortType.value = type
+    sorting.sortBy(comments.value!, type)
+}
+
 </script>
 
 <template>
-    <section id="post" class="column g-2 p-4">
-        <div class="post p-5">
+    <article id="post" class="column g-2 p-4">
+        <section class="post p-5">
             <h2 class="mb-2">{{ post?.title }}</h2>
-            <div class="row-wrap g-1">
+            <div class="tags row-wrap g-1">
                 <div class="row votes">
                     <span class="positive" @click="vote.positive(post!.id, post!.votes)">
                         {{ post?.votes.positive.length }}
@@ -137,17 +143,28 @@ function copyLink() {
             </div>
             <ClientOnly>
                 <div class="column g-2" v-if="session.isAuthenticated">
-                    <div class="row" v-if="!showPostReply && !editingPost">
-                        <button @click="toggleCommentBox">Comment</button>
+                    <section class="interactions row" v-if="!showPostReply && !editingPost">
+                        <button @click="toggleCommentBox">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Comment</span>
+                        </button>
                         <!-- <button>Reply</button> -->
-                        <button @click="copyLink">Share</button>
+                        <button @click="copyLink">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Share</span>
+                        </button>
+                        <button @click="copyLink">
+                            <i class="fa-solid fa-box-archive"></i>
+                            <span>Archive</span>
+                        </button>
                         <button v-if="post?.user.id === session.user?.id" @click="toggleEditPost()">
-                            Edit
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            <span>Edit</span>
                         </button>
                         <button style="flex: 0 1">
                             <i class="fa-solid fa-ellipsis"></i>
                         </button>
-                    </div>
+                    </section>
                     <div class="row" v-if="editingPost">
                         <button @click="previewChanges()">Preview</button>
                         <button @click="saveChanges(post!)">Save</button>
@@ -168,17 +185,26 @@ function copyLink() {
                     <button class="danger">You must be logged in to interact with others.</button>
                 </div>
             </ClientOnly>
-        </div>
-        <div class="comments p-5" v-if="(comments?.length ?? 0) > 0">
-            <div class="row g-2 mb-3">
-                <button @click="sorting.sortBy(comments ?? [], 'new')">New</button>
-                <button @click="sorting.sortBy(comments ?? [], 'hot')">Hot</button>
-                <button @click="sorting.sortBy(comments ?? [], 'top')">Top</button>
+        </section>
+        <section class="comments p-5" v-if="(comments?.length ?? 0) > 0">
+            <div class="sorting row g-2 mb-3">
+                <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
+                    <i class="fa-solid fa-egg"></i>
+                    <span>New</span>
+                </button>
+                <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>Hot</span>
+                </button>
+                <button @click="sort('top')" :class="{ selected: sortType === 'top' }">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Top</span>
+                </button>
             </div>
             <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
                 <template #item="{ item: comment}">
                     <div class="comment">
-                        <div class="header row-fit g-1">
+                        <header class="row-fit g-1">
                             <div class="votes row">
                                 <span class="positive" @click="vote.positive(comment.id, comment.votes)">
                                     {{comment.votes.positive.length}}
@@ -200,7 +226,7 @@ function copyLink() {
                                 <span class="reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
                                 <span class="edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
                             </ClientOnly>
-                        </div>
+                        </header>
                         <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
@@ -219,8 +245,8 @@ function copyLink() {
                     </div>
                 </template>
             </Tree>
-        </div>
-    </section>
+        </section>
+    </article>
 </template>
 
 <style lang="scss">
@@ -232,7 +258,7 @@ img {
 
 
 <style scoped lang="scss">
-#post {
+article#post {
     @include fit-width(800px, 1rem);
 }
 
@@ -250,6 +276,14 @@ img {
     white-space: nowrap;
 }
 
+section.interactions {
+    button {
+        @include flex-h;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
 .votes {
     flex: 0 1;
     cursor: pointer;
@@ -259,19 +293,35 @@ img {
     }
 }
 
-span {
-    padding: 0.25rem 0.5rem;
-
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-align: center;
-
-    outline: 1px transparent;
-    border-radius: 0.25rem;
+div.tags, .comment > header {
+    span {
+        padding: 0.25rem 0.5rem;
+    
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+    
+        outline: 1px transparent;
+        border-radius: 0.25rem;
+    }
+    
+    span:hover {
+        background-color: #AAA;
+    }
 }
 
-span:hover {
-    background-color: #AAA;
+div.sorting {
+    button {
+        flex: 1 1;
+        @include flex-h (0.5rem);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .selected {
+        color: $dox-white-ultra;
+        background-color: $dox-grey-light;
+    }
 }
 
 .comment {

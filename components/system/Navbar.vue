@@ -61,8 +61,8 @@ async function login() {
 
 <style scoped lang="scss">
 nav {
-    min-height: 32px;
     @include flex-h;
+    align-items: stretch;
     justify-content: space-between;
     color: $dox-white-light;
     background-color: $dox-black;
@@ -74,7 +74,7 @@ nav {
     @include flex-h;
 }
 
-.right {
+section.right {
     @include flex-h;
 
     top: 0;
@@ -83,10 +83,19 @@ nav {
 }
 
 a {
-    padding: 0.5rem;
+    @include flex-h(0.5rem);
+    align-items: center;
+    padding: 0.75rem 0.75rem;
+    line-height: 1rem;
 
-    i { margin-right: 0.33rem }
-    span { font-weight: 700 }
+    span {
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    
+    @media only screen and (max-width: 500px) {
+        span { display: none; }
+    }
 }
 
 a:hover {

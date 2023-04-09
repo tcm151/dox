@@ -59,6 +59,10 @@ function toggleSettings() {
                         <input type="checkbox" v-model="settings.state.hoverAnimations">
                         <label>enable animations</label>
                     </div>
+                    <div class="row-fit g-2">
+                        <input type="checkbox" v-model="settings.state.showPreviewByDefault">
+                        <label>show preview by default</label>
+                    </div>
                 </div>
             </Window>
         </article>

@@ -107,9 +107,15 @@ function viewDraft(existingDraft: Draft) {
     showDrafts.value = false
 }
 
-let showPreview = ref(false)
+const settings = useSettings();
+
+let showPreview = ref(settings.state.showPreviewByDefault ?? false)
 function togglePreview() {
     showPreview.value = !showPreview.value
+}
+
+function uploadMarkdown() {
+
 }
 </script>
 
@@ -159,8 +165,9 @@ function togglePreview() {
             </form>
             <section class="row-wrap g-2 mt-5">
                 <button class="success" @click="submit">Submit</button>
-                <button class="info" @click="saveDraft">Save Draft</button>
-                <button class="link" @click="togglePreview">
+                <button class="link" @click="saveDraft">Save Draft</button>
+                <!-- <button class="link" @click="uploadMarkdown">Upload Markdown</button> -->
+                <button class="info" @click="togglePreview">
                     <span v-if="!showPreview">Show Preview</span>
                     <span v-else>Hide Preview</span>
                 </button>
