@@ -30,6 +30,7 @@
                 <h1>Will this ever cost money?</h1>
                 <p>We will never charge our users for access to any of the functionality of DOX.</p>
                 <p>However for this site to remain operational, then our costs need to be covered and our developers need to be compensated fairly. Our goal is not profits. We care about the free access to information on the internet.</p>
+                <p>If you wish to support us financially, you can do so on our Patreon.</p>
             </section>
         </div>
     </article>
