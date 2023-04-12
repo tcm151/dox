@@ -31,10 +31,8 @@ onMounted(() => {
     @include flex-v;
     align-items: center;
     height: calc(100% - 35px);
-    
-    overflow: hidden;
-
     background-color: $dox-white-light;
+    overflow: hidden;
 }
 
 .slot {
@@ -42,6 +40,7 @@ onMounted(() => {
     flex: 1 1 auto;
     @include flex-v;
     align-items: center;
+    overflow: hidden;
 
     > div {
         padding: 1rem;
