@@ -192,6 +192,7 @@ function sort(type: string) {
     }
 
     span:hover, i:hover {
+        cursor: pointer;
         color: $dox-white-ultra;
         background-color: $dox-grey-light;
     }

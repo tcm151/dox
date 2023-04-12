@@ -7,12 +7,12 @@ definePageMeta({
 
 const session = getSession()
 
-let query = {
+let query = ref({
     pageNumber: 1,
-    pageSize: 5,
-}
+    pageSize: 25,
+})
 
-const feed = useFeed(query)
+const feed = useFeed(query.value)
 
 const feedPosts = computed(() => {
     return feed.items!.filter(p =>
@@ -22,7 +22,7 @@ const feedPosts = computed(() => {
 })
 
 async function goToPage(pageNumber: number) {
-    query.pageNumber = pageNumber
+    query.value.pageNumber = pageNumber
     await feed.fetch()
 }
 
