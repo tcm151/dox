@@ -32,8 +32,7 @@ onMounted(() => {
     align-items: center;
     height: calc(100% - 35px);
     
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
 
     background-color: $dox-white-light;
 }
