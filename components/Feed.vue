@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 const vote = useVoting();
 const sorting = useSorting();
-const settings = useSettings();
+const settings = useUserSettings();
 
 onMounted(() => sorting.sortBy(props.posts, "hot"))
 

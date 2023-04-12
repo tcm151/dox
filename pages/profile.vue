@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const session = getSession();
-const settings = useSettings();
+const settings = useUserSettings();
 
 async function authenticate() {
     await session.useApi(`/api/profile/authenticate`)
