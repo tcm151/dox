@@ -3,24 +3,41 @@ defineProps(['error'])
 </script>
 
 <template>
-    <div class="error p-6">
-        <div class="column g-2 p-5 mx-auto">
-            <h1>{{ error.statusCode }}</h1>
-            <p>{{ error.message }}</p>
-            <button class="success" @click="clearError({ redirect: '/feed' })">Go Home</button>
-        </div>
-    </div>
+    <article class="error">
+        <section class="details py-5 px-6 ">
+            <div class="mb-5">
+                <h1>ERR: {{ error.statusCode }}</h1>
+                <p>{{ error.message }}</p>
+            </div>
+            <div class="row g-2">
+                <button class="success" @click="clearError({ redirect: '/feed' })">Return to Safety</button>
+                <button class="danger" @click="clearError({ redirect: '/feed' })">Complain</button>
+            </div>
+        </section>
+    </article>
 </template>
 
 <style scoped lang="scss">
-.error {
+article.error {
     height: 100%;
+    display: grid;
+    place-items: center;
     background-color: $dox-white-light;
+
     
-    .column {
+    section.details {
+        @include flex-v;
         align-items: center;
         border-radius: 0.25rem;
         background-color: $dox-white-ultra;
+        
+        div {
+            text-align: center;
+
+            h1 {
+                font-size: 2.5rem
+            }
+        }
     }
 }
 </style>
