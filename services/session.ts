@@ -71,7 +71,8 @@ export const getSession = defineStore("session", (): Session => {
             return true
         }
         catch (ex: any) {
-            console.log(ex)
+            // INFO don't care about catching
+            // returns false to indicate token is expired 
             return false
         }
     }

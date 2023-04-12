@@ -5,41 +5,31 @@ definePageMeta({
     layout: 'default'
 })
 
-const hints = useHints()
 const session = getSession()
 
-let page = ref(1)
-let pageSize = ref(25)
+let query = {
+    pageNumber: 1,
+    pageSize: 5,
+}
 
-const { data: allPosts, refresh, error } = await useAsyncData<Post[]>("feed", () => {
-    return $fetch(`/api/post?page=${page.value}&pageSize=${pageSize.value}`)
-})
+const feed = useFeed(query)
 
 const feedPosts = computed(() => {
-    return allPosts.value!.filter(p =>
+    return feed.items!.filter(p =>
         p.topics.some(pt => session.user?.topics.includes(pt))
         || session.user?.following.includes(p.user.id)
     )
 })
 
 async function goToPage(pageNumber: number) {
-    console.log(pageNumber)
-    page.value = pageNumber
-    await refresh({ dedupe: true })
+    query.pageNumber = pageNumber
+    await feed.fetch()
 }
-
-watch(error, (error) => {
-    if (error) {
-        hints.addError("Failed to load posts.")
-        hints.addError(error.message)
-    }
-})
-
 
 let filterType = ref("All")
 let filteredPosts = ref<Post[] | null>([])
 
-onMounted(() => filteredPosts.value = allPosts.value)
+onMounted(() => filteredPosts.value = feed.items)
 
 function toggleFilter() {
     switch (filterType.value) {
@@ -49,7 +39,7 @@ function toggleFilter() {
             return;
         case "Feed":
             filterType.value = "All";
-            filteredPosts.value = allPosts.value;
+            filteredPosts.value = feed.items;
             return;
     }
 }
@@ -58,12 +48,12 @@ function toggleFilter() {
 <template>
     <section class="feed p-4">
         <Feed
-        :page="page"
+        :page="query.pageNumber"
         :sorting="true"
         :pagination="true"
         @page="goToPage"
-        @refresh="refresh"
-        :posts="allPosts ?? []">
+        @refresh="feed.fetch"
+        :posts="feed.items ?? []">
             <template #header>
                 <button class="filter-type" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>

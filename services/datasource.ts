@@ -4,19 +4,20 @@ const hints = useHints()
 const events = useEvents()
 const session = getSession()
 
-export interface DatasourceItem<T> extends Ref<T> {
+export interface DatasourceItem<T> {
+    value: Ref<T | null>
     options: ItemOptions
     loading: Ref<boolean>
     fetch(): Promise<boolean>
-    create(): Promise<boolean>
     update(): Promise<boolean>
-    remove(): Promise<boolean>
 }
 
 interface ItemOptions {
-    clear: boolean
     fetch: {
-        url: string
+        url: () => string
+        query?: {
+            [key: string]: any
+        }
         error: {
             message: string
             handler?: Function
@@ -31,15 +32,13 @@ interface ItemOptions {
     }
 }
 
-export function createDatasourceItem<T>(options: ItemOptions): DatasourceItem<T | null> {
+function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
     
-    const { data, error, pending, refresh } = useAsyncData<T>(options.fetch.url, () => $fetch(options.fetch.url, {
+    const { data, error, pending, refresh } = useAsyncData<T>(options.fetch.url(), () => $fetch(options.fetch.url(), {
         headers: {
             Authorization: `Bearer ${session.token}`,
         },
     }))
-
-    const datasource = data as DatasourceItem<T | null>
 
     watch(error, (value: any) => {
         if (value) {
@@ -49,16 +48,16 @@ export function createDatasourceItem<T>(options: ItemOptions): DatasourceItem<T 
         }
     })
 
-    if (options.clear) {
-        events.subscribe("switchedTenant", () => refresh())
-    }
+    watch(options.fetch.query!, async () => {
+        return await fetch()
+    })
 
-    datasource.fetch = async (): Promise<boolean> => {
+    async function fetch(): Promise<boolean> {
         await refresh()
         return true
     }
     
-    datasource.update = async (): Promise<boolean> => {
+    async function update(): Promise<boolean> {
         if (!options.update) {
             return true
         }
@@ -82,11 +81,11 @@ export function createDatasourceItem<T>(options: ItemOptions): DatasourceItem<T 
         }
     }
 
-    return datasource
-    // return { data: data as Ref<T | null>, options, loading: pending, fetch, update }
+    return { value: data as Ref<T | null>, options, loading: pending, fetch, update }
 }
 
-export interface DatasourceList<T> extends Ref<T> {
+export interface DatasourceList<T> {
+    items: Ref<T[] | null>
     options: ListOptions
     loading: Ref<boolean>
     fetch(): Promise<boolean>
@@ -96,9 +95,11 @@ export interface DatasourceList<T> extends Ref<T> {
 }
 
 interface ListOptions {
-    clear: boolean
     fetch: {
-        url: string
+        url: () => string
+        query?: {
+            [key: string]: any
+        }
         error: {
             message: string
             handler?: Function
@@ -127,15 +128,13 @@ interface ListOptions {
     }
 }
 
-export function createDatasourceList<T>(options: ListOptions): DatasourceList<T[] | null> {
+function defineList<T>(options: ListOptions): DatasourceList<T> {
     
-    const { data, error, pending, refresh } = useAsyncData<T[]>(options.fetch.url, () => $fetch(options.fetch.url, {
+    const { data, error, pending, refresh } = useAsyncData<T[]>(options.fetch.url(), () => $fetch(options.fetch.url(), {
         headers: {
             Authorization: `Bearer ${session.token}`,
         },
     }))
-
-    const datasource = data as DatasourceList<T[] | null>
 
     watch(error, (value: any) => {
         if (value) {
@@ -145,16 +144,12 @@ export function createDatasourceList<T>(options: ListOptions): DatasourceList<T[
         }
     })
 
-    if (options.clear) {
-        events.subscribe("switchedTenant", () => refresh())
-    }
-
-    datasource.fetch = async (): Promise<boolean> => {
+    async function fetch(): Promise<boolean> {
         await refresh()
         return true
     }
     
-    datasource.create = async <T>(items: T[]): Promise<boolean> => {
+    async function create<T>(items: T[]): Promise<boolean> {
         if (!options.create || items.length === 0) {
             return true
         }
@@ -177,7 +172,7 @@ export function createDatasourceList<T>(options: ListOptions): DatasourceList<T[
         }
     }
     
-    datasource.update = async <T>(items: T[]): Promise<boolean> => {
+    async function update<T>(items: T[]): Promise<boolean> {
         if (!options.update || items.length === 0) {
             return true
         }
@@ -201,7 +196,7 @@ export function createDatasourceList<T>(options: ListOptions): DatasourceList<T[
         }
     }
     
-    datasource.remove = async <T>(items: T[]): Promise<boolean> => {
+    async function remove<T>(items: T[]): Promise<boolean> {
         if (!options.remove || items.length === 0) {
             return true
         }
@@ -225,8 +220,8 @@ export function createDatasourceList<T>(options: ListOptions): DatasourceList<T[
         }
     }
 
-    return datasource
-    // return { items: data, options, loading: pending, fetch, create, update, remove }
+    return { items: data as Ref<T[] | null>, options, loading: pending, fetch, create, update, remove }
 }
 
-// export default { createItem, createList }
+
+export default { defineItem, defineList }
