@@ -16,6 +16,11 @@ async function login() {
                 <i class="fa-solid fa-box-archive"></i>
                 <span>DOX</span>
             </NuxtLink>
+            <ClientOnly>
+                <NuxtLink to="/admin" v-if="session.user.admin">
+                    <i class="fa-solid fa-terminal"></i>
+                </NuxtLink>
+            </ClientOnly>
         </section>
         <ClientOnly>
             <Transition name="slide">

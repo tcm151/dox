@@ -39,6 +39,7 @@ export const getSession = defineStore("session", (): Session => {
         following: [],
         followers: [],
         dateCreated: 'string',
+        admin: false
     }))
 
     //> API

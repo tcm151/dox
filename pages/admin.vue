@@ -5,6 +5,8 @@ definePageMeta({
     layout: 'minimal'
 })
 
+const hints = useHints()
+
 let showSettings = ref(false)
 
 const { settings, history, saved } = storeToRefs(useQuery())
@@ -29,7 +31,7 @@ function removeQueryFromSaved(savedQuery: string) {
     saved.value = saved.value.filter(s => s !== savedQuery)
 }
 
-async function submitQuery () {
+async function submitQuery() {
     const response = await fetch(`${settings.value.host}/sql`, {
         method: "POST",
         headers: {
@@ -49,7 +51,7 @@ async function submitQuery () {
         tab.value = 'Results'
     } else {
         const json = await response.json();
-        alert(json.information);
+        hints.addError(json.information)
     }
 }
 </script>
@@ -61,30 +63,35 @@ async function submitQuery () {
             <section class="editor fill column g-2">
                 <header class="row g-2">
                     <button class="danger" @click="query = ''">
-                        Clear
+                        <span>Clear</span>
+                        <i class="fa-solid fa-soap"></i>
                     </button>
                     <button class="success fill" @click="submitQuery">
-                        Submit
+                        <span>Submit</span>
+                        <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </header>
                 <div class="field fill">
-                    <textarea rows="16" spellcheck="false" v-model="query" />
+                    <textarea rows="16" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
                 </div>
             </section>
         </div>
         <div class="right column g-2 p-4">
             <header class="row g-2">
                 <button class="link fill" @click="tab = 'Results'">
-                    Results
+                    <i class="fa-solid fa-square-poll-horizontal"></i>
+                    <span>Results</span>
                 </button>
                 <button class="link fill" @click="tab = 'History'">
-                    History
+                    <i class="fa-solid fa-book"></i>
+                    <span>History</span>
                 </button>
                 <button class="link fill" @click="tab = 'Saved'">
-                    Saved
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Saved</span>
                 </button>
-                <button class="link fill" @click="showSettings = true">
-                    Settings
+                <button class="link fit" @click="showSettings = true">
+                    <i class="fa-solid fa-gear"></i>
                 </button>
             </header>
             <section class="results column g-2" v-if="tab == 'Results'">
@@ -95,9 +102,9 @@ async function submitQuery () {
             <section class="history column g-2" v-if="tab == 'History'">
                 <div class="query" v-for="(query, index) in history" :key="index">
                     <p class="p-2">{{ query }}</p>
-                    <div class="buttons row g-1">
+                    <div class="buttons row g-2">
                         <button @click="reuseQuery(query)">
-                            <i class="fa-solid fa-rotate-right"></i>
+                            <i class="fa-solid fa-rotate"></i>
                         </button>
                         <button @click="saveQuery(query)">
                             <i class="fa-solid fa-floppy-disk"></i>
@@ -111,9 +118,15 @@ async function submitQuery () {
             <section class="saved column g-2" v-if="tab == 'Saved'">
                 <div class="query" v-for="(query, index) in saved" :key="index">
                     <p class="p-2">{{ query }}</p>
-                    <div class="buttons row g-1">
+                    <div class="buttons row g-2">
                         <button @click="reuseQuery(query)">
-                            <i class="fa-solid fa-rotate-right"></i>
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                        <button @click="">
+                            <i class="fa-solid fa-up-long"></i>
+                        </button>
+                        <button @click="">
+                            <i class="fa-solid fa-down-long"></i>
                         </button>
                         <button @click="removeQueryFromSaved(query)">
                             <i class="fa-solid fa-trash-can"></i>
@@ -132,10 +145,25 @@ article {
     @include fit-width (2000px, 1rem);
     overflow: hidden;
 
+    div.left {
+        flex: 1 1 40%;
+    }
+
+    div.right {
+        flex: 1 1 60%;
+    }
+
     div.left, div.right {
-        flex: 1 1;
         border-radius: 0.25rem;
         background-color: $dox-white-ultra;
+    }
+}
+
+.row {
+    button:has(i, span) {
+        @include flex-h (0.5rem);
+        justify-content: center;
+        align-items: center;
     }
 }
 
@@ -148,11 +176,9 @@ section.editor {
         height: 100%;
         resize: none;
         font-weight: 500;
-        font-family: "Roboto Mono", monospace;
+        font-family: "Source Code Pro", monospace;
     }
 }
-
-
 
 section.history, section.saved {
     overflow-y: auto;
@@ -163,7 +189,7 @@ section.history, section.saved {
         p {
             white-space: pre-wrap;
             font-weight: 500;
-            font-family: "Roboto Mono", monospace;
+            font-family: "Source Code Pro", monospace;
             border-radius: 0.25rem;
             background-color: $dox-white-light;
         }
@@ -172,6 +198,17 @@ section.history, section.saved {
             top: 0;
             right: 0;
             position: absolute;
+            padding: 0.5rem;
+
+            button {
+                padding: 0;
+                font-size: 1.2rem;
+                background-color: transparent;
+            }
+
+            button:hover {
+                color: $dox-white;
+            }
         }
     }
 
@@ -185,18 +222,14 @@ div.right {
 }
 
 section.results {
-    overflow: hidden;
-
-    div.result {
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
+    overflow-y: auto;
 
     code {
         overflow-x: hidden;
+        overflow-y: visible;
         white-space: pre-wrap;
         font-weight: 500;
-        font-family: "Roboto Mono", monospace;
+        font-family: "Source Code Pro", monospace;
         background-color: $dox-white-light !important;
     }
 }

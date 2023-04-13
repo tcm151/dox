@@ -1,9 +1,5 @@
 import { Ref } from "vue";
 
-const hints = useHints()
-const events = useEvents()
-const session = getSession()
-
 export interface DatasourceItem<T> {
     value: Ref<T | null>
     options: ItemOptions
@@ -33,6 +29,10 @@ interface ItemOptions {
 }
 
 function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
+
+    const hints = useHints()
+    const events = useEvents()
+    const session = getSession()
     
     const { data, error, pending, refresh } = useAsyncData<T>(options.fetch.url(), () => $fetch(options.fetch.url(), {
         headers: {
@@ -129,6 +129,10 @@ interface ListOptions {
 }
 
 function defineList<T>(options: ListOptions): DatasourceList<T> {
+
+    const hints = useHints()
+    const events = useEvents()
+    const session = getSession()
     
     const { data, error, pending, refresh } = useAsyncData<T[]>(options.fetch.url(), () => $fetch(options.fetch.url(), {
         headers: {

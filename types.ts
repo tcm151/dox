@@ -1,12 +1,3 @@
-export interface Notification {
-    id: string
-    recipient: User
-    context: Post | Comment
-    message: string
-    time: string
-    viewed: boolean
-}
-
 export interface User {
     id: string
     email: string
@@ -16,6 +7,7 @@ export interface User {
     following: string[]
     followers: string[]
     dateCreated: string
+    admin: boolean
 }
 
 export interface Votes {
@@ -58,4 +50,13 @@ export interface Comment {
     votes: Votes
     edited?: boolean
     timeEdited?: string
+}
+
+export interface Notification {
+    id: string
+    recipient: User
+    context: Post | Comment
+    message: string
+    time: string
+    viewed: boolean
 }

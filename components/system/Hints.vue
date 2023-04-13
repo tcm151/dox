@@ -6,6 +6,7 @@ interface Hint {
 }
 
 const events = useEvents();
+const settings = useUserSettings();
 events.subscribe("addHint", addHint);
 
 let hintCount = ref(0);
@@ -14,7 +15,7 @@ let hints = ref<Hint[]>([])
 function addHint(payload: Hint) {
     payload.number = hintCount.value += 1;
     hints.value.push(payload);
-    setTimeout(() => removeHont(payload), 2048);
+    setTimeout(() => removeHont(payload), settings.state.hintDuration);
 }
 
 function removeHont(hint: Hint) {
@@ -78,7 +79,7 @@ function getColor(hint: Hint) {
     .message {
         flex: 1 1;
         padding: 0.5rem 1rem;
-        text-align: right;
+        text-align: center;
     }
 }
 </style>

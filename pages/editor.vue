@@ -197,7 +197,7 @@ p:has(img) {
 code {
     font-size: 0.95rem;
     font-weight: 500;
-    font-family: 'Roboto Mono', monospace;
+    font-family: 'Source Code Pro', monospace;
     border-radius: 0.25rem;
     background-color: $dox-white-light !important;
 }
