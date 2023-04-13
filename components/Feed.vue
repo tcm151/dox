@@ -15,15 +15,14 @@ const emit = defineEmits<{
 }>()
 
 const vote = useVoting();
-const sorting = useSorting();
 const settings = useUserSettings();
 
-onMounted(() => sorting.sortBy(props.posts, "hot"))
+onMounted(() => sortBy(props.posts, "hot"))
 
 let sortType = ref("hot")
 function sort(type: string) {
     sortType.value = type
-    sorting.sortBy(props.posts, type)
+    sortBy(props.posts, type)
 }
 
 </script>
