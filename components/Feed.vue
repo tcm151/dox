@@ -49,37 +49,43 @@ function sort(type: string) {
             </button>
         </div>
         <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
-            <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
-                {{ post.title }}
-            </h3>
-            <div class="row-wrap g-1">
-                <div class="votes row g-1">
-                    <span class="positive" @click="vote.positive(post.id, post.votes)">
-                        {{ post?.votes.positive.length }}
+            <!-- TODO allow reply to posts directly with another post -->
+            <div class="reply-to" v-if="post.topics.includes('ReplyTo')">
+                <p>Replying to: This is the name of the post that is being replied to</p>
+            </div>
+            <div class="main">
+                <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                    {{ post.title }}
+                </h3>
+                <div class="row-wrap g-1">
+                    <div class="votes row g-1">
+                        <span class="positive" @click="vote.positive(post.id, post.votes)">
+                            {{ post?.votes.positive.length }}
+                        </span>
+                        <span class="misleading" @click="vote.misleading(post.id, post.votes)">
+                            {{ post?.votes.misleading.length }}
+                        </span>
+                        <span class="negative" @click="vote.negative(post.id, post.votes)">
+                            {{ post?.votes.negative.length }}
+                        </span>
+                        <!-- TODO decide if want to show awards or saves -->
+                        <!-- <span>
+                            <i class="fa-solid fa-crown"></i>
+                        </span>
+                        <span>
+                            <i class="fa-solid fa-box-archive"></i>
+                        </span> -->
+                    </div>
+                    <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
+                        {{ topic }}
                     </span>
-                    <span class="misleading" @click="vote.misleading(post.id, post.votes)">
-                        {{ post?.votes.misleading.length }}
-                    </span>
-                    <span class="negative" @click="vote.negative(post.id, post.votes)">
-                        {{ post?.votes.negative.length }}
-                    </span>
-                    <!-- TODO decide if want to show awards or saves -->
-                    <!-- <span>
-                        <i class="fa-solid fa-crown"></i>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-box-archive"></i>
-                    </span> -->
-                </div>
-                <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
-                    {{ topic }}
-                </span>
-                <div class="details row g-1">
-                    <span class="info" @click="navigateTo(`/user/${extractId(post.user.id)}`)">
-                        u/{{ post?.user.name ?? "deleted" }}
-                    </span>
-                    <span class="info">{{ post.comments.length }} comments</span>
-                    <span class="info">{{ formatDate(post.time as any) }}</span>
+                    <div class="details row g-1">
+                        <span class="info" @click="navigateTo(`/user/${extractId(post.user.id)}`)">
+                            u/{{ post?.user.name ?? "deleted" }}
+                        </span>
+                        <span class="info">{{ post.comments.length }} comments</span>
+                        <span class="info">{{ formatDate(post.time as any) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,7 +113,14 @@ function sort(type: string) {
         @include flex-h (0.5rem);
         align-items: center;
         justify-content: center;
+        
+        @media only screen and (max-width: 400px) {
+            span {
+                display: none;
+            }    
+        }
     }
+
 
     .refresh {
         flex: 0 1;
@@ -132,10 +145,21 @@ function sort(type: string) {
 }
 
 .post {
-    padding: 0.25rem 0.5rem 0.5rem 0.5rem;
     border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white;
     transition: transform 128ms;
+    
+    .main {
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem 0.5rem 0.5rem;
+        background-color: $dox-white-ultra;
+    }
+
+    .reply-to {
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+        font-weight: 700;
+        color: $dox-black;
+    }
 
     span {
         padding: 0.25rem 1rem;

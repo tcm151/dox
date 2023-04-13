@@ -148,7 +148,11 @@ function sort(type: string) {
                             <i class="fa-solid fa-message"></i>
                             <span>Comment</span>
                         </button>
-                        <!-- <button>Reply</button> -->
+                        <!-- TODO allow replying to posts -->
+                        <button>
+                            <i class="fa-solid fa-reply-all"></i>
+                            <span>Reply</span>
+                        </button>
                         <button @click="copyLink">
                             <i class="fa-solid fa-envelope"></i>
                             <span>Share</span>
