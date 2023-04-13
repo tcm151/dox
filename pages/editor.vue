@@ -107,7 +107,7 @@ function viewDraft(existingDraft: Draft) {
     showDrafts.value = false
 }
 
-const settings = useSettings();
+const settings = useUserSettings();
 
 let showPreview = ref(settings.state.showPreviewByDefault ?? false)
 function togglePreview() {

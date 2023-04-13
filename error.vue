@@ -1,5 +1,7 @@
 <script setup>
 defineProps(['error'])
+
+let complain = ref(false)
 </script>
 
 <template>
@@ -11,9 +13,14 @@ defineProps(['error'])
             </div>
             <div class="row g-2">
                 <button class="success" @click="clearError({ redirect: '/feed' })">Return to Safety</button>
-                <button class="danger" @click="clearError({ redirect: '/feed' })">Complain</button>
+                <button class="danger" @click="complain = true">Complain</button>
             </div>
         </section>
+        <Window title="Submit Feedback" :visible="true" @close="complain = false" v-if="complain">
+            <section class="p-2">
+                <Feedback placeholder="Tell us what happened..." @submit="clearError({ redirect: '/feed' })" />
+            </section>
+        </Window>
     </article>
 </template>
 

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import Datasource from "~/services/datasource"
+import Datasource from "~/utils/datasource"
 import { Post } from "~/types";
 
 interface QueryParameters {

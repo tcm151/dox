@@ -133,9 +133,10 @@ function releaseWindow() {
 }
 
 .window-slot {
-    @include flex-v;
     padding: 1rem;
-    overflow-y:auto;
+    @include flex-v;
+    background-color: $dox-white-ultra;
+    overflow-y: auto;
 }
 
 // .top-left-corner,

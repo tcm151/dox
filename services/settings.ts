@@ -5,8 +5,8 @@ interface Settings {
     showPreviewByDefault: boolean
 }
 
-export const useSettings = defineStore("settings", () => {
-    const state = skipHydrate(useLocalStorage("settings", {
+export const useUserSettings = defineStore("userSettings", () => {
+    const state = skipHydrate(useLocalStorage<Settings>("userSettings", {
         hoverAnimations: true,
         showPreviewByDefault: true,
     }));

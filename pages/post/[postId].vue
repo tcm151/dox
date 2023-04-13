@@ -6,14 +6,13 @@ const postId = route.params.postId;
 
 const vote = useVoting();
 const hints = useHints();
-const sorting = useSorting();
 const session = getSession();
 
 const { data: response, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
 const post = computed(() => response.value?.post)
 const comments = computed(() => response.value?.comments)
 
-onMounted(() => sorting.sortBy(comments.value!, "hot"))
+onMounted(() => sortBy(comments.value!, "hot"))
 
 // useServerSeoMeta({
 //     ogTitle: () => post.value?.title ?? postId[0],
@@ -107,7 +106,7 @@ function copyLink() {
 let sortType = ref("hot")
 function sort(type: string) {
     sortType.value = type
-    sorting.sortBy(comments.value!, type)
+    sortBy(comments.value!, type)
 }
 
 </script>
@@ -148,7 +147,11 @@ function sort(type: string) {
                             <i class="fa-solid fa-message"></i>
                             <span>Comment</span>
                         </button>
-                        <!-- <button>Reply</button> -->
+                        <!-- TODO allow replying to posts -->
+                        <button>
+                            <i class="fa-solid fa-reply-all"></i>
+                            <span>Reply</span>
+                        </button>
                         <button @click="copyLink">
                             <i class="fa-solid fa-envelope"></i>
                             <span>Share</span>

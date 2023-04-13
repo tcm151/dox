@@ -7,12 +7,12 @@ definePageMeta({
 
 const session = getSession()
 
-let query = ref({
+let queryParameters = ref({
     pageNumber: 1,
     pageSize: 25,
 })
 
-const feed = useFeed(query.value)
+const feed = useFeed(queryParameters.value)
 
 const feedPosts = computed(() => {
     return feed.items!.filter(p =>
@@ -22,7 +22,7 @@ const feedPosts = computed(() => {
 })
 
 async function goToPage(pageNumber: number) {
-    query.value.pageNumber = pageNumber
+    queryParameters.value.pageNumber = pageNumber
     await feed.fetch()
 }
 
@@ -48,7 +48,7 @@ function toggleFilter() {
 <template>
     <section class="feed p-4">
         <Feed
-        :page="query.pageNumber"
+        :page="queryParameters.pageNumber"
         :sorting="true"
         :pagination="true"
         @page="goToPage"
@@ -65,7 +65,7 @@ function toggleFilter() {
 </template>
 
 <style scoped lang="scss">
-.feed {
+section.feed {
     @include fit-width(800px, 1rem);
 }
 
