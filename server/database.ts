@@ -1,12 +1,6 @@
 import Surreal from 'surrealdb.js';
 import { User } from '~/types';
 
-interface DatabaseResponse<T> {
-    status: string
-    time: string
-    result: T[]
-}
-
 export const useDatabase = async () => {
     const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
     const db = new Surreal(surrealDatabaseUrl);
@@ -35,17 +29,31 @@ interface QueryParameters {
     [key: string]: any
 }
 
-export const queryOne = async <T>(sql: string[], parameters?: QueryParameters) => {
-    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"), parameters ?? {});
-    return response[0].result[0];
+interface DatabaseResponse<T> {
+    status: string
+    details?: string
+    time: string
+    result: T[]
 }
 
-export const queryAll = async <T>(sql: string[], parameters?: QueryParameters) => {
-    let response = await db.query<DatabaseResponse<T>[]>(sql.join("\n"), parameters ?? {});
-    return response[0].result;
+async function handleQuery<T>(sql: string[], parameters?: QueryParameters) {
+    const response = await db.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
+    if (response[0].status == 'ERR') {
+        throw createError({ statusCode: 500, message: response[0].details })
+    }
+    return response
 }
 
-export const multiQuery = async <T>(sql: string[], parameters?: QueryParameters) => {
-    let responses = await db.query<DatabaseResponse<T>[]>(sql.join("\n"), parameters ?? {});
-    return responses.map(r => r.result);
+export async function queryOne<T>(sql: string[], parameters?: QueryParameters): Promise<T> {
+    let responses = await handleQuery<T>(sql, parameters)
+    return responses[0].result[0]
+}
+
+export async function queryAll<T>(sql: string[], parameters?: QueryParameters): Promise<T[]> {
+    let response = await handleQuery<T>(sql, parameters) 
+    return response[0].result
+}
+
+export async function multiQuery(sql: string[], parameters?: QueryParameters): Promise<void> {
+    await handleQuery(sql, parameters)
 }
