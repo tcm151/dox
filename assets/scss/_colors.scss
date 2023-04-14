@@ -12,22 +12,27 @@ $dox-white-light: #EBEBEB;
 $dox-white-ultra: #FAFAFA;
 
 $dox-green: #1FAD83;
-$dox-yellow: #FFCF33;
-$dox-red: #F55D3E;
-$dox-purple: #8783D1;
-$dox-blue: #78C3FB;
-
 $dox-green-light: color.scale($dox-green, $lightness: 80%);
-$dox-yellow-light: color.scale($dox-yellow, $lightness: 65%);
-$dox-red-light: color.scale($dox-red, $lightness: 80%);
-$dox-purple-light: color.scale($dox-purple, $lightness: 75%);
-$dox-blue-light: color.scale($dox-blue, $lightness: 70%);
-
 $dox-green-dark: color.scale($dox-green, $lightness: -80%);
+
+$dox-yellow: #FFCF33;
+$dox-yellow-light: color.scale($dox-yellow, $lightness: 65%);
 $dox-yellow-dark: color.scale($dox-yellow, $lightness: -65%);
-$dox-red-dark: color.scale($dox-red, $lightness: -80%);
-$dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
+
+$dox-red: #F55D3E;
+$dox-red-light: color.scale($dox-red, $lightness: 80%);
+$dox-red-dark: color.scale($dox-red, $lightness: -50%);
+
+$dox-blue: #78C3FB;
+$dox-blue-light: color.scale($dox-blue, $lightness: 70%);
 $dox-blue-dark: color.scale($dox-blue, $lightness: -70%);
+
+$dox-purple: #8783D1;
+$dox-purple-light: color.scale($dox-purple, $lightness: 75%);
+$dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
+
+
+
 
 //> OVERRIDES
 $primary: $dox-black;
