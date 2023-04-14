@@ -69,7 +69,7 @@ async function deleteDraft(draft: Draft) {
 <style scoped lang="scss">
 
 section {
-    min-height: 256px;
+    min-height: 512px;
 }
 
 section.drafts {
@@ -114,5 +114,11 @@ section.empty-drafts, section.loading {
     @include flex-v;
     justify-content: center;
     text-align: center;
+}
+
+section.empty-drafts {
+    p {
+        font-weight: 700;
+    }
 }
 </style>
