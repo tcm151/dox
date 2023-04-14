@@ -18,6 +18,9 @@ async function login() {
             </NuxtLink>
             <ClientOnly>
                 <NuxtLink to="/admin" v-if="session.user.admin">
+                    <i class="fa-solid fa-shield"></i>
+                </NuxtLink>
+                <NuxtLink to="/query" v-if="session.user.admin">
                     <i class="fa-solid fa-terminal"></i>
                 </NuxtLink>
             </ClientOnly>

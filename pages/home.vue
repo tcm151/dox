@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-    layout: 'minimal'
+    layout: 'simple'
 })
 let { data: trendingTopics } = useFetch("/api/trending/topics");
 let { data: trendingUsers } = useFetch("/api/trending/users");

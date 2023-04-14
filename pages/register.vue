@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-    layout: 'focus'
+    layout: 'middle'
 })
 
 const hints = useHints();
