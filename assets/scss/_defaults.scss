@@ -46,6 +46,12 @@ a, a:hover, a:active, a:visited {
     }
 }
 
+a:has(i, span) {
+    @include flex-h (0.5rem);
+    justify-content: center;
+    align-items: center;
+}
+
 button {
     padding: 0.5rem 1rem;
 
