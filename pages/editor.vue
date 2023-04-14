@@ -29,7 +29,7 @@ function validTopic() {
 
 function addTopic() {
     if (validTopic()) {
-        draft.value.topics.push(newTopic.value);
+        draft.value.topics.push(`topic:${newTopic.value}`);
         newTopic.value = "";
         return;
     }
@@ -149,7 +149,7 @@ function uploadMarkdown() {
                     <div class="row g-2 mb-2">
                         <label style="margin-bottom: 0">Topics</label>
                         <div class="topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
-                            <p>{{ topic }}</p>
+                            <p>{{ topic.split(':')[1] }}</p>
                         </div>
                     </div>
                     <input
