@@ -88,6 +88,8 @@ function releaseWindow() {
     position: absolute;
     width: 100vw;
     height: 100vh;
+    z-index: 9999;
+
     @include flex-v;
     align-items: center;
     justify-content: center;
