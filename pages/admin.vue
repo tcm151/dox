@@ -2,6 +2,10 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
+        const session = getSession()
+        if (to.path === "/admin" && !session.isAuthenticated) {
+            return navigateTo("/")
+        }
         if (to.path === "/admin") {
             return navigateTo("/admin/feedback")
         }

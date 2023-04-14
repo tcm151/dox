@@ -2,7 +2,13 @@
 import { storeToRefs } from 'pinia';
 
 definePageMeta({
-    layout: 'simple'
+    layout: 'simple',
+    middleware: (to, from) => {
+        const session = getSession()
+        if (to.path === "/query" && !session.isAuthenticated) {
+            return navigateTo("/")
+        }
+    }
 })
 
 const hints = useHints()
