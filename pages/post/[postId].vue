@@ -107,8 +107,8 @@ async function updateComment(comment: Comment) {
                         {{ post.value?.votes.negative.length }}
                     </span>
                 </div>
-                <span class="topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic}`)">
-                    {{ topic }}
+                <span class="topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                    {{ topic.split(':')[1] }}
                 </span>
                 <span class="info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
@@ -122,7 +122,7 @@ async function updateComment(comment: Comment) {
             </div>
             <ClientOnly>
                 <div class="column g-2" v-if="session.isAuthenticated">
-                    <section class="interactions row" v-if="!showPostReply && !editingPost">
+                    <section class="interactions row-wrap g-1" v-if="!showPostReply && !editingPost">
                         <button @click="toggleCommentBox">
                             <i class="fa-solid fa-message"></i>
                             <span>Comment</span>
@@ -254,7 +254,7 @@ article#post {
     cursor: pointer;
 }
 
-.row {
+.row, .row-wrap {
     gap: 0.25rem;
     white-space: nowrap;
 }

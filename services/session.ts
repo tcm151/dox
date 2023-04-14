@@ -103,8 +103,22 @@ export const getSession = defineStore("session", (): Session => {
     function logout(clear: boolean) {
         isAuthenticated.value = false;
         if (clear == true) {
-            user.value = null;
             token.value = ""
+            user.value = {
+                id: '',
+                email: '',
+                name: '',
+                votes: {
+                    positive: [],
+                    misleading: [],
+                    negative: [],
+                },
+                topics: [],
+                following: [],
+                followers: [],
+                dateCreated: 'string',
+                admin: false
+            }
         }
     }
 
@@ -123,7 +137,7 @@ export const getSession = defineStore("session", (): Session => {
                     return true
                 case "topic":
                     await useApi(`/api/topic/${target}/follow`)
-                    user.value?.topics.push(target)
+                    user.value?.topics.push(`topic:${target}`)
                     return true
             }
         }
@@ -147,7 +161,7 @@ export const getSession = defineStore("session", (): Session => {
                     return true
                 case "topic":
                     await useApi(`/api/topic/${target}/unfollow`)
-                    user.value!.topics = user.value?.topics.filter(t => t !== target)!
+                    user.value!.topics = user.value?.topics.filter(t => t !== `topic:${target}`)!
                     return true
             }
         }

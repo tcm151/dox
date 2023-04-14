@@ -49,7 +49,7 @@ function sort(type: string) {
         </div>
         <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
             <!-- TODO allow reply to posts directly with another post -->
-            <div class="reply-to" v-if="post.topics.includes('ReplyTo')">
+            <div class="reply-to" v-if="post.topics.includes('topic:ReplyTo')">
                 <p>Replying to: This is the name of the post that is being replied to</p>
             </div>
             <div class="main">
@@ -75,11 +75,11 @@ function sort(type: string) {
                             <i class="fa-solid fa-box-archive"></i>
                         </span> -->
                     </div>
-                    <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
-                        {{ topic }}
+                    <span class="topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                        {{ topic.split(':')[1] }}
                     </span>
                     <div class="details row g-1">
-                        <span class="info" @click="navigateTo(`/user/${extractId(post.user.id)}`)">
+                        <span class="info" @click="navigateTo(`/user/${extractId(post.user.id ?? '')}`)">
                             u/{{ post?.user.name ?? "deleted" }}
                         </span>
                         <span class="info">{{ post.comments.length }} comments</span>

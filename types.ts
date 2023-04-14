@@ -43,6 +43,7 @@ export interface Draft {
 
 export interface Topic extends Voteable {
     id: string
+    posts?: Post[]
 }
 
 export interface Comment extends Voteable {

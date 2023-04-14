@@ -5,6 +5,6 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);
     return await queryOne([`
         UPDATE ${auth.id} SET
-        topics -= "${topic}"
+        topics -= topic:${topic}
     `])
 })

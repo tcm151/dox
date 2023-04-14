@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const route = useRoute()
-const topic = route.params.topic as string
+const topic = route.params.topic.toString()
 
-const { data: topicInfo, refresh } = await useFetch(`/api/topic/${topic}`)
+const { info, posts, followers } = useTopic(topic)
 
 const vote = useVoting()
 const hints = useHints()
@@ -10,12 +10,12 @@ const events = useEvents()
 const session = getSession()
 
 let showFollowers = ref(false)
-let following = computed(() => session.user?.topics.includes(topic))
+let following = computed(() => session.user?.topics.includes(`topic:${topic}`))
 
 async function followTopic() {
     try {
         await session.follow("topic", topic)
-        await refresh();
+        await followers.fetch()
     }
     catch (error: any) {
         hints.addError(error.message)
@@ -25,7 +25,7 @@ async function followTopic() {
 async function unfollowTopic() {
     try {
         await session.unfollow("topic", topic)
-        await refresh()
+        await followers.fetch()
     }
     catch (error: any) {
         hints.addError(error.message)
@@ -51,31 +51,31 @@ async function unfollowTopic() {
                 <!-- TODO create topics table -->
                 <!-- TODO allow voting directly on topics -->
                 <div class="votes row g-2">
-                    <button class="positive" @click="">
-                        <span>{{ 1 }}</span>
+                    <button class="positive" @click="vote.positive(info.value)">
+                        <span>{{ info.value?.votes.positive.length }}</span>
                     </button>
-                    <button class="misleading" @click="">
-                        <span>{{ 1 }}</span>
+                    <button class="misleading" @click="vote.misleading(info.value)">
+                        <span>{{ info.value?.votes.misleading.length }}</span>
                     </button>
-                    <button class="negative" @click="">
-                        <span>{{ 1 }}</span>
+                    <button class="negative" @click="vote.negative(info.value)">
+                        <span>{{ info.value?.votes.negative.length }}</span>
                     </button>
                 </div>
                 <button class="link">
-                    <p><strong>{{ topicInfo?.posts.length }}</strong> posts</p>
+                    <p><strong>{{ posts.items?.length }}</strong> posts</p>
                 </button>
                 <button class="info" @click="showFollowers = !showFollowers">
-                    <p><strong>{{ topicInfo?.followers.count }}</strong> followers</p>
+                    <p><strong>{{ followers.value?.count }}</strong> followers</p>
                 </button>
                 <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
                     <!-- TODO show usernames of followers -->
-                    <span v-for="user in topicInfo?.followers">
+                    <span v-for="user in followers.value">
                         {{ user }}
                     </span>
                 </Popup>
             </section>
         </header>
-        <Feed :posts="topicInfo?.posts ?? []" :sorting="true" :pagination="true" />
+        <Feed :posts="posts.items ?? []" :sorting="true" :pagination="true" />
     </article>
 </template>
 
