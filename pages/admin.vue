@@ -1,18 +1,23 @@
 <script setup lang="ts">
 definePageMeta({
-    layout: 'simple'
+    layout: 'simple',
+    middleware: (to, from) => {
+        if (to.path === "/admin") {
+            return navigateTo("/admin/feedback")
+        }
+    }
 })
 </script>
 
 <template>
     <nav class="row">
-        <NuxtLink to="/admin/reports">
-            <i class="fa-solid fa-flag"></i>
-            <span>Reports</span>
-        </NuxtLink>
         <NuxtLink to="/admin/feedback">
             <i class="fa-solid fa-message"></i>
             <span>Feedback</span>
+        </NuxtLink>
+        <NuxtLink to="/admin/reports">
+            <i class="fa-solid fa-flag"></i>
+            <span>Reports</span>
         </NuxtLink>
     </nav>
     <NuxtPage />
