@@ -12,8 +12,9 @@ let showSettings = ref(false)
 const { settings, history, saved } = storeToRefs(useQuery())
 
 let tab = ref<string>("History")
-let query = ref<string>("");
 let results = ref<any>(null);
+
+let query = useSessionStorage<string>("query", "");
 
 function reuseQuery (oldQuery: string) {
     query.value = oldQuery
@@ -21,14 +22,17 @@ function reuseQuery (oldQuery: string) {
 
 function saveQuery(savedQuery: string) {
     saved.value.unshift(savedQuery)
+    hints.addSuccess("Query saved")
 }
 
 function removeQueryFromHistory(oldQuery: string) {
     history.value = history.value.filter(h => h !== oldQuery)
+    hints.addWarning("Query removed from history")
 }
 
 function removeQueryFromSaved(savedQuery: string) {
     saved.value = saved.value.filter(s => s !== savedQuery)
+    hints.addWarning("Query removed from saved")
 }
 
 async function submitQuery() {
@@ -48,6 +52,9 @@ async function submitQuery() {
         history.value = history.value.filter(q => q !== query.value);
         history.value.unshift(query.value);
         results.value = await response.json();
+        results.value.forEach((r: any) => {
+            hints.addSuccess(r.time)
+        })
         tab.value = 'Results'
     } else {
         const json = await response.json();
