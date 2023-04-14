@@ -48,9 +48,11 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
         }
     })
 
-    watch(options.fetch.query!, async () => {
-        return await fetch()
-    })
+    if (options.fetch.query) {
+        watch(options.fetch.query!, async () => {
+            return await fetch()
+        })
+    }
 
     async function fetch(): Promise<boolean> {
         await refresh()

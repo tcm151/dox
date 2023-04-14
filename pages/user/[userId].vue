@@ -53,13 +53,13 @@ async function unfollowUser() {
             <section class="follows row-wrap g-2">
                 <!-- TODO add popups to view these in more detail -->
                 <div class="votes row g-2">
-                    <button class="positive" @click="vote.positive(user!.id, user!.votes)">
+                    <button class="positive" @click="vote.positive(user)">
                         {{ user?.votes.positive.length }}
                     </button>
-                    <button class="misleading" @click="vote.misleading(user!.id, user!.votes)">
+                    <button class="misleading" @click="vote.misleading(user)">
                         {{ user?.votes.misleading.length }}
                     </button>
-                    <button class="negative" @click="vote.negative(user!.id, user!.votes)">
+                    <button class="negative" @click="vote.negative(user)">
                         {{ user?.votes.negative.length }}
                     </button>
                 </div>

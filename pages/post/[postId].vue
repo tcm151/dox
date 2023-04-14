@@ -2,17 +2,19 @@
 import { Post, Comment } from '~/types'
 
 const route = useRoute();
-const postId = route.params.postId;
+const postId = route.params.postId.toString();
 
 const vote = useVoting();
 const hints = useHints();
 const session = getSession();
 
-const { data: response, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
-const post = computed(() => response.value?.post)
-const comments = computed(() => response.value?.comments)
+const { post, comments } = usePost(postId)
 
-onMounted(() => sortBy(comments.value!, "hot"))
+// const { data: response, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
+// const post = computed(() => response.value?.post)
+// const comments = computed(() => response.value?.comments)
+
+onMounted(() => sortBy(comments.items!, "hot"))
 
 // useServerSeoMeta({
 //     ogTitle: () => post.value?.title ?? postId[0],
@@ -39,7 +41,9 @@ async function submitPostReply() {
         },
     })
 
-    refresh();
+    post.fetch()
+    // comments.fetch()
+    // refresh();
     toggleCommentBox();
     postReply.value = "";
 }
@@ -70,7 +74,9 @@ async function submitCommentReply(replyTo: Comment) {
         },
     })
 
-    refresh();
+    post.fetch()
+    // comments.fetch()
+    // refresh();
     commentReply.value = "";
     commentToReplyTo.value = ""
 }
@@ -106,7 +112,7 @@ function copyLink() {
 let sortType = ref("hot")
 function sort(type: string) {
     sortType.value = type
-    sortBy(comments.value!, type)
+    sortBy(comments.items!, type)
 }
 
 </script>
@@ -114,31 +120,31 @@ function sort(type: string) {
 <template>
     <article id="post" class="column g-2 p-4">
         <section class="post p-5">
-            <h2 class="mb-2">{{ post?.title }}</h2>
+            <h2 class="mb-2">{{ post.value?.title }}</h2>
             <div class="tags row-wrap g-1">
                 <div class="row votes">
-                    <span class="positive" @click="vote.positive(post!.id, post!.votes)">
-                        {{ post?.votes.positive.length }}
+                    <span class="positive" @click="vote.positive(post.value)">
+                        {{ post.value?.votes.positive.length }}
                     </span>
-                    <span class="misleading" @click="vote.misleading(post!.id, post!.votes)">
-                        {{ post?.votes.misleading.length }}
+                    <span class="misleading" @click="vote.misleading(post.value)">
+                        {{ post.value?.votes.misleading.length }}
                     </span>
-                    <span class="negative" @click="vote.negative(post!.id, post!.votes)">
-                        {{ post?.votes.negative.length }}
+                    <span class="negative" @click="vote.negative(post.value)">
+                        {{ post.value?.votes.negative.length }}
                     </span>
                 </div>
-                <span class="topic" v-for="topic in post?.topics" @click="navigateTo(`/topic/${topic}`)">
+                <span class="topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic}`)">
                     {{ topic }}
                 </span>
-                <span class="info" @click="navigateTo(`/user/${extractId(post?.user.id)}`)">u/{{ post?.user.name ?? "deleted" }}</span>
+                <span class="info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
-                    <span class="info">{{ formatDate(post?.time as any) }}</span>
-                    <span class="danger" v-if="post?.edited">Edited {{ formatDate(post?.timeEdited!) }}</span>
+                    <span class="info">{{ formatDate(post.value?.time as any) }}</span>
+                    <span class="danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
-            <div class="content my-4" v-html="renderMarkdown(post?.content)"></div>
-            <div class="field mb-5" v-if="post && editingPost && post?.user.id === session.user?.id">
-                <textarea rows="10" v-model="post.content"></textarea>
+            <div class="content my-4" v-html="renderMarkdown(post.value?.content)"></div>
+            <div class="field mb-5" v-if="post && editingPost && post.value?.user.id === session.user?.id">
+                <textarea rows="10" v-model="post.value.content"></textarea>
             </div>
             <ClientOnly>
                 <div class="column g-2" v-if="session.isAuthenticated">
@@ -160,7 +166,7 @@ function sort(type: string) {
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Archive</span>
                         </button>
-                        <button v-if="post?.user.id === session.user?.id" @click="toggleEditPost()">
+                        <button v-if="post.value?.user.id === session.user?.id" @click="toggleEditPost()">
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             <span>Edit</span>
                         </button>
@@ -170,7 +176,7 @@ function sort(type: string) {
                     </section>
                     <div class="row" v-if="editingPost">
                         <button @click="previewChanges()">Preview</button>
-                        <button @click="saveChanges(post!)">Save</button>
+                        <button @click="saveChanges(post.value)">Save</button>
                         <button @click="toggleEditPost()">Cancel</button>
                         <button style="flex: 0 1">
                             <i class="fa-solid fa-ellipsis"></i>
@@ -189,7 +195,7 @@ function sort(type: string) {
                 </div>
             </ClientOnly>
         </section>
-        <section class="comments p-5" v-if="(comments?.length ?? 0) > 0">
+        <section class="comments p-5" v-if="(comments.items?.length ?? 0) > 0">
             <div class="sorting row g-2 mb-3">
                 <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
                     <i class="fa-solid fa-egg"></i>
@@ -204,24 +210,24 @@ function sort(type: string) {
                     <span>Top</span>
                 </button>
             </div>
-            <Tree :items="comments ?? []" :children="comments?.filter(c => c.replyTo === post?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
+            <Tree :items="comments.items ?? []" :children="comments.items?.filter(c => c.replyTo === post.value?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
                 <template #item="{ item: comment}">
                     <div class="comment">
                         <header class="row-fit g-1">
                             <div class="votes row">
-                                <span class="positive" @click="vote.positive(comment.id, comment.votes)">
+                                <span class="positive" @click="vote.positive(comment)">
                                     {{comment.votes.positive.length}}
                                 </span>
-                                <span class="misleading" @click="vote.misleading(comment.id, comment.votes)">
+                                <span class="misleading" @click="vote.misleading(comment)">
                                     {{comment.votes.misleading.length}}
                                 </span>
-                                <span class="negative" @click="vote.negative(comment.id, comment.votes)">
+                                <span class="negative" @click="vote.negative(comment)">
                                     {{comment.votes.negative.length}}
                                 </span>
                             </div>
                             <span class="info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                                 {{ `u/${comment.user?.name}` }}
-                                <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === post?.user.id"></i>    
+                                <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === post.value?.user.id"></i>    
                             </span>
                             <ClientOnly>
                                 <span class="info">{{ formatDate(comment.time as any) }}</span>

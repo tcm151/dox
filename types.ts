@@ -1,8 +1,16 @@
-export interface User {
+export interface Voteable {
+    id: string
+    votes: {
+        positive: string[]
+        misleading: string[]
+        negative: string[]
+    }
+}
+
+export interface User extends Voteable {
     id: string
     email: string
     name: string
-    votes: Votes
     topics: string[]
     following: string[]
     followers: string[]
@@ -10,19 +18,12 @@ export interface User {
     admin: boolean
 }
 
-export interface Votes {
-    positive: string[]
-    misleading: string[]
-    negative: string[]
-}
-
-export interface Post {
+export interface Post extends Voteable {
     id: string
     time: string
     user: User
     title: string
     content: string
-    votes: Votes
     topics: string[]
     comments: string[]
     edited?: boolean
@@ -40,14 +41,17 @@ export interface Draft {
     timeEdited?: string
 }
 
-export interface Comment {
+export interface Topic extends Voteable {
+    id: string
+}
+
+export interface Comment extends Voteable {
     id: string
     time: string
     user: User
     post: Post
     replyTo: string
     content: string
-    votes: Votes
     edited?: boolean
     timeEdited?: string
 }

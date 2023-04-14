@@ -1,7 +1,11 @@
 import { DateTime } from "luxon"
-import { Post, Comment, Votes } from "~/types"
+import { Post, Comment, Voteable } from "~/types"
 
-export function sortBy(list: Post[] | Comment[], sortType: string): Post[] | Comment[] {
+export function sortBy(list: Post[] | Comment[] | null, sortType: string) {
+    if (!list) {
+        return null
+    }
+    
     return list.sort((first: Post | Comment, second: Post | Comment) => {
         switch (sortType) {
             case "new":
@@ -23,8 +27,8 @@ function sortNew(first: Post | Comment, second: Post | Comment) {
 }
 
 function sortTop(first: Post | Comment, second: Post | Comment) {
-    const firstScore = calculateScore(first.votes);
-    const secondScore = calculateScore(second.votes);
+    const firstScore = calculateScore(first);
+    const secondScore = calculateScore(second);
     if (firstScore === secondScore) return sortNew(first, second)
     return firstScore < secondScore ? 1 : -1
 }
@@ -32,12 +36,12 @@ function sortTop(first: Post | Comment, second: Post | Comment) {
 function sortHot(first: Post | Comment, second: Post | Comment) {
     const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), "days").days
     const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), "days").days
-    const firstScore = calculateScore(first.votes) / (timeSinceFirst + 1)
-    const secondScore = calculateScore(second.votes) / (timeSinceSecond + 1)
+    const firstScore = calculateScore(first) / (timeSinceFirst + 1)
+    const secondScore = calculateScore(second) / (timeSinceSecond + 1)
     return firstScore < secondScore ? 1 : -1
 }
 
-function calculateScore(votes: Votes) {
-    return votes.positive.length - votes.negative.length - (votes.misleading.length / 2);
+function calculateScore(item: Voteable) {
+    return item.votes.positive.length - item.votes.negative.length - (item.votes.misleading.length / 2);
 }
 

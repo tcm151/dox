@@ -58,13 +58,13 @@ function sort(type: string) {
                 </h3>
                 <div class="row-wrap g-1">
                     <div class="votes row g-1">
-                        <span class="positive" @click="vote.positive(post.id, post.votes)">
+                        <span class="positive" @click="vote.positive(post)">
                             {{ post?.votes.positive.length }}
                         </span>
-                        <span class="misleading" @click="vote.misleading(post.id, post.votes)">
+                        <span class="misleading" @click="vote.misleading(post)">
                             {{ post?.votes.misleading.length }}
                         </span>
-                        <span class="negative" @click="vote.negative(post.id, post.votes)">
+                        <span class="negative" @click="vote.negative(post)">
                             {{ post?.votes.negative.length }}
                         </span>
                         <!-- TODO decide if want to show awards or saves -->
