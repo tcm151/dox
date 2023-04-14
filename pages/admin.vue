@@ -6,21 +6,16 @@ definePageMeta({
 
 <template>
     <nav class="row">
-        <NuxtLink>
+        <NuxtLink to="/admin/reports">
             <i class="fa-solid fa-flag"></i>
             <span>Reports</span>
         </NuxtLink>
-        <NuxtLink>
+        <NuxtLink to="/admin/feedback">
             <i class="fa-solid fa-message"></i>
             <span>Feedback</span>
         </NuxtLink>
-        <NuxtLink>
-            Third
-        </NuxtLink>
-        <NuxtLink>
-            Fourth
-        </NuxtLink>
     </nav>
+    <NuxtPage />
 </template>
 
 <style scoped lang="scss">

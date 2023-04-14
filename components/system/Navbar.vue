@@ -12,25 +12,25 @@ async function login() {
 <template>
     <nav>
         <section class="left">
-            <NuxtLink class="dox" to="/home">
+            <NuxtLink class="dox" to="/home" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>DOX</span>
             </NuxtLink>
             <ClientOnly>
-                <NuxtLink to="/admin" v-if="session.user.admin">
+                <NuxtLink to="/admin" v-if="session.user.admin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                 </NuxtLink>
-                <NuxtLink to="/query" v-if="session.user.admin">
+                <NuxtLink to="/query" v-if="session.user.admin" title="Query">
                     <i class="fa-solid fa-terminal"></i>
                 </NuxtLink>
+                <NuxtLink to="/notifications" v-if="session.isAuthenticated" title="Notifications">
+                        <i class="fa-solid fa-envelope"></i>
+                    </NuxtLink>
             </ClientOnly>
         </section>
         <ClientOnly>
             <Transition name="slide">
                 <section class="right authenticated" v-if="session.isAuthenticated">
-                    <NuxtLink to="/notifications">
-                        <i class="fa-solid fa-envelope"></i>
-                    </NuxtLink>
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
@@ -45,7 +45,6 @@ async function login() {
                     </NuxtLink>
                     <a @click="session.logout(false)" @contextmenu.prevent="session.logout(true)">
                         <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
                     </a>
                 </section>
                 <section class="right anonymous" v-else>

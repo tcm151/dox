@@ -3,96 +3,25 @@ import { Post, Comment } from '~/types'
 
 const route = useRoute();
 const postId = route.params.postId.toString();
+const { post, comments } = usePost(postId)
+
+onMounted(() => sortBy(comments.items!, "hot"))
 
 const vote = useVoting();
 const hints = useHints();
 const session = getSession();
 
-const { post, comments } = usePost(postId)
-
-// const { data: response, refresh } = await useFetch<{ post: Post, comments: Comment[] }>(`/api/post/${postId}`)
-// const post = computed(() => response.value?.post)
-// const comments = computed(() => response.value?.comments)
-
-onMounted(() => sortBy(comments.items!, "hot"))
-
-// useServerSeoMeta({
-//     ogTitle: () => post.value?.title ?? postId[0],
-//     creator: () => post.value?.user.id
-// })
-
-let showPostReply = ref(false);
-function toggleCommentBox() {
-    showPostReply.value = !showPostReply.value;
-}
-
-let postReply = ref("");
-async function submitPostReply() {
-    await session.useApi<Comment>("/api/comment/add", {
-        time: new Date(),
-        user: session.user?.id,
-        post: post.value?.id,
-        replyTo: post.value?.id,
-        content: postReply.value,
-        votes: {
-            positive: [session.user!.id],
-            misleading: [],
-            negative: [],
-        },
-    })
-
-    post.fetch()
-    // comments.fetch()
-    // refresh();
-    toggleCommentBox();
-    postReply.value = "";
-}
-
-let commentReply = ref("")
-let commentToReplyTo = ref("")
-let commentToEdit = ref("");
-
-function replyToComment(comment: Comment) {
-    commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
-}
-
-function editComment(comment: Comment) {
-    commentToEdit.value = (commentToEdit.value !== comment.id) ? comment.id : "";
-}
-
-async function submitCommentReply(replyTo: Comment) {
-    await session.useApi<Comment>("/api/comment/add", {
-        time: new Date(),
-        user: session.user?.id,
-        post: post.value?.id,
-        replyTo: replyTo.id,
-        content: commentReply.value,
-        votes: {
-            positive: [session.user!.id],
-            misleading: [],
-            negative: [],
-        },
-    })
-
-    post.fetch()
-    // comments.fetch()
-    // refresh();
-    commentReply.value = "";
-    commentToReplyTo.value = ""
-}
-
-async function saveComment(comment: Comment) {
-    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, comment.content)
-    commentToEdit.value = "";
-}
-
 let editingPost = ref(false)
-
 function toggleEditPost() {
     editingPost.value = !editingPost.value;
 }
 
-function saveChanges(item: Post | Comment | null ) {
+function updatePost(changes: Post | null ) {
+    if (!changes) {
+        hints.addError("You can't edit something that doesn't exist.")
+        return
+    }
+
     const response = session.useApi(`/api/post/${postId}/edit`, post.value?.content);
     post.value!.edited = true;
     console.log(response);
@@ -101,6 +30,35 @@ function saveChanges(item: Post | Comment | null ) {
 
 function previewChanges() {
 
+}
+
+let showPostReply = ref(false);
+function toggleCommentBox() {
+    showPostReply.value = !showPostReply.value;
+}
+
+let postReply = ref("");
+async function submitComment(replyTo: Post | Comment, content: string) {
+    await session.useApi<Comment>("/api/comment/add", {
+        time: new Date(),
+        user: session.user?.id,
+        post: post.value?.id,
+        replyTo: replyTo.id,
+        content: content,
+        votes: {
+            positive: [session.user!.id],
+            misleading: [],
+            negative: [],
+        },
+    })
+
+    post.fetch()
+    comments.fetch()
+
+    showPostReply.value = false
+    postReply.value = ""
+    commentReply.value = ""
+    commentToReplyTo.value = ""
 }
 
 function copyLink() {
@@ -115,6 +73,22 @@ function sort(type: string) {
     sortBy(comments.items!, type)
 }
 
+let commentReply = ref("")
+let commentToReplyTo = ref("")
+let commentToEdit = ref("");
+
+function replyToComment(comment: Comment) {
+    commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
+}
+
+function editComment(comment: Comment) {
+    commentToEdit.value = (commentToEdit.value !== comment.id) ? comment.id : "";
+}
+
+async function updateComment(comment: Comment) {
+    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, comment.content)
+    commentToEdit.value = "";
+}
 </script>
 
 <template>
@@ -176,7 +150,7 @@ function sort(type: string) {
                     </section>
                     <div class="row" v-if="editingPost">
                         <button @click="previewChanges()">Preview</button>
-                        <button @click="saveChanges(post.value)">Save</button>
+                        <button @click="updatePost(post.value)">Save</button>
                         <button @click="toggleEditPost()">Cancel</button>
                         <button style="flex: 0 1">
                             <i class="fa-solid fa-ellipsis"></i>
@@ -185,7 +159,7 @@ function sort(type: string) {
                     <div class="field" v-if="showPostReply">
                         <textarea rows="5" v-model="postReply"></textarea>
                         <div class="row mt-2">
-                            <button class="success" @click="submitPostReply">Submit</button>
+                            <button class="success" @click="submitComment(post.value!, postReply)">Submit</button>
                             <button class="danger" @click="toggleCommentBox">Cancel</button>
                         </div>
                     </div>
@@ -240,14 +214,14 @@ function sort(type: string) {
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
                             <div class="row-fit g-1 pt-2">
-                                <span class="success" @click="submitCommentReply(comment)">Submit</span>
+                                <span class="success" @click="submitComment(comment, commentReply)">Submit</span>
                                 <span class="danger" @click="replyToComment(comment)">Cancel</span>
                             </div>
                         </div>
                         <div class="comment-reply field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
                             <textarea class="textarea" rows="5" v-model="comment.content"></textarea>
                             <div class="row-fit g-1 pt-2">
-                                <span class="success" @click="saveComment(comment)">Save</span>
+                                <span class="success" @click="updateComment(comment)">Save</span>
                                 <span class="danger" @click="editComment(comment)">Cancel</span>
                             </div>
                         </div>
