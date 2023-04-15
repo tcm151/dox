@@ -185,7 +185,7 @@ async function updateComment(comment: Comment) {
                 </button>
             </div>
             <Tree :items="comments.items ?? []" :children="comments.items?.filter(c => c.replyTo === post.value?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
-                <template #item="{ item: comment}">
+                <template #item="{ item: comment }">
                     <div class="comment">
                         <header class="row-fit g-1">
                             <div class="votes row">
