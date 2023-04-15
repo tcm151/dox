@@ -15,6 +15,9 @@ export interface User extends Voteable {
     following: string[]
     followers: string[]
     dateCreated: string
+    // TODO implement fields for:
+    // emailConfirmed: boolean
+    // verified: boolean
     admin: boolean
 }
 
