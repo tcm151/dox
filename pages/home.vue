@@ -25,7 +25,7 @@ let { data: trendingUsers } = useFetch("/api/trending/users");
                     <h2>Trending Topics</h2>
                     <div class="topics my-2">
                         <div class="topic" v-for="item in trendingTopics">
-                            <span id="t">{{ item.topic }}</span>
+                            <span id="t">{{ item.topic.split(':')[1] }}</span>
                             <span id="c">+{{ item.count }}</span>
                         </div>
                     </div>
