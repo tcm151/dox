@@ -4,31 +4,34 @@ import { storeToRefs } from 'pinia';
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        const session = getSession()
-        if (to.path === "/query" && !session.isAuthenticated) {
-            return navigateTo("/")
+        if (process.client) {
+            const session = getSession()
+            if (to.path === "/query" && !session.isAuthenticated) {
+                return navigateTo("/")
+            }
         }
     }
 })
 
 const hints = useHints()
-
-let showSettings = ref(false)
-
 const { settings, history, saved } = storeToRefs(useQuery())
 
 let tab = ref<string>("History")
 let results = ref<any>(null);
-
 let query = useSessionStorage<string>("query", "");
+let showSettings = ref(false)
 
 function reuseQuery (oldQuery: string) {
     query.value = oldQuery
 }
 
-function saveQuery(savedQuery: string) {
-    saved.value.unshift(savedQuery)
-    hints.addSuccess("Query saved")
+// function saveQuery(savedQuery: string) {
+//     saved.value.unshift(savedQuery)
+//     hints.addSuccess("Query saved")
+// }
+
+function exportSavedQueries() {
+    console.log(saved.value)
 }
 
 function removeQueryFromHistory(oldQuery: string) {
@@ -36,9 +39,37 @@ function removeQueryFromHistory(oldQuery: string) {
     hints.addWarning("Query removed from history")
 }
 
-function removeQueryFromSaved(savedQuery: string) {
-    saved.value = saved.value.filter(s => s !== savedQuery)
-    hints.addWarning("Query removed from saved")
+// function removeQueryFromSaved(savedQuery: string) {
+//     saved.value = saved.value.filter(s => s !== savedQuery)
+//     hints.addWarning("Query removed from saved")
+// }
+
+// function moveSavedQueryUp(savedQuery: string) {
+//     const index = saved.value.findIndex(sq => sq === savedQuery)
+//     saved.value.splice(index, 1)
+//     saved.value.splice(index - 1, 0, savedQuery)
+// }
+
+// function moveSavedQueryDown(savedQuery: string) {
+//     const index = saved.value.findIndex(sq => sq === savedQuery)
+//     saved.value.splice(index, 1)
+//     saved.value.splice(index + 1, 0, savedQuery)
+// }
+
+let queryDirectory = ref<any[]>([])
+let grabbedQuery = ref<string>('')
+
+function saveQuery(event: DragEvent, folder: any) {
+    if (grabbedQuery.value != '') {
+        queryDirectory.value.push({
+            type: 'file',
+            name: '',
+            parent: folder.name,
+            query: grabbedQuery.value,
+            editing: true,
+        })
+        grabbedQuery.value = ''
+    }
 }
 
 async function submitQuery() {
@@ -84,8 +115,11 @@ async function submitQuery() {
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </header>
-                <div class="field fill">
+                <div class="field">
                     <textarea rows="16" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
+                </div>
+                <div class="saved-query-directory">
+                    <Directory root="queries" :buttons="['add-folder']" @select-item="(item) => reuseQuery(item.query)" @add-item="saveQuery" :items="queryDirectory" />
                 </div>
             </section>
         </div>
@@ -99,9 +133,12 @@ async function submitQuery() {
                     <i class="fa-solid fa-book"></i>
                     <span>History</span>
                 </button>
-                <button class="link fill" @click="tab = 'Saved'">
+                <!-- <button class="link fill" @click="tab = 'Saved'">
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Saved</span>
+                </button> -->
+                <button class="link fit" @click="exportSavedQueries">
+                    <i class="fa-solid fa-download"></i>
                 </button>
                 <button class="link fit" @click="showSettings = true">
                     <i class="fa-solid fa-gear"></i>
@@ -113,32 +150,32 @@ async function submitQuery() {
                 </div>
             </section>
             <section class="history column g-2" v-if="tab == 'History'">
-                <div class="query" v-for="(query, index) in history" :key="index">
+                <div class="query" v-for="(query, index) in history" :key="index" draggable="true" @dragstart="grabbedQuery = query">
                     <p class="p-2">{{ query }}</p>
                     <div class="buttons row g-2">
                         <button @click="reuseQuery(query)">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
-                        <button @click="saveQuery(query)">
+                        <!-- <button @click="saveQuery(query)">
                             <i class="fa-solid fa-floppy-disk"></i>
-                        </button>
+                        </button> -->
                         <button @click="removeQueryFromHistory(query)">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
             </section>
-            <section class="saved column g-2" v-if="tab == 'Saved'">
+            <!-- <section class="saved column g-2" v-if="tab == 'Saved'">
                 <div class="query" v-for="(query, index) in saved" :key="index">
                     <p class="p-2">{{ query }}</p>
                     <div class="buttons row g-2">
                         <button @click="reuseQuery(query)">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
-                        <button @click="">
+                        <button @click="moveSavedQueryUp(query)">
                             <i class="fa-solid fa-up-long"></i>
                         </button>
-                        <button @click="">
+                        <button @click="moveSavedQueryDown(query)">
                             <i class="fa-solid fa-down-long"></i>
                         </button>
                         <button @click="removeQueryFromSaved(query)">
@@ -146,7 +183,7 @@ async function submitQuery() {
                         </button>
                     </div>
                 </div>
-            </section>
+            </section> -->
         </div>
         <QuerySettings :visible="showSettings" @close="showSettings = false" />
     </article>
@@ -158,13 +195,8 @@ article {
     @include fit-width (2000px, 1rem);
     overflow: hidden;
 
-    div.left {
-        flex: 1 1 40%;
-    }
-
-    div.right {
-        flex: 1 1 60%;
-    }
+    div.left { flex: 1 1 40% }
+    div.right { flex: 1 1 60% }
 
     div.left, div.right {
         border-radius: 0.25rem;
@@ -183,6 +215,10 @@ article {
 section.editor {
     header.row {
         justify-content: flex-end;
+    }
+
+    div:has(textarea), div.saved-query-directory {
+        flex: 1 1;
     }
 
     textarea {
