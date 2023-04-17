@@ -42,7 +42,7 @@ async function deleteDraft(draft: Draft) {
                     <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
                     <div class="row g-2">
                         <span class="topic" v-for="topic in draft.topics">
-                            {{ topic }}
+                            {{ topic.split(':')[1] }}
                         </span>
                         <span class="info">{{ formatDate(draft.time) }}</span>
                         <button @click="emit('view', draft)">

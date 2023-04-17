@@ -3,16 +3,37 @@ definePageMeta({
     layout: 'middle'
 })
 
-const hints = useHints();
+const hints = useHints()
+const session = getSession()
 
-const email = ref("");
-const username = ref("");
-const password = ref("");
-const confirmation = ref("");
+const email = ref("")
+const username = ref("")
+const password = ref("")
+const confirmation = ref("")
+
+const validEmail = /^\S+@\S+\.\S+$/
+const validUsername = /^[\w]{3,32}$/
+const validPassword = /^[\S]{8,64}$/
 
 async function register() {
     try {
-        let result = await useFetch("/api/user/register", {
+
+        if (!validEmail.test(email.value)) {
+            hints.addError("Invalid email.")
+            return
+        }
+
+        if (!validUsername.test(username.value)) {
+            hints.addError("Invalid username.")
+            return
+        } 
+
+        if (!validPassword.test(password.value) || !validPassword.test(confirmation.value)) {
+            hints.addError("Invalid password.")
+            return
+        } 
+
+        session.token = await $fetch<string>("/api/user/register", {
             method: "POST",
             body: {
                 email: email.value,
@@ -21,20 +42,29 @@ async function register() {
             },
         })
 
-        if (result.error.value) {
-            hints.addError(result.error.value.message)
-        }
-        else {
-            hints.addSuccess(result.data.value ?? 'Success!')
-            email.value = ""
-            username.value = ""
-            password.value = ""
-            confirmation.value = ""
-        }
+        hints.addSuccess('Created account successfully!')
+        await session.authenticate()
+        navigateTo('/profile')
     }
     catch (ex: any) {
         hints.addError(ex.message)
     }
+}
+
+function invalidEmail() {
+    return email.value !== '' && !validEmail.test(email.value)
+}
+
+function invalidUsername() {
+    return username.value !== '' && !validUsername.test(username.value)
+}
+
+function invalidPassword(password: string) {
+    return password !== '' && !validPassword.test(password)
+}
+
+function differentPasswords() {
+    return confirmation.value !== '' && password.value !== confirmation.value
 }
 </script>
 
@@ -45,23 +75,51 @@ async function register() {
             <div class="form">
                 <div class="field">
                     <label>Email</label>
-                    <input v-model="email" type="text" placeholder="example@email.com" />
+                    <input
+                        type="email"
+                        spellcheck="false"
+                        :class="{ invalid: invalidEmail() }"
+                        v-model="email"
+                    />
                 </div>
                 <div class="field">
                     <label>Username</label>
-                    <input v-model="username" type="text" />
+                    <input
+                        type="text"
+                        spellcheck="false"
+                        title="/^[\w]{3,32}$/"
+                        :class="{ invalid: invalidUsername() }"
+                        v-model="username"
+                    />
                 </div>
                 <div class="field">
                     <label>Password</label>
-                    <input v-model="password" type="password" />
-                </div>
-                <div class="field">
-                    <label>Confirm Password</label>
-                    <input v-model="confirmation" type="password" />
+                    <input
+                        type="password"
+                        spellcheck="false"
+                        title="/^[\S]{8,64}$/"
+                        :class="{ invalid: invalidPassword(password) }"
+                        v-model="password"
+                        />
+                    </div>
+                    <div class="field">
+                        <label>Confirm Password</label>
+                        <input
+                        type="password"
+                        spellcheck="false"
+                        title="/^[\S]{8,64}$/"
+                        @keydown.enter="register"
+                        :class="{ invalid: invalidPassword(confirmation) || differentPasswords() }"
+                        v-model="confirmation"
+                    />
                 </div>
                 <div class="row g-2 mt-4">
-                    <button class="success" @click="register">Register</button>
-                    <button class="danger">Cancel</button>
+                    <button class="success" @click="register">
+                        Register
+                    </button>
+                    <button class="danger" @click="navigateTo('/home')">
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>
@@ -73,5 +131,11 @@ async function register() {
     width: 256px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
+}
+
+.field {
+    input.invalid {
+        outline: 1px solid $dox-red;
+    }
 }
 </style>

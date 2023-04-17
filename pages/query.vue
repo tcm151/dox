@@ -4,41 +4,74 @@ import { storeToRefs } from 'pinia';
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        const session = getSession()
-        if (to.path === "/query" && !session.isAuthenticated) {
-            return navigateTo("/")
+        if (process.client) {
+            const session = getSession()
+            if (to.path === "/query" && !session.isAuthenticated) {
+                return navigateTo("/")
+            }
         }
     }
 })
 
 const hints = useHints()
-
-let showSettings = ref(false)
-
 const { settings, history, saved } = storeToRefs(useQuery())
 
 let tab = ref<string>("History")
 let results = ref<any>(null);
-
 let query = useSessionStorage<string>("query", "");
+let showSettings = ref(false)
+
+
+const showSearch = useSessionStorage("showQueryHistorySearch", false)
+const searchBar = ref("");
+
+function filteredHistory(): any[] {
+    if (searchBar.value !== '') {
+        const rankings = history.value.map(query => {
+            const tokens = searchBar.value.split(/\s/)
+            let relevance = tokens.map(t => query.toLowerCase().includes(t.toLowerCase()) ? 1 : -5).reduce((a, b) => a + b, 0)
+            relevance += query.toLowerCase().includes(searchBar.value.toLowerCase()) ? 25 : -1
+            return { query, relevance }
+        })
+        const matches = rankings.filter(r => r.relevance > 0)
+        const sorted = matches.sort((a, b) => b.relevance - a.relevance)
+        return sorted.map(s => s.query)
+    }
+    else {
+        return history.value
+    }
+}
+
+function clearHistory() {
+
+}
 
 function reuseQuery (oldQuery: string) {
     query.value = oldQuery
-}
-
-function saveQuery(savedQuery: string) {
-    saved.value.unshift(savedQuery)
-    hints.addSuccess("Query saved")
-}
+}    
 
 function removeQueryFromHistory(oldQuery: string) {
     history.value = history.value.filter(h => h !== oldQuery)
     hints.addWarning("Query removed from history")
 }
 
-function removeQueryFromSaved(savedQuery: string) {
-    saved.value = saved.value.filter(s => s !== savedQuery)
-    hints.addWarning("Query removed from saved")
+let grabbedQuery = ref<string>('')
+
+function saveQuery(event: DragEvent, folder: any) {
+    if (grabbedQuery.value != '') {
+        saved.value.push({
+            type: 'file',
+            name: '',
+            parent: folder.name,
+            query: grabbedQuery.value,
+            editing: true,
+        })
+        grabbedQuery.value = ''
+    }
+}
+
+function removeQueryFromSaved(item: any) {
+    saved.value = saved.value.filter(s => s !== item)
 }
 
 async function submitQuery() {
@@ -84,28 +117,45 @@ async function submitQuery() {
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </header>
-                <div class="field fill">
+                <div class="field">
                     <textarea rows="16" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
+                </div>
+                <div class="saved-query-directory">
+                    <Directory
+                        root="Queries"
+                        :buttons="['add-folder']"
+                        @add-item="saveQuery"
+                        @select-item="(item) => reuseQuery(item.query)"
+                        @remove-item="(item) => removeQueryFromSaved(item)"
+                        :items="saved"
+                    />
                 </div>
             </section>
         </div>
         <div class="right column g-2 p-4">
-            <header class="row g-2">
-                <button class="link fill" @click="tab = 'Results'">
-                    <i class="fa-solid fa-square-poll-horizontal"></i>
-                    <span>Results</span>
-                </button>
-                <button class="link fill" @click="tab = 'History'">
-                    <i class="fa-solid fa-book"></i>
-                    <span>History</span>
-                </button>
-                <button class="link fill" @click="tab = 'Saved'">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <span>Saved</span>
-                </button>
-                <button class="link fit" @click="showSettings = true">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
+            <header class="column g-2">
+                <div class="row g-2">
+                    <button class="link fit" @click="showSearch = !showSearch">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <button class="link fill" @click="tab = 'Results'">
+                        <i class="fa-solid fa-square-poll-horizontal"></i>
+                        <span>Results</span>
+                    </button>
+                    <button class="link fill" @click="tab = 'History'">
+                        <i class="fa-solid fa-book"></i>
+                        <span>History</span>
+                    </button>
+                    <button class="link fit" @click="clearHistory">
+                        <i class="fa-solid fa-broom"></i>
+                    </button>
+                    <button class="link fit" @click="showSettings = true">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
+                <div class="field" v-if="showSearch">
+                    <input type="search" v-model="searchBar">
+                </div>
             </header>
             <section class="results column g-2" v-if="tab == 'Results'">
                 <div class="result column g-2" v-for="result in results">
@@ -113,35 +163,13 @@ async function submitQuery() {
                 </div>
             </section>
             <section class="history column g-2" v-if="tab == 'History'">
-                <div class="query" v-for="(query, index) in history" :key="index">
-                    <p class="p-2">{{ query }}</p>
+                <div class="query" v-for="(item, index) in filteredHistory()" :key="index" draggable="true" @dragstart="grabbedQuery = item">
+                    <p class="p-2">{{ item }}</p>
                     <div class="buttons row g-2">
-                        <button @click="reuseQuery(query)">
+                        <button @click="reuseQuery(item)">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
-                        <button @click="saveQuery(query)">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                        </button>
-                        <button @click="removeQueryFromHistory(query)">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
-            <section class="saved column g-2" v-if="tab == 'Saved'">
-                <div class="query" v-for="(query, index) in saved" :key="index">
-                    <p class="p-2">{{ query }}</p>
-                    <div class="buttons row g-2">
-                        <button @click="reuseQuery(query)">
-                            <i class="fa-solid fa-rotate"></i>
-                        </button>
-                        <button @click="">
-                            <i class="fa-solid fa-up-long"></i>
-                        </button>
-                        <button @click="">
-                            <i class="fa-solid fa-down-long"></i>
-                        </button>
-                        <button @click="removeQueryFromSaved(query)">
+                        <button @click="removeQueryFromHistory(item)">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -153,18 +181,18 @@ async function submitQuery() {
 </template>
 
 <style scoped lang="scss">
+
+input[type=search]::-webkit-search-cancel-button:hover {
+    cursor: pointer;
+}
+
 article {
     height: 100%;
     @include fit-width (2000px, 1rem);
     overflow: hidden;
 
-    div.left {
-        flex: 1 1 40%;
-    }
-
-    div.right {
-        flex: 1 1 60%;
-    }
+    div.left { flex: 1 1 40% }
+    div.right { flex: 1 1 60% }
 
     div.left, div.right {
         border-radius: 0.25rem;
@@ -183,6 +211,10 @@ article {
 section.editor {
     header.row {
         justify-content: flex-end;
+    }
+
+    div:has(textarea), div.saved-query-directory {
+        flex: 1 1;
     }
 
     textarea {
