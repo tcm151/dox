@@ -107,13 +107,13 @@ async function updateComment(comment: Comment) {
                         {{ post.value?.votes.negative.length }}
                     </span>
                 </div>
-                <span class="topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                <span class="topic fill" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                     {{ topic.split(':')[1] }}
                 </span>
-                <span class="info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
+                <span class="info fill" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
-                    <span class="info">{{ formatDate(post.value?.time as any) }}</span>
-                    <span class="danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
+                    <span class="info fill">{{ formatDate(post.value?.time as any) }}</span>
+                    <span class="danger fill" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
             <div class="content my-4" v-html="renderMarkdown(post.value?.content)"></div>
@@ -128,24 +128,22 @@ async function updateComment(comment: Comment) {
                             <span>Comment</span>
                         </button>
                         <!-- TODO allow replying to posts -->
-                        <button>
+                        <!-- <button>
                             <i class="fa-solid fa-reply-all"></i>
                             <span>Reply</span>
-                        </button>
+                        </button> -->
                         <button @click="copyLink">
                             <i class="fa-solid fa-envelope"></i>
                             <span>Share</span>
                         </button>
-                        <button @click="copyLink">
+                        <!-- TODO allow saving posts, use Directory -->
+                        <!-- <button @click="copyLink">
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Archive</span>
-                        </button>
+                        </button> -->
                         <button v-if="post.value?.user.id === session.user?.id" @click="toggleEditPost()">
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             <span>Edit</span>
-                        </button>
-                        <button style="flex: 0 1">
-                            <i class="fa-solid fa-ellipsis"></i>
                         </button>
                     </section>
                     <div class="row" v-if="editingPost">
@@ -235,7 +233,7 @@ async function updateComment(comment: Comment) {
 <style lang="scss">
 img {
     max-width: 100%;
-    max-height: 256px;
+    max-height: 512px;
 }
 </style>
 
