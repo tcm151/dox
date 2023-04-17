@@ -3,8 +3,8 @@ import Surreal from "surrealdb.js";
 export default defineEventHandler(async (event) => {
     const { email, username, password } = await readBody(event)
     
-    const { surrealDatabaseUrl } = useRuntimeConfig();
-    const db = new Surreal(surrealDatabaseUrl);
+    const { surreal } = useRuntimeConfig();
+    const db = new Surreal(surreal.url);
     return await db.signup({
         NS: "dev",
         DB: "dox",

@@ -27,9 +27,13 @@ export default defineNuxtConfig({
         }
     },
     runtimeConfig: {
-        surrealDatabaseUrl: process.env.SURREAL_DATABASE_URL,
-        surrealUsername: process.env.SURREAL_USERNAME,
-        surrealPassword: process.env.SURREAL_PASSWORD
+        surreal: {
+            url: process.env.SURREAL_URL,
+            username: process.env.SURREAL_USERNAME,
+            password: process.env.SURREAL_PASSWORD,
+            namespace: process.env.SURREAL_NAMESPACE,
+            database: process.env.SURREAL_DATABASE,
+        }
     },
     app: {
         head: {

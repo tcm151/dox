@@ -3,12 +3,12 @@ import { User } from '~/types';
 
 export const useDatabase = async () => {
     try {
-        const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
+        const { surreal } = useRuntimeConfig();
         // INFO url needs to be https://link.to.db/rpc
-        const db = new Surreal(surrealDatabaseUrl);
-        await db.signin({ user: surrealUsername, pass: surrealPassword });
-        await db.use("dev", "dox");
-        console.log("Connected to the database.")
+        const db = new Surreal(surreal.url);
+        await db.signin({ user: surreal.username, pass: surreal.password });
+        await db.use(surreal.namespace, surreal.database);
+        console.log(`Connected to ${surreal.namespace}:${surreal.database}`)
         return db
     }
     catch (ex: any) {
@@ -19,8 +19,8 @@ const db = await useDatabase();
 
 export const authenticateRequest = async (event: any) => {
     try {
-        const { surrealDatabaseUrl } = useRuntimeConfig();
-        const db = new Surreal(surrealDatabaseUrl);
+        const { surreal } = useRuntimeConfig();
+        const db = new Surreal(surreal.url);
         const token = getHeader(event, 'Authorization');
         await db.authenticate(token ?? "");
         let response = await db.query<any>("SELECT * FROM user WHERE id = $auth.id")
