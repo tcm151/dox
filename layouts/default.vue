@@ -1,14 +1,20 @@
 <script setup lang="ts">
+import { Trigger } from '~/services/events';
+
 let events = useEvents();
 
 let showPopup = ref(false);
 let showLogin = ref(false);
 
-events.subscribe("togglePopup", () => showPopup.value = !showPopup.value)
-events.subscribe("toggleLogin", () => showLogin.value = !showLogin.value)
+useNuxtApp().hook("page:finish", () => {
+    events.publish(Trigger.pageFinishedLoading)
+})
+
+events.subscribe(Trigger.togglePopup, () => showPopup.value = !showPopup.value)
+events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 
 onMounted(() => {
-    events.publish("clientStarted");
+    events.publish(Trigger.clientStarted);
 })
 </script>
 

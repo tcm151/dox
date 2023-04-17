@@ -2,6 +2,8 @@ import { Ref } from "vue"
 import { defineStore, skipHydrate } from "pinia"
 import Surreal from "surrealdb.js"
 import { User } from "~/types"
+import { Trigger } from "~/services/events";
+
 
 export interface Session {
     isAuthenticated: Ref<boolean>
@@ -68,7 +70,7 @@ export const getSession = defineStore("session", (): Session => {
 
             isAuthenticated.value = true
             user.value = await useApi<User>('/api/profile')
-            events.publish("authenticatedUser")
+            events.publish(Trigger.authenticatedUser)
             return true
         }
         catch (ex: any) {
@@ -91,7 +93,7 @@ export const getSession = defineStore("session", (): Session => {
             
             isAuthenticated.value = true
             user.value = await useApi<User>('/api/profile')
-            events.publish("authenticatedUser")
+            events.publish(Trigger.authenticatedUser)
             return true
         }
         catch (ex: any) {

@@ -1,14 +1,23 @@
 import { defineStore } from "pinia"
 
 interface Event {
-    trigger: string
+    trigger: Trigger
     action: Function
+}
+
+export enum Trigger {
+    addHint,
+    authenticatedUser,
+    pageFinishedLoading,
+    togglePopup,
+    toggleLogin,
+    clientStarted,
 }
 
 export const useEvents = defineStore("events", () => {
     let events = ref<Event[]>([]);
 
-    function subscribe(trigger: string, action: Function) {
+    function subscribe(trigger: Trigger, action: Function) {
         events.value.push({ trigger: trigger, action: action})
     }
 
@@ -16,7 +25,7 @@ export const useEvents = defineStore("events", () => {
         events.value = events.value.filter((e) => e === event)
     }
 
-    function publish(trigger: string, payload?: object) {
+    function publish(trigger: Trigger, payload?: object) {
         events.value.forEach((e) => {
             if (e.trigger === trigger) {
                 e.action(payload)
