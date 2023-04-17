@@ -17,6 +17,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: 'addItem', $event: DragEvent, folder: DirectoryItem): void
     (event: 'selectItem', item: DirectoryItem): void
+    (event: 'removeItem', item: DirectoryItem): void
 }>()
 
 const currentFolder = ref<DirectoryItem>({ type: 'folder', name: '', parent: ''})
@@ -129,6 +130,7 @@ function moveItem(target: DirectoryItem) {
                 @dragstart="grabItem(item)"
                 @dragover.prevent=""
                 @drop="moveItem(item)"
+                @contextmenu.prevent="emit('removeItem', item)"
             >
                 <div class="editing row" v-if="item.editing">
                     <i class="fa-solid fa-folder pl-3" v-if="item.type =='folder'"></i>

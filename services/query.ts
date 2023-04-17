@@ -18,7 +18,7 @@ export const useQuery = defineStore("query", () => {
     }));
 
     const history = skipHydrate(useLocalStorage<string[]>("queryHistory", []))
-    const saved = skipHydrate(useLocalStorage<string[]>("savedQueries", []))
+    const saved = skipHydrate(useLocalStorage<any[]>("savedQueries", []))
 
     return { settings, history, saved };
 })
