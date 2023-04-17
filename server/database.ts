@@ -2,12 +2,18 @@ import Surreal from 'surrealdb.js';
 import { User } from '~/types';
 
 export const useDatabase = async () => {
-    const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
-    const db = new Surreal(surrealDatabaseUrl);
-    await db.signin({ user: surrealUsername, pass: surrealPassword });
-    await db.use("dev", "dox");
-    console.log("Connected to the database.")
-    return db;
+    try {
+        const { surrealDatabaseUrl, surrealUsername, surrealPassword } = useRuntimeConfig();
+        // INFO url needs to be https://link.to.db/rpc
+        const db = new Surreal(surrealDatabaseUrl);
+        await db.signin({ user: surrealUsername, pass: surrealPassword });
+        await db.use("dev", "dox");
+        console.log("Connected to the database.")
+        return db
+    }
+    catch (ex: any) {
+        console.log(ex.message)
+    }
 }
 const db = await useDatabase();
 
@@ -37,7 +43,7 @@ interface DatabaseResponse<T> {
 }
 
 async function handleQuery<T>(sql: string[], parameters?: QueryParameters) {
-    const response = await db.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
+    const response = await db?.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
     if (response[0].status == 'ERR') {
         throw createError({ statusCode: 500, message: response[0].details })
     }
