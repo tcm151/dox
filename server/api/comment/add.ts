@@ -25,20 +25,20 @@ export default defineEventHandler(async (event) => {
     // TODO this does not look very pretty, and is hard to understand
     // FIXME this fails with text that has single quotes in it
     // TODO use parameters instead
-    let notification = await queryOne<Notification>([`
-        CREATE notification SET
-        recipient = ${replyTo.user.id},
-        context = ${replyTo.id},
-        message = "${[
-            `**u/${auth.name}** responded`,
-            `> ${comment.content}\n`,
-            `to your comment`,
-            `> ${replyTo.content}\n`,
-            // `on the post **${replyTo.post.}**`,
-        ].join("\n")}",
-        time = time::now(),
-        viewed = false
-    `])
+    // let notification = await queryOne<Notification>([`
+    //     CREATE notification SET
+    //     recipient = ${replyTo.user.id},
+    //     context = ${replyTo.id},
+    //     message = "${[
+    //         `**u/${auth.name}** responded`,
+    //         `> ${comment.content}\n`,
+    //         `to your comment`,
+    //         `> ${replyTo.content}\n`,
+    //         // `on the post **${replyTo.post.}**`,
+    //     ].join("\n")}",
+    //     time = time::now(),
+    //     viewed = false
+    // `])
     
-    return { comment, notification }
+    return { comment, notification: null }
 })
