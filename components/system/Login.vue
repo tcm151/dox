@@ -12,7 +12,7 @@ const hints = useHints();
 const login = async () => {
     try {
         await session.login(username.value, password.value);
-        events.publish("toggleLogin");
+        events.publish(Trigger.toggleLogin);
         username.value = ""
         password.value = ""
     }
@@ -25,7 +25,7 @@ const login = async () => {
 </script>
 
 <template>
-    <Popup :visible="visible" title="Login" accept-label="Login" @accept="login" decline-label="Cancel" @decline="events.publish('toggleLogin')">
+    <Popup :visible="visible" title="Login" accept-label="Login" @accept="login" decline-label="Cancel" @decline="events.publish(Trigger.toggleLogin)">
         <div class="login form">
             <div class="field">
                 <label>Username</label>

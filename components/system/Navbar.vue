@@ -4,7 +4,7 @@ const session = getSession();
 
 async function login() {
     if (!(await session.authenticate())) {
-        events.publish('toggleLogin')
+        events.publish(Trigger.toggleLogin)
     }
 }
 </script>

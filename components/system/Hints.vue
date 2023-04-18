@@ -7,7 +7,7 @@ interface Hint {
 
 const events = useEvents();
 const settings = useUserSettings();
-events.subscribe("addHint", addHint);
+events.subscribe(Trigger.addHint, addHint);
 
 let hintCount = ref(0);
 let hints = ref<Hint[]>([])
