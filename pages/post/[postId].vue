@@ -233,6 +233,7 @@ async function updateComment(comment: Comment) {
 <style lang="scss">
 .body {
     p img {
+        margin-inline: auto;
         padding: 1rem;
         max-height: 256px;
     }
