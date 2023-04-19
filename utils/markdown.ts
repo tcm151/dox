@@ -6,9 +6,9 @@ hljs.configure({ ignoreUnescapedHTML: true })
 
 export function renderMarkdown(text: string | undefined) {
     const html = marked.parse(text ?? "")
-    const colorized = colorize(html)
-    const decoded = decode(colorized)
-    return decoded
+    const decoded = decode(html)
+    const colorized = colorize(decoded)
+    return colorized
 }
 
 function colorize(text: string) {

@@ -43,8 +43,13 @@ function removeTopic(topic: string) {
 async function submit() {
     
     if (!validTitle()) {
-        hints.addError("Title is invalid");
-        return;
+        hints.addError("Title is invalid")
+        return
+    }
+
+    if (draft.value.topics.length == 0) {
+        hints.addError("You must include at least one topic.")
+        return
     }
     
     try {
@@ -189,6 +194,7 @@ p:has(img) {
     place-items: center;
     
     img {
+        // padding: 1rem;
         margin-inline: auto;
         max-width: 100%;
         max-height: 256px;

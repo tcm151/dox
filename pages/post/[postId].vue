@@ -231,9 +231,11 @@ async function updateComment(comment: Comment) {
 </template>
 
 <style lang="scss">
-img {
-    max-width: 100%;
-    max-height: 512px;
+.body {
+    p img {
+        padding: 1rem;
+        max-height: 256px;
+    }
 }
 </style>
 
@@ -274,7 +276,7 @@ section.interactions {
     }
 }
 
-div.tags, .comment > header {
+div.tags, .comment > header, .comment-reply {
     span {
         padding: 0.25rem 0.5rem;
     
@@ -312,6 +314,7 @@ div.sorting {
     .body {
         p {
             img {
+                padding: 1rem;
                 max-height: 256px;
             }
         }

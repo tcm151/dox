@@ -196,7 +196,15 @@ function sort(type: string) {
 }
 
 .topic {
-    flex: 1 1 1rem;
+    flex: 10 1 1rem;
+}
+
+div.details {
+    flex: 1 1;
+
+    .info {
+        flex: 1 1 1rem;
+    }
 }
 
 .pagination {
