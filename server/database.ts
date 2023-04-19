@@ -43,6 +43,7 @@ interface DatabaseResponse<T> {
 }
 
 async function handleQuery<T>(sql: string[], parameters?: QueryParameters) {
+    await db?.wait()
     const response = await db?.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
     if (response[0].status == 'ERR') {
         throw createError({ statusCode: 500, message: response[0].details })
