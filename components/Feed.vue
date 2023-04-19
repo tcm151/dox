@@ -15,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const vote = useVoting();
+const session = getSession()
 const settings = useUserSettings();
 
 onMounted(() => sortBy(props.posts, "hot"))
@@ -58,13 +59,13 @@ function sort(type: string) {
                 </h3>
                 <div class="row-wrap g-1">
                     <div class="votes row g-1">
-                        <span class="positive" @click="vote.positive(post)">
+                        <span class="positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
                             {{ post?.votes.positive.length }}
                         </span>
-                        <span class="misleading" @click="vote.misleading(post)">
+                        <span class="misleading" @click="vote.misleading(post)" :class="{ voted: post.votes.misleading.includes(session.user.id)}">
                             {{ post?.votes.misleading.length }}
                         </span>
-                        <span class="negative" @click="vote.negative(post)">
+                        <span class="negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
                             {{ post?.votes.negative.length }}
                         </span>
                         <!-- TODO decide if want to show awards or saves -->
@@ -192,6 +193,18 @@ function sort(type: string) {
         width: 0.5rem;
         font-weight: 800;
         user-select: none;
+    }
+
+    .positive.voted {
+        outline: 1px solid $dox-green;
+    }
+
+    .misleading.voted {
+        outline: 1px solid $dox-yellow;
+    }
+
+    .negative.voted {
+        outline: 1px solid $dox-red;
     }
 }
 
