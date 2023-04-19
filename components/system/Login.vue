@@ -10,14 +10,12 @@ const password = ref("");
 const hints = useHints();
 
 const login = async () => {
-    try {
-        await session.login(username.value, password.value);
+    if (await session.login(username.value, password.value)) {
         events.publish(Trigger.toggleLogin);
         username.value = ""
         password.value = ""
     }
-    catch (ex: any) {
-        hints.addError(ex.message)
+    else {
         hints.addError("Username or password were incorrect.")
     }
 }
