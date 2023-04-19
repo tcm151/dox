@@ -28,7 +28,6 @@
         "marked": "^4.2.5",
         "nodemailer": "^6.9.1",
         "pinia": "^2.0.28",
-        "sanitize-html": "^2.10.0",
         "sass": "^1.57.1",
         "surrealdb.js": "^0.6.0"
     }

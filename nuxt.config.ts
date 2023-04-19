@@ -11,13 +11,6 @@ export default defineNuxtConfig({
         dirs: ["services/**", "datasources/**"],
     },
     vite: {
-        build: {
-            rollupOptions: {
-                external: [
-                    'sanitize-html'
-                ]
-            }
-        },
         css: {
             preprocessorOptions: {
                 scss: {
