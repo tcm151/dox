@@ -46,16 +46,34 @@ function getColor(hint: Hint) {
 
 <style scoped lang="scss">
 .hints {
-    bottom: 0;
+    // bottom: 0;
     width: 100%;
     position: absolute;
-    @include flex-v (0.5rem);
+    // @include flex-v (0.5rem);
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 10rem;
+    // gap: 0.5rem;
+    // margin-bottom: 10rem;
     pointer-events: none;
     isolation: isolate;
-    z-index: 9999;
+    z-index: 10000;
+}
+
+@media only screen and (max-aspect-ratio: 1/1) {
+    .hints {
+        top: 0;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+        margin-top: 10rem;
+    }
+}
+
+@media only screen and (min-aspect-ratio: 1/1) {
+    .hints {
+        bottom: 0;
+        @include flex-v (0.5rem);
+        margin-bottom: 10rem;
+    }
 }
 
 @keyframes fade-in {

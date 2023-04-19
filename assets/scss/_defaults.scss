@@ -112,10 +112,16 @@ button:hover {
     }
 }
 
+pre:has(code) {
+    code {
+        display: block;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+}
+
 code {
-    display: block;
-    padding: 1rem;
-    overflow-x: auto;
+    padding: 0.1rem 0.33rem;
     border-radius: 0.25rem;
     background-color: $dox-white-light;
 }

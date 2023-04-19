@@ -18,6 +18,6 @@ export function renderMarkdown(text: string | undefined) {
 }
 
 function colorize(text: string) {
-    let regex = /(?<=<pre><code class="(.*)">)(.*|\n)*(?=<\/code><\/pre>)/gm
+    let regex = /(?<=<pre><code class="([A-Za-z0-9_-]*)">)((?!<pre>).|\n)*(?=<\/code><\/pre>)/gm
     return text.replace(regex, (match) => hljs.highlightAuto(match).value)
 }
