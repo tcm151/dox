@@ -14,11 +14,16 @@ export default defineEventHandler(async (event) => {
     `])
     
     // get the reply to context
-    let replyTo = await queryOne<Post | Comment>([`
-        SELECT id, content, post, user.id, user.name
+    let replyTo = await queryOne<Post & Comment>([`
+        SELECT id, title, content, post.id, user.id, user.name
         FROM ${comment.replyTo}
         FETCH post, user
     `])
+
+    console.log(replyTo)
+
+    const context = (replyTo.id.startsWith('post')) ?
+        replyTo.title : replyTo.content
     
     // send a notification to relevant user
     // TODO need to account for when directly responding to posts
