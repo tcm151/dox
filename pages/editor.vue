@@ -189,17 +189,6 @@ function uploadMarkdown() {
 </template>
 
 <style lang="scss">
-p:has(img) {
-    display: grid;
-    place-items: center;
-    
-    img {
-        // padding: 1rem;
-        margin-inline: auto;
-        max-width: 100%;
-        max-height: 256px;
-    }
-}
 code {
     font-size: 0.95rem;
     font-weight: 500;

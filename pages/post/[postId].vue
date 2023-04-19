@@ -107,13 +107,13 @@ async function updateComment(comment: Comment) {
                         {{ post.value?.votes.negative.length }}
                     </span>
                 </div>
-                <span class="topic fill" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                <span class="topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                     {{ topic.split(':')[1] }}
                 </span>
-                <span class="info fill" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
+                <span class="info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
-                    <span class="info fill">{{ formatDate(post.value?.time as any) }}</span>
-                    <span class="danger fill" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
+                    <span class="info">{{ formatDate(post.value?.time as any) }}</span>
+                    <span class="danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
             <div class="content my-4" v-html="renderMarkdown(post.value?.content)"></div>
@@ -162,8 +162,8 @@ async function updateComment(comment: Comment) {
                         </div>
                     </div>
                 </div>
-                <div class="row" v-else>
-                    <button class="danger">You must be logged in to interact with others.</button>
+                <div class="row not-logged-in" v-else>
+                    <button class="danger fill">You must be logged in to interact with others.</button>
                 </div>
             </ClientOnly>
         </section>
@@ -234,6 +234,17 @@ async function updateComment(comment: Comment) {
 .body {
     p img {
         padding: 1rem;
+        max-width: calc(100% - 2rem);
+        max-height: 256px;
+    }
+}
+p:has(img) {
+    display: grid;
+    place-items: center;
+    
+    img {
+        margin-inline: auto;
+        max-width: 100%;
         max-height: 256px;
     }
 }
@@ -271,19 +282,19 @@ section.interactions {
     flex: 0 1;
     cursor: pointer;
 
-    span {
-        width: 1rem;
-    }
+    // span {
+    //     width: 1rem;
+    // }
 }
 
 div.tags, .comment > header, .comment-reply {
     span {
-        padding: 0.25rem 0.5rem;
-    
+        padding: 0.25rem 1rem;
+        
         font-size: 0.8rem;
         font-weight: 700;
         text-align: center;
-    
+        
         outline: 1px transparent;
         border-radius: 0.25rem;
     }
@@ -291,6 +302,20 @@ div.tags, .comment > header, .comment-reply {
     span:hover {
         background-color: #AAA;
     }
+}
+
+.tags {
+    .topic {
+        flex: 10 1 1rem;
+    }
+
+    .info {
+        flex: 1 1;
+    }
+}
+
+div.not-logged-in {
+    white-space: break-spaces;
 }
 
 div.sorting {
