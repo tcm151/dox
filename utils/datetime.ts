@@ -15,7 +15,7 @@ export function formatDate(dateString: string): string {
     if (duration.weeks >= 1) {
         return `${duration.weeks.toFixed(0)}wk ago`;
     }
-    if (duration.days >= 24) {
+    if (duration.days >= 1) {
         return `${duration.days.toFixed(0)}d ago`;
     }
     if (duration.hours >= 1) {
