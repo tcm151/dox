@@ -35,9 +35,9 @@ nav.row {
     background-color: $dox-black;
     
     a {
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.75rem;
         font-weight: 700;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: $dox-white;
     }
 
