@@ -2,10 +2,11 @@
     "private": true,
     "scripts": {
         "dev": "nuxt dev",
+        "prebuild": "yarn install",
         "build": "nuxt build",
-        "preview": "nuxt preview",
-        "generate": "nuxt generate",
-        "postinstall": "nuxt prepare"
+        "postinstall": "nuxt prepare",
+        "start:local": "node .output/server/index.mjs",
+        "start:production": "node .production/server/index.mjs"
     },
     "devDependencies": {
         "@types/luxon": "^3.2.0",
