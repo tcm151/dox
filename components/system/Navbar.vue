@@ -2,6 +2,8 @@
 const events = useEvents();
 const session = getSession();
 
+const showFeedback = ref(false)
+
 async function login() {
     if (!(await session.authenticate())) {
         events.publish(Trigger.toggleLogin)
@@ -24,8 +26,14 @@ async function login() {
                     <i class="fa-solid fa-terminal"></i>
                 </NuxtLink>
                 <NuxtLink to="/notifications" v-if="session.isAuthenticated" title="Notifications">
-                        <i class="fa-solid fa-envelope"></i>
-                    </NuxtLink>
+                    <i class="fa-solid fa-envelope"></i>
+                </NuxtLink>
+                <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
+                    <i class="fa-solid fa-message"></i>
+                </NuxtLink>
+                <Window title="Submit Feedback" :width="300" :visible="showFeedback" @close="showFeedback = false">
+                    <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
+                </Window>
             </ClientOnly>
         </section>
         <ClientOnly>
