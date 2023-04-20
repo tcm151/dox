@@ -2,7 +2,6 @@
     "private": true,
     "scripts": {
         "dev": "nuxt dev",
-        "prebuild": "yarn install",
         "build": "nuxt build",
         "postinstall": "nuxt prepare",
         "start:local": "node .output/server/index.mjs",
