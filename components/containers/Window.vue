@@ -137,6 +137,7 @@ function releaseWindow() {
 .window-slot {
     padding: 1rem;
     @include flex-v;
+    border-radius: 0 0 0.25rem 0.25rem;
     background-color: $dox-white-ultra;
     overflow-y: auto;
 }
