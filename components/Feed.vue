@@ -18,7 +18,11 @@ const vote = useVoting();
 const session = getSession()
 const settings = useUserSettings();
 
-onMounted(() => sortBy(props.posts, "hot"))
+onMounted(() => sortBy(props.posts, sortType.value))
+watch(props.posts, () => {
+    sortBy(props.posts, sortType.value)
+})
+
 
 let sortType = ref("hot")
 function sort(type: string) {
