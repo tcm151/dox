@@ -8,11 +8,18 @@ const emit = defineEmits<{
     (event: 'submit'): void
 }>()
 
+const hints = useHints()
 const session = getSession();
 
 let feedback = ref("");
 
 async function submitFeedback() {
+
+    if (feedback.value == "") {
+        hints.addWarning("You can't submit nothing.")
+        return
+    }
+
     const result = await session.useApi("/api/feedback/submit", {
         user: session.user!.id,
             content: feedback.value,
