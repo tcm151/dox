@@ -53,7 +53,7 @@ function toggleFilter() {
         :pagination="true"
         @page="goToPage"
         @refresh="feed.fetch"
-        :posts="feed.items ?? []">
+        :posts="filteredPosts ?? []">
             <template #header>
                 <button class="filter-type" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
