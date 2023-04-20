@@ -33,7 +33,7 @@ async function deleteDraft(draft: Draft) {
     <ClientOnly>
         <Window
             title="Drafts"
-            :width="800"
+            :width="600"
             :visible="visible"
             @close="emit('close')"
         >
