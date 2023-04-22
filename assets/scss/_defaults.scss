@@ -46,7 +46,7 @@ a, a:hover, a:active, a:visited {
     }
 }
 
-a:has(i, span) {
+a:has(i, span), button:has(i, span) {
     @include flex-h (0.5rem);
     justify-content: center;
     align-items: center;

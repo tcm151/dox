@@ -7,7 +7,7 @@ definePageMeta({
             return navigateTo("/")
         }
         if (to.path === "/admin") {
-            return navigateTo("/admin/feedback")
+            return navigateTo("/admin/query")
         }
     }
 })
@@ -22,6 +22,18 @@ definePageMeta({
         <NuxtLink to="/admin/reports">
             <i class="fa-solid fa-flag"></i>
             <span>Reports</span>
+        </NuxtLink>
+        <NuxtLink to="/admin/query">
+            <i class="fa-solid fa-terminal"></i>
+            <span>Database</span>
+        </NuxtLink>
+        <NuxtLink to="/admin/folders">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>Folders</span>
+        </NuxtLink>
+        <NuxtLink to="/admin/images">
+            <i class="fa-solid fa-image"></i>
+            <span>Images</span>
         </NuxtLink>
     </nav>
     <NuxtPage />

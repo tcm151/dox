@@ -101,20 +101,18 @@ function moveItem(target: DirectoryItem) {
 
 <template>
     <section class="directory column g-2">
-        <header class="row g-2">
-            <div class="fill row g-2">
-                <h4
-                    class="row g-2"
-                    v-for="folder in calculatePath()"
-                    @click="selectItem(folder)"
-                    @dragover.prevent=""
-                    @drop="moveItem(folder)"
-                >
-                    <i class="fa-solid fa-caret-right"></i>
-                    <span v-if="folder.name == ''">{{ root }}</span>
-                    <span v-else>{{ folder.name }}</span>
-                </h4>
-            </div>
+        <header class="row center-inline g-2">
+            <h4
+                class="fill row center-inline g-2"
+                v-for="folder in calculatePath()"
+                @click="selectItem(folder)"
+                @dragover.prevent=""
+                @drop="moveItem(folder)"
+            >
+                <i class="fa-solid fa-caret-right"></i>
+                <span v-if="folder.name == ''">{{ root }}</span>
+                <span v-else>{{ folder.name }}</span>
+            </h4>
             <button class="link" @click="addFile" v-if="buttons?.includes('add-file')">
                 <i class="fa-solid fa-file-circle-plus"></i>
             </button>
@@ -132,14 +130,14 @@ function moveItem(target: DirectoryItem) {
                 @drop="moveItem(item)"
                 @contextmenu.prevent="emit('removeItem', item)"
             >
-                <div class="editing row" v-if="item.editing">
+                <div class="editing row center-inline" v-if="item.editing">
                     <i class="fa-solid fa-folder pl-3" v-if="item.type =='folder'"></i>
                     <input type="text" spellcheck="false" v-model="item.name" @keydown.enter="saveItem(item)">
                 </div>
-                <div class="row g-2" v-else>
+                <span class="row center-inline g-2" v-else>
                     <i class="fa-solid fa-folder" v-if="item.type =='folder'"></i>
                     <span>{{ item.name }}</span>
-                </div>
+                </span>
             </div>
         </div>
     </section>
@@ -154,8 +152,8 @@ section.directory {
 header {
     min-height: 32px;
 
-    div {
-        padding: 0.25rem 0.75rem;
+    h4 {
+        padding: 5px 0.75rem;
         border-radius: 0.25rem;
         color: $dox-blue;
         background-color: $dox-blue-light;
@@ -195,9 +193,5 @@ div.folder:has(input) {
         font-weight: inherit;
         font-family: inherit;
     }
-}
-
-.row {
-    align-items: center;
 }
 </style>

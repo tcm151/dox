@@ -200,14 +200,6 @@ article {
     }
 }
 
-.row {
-    button:has(i, span) {
-        @include flex-h (0.5rem);
-        justify-content: center;
-        align-items: center;
-    }
-}
-
 section.editor {
     header.row {
         justify-content: flex-end;

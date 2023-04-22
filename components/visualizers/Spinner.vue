@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-    <div class="spinner">
+    <div class="spinner column center-inline g-4">
         <i class="fa-solid fa-spinner"></i>
         <p v-if="showLoadingText">Loading . . .</p>
     </div>
@@ -24,9 +24,6 @@ defineProps<{
 }
 
 .spinner {
-    @include flex-v (1rem);
-    align-items: center;
-    
     i {
         color: $dox-blue;
         font-size: v-bind('fontSize');

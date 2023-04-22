@@ -22,9 +22,6 @@ async function login() {
                 <NuxtLink to="/admin" v-if="session.user.admin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                 </NuxtLink>
-                <NuxtLink to="/query" v-if="session.user.admin" title="Query">
-                    <i class="fa-solid fa-terminal"></i>
-                </NuxtLink>
                 <NuxtLink to="/notifications" v-if="session.isAuthenticated" title="Notifications">
                     <i class="fa-solid fa-envelope"></i>
                 </NuxtLink>
@@ -98,15 +95,10 @@ section.right {
 }
 
 a {
-    @include flex-h(0.5rem);
-    align-items: center;
     padding: 0.75rem 0.75rem;
-    line-height: 1rem;
+    font-weight: 700;
     font-size: 1.25rem;
-
-    span {
-        font-weight: 700;
-    }
+    line-height: 1rem;
 }
 
 .right {

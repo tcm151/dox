@@ -1,0 +1,17 @@
+.tag {
+    white-space: nowrap;
+    text-align: center;
+    font-weight: 700;
+    outline: 1px transparent;
+    border-radius: 0.25rem;
+}
+
+span.tag {
+    padding: 0.25rem 1rem;
+    font-size: 0.8rem;
+}
+
+button.tag {
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+}

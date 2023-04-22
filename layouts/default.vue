@@ -24,9 +24,9 @@ onMounted(() => {
     <Popup :visible="showPopup" title="Popup" :accept="() => { }" :decline="() => { }">
         <span>This is the default!</span>
     </Popup>
-    <main class="page">
+    <main class="page column center-inline">
         <slot class="slot" />
-        <footer class="row px-5 m-5">
+        <footer class="row center-inline px-5 m-5">
                 <div class="links">
                     <NuxtLink to="/home">Home</NuxtLink>
                     <NuxtLink to="/about">About</NuxtLink>
@@ -40,12 +40,10 @@ onMounted(() => {
 
 <style lang="scss">
 main.page {
-    @include flex-v;
-    align-items: center;
     height: calc(100vh - 35px);
-    overflow-y: auto;
-    overflow-x: hidden;
     background-color: $dox-white-light;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     > article, > section, > div {
         flex: 1 1;
@@ -58,11 +56,9 @@ main.page {
 footer.row {
     @include fit-width (800px, 1rem);
     justify-content: space-between;
-    align-items: center;
 
     .links {
         @include flex-v (0.25rem);
-        font-weight: 600;
         font-weight: 700;
     }
 

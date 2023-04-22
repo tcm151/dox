@@ -28,44 +28,20 @@ function moveWindow(event: MouseEvent) {
 function releaseWindow() {
     holdingWindow.value = false;
 }
-
-// function dragTopLeftCorner() {
-// }
-
-// function dragTopRightCorner() {
-// }
-
-// function dragBottomLeftCorner() {
-// }
-
-// function dragBottomRightCorner() {
-// }
 </script>
 
 <template>
-    <div class="popup" v-if="props.visible" @mousemove="moveWindow" @mouseup="releaseWindow" @mouseleave="releaseWindow">
+    <div class="popup column center" v-if="props.visible" @mousemove="moveWindow" @mouseup="releaseWindow" @mouseleave="releaseWindow">
         <div class="window" ref="window" :style="{ width: `${width}px`, height: `${height}px`, top: `${windowTop}px`, left: `${windowLeft}px` }">
             <div class="title-bar" @mousedown="grabWindow">
                 <h2 class="title px-4 py-2" v-if="title">{{ title }}</h2>
-                <div class="close" @click="$emit('close')">
+                <div class="close px-3" @click="$emit('close')">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
             <div class="window-slot" sty>
                 <slot />
             </div>
-            <!-- <svg class="top-left-corner" height="15" width="15">
-                <polygon points="0,0 15,0 0,15" @mousedown="dragTopLeftCorner"/>
-            </svg>
-            <svg class="top-right-corner" height="15" width="15">
-		        <polygon points="0,0 15,15 15,0" @mousedown="dragTopRightCorner" />
-            </svg>
-            <svg class="bottom-left-corner" height="15" width="15">
-                <polygon points="0,0 15,15 0,15" @mousedown="dragBottomLeftCorner"/>
-            </svg>
-            <svg class="bottom-right-corner" height="15" width="15">
-		        <polygon points="15,15 0,15 15,0" @mousedown="dragBottomRightCorner" />
-            </svg> -->
         </div>
     </div>
 </template>
@@ -89,10 +65,6 @@ function releaseWindow() {
     width: 100vw;
     height: 100vh;
     z-index: 9999;
-
-    @include flex-v;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     animation: blur 64ms forwards;
 }
@@ -118,9 +90,8 @@ function releaseWindow() {
     user-select: none;
 
     .close {
-        @include flex-h;
-        align-items: center;
-        padding: 0 0.75rem;
+        display: grid;
+        place-items: center;
 
         i {
             font-size: 1.5rem;
@@ -129,7 +100,7 @@ function releaseWindow() {
     }
     
     .close:hover {
-        // color: $dox-red;
+        border-top-right-radius: 0.25rem;
         background-color: $dox-red;
     }
 }

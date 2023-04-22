@@ -15,73 +15,52 @@ onMounted(() => {
 <template>
     <Navbar />
     <Login :visible="showLogin"/>
-    
-    <Hints />
-    
     <Popup :visible="showPopup" title="Popup" :accept="() => { }" :decline="() => { }">
         <span>This is the default!</span>
     </Popup>
-    
-    <div class="page">
+    <main class="page column center-inline">
         <div class="slot">
             <slot />
         </div>
-        <footer class="m-5">
-            <div class="row px-5">
-                <div class="extras">
-                    <NuxtLink to="/home">Home</NuxtLink>
-                    <NuxtLink to="/about">About</NuxtLink>
-                    <NuxtLink to="/contact">Contact</NuxtLink>
-                </div>
-                <img class="icon" src="/images/surrealdb-icon.png">
+        <footer class="row center-inline px-5 m-5">
+            <div class="links">
+                <NuxtLink to="/home">Home</NuxtLink>
+                <NuxtLink to="/about">About</NuxtLink>
+                <NuxtLink to="/contact">Contact</NuxtLink>
             </div>
+            <img class="icon" src="/images/surrealdb-icon.png">
         </footer>
-    </div>
+    </main>
+    <Hints />
 </template>
 
 <style scoped lang="scss">
 
-.page {
-    @include flex-v;
-    align-items: center;
+main.page {
     height: calc(100% - 35px);
-    
-    overflow-y: auto;
-    overflow-x: hidden;
-
     background-color: $dox-white-light;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .slot {
-    width: 100%;
-    flex: 1 1 auto;
+    flex: 1 1;
+    @include fit-width (100%, 1rem);
     display: grid;
     place-items: center;
-
-    > div {
-        padding: 1rem;
-    }
 }
 
-footer {
-    width: 750px;
+footer.row {
+    @include fit-width (800px, 1rem);
+    justify-content: space-between;
 
-    a {
+    .links {
+        @include flex-v (0.25rem);
         font-weight: 700;
     }
 
-    a:hover {
+    .links:hover {
         color: #777;
-    }
-
-    .row {
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .extras {
-        @include flex-v (0.25rem);
-        font-weight: 600;
     }
 
     .icon {
