@@ -27,6 +27,12 @@ export default defineNuxtConfig({
         }
     },
     runtimeConfig: {
+        smtp: {
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
         surreal: {
             url: process.env.SURREAL_URL,
             username: process.env.SURREAL_USERNAME,

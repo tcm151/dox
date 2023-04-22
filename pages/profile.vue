@@ -1,12 +1,12 @@
 <script setup lang="ts">
-definePageMeta({
-    middleware: async (to, from) => {
-        const session = getSession()
-        if (session.isAuthenticated) {
-            return navigateTo(`/user/${extractId(session.user.id)}`)
-        }
-    }
-})
+// definePageMeta({
+//     middleware: async (to, from) => {
+//         const session = getSession()
+//         if (session.isAuthenticated) {
+//             return navigateTo(`/user/${extractId(session.user.id)}`)
+//         }
+//     }
+// })
 
 const session = getSession();
 const settings = useUserSettings();

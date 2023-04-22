@@ -3,15 +3,16 @@ import * as nodemailer from "nodemailer"
 // TODO host own SMTP email server to send legit emails
 // TODO use .env to populate username and password
 
+
 export const useEmail = async () => {
-    const testAccount = await nodemailer.createTestAccount()
+    const { smtp } = useRuntimeConfig()
     return nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
+        host: smtp.host,
+        port: smtp.port,
         secure: false,
         auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
+            user: smtp.user,
+            pass: smtp.pass,
         }
     })
 }
