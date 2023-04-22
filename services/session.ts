@@ -40,7 +40,7 @@ export const getSession = defineStore("session", (): Session => {
         topics: [],
         following: [],
         followers: [],
-        dateCreated: 'string',
+        dateCreated: '',
         admin: false
     }))
 
@@ -118,7 +118,7 @@ export const getSession = defineStore("session", (): Session => {
                 topics: [],
                 following: [],
                 followers: [],
-                dateCreated: 'string',
+                dateCreated: '',
                 admin: false
             }
         }
