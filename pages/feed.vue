@@ -55,7 +55,7 @@ function toggleFilter() {
         @refresh="feed.fetch"
         :posts="filteredPosts ?? []">
             <template #header>
-                <button class="filter-type" @click="toggleFilter">
+                <button class="filter-type " @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
                     <span>{{ filterType }}</span>
                 </button>
@@ -71,9 +71,6 @@ section.feed {
 
 .filter-type {
     flex: 1 1;
-    @include flex-h (0.5rem);
-    justify-content: center;
-    align-items: center;
     color: $dox-white;
     background-color: $dox-black;
 }

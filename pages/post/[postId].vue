@@ -271,21 +271,9 @@ article#post {
     white-space: nowrap;
 }
 
-section.interactions {
-    button {
-        @include flex-h;
-        align-items: center;
-        gap: 0.5rem;
-    }
-}
-
 .votes {
     flex: 0 1;
     cursor: pointer;
-
-    // span {
-    //     width: 1rem;
-    // }
 }
 
 div.tags, .comment > header, .comment-reply {
@@ -322,9 +310,6 @@ div.not-logged-in {
 div.sorting {
     button {
         flex: 1 1;
-        @include flex-h (0.5rem);
-        align-items: center;
-        justify-content: center;
     }
 
     .selected {

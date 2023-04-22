@@ -15,7 +15,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <div class="popup" v-if="props.visible">
+    <div class="popup column center" v-if="props.visible">
         <div class="window p-5" :style="{ width: width ?? 'fit-content', height: height ?? 'auto' }">
             <h1 v-if="title">{{ title }}</h1>
             <div class="slot">
@@ -43,11 +43,6 @@ const emit = defineEmits<{
     width: 100vw;
     height: 100vh;
     z-index: 9999;
-
-    @include flex-v;
-    align-items: center;
-    justify-content: center;
-    // background-color: #0005;
     animation: blur 64ms forwards;
 }
 

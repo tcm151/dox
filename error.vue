@@ -6,7 +6,7 @@ let complain = ref(false)
 
 <template>
     <article class="error">
-        <section class="details py-5 px-6 ">
+        <section class="details column center-inline py-5 px-6 ">
             <div class="mb-5">
                 <h1>ERR: {{ error.statusCode }}</h1>
                 <p>{{ error.message }}</p>
@@ -33,8 +33,6 @@ article.error {
 
     
     section.details {
-        @include flex-v;
-        align-items: center;
         border-radius: 0.25rem;
         background-color: $dox-white-ultra;
         

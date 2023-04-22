@@ -40,7 +40,7 @@ async function deleteDraft(draft: Draft) {
             <section class="drafts column" v-if="!loading && userDrafts.length > 0">
                 <div class="column" v-for="draft in userDrafts" :key="draft.id">
                     <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
-                    <div class="row g-2">
+                    <div class="row-wrap g-2">
                         <span class="topic" v-for="topic in draft.topics">
                             {{ topic.split(':')[1] }}
                         </span>
@@ -97,16 +97,6 @@ section.drafts {
 
     .topic, .info {
         flex: 1 1 auto;
-    }
-
-    button {
-        flex: 0 1 32px;
-    }
-
-    button {
-        @include flex-h (0.5rem);
-        justify-content: center;
-        align-items: center;
     }
 }
 

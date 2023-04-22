@@ -34,7 +34,7 @@ function sort(type: string) {
 
 <template>
     <div class="feed">
-        <div class="sorting row g-2" v-if="props.sorting">
+        <div class="sorting row center g-2" v-if="props.sorting">
             <button class="refresh" @click="emit('refresh')">
                 <i class="fa-solid fa-rotate"></i>
             </button>
@@ -63,13 +63,13 @@ function sort(type: string) {
                 </h3>
                 <div class="row-wrap g-1">
                     <div class="votes row g-1">
-                        <span class="positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
+                        <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
                             {{ post?.votes.positive.length }}
                         </span>
-                        <span class="misleading" @click="vote.misleading(post)" :class="{ voted: post.votes.misleading.includes(session.user.id)}">
+                        <span class="tag misleading" @click="vote.misleading(post)" :class="{ voted: post.votes.misleading.includes(session.user.id)}">
                             {{ post?.votes.misleading.length }}
                         </span>
-                        <span class="negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
+                        <span class="tag negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
                             {{ post?.votes.negative.length }}
                         </span>
                         <!-- TODO decide if want to show awards or saves -->
@@ -80,15 +80,15 @@ function sort(type: string) {
                             <i class="fa-solid fa-box-archive"></i>
                         </span> -->
                     </div>
-                    <span class="topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                    <span class="tag topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                         {{ topic.split(':')[1] }}
                     </span>
                     <div class="details row g-1">
-                        <span class="info" @click="navigateTo(`/user/${extractId(post.user.id ?? '')}`)">
+                        <span class="tag info" @click="navigateTo(`/user/${extractId(post.user.id ?? '')}`)">
                             u/{{ post?.user.name ?? "deleted" }}
                         </span>
-                        <span class="info">{{ post.comments.length }} comments</span>
-                        <span class="info">{{ formatDate(post.time as any) }}</span>
+                        <span class="tag info">{{ post.comments.length }} comments</span>
+                        <span class="tag info">{{ formatDate(post.time as any) }}</span>
                     </div>
                 </div>
             </div>
@@ -114,9 +114,6 @@ function sort(type: string) {
 .sorting {
     button {
         flex: 1 1;
-        @include flex-h (0.5rem);
-        align-items: center;
-        justify-content: center;
         
         @media only screen and (max-width: 400px) {
             span {
@@ -164,17 +161,6 @@ function sort(type: string) {
         font-weight: 700;
         color: $dox-black;
     }
-
-    span {
-        padding: 0.25rem 1rem;
-
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-align: center;
-
-        outline: 1px transparent;
-        border-radius: 0.25rem;
-    }
 }
 
 .post:hover {
@@ -197,18 +183,6 @@ function sort(type: string) {
         width: 0.5rem;
         font-weight: 800;
         user-select: none;
-    }
-
-    .positive.voted {
-        outline: 1px solid $dox-green;
-    }
-
-    .misleading.voted {
-        outline: 1px solid $dox-yellow;
-    }
-
-    .negative.voted {
-        outline: 1px solid $dox-red;
     }
 }
 

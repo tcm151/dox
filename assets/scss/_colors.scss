@@ -32,8 +32,6 @@ $dox-purple-light: color.scale($dox-purple, $lightness: 75%);
 $dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
 
 
-
-
 //> OVERRIDES
 $primary: $dox-black;
 $link:    $dox-blue;
@@ -53,6 +51,10 @@ $danger: $dox-red;
     background-color: $dox-green;
 }
 
+.positive.voted {
+    outline: 1px solid $dox-green;
+}
+
 .misleading, .warning {
     color: $dox-yellow;
     background-color: $dox-yellow-light;
@@ -63,6 +65,10 @@ $danger: $dox-red;
     background-color: $dox-yellow;
 }
 
+.misleading.voted {
+    outline: 1px solid $dox-yellow;
+}
+
 .negative, .danger {
     color: $dox-red;
     background-color: $dox-red-light;
@@ -71,6 +77,10 @@ $danger: $dox-red;
 .negative:hover, .danger:hover {
     color: $dox-white-light;
     background-color: $dox-red;
+}
+
+.negative.voted {
+    outline: 1px solid $dox-red;
 }
 
 .topic, .link {

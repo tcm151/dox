@@ -128,7 +128,7 @@ function uploadMarkdown() {
     <article id="editor" class="row-wrap g-4 p-4">
         <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
         <section class="editor p-5">
-            <header id="header" class="row mb-4">
+            <header id="header" class="row center-inline mb-4">
                 <h1>New Post</h1>
                 <button @click="showDrafts = true">
                     <i class="fa-solid fa-compass-drafting"></i>
@@ -151,11 +151,11 @@ function uploadMarkdown() {
                     <textarea v-model="draft.content" type="text" rows="12" />
                 </div>
                 <div class="field topic-input">
-                    <div class="row g-2 mb-2">
-                        <label style="margin-bottom: 0">Topics</label>
-                        <div class="topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
-                            <p>{{ topic.split(':')[1] }}</p>
-                        </div>
+                    <div class="row center-inline g-2 mb-2">
+                        <label class="mb-0">Topics</label>
+                        <span class="tag topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
+                            {{ topic.split(':')[1] }}
+                        </span>
                     </div>
                     <input
                         type="text"
@@ -208,7 +208,6 @@ article#editor {
 }
 
 #header {
-    align-items: center;
     justify-content: space-between;
 
     button {
@@ -217,13 +216,9 @@ article#editor {
 }
 
 .topic-input {
-    div {
-        align-items: center;
-        
-        label {
-            vertical-align: middle;
-            line-height: 1.5rem;
-        }
+    label {
+        vertical-align: middle;
+        line-height: 1.5rem;
     }
 }
 

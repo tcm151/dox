@@ -38,21 +38,17 @@ function getColor(hint: Hint) {
 
 <template>
     <aside class="hints">
-        <div class="item" v-for="hint in hints" :style="{ backgroundColor: getColor(hint) }">
-            <p class="message">{{ hint.message }}</p>
+        <div class="item px-4 py-2" v-for="hint in hints" :style="{ backgroundColor: getColor(hint) }">
+            {{ hint.message }}
         </div>
     </aside>
 </template>
 
 <style scoped lang="scss">
 .hints {
-    // bottom: 0;
     width: 100%;
     position: absolute;
-    // @include flex-v (0.5rem);
     align-items: center;
-    // gap: 0.5rem;
-    // margin-bottom: 10rem;
     pointer-events: none;
     isolation: isolate;
     z-index: 10000;
@@ -82,22 +78,16 @@ function getColor(hint: Hint) {
 }
 
 .item {
+    position: relative;
     @include flex-h;
-    align-items: center;
     width: fit-content;
     max-width: 512px;
-    position: relative;
     font-weight: 600;
+    text-align: center;
     border-radius: 0.25rem;
     box-shadow: 0.25rem 0.25rem 1rem -0.25rem $dox-white-dark,
                 0 0 0.33rem 1px $dox-white-dark;
     animation: fade-in 256ms;
     pointer-events: all;
-    
-    .message {
-        flex: 1 1;
-        padding: 0.5rem 1rem;
-        text-align: center;
-    }
 }
 </style>
