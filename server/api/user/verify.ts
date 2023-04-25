@@ -1,8 +1,7 @@
 import { useEmail } from "~/server/email"
-import { getTestMessageUrl } from "nodemailer"
 
 export default defineEventHandler(async (event) => {
-    const client = await useEmail()
+    const client = useEmail()
     return await client.sendMail({
         from: '"DOX Official" <tylermckay10@gmail.com>',
         to: 'tylermckay10@gmail.com',
