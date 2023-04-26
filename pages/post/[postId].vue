@@ -89,6 +89,9 @@ async function updateComment(comment: Comment) {
     await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, comment.content)
     commentToEdit.value = "";
 }
+
+// TODO add page views
+
 </script>
 
 <template>
