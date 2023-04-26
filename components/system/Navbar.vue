@@ -19,7 +19,7 @@ async function login() {
                 <span>DOX</span>
             </NuxtLink>
             <ClientOnly>
-                <NuxtLink to="/admin" v-if="session.user.admin" title="Admin">
+                <NuxtLink to="/admin" v-if="session.isAuthenticated && session.user.admin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                 </NuxtLink>
                 <NuxtLink to="/notifications" v-if="session.isAuthenticated" title="Notifications">
