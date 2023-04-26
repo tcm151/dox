@@ -28,6 +28,6 @@ onMounted(() => {
 main.page {
     height: calc(100% - 35px);
     background-color: $dox-white-light;
-    overflow: hidden;
+    // overflow: hidden;
 }
 </style>
