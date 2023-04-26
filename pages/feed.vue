@@ -9,7 +9,7 @@ const session = getSession()
 
 let queryParameters = ref({
     pageNumber: 1,
-    pageSize: 25,
+    pageSize: 12,
 })
 
 const feed = useFeed(queryParameters.value)
@@ -20,27 +20,28 @@ const feedPosts = computed(() => {
         || session.user?.following.includes(p.user.id)
     )
 })
+const filteredPosts = computed(() =>  {
+    return filterType.value == "All"
+        ? feed.items
+        : feedPosts.value
+})
 
 async function goToPage(pageNumber: number) {
-    queryParameters.value.pageNumber = pageNumber
+    queryParameters.value.pageNumber = Math.max(1, pageNumber)
     await feed.fetch()
 }
 
 let filterType = ref("All")
-let filteredPosts = ref<Post[] | null>([])
-
-onMounted(() => filteredPosts.value = feed.items)
 
 function toggleFilter() {
-    switch (filterType.value) {
-        case "All":
-            filterType.value = "Feed";
-            filteredPosts.value = feedPosts.value;
-            return;
-        case "Feed":
-            filterType.value = "All";
-            filteredPosts.value = feed.items;
-            return;
+    if (session.isAuthenticated) {
+        switch (filterType.value) {
+            case "All":
+                filterType.value = "Feed"
+                return
+            case "Feed":
+                filterType.value = "All";
+        }
     }
 }
 </script>
