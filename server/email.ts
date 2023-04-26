@@ -4,7 +4,7 @@ export const useEmail = () => {
     const { smtp } = useRuntimeConfig()
     return nodemailer.createTransport({
         host: smtp.host,
-        port: smtp.port,
+        port: Number.parseInt(smtp.port),
         secure: false,
         auth: {
             user: smtp.user,
