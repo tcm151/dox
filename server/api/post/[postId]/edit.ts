@@ -12,9 +12,9 @@ export default defineEventHandler(async (event) => {
         const content = await readBody(event);
         return await queryOne<Post>([`
             UPDATE post:${postId} SET
-            content = "${content}",
+            content = $content,
             edited = true,
             timeEdited = time::now()
-        `])
+        `], { content })
     }
 })
