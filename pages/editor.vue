@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { DateTime } from 'luxon';
+import { DateTime } from 'luxon'
 import { Post, Draft } from '~/types'
 
-const hints = useHints();
-const session = getSession();
+definePageMeta({
+    layout: 'simple'
+})
+
+const hints = useHints()
+const session = getSession()
+const settings = useUserSettings()
+
 
 let draft = ref<Draft>({
     id: '',
@@ -14,7 +20,7 @@ let draft = ref<Draft>({
     topics: [],
 })
 
-let newTopic = ref("");
+let newTopic = ref("")
 let titleFocused = ref(false)
 let topicsFocused = ref(false)
 
@@ -29,15 +35,27 @@ function validTopic() {
 
 function addTopic() {
     if (validTopic()) {
-        draft.value.topics.push(`topic:${newTopic.value}`);
-        newTopic.value = "";
-        return;
+        draft.value.topics.push(`topic:${newTopic.value}`)
+        newTopic.value = ""
+        return
     }
     hints.addWarning("Topic is not valid")
 }
 
 function removeTopic(topic: string) {
-    draft.value.topics = draft.value.topics.filter(t => t !== topic);
+    draft.value.topics = draft.value.topics.filter(t => t !== topic)
+}
+
+
+let showDrafts = ref(false)
+function viewDraft(existingDraft: Draft) {
+    draft.value = existingDraft
+    showDrafts.value = false
+}
+
+let showPreview = ref(settings.state.showPreviewByDefault ?? false)
+function togglePreview() {
+    showPreview.value = !showPreview.value
 }
 
 async function submit() {
@@ -79,8 +97,8 @@ async function saveDraft() {
     
     // TODO validate post here as well, create separate function
     if (!validTitle()) {
-        hints.addError("Title is invalid");
-        return;
+        hints.addError("Title is invalid")
+        return
     }
 
     if (draft.value.id !== '') {
@@ -103,89 +121,71 @@ async function saveDraft() {
         hints.addSuccess("Draft saved")
     }
 }
-
-
-let showDrafts = ref(false)
-
-function viewDraft(existingDraft: Draft) {
-    draft.value = existingDraft
-    showDrafts.value = false
-}
-
-const settings = useUserSettings();
-
-let showPreview = ref(settings.state.showPreviewByDefault ?? false)
-function togglePreview() {
-    showPreview.value = !showPreview.value
-}
-
-function uploadMarkdown() {
-
-}
 </script>
 
 <template>
-    <article id="editor" class="row-wrap g-4 p-4">
-        <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-        <section class="editor p-5">
-            <header id="header" class="row center-inline mb-4">
-                <h1>New Post</h1>
-                <button @click="showDrafts = true">
-                    <i class="fa-solid fa-compass-drafting"></i>
-                    <span class="ml-2">Drafts</span>
-                </button>
-            </header>
-            <form class="form">
-                <div class="field">
-                    <label>Title</label>
-                    <input
-                        type="text"
-                        v-model="draft.title"
-                        @focus="titleFocused = true"
-                        @blur="titleFocused = false"
-                        :class="{ 'invalid': titleFocused && !validTitle() }"
-                    />
-                </div>
-                <div class="field">
-                    <label>Content</label>
-                    <textarea v-model="draft.content" type="text" rows="12" />
-                </div>
-                <div class="field topic-input">
-                    <div class="row center-inline g-2 mb-2">
-                        <label class="mb-0">Topics</label>
-                        <span class="tag topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
-                            {{ topic.split(':')[1] }}
-                        </span>
+    <ClientOnly>
+        <article id="editor" class="row-wrap g-4 p-4">
+            <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
+            <section class="editor column p-5">
+                <header id="header" class="row center-inline mb-4">
+                    <h1>New Post</h1>
+                    <button @click="showDrafts = true">
+                        <i class="fa-solid fa-compass-drafting"></i>
+                        <span class="ml-2">Drafts</span>
+                    </button>
+                </header>
+                <form class="form fill column">
+                    <div class="field">
+                        <label>Title</label>
+                        <input
+                            type="text"
+                            v-model="draft.title"
+                            @focus="titleFocused = true"
+                            @blur="titleFocused = false"
+                            :class="{ 'invalid': titleFocused && !validTitle() }"
+                        />
                     </div>
-                    <input
-                        type="text"
-                        v-model="newTopic"
-                        spellcheck="false"
-                        @keyup.enter="addTopic"
-                        @focus="topicsFocused = true"
-                        @blur="topicsFocused = false"
-                        :class="{ 'invalid': topicsFocused && !validTopic() }"
-                    />
-                </div>
-            </form>
-            <section class="row-wrap g-2 mt-5">
-                <button class="success" @click="submit">Submit</button>
-                <button class="link" @click="saveDraft">Save Draft</button>
-                <!-- <button class="link" @click="uploadMarkdown">Upload Markdown</button> -->
-                <button class="info" @click="togglePreview">
-                    <span v-if="!showPreview">Show Preview</span>
-                    <span v-else>Hide Preview</span>
-                </button>
-                <button class="danger" @click="navigateTo('/')">Cancel</button>
+                    <div class="field fill">
+                        <label>Content</label>
+                        <textarea class="fill" v-model="draft.content" type="text" rows="12" />
+                    </div>
+                    <div class="field topic-input">
+                        <div class="row center-inline g-2 mb-2">
+                            <label class="mb-0">Topics</label>
+                            <span class="tag topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
+                                {{ topic.split(':')[1] }}
+                            </span>
+                        </div>
+                        <input
+                            type="text"
+                            v-model="newTopic"
+                            spellcheck="false"
+                            @keyup.enter="addTopic"
+                            @focus="topicsFocused = true"
+                            @blur="topicsFocused = false"
+                            :class="{ 'invalid': topicsFocused && !validTopic() }"
+                        />
+                    </div>
+                </form>
+                <section class="row-wrap g-2 mt-5">
+                    <button class="success fill" @click="submit">Submit</button>
+                    <button class="link fill" @click="saveDraft">Save Draft</button>
+                    <button class="info fill" @click="togglePreview">
+                        <span v-if="!showPreview">Show Preview</span>
+                        <span v-else>Hide Preview</span>
+                    </button>
+                    <button class="danger fill" @click="navigateTo('/')">Cancel</button>
+                </section>
             </section>
-        </section>
-        <section class="preview p-5" v-if="showPreview">
+            <section class="preview p-5" v-if="showPreview">
                 <h1 class="mb-2">{{ draft.title }}</h1>
                 <div class="content" v-html="renderMarkdown(draft.content)">
                 </div>
                 <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
-        </section>
-    </article>
+            </section>
+        </article>
+    </ClientOnly>
 </template>
 
 <style lang="scss">
@@ -204,15 +204,11 @@ article#editor {
     justify-content: center;
     align-items: flex-start;
     @include fit-width (1200px, 1rem);
-    // overflow-y: hidden;
+    overflow-y: hidden;
 }
 
 #header {
     justify-content: space-between;
-
-    button {
-        max-width: 128px;
-    }
 }
 
 .topic-input {
@@ -223,9 +219,12 @@ article#editor {
 }
 
 .editor, .preview {
-    flex: 1 1 400px;
+    height: calc(100% - 3rem);
+    overflow-y: auto;
+
+    flex: 1 1 500px;
     min-width: 250px;
-    max-width: 800px;
+    max-width: 1000px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
 }
@@ -261,6 +260,9 @@ article#editor {
     opacity: 0;
 }
 
+textarea {
+    resize: none !important;
+}
 
 .content {
     h1, h2, h3, h4 {
@@ -268,22 +270,7 @@ article#editor {
     }
 }
 
-.topic {
-    flex: 0 1;
-    padding: 0.25rem 0.5rem;
-    white-space: nowrap;
-    font-size: 0.8rem;
-    font-weight: 700;
-    border-radius: 0.25rem;
-}
-
 .invalid {
     background-color: $dox-red-light !important;
 }
-
-textarea {
-    resize: vertical;
-}
-
-
 </style>
