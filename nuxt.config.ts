@@ -43,7 +43,7 @@ export default defineNuxtConfig({
     },
     app: {
         head: {
-            title: "DOX",
+            title: "DOX For Everything",
             link: [
                 {
                     rel: "stylesheet",

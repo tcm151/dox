@@ -5,7 +5,27 @@ const route = useRoute();
 const postId = route.params.postId.toString();
 const { post, comments } = usePost(postId)
 
-onMounted(() => sortBy(comments.items!, "hot"))
+useSeoMeta({
+    title: post.value?.title,
+    ogTitle: post.value?.title,
+    author: post.value?.user.name,
+    description: post.value?.content.slice(0, 256),
+    ogDescription: post.value?.content.slice(0, 256),
+})
+
+useServerSeoMeta({
+    robots: {
+        index: true,
+        noarchive: true
+    },
+    ogType: 'article',
+    ogSiteName: 'DOX For Everything',
+})
+
+onMounted(async () => {
+    sortBy(comments.items!, "hot")
+    await $fetch(`/api/post/${postId}/visit`)
+})
 
 const vote = useVoting();
 const hints = useHints();
