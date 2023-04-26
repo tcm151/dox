@@ -73,6 +73,8 @@ function sort(type: string) {
                             {{ post?.votes.negative.length }}
                         </span>
                         <!-- TODO decide if want to show awards or saves -->
+                        <!-- I think I want to show both, but I like the way things currently look -->
+                        <!-- intial tests looked bad -->
                         <!-- <span>
                             <i class="fa-solid fa-crown"></i>
                         </span>
@@ -95,13 +97,13 @@ function sort(type: string) {
         </div>
         <!-- TODO allow more than five pages -->
         <div class="pagination" v-if="pagination">
-            <i class="fa-solid fa-caret-left"></i>
+            <i class="fa-solid fa-caret-left" @click="emit('page', props.page! - 1)"></i>
             <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>
             <span :class="{ current: page! == 2 }" @click="emit('page', 2)">2</span>
             <span :class="{ current: page! == 3 }" @click="emit('page', 3)">3</span>
             <span :class="{ current: page! == 4 }" @click="emit('page', 4)">4</span>
             <span :class="{ current: page! == 5 }" @click="emit('page', 5)">5</span>
-            <i class="fa-solid fa-caret-right"></i>
+            <i class="fa-solid fa-caret-right" @click="emit('page', props.page! + 1)"></i>
         </div>
     </div>
 </template>
