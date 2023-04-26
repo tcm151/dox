@@ -96,8 +96,8 @@ article {
     @media only screen and (max-width: 1000px) {
         span {
             font-weight: 900;
-            font-size: 7.5rem;
-            line-height: 5.75rem;
+            font-size: 7rem;
+            line-height: 5.25rem;
         }
 
         p {
