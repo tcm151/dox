@@ -24,7 +24,7 @@ watch(props.posts, () => {
 })
 
 
-let sortType = ref("hot")
+let sortType = ref("new")
 function sort(type: string) {
     sortType.value = type
     sortBy(props.posts, type)
