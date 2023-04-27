@@ -3,9 +3,8 @@ import { queryOne } from "../../../database";
 export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!;
     return await queryOne<{ count: number }>([`
-        SELECT count()
+        SELECT count(topics CONTAINS topic:${topic})
         FROM user
-        WHERE topics CONTAINS topic:${topic}
-        GROUP BY count
-    `]) ?? { count: 0 }
+        GROUP ALL
+    `])
 })

@@ -13,5 +13,8 @@ export function renderMarkdown(text: string | undefined) {
 
 function colorize(text: string) {
     let regex = /(?<=<pre><code class="([A-Za-z0-9_-]*)">)((?!<pre>).|\n)*(?=<\/code><\/pre>)/gm
-    return text.replace(regex, (match) => hljs.highlightAuto(match).value)
+    return text.replace(regex, (match, language: string, _) =>  {
+        const matchedLanguage = hljs.listLanguages().find(l => l == language.split('-')[1]) ?? 'plaintext'
+        return hljs.highlight(match, { language: matchedLanguage }).value
+    })
 }
