@@ -48,7 +48,7 @@ async function login() {
                         <i class="fa-solid fa-user"></i>
                         <span>{{ session.user?.name }}</span>
                     </NuxtLink>
-                    <a @click="session.logout(false)" @contextmenu.prevent="session.logout(true)" title="Logout">
+                    <a @click="session.logout(true)" @contextmenu.prevent="session.logout(false)" title="Logout">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </a>
                 </section>
