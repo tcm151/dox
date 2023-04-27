@@ -22,8 +22,8 @@ const emit = defineEmits<{
                 <slot />
             </div>
             <div class="row g-2">
-                <button class="success" @click="$emit('accept')">{{ acceptLabel ?? "Yes" }}</button>
-                <button class="danger" @click="$emit('decline')">{{ declineLabel ?? "No" }}</button>
+                <button class="success fill" @click="$emit('accept')">{{ acceptLabel ?? "Yes" }}</button>
+                <button class="danger fill" @click="$emit('decline')">{{ declineLabel ?? "No" }}</button>
             </div>
         </div>
     </div>
