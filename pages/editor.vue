@@ -95,7 +95,6 @@ async function submit() {
 
 async function saveDraft() {
     
-    // TODO validate post here as well, create separate function
     if (!validTitle()) {
         hints.addError("Title is invalid")
         return

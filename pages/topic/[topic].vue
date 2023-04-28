@@ -48,8 +48,6 @@ async function unfollowTopic() {
                 </ClientOnly>
             </section>
             <section class="row g-1 mt-4">
-                <!-- TODO create topics table -->
-                <!-- TODO allow voting directly on topics -->
                 <div class="votes row g-1">
                     <span class="tag positive" @click="vote.positive(info.value)">
                         {{ info.value?.votes.positive.length }}
