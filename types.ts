@@ -60,6 +60,13 @@ export interface Comment extends Voteable {
     timeEdited?: string
 }
 
+export interface Image {
+    id: string
+    name: string
+    type: string
+    url: string
+}
+
 export interface Notification {
     id: string
     recipient: User
