@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const baseUrl = getHeader(event, 'origin')
     const image = await queryOne<Image>([`
         CREATE image SET
-        time = time::now()
+        time = time::now(),
         url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
         user = ${auth.id},
     `])
