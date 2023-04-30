@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
             })
             break
         case "production":
-            fs.writeFileSync(`./.output/images/${image.id.split(':')[1]}.png`, buffer, {
+            fs.writeFileSync(`./.production/images/${image.id.split(':')[1]}.png`, buffer, {
                 flag: "w+"
             })
             break

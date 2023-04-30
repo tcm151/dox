@@ -7,6 +7,6 @@ export default defineEventHandler(async (event) => {
         case "development":
             return fs.readFileSync(`./images/${imageId}.png`)
         case "production":
-            return fs.readFileSync(`./.output/images/${imageId}.png`)
+            return fs.readFileSync(`./.production/images/${imageId}.png`)
     }
 })
