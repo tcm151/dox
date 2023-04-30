@@ -16,7 +16,7 @@ export interface User extends Voteable {
     followers: string[]
     dateCreated: string
     // TODO implement fields for:
-    // emailConfirmed: boolean
+    // confirmed: boolean
     // verified: boolean
     admin: boolean
 }
@@ -62,9 +62,9 @@ export interface Comment extends Voteable {
 
 export interface Image {
     id: string
-    name: string
-    type: string
     url: string
+    user: User
+    time: string
 }
 
 export interface Notification {
@@ -74,4 +74,11 @@ export interface Notification {
     message: string
     time: string
     viewed: boolean
+}
+
+export interface Feedback {
+    id: string
+    user: User
+    time: string
+    content: string
 }

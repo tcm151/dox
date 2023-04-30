@@ -1,12 +1,5 @@
 import { queryAll } from "~/server/database";
-import { User } from "~/types"
-
-interface Feedback {
-    id: string
-    user: User
-    time: string
-    content: string
-}
+import { Feedback } from "~/types"
 
 export default defineEventHandler(async (event) => {
     return await queryAll<Feedback>([`
