@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
         CREATE image SET
         time = time::now(),
         url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
-        user = ${auth.id},
+        user = ${auth.id}
     `])
 
     const buffer = await processImage(data![0])
