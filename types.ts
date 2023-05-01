@@ -63,6 +63,7 @@ export interface Comment extends Voteable {
 export interface Image {
     id: string
     url: string
+    type: string
     user: User
     time: string
 }
