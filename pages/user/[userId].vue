@@ -1,31 +1,30 @@
 <script setup lang="ts">
-import { Post, User } from '~~/types';
+import { Post, User } from '~~/types'
 
 const route = useRoute();
-const userId = route.params.userId as string;
+const userId = route.params.userId as string
 
-const user = computed(() => response.value?.user);
-const posts = computed(() => response.value?.posts);
+const user = computed(() => response.value?.user)
+const posts = computed(() => response.value?.posts)
 const { data: response, refresh } = await useAsyncData<{ user: User, posts: Post[] }>(() => {
     return $fetch(`/api/user/${userId}`)
 })
 
 const vote = useVoting()
-const hints = useHints()
-const events = useEvents()
 const session = getSession()
 
+let showSettings = ref(false)
 let following = computed(() => session.user?.following.includes(`user:${userId}`))
 
 async function followUser() {
     if (await session.follow("user", userId)) {
-        await refresh();
+        await refresh()
     }
 }
 
 async function unfollowUser() {
     if (await session.unfollow("user", userId)) {
-        await refresh();
+        await refresh()
     }
 }
 </script>
@@ -41,25 +40,32 @@ async function unfollowUser() {
                 <div class="name-follow row center-inline">
                     <h1>{{ user?.name }}</h1>
                     <ClientOnly>
-                        <button class="tag danger" v-if="following" @click="unfollowUser">
-                            Unfollow
-                        </button>
-                        <button class="tag success" v-else @click="followUser">
-                            Follow
-                        </button>
+                        <div class="row g-2">
+                            <button v-if="user?.id == getSession().user.id" @click="showSettings = true">
+                                <i class="fa-solid fa-gear"></i>
+                                <span>Settings</span>
+                            </button>
+                            <button class="tag danger" v-else-if="following" @click="unfollowUser">
+                                Unfollow
+                            </button>
+                            <button class="tag success" v-else @click="followUser">
+                                Follow
+                            </button>
+                            <Settings :visible="showSettings" @close="showSettings = false" />
+                        </div>
                     </ClientOnly>
                 </div>
             </section>
             <section class="row-wrap g-1">
                 <!-- TODO add popups to view these in more detail -->
                 <div class="votes row g-1">
-                    <span class="tag positive" @click="vote.positive(user)">
+                    <span class="tag positive" @click="vote.positive(user ?? null)">
                         {{ user?.votes.positive.length }}
                     </span>
-                    <span class="tag misleading" @click="vote.misleading(user)">
+                    <span class="tag misleading" @click="vote.misleading(user ?? null)">
                         {{ user?.votes.misleading.length }}
                     </span>
-                    <span class="tag negative" @click="vote.negative(user)">
+                    <span class="tag negative" @click="vote.negative(user ?? null)">
                         {{ user?.votes.negative.length }}
                     </span>
                 </div>
