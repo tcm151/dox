@@ -18,7 +18,7 @@ const { data: feedback } = useAsyncData("feedback", () => {
 
 <style scoped lang="scss">
 article {
-    @include fit-width (400px, 1rem);
+    @include fit-width (500px, 1rem);
 }
 
 div.feedback {
