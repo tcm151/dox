@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
                 fs.rmSync(`./images/${imageId}.${image.type}`)
                 break
             case "production":
-                fs.rmSync(`./.output/images/${imageId}.${image.type}`)
+                fs.rmSync(`./.production/images/${imageId}.${image.type}`)
                 break
         }
 
@@ -35,7 +35,10 @@ export default defineEventHandler(async (event) => {
         
         return true
     }
-    catch (error) {
-        return false
+    catch (error: any) {
+        throw createError({
+            statusCode: 500,
+            message: error.message
+        })
     }
 })
