@@ -109,6 +109,10 @@ async function updateComment(comment: Comment) {
     await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, comment.content)
     commentToEdit.value = "";
 }
+
+async function reportPost(post: Post) {
+    hints.addError("This doesn't currently do anything.")
+}
 </script>
 
 <template>
@@ -161,6 +165,10 @@ async function updateComment(comment: Comment) {
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Archive</span>
                         </button> -->
+                        <button @click="reportPost(post.value!)">
+                            <i class="fa-solid fa-flag"></i>
+                            <span>Report</span>
+                        </button>
                         <button v-if="post.value?.user.id === session.user?.id" @click="toggleEditPost()">
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             <span>Edit</span>
