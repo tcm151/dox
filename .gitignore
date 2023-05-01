@@ -5,6 +5,7 @@ node_modules
 .nitro
 .cache
 .output
+.production
 .env
 dist
 images/
