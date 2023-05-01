@@ -168,11 +168,22 @@ async function saveDraft() {
                     </div>
                 </form>
                 <section class="row-wrap g-2 mt-5">
-                    <button class="success fill" @click="submit">Submit</button>
-                    <button class="link fill" @click="saveDraft">Save Draft</button>
+                    <button class="success fill" @click="submit">
+                        <i class="fa-solid fa-share"></i>
+                        <span>Submit</span>
+                    </button>
+                    <button class="link fill" @click="saveDraft" v-if="draft.id != ''">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Update</span>
+                    </button>
+                    <button class="link fill" @click="saveDraft" v-else>
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Save</span>
+                    </button>
                     <button class="info fill" @click="togglePreview">
-                        <span v-if="!showPreview">Show Preview</span>
-                        <span v-else>Hide Preview</span>
+                        <i class="fa-solid fa-eye" v-if="!showPreview"></i>
+                        <i class="fa-solid fa-eye-slash" v-else></i>
+                        <span>Preview</span>
                     </button>
                     <button class="danger fill" @click="navigateTo('/')">Cancel</button>
                 </section>
@@ -221,9 +232,9 @@ article#editor {
     height: calc(100% - 3rem);
     overflow-y: auto;
 
-    flex: 1 1 500px;
+    flex: 1 1 400px;
     min-width: 250px;
-    max-width: 1000px;
+    max-width: 800px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
 }
