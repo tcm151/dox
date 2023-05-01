@@ -102,17 +102,19 @@ function moveItem(target: DirectoryItem) {
 <template>
     <section class="directory column g-2">
         <header class="row center-inline g-2">
-            <h4
-                class="fill row center-inline g-2"
-                v-for="folder in calculatePath()"
-                @click="selectItem(folder)"
-                @dragover.prevent=""
-                @drop="moveItem(folder)"
-            >
-                <i class="fa-solid fa-caret-right"></i>
-                <span v-if="folder.name == ''">{{ root }}</span>
-                <span v-else>{{ folder.name }}</span>
-            </h4>
+            <div class="fill row g-2">
+                <h4
+                    class="row center-inline g-2"
+                    v-for="folder in calculatePath()"
+                    @click="selectItem(folder)"
+                    @dragover.prevent=""
+                    @drop="moveItem(folder)"
+                >
+                    <i class="fa-solid fa-caret-right"></i>
+                    <span v-if="folder.name == ''">{{ root }}</span>
+                    <span v-else>{{ folder.name }}</span>
+                </h4>
+            </div>
             <button class="link" @click="addFile" v-if="buttons?.includes('add-file')">
                 <i class="fa-solid fa-file-circle-plus"></i>
             </button>
@@ -152,7 +154,7 @@ section.directory {
 header {
     min-height: 32px;
 
-    h4 {
+    div {
         padding: 5px 0.75rem;
         border-radius: 0.25rem;
         color: $dox-blue;
