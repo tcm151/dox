@@ -74,7 +74,7 @@ function sort(type: string) {
                         </span>
                         <!-- TODO decide if want to show awards or saves -->
                         <!-- I think I want to show both, but I like the way things currently look -->
-                        <!-- intial tests looked bad -->
+                        <!-- initial tests looked bad -->
                         <!-- <span>
                             <i class="fa-solid fa-crown"></i>
                         </span>
