@@ -1,12 +1,20 @@
 import { marked } from 'marked'
+import DOMPurify from "isomorphic-dompurify"
 import { decode } from 'html-entities'
 import hljs from "highlight.js/lib/common"
+
+DOMPurify.setConfig({
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['iframe'],
+    KEEP_CONTENT: false,
+})
 
 hljs.configure({ ignoreUnescapedHTML: true })
 
 export function renderMarkdown(text: string | undefined) {
     const html = marked.parse(text ?? "")
-    const decoded = decode(html)
+    const cleaned = DOMPurify.sanitize(html)
+    const decoded = decode(cleaned)
     const colorized = colorize(decoded)
     return colorized
 }
