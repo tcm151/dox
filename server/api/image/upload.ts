@@ -12,8 +12,6 @@ export default defineEventHandler(async (event) => {
 
     const { buffer, type } = await processImage(data![0])
     
-    console.log(type)
-
     const image = await queryOne<Image>([`
         CREATE image SET
         time = time::now(),
@@ -27,16 +25,27 @@ export default defineEventHandler(async (event) => {
 })
 
 async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
+    console.log(image.type)
     switch (image.type) {
         case "image/gif":
             return {
                 buffer: await sharp(image.data, { animated: true }).gif().toBuffer(),
                 type: "gif"
             }
+        case "image/webp":
+            return {
+                buffer: await sharp(image.data).webp().toBuffer(),
+                type: "webp"
+            }
+        case "image/png":
+            return {
+                buffer: await sharp(image.data).png({ compressionLevel: 9 }).toBuffer(),
+                type: "png"
+            }
         default:
             return {
-                buffer: await sharp(image.data).png().toBuffer(),
-                type: "png"
+                buffer: await sharp(image.data).jpeg({ mozjpeg: true, force: true }).toBuffer(),
+                type: "webp"
             }
     }
 }

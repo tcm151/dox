@@ -66,8 +66,8 @@ async function deleteImage(image: Image) {
                 </button>
                 <input accept="image/*" ref="uploader" type="file" />
                 <button class="success" @click="uploadImage">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
                     <i class="fa-solid fa-spinner" v-if="uploading"></i>
+                    <i class="fa-solid fa-cloud-arrow-up" v-else></i>
                     <span>Upload</span>
                 </button>
                 <button class="danger" @click="">
@@ -92,6 +92,19 @@ img {
 div.tools {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+}
+
+@keyframes spin {
+    from {
+        transform: rotateZ(0deg);
+    }
+    to {
+        transform: rotateZ(360deg);
+    }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
 }
 
 section.all-images {
