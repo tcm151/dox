@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DateTime } from 'luxon'
-import { Post, Draft } from '~/types'
+import { Post, Draft, Image } from '~/types'
 
 definePageMeta({
     layout: 'simple'
@@ -56,6 +56,22 @@ function viewDraft(existingDraft: Draft) {
 let showPreview = ref(settings.state.showPreviewByDefault ?? false)
 function togglePreview() {
     showPreview.value = !showPreview.value
+}
+
+let uploadedImages = ref<Image[]>([])
+
+async function selectFiles() {
+    uploadedImages.value = await $fetch("/api/image")
+}
+
+function uploadImages() {
+
+}
+
+function copyImageUrl(event: Event) {
+    let imageUrl = (event.target as HTMLImageElement).currentSrc
+    navigator.clipboard.writeText(`![](${imageUrl})`);
+    hints.addSuccess("Copied image in markdown syntax");
 }
 
 async function submit() {
@@ -131,7 +147,7 @@ async function saveDraft() {
                     <h1>New Post</h1>
                     <button @click="showDrafts = true">
                         <i class="fa-solid fa-compass-drafting"></i>
-                        <span class="ml-2">Drafts</span>
+                        <span>Drafts</span>
                     </button>
                 </header>
                 <form class="form fill column">
@@ -166,6 +182,16 @@ async function saveDraft() {
                             :class="{ 'invalid': topicsFocused && !validTopic() }"
                         />
                     </div>
+                    <div class="field uploaded-images" v-if="uploadedImages.length > 0">
+                        <label>Images</label>
+                        <div class="row g-2">
+                            <img
+                                v-for="image in uploadedImages"
+                                @click="copyImageUrl"
+                                :src="image.url"
+                            >
+                        </div>
+                    </div>
                 </form>
                 <section class="row-wrap g-2 mt-5">
                     <button class="success fill" @click="submit">
@@ -180,12 +206,16 @@ async function saveDraft() {
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
                     </button>
+                    <button class="link fill" @click="selectFiles">
+                        <i class="fa-solid fa-images"></i>
+                        <span>Upload</span>
+                    </button>
                     <button class="info fill" @click="togglePreview">
                         <i class="fa-solid fa-eye" v-if="!showPreview"></i>
                         <i class="fa-solid fa-eye-slash" v-else></i>
                         <span>Preview</span>
                     </button>
-                    <button class="danger fill" @click="navigateTo('/')">Cancel</button>
+                    <!-- <button class="danger fill" @click="navigateTo('/')">Cancel</button> -->
                 </section>
             </section>
             <section class="preview p-5" v-if="showPreview">
@@ -206,6 +236,24 @@ code {
     border-radius: 0.25rem;
     background-color: $dox-white-light !important;
 }
+.body {
+    p img {
+        margin-inline: auto;
+        padding: 1rem;
+        max-width: calc(100% - 2rem);
+        max-height: 256px;
+    }
+}
+p:has(img) {
+    display: grid;
+    place-items: center;
+    
+    img {
+        margin-inline: auto;
+        max-width: 100%;
+        max-height: 256px;
+    }
+}
 </style>
 
 <style scoped lang="scss">
@@ -225,6 +273,27 @@ article#editor {
     label {
         vertical-align: middle;
         line-height: 1.5rem;
+    }
+}
+
+div.uploaded-images {
+
+    div.row {
+        overflow-x: auto;
+    }
+
+    img {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        border-radius: 0.25rem;
+        border: 1px solid transparent;
+        background-color: $dox-white-light;
+    }
+
+    img:hover {
+        cursor: pointer;
+        border: 1px solid $dox-blue;
     }
 }
 
