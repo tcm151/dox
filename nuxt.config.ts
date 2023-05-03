@@ -39,6 +39,12 @@ export default defineNuxtConfig({
             password: process.env.SURREAL_PASSWORD,
             namespace: process.env.SURREAL_NAMESPACE,
             database: process.env.SURREAL_DATABASE,
+        },
+        public: {
+            surreal: {
+                namespace: process.env.SURREAL_NAMESPACE,
+                database: process.env.SURREAL_DATABASE,
+            }
         }
     },
     app: {
