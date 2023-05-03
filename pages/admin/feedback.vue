@@ -6,7 +6,7 @@ const { data: feedback } = useAsyncData("feedback", () => {
 
 <template>
     <article class="column g-2 p-4">
-        <div class="feedback column g-2 p-2" v-for="item in feedback">
+        <div class="feedback column g-1 p-4" v-for="item in feedback">
             <p>{{ item.content }}</p>
             <div class="row g-1">
                 <span class="tag info">u/{{ item.user.name }}</span>
@@ -18,7 +18,7 @@ const { data: feedback } = useAsyncData("feedback", () => {
 
 <style scoped lang="scss">
 article {
-    @include fit-width (500px, 1rem);
+    @include fit-width(500px, 1rem);
 }
 
 div.feedback {

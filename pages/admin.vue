@@ -15,6 +15,10 @@ definePageMeta({
 
 <template>
     <nav class="row">
+        <NuxtLink to="/admin/backups">
+            <i class="fa-solid fa-warehouse"></i>
+            <span>Backups</span>
+        </NuxtLink>
         <NuxtLink to="/admin/feedback">
             <i class="fa-solid fa-message"></i>
             <span>Feedback</span>
