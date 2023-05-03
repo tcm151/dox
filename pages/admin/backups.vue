@@ -29,7 +29,7 @@ async function startBackup() {
 
 <template>
     <article class="p-4">
-        <section class="column g-2 p-4">
+        <section class="column g-4 p-4">
             <header class="row g-2">
                 <div class="field">
                     <input v-model="backupInterval" style="width: 64px; text-align: center">
@@ -46,10 +46,12 @@ async function startBackup() {
                     <span>Backup Now</span>
                 </button>
             </header>
-            <div class="fit row g-2" v-for="backup in backups">
-                <span class="fill tag link">{{ backup.id }}</span>
-                <span class="tag info">{{ formatDate(backup.time) }}</span>
-                <span class="tag info">u/{{ backup.user.name }}</span>
+            <div class="column g-2">
+                <div class="fit row g-2" v-for="backup in backups">
+                    <span class="fill tag link">{{ backup.id }}</span>
+                    <span class="tag info">{{ formatDate(backup.time) }}</span>
+                    <span class="tag info">u/{{ backup.user.name }}</span>
+                </div>
             </div>
         </section>
     </article>

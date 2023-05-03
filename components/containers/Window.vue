@@ -31,6 +31,7 @@ function releaseWindow() {
 </script>
 
 <template>
+    <!-- TODO use native dialog component -->
     <div class="popup column center" v-if="props.visible" @mousemove="moveWindow" @mouseup="releaseWindow" @mouseleave="releaseWindow">
         <div class="window" ref="window" :style="{ width: `${width}px`, height: `${height}px`, top: `${windowTop}px`, left: `${windowLeft}px` }">
             <div class="title-bar" @mousedown="grabWindow">
