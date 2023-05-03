@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
     const { surreal } = useRuntimeConfig();
     const db = new Surreal(surreal.url);
     return await db.signup({
-        NS: "dev",
-        DB: "dox",
+        NS: surreal.namespace,
+        DB: surreal.database,
         SC: "account",
         email: email,
         username: username,
