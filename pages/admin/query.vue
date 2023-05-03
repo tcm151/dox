@@ -17,7 +17,7 @@ const hints = useHints()
 const { settings, history, saved } = storeToRefs(useQuery())
 
 let tab = ref<string>("History")
-let results = ref<any>(null);
+let results = ref<any[]>([]);
 let query = useSessionStorage<string>("query", "");
 let showSettings = ref(false)
 

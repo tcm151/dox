@@ -74,7 +74,7 @@ async function deleteImage(image: Image) {
                     <span>Cancel</span>
                 </button>
             </div>
-            <img :src="activeImage?.url" v-if="activeImage">
+            <img class="active-image" :src="activeImage?.url" v-if="activeImage">
         </section>
         <section class="all-images fill row-wrap g-4 px-4">
             <img :src="image.url" v-for="image in images" @click="selectImage(image)" @contextmenu.prevent="deleteImage(image)">
@@ -83,13 +83,14 @@ async function deleteImage(image: Image) {
 </template>
 
 <style scoped lang="scss">
-img {
+img.active-image {
     max-width: 100%;
     max-height: 400px;
     object-fit: contain;
 }
 
 div.tools {
+    // TODO this should be it's own style: box (?)
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
 }
@@ -116,13 +117,13 @@ section.all-images {
         height: 128px;
         object-fit: contain;
         border-radius: 0.25rem;
-        outline: 1px solid $dox-white;
+        border: 1px solid $dox-white;
         background-color: $dox-white;
     }
 
     img:hover {
         cursor: pointer;
-        outline: 1px solid $dox-blue;
+        border: 1px solid $dox-blue;
     }
 }
 

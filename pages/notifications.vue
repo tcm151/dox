@@ -13,13 +13,13 @@ async function dismiss(notification: Notification) {
 <template>
     <article class="notifications column g-2 p-4">
         <ClientOnly>
-            <div class="notification" v-for="notification in notifications">
-                <div class="message" v-html="renderMarkdown(notification.message)">
+            <div class="notification p-4" v-for="notification in notifications">
+                <div class="message column g-2" v-html="renderMarkdown(notification.message)">
                 </div>
                 <div class="row-fit g-2 mt-2">
-                    <span class="link">Context</span>
-                    <span class="info">{{ formatDate(notification.time) }}</span>
-                    <span class="danger" @click="dismiss(notification)">Dismiss</span>
+                    <span class="tag link">Context</span>
+                    <span class="tag info">{{ formatDate(notification.time) }}</span>
+                    <span class="tag danger" @click="dismiss(notification)">Dismiss</span>
                 </div>
             </div>
         </ClientOnly>
@@ -35,17 +35,5 @@ article.notifications {
 .notification {
     background-color: $dox-white-ultra;
     border-radius: 0.25rem;
-    padding: 1rem;
-
-    span {
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-weight: 700;
-        cursor: pointer;
-    }
-}
-
-.message {
-    @include flex-v (0.5rem);
 }
 </style>

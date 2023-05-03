@@ -121,6 +121,7 @@ article {
 
 .right {
     flex: 1 1 256px;
+    white-space: normal;
 }
 
 .trending {

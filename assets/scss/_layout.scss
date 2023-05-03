@@ -54,6 +54,7 @@
 
 .row-wrap {
     @include flex-hw;
+    white-space: nowrap;
 }
 
 .row-fit {

@@ -9,8 +9,8 @@ const { data: feedback } = useAsyncData("feedback", () => {
         <div class="feedback column g-2 p-2" v-for="item in feedback">
             <p>{{ item.content }}</p>
             <div class="row g-1">
-                <span class="info">u/{{ item.user.name }}</span>
-                <span class="info">{{ formatDate(item.time) }}</span>
+                <span class="tag info">u/{{ item.user.name }}</span>
+                <span class="tag info">{{ formatDate(item.time) }}</span>
             </div>
         </div>
     </article>
@@ -33,10 +33,6 @@ div.feedback {
 div.row {
     span {
         cursor: pointer;
-        padding: 0.25rem 1rem;
-        font-size: 0.8rem;
-        border-radius: 0.25rem;
-        font-weight: 700;
     }
 }
 </style>

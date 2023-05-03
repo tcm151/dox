@@ -86,7 +86,6 @@ async function unfollowTopic() {
 header {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
-    white-space: nowrap;
 }
 
 .name-follow {
@@ -95,10 +94,6 @@ header {
     h1 {
         font-size: 1.5rem;
     }
-}
-
-.tag:hover {
-    cursor: pointer;
 }
 
 .tag.info, .tag.link {

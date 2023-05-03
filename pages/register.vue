@@ -114,10 +114,10 @@ function differentPasswords() {
                     />
                 </div>
                 <div class="row g-2 mt-4">
-                    <button class="success" @click="register">
+                    <button class="success fill" @click="register">
                         Register
                     </button>
-                    <button class="danger" @click="navigateTo('/home')">
+                    <button class="danger fill" @click="navigateTo('/home')">
                         Cancel
                     </button>
                 </div>
@@ -135,7 +135,7 @@ function differentPasswords() {
 
 .field {
     input.invalid {
-        outline: 1px solid $dox-red;
+        background-color: $dox-red-light !important;
     }
 }
 </style>

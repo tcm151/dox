@@ -140,10 +140,10 @@ async function saveDraft() {
 
 <template>
     <ClientOnly>
-        <article id="editor" class="row-wrap g-4 p-4">
+        <article class="editor row-wrap g-4 p-4">
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
             <section class="editor column p-5">
-                <header id="header" class="row center-inline mb-4">
+                <header class="row center-inline mb-4">
                     <h1>New Post</h1>
                     <button @click="showDrafts = true">
                         <i class="fa-solid fa-compass-drafting"></i>
@@ -257,27 +257,45 @@ p:has(img) {
 </style>
 
 <style scoped lang="scss">
-article#editor {
-    flex: 1 1;
-    justify-content: center;
-    align-items: flex-start;
+article.editor {
     @include fit-width (1200px, 1rem);
     overflow-y: hidden;
 }
 
-#header {
-    justify-content: space-between;
+section.editor, section.preview {
+    height: calc(100% - 3rem);
+    overflow-y: auto;
+
+    flex: 1 1 400px;
+    min-width: 250px;
+    max-width: 800px;
+    border-radius: 0.5rem;
+    background-color: $dox-white-ultra;
 }
 
-.topic-input {
-    label {
-        vertical-align: middle;
-        line-height: 1.5rem;
+section.editor {
+    header {
+        justify-content: space-between;
+    }
+
+    .topic-input {
+        label {
+            vertical-align: middle;
+            line-height: 1.5rem;
+        }
+    }
+
+    textarea {
+        resize: none !important;
+    }
+
+    input.invalid {
+        background-color: $dox-red-light !important;
     }
 }
 
-div.uploaded-images {
 
+div.uploaded-images {
     div.row {
         overflow-x: auto;
     }
@@ -297,25 +315,17 @@ div.uploaded-images {
     }
 }
 
-.editor, .preview {
-    height: calc(100% - 3rem);
-    overflow-y: auto;
-
-    flex: 1 1 400px;
-    min-width: 250px;
-    max-width: 800px;
-    border-radius: 0.5rem;
-    background-color: $dox-white-ultra;
-}
-
 .preview {
-    // overflow-y: hidden;
     position: relative;
     min-height: 100px;
 
-    // div.content {
-    //     overflow-y: auto;
-    // }
+    div.content {
+        white-space: normal;
+        
+        h1, h2, h3, h4 {
+            margin-bottom: 0.2rem !important;
+        }
+    }
 
     .watermark {
         top: 50%;
@@ -329,27 +339,5 @@ div.uploaded-images {
         text-transform: uppercase;
         transform: translate(-50%, -50%);
     }
-}
-
-.preview-enter-active, .preview-leave-active {
-    transition: all 256ms ease;
-}
-
-.preview-enter-from, .preview-leave-to {
-    opacity: 0;
-}
-
-textarea {
-    resize: none !important;
-}
-
-.content {
-    h1, h2, h3, h4 {
-        margin-bottom: 0.2rem !important;
-    }
-}
-
-.invalid {
-    background-color: $dox-red-light !important;
 }
 </style>

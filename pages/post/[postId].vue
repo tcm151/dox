@@ -120,24 +120,24 @@ async function reportPost(post: Post) {
         <section class="post p-5">
             <h2 class="mb-2">{{ post.value?.title }}</h2>
             <div class="tags row-wrap g-1">
-                <div class="row votes">
-                    <span class="positive" @click="vote.positive(post.value)">
+                <div class="fit row g-1">
+                    <span class="tag positive" @click="vote.positive(post.value)">
                         {{ post.value?.votes.positive.length }}
                     </span>
-                    <span class="misleading" @click="vote.misleading(post.value)">
+                    <span class="tag misleading" @click="vote.misleading(post.value)">
                         {{ post.value?.votes.misleading.length }}
                     </span>
-                    <span class="negative" @click="vote.negative(post.value)">
+                    <span class="tag negative" @click="vote.negative(post.value)">
                         {{ post.value?.votes.negative.length }}
                     </span>
                 </div>
-                <span class="topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                <span class="tag topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                     {{ topic.split(':')[1] }}
                 </span>
-                <span class="info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
+                <span class="tag info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
                 <ClientOnly>
-                    <span class="info">{{ formatDate(post.value?.time as any) }}</span>
-                    <span class="danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
+                    <span class="tag info">{{ formatDate(post.value?.time as any) }}</span>
+                    <span class="tag danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
             <div class="content my-4" v-html="renderMarkdown(post.value?.content)"></div>
@@ -197,15 +197,15 @@ async function reportPost(post: Post) {
         </section>
         <section class="comments p-5" v-if="(comments.items?.length ?? 0) > 0">
             <div class="sorting row g-2 mb-3">
-                <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
+                <button class="fill" @click="sort('new')" :class="{ selected: sortType === 'new' }">
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>
                 </button>
-                <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
+                <button class="fill" @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
                     <i class="fa-solid fa-fire"></i>
                     <span>Hot</span>
                 </button>
-                <button @click="sort('top')" :class="{ selected: sortType === 'top' }">
+                <button class="fill" @click="sort('top')" :class="{ selected: sortType === 'top' }">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Top</span>
                 </button>
@@ -214,41 +214,41 @@ async function reportPost(post: Post) {
                 <template #item="{ item: comment }">
                     <div class="comment">
                         <header class="row-fit g-1">
-                            <div class="votes row">
-                                <span class="positive" @click="vote.positive(comment)">
+                            <div class="votes row g-1">
+                                <span class="tag positive" @click="vote.positive(comment)">
                                     {{comment.votes.positive.length}}
                                 </span>
-                                <span class="misleading" @click="vote.misleading(comment)">
+                                <span class="tag misleading" @click="vote.misleading(comment)">
                                     {{comment.votes.misleading.length}}
                                 </span>
-                                <span class="negative" @click="vote.negative(comment)">
+                                <span class="tag negative" @click="vote.negative(comment)">
                                     {{comment.votes.negative.length}}
                                 </span>
                             </div>
-                            <span class="info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
+                            <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                                 {{ `u/${comment.user?.name}` }}
                                 <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === post.value?.user.id"></i>    
                             </span>
                             <ClientOnly>
-                                <span class="info">{{ formatDate(comment.time as any) }}</span>
-                                <span class="danger" v-if="comment.edited">Edited {{ formatDate(comment.timeEdited) }}</span>
-                                <span class="reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
-                                <span class="edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
+                                <span class="tag info">{{ formatDate(comment.time as any) }}</span>
+                                <span class="tag danger" v-if="comment.edited">Edited {{ formatDate(comment.timeEdited) }}</span>
+                                <span class="tag reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
+                                <span class="tag edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
                             </ClientOnly>
                         </header>
                         <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
                             <div class="row-fit g-1 pt-2">
-                                <span class="success" @click="submitComment(comment, commentReply)">Submit</span>
-                                <span class="danger" @click="replyToComment(comment)">Cancel</span>
+                                <span class="tag success" @click="submitComment(comment, commentReply)">Submit</span>
+                                <span class="tag danger" @click="replyToComment(comment)">Cancel</span>
                             </div>
                         </div>
                         <div class="comment-reply field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
                             <textarea class="textarea" rows="5" v-model="comment.content"></textarea>
                             <div class="row-fit g-1 pt-2">
-                                <span class="success" @click="updateComment(comment)">Save</span>
-                                <span class="danger" @click="editComment(comment)">Cancel</span>
+                                <span class="tag success" @click="updateComment(comment)">Save</span>
+                                <span class="tag danger" @click="editComment(comment)">Cancel</span>
                             </div>
                         </div>
                     </div>
@@ -259,12 +259,12 @@ async function reportPost(post: Post) {
 </template>
 
 <style lang="scss">
-.body {
+div.comment.body {
     p img {
-        margin-inline: auto;
-        padding: 1rem;
         max-width: calc(100% - 2rem);
         max-height: 256px;
+        margin-inline: auto;
+        padding: 1rem;
     }
 }
 p:has(img) {
@@ -279,7 +279,6 @@ p:has(img) {
 }
 </style>
 
-
 <style scoped lang="scss">
 article#post {
     @include fit-width(800px, 1rem);
@@ -290,45 +289,9 @@ article#post {
     background-color: $dox-white-ultra;
 }
 
-.topic, .info {
-    cursor: pointer;
-}
-
-.row, .row-wrap {
-    gap: 0.25rem;
-    white-space: nowrap;
-}
-
-.votes {
-    flex: 0 1;
-    cursor: pointer;
-}
-
-div.tags, .comment > header, .comment-reply {
-    span {
-        padding: 0.25rem 1rem;
-        
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-align: center;
-        
-        outline: 1px transparent;
-        border-radius: 0.25rem;
-    }
-    
-    span:hover {
-        background-color: #AAA;
-    }
-}
-
 .tags {
-    .topic {
-        flex: 10 1 1rem;
-    }
-
-    .info {
-        flex: 1 1;
-    }
+    .topic { flex: 10 1 1rem }
+    .info { flex: 1 1 }
 }
 
 div.not-logged-in {
@@ -336,11 +299,7 @@ div.not-logged-in {
 }
 
 div.sorting {
-    button {
-        flex: 1 1;
-    }
-
-    .selected {
+    button.selected {
         color: $dox-white-ultra;
         background-color: $dox-grey-light;
     }
@@ -349,15 +308,6 @@ div.sorting {
 .comment {
     flex: 1 1;
     @include flex-v;
-
-    .body {
-        p {
-            img {
-                padding: 1rem;
-                max-height: 256px;
-            }
-        }
-    }
 
     .reply, .edit {
         background-color: $dox-white;
@@ -374,5 +324,4 @@ div.sorting {
         }
     }
 }
-
 </style>

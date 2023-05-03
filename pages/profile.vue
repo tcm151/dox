@@ -24,8 +24,8 @@ async function verifyAccount() {
     <ClientOnly>
         <article class="profile-page column g-2 p-4">
             <section class="buttons row g-2">
-                <button @click="verifyAccount">Verify</button>
-                <button @click="authenticate">Authenticate</button>
+                <button class="fill" @click="verifyAccount">Verify</button>
+                <button class="fill" @click="authenticate">Authenticate</button>
             </section>
         </article>
     </ClientOnly>
@@ -34,11 +34,5 @@ async function verifyAccount() {
 <style scoped lang="scss">
 .profile-page {
     @include fit-width (800px, 1rem);
-}
-
-section.buttons {
-    > * {
-        flex: 1 1;
-    }
 }
 </style>
