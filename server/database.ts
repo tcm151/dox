@@ -36,14 +36,14 @@ export interface DatabaseResponse<T> {
 
 async function handleQuery<T>(sql: string[], parameters?: Parameters) {
     await db.wait()
-    const response = await db.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
-    if (response[0].status == 'ERR') {
+    const responses = await db.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
+    if (responses.some(r => r.status == 'ERR')) {
         throw createError({
             statusCode: 500,
-            message: response[0].details
+            message: responses.find(r => r.status == 'ERR')?.details
         })
     }
-    return response
+    return responses
 }
 
 export async function queryOne<T>(sql: string[], parameters?: Parameters): Promise<T> {
@@ -56,6 +56,6 @@ export async function queryAll<T>(sql: string[], parameters?: Parameters): Promi
     return response[0].result
 }
 
-export async function multiQuery(sql: string[], parameters?: Parameters): Promise<void> {
-    await handleQuery(sql, parameters)
+export async function multiQuery(sql: string[], parameters?: Parameters): Promise<DatabaseResponse<any>[]> {
+    return await handleQuery(sql, parameters)
 }
