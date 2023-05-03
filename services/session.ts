@@ -57,8 +57,17 @@ export const getSession = defineStore("session", (): Session => {
         }
         catch (ex: any) {
             hints.addError(ex.message)
-            console.log(ex)
-            return null
+            throw ex
+        }
+    }
+
+    async function fetchProfile(): Promise<void> {
+        user.value = await useApi<User>('/api/profile')
+        if (user.value == null) {
+            throw createError({
+                statusCode: 401,
+                message: "You don't exist pal."
+            })
         }
     }
 
@@ -67,39 +76,40 @@ export const getSession = defineStore("session", (): Session => {
         try {
             await db.wait()
             await db.authenticate(token.value)
+            await fetchProfile()
 
             isAuthenticated.value = true
-            user.value = await useApi<User>('/api/profile')
             events.publish(Trigger.authenticatedUser)
-            return true
         }
         catch (ex: any) {
-            // INFO don't care about catching
-            // returns false to indicate token is expired 
-            return false
+            isAuthenticated.value = false
         }
+
+        return isAuthenticated.value
     }
 
     async function login(id: string, password: string) {
+        const { public: { surreal } } = useRuntimeConfig()
         try {
             await db.wait()
             token.value = await db.signin({
-                NS: "dev",
-                DB: "dox",
+                NS: surreal.namespace,
+                DB: surreal.database,
                 SC: "account",
                 id: id,
                 password: password,
             })
-            
+            await fetchProfile()
+
             isAuthenticated.value = true
-            user.value = await useApi<User>('/api/profile')
             events.publish(Trigger.authenticatedUser)
-            return true
         }
         catch (ex: any) {
             console.log(ex)
-            return false
+            logout(true)
         }
+
+        return isAuthenticated.value
     }
 
     function logout(clear: boolean) {
