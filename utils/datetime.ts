@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, DurationUnit } from "luxon";
 
 export function formatDate(dateString: string): string {
     
@@ -27,4 +27,8 @@ export function formatDate(dateString: string): string {
     else {
         return '< 1m ago'
     }
+}
+
+export function elapsedTime(time: string, units: DurationUnit) {
+    return DateTime.now().diff(DateTime.fromISO(time), units)
 }
