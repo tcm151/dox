@@ -1,4 +1,4 @@
-import { authenticateRequest, queryOne } from "~/server/database";
+import { queryOne } from "~/server/database";
 import { Feedback } from "~/types"
 
 export default defineEventHandler(async (event) => {

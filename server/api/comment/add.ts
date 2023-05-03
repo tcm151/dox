@@ -1,5 +1,5 @@
 import { Post, Comment, Notification } from "~/types";
-import { authenticateRequest, queryOne } from "../../database";
+import { queryOne } from "../../database";
 
 export default defineEventHandler(async (event) => {
     let comment = await readBody(event);

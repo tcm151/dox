@@ -1,5 +1,5 @@
 import { Notification } from "~/types";
-import { authenticateRequest, queryOne } from "../../../../database";
+import { queryOne } from "../../../../database";
 
 export default defineEventHandler(async (event) => {
     const { notificationId } = event.context.params!;

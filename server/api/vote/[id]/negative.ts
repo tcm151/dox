@@ -1,4 +1,4 @@
-import { queryOne, authenticateRequest } from "../../../database"
+import { queryOne } from "../../../database"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!;

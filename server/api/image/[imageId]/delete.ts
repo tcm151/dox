@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import { queryOne, authenticateRequest } from "~/server/database"
+import { queryOne } from "~/server/database"
 import { Image } from "~/types"
 
 

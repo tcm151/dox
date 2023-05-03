@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import sharp from "sharp"
 import { MultiPartData } from "h3"
-import { authenticateRequest, queryOne } from "~/server/database"
+import { queryOne } from "~/server/database"
 import { Image } from "~/types"
 
 

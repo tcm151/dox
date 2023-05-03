@@ -1,5 +1,5 @@
 import { Comment } from "~/types";
-import { authenticateRequest, queryOne } from "~/server/database";
+import { queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {
     const { commentId } = event.context.params!;

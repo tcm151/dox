@@ -1,5 +1,5 @@
 import { User } from "~/types";
-import { queryOne, authenticateRequest } from "~/server/database";
+import { queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);
