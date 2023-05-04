@@ -111,6 +111,7 @@ async function submit() {
             comments: [],
         })
         
+        uploadedImages.value = []
         navigateTo(`/post/${extractId(post?.id)}`)
     }
     catch (ex: any) {
@@ -198,7 +199,7 @@ async function saveDraft() {
                             <img
                                 v-for="image in uploadedImages"
                                 @click="copyImageUrl"
-                                @contextmenu="deleteImage(image)"
+                                @contextmenu.prevent="deleteImage(image)"
                                 :src="image.url"
                             >
                         </div>
