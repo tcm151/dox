@@ -58,14 +58,24 @@ function togglePreview() {
     showPreview.value = !showPreview.value
 }
 
-let uploadedImages = ref<Image[]>([])
+let uploadedImages = useSessionStorage<Image[]>('uploadedImages', [])
 
+let uploader = ref<HTMLInputElement>()
 async function selectFiles() {
-    uploadedImages.value = await $fetch("/api/image")
+    uploader.value?.click()
 }
 
-function uploadImages() {
+let uploading = ref<boolean>(false)
+async function startUpload() {
+    uploading.value = true
+    const image = await uploadImage(uploader.value!)
+    if (image) uploadedImages.value.push(image)
+    uploading.value = false
+}
 
+async function deleteImage(image: Image) {
+    await session.useApi(`/api/image/${extractId(image.id)}/delete`)
+    uploadedImages.value = uploadedImages.value.filter(i => i == image)
 }
 
 function copyImageUrl(event: Event) {
@@ -188,6 +198,7 @@ async function saveDraft() {
                             <img
                                 v-for="image in uploadedImages"
                                 @click="copyImageUrl"
+                                @contextmenu="deleteImage(image)"
                                 :src="image.url"
                             >
                         </div>
@@ -207,6 +218,7 @@ async function saveDraft() {
                         <span>Save</span>
                     </button>
                     <button class="link fill" @click="selectFiles">
+                        <input accept="image/*" ref="uploader" type="file" @change="startUpload" />
                         <i class="fa-solid fa-images"></i>
                         <span>Upload</span>
                     </button>
@@ -301,8 +313,8 @@ div.uploaded-images {
     }
 
     img {
-        width: 64px;
         height: 64px;
+        max-width: calc(64px + 32px);
         object-fit: contain;
         border-radius: 0.25rem;
         border: 1px solid transparent;
@@ -339,5 +351,9 @@ div.uploaded-images {
         text-transform: uppercase;
         transform: translate(-50%, -50%);
     }
+}
+
+input[type=file] {
+    display: none;
 }
 </style>

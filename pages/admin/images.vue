@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Image } from "~/types"
 
-const hints = useHints()
 const session = getSession()
 
 const { data: images, refresh } = await useAsyncData('images', () => {
@@ -11,42 +10,19 @@ const { data: images, refresh } = await useAsyncData('images', () => {
 let activeImage = ref<Image | null>(null)
 let uploader = ref<HTMLInputElement>()
 
-function packageFiles(files: FileList | null) {
-    const data = new FormData()
-    for (const file of files!) {
-        data.append(file.name, file)
-    }
-    return data
-}
-
 function chooseFiles() {
     uploader.value?.click()
 }
 
 let uploading = ref<boolean>(false)
-async function uploadImage() {
-    
-    if (!uploader.value || !uploader.value.files || uploader.value.files.length == 0) {
-        hints.addWarning("Please select an image.")
-        return
-    }
-    
-    const files = uploader.value!.files
-    const megabytes = files![0].size / 1_048_576
-    if (megabytes > 32) {
-        hints.addError(`${megabytes} MB`)
-        hints.addError("File is too large, try making it smaller.")
-        return
-    }
-
+async function startUpload() {
     uploading.value = true
-    activeImage.value = await session.useApi("/api/image/upload", packageFiles(files))
-    hints.addSuccess(`Uploaded file "${files[0].name}" [${megabytes.toFixed(3)} MB]`)
+    await uploadImage(uploader.value!)
     uploading.value = false
     await refresh()
 }
 
-function selectImage(image: Image) {
+function setActiveImage(image: Image) {
     activeImage.value = (activeImage.value == image) ? null : image
 }
 
@@ -65,7 +41,7 @@ async function deleteImage(image: Image) {
                     <i class="fa-solid fa-image"></i>
                 </button>
                 <input accept="image/*" ref="uploader" type="file" />
-                <button class="success" @click="uploadImage">
+                <button class="success" @click="startUpload">
                     <i class="fa-solid fa-spinner" v-if="uploading"></i>
                     <i class="fa-solid fa-cloud-arrow-up" v-else></i>
                     <span>Upload</span>
@@ -77,7 +53,7 @@ async function deleteImage(image: Image) {
             <img class="active-image" :src="activeImage?.url" v-if="activeImage">
         </section>
         <section class="all-images fill row-wrap g-4 px-4">
-            <img :src="image.url" v-for="image in images" @click="selectImage(image)" @contextmenu.prevent="deleteImage(image)">
+            <img :src="image.url" v-for="image in images" @click="setActiveImage(image)" @contextmenu.prevent="deleteImage(image)">
         </section>
     </article>
 </template>
@@ -105,6 +81,7 @@ div.tools {
 }
 
 .fa-spinner {
+    width: 0.75rem;
     animation: spin 1s linear infinite;
 }
 
@@ -113,17 +90,17 @@ section.all-images {
     align-items: center;
 
     img {
-        width: 128px;
         height: 128px;
-        object-fit: contain;
+        max-width: calc(128px + 64px);
+        object-fit: scale-down;
         border-radius: 0.25rem;
-        border: 1px solid $dox-white;
+        border: 2px solid $dox-white;
         background-color: $dox-white;
     }
 
     img:hover {
         cursor: pointer;
-        border: 1px solid $dox-blue;
+        border: 2px solid $dox-blue;
     }
 }
 
