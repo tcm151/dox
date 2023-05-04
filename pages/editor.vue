@@ -18,6 +18,7 @@ let draft = ref<Draft>({
     title: '',
     content: '',
     topics: [],
+    images: [],
 })
 
 let newTopic = ref("")
@@ -109,6 +110,7 @@ async function submit() {
             time: DateTime.now(),
             topics: draft.value.topics,
             comments: [],
+            images: uploadedImages.value.map(i => i.id)
         })
         
         uploadedImages.value = []
@@ -132,6 +134,7 @@ async function saveDraft() {
             title: draft.value.title,
             content: draft.value.content,
             topics: draft.value.topics,
+            images: uploadedImages.value.map(i => i.id)
         })
         hints.addSuccess("Draft updated")
     }
@@ -142,6 +145,7 @@ async function saveDraft() {
             content: draft.value.content,
             time: new Date(),
             topics: draft.value.topics,
+            images: uploadedImages.value.map(i => i.id)
         })
         draft.value.id = response!.id
         hints.addSuccess("Draft saved")

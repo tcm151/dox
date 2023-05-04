@@ -29,6 +29,7 @@ export interface Post extends Voteable {
     content: string
     topics: string[]
     comments: string[]
+    images?: Image[]
     edited?: boolean
     timeEdited?: string
 }
@@ -40,6 +41,7 @@ export interface Draft {
     title: string
     content: string
     topics: string[]
+    images?: Image[]
     edited?: boolean
     timeEdited?: string
 }
