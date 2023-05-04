@@ -4,6 +4,10 @@
 
 @import "highlight.js/scss/base16/solarized-light.scss";
 
+// @media only screen and (max-width: 600px) {
+//     $spacing-values: ("0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "auto": auto);
+// }
+
 @import "bulma/sass/utilities/_all.sass";
 @import "bulma/sass/helpers/spacing.sass";
 @import "bulma/sass/elements/image.sass";
