@@ -76,7 +76,7 @@ async function startUpload() {
 
 async function deleteImage(image: Image) {
     await session.useApi(`/api/image/${extractId(image.id)}/delete`)
-    uploadedImages.value = uploadedImages.value.filter(i => i == image)
+    uploadedImages.value = uploadedImages.value.filter(i => i !== image)
 }
 
 function copyImageUrl(event: Event) {
