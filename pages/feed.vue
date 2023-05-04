@@ -31,7 +31,7 @@ async function goToPage(pageNumber: number) {
     await feed.fetch()
 }
 
-let filterType = ref("All")
+let filterType = useSessionStorage("filterType", "All")
 
 function toggleFilter() {
     if (session.isAuthenticated) {
