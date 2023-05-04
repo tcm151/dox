@@ -212,7 +212,7 @@ async function reportPost(post: Post) {
             </div>
             <Tree :items="comments.items ?? []" :children="comments.items?.filter(c => c.replyTo === post.value?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
                 <template #item="{ item: comment }">
-                    <div class="comment">
+                    <div :id="comment.id" class="comment">
                         <header class="row-fit g-1">
                             <div class="votes row g-1">
                                 <span class="tag positive" @click="vote.positive(comment)">
