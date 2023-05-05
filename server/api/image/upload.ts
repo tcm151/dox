@@ -4,24 +4,29 @@ import { MultiPartData } from "h3"
 import { queryOne } from "~/server/database"
 import { Image } from "~/types"
 
+import { createResolver } from '@nuxt/kit'
+const { resolve } = createResolver(import.meta.url);
+
 
 export default defineEventHandler(async (event) => {
-    const auth = await authenticateRequest(event)
-    const data = await readMultipartFormData(event)
-    const baseUrl = getHeader(event, 'origin')
+    // const auth = await authenticateRequest(event)
+    // const data = await readMultipartFormData(event)
+    // const baseUrl = getHeader(event, 'origin')
 
-    const { buffer, type } = await processImage(data![0])
+    // const { buffer, type } = await processImage(data![0])
     
-    const image = await queryOne<Image>([`
-        CREATE image SET
-        time = time::now(),
-        type = "${type}",
-        url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
-        user = ${auth.id}
-    `])
+    // const image = await queryOne<Image>([`
+    //     CREATE image SET
+    //     time = time::now(),
+    //     type = "${type}",
+    //     url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
+    //     user = ${auth.id}
+    // `])
     
-    await writeToDisk(image, buffer, type)
-    return image
+    // await writeToDisk(image, buffer, type)
+    // return image
+
+    return process.cwd()
 })
 
 async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {

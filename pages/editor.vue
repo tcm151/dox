@@ -222,7 +222,7 @@ async function saveDraft() {
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
                     </button>
-                    <button class="link fill" @click="selectFiles">
+                    <button class="link fill" @click="selectFiles" v-if="session.user.confirmed">
                         <input accept="image/*" ref="uploader" type="file" @change="startUpload" />
                         <i class="fa-solid fa-images"></i>
                         <span>Upload</span>

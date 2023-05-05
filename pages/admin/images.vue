@@ -17,7 +17,7 @@ function chooseFiles() {
 let uploading = ref<boolean>(false)
 async function startUpload() {
     uploading.value = true
-    await uploadImage(uploader.value!)
+    console.log(await uploadImage(uploader.value!))
     uploading.value = false
     await refresh()
 }
