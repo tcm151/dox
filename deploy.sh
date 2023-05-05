@@ -27,10 +27,10 @@ set -e
     	# kill running server
     	kill $(lsof -t -i :8001) 2>/dev/null || true
 	fi
-} | tee build.log
+} | tee logs/build.log
 
 # start server in the background and direct output to log
-exec nohup yarn start:production >server.log 2>error.log &
+exec nohup yarn start:production >logs/server.log 2>logs/error.log &
 
 echo "Server deployed successfully..."
 exit 0
