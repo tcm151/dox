@@ -54,6 +54,7 @@ async function deleteImage(image: Image) {
         </section>
         <section class="all-images fill row-wrap g-4 px-4">
             <img :src="image.url" v-for="image in images" @click="setActiveImage(image)" @contextmenu.prevent="deleteImage(image)">
+            <div style="flex: 10 0"></div>
         </section>
     </article>
 </template>
@@ -86,13 +87,15 @@ div.tools {
 }
 
 section.all-images {
-    justify-content: center;
+    justify-content: space-between;
+    align-content: flex-start;
     align-items: center;
 
     img {
+        flex: 1 1 fit-content;
         height: 128px;
-        max-width: calc(128px + 64px);
-        object-fit: scale-down;
+        max-width: 256px;
+        object-fit: contain;
         border-radius: 0.25rem;
         border: 2px solid $dox-white;
         background-color: $dox-white;
