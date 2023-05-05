@@ -41,7 +41,9 @@ export const getSession = defineStore("session", (): Session => {
         following: [],
         followers: [],
         dateCreated: '',
-        admin: false
+        confirmed: false,
+        verified: false,
+        admin: false,
     }))
 
     //> API
@@ -129,6 +131,8 @@ export const getSession = defineStore("session", (): Session => {
                 following: [],
                 followers: [],
                 dateCreated: '',
+                confirmed: false,
+                verified: false,
                 admin: false
             }
         }

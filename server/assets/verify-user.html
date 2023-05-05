@@ -1,0 +1,22 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <div style="height: fit-content; margin: 2rem auto; padding: 3rem 2rem; max-width: 500px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; border-radius: 0.5rem; text-align: center; border: 1px solid whitesmoke; background-color: #FAFAFA;">
+            <h4>Please verify your account.</h4>
+            <p>With the following email: <strong>{{user.email}}</strong>, you have registered for the username: <strong>{{user.name}}</strong>. If this is correct and you wish to confirm this, please click the link below.</p>
+            <div style="margin: 2rem auto;">
+                <a href='{{inviteLink}}' style="padding: 0.5rem 1rem; text-decoration: none; font-weight: 700; border-radius: 0.25rem; color: #393A49; background-color: #8783D1;  background: linear-gradient(90deg, #8783D1, #78C3FB)">Confirm Account</a>
+            </div>
+            <p>If this wasn't you, please email our support team at <a href="mailto:support@tcmdev.ca">support@dox.ca</a>, or click blow to send and automated report to our systems.</p>
+            <div style="margin: 2rem auto;">
+                <a href='{{inviteLink}}' style="padding: 0.5rem 1rem; text-decoration: none; font-weight: 700; border-radius: 0.25rem; color: #393A49; background-color:  #F55D3E;">Report</a>
+            </div>
+            <p>Thanks for your time and have a great day!</p>
+            <p>Sincerely,</p>
+            <img src="" style="width: 256px;">
+            <h2>DOX Official</h2>
+        </div>
+    </body>
+</html>
