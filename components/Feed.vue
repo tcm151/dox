@@ -52,49 +52,51 @@ function sort(type: string) {
                 <span>Top</span>
             </button>
         </div>
-        <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
-            <!-- TODO allow reply to posts directly with another post -->
-            <div class="reply-to" v-if="post.topics.includes('topic:ReplyTo')">
-                <p>Replying to: This is the name of the post that is being replied to</p>
-            </div>
-            <div class="main">
-                <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
-                    {{ post.title }}
-                </h3>
-                <div class="row-wrap g-1">
-                    <div class="votes row g-1">
-                        <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
-                            {{ post?.votes.positive.length }}
+        <TransitionGroup name="feed">
+            <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
+                <!-- TODO allow reply to posts directly with another post -->
+                <div class="reply-to" v-if="post.topics.includes('topic:ReplyTo')">
+                    <p>Replying to: This is the name of the post that is being replied to</p>
+                </div>
+                <div class="main">
+                    <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                        {{ post.title }}
+                    </h3>
+                    <div class="row-wrap g-1">
+                        <div class="votes row g-1">
+                            <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
+                                {{ post?.votes.positive.length }}
+                            </span>
+                            <span class="tag misleading" @click="vote.misleading(post)" :class="{ voted: post.votes.misleading.includes(session.user.id)}">
+                                {{ post?.votes.misleading.length }}
+                            </span>
+                            <span class="tag negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
+                                {{ post?.votes.negative.length }}
+                            </span>
+                            <!-- TODO decide if want to show awards or saves -->
+                            <!-- I think I want to show both, but I like the way things currently look -->
+                            <!-- initial tests looked bad -->
+                            <!-- <span>
+                                <i class="fa-solid fa-crown"></i>
+                            </span>
+                            <span>
+                                <i class="fa-solid fa-box-archive"></i>
+                            </span> -->
+                        </div>
+                        <span class="tag topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                            {{ topic.split(':')[1] }}
                         </span>
-                        <span class="tag misleading" @click="vote.misleading(post)" :class="{ voted: post.votes.misleading.includes(session.user.id)}">
-                            {{ post?.votes.misleading.length }}
-                        </span>
-                        <span class="tag negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
-                            {{ post?.votes.negative.length }}
-                        </span>
-                        <!-- TODO decide if want to show awards or saves -->
-                        <!-- I think I want to show both, but I like the way things currently look -->
-                        <!-- initial tests looked bad -->
-                        <!-- <span>
-                            <i class="fa-solid fa-crown"></i>
-                        </span>
-                        <span>
-                            <i class="fa-solid fa-box-archive"></i>
-                        </span> -->
-                    </div>
-                    <span class="tag topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
-                        {{ topic.split(':')[1] }}
-                    </span>
-                    <div class="details row g-1">
-                        <span class="tag info" @click="navigateTo(`/user/${extractId(post.user.id ?? '')}`)">
-                            u/{{ post?.user.name ?? "deleted" }}
-                        </span>
-                        <span class="tag info">{{ post.comments.length }} comments</span>
-                        <span class="tag info">{{ formatDate(post.time as any) }}</span>
+                        <div class="details row g-1">
+                            <span class="tag info" @click="navigateTo(`/user/${extractId(post.user.id ?? '')}`)">
+                                u/{{ post?.user.name ?? "deleted" }}
+                            </span>
+                            <span class="tag info">{{ post.comments.length }} comments</span>
+                            <span class="tag info">{{ formatDate(post.time as any) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </TransitionGroup>
         <!-- TODO allow more than five pages -->
         <div class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('page', props.page! - 1)"></i>
@@ -145,6 +147,18 @@ function sort(type: string) {
     //     background-color: $dox-white-light;
     //     border: 0.2rem solid $dox-grey-light;
     // }
+}
+
+.feed-move, .feed-enter-active, .feed-leave-active {
+    transition: all 512ms ease;
+}
+
+.feed-enter-from, .feed-enter-to {
+    opacity: 0;
+}
+
+.feed-leave-active {
+    position: absolute;
 }
 
 .post {
