@@ -1,26 +1,7 @@
 <script setup lang="ts">
-interface Hint {
-    number?: number
-    message: string
-    type: "message" | "success" | "warning" | "error"
-}
+import { Hint } from '~/services/hints';
 
-const events = useEvents();
-const settings = useUserSettings();
-events.subscribe(Trigger.addHint, addHint);
-
-let hintCount = ref(0);
-let hints = ref<Hint[]>([])
-
-function addHint(payload: Hint) {
-    payload.number = hintCount.value += 1;
-    hints.value.push(payload);
-    setTimeout(() => removeHont(payload), settings.state.hintDuration);
-}
-
-function removeHont(hint: Hint) {
-    hints.value = hints.value.filter(n => n.number !== hint.number)
-}
+const hints = useHints()
 
 function getColor(hint: Hint) {
     switch (hint.type) {
@@ -38,7 +19,7 @@ function getColor(hint: Hint) {
 
 <template>
     <aside class="hints">
-        <div class="item px-4 py-2" v-for="hint in hints" :style="{ backgroundColor: getColor(hint) }">
+        <div class="item px-4 py-2" v-for="hint in hints.items" :style="{ backgroundColor: getColor(hint) }">
             {{ hint.message }}
         </div>
     </aside>
