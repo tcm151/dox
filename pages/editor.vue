@@ -335,6 +335,7 @@ div.uploaded-images {
 .preview {
     position: relative;
     min-height: 100px;
+    white-space: normal;
 
     div.content {
         white-space: normal;
