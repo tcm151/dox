@@ -23,13 +23,14 @@ export default defineEventHandler(async (event) => {
     let template = await useStorage("assets:server").getItem("verify-user.html") as string
     template = template.replace('{{user.email}}', auth.email)
     template = template.replace('{{user.name}}', auth.name)
-    template = template.replace('{{confirmLink}}', `http://localhost:3000/profile?confirmation=${confirmation.id}`)
-    template = template.replace('{{reportLink}}', `http://localhost:3000/profile?report=${confirmation.id}`)
+    // TODO replace this with environment variables
+    template = template.replace('{{confirmLink}}', `https://doxforeverything.tcmdev.ca/profile?confirmation=${confirmation.id}`)
+    template = template.replace('{{reportLink}}', `https://doxforeverything.tcmdev.ca/profile?report=${confirmation.id}`)
 
     
     return await useEmail().sendMessage({
         recipient: 'tylermckay10@gmail.com',
-        subject: 'Confirm Account: {{user.name}}',
+        subject: `Confirm Account: ${auth.name}`,
         text: 'account verification.',
         html: template
     })
