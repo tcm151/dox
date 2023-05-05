@@ -10,10 +10,13 @@ export default defineEventHandler(async (event) => {
         FROM image:${imageId}
         FETCH user
     `])
-    switch (process.env.NODE_ENV) {
-        case "development":
-            return fs.readFileSync(`./images/${imageId}.${image.type}`)
-        case "production":
-            return fs.readFileSync(`./.production/images/${imageId}.${image.type}`)
+    try {
+        return fs.readFileSync(`./images/${imageId}.${image.type}`)
+    }
+    catch (error: any) {
+        throw createError({
+            statusCode: 500,
+            message: `Unable to find image:${imageId}...\n${error.message}`
+        })
     }
 })

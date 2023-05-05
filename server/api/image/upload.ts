@@ -9,24 +9,22 @@ const { resolve } = createResolver(import.meta.url);
 
 
 export default defineEventHandler(async (event) => {
-    // const auth = await authenticateRequest(event)
-    // const data = await readMultipartFormData(event)
-    // const baseUrl = getHeader(event, 'origin')
+    const auth = await authenticateRequest(event)
+    const data = await readMultipartFormData(event)
+    const baseUrl = getHeader(event, 'origin')
 
-    // const { buffer, type } = await processImage(data![0])
+    const { buffer, type } = await processImage(data![0])
     
-    // const image = await queryOne<Image>([`
-    //     CREATE image SET
-    //     time = time::now(),
-    //     type = "${type}",
-    //     url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
-    //     user = ${auth.id}
-    // `])
+    const image = await queryOne<Image>([`
+        CREATE image SET
+        time = time::now(),
+        type = "${type}",
+        url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
+        user = ${auth.id}
+    `])
     
-    // await writeToDisk(image, buffer, type)
-    // return image
-
-    return process.cwd()
+    await writeToDisk(image, buffer, type)
+    return image
 })
 
 async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
@@ -56,16 +54,15 @@ async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, typ
 }
 
 async function writeToDisk(image: Image, buffer: Buffer, type: string) {
-    switch (process.env.NODE_ENV) {
-        case "development":
-            fs.writeFileSync(`./images/${image.id.split(':')[1]}.${type}`, buffer, {
-                flag: "w+"
-            })
-            break
-        case "production":
-            fs.writeFileSync(`./.production/images/${image.id.split(':')[1]}.${type}`, buffer, {
-                flag: "w+"
-            })
-            break
+    try {
+        fs.writeFileSync(`./images/${image.id.split(':')[1]}.${type}`, buffer, {
+            flag: "w+"
+        })
+    }
+    catch (error: any) {
+        throw createError({
+            statusCode: 500,
+            message: `Unable to upload image...\n${error.message}`
+        })
     }
 }
