@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
     
     return await useEmail().sendMessage({
-        recipient: 'tylermckay10@gmail.com',
+        recipient: auth.email,
         subject: `Confirm Account: ${auth.name}`,
         text: 'account verification.',
         html: template
