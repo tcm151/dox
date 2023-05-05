@@ -20,12 +20,13 @@ export default defineEventHandler(async (event) => {
         expired = <future> { time::now() > time + 15m }
     `])
 
+    const { public: { baseUrl } } = useRuntimeConfig()
     let template = await useStorage("assets:server").getItem("verify-user.html") as string
     template = template.replace('{{user.email}}', auth.email)
     template = template.replace('{{user.name}}', auth.name)
     // TODO replace this with environment variables
-    template = template.replace('{{confirmLink}}', `https://doxforeverything.tcmdev.ca/profile?confirmation=${confirmation.id}`)
-    template = template.replace('{{reportLink}}', `https://doxforeverything.tcmdev.ca/profile?report=${confirmation.id}`)
+    template = template.replace('{{confirmLink}}', `${baseUrl}/profile?confirmation=${confirmation.id}`)
+    template = template.replace('{{reportLink}}', `${baseUrl}/profile?report=${confirmation.id}`)
 
     
     return await useEmail().sendMessage({

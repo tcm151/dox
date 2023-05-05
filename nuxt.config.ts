@@ -41,6 +41,7 @@ export default defineNuxtConfig({
             database: process.env.SURREAL_DATABASE,
         },
         public: {
+            baseUrl: process.env.BASE_URL,
             surreal: {
                 namespace: process.env.SURREAL_NAMESPACE,
                 database: process.env.SURREAL_DATABASE,
