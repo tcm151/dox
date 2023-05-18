@@ -174,7 +174,7 @@ async function reportPost(post: Post) {
                             <span>Edit</span>
                         </button>
                     </section>
-                    <div class="row" v-if="editingPost">
+                    <div class="row g-1" v-if="editingPost">
                         <button @click="previewChanges()">Preview</button>
                         <button @click="updatePost(post.value)">Save</button>
                         <button @click="toggleEditPost()">Cancel</button>
