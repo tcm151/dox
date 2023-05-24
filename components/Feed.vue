@@ -55,8 +55,9 @@ function sort(type: string) {
         <TransitionGroup name="feed">
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
                 <!-- TODO allow reply to posts directly with another post -->
-                <div class="reply-to" v-if="post.topics.includes('topic:ReplyTo')">
-                    <p>Replying to: This is the name of the post that is being replied to</p>
+                <div class="reply-to row center-inline g-2" v-if="post.topics.includes('topic:ReplyTo')">
+                    <i class="fa-solid fa-reply"></i> 
+                    <p>This is the name of the post that is being replied to</p>
                 </div>
                 <div class="main">
                     <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
@@ -76,10 +77,10 @@ function sort(type: string) {
                             <!-- TODO decide if want to show awards or saves -->
                             <!-- I think I want to show both, but I like the way things currently look -->
                             <!-- initial tests looked bad -->
-                            <!-- <span>
+                            <!-- <span class="tag">
                                 <i class="fa-solid fa-crown"></i>
                             </span>
-                            <span>
+                            <span class="tag">
                                 <i class="fa-solid fa-box-archive"></i>
                             </span> -->
                         </div>
@@ -97,7 +98,7 @@ function sort(type: string) {
                 </div>
             </div>
         </TransitionGroup>
-        <!-- TODO allow more than five pages -->
+        <!-- FIXME allow more than five pages -->
         <div class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('page', props.page! - 1)"></i>
             <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>
@@ -164,6 +165,7 @@ function sort(type: string) {
 .post {
     border-radius: 0.25rem;
     background-color: $dox-white;
+    background-color: $dox-grey-light;
     transition: transform 128ms;
     
     .main {
@@ -175,7 +177,7 @@ function sort(type: string) {
     .reply-to {
         padding: 0.25rem 0.5rem 0.25rem 0.5rem;
         font-weight: 700;
-        color: $dox-black;
+        color: $dox-white-ultra;
     }
 }
 

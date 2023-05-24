@@ -15,10 +15,10 @@ export interface User extends Voteable {
     following: string[]
     followers: string[]
     dateCreated: string
-    // TODO implement fields for:
     confirmed: boolean
-    verified: boolean
     admin: boolean
+    // TODO implement fields for:
+    verified: boolean
 }
 
 export interface Post extends Voteable {

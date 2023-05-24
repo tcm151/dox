@@ -165,6 +165,7 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Archive</span>
                         </button> -->
+                        <!-- TODO allow reporting of posts -->
                         <button @click="reportPost(post.value!)">
                             <i class="fa-solid fa-flag"></i>
                             <span>Report</span>
@@ -172,6 +173,10 @@ async function reportPost(post: Post) {
                         <button v-if="post.value?.user.id === session.user?.id" @click="toggleEditPost()">
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             <span>Edit</span>
+                        </button>
+                        <button v-if="post.value?.user.id === session.user?.id" @click="">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>Delete</span>
                         </button>
                     </section>
                     <div class="row g-1" v-if="editingPost">

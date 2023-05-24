@@ -191,6 +191,7 @@ async function saveDraft() {
                             type="text"
                             v-model="newTopic"
                             spellcheck="false"
+                            placeholder="press enter . . ."
                             @keyup.enter="addTopic"
                             @focus="topicsFocused = true"
                             @blur="topicsFocused = false"
