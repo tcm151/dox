@@ -69,6 +69,7 @@ button:hover {
     cursor: pointer;
     color: $dox-white-ultra;
     background-color: $dox-grey-light;
+    transition: color 64ms, background-color 64ms;
 }
 
 .form {

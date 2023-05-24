@@ -126,3 +126,8 @@ $danger: $dox-red;
     background-color: $dox-blue-light;
     border: 0.2rem solid $dox-blue;
 }
+
+
+.positive, .success, .misleading, .negative, .danger, .topic, .info {
+    transition: color 64ms, background-color 64ms;
+}

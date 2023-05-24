@@ -35,10 +35,10 @@ let { data: trendingUsers } = useFetch("/api/trending/users");
                     <h2>Trending Users</h2>
                     <div class="users mt-2">
                         <!-- FIXME allow clicking and navigating to -->
-                        <span class="info" v-for="user in trendingUsers">
+                        <div class="info" v-for="user in trendingUsers">
                             <span id="i">{{ user.name }}</span>
                             <span id="s">+{{ user.score }}</span>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@ let { data: trendingUsers } = useFetch("/api/trending/users");
                 <div class="buttons column g-2">
                     <button @click="navigateTo('/feed')">View Feed</button>
                     <button @click="navigateTo('/editor')">Write Post</button>
-                    <!-- <button @click="navigateTo('/about')">Learn More</button> -->
+                    <button @click="navigateTo('/about')">About Us</button>
                 </div>
             </div>
         </section>
@@ -136,6 +136,7 @@ article {
     @include flex-v (0.5rem);
 
     .info, .topic {
+        cursor: pointer;
         padding: 0.25rem 1rem;
         border-radius: 0.25rem;
         font-weight: 700;

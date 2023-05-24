@@ -95,21 +95,22 @@ section.right {
 }
 
 a {
+    cursor: pointer;
     padding: 0.75rem 0.75rem;
     font-weight: 700;
     font-size: 1.25rem;
     line-height: 1rem;
+    transition: color 64ms, background-color 64ms;
+}
+
+a:hover {
+    background-color: $dox-black-light;
 }
 
 .right {
     @media only screen and (max-width: 500px) {
         span { display: none; }
     }
-}
-
-a:hover {
-    cursor: pointer;
-    background-color: $dox-black-light;
 }
 
 @keyframes slide {
