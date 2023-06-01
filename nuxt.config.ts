@@ -40,6 +40,9 @@ export default defineNuxtConfig({
             namespace: process.env.SURREAL_NAMESPACE,
             database: process.env.SURREAL_DATABASE,
         },
+        ml: {
+            openAiKey: process.env.OPENAI_APIKEY
+        },
         public: {
             baseUrl: process.env.BASE_URL,
             surreal: {
