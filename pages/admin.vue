@@ -39,6 +39,10 @@ definePageMeta({
             <i class="fa-solid fa-image"></i>
             <span>Images</span>
         </NuxtLink>
+        <NuxtLink to="/admin/chromadb">
+            <i class="fa-solid fa-database"></i>
+            <span>ChromaDB</span>
+        </NuxtLink>
     </nav>
     <NuxtPage />
 </template>

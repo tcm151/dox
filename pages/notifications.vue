@@ -14,8 +14,7 @@ async function dismiss(notification: Notification) {
     <article class="notifications column g-2 p-4">
         <ClientOnly>
             <div class="notification p-4" v-for="notification in notifications">
-                <div class="message column g-2" v-html="renderMarkdown(notification.message)">
-                </div>
+                <Markdown class="message column g-2" :content="notification.message" />
                 <div class="row-fit g-2 mt-2">
                     <span class="tag link">Context</span>
                     <span class="tag info">{{ formatDate(notification.time) }}</span>

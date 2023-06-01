@@ -87,7 +87,7 @@ button:hover {
         font-weight: 600;
     }
 
-    input, textarea {
+    input, textarea, select {
         padding: 0.5rem;
 
         font-size: 1rem;
@@ -113,6 +113,27 @@ button:hover {
     }
 }
 
+p:has(img) {
+    display: grid;
+    place-items: center;
+    
+    img {
+        margin-inline: auto;
+        max-width: calc(100% - 8rem);
+        // max-height: 256px;
+    }
+}
+
+// TODO decide if this is necessary
+// div.comment.body {
+//     p img {
+//         max-width: calc(100% - 2rem);
+//         max-height: 256px;
+//         margin-inline: auto;
+//         padding: 1rem;
+//     }
+// }
+
 pre:has(code) {
     code {
         display: block;
@@ -123,8 +144,11 @@ pre:has(code) {
 
 code {
     padding: 0.1rem 0.33rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: 'Source Code Pro', monospace;
     border-radius: 0.25rem;
-    background-color: $dox-white-light;
+    background-color: $dox-white-light !important;
 }
 
 blockquote {

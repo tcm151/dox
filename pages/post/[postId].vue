@@ -142,7 +142,7 @@ async function reportPost(post: Post) {
                     <span class="tag danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
-            <div class="content my-4" v-html="renderMarkdown(post.value?.content)"></div>
+            <Markdown class="content my-4" :content="post.value?.content" />
             <div class="field mb-5" v-if="post && editingPost && post.value?.user.id === session.user?.id">
                 <textarea rows="10" v-model="post.value.content"></textarea>
             </div>
@@ -243,7 +243,7 @@ async function reportPost(post: Post) {
                                 <span class="tag edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
                             </ClientOnly>
                         </header>
-                        <div class="body p-3" v-if="commentToEdit !== comment.id" v-html="renderMarkdown(comment.content)"></div>
+                        <Markdown class="body p-3" v-if="commentToEdit !== comment.id" :content="comment.content" />
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
                             <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
                             <div class="row-fit g-1 pt-2">
@@ -264,27 +264,6 @@ async function reportPost(post: Post) {
         </section>
     </article>
 </template>
-
-<style lang="scss">
-div.comment.body {
-    p img {
-        max-width: calc(100% - 2rem);
-        max-height: 256px;
-        margin-inline: auto;
-        padding: 1rem;
-    }
-}
-p:has(img) {
-    display: grid;
-    place-items: center;
-    
-    img {
-        margin-inline: auto;
-        max-width: 100%;
-        max-height: 256px;
-    }
-}
-</style>
 
 <style scoped lang="scss">
 article#post {

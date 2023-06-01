@@ -236,43 +236,15 @@ async function saveDraft() {
                     <!-- <button class="danger fill" @click="navigateTo('/')">Cancel</button> -->
                 </section>
             </section>
+            <!-- TODO toggle between showing the preview and doing editing, otherwise tons of rendering network calls -->
             <section class="preview p-5" v-if="showPreview">
                 <h1 class="mb-2">{{ draft.title }}</h1>
-                <div class="content" v-html="renderMarkdown(draft.content)">
-                </div>
+                <Markdown class="content" :content="draft.content" />
                 <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
             </section>
         </article>
     </ClientOnly>
 </template>
-
-<style lang="scss">
-code {
-    font-size: 0.95rem;
-    font-weight: 500;
-    font-family: 'Source Code Pro', monospace;
-    border-radius: 0.25rem;
-    background-color: $dox-white-light !important;
-}
-.body {
-    p img {
-        margin-inline: auto;
-        padding: 1rem;
-        max-width: calc(100% - 2rem);
-        max-height: 256px;
-    }
-}
-p:has(img) {
-    display: grid;
-    place-items: center;
-    
-    img {
-        margin-inline: auto;
-        max-width: 100%;
-        max-height: 256px;
-    }
-}
-</style>
 
 <style scoped lang="scss">
 article.editor {
