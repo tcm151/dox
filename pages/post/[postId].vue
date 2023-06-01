@@ -111,7 +111,9 @@ async function updateComment(comment: Comment) {
 }
 
 async function reportPost(post: Post) {
-    hints.addError("This doesn't currently do anything.")
+    await session.useApi(`/api/post/${postId}/report`)
+    hints.addError("This post has been reported to the development team.")
+    // hints.addError("This doesn't currently do anything.")
 }
 </script>
 
