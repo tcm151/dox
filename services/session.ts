@@ -22,7 +22,7 @@ export const getSession = defineStore("session", (): Session => {
     const hints = useHints()
     const events = useEvents()
 
-    const db = Surreal.Instance
+    const db = new Surreal()
     db.connect("https://db.tcmdev.ca/rpc")
     
     //> SESSION
