@@ -103,7 +103,9 @@ button:hover {
         resize: vertical;
     }
 
-    input:hover, input:focus, textarea:hover, textarea:focus {
+    input:hover, input:focus,
+    textarea:hover, textarea:focus
+    select:hover, select:focus {
         outline: 1px solid $dox-blue;
     }
 
@@ -139,6 +141,15 @@ pre:has(code) {
         display: block;
         padding: 1rem;
         overflow-x: auto;
+    }
+}
+
+.content.wrap {
+    pre:has(code) {
+        code {
+            overflow-x: hidden;
+            white-space: break-spaces;
+        }
     }
 }
 
