@@ -1,6 +1,8 @@
 <script setup lang="ts">
 
-const activeCollection = ref("")
+const hints = useHints()
+
+const activeCollection = useSessionStorage("chromaCollection", "")
 const { data: collections, refresh: listCollections } = useAsyncData('collections', () => {
     return $fetch("/api/embeddings/collections/list")
 })
@@ -26,11 +28,13 @@ const currentDocument = ref<Document>({
     metadata: {}
 })
 
+const showAddDocument = ref(false)
 async function addDocument() {
     await $fetch(`/api/embeddings/collections/${activeCollection.value}/add`, {
         method: "POST",
         body: [currentDocument.value]
     })
+    hints.addSuccess("You added something.")
 }
 
 async function generateVectors() {
@@ -40,6 +44,53 @@ async function generateVectors() {
     })
 
     currentDocument.value.vectors = response[0]
+}
+
+async function getAllDocuments() {
+    if (activeCollection.value == "") {
+        hints.addWarning("You need to select a collection.")
+        return
+    }
+
+    const response = await $fetch(`/api/embeddings/collections/${activeCollection.value}/query/all`)
+    queryResults.value = response.ids.map((id, index) => {
+        return {
+            id: response.ids[index],
+            text: response.documents[index],
+        }
+    })
+}
+
+const searchText = ref("")
+const resultAmount = ref<number>(1)
+const queryResults = ref<any>([])
+
+async function queryCollection() {
+    if (activeCollection.value == "") {
+        hints.addWarning("You need to select a collection.")
+        return
+    }
+
+    if (searchText.value == "") {
+        hints.addWarning("You can't search for nothing.")
+        return
+    }
+
+    const response = await $fetch(`/api/embeddings/collections/${activeCollection.value}/query/text`, {
+        method: "POST",
+        body: {
+            searchText: searchText.value,
+            resultAmount: resultAmount.value
+        }
+    })
+
+    queryResults.value = response.ids[0].map((id, index) => {
+        return {
+            id: response.ids[0][index],
+            text: response.documents[0][index],
+            distance: response.distances![0][index],
+        }
+    })
 }
 
 </script>
@@ -56,12 +107,13 @@ async function generateVectors() {
                     </option>
                 </select>
             </div>
-            <div class="field">
+            <div class="field fill">
                 <input type="text" v-model="collectionName" />
             </div>
             <button @click="addCollection">Add Collection</button>
+            <button @click="showAddDocument = !showAddDocument">Add Document</button>
         </section>
-        <section class="column g-2 p-4">
+        <section class="column g-2 p-4" v-if="showAddDocument">
             <div class="field">
                 <label>Document ID</label>
                 <input type="text" v-model="currentDocument.id" />
@@ -71,9 +123,28 @@ async function generateVectors() {
                 <textarea rows="10" v-model="currentDocument.text" />
             </div>
             <div class="row g-2">
-                <button @click="addDocument">Add</button>
+                <button class="fill" @click="addDocument">Add</button>
                 <button @click="addDocument">Upsert</button>
                 <button @click="generateVectors">Generate Vectors</button>
+            </div>
+        </section>
+        <section class="p-4">
+            <div class="row g-2">
+                <button @click="getAllDocuments">Query All</button>
+                <div class="field fill">
+                    <input type="search" v-model="searchText" placeholder="Search..." @keyup.enter="queryCollection">
+                </div>
+                <div class="field">
+                    <input type="number" v-model="resultAmount" style="width: 3rem; text-align: center;" />
+                </div>
+                <button @click="queryCollection">Search</button>
+            </div>
+            <div>
+                <Codeblock
+                    :wrap="true" 
+                    language="json"
+                    :code="JSON.stringify(queryResults, undefined, 4)" 
+                />
             </div>
         </section>
     </article>
@@ -87,5 +158,9 @@ article {
 section {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+}
+
+input[type=number]::-webkit-inner-spin-button {
+    opacity: 1
 }
 </style>
