@@ -66,6 +66,9 @@ export default defineNuxtConfig({
                     referrerpolicy: "no-referrer",
                 },
             ],
+            meta: [
+                { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" }
+            ]
         },
     },
 })
