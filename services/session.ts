@@ -136,6 +136,7 @@ export const getSession = defineStore("session", (): Session => {
                 admin: false
             }
         }
+        return navigateTo("/feed")
     }
 
     //> FOLLOW/UNFOLLOW
