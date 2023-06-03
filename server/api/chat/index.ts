@@ -1,19 +1,9 @@
-import { Configuration, OpenAIApi as OpenAI } from "openai";
 import { useEmbeddings } from "~/server/chroma";
+import { Message, useChat } from "~/server/chat"
 
-const { ml } = useRuntimeConfig()
-const openAI = new OpenAI(new Configuration({
-    organization: "org-C9prtSYfrzDJNgFtriS5gwUD",
-    apiKey: ml.openAiKey,
-}));
-
+const openAI = useChat()
 const embeddings = useEmbeddings()
 const collection = await embeddings.getCollection("chat")
-
-export interface Message {
-    role: "system" | "assistant" | "user"
-    content: string
-}
 
 export default defineEventHandler(async (event) => {
     const messages = await readBody<Message[]>(event)
