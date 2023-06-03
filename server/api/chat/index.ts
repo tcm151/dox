@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi as OpenAI } from "openai";
-import { useEmbeddings } from "~/server/chromadb";
+import { useEmbeddings } from "~/server/chroma";
 
 const { ml } = useRuntimeConfig()
 const openAI = new OpenAI(new Configuration({
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
         nResults: 10,
         queryTexts: JSON.stringify(messages.at(-1))
     })
-    messages.unshift(...relevantMessages.documents[0].map(m => JSON.parse(m!) as Message))
+    messages.unshift(...relevantMessages.documents[0].map(m => JSON.parse(m!) as Message).reverse())
     const embeddingPromise = collection.add({ ids: new Date().toISOString(), documents: JSON.stringify(messages.at(-1)) })
     const chatPromise = openAI.createChatCompletion({
         model: "gpt-3.5-turbo",

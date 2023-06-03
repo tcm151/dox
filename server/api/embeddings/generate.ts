@@ -1,4 +1,4 @@
-import { useEmbeddings } from "~/server/chromadb"
+import { useEmbeddings } from "~/server/chroma"
 
 const embeddings = useEmbeddings()
 

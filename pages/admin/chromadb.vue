@@ -25,7 +25,9 @@ export interface Document {
 const currentDocument = ref<Document>({
     id: "",
     text: "",
-    metadata: {}
+    metadata: {
+        userId: ""
+    }
 })
 
 const showAddDocument = ref(false)
@@ -57,6 +59,7 @@ async function getAllDocuments() {
         return {
             id: response.ids[index],
             text: response.documents[index],
+            metadata: response.metadatas[index],
         }
     })
 }
@@ -88,6 +91,7 @@ async function queryCollection() {
         return {
             id: response.ids[0][index],
             text: response.documents[0][index],
+            metadata: response.metadatas[0][index],
             distance: response.distances![0][index],
         }
     })
@@ -114,9 +118,15 @@ async function queryCollection() {
             <button @click="showAddDocument = !showAddDocument">Add Document</button>
         </section>
         <section class="column g-2 p-4" v-if="showAddDocument">
-            <div class="field">
-                <label>Document ID</label>
-                <input type="text" v-model="currentDocument.id" />
+            <div class="row g-2">
+                <div class="field fill">
+                    <label>Document ID</label>
+                    <input type="text" v-model="currentDocument.id" />
+                </div>
+                <div class="field fill">
+                    <label>Metadata (User ID)</label>
+                    <input type="text" v-model="currentDocument.metadata!.userId" />
+                </div>
             </div>
             <div class="field">
                 <label>Document Text</label>

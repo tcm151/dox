@@ -1,4 +1,4 @@
-import { useEmbeddings } from "~/server/chromadb"
+import { useEmbeddings } from "~/server/chroma"
 import { Document } from "~/pages/admin/chromadb.vue"
 
 const embeddings = useEmbeddings()

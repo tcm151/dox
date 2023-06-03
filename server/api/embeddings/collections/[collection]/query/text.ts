@@ -1,4 +1,4 @@
-import { useEmbeddings } from "~/server/chromadb"
+import { useEmbeddings } from "~/server/chroma"
 
 const embeddings = useEmbeddings()
 
@@ -14,5 +14,6 @@ export default defineEventHandler(async (event) => {
     return await collection.query({
         nResults: resultAmount,
         queryTexts: searchText,
+        where: { userId: "user:opkdyfig54tdre96jc37" }
     })
 })
