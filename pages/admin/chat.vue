@@ -3,21 +3,14 @@
 const hints = useHints()
 
 const welcomeMessage = { role: "assistant", content: "Hey, how are you doing today?" }
-
 const messages = useSessionStorage('chatMessages', [welcomeMessage])
-
-const scroll = ref<HTMLElement | null>(null)
-watch(messages, () => {
-    setTimeout(() => {
-        scroll.value!.scrollTop = scroll.value!.scrollHeight
-    }, 64)
-})
 
 async function resetChat() {
     messages.value = [welcomeMessage]
 }
 
 const messageText = ref("")
+const waitingForResponse = ref(false)
 async function getChatResponse() {
     if (messageText.value == "") {
         hints.addWarning("You can't enter nothing.")
@@ -29,13 +22,21 @@ async function getChatResponse() {
     })
     messageText.value = ""
 
+    waitingForResponse.value = true
     const response = await $fetch("/api/chat", {
         method: "POST",
-        body: messages.value
+        body: messages.value.slice(-5)
     })
+    waitingForResponse.value = false
     messages.value.push(response)
 }
 
+const scroll = ref<HTMLElement | null>(null)
+watch(waitingForResponse, () => {
+    setTimeout(() => {
+        scroll.value!.scrollTop = scroll.value!.scrollHeight
+    }, 64)
+})
 
 </script>
 
@@ -48,6 +49,9 @@ async function getChatResponse() {
                         {{ message.content }}
                     </div>
                 </ClientOnly>
+                <div class="message assistant px-4 py-2" v-if="waitingForResponse">
+                    <i class="fa-solid fa-spinner"></i>
+                </div>
             </div>
         </section>
         <section class="column g-2 p-4">
@@ -108,5 +112,20 @@ div.message.assistant {
     margin-right: 5rem;
     color: $dox-blue;
     background-color: $dox-blue-light;
+}
+
+@keyframes spin {
+    from {
+        transform: rotateZ(0deg);
+    }
+    to {
+        transform: rotateZ(360deg);
+    }
+}
+
+div.message.assistant:has(i) {
+    i.fa-spinner {
+        animation: spin 1s linear infinite;
+    }
 }
 </style>
