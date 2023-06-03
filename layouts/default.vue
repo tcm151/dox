@@ -40,7 +40,7 @@ onMounted(() => {
 
 <style lang="scss">
 main.page {
-    height: calc(100svh - 35px);
+    height: calc(100dvh - 35px);
     background-color: $dox-white-light;
     overflow-x: hidden;
     overflow-y: auto;
