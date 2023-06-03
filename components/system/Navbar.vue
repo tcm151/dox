@@ -61,10 +61,6 @@ async function login() {
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
                     </NuxtLink>
-                    <NuxtLink to="/feed">
-                        <i class="fa-solid fa-signs-post"></i>
-                        <span>Feed</span>
-                    </NuxtLink>
                     <a @click="login">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Login</span>
