@@ -42,7 +42,7 @@ const emit = defineEmits<{
     left: 0;
     position: absolute;
     width: 100vw;
-    height: 100dvh;
+    height: 100vh;
     z-index: 9999;
     animation: blur 64ms forwards;
 }
