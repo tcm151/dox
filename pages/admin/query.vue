@@ -1,18 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 
-definePageMeta({
-    layout: 'simple',
-    middleware: (to, from) => {
-        if (process.client) {
-            const session = getSession()
-            if (to.path === "/query" && !session.isAuthenticated) {
-                return navigateTo("/")
-            }
-        }
-    }
-})
-
 const hints = useHints()
 const { settings, history, saved } = storeToRefs(useQuery())
 
@@ -20,7 +8,6 @@ let tab = ref<string>("History")
 let results = ref<any[]>([]);
 let query = useSessionStorage<string>("query", "");
 let showSettings = ref(false)
-
 
 const showSearch = useSessionStorage("showQueryHistorySearch", false)
 const searchBar = ref("");
@@ -104,79 +91,80 @@ async function submitQuery() {
 
 <template>
     <article class="row g-2 m-4">
-        <QuerySettings :visible="showSettings" @close="showSettings = false" />
-        <div class="left column g-2 p-4">
-            <section class="editor fill column g-2">
-                <header class="row g-2">
-                    <button class="danger" @click="query = ''">
-                        <span>Clear</span>
-                        <i class="fa-solid fa-soap"></i>
-                    </button>
-                    <button class="success fill" @click="submitQuery">
-                        <span>Submit</span>
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </header>
-                <div class="field">
-                    <textarea rows="16" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
-                </div>
-                <div class="saved-query-directory">
-                    <Directory
-                        root="Queries"
-                        :buttons="['add-folder']"
-                        @add-item="saveQuery"
-                        @select-item="(item) => reuseQuery(item.query)"
-                        @remove-item="(item) => removeQueryFromSaved(item)"
-                        :items="saved"
-                    />
-                </div>
-            </section>
-        </div>
-        <div class="right column g-2 p-4">
-            <header class="column g-2">
-                <div class="row g-2">
-                    <button class="link fit" @click="showSearch = !showSearch">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                    <button class="link fill" @click="tab = 'Results'">
-                        <i class="fa-solid fa-square-poll-horizontal"></i>
-                        <span>Results</span>
-                    </button>
-                    <button class="link fill" @click="tab = 'History'">
-                        <i class="fa-solid fa-book"></i>
-                        <span>History</span>
-                    </button>
-                    <button class="link fit" @click="clearHistory">
-                        <i class="fa-solid fa-broom"></i>
-                    </button>
-                    <button class="link fit" @click="showSettings = true">
-                        <i class="fa-solid fa-gear"></i>
-                    </button>
-                </div>
-                <div class="field" v-if="showSearch">
-                    <input type="search" v-model="searchBar">
-                </div>
-            </header>
-            <section class="results column g-2" v-if="tab == 'Results'">
-                <div class="result column g-2" v-for="result in results">
-                    <code class="p-4">{{ result.result }}</code>
-                </div>
-            </section>
-            <section class="history column g-2" v-if="tab == 'History'">
-                <div class="query" v-for="(item, index) in filteredHistory()" :key="index" draggable="true" @dragstart="grabbedQuery = item">
-                    <p class="p-2">{{ item }}</p>
-                    <div class="buttons row g-2">
-                        <button @click="reuseQuery(item)">
-                            <i class="fa-solid fa-rotate"></i>
+        <ClientOnly>
+            <QuerySettings :visible="showSettings" @close="showSettings = false" />
+            <div class="left column g-2 p-4">
+                <section class="editor fill column g-2">
+                    <header class="row g-2">
+                        <button class="danger" @click="query = ''">
+                            <span>Clear</span>
+                            <i class="fa-solid fa-soap"></i>
                         </button>
-                        <button @click="removeQueryFromHistory(item)">
-                            <i class="fa-solid fa-trash-can"></i>
+                        <button class="success fill" @click="submitQuery">
+                            <span>Submit</span>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </header>
+                    <div class="field">
+                        <textarea rows="16" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
+                    </div>
+                    <div class="saved-query-directory">
+                        <Directory
+                            root="Queries"
+                            :buttons="['add-folder']"
+                            @add-item="saveQuery"
+                            @select-item="(item) => reuseQuery(item.query)"
+                            @remove-item="(item) => removeQueryFromSaved(item)"
+                            :items="saved"
+                        />
+                    </div>
+                </section>
+            </div>
+            <div class="right column g-2 p-4">
+                <header class="column g-2">
+                    <div class="row g-2">
+                        <button class="link fit" @click="showSearch = !showSearch">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <button class="link fill" @click="tab = 'Results'">
+                            <i class="fa-solid fa-square-poll-horizontal"></i>
+                            <span>Results</span>
+                        </button>
+                        <button class="link fill" @click="tab = 'History'">
+                            <i class="fa-solid fa-book"></i>
+                            <span>History</span>
+                        </button>
+                        <button class="link fit" @click="clearHistory">
+                            <i class="fa-solid fa-broom"></i>
+                        </button>
+                        <button class="link fit" @click="showSettings = true">
+                            <i class="fa-solid fa-gear"></i>
                         </button>
                     </div>
-                </div>
-            </section>
-        </div>
-        <QuerySettings :visible="showSettings" @close="showSettings = false" />
+                    <div class="field" v-if="showSearch">
+                        <input type="search" v-model="searchBar">
+                    </div>
+                </header>
+                <section class="results column g-2" v-if="tab == 'Results'">
+                    <div class="result column g-2" v-for="result in results">
+                        <code class="p-4">{{ result.result }}</code>
+                    </div>
+                </section>
+                <section class="history column g-2" v-if="tab == 'History'">
+                    <div class="query" v-for="(item, index) in filteredHistory()" :key="index" draggable="true" @dragstart="grabbedQuery = item">
+                        <p class="p-2">{{ item }}</p>
+                        <div class="buttons row g-2">
+                            <button @click="reuseQuery(item)">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                            <button @click="removeQueryFromHistory(item)">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </ClientOnly>
     </article>
 </template>
 
