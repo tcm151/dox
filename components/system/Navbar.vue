@@ -36,6 +36,10 @@ async function login() {
         <ClientOnly>
             <Transition name="slide">
                 <section class="right authenticated" v-if="session.isAuthenticated">
+                    <NuxtLink to="/chat">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Chat</span>
+                    </NuxtLink>
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
@@ -53,6 +57,10 @@ async function login() {
                     </a>
                 </section>
                 <section class="right anonymous" v-else>
+                    <NuxtLink to="/feed">
+                        <i class="fa-solid fa-signs-post"></i>
+                        <span>Feed</span>
+                    </NuxtLink>
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>

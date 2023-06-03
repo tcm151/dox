@@ -1,8 +1,20 @@
 <script setup lang="ts">
+definePageMeta({
+    layout: "simple",
+    middleware: (to, from) => {
+        const hints = useHints()
+        const session = getSession()
+        if (to.path === "/chat" && (!session.isAuthenticated || !session.user.confirmed)) {
+            hints.addWarning("You must confirm your account to use chat.")
+            return abortNavigation()
+        }
+    }
+})
 
 const hints = useHints()
+const session = getSession()
 
-const welcomeMessage = { role: "assistant", content: "Hey, how are you doing today?" }
+const welcomeMessage = { role: "assistant", content: "Hey, what would you like to talk about?" }
 const messages = useSessionStorage('chatMessages', [welcomeMessage])
 
 async function resetChat() {
@@ -23,7 +35,7 @@ async function getChatResponse() {
     messageText.value = ""
 
     waitingForResponse.value = true
-    const response = await $fetch("/api/chat", {
+    const response = await $fetch(`/api/chat/${session.user.id}`, {
         method: "POST",
         body: messages.value.slice(-5)
     })
@@ -56,7 +68,7 @@ watch(waitingForResponse, () => {
         </section>
         <section class="column g-2 p-4">
             <div class="field">
-                <textarea rows="8" v-model="messageText"></textarea>
+                <textarea rows="8" v-model="messageText" @keyup.enter="getChatResponse" />
             </div>
             <div class="row g-2">
                 <button class="danger" @click="resetChat">

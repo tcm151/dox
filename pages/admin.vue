@@ -21,7 +21,6 @@ const tabs = [
     { route: "/admin/query", icon: "fa-solid fa-terminal", label: "Database" },
     { route: "/admin/folders", icon: "fa-solid fa-folder-open", label: "Folders" },
     { route: "/admin/images", icon: "fa-solid fa-image", label: "Images" },
-    { route: "/admin/chat", icon: "fa-solid fa-comments", label: "Chat" },
     { route: "/admin/chromadb", icon: "fa-solid fa-database", label: "ChromaDB" },
 ]
 </script>
