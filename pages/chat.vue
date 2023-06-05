@@ -37,7 +37,7 @@ async function getChatResponse() {
     waitingForResponse.value = true
     const response = await $fetch(`/api/chat/${session.user.id}`, {
         method: "POST",
-        body: messages.value.slice(-5)
+        body: messages.value.slice(-8)
     })
     waitingForResponse.value = false
     messages.value.push(response)

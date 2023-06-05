@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 const hints = useHints()
+const session = getSession()
 
 const activeCollection = useSessionStorage("chromaCollection", "")
 const { data: collections, refresh: listCollections } = useAsyncData('collections', () => {
@@ -15,6 +16,11 @@ async function addCollection() {
     })
 }
 
+const showResetPopup = ref(false)
+async function confirmResetEmbeddings() {
+    showResetPopup.value = true
+}
+
 export interface Document {
     id: string
     text?: string
@@ -26,7 +32,7 @@ const currentDocument = ref<Document>({
     id: "",
     text: "",
     metadata: {
-        userId: ""
+        userId: session.user.id
     }
 })
 
@@ -116,6 +122,7 @@ async function queryCollection() {
             </div>
             <button @click="addCollection">Add Collection</button>
             <button @click="showAddDocument = !showAddDocument">Add Document</button>
+            <button @click="showResetPopup = true">Reset</button>
         </section>
         <section class="column g-2 p-4" v-if="showAddDocument">
             <div class="row g-2">
@@ -157,6 +164,9 @@ async function queryCollection() {
                 />
             </div>
         </section>
+        <Popup :visible="showResetPopup" title="Reset Embeddings" accept-label="Reset" @accept="" decline-label="Cancel" @decline="showResetPopup = false">
+            <p>This cannot be undone. Are you sure you want to do this?</p>
+        </Popup>
     </article>
 </template>
 
