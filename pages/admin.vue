@@ -17,13 +17,13 @@ definePageMeta({
 const route = useRoute()
 
 const tabs = [
-    { route: "/admin/backups", icon: "fa-solid fa-warehouse", label: "Backups" },
-    { route: "/admin/feedback", icon: "fa-solid fa-message", label: "Feedback" },
     { route: "/admin/reports", icon: "fa-solid fa-flag", label: "Reports" },
-    { route: "/admin/query", icon: "fa-solid fa-terminal", label: "Database" },
-    { route: "/admin/folders", icon: "fa-solid fa-folder-open", label: "Folders" },
+    { route: "/admin/feedback", icon: "fa-solid fa-message", label: "Feedback" },
     { route: "/admin/images", icon: "fa-solid fa-image", label: "Images" },
+    // { route: "/admin/folders", icon: "fa-solid fa-folder-open", label: "Folders" },
+    { route: "/admin/query", icon: "fa-solid fa-terminal", label: "Database" },
     { route: "/admin/chromadb", icon: "fa-solid fa-database", label: "ChromaDB" },
+    { route: "/admin/backups", icon: "fa-solid fa-warehouse", label: "Backups" },
 ]
 </script>
 

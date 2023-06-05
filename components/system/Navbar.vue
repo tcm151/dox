@@ -25,12 +25,13 @@ async function login() {
                 <NuxtLink to="/notifications" v-if="session.isAuthenticated" title="Notifications">
                     <i class="fa-solid fa-envelope"></i>
                 </NuxtLink>
-                <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
+                <!-- FIXME I don't like the way this look up here... -->
+                <!-- <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
                     <i class="fa-solid fa-message"></i>
-                </NuxtLink>
-                <Window title="Submit Feedback" :width="300" :visible="showFeedback" @close="showFeedback = false">
+                </NuxtLink> -->
+                <!-- <Window title="Submit Feedback" :width="300" :visible="showFeedback" @close="showFeedback = false">
                     <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
-                </Window>
+                </Window> -->
             </ClientOnly>
             <NuxtLink to="/search">
                 <i class="fa-solid fa-magnifying-glass"></i>
