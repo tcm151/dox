@@ -1,6 +1,18 @@
 <script setup lang="ts">
+import { TokenTextSplitter, MarkdownTextSplitter } from "langchain/text_splitter"
+
 
 const hints = useHints()
+
+const { post, comments } = usePost('hql980m4nu32ynbb4ev1')
+await post.fetch()
+
+const splitter = new MarkdownTextSplitter({
+    chunkSize: 1024,
+    chunkOverlap: 256,
+})
+
+const splits = await splitter.splitText(post.value!.content)
 
 // TODO implement knowledge search
 async function searchKnowledge() {
@@ -17,6 +29,13 @@ async function searchKnowledge() {
             <button @click="searchKnowledge">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
+        </section>
+        <section>
+            <Codeblock
+                    :wrap="true" 
+                    language="json"
+                    :code="JSON.stringify(splits, undefined, 4)" 
+                />
         </section>
     </article>
 </template>
