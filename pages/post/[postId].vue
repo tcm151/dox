@@ -11,6 +11,7 @@ useSeoMeta({
     author: () => post.value?.user.name,
     description: () => post.value?.content.slice(0, 256),
     ogDescription: () => post.value?.content.slice(0, 256),
+    ogImage: () => post.value?.images?.[0].url,
 })
 
 useServerSeoMeta({
