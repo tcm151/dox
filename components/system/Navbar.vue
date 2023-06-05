@@ -32,6 +32,9 @@ async function login() {
                     <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
                 </Window>
             </ClientOnly>
+            <NuxtLink to="/search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </NuxtLink>
         </section>
         <ClientOnly>
             <Transition name="slide">
