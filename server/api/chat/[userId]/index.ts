@@ -9,9 +9,9 @@ export default defineEventHandler(async (event) => {
     const { userId } = event.context.params!
     const messages = await readBody<Message[]>(event)
     const relevantMessages = await collection.query({
-        nResults: 10,
+        queryTexts: JSON.stringify(messages.at(-1)),
+        nResults: 20 - messages.length,
         where: { userId: userId },
-        queryTexts: JSON.stringify(messages.at(-1))
     })
     console.log(relevantMessages)
     messages.unshift(...relevantMessages.documents[0].map(m => JSON.parse(m!) as Message).reverse())
