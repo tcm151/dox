@@ -2,11 +2,13 @@
 definePageMeta({
     layout: "simple",
     middleware: (to, from) => {
-        const hints = useHints()
-        const session = getSession()
-        if (to.path === "/chat" && (!session.isAuthenticated || !session.user.confirmed)) {
-            hints.addWarning("You must confirm your account to use chat.")
-            return abortNavigation()
+        if (process.client) {
+            const hints = useHints()
+            const session = getSession()
+            if (to.path === "/chat" && (!session.isAuthenticated || !session.user.confirmed)) {
+                hints.addWarning("You must confirm your account to use chat.")
+                return abortNavigation()
+            }
         }
     }
 })
@@ -139,5 +141,9 @@ div.message.assistant:has(i) {
     i.fa-spinner {
         animation: spin 1s linear infinite;
     }
+}
+
+textarea {
+    resize: none !important;
 }
 </style>
