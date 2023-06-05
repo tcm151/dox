@@ -4,7 +4,7 @@ const hints = useHints()
 const session = getSession()
 
 const activeCollection = useSessionStorage("chromaCollection", "")
-const { data: collections, refresh: listCollections } = useAsyncData('collections', () => {
+const { data: collections, refresh: refreshCollections } = useAsyncData('collections', () => {
     return $fetch("/api/embeddings/collections/list")
 })
 
@@ -14,11 +14,14 @@ async function addCollection() {
         method: "POST",
         body: collectionName.value
     })
+    await refreshCollections()
+    collectionName.value = ""
 }
 
 const showResetPopup = ref(false)
-async function confirmResetEmbeddings() {
-    showResetPopup.value = true
+async function resetEmbeddings() {
+    await $fetch("/api/embeddings/reset")
+    showResetPopup.value = false
 }
 
 export interface Document {
@@ -130,10 +133,10 @@ async function queryCollection() {
                     <label>Document ID</label>
                     <input type="text" v-model="currentDocument.id" />
                 </div>
-                <div class="field fill">
+                <!-- <div class="field fill">
                     <label>Metadata (User ID)</label>
                     <input type="text" v-model="currentDocument.metadata!.userId" />
-                </div>
+                </div> -->
             </div>
             <div class="field">
                 <label>Document Text</label>
@@ -164,7 +167,14 @@ async function queryCollection() {
                 />
             </div>
         </section>
-        <Popup :visible="showResetPopup" title="Reset Embeddings" accept-label="Reset" @accept="" decline-label="Cancel" @decline="showResetPopup = false">
+        <Popup
+            :visible="showResetPopup"
+            title="Reset Embeddings"
+            accept-label="Reset"
+            @accept="resetEmbeddings"
+            decline-label="Cancel"
+            @decline="showResetPopup = false"
+        >
             <p>This cannot be undone. Are you sure you want to do this?</p>
         </Popup>
     </article>
