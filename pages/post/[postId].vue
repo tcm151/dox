@@ -6,11 +6,11 @@ const postId = route.params.postId.toString();
 const { post, comments } = usePost(postId)
 
 useSeoMeta({
-    title: post.value?.title,
-    ogTitle: post.value?.title,
-    author: post.value?.user.name,
-    description: post.value?.content.slice(0, 256),
-    ogDescription: post.value?.content.slice(0, 256),
+    title: () => post.value?.title ?? 'DOX For Everything',
+    ogTitle: () => post.value?.title,
+    author: () => post.value?.user.name,
+    description: () => post.value?.content.slice(0, 256),
+    ogDescription: () => post.value?.content.slice(0, 256),
 })
 
 useServerSeoMeta({
