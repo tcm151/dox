@@ -8,17 +8,16 @@ function packageFiles(files: FileList | null) {
     return data
 }
 
-export const uploadImage = async (input: HTMLInputElement) =>  {
+export const uploadImage = async (files: FileList | null) =>  {
 
     const hints = useHints()
     const session = getSession()
     
-    if (!input.files || input.files.length == 0) {
+    if (!files || files.length == 0) {
         hints.addWarning("Please select an image.")
         return
     }
     
-    const files = input.files
     const megabytes = files![0].size / 1_048_576
     if (megabytes > 32) {
         hints.addError(`${megabytes} MB`)

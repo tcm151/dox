@@ -7,19 +7,20 @@ const { data: images, refresh } = await useAsyncData('images', () => {
     return $fetch("/api/image")
 })
 
-let activeImage = ref<Image | null>(null)
-let uploader = ref<HTMLInputElement>()
+const { files, open: selectImages, reset } = useFileDialog({
+    accept: "image/*"
+})
 
-function chooseFiles() {
-    uploader.value?.click()
-}
+let activeImage = ref<Image | null>(null)
+// let uploader = ref<HTMLInputElement>()
 
 let uploading = ref<boolean>(false)
 async function startUpload() {
     uploading.value = true
-    console.log(await uploadImage(uploader.value!))
+    await uploadImage(files.value)
     uploading.value = false
     await refresh()
+    reset()
 }
 
 function setActiveImage(image: Image) {
@@ -35,18 +36,18 @@ async function deleteImage(image: Image) {
 <template>
     <article>
         <section class="column center-inline g-4 p-4">
-            <div class="tools row center-inline g-2 p-4">
-                <button class="link" @click="chooseFiles">
+            <div class="tools fill row center-inline g-2 p-4">
+                <button class="link" @click="selectImages()">
                     <span>Select</span>
                     <i class="fa-solid fa-image"></i>
                 </button>
-                <input accept="image/*" ref="uploader" type="file" />
+                <div class="fill">{{ files?.[0].name ?? 'No file selected...' }}</div>
                 <button class="success" @click="startUpload">
                     <i class="fa-solid fa-spinner" v-if="uploading"></i>
                     <i class="fa-solid fa-cloud-arrow-up" v-else></i>
                     <span>Upload</span>
                 </button>
-                <button class="danger" @click="">
+                <button class="danger" @click="reset">
                     <span>Cancel</span>
                 </button>
             </div>
