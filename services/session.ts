@@ -13,6 +13,7 @@ export interface Session {
     authenticate: () => Promise<boolean>
     login: (id: string, password: string) => Promise<boolean>
     logout: (clear: boolean) => void
+    fetchProfile(): Promise<void>
     follow: (type: "user" | "topic", target: string) => Promise<boolean>
     unfollow: (type: "user" | "topic", target: string) => Promise<boolean>
 }
@@ -188,5 +189,5 @@ export const getSession = defineStore("session", (): Session => {
         }
     }
 
-    return { user, token, isAuthenticated, authenticate, login, logout, useApi, follow, unfollow }
+    return { user, token, isAuthenticated, authenticate, login, logout, fetchProfile, useApi, follow, unfollow }
 })

@@ -4,7 +4,8 @@ definePageMeta({
         const session = getSession()
         if (session.isAuthenticated || await session.authenticate()) {
             if (from.query["confirmation"]) {
-                session.user.confirmed = await session.useApi("/api/profile/confirm", from.query["confirmation"]) ?? session.user.confirmed
+                await session.useApi("/api/profile/confirm", from.query["confirmation"])
+                await session.fetchProfile()
             }
             if (from.query["report"]) {
                 // alert("REPORT!")
