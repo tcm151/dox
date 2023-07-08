@@ -5,7 +5,7 @@
         "dev": "nuxt dev",
         "build": "nuxt build",
         "postinstall": "nuxt prepare",
-        "deploy": "ssh root@tcmdev.ca \"cd dox && ./deploy.sh\"",
+        "deploy": "ssh root@tcmdev.ca \"cd dox && ./deploy.sh --build\"",
         "start:local": "node .output/server/index.mjs",
         "start:production": "PORT=8001 node .production/server/index.mjs"
     },
