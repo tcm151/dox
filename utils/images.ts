@@ -18,10 +18,11 @@ export const uploadImage = async (files: FileList | null) =>  {
         return
     }
     
+    const maxSize = 8
     const megabytes = files![0].size / 1_048_576
-    if (megabytes > 32) {
+    if (megabytes > maxSize) {
         hints.addError(`${megabytes} MB`)
-        hints.addError("File is too large, try making it smaller.")
+        hints.addError(`File is too large, try making it smaller (< ${maxSize}).`)
         return
     }
 
