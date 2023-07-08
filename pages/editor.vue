@@ -154,8 +154,8 @@ async function saveDraft() {
 </script>
 
 <template>
-    <ClientOnly>
-        <article class="editor row-wrap g-4 p-4">
+    <article class="editor row-wrap g-4 p-4">
+        <ClientOnly>
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
             <section class="editor column p-5">
                 <header class="row center-inline mb-4">
@@ -242,8 +242,8 @@ async function saveDraft() {
                 <Markdown class="content" :content="draft.content" />
                 <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
             </section>
-        </article>
-    </ClientOnly>
+        </ClientOnly>
+    </article>
 </template>
 
 <style scoped lang="scss">

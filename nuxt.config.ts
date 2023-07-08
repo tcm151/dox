@@ -55,6 +55,8 @@ export default defineNuxtConfig({
         }
     },
     app: {
+        pageTransition: { name: "swap", mode: 'out-in'},
+        layoutTransition: { name: "swap", mode: 'out-in'},
         head: {
             title: "DOX For Everything",
             link: [

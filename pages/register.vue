@@ -69,7 +69,7 @@ function differentPasswords() {
 </script>
 
 <template>
-    <div class="column">
+    <article class="column">
         <div class="register p-5">
             <h1 class="mb-4">Register</h1>
             <div class="form">
@@ -123,7 +123,7 @@ function differentPasswords() {
                 </div>
             </div>
         </div>
-    </div>
+    </article>
 </template>
 
 <style scoped lang="scss">

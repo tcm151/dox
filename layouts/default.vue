@@ -1,29 +1,7 @@
 <script setup lang="ts">
-import { Trigger } from '~/services/events';
-
-let events = useEvents();
-
-let showPopup = ref(false);
-let showLogin = ref(false);
-
-useNuxtApp().hook("page:finish", () => {
-    events.publish(Trigger.pageFinishedLoading)
-})
-
-events.subscribe(Trigger.togglePopup, () => showPopup.value = !showPopup.value)
-events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
-
-onMounted(() => {
-    events.publish(Trigger.clientStarted);
-})
 </script>
 
 <template>
-    <Navbar />
-    <Login :visible="showLogin"/>
-    <Popup :visible="showPopup" title="Popup" :accept="() => { }" :decline="() => { }">
-        <span>This is the default!</span>
-    </Popup>
     <main class="page column center-inline">
         <slot class="slot" />
         <footer class="row center-inline px-5 m-5">
@@ -35,7 +13,6 @@ onMounted(() => {
                 <img class="icon" src="/images/surrealdb-icon.png">
         </footer>
     </main>
-    <Hints />
 </template>
 
 <style lang="scss">

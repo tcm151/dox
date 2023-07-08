@@ -22,25 +22,31 @@ const tabs = [
     { route: "/admin/images", icon: "fa-solid fa-image", label: "Images" },
     { route: "/admin/grid", icon: "fa-solid fa-table", label: "Grid" },
     { route: "/admin/query", icon: "fa-solid fa-terminal", label: "Database" },
-    { route: "/admin/chromadb", icon: "fa-solid fa-database", label: "ChromaDB" },
     { route: "/admin/backups", icon: "fa-solid fa-warehouse", label: "Backups" },
 ]
 </script>
 
 <template>
-    <nav class="row">
-        <TransitionGroup name="tabs">
-            <NuxtLink v-for="tab in tabs" :key="tab.route" :to="tab.route"
-                      :class="{ selected: tab.route == route.fullPath }">
-                <i :class="tab.icon"></i>
-                <span>{{ tab.label }}</span>
-            </NuxtLink>
-        </TransitionGroup>
-    </nav>
-    <NuxtPage />
+    <article class="column center-inline">
+        <nav class="row">
+            <TransitionGroup name="tabs">
+                <NuxtLink v-for="tab in tabs" :key="tab.route" :to="tab.route"
+                          :class="{ selected: tab.route == route.fullPath }">
+                    <i :class="tab.icon"></i>
+                    <span>{{ tab.label }}</span>
+                </NuxtLink>
+            </TransitionGroup>
+        </nav>
+        <NuxtPage />
+    </article>
 </template>
 
 <style scoped lang="scss">
+article {
+    width: 100%;
+    overflow-y: hidden;
+}
+
 nav.row {
     width: 100%;
     justify-content: center;
