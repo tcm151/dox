@@ -2,7 +2,13 @@
 import { Notification } from '~/types'
 
 const session = getSession();
-let notifications = ref(await session.useApi<Notification[]>("/api/profile/notifications"));
+let notifications = ref<Notification[] | null>(null);
+
+onMounted(async () => {
+    if (process.client) {
+        notifications.value = await session.useApi<Notification[]>("/api/profile/notifications")
+    }
+})
 
 async function dismiss(notification: Notification) {
     notifications.value = notifications.value!.filter(n => n.id !== notification.id)
