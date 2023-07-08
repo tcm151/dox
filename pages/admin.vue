@@ -20,7 +20,7 @@ const tabs = [
     { route: "/admin/reports", icon: "fa-solid fa-flag", label: "Reports" },
     { route: "/admin/feedback", icon: "fa-solid fa-message", label: "Feedback" },
     { route: "/admin/images", icon: "fa-solid fa-image", label: "Images" },
-    // { route: "/admin/folders", icon: "fa-solid fa-folder-open", label: "Folders" },
+    { route: "/admin/grid", icon: "fa-solid fa-table", label: "Grid" },
     { route: "/admin/query", icon: "fa-solid fa-terminal", label: "Database" },
     { route: "/admin/chromadb", icon: "fa-solid fa-database", label: "ChromaDB" },
     { route: "/admin/backups", icon: "fa-solid fa-warehouse", label: "Backups" },

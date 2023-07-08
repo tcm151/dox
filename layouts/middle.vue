@@ -36,12 +36,12 @@ onMounted(() => {
 
 <style scoped lang="scss">
 
-main.page {
-    height: calc(100% - 35px);
-    background-color: $dox-white-light;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
+// main.page {
+//     height: calc(100% - 35px);
+//     background-color: $dox-white-light;
+//     overflow-x: hidden;
+//     overflow-y: auto;
+// }
 
 .slot {
     flex: 1 1;
