@@ -33,17 +33,10 @@ async function login() {
                     <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
                 </Window> -->
             </ClientOnly>
-            <NuxtLink to="/search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </NuxtLink>
         </section>
         <ClientOnly>
             <Transition name="slide">
                 <section class="right authenticated" v-if="session.isAuthenticated">
-                    <NuxtLink to="/chat">
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Chat</span>
-                    </NuxtLink>
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
                         <span>Feed</span>
