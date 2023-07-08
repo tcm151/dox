@@ -16,7 +16,7 @@ export const authenticateRequest = async (event: H3Event) => {
             message: "Failed to authenticate request."
         })
     }
-    let response = await auth.query("SELECT * FROM $auth") as DatabaseResponse<User>[]
+    let response = await auth.query("SELECT * FROM $auth") as unknown as DatabaseResponse<User>[]
     let user = response[0].result[0]
     if (user == null) {
         throw createError({
