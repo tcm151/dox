@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import { queryOne } from "~/server/database"
+import { multiQuery, queryOne } from "~/server/database"
 import { Image } from "~/types"
 
 
@@ -29,8 +29,11 @@ export default defineEventHandler(async (event) => {
                 break
         }
 
-        await queryOne<Image>([`
-            DELETE image:${imageId}
+        await multiQuery([`
+            UPDATE ${auth.id} SET
+            tokens += ${image.tokens};
+
+            DELETE image:${imageId};
         `])
         
         return true

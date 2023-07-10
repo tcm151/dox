@@ -17,7 +17,7 @@ export const calculateTokens = (file: File | null) => {
     }
 }
 
-export const uploadImage = async (files: FileList | null) =>  {
+export const uploadImage = async (files: FileList | null) => {
 
     const hints = useHints()
     const session = getSession()
@@ -36,7 +36,12 @@ export const uploadImage = async (files: FileList | null) =>  {
         return
     }
 
-    const image = await session.useApi<Image>("/api/image/upload", packageFiles(files))
-    hints.addSuccess(`Uploaded file "${files[0].name}" [${megabytes.toFixed(3)} MB]`)
-    return image
+    const result = await session.useApi<{ image: Image, tokens: number }>("/api/image/upload", packageFiles(files))
+    if (result == null) {
+        hints.addError("Failed to upload image.")
+        return
+    }
+
+    hints.addSuccess(`Uploaded file "${files[0].name}" [${result.tokens} tokens]`)
+    return result.image
 }

@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
 
     const { buffer, type } = await processImage(data![0])
 
-    const kilobytes = Math.round(buffer.byteLength / 1_024)
-    console.log(`${kilobytes} KB`)
+    const tokens = Math.round(buffer.byteLength / 1_024)
+    console.log(`${tokens} KB`)
     
-    if (auth.tokens >= kilobytes) {
+    if (auth.tokens >= tokens) {
         await queryOne<User>([`
             UPDATE ${auth.id} SET
-            tokens -= ${kilobytes}
+            tokens -= ${tokens}
         `])
     }
     else {
@@ -29,9 +29,10 @@ export default defineEventHandler(async (event) => {
         time = time::now(),
         type = "${type}",
         url = <future> { string::concat("${baseUrl}/image/", string::split(id, ":")[1]) },
-        user = ${auth.id}
+        user = ${auth.id},
+        tokens = ${tokens}
     `])
     
     await writeToDisk(image, buffer, type)
-    return image
+    return { image, tokens }
 })

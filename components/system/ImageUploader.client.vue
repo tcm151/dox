@@ -4,6 +4,12 @@ const props = defineProps<{
     images: FileList | null
 }>()
 
+watch(() => props.visible, async () => {
+    if (props.visible) {
+        await session.fetchProfile()
+    }
+})
+
 const emit = defineEmits<{
     (event: 'close'): void
 }>()

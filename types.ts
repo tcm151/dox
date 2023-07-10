@@ -69,6 +69,7 @@ export interface Image {
     type: string
     user: User
     time: string
+    tokens: number
 }
 
 export interface Notification {

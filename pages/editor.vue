@@ -79,34 +79,46 @@ let uploading = ref<boolean>(false)
 watch(files, async () => {
     if (files.value) {
         confirmImageUpload.value = true
-        // uploading.value = true
-        // const image = await uploadImage(files.value)
-        // if (image != null) {
-        //     uploadedImages.value.push(image)
-        // }
-        // else {
-        //     hints.addError("Failed to upload image.")
-        // }
-        // uploading.value = false
-        // reset()
     }
 })
 
+async function beginUpload() {
+    confirmImageUpload.value = false
+    uploading.value = true
+    const image = await uploadImage(files.value)
+    if (image != null) {
+        uploadedImages.value.push(image)
+    }
+    uploading.value = false
+    reset()
+}
+
+function cancelUpload() {
+    confirmImageUpload.value = false
+    reset()
+}
+
 async function deleteImage(image: Image) {
-    await session.useApi(`/api/image/${extractId(image.id)}/delete`)
-    uploadedImages.value = uploadedImages.value.filter(i => i !== image)
+    try {
+        await session.useApi(`/api/image/${extractId(image.id)}/delete`)
+        uploadedImages.value = uploadedImages.value.filter(i => i !== image)
+        hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
+    }
+    catch (ex: any) {
+        hints.addError(`Failed to delete image. Please try again.`)
+    }
 }
 
 function copyImageUrl(event: Event) {
     let imageUrl = (event.target as HTMLImageElement).currentSrc
     navigator.clipboard.writeText(`![](${imageUrl})`);
-    hints.addSuccess("Copied image in markdown syntax");
+    hints.addSuccess("Copied image in markdown syntax.");
 }
 
 async function submit() {
     
     if (!validTitle()) {
-        hints.addError("Title is invalid")
+        hints.addError("Title is invalid.")
         return
     }
 
@@ -143,7 +155,7 @@ async function submit() {
 async function saveDraft() {
     
     if (!validTitle()) {
-        hints.addError("Title is invalid")
+        hints.addError("Title is invalid.")
         return
     }
 
@@ -154,7 +166,7 @@ async function saveDraft() {
             topics: draft.value.topics,
             images: uploadedImages.value.map(i => i.id)
         })
-        hints.addSuccess("Draft updated")
+        hints.addSuccess("Draft updated.")
     }
     else {
         const response = await session.useApi<Draft>("/api/profile/drafts/add", {
@@ -166,7 +178,7 @@ async function saveDraft() {
             images: uploadedImages.value.map(i => i.id)
         })
         draft.value.id = response!.id
-        hints.addSuccess("Draft saved")
+        hints.addSuccess("Draft saved.")
     }
 }
 </script>
@@ -175,7 +187,7 @@ async function saveDraft() {
     <article class="editor row-wrap g-4 p-4">
         <ClientOnly>
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-            <ImageUploader :visible="confirmImageUpload" :images="files" @accept="confirmImageUpload = false" @close="confirmImageUpload = false" />
+            <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
             <section class="editor column p-5">
                 <header class="row center-inline mb-4">
                     <h1>New Post</h1>
