@@ -3,6 +3,7 @@ import { Post } from "~/types"
 
 const props = defineProps<{
     posts: Post[]
+    loading?: boolean
     sorting?: boolean
     pagination?: boolean
     page?: number
@@ -23,6 +24,15 @@ watch(props.posts, () => {
     sortBy(props.posts, sortType.value)
 })
 
+const spinRefresh = ref(false)
+watch(() => props.loading, (loading) => {
+    if (loading) {
+        spinRefresh.value = true
+    }
+    else {
+        setTimeout(() => spinRefresh.value = false, 512)
+    }
+})
 
 let sortType = ref("new")
 function sort(type: string) {
@@ -36,7 +46,7 @@ function sort(type: string) {
     <div class="feed">
         <div class="sorting row center g-2" v-if="props.sorting">
             <button class="refresh" @click="emit('refresh')">
-                <i class="fa-solid fa-rotate"></i>
+                <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <slot name="header" />
             <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
@@ -112,6 +122,16 @@ function sort(type: string) {
 </template>
 
 <style scoped lang="scss">
+
+@keyframes spin {
+    from {
+        transform: rotateZ(0deg);
+    }
+    to {
+        transform: rotateZ(360deg);
+    }
+}
+
 .feed {
     @include flex-v (0.5rem);
 }
@@ -132,6 +152,10 @@ function sort(type: string) {
         flex: 0 1;
         color: $dox-white;
         background-color: $dox-black;
+
+        i.spin {
+            animation: spin 512ms linear infinite;
+        }
     }
 
     .refresh:hover {

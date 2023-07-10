@@ -49,12 +49,14 @@ function toggleFilter() {
 <template>
     <section class="feed p-4">
         <Feed
-        :page="queryParameters.pageNumber"
-        :sorting="true"
-        :pagination="true"
-        @page="goToPage"
-        @refresh="feed.fetch"
-        :posts="filteredPosts ?? []">
+            :page="queryParameters.pageNumber"
+            :sorting="true"
+            :pagination="true"
+            @page="goToPage"
+            @refresh="feed.fetch"
+            :loading="feed.loading"
+            :posts="filteredPosts ?? []"
+        >
             <template #header>
                 <button class="filter-type " @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
