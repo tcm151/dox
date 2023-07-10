@@ -8,6 +8,15 @@ function packageFiles(files: FileList | null) {
     return data
 }
 
+export const calculateTokens = (file: File | null) => {
+    if (!file) {
+        return 0
+    }
+    else {
+        return Math.round(file.size / 1_024)
+    }
+}
+
 export const uploadImage = async (files: FileList | null) =>  {
 
     const hints = useHints()
@@ -20,15 +29,14 @@ export const uploadImage = async (files: FileList | null) =>  {
     
     const maxSize = 8
     const megabytes = files![0].size / 1_048_576
+
     if (megabytes > maxSize) {
         hints.addError(`${megabytes} MB`)
         hints.addError(`File is too large, try making it smaller (< ${maxSize}).`)
         return
     }
 
-    // uploading.value = true
     const image = await session.useApi<Image>("/api/image/upload", packageFiles(files))
     hints.addSuccess(`Uploaded file "${files[0].name}" [${megabytes.toFixed(3)} MB]`)
-    // uploading.value = false
     return image
 }

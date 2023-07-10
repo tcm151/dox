@@ -59,20 +59,38 @@ function togglePreview() {
     showPreview.value = !showPreview.value
 }
 
+const confirmImageUpload = ref(false)
 let uploadedImages = useSessionStorage<Image[]>('uploadedImages', [])
 
-let uploader = ref<HTMLInputElement>()
-async function selectFiles() {
-    uploader.value?.click()
+const { files, open: openFileDialog, reset } = useFileDialog({
+    accept: "image/*"
+})
+
+function selectImages() {
+    if (!session.user.confirmed) {
+        hints.addWarning("You must confirm your account before uploading images.")
+    }
+    else {
+        openFileDialog()
+    }
 }
 
 let uploading = ref<boolean>(false)
-async function startUpload() {
-    uploading.value = true
-    const image = await uploadImage(uploader.value!)
-    if (image) uploadedImages.value.push(image)
-    uploading.value = false
-}
+watch(files, async () => {
+    if (files.value) {
+        confirmImageUpload.value = true
+        // uploading.value = true
+        // const image = await uploadImage(files.value)
+        // if (image != null) {
+        //     uploadedImages.value.push(image)
+        // }
+        // else {
+        //     hints.addError("Failed to upload image.")
+        // }
+        // uploading.value = false
+        // reset()
+    }
+})
 
 async function deleteImage(image: Image) {
     await session.useApi(`/api/image/${extractId(image.id)}/delete`)
@@ -157,6 +175,7 @@ async function saveDraft() {
     <article class="editor row-wrap g-4 p-4">
         <ClientOnly>
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
+            <ImageUploader :visible="confirmImageUpload" :images="files" @accept="confirmImageUpload = false" @close="confirmImageUpload = false" />
             <section class="editor column p-5">
                 <header class="row center-inline mb-4">
                     <h1>New Post</h1>
@@ -191,7 +210,7 @@ async function saveDraft() {
                             type="text"
                             v-model="newTopic"
                             spellcheck="false"
-                            placeholder="press enter . . ."
+                            placeholder="press enter to add . . ."
                             @keyup.enter="addTopic"
                             @focus="topicsFocused = true"
                             @blur="topicsFocused = false"
@@ -223,8 +242,7 @@ async function saveDraft() {
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
                     </button>
-                    <button class="link fill" @click="selectFiles" v-if="session.user.confirmed">
-                        <input accept="image/*" ref="uploader" type="file" @change="startUpload" />
+                    <button class="link fill" @click="selectImages">
                         <i class="fa-solid fa-images"></i>
                         <span>Upload</span>
                     </button>

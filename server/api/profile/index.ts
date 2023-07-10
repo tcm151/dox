@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     return await queryOne<User>([`
         SELECT id, name, email, dateCreated,
                followers, following, topics,
-               confirmed, verified, admin
+               confirmed, verified, admin, tokens
         FROM user
         WHERE id = ${auth.id}
     `])

@@ -1,12 +1,5 @@
-import fs from "node:fs"
-import sharp from "sharp"
-import { MultiPartData } from "h3"
 import { queryOne } from "~/server/database"
-import { Image } from "~/types"
-
-import { createResolver } from '@nuxt/kit'
-const { resolve } = createResolver(import.meta.url);
-
+import { Image, User } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -14,7 +7,23 @@ export default defineEventHandler(async (event) => {
     const baseUrl = getHeader(event, 'origin')
 
     const { buffer, type } = await processImage(data![0])
+
+    const kilobytes = Math.round(buffer.byteLength / 1_024)
+    console.log(`${kilobytes} KB`)
     
+    if (auth.tokens >= kilobytes) {
+        await queryOne<User>([`
+            UPDATE ${auth.id} SET
+            tokens -= ${kilobytes}
+        `])
+    }
+    else {
+        throw createError({
+            statusCode: 401,
+            message: "You do not have enough tokens to upload this image."
+        })
+    }
+
     const image = await queryOne<Image>([`
         CREATE image SET
         time = time::now(),
@@ -26,43 +35,3 @@ export default defineEventHandler(async (event) => {
     await writeToDisk(image, buffer, type)
     return image
 })
-
-async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
-    console.log(image.type)
-    switch (image.type) {
-        case "image/gif":
-            return {
-                buffer: await sharp(image.data, { animated: true }).gif().toBuffer(),
-                type: "gif"
-            }
-        case "image/webp":
-            return {
-                buffer: await sharp(image.data).webp().toBuffer(),
-                type: "webp"
-            }
-        case "image/png":
-            return {
-                buffer: await sharp(image.data).png({ compressionLevel: 9 }).toBuffer(),
-                type: "png"
-            }
-        default:
-            return {
-                buffer: await sharp(image.data).jpeg({ mozjpeg: true, force: true }).toBuffer(),
-                type: "webp"
-            }
-    }
-}
-
-async function writeToDisk(image: Image, buffer: Buffer, type: string) {
-    try {
-        fs.writeFileSync(`./images/${image.id.split(':')[1]}.${type}`, buffer, {
-            flag: "w+"
-        })
-    }
-    catch (error: any) {
-        throw createError({
-            statusCode: 500,
-            message: `Unable to upload image...\n${error.message}`
-        })
-    }
-}

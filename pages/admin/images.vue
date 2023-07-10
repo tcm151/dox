@@ -3,16 +3,14 @@ import { Image } from "~/types"
 
 const session = getSession()
 
-const { data: images, refresh } = await useAsyncData('images', () => {
+const { data: images, refresh } = await useAsyncData<Image[]>('images', () => {
     return $fetch("/api/image")
 })
 
+let activeImage = ref<Image | null>(null)
 const { files, open: selectImages, reset } = useFileDialog({
     accept: "image/*"
 })
-
-let activeImage = ref<Image | null>(null)
-// let uploader = ref<HTMLInputElement>()
 
 let uploading = ref<boolean>(false)
 async function startUpload() {
@@ -37,11 +35,14 @@ async function deleteImage(image: Image) {
     <article>
         <section class="column center-inline g-4 p-4">
             <div class="tools fill row center-inline g-2 p-4">
+                <div class="file-hint fill" v-if="files">
+                    <p>{{ files?.[0].name ?? 'No file selected...' }}</p>
+                    <h4>~{{ calculateTokens(files[0]) }} tokens </h4>
+                </div>
                 <button class="link" @click="selectImages()">
                     <span>Select</span>
                     <i class="fa-solid fa-image"></i>
                 </button>
-                <div class="fill">{{ files?.[0].name ?? 'No file selected...' }}</div>
                 <button class="success" @click="startUpload">
                     <i class="fa-solid fa-spinner" v-if="uploading"></i>
                     <i class="fa-solid fa-cloud-arrow-up" v-else></i>
@@ -71,6 +72,10 @@ div.tools {
     // TODO this should be it's own style: box (?)
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+}
+
+div.file-hint {
+    text-align: center;
 }
 
 @keyframes spin {

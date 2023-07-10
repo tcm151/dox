@@ -17,6 +17,7 @@ export interface User extends Voteable {
     dateCreated: string
     confirmed: boolean
     admin: boolean
+    tokens: number
     // TODO implement fields for:
     verified: boolean
 }

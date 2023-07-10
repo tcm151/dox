@@ -45,6 +45,7 @@ export const getSession = defineStore("session", (): Session => {
         confirmed: false,
         verified: false,
         admin: false,
+        tokens: 0
     }))
 
     //> API
@@ -134,7 +135,8 @@ export const getSession = defineStore("session", (): Session => {
                 dateCreated: '',
                 confirmed: false,
                 verified: false,
-                admin: false
+                admin: false,
+                tokens: 0,
             }
         }
         return navigateTo("/feed")
