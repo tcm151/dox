@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     
         SELECT id, time, user.id, user.name
         FROM backup
+        ORDER BY time DESC
         FETCH user;
     `])
     return responses[1].result
