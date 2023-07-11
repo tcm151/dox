@@ -14,6 +14,10 @@ let queryParameters = ref({
 
 const feed = useFeed(queryParameters.value)
 
+onMounted(async () => {
+    await feed.fetch()
+})
+
 const feedPosts = computed(() => {
     return feed.items!.filter(p =>
         p.topics.some(pt => session.user?.topics.includes(pt))

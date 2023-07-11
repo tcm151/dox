@@ -53,6 +53,16 @@ function previewChanges() {
 
 }
 
+async function deletePost() {
+    try {
+        await session.useApi(`/api/post/${postId}/delete`)
+        navigateTo("/feed")
+    }
+    catch (ex: any) {
+        hints.addError("Failed to delete post.")
+    }
+}
+
 let showPostReply = ref(false);
 function toggleCommentBox() {
     showPostReply.value = !showPostReply.value;
@@ -177,7 +187,7 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             <span>Edit</span>
                         </button>
-                        <button v-if="post.value?.user.id === session.user?.id" @click="">
+                        <button v-if="post.value?.user.id === session.user?.id" @click="deletePost">
                             <i class="fa-solid fa-trash-can"></i>
                             <span>Delete</span>
                         </button>
