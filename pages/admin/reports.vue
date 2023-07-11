@@ -7,7 +7,12 @@ const { data: reports } = useAsyncData('reports', () => {
 <template>
     <article class="column g-4 p-4">
         <div class="report p-3" v-for="report in reports">
-            <p><b>{{ report.reporter }}</b> reported: <b>{{ report.subject }}</b></p>
+            <p>
+                <NuxtLink :to="`/${report.reporter.replace(':', '/')}`">{{ report.reporter }}</NuxtLink>
+                reported
+                <NuxtLink :to="`/${report.subject.replace(':', '/')}`">{{ report.subject }}</NuxtLink>
+                {{ formatDate(report.time) }}
+            </p>
         </div>
     </article>
 </template>
@@ -21,5 +26,14 @@ div.report {
     text-align: center;
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+
+    a {
+        color: $dox-red;
+        font-weight: 700;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
 }
 </style>
