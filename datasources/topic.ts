@@ -14,7 +14,7 @@ export const useTopic = (topic: string) => {
                     error: {
                         message: `Failed to FETCH topic:${topic}`,
                         handler: (error: any) => {
-                            hints.addError(error.message)
+                            hints.addError(error)
                         }
                     }
                 },
@@ -25,7 +25,7 @@ export const useTopic = (topic: string) => {
                     error: {
                         message: `Failed to FETCH posts for topic:${topic}`,
                         handler: (error: any) => {
-                            hints.addError(error.message)
+                            hints.addError(error)
                         }
                     }
                 },
@@ -36,7 +36,7 @@ export const useTopic = (topic: string) => {
                     error: {
                         message: `Failed to FETCH followers for topic:${topic}`,
                         handler: (error: any) => {
-                            hints.addError(error.message)
+                            hints.addError(error)
                         }
                     }
                 },
