@@ -202,7 +202,7 @@ async function reportPost(post: Post) {
                     </div>
                     <div class="field" v-if="showPostReply">
                         <textarea rows="5" v-model="postReply"></textarea>
-                        <div class="row mt-2">
+                        <div class="row g-2 mt-2">
                             <button class="success" @click="submitComment(post.value!, postReply)">Submit</button>
                             <button class="danger" @click="toggleCommentBox">Cancel</button>
                         </div>
