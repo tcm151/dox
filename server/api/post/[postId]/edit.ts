@@ -1,10 +1,10 @@
-import { Post } from "~/types";
 import { queryOne } from "~/server/database";
+import { Post } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const { postId } = event.context.params!;
     const auth = await authenticateRequest(event);
-    let post = await queryOne<any>([`
+    let post = await queryOne<Post>([`
         SELECT *
         FROM post:${postId}
     `])

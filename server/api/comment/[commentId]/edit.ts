@@ -4,7 +4,7 @@ import { queryOne } from "~/server/database";
 export default defineEventHandler(async (event) => {
     const { commentId } = event.context.params!;
     const auth = await authenticateRequest(event);
-    let comment = await queryOne<any>([`
+    let comment = await queryOne<Comment>([`
         SELECT *
         FROM comment:${commentId}
     `])

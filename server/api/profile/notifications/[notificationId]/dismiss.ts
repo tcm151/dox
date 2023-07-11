@@ -4,7 +4,7 @@ import { queryOne } from "../../../../database";
 export default defineEventHandler(async (event) => {
     const { notificationId } = event.context.params!;
     const auth = await authenticateRequest(event);
-    let notification = await queryOne<any>([`
+    let notification = await queryOne<Notification>([`
         SELECT *
         FROM notification:${notificationId}
     `])

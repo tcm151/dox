@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import { multiQuery, queryOne } from "~/server/database"
-import { Image } from "~/types"
+import { Image, User } from "~/types"
 
 
 export default defineEventHandler(async (event) => {
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         FETCH user
     `])
 
-    if (image.user.id !== auth.id) {
+    if ((image.user as User).id !== auth.id) {
         throw createError({
             statusCode: 401,
             message: "You are not the uploader of this image." 

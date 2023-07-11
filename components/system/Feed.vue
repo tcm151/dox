@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Post } from "~/types"
+import { Post, User } from "~/types"
 
 const props = defineProps<{
     posts: Post[]
@@ -98,8 +98,8 @@ function sort(type: string) {
                             {{ topic.split(':')[1] }}
                         </span>
                         <div class="details row g-1">
-                            <span class="tag info" @click="navigateTo(`/user/${extractId(post.user.id ?? '')}`)">
-                                u/{{ post?.user.name ?? "deleted" }}
+                            <span class="tag info" @click="navigateTo(`/user/${extractId((post.user as User).id ?? '')}`)">
+                                u/{{ (post.user as User).name ?? "deleted" }}
                             </span>
                             <span class="tag info">{{ post.comments.length }} comments</span>
                             <span class="tag info">{{ formatDate(post.time as any) }}</span>

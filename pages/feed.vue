@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Post } from '~/types'
+import { Post, User } from '~/types'
 
 definePageMeta({
     layout: 'default'
@@ -21,7 +21,7 @@ onMounted(async () => {
 const feedPosts = computed(() => {
     return feed.items!.filter(p =>
         p.topics.some(pt => session.user?.topics.includes(pt))
-        || session.user?.following.includes(p.user.id)
+        || session.user?.following.includes((p.user as User).id)
     )
 })
 const filteredPosts = computed(() =>  {

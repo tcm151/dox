@@ -25,7 +25,7 @@ export interface User extends Voteable {
 export interface Post extends Voteable {
     id: string
     time: string
-    user: User
+    user: User | string
     title: string
     content: string
     topics: string[]
@@ -38,7 +38,7 @@ export interface Post extends Voteable {
 export interface Draft {
     id: string
     time: string
-    user: User
+    user: User | string
     title: string
     content: string
     topics: string[]
@@ -55,8 +55,8 @@ export interface Topic extends Voteable {
 export interface Comment extends Voteable {
     id: string
     time: string
-    user: User
-    post: Post
+    user: User | string
+    post: Post | string
     replyTo: string
     content: string
     edited?: boolean
@@ -67,14 +67,14 @@ export interface Image {
     id: string
     url: string
     type: string
-    user: User
+    user: User | string
     time: string
     tokens: number
 }
 
 export interface Notification {
     id: string
-    recipient: User
+    recipient: User | string
     context: Post | Comment
     message: string
     time: string
@@ -83,7 +83,7 @@ export interface Notification {
 
 export interface Feedback {
     id: string
-    user: User
+    user: User | string
     time: string
     content: string
 }

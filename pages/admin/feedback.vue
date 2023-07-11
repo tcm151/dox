@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { User } from 'types'
+
 const { data: feedback } = useAsyncData("feedback", () => {
     return $fetch("/api/feedback")
 })
@@ -9,7 +11,7 @@ const { data: feedback } = useAsyncData("feedback", () => {
         <div class="feedback column g-1 p-4" v-for="item in feedback">
             <p>{{ item.content }}</p>
             <div class="row g-1">
-                <span class="tag info">u/{{ item.user.name }}</span>
+                <span class="tag info">u/{{ (item.user as User).name }}</span>
                 <span class="tag info">{{ formatDate(item.time) }}</span>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Post, Comment } from '~/types'
+import { Post, Comment, User } from '~/types'
 
 const route = useRoute();
 const postId = route.params.postId.toString();
@@ -8,7 +8,7 @@ const { post, comments } = usePost(postId)
 useSeoMeta({
     title: () => post.value?.title ?? 'DOX For Everything',
     ogTitle: () => post.value?.title,
-    author: () => post.value?.user.name,
+    author: () => (post.value?.user as User).name,
     description: () => post.value?.content.slice(0, 256),
     ogDescription: () => post.value?.content.slice(0, 256),
     ogImage: () => post.value?.images?.[0].url,
@@ -147,14 +147,14 @@ async function reportPost(post: Post) {
                 <span class="tag topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                     {{ topic.split(':')[1] }}
                 </span>
-                <span class="tag info" @click="navigateTo(`/user/${extractId(post.value?.user.id)}`)">u/{{ post.value?.user.name ?? "deleted" }}</span>
+                <span class="tag info" @click="navigateTo(`/user/${extractId((post.value?.user as User).id)}`)">u/{{ (post.value?.user as User).name ?? "deleted" }}</span>
                 <ClientOnly>
                     <span class="tag info">{{ formatDate(post.value?.time as any) }}</span>
                     <span class="tag danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
                 </ClientOnly>
             </div>
             <Markdown class="content my-4" :content="post.value?.content" />
-            <div class="field mb-5" v-if="post && editingPost && post.value?.user.id === session.user?.id">
+            <div class="field mb-5" v-if="post.value && editingPost && (post.value?.user as User).id === session.user?.id">
                 <textarea rows="10" v-model="post.value.content"></textarea>
             </div>
             <ClientOnly>
@@ -183,11 +183,11 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-flag"></i>
                             <span>Report</span>
                         </button>
-                        <button v-if="post.value?.user.id === session.user?.id" @click="toggleEditPost()">
+                        <button v-if="(post.value?.user as User).id === session.user?.id" @click="toggleEditPost()">
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             <span>Edit</span>
                         </button>
-                        <button v-if="post.value?.user.id === session.user?.id" @click="deletePost">
+                        <button v-if="(post.value?.user as User).id === session.user?.id" @click="deletePost">
                             <i class="fa-solid fa-trash-can"></i>
                             <span>Delete</span>
                         </button>
@@ -245,7 +245,7 @@ async function reportPost(post: Post) {
                             </div>
                             <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                                 {{ `u/${comment.user?.name}` }}
-                                <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === post.value?.user.id"></i>    
+                                <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === (post.value?.user as User).id"></i>    
                             </span>
                             <ClientOnly>
                                 <span class="tag info">{{ formatDate(comment.time as any) }}</span>
