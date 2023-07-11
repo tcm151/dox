@@ -3,6 +3,7 @@ import sharp from "sharp"
 import { MultiPartData } from "h3"
 import { Image } from "~/types"
 
+// TODO implement server-side token calculations
 export async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
     console.log(image.type)
     switch (image.type) {
@@ -23,7 +24,7 @@ export async function processImage(image: MultiPartData): Promise<{ buffer: Buff
             }
         default:
             return {
-                buffer: await sharp(image.data).jpeg({ mozjpeg: true, force: true }).toBuffer(),
+                buffer: await sharp(image.data).jpeg({ quality: 80, force: true }).toBuffer(),
                 type: "jpeg"
             }
     }
