@@ -279,6 +279,7 @@ async function saveDraft() {
 <style scoped lang="scss">
 article.editor {
     @include fit-width (1200px, 1rem);
+    justify-content: center;
     overflow-y: hidden;
 }
 
