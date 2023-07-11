@@ -1,7 +1,11 @@
 import { DateTime, DurationUnit } from "luxon";
 
-export function formatDate(dateString: string): string {
+export function formatDate(dateString?: string): string {
     
+    if (!dateString || dateString == "") {
+        return `∞ ago`
+    }
+
     const duration = DateTime.now().diff(DateTime.fromISO(dateString), [
         'minutes', 'hours', 'days', 'weeks', 'months', 'years'
     ])
