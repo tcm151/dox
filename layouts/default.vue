@@ -1,4 +1,8 @@
 <script setup lang="ts">
+window.addEventListener('resize', () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`)
+})
 </script>
 
 <template>
@@ -18,6 +22,7 @@
 <style lang="scss">
 main.page {
     height: calc(100vh - 40px);
+    height: calc(calc(var(--vh, 1vh) * 100) - 40px);
     background-color: $dox-white-light;
     overflow-x: hidden;
     overflow-y: auto;
