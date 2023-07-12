@@ -75,7 +75,7 @@ export interface Image {
 export interface Notification {
     id: string
     recipient: User | string
-    context: Post | Comment
+    context: Post | Comment | string
     message: string
     time: string
     viewed: boolean

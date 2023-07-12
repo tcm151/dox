@@ -10,6 +10,10 @@ onMounted(async () => {
     }
 })
 
+function viewContext(notification: Notification) {
+    navigateTo(`/${(notification.context as string).replace(':', '/')}`)
+}
+
 async function dismiss(notification: Notification) {
     notifications.value = notifications.value!.filter(n => n.id !== notification.id)
     await session.useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`, notification)
@@ -17,16 +21,23 @@ async function dismiss(notification: Notification) {
 </script>
 
 <template>
-    <article class="notifications column g-2 p-4">
+    <article class="notifications p-4">
         <ClientOnly>
-            <div class="notification p-4" v-for="notification in notifications">
-                <Markdown class="message column g-2" :content="notification.message" />
-                <div class="row-fit g-2 mt-2">
-                    <span class="tag link">Context</span>
-                    <span class="tag info">{{ formatDate(notification.time) }}</span>
-                    <span class="tag danger" @click="dismiss(notification)">Dismiss</span>
+            <section class="column g-2" v-if="notifications && notifications.length > 0">
+                <div class="notification p-4" v-for="notification in notifications">
+                    <Markdown class="message column g-2" :content="notification.message" />
+                    <div class="row-fit g-2 mt-2">
+                        <span class="tag link" @click="viewContext(notification)">
+                            Context
+                        </span>
+                        <span class="tag info">{{ formatDate(notification.time) }}</span>
+                        <span class="tag danger" @click="dismiss(notification)">Dismiss</span>
+                    </div>
                 </div>
-            </div>
+            </section>
+            <section class="empty p-4" v-else>
+                <p>You have no unread notifications.</p>
+            </section>
         </ClientOnly>
     </article>
 </template>
@@ -38,7 +49,13 @@ article.notifications {
 }
 
 .notification {
-    background-color: $dox-white-ultra;
     border-radius: 0.25rem;
+    background-color: $dox-white-ultra;
+}
+
+section.empty {
+    text-align: center;
+    border-radius: 0.25rem;
+    background-color: $dox-white-ultra;
 }
 </style>
