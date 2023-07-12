@@ -1,8 +1,10 @@
 <script setup lang="ts">
-window.addEventListener('resize', () => {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`)
-})
+if (process.client) {
+    window.addEventListener('resize', () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`)
+    })
+}
 </script>
 
 <template>
