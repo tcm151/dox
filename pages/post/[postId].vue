@@ -155,6 +155,10 @@ async function reportPost(post: Post) {
                         <i class="fa-solid fa-calendar"></i>
                         <span>{{ formatDate(post.value.time as any) }}</span>
                     </span>
+                    <span class="tag info">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <span>{{ post.value.visits ?? 0 }}</span>
+                    </span>
                     <span class="tag danger" v-if="post.value?.edited">
                         <i class="fa-solid fa-eraser"></i>
                         <span>{{ formatDate(post.value?.timeEdited!) }}</span>

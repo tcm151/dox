@@ -33,6 +33,7 @@ export interface Post extends Voteable {
     images?: Image[]
     edited?: boolean
     timeEdited?: string
+    visits?: number
 }
 
 export interface Draft {
