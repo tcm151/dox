@@ -45,6 +45,7 @@ function sort(type: string) {
 <template>
     <div class="feed">
         <div class="sorting row center g-2" v-if="props.sorting">
+            <!-- FIXME sorting needs to be done from the database -->
             <button class="refresh" @click="emit('refresh')">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>

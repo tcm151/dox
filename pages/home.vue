@@ -24,7 +24,6 @@ let { data: trendingUsers } = useFetch("/api/trending/users");
                 <div>
                     <h2>Trending Topics</h2>
                     <div class="topics my-2">
-                        <!-- FIXME allow clicking and navigating to -->
                         <div class="topic" v-for="item in trendingTopics" @click="navigateTo(`/topic/${extractId(item.topic)}`)">
                             <span id="t">{{ extractId(item.topic) }}</span>
                             <span id="c">+{{ item.count }}</span>

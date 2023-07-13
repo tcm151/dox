@@ -127,16 +127,6 @@ p:has(img) {
     }
 }
 
-// TODO decide if this is necessary
-// div.comment.body {
-//     p img {
-//         max-width: calc(100% - 2rem);
-//         max-height: 256px;
-//         margin-inline: auto;
-//         padding: 1rem;
-//     }
-// }
-
 pre:has(code) {
     code {
         display: block;

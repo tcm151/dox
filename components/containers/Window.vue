@@ -93,6 +93,7 @@ function releaseWindow() {
     .close {
         display: grid;
         place-items: center;
+        cursor: pointer;
 
         i {
             font-size: 1.5rem;

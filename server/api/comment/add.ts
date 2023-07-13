@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
     
     // send a notification to relevant user
     // TODO need to account for when directly responding to posts
-    // FIXME this fails with text that has single quotes in it
     // TODO use parameters instead everywhere
     let notification = await queryOne<Notification>([`
         CREATE notification SET

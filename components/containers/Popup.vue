@@ -12,12 +12,23 @@ const emit = defineEmits<{
     (event: 'accept'): void
     (event: 'decline'): void
 }>()
+
+const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
+const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
+
+if (process.client) {
+    window.visualViewport?.addEventListener('resize', () => {
+        maxWidth.value = `${window.visualViewport!.width - 50}px`
+        maxHeight.value = `${window.visualViewport!.height- 50}px`
+    })
+}
+
 </script>
 
 <template>
     <!-- FIXME account for keyboard on mobile, screen height -->
     <div class="popup column center" v-if="props.visible">
-        <div class="window p-5" :style="{ width: width ?? 'fit-content', height: height ?? 'auto' }">
+        <div class="window p-5" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
             <h1 v-if="title">{{ title }}</h1>
             <div class="slot">
                 <slot />
