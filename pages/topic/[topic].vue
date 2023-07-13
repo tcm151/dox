@@ -39,12 +39,14 @@ async function unfollowTopic() {
             <section class="name-follow row">
                 <h1>{{ topic }}</h1>
                 <ClientOnly>
-                    <button class="tag danger" v-if="following" @click="unfollowTopic">
-                        Unfollow
-                    </button>
-                    <button class="tag success" v-else @click="followTopic">
-                        Follow
-                    </button>
+                    <div v-if="session.isAuthenticated">
+                        <button class="tag danger" v-if="following" @click="unfollowTopic">
+                            Unfollow
+                        </button>
+                        <button class="tag success" v-else @click="followTopic">
+                            Follow
+                        </button>
+                    </div>
                 </ClientOnly>
             </section>
             <section class="row g-1 mt-4">

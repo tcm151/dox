@@ -40,8 +40,8 @@ async function unfollowUser() {
                 <div class="name-follow row center-inline">
                     <h1>{{ user?.name }}</h1>
                     <ClientOnly>
-                        <div class="row g-2">
-                            <button v-if="user?.id == getSession().user.id" @click="showSettings = true">
+                        <div class="row g-2" v-if="session.isAuthenticated">
+                            <button v-if="user?.id == session.user.id" @click="showSettings = true">
                                 <i class="fa-solid fa-gear"></i>
                                 <span>Settings</span>
                             </button>

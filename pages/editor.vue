@@ -3,7 +3,15 @@ import { DateTime } from 'luxon'
 import { Post, Draft, Image } from '~/types'
 
 definePageMeta({
-    layout: 'simple'
+    layout: 'simple',
+    middleware: (to, from) => {
+        if (process.client) {
+            const session = getSession()
+            if (to.path.startsWith("/editor") && !session.isAuthenticated) {
+                return abortNavigation()
+            }
+        }
+    }
 })
 
 const hints = useHints()

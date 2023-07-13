@@ -4,11 +4,11 @@ definePageMeta({
     middleware: (to, from) => {
         if (process.client) {
             const session = getSession()
-            if (to.path.startsWith("/admin") && (!session.isAuthenticated || !session.user.admin)) {
+            if (to.path.startsWith("/admin") && (!session.isAuthenticated && !session.user.admin)) {
                 return abortNavigation()
             }
             if (to.path === "/admin") {
-                return navigateTo("/admin/query")
+                return navigateTo("/admin/feedback")
             }
         }
     }

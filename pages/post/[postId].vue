@@ -17,7 +17,6 @@ useSeoMeta({
 useServerSeoMeta({
     robots: {
         index: true,
-        noarchive: true
     },
     ogType: 'article',
     ogSiteName: 'DOX For Everything',
