@@ -131,7 +131,6 @@ async function reportPost(post: Post) {
 <template>
     <article id="post" class="column g-2 p-4">
         <section class="post p-5" v-if="post.value">
-            <h2 class="mb-2">{{ post.value?.title }}</h2>
             <div class="tags row-wrap g-1">
                 <div class="fit row g-1">
                     <span class="tag positive" @click="vote.positive(post.value)">
@@ -147,12 +146,22 @@ async function reportPost(post: Post) {
                 <span class="tag topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                     {{ topic.split(':')[1] }}
                 </span>
-                <span class="tag info" @click="navigateTo(`/user/${extractId((post.value.user as User).id)}`)">u/{{ (post.value.user as User).name ?? "deleted" }}</span>
+                <span class="tag info" @click="navigateTo(`/user/${extractId((post.value.user as User).id)}`)">
+                    <i class="fa-solid fa-user"></i>
+                    <span>{{ (post.value.user as User).name ?? "deleted" }}</span>
+                </span>
                 <ClientOnly>
-                    <span class="tag info">{{ formatDate(post.value?.time as any) }}</span>
-                    <span class="tag danger" v-if="post.value?.edited">Edited {{ formatDate(post.value?.timeEdited!) }}</span>
+                    <span class="tag info">
+                        <i class="fa-solid fa-calendar"></i>
+                        <span>{{ formatDate(post.value.time as any) }}</span>
+                    </span>
+                    <span class="tag danger" v-if="post.value?.edited">
+                        <i class="fa-solid fa-eraser"></i>
+                        <span>{{ formatDate(post.value?.timeEdited!) }}</span>
+                    </span>
                 </ClientOnly>
             </div>
+            <h2 class="mt-4">{{ post.value?.title }}</h2>
             <Markdown class="content my-4" :content="post.value?.content" />
             <div class="field mb-5" v-if="post.value && editingPost && (post.value.user as User).id === session.user?.id">
                 <textarea rows="10" v-model="post.value.content"></textarea>
@@ -160,7 +169,7 @@ async function reportPost(post: Post) {
             <ClientOnly>
                 <div class="column g-2" v-if="session.isAuthenticated">
                     <section class="interactions row-wrap g-1" v-if="!showPostReply && !editingPost">
-                        <button @click="toggleCommentBox">
+                        <button class="comment" @click="toggleCommentBox">
                             <i class="fa-solid fa-message"></i>
                             <span>Comment</span>
                         </button>
@@ -169,8 +178,8 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-reply-all"></i>
                             <span>Reply</span>
                         </button> -->
-                        <button @click="copyLink">
-                            <i class="fa-solid fa-envelope"></i>
+                        <button class="share" @click="copyLink">
+                            <i class="fa-solid fa-copy"></i>
                             <span>Share</span>
                         </button>
                         <!-- TODO allow saving posts, use Directory -->
@@ -178,16 +187,15 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Archive</span>
                         </button> -->
-                        <!-- TODO allow reporting of posts -->
-                        <button @click="reportPost(post.value!)">
+                        <button class="report" @click="reportPost(post.value!)">
                             <i class="fa-solid fa-flag"></i>
                             <span>Report</span>
                         </button>
-                        <button v-if="(post.value.user as User).id === session.user?.id" @click="toggleEditPost()">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                        <button class="edit" v-if="(post.value.user as User).id === session.user?.id" @click="toggleEditPost()">
+                            <i class="fa-solid fa-eraser"></i>
                             <span>Edit</span>
                         </button>
-                        <button v-if="(post.value.user as User).id === session.user?.id" @click="deletePost">
+                        <button class="delete" v-if="(post.value.user as User).id === session.user?.id" @click="deletePost">
                             <i class="fa-solid fa-trash-can"></i>
                             <span>Delete</span>
                         </button>
@@ -244,15 +252,30 @@ async function reportPost(post: Post) {
                                 </span>
                             </div>
                             <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
-                                {{ `u/${comment.user?.name}` }}
                                 <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === (post.value?.user as User).id"></i>    
+                                <i class="fa-solid fa-user" v-else></i>
+                                {{ `u/${comment.user?.name}` }}
                             </span>
-                            <ClientOnly>
-                                <span class="tag info">{{ formatDate(comment.time as any) }}</span>
-                                <span class="tag danger" v-if="comment.edited">Edited {{ formatDate(comment.timeEdited) }}</span>
-                                <span class="tag reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">Reply</span>
-                                <span class="tag edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">Edit</span>
-                            </ClientOnly>
+                            <span class="tag info">
+                                <i class="fa-solid fa-calendar"></i>
+                                <span>{{ formatDate(comment.time as any) }}</span>
+                            </span>
+                            <span class="tag danger" v-if="comment.edited">
+                                <i class="fa-solid fa-eraser"></i>
+                                <span>{{ formatDate(comment.timeEdited) }}</span>    
+                            </span>
+                            <div class="row g-1">
+                                <ClientOnly>
+                                    <span class="tag reply" v-if="session.isAuthenticated" @click="replyToComment(comment)">
+                                        <i class="fa-solid fa-reply"></i>
+                                        <span>Reply</span>
+                                    </span>
+                                    <span class="tag edit" v-if="comment.user.id === session.user?.id" @click="editComment(comment)">
+                                        <i class="fa-solid fa-eraser"></i>
+                                        <span>Edit</span>
+                                    </span>
+                                </ClientOnly>
+                            </div>
                         </header>
                         <Markdown class="body p-3" v-if="commentToEdit !== comment.id" :content="comment.content" />
                         <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
@@ -279,6 +302,40 @@ async function reportPost(post: Post) {
 <style scoped lang="scss">
 article#post {
     @include fit-width(800px, 1rem);
+
+    
+}
+
+section.post, section.comments {
+    @media screen and (max-width: 600px) {
+        padding: 1rem !important;
+    }
+}
+
+section.interactions {
+    @media screen and (max-width: 600px) {
+        button.edit, button.delete {
+            span {
+                display: none;
+            }
+        }
+    }
+
+    @media screen and (max-width: 500px) {
+        button.report {
+            span {
+                display: none;
+            }
+        }
+    }
+
+    @media screen and (max-width: 420px) {
+        button.share {
+            span {
+                display: none;
+            }
+        }
+    }
 }
 
 .post, .comments {
@@ -302,9 +359,25 @@ div.sorting {
     }
 }
 
-.comment {
+div.comment {
     flex: 1 1;
     @include flex-v;
+
+    header {
+        @media screen and (max-width: 600px) {
+            flex-wrap: wrap;
+
+            span.tag {
+                padding-inline: 0.75rem;
+            }
+
+            span.tag.reply, span.tag.edit {
+                span {
+                    display: none;
+                }
+            }
+        }
+    }
 
     .reply, .edit {
         background-color: $dox-white;

@@ -102,6 +102,10 @@ a {
     font-size: 1.25rem;
     line-height: 1rem;
     transition: color 64ms, background-color 64ms;
+
+    @media screen and (max-width: 600px) {
+        font-size: 1.5rem;
+    }
 }
 
 a:hover {

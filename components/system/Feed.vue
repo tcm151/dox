@@ -70,9 +70,6 @@ function sort(type: string) {
                     <p>This is the name of the post that is being replied to</p>
                 </div>
                 <div class="main">
-                    <h3 class="title mx-1 my-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
-                        {{ post.title }}
-                    </h3>
                     <div class="row-wrap g-1">
                         <div class="votes row g-1">
                             <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
@@ -99,12 +96,22 @@ function sort(type: string) {
                         </span>
                         <div class="details row g-1">
                             <span class="tag info" @click="navigateTo(`/user/${extractId((post.user as User).id ?? '')}`)">
-                                u/{{ (post.user as User).name ?? "deleted" }}
+                                <i class="fa-solid fa-user"></i>
+                                <span>{{ (post.user as User).name ?? "deleted" }}</span>
                             </span>
-                            <span class="tag info">{{ post.comments.length }} comments</span>
-                            <span class="tag info">{{ formatDate(post.time as any) }}</span>
+                            <span class="tag info comments">
+                                <i class="fa-solid fa-comment-dots"></i>
+                                <span>{{ post.comments.length }}</span>
+                            </span>
+                            <span class="tag info time">
+                                <i class="fa-solid fa-calendar"></i>
+                                <span>{{ formatDate(post.time as any) }}</span>
+                            </span>
                         </div>
                     </div>
+                    <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                        {{ post.title }}
+                    </h3>
                 </div>
             </div>
         </TransitionGroup>
@@ -194,7 +201,7 @@ function sort(type: string) {
     
     .main {
         border-radius: 0.25rem;
-        padding: 0.25rem 0.5rem 0.5rem 0.5rem;
+        padding: 0.75rem;
         background-color: $dox-white-ultra;
     }
 
@@ -202,6 +209,11 @@ function sort(type: string) {
         padding: 0.25rem 0.5rem 0.25rem 0.5rem;
         font-weight: 700;
         color: $dox-white-ultra;
+        
+        p {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
 

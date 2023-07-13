@@ -12,6 +12,12 @@
     border-radius: 0.25rem;
 }
 
+.tag:has(span, i) {
+    @include flex-h(0.5rem);
+    justify-content: center;
+    align-items: center;
+}
+
 span.tag {
     padding: 0.25rem 1rem;
     font-size: 0.8rem;
