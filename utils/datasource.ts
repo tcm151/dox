@@ -4,7 +4,7 @@ export interface DatasourceItem<T> {
     value: Ref<T | null>
     options: ItemOptions
     loading: Ref<boolean>
-    fetch(): Promise<boolean>
+    fetch(): Promise<void>
     update(): Promise<boolean>
 }
 
@@ -30,8 +30,6 @@ interface ItemOptions {
 
 function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
 
-    const hints = useHints()
-    const events = useEvents()
     const session = getSession()
     
     const { data, error, pending, refresh } = useAsyncData<T>(options.fetch.url(), () => $fetch(options.fetch.url(), {
@@ -42,9 +40,7 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
 
     watch(error, (value: any) => {
         if (value) {
-            hints.addError(value.data.message)
-            hints.addError(options.fetch.error.message)
-            options.fetch.error.handler?.()
+            options.fetch.error.handler?.(error.value)
         }
     })
 
@@ -54,12 +50,11 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
         })
     }
 
-    async function fetch(): Promise<boolean> {
+    async function fetch() {
         await refresh()
-        return true
     }
     
-    async function update(): Promise<boolean> {
+    async function update() {
         if (!options.update) {
             return true
         }
@@ -74,7 +69,6 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
         }))
     
         if (response.error.value) {
-            hints.addError(options.update.error.message)
             options.update.error.handler?.(response.error.value)
             return false
         }
@@ -90,7 +84,7 @@ export interface DatasourceList<T> {
     items: Ref<T[] | null>
     options: ListOptions
     loading: Ref<boolean>
-    fetch(): Promise<boolean>
+    fetch(): Promise<void>
     create(items: T[]): Promise<boolean>
     update(items: T[]): Promise<boolean>
     remove(items: T[]): Promise<boolean>
@@ -132,8 +126,6 @@ interface ListOptions {
 
 function defineList<T>(options: ListOptions): DatasourceList<T> {
 
-    const hints = useHints()
-    const events = useEvents()
     const session = getSession()
     
     const { data, error, pending, refresh } = useAsyncData<T[]>(options.fetch.url(), () => $fetch(options.fetch.url(), {
@@ -144,18 +136,15 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
 
     watch(error, (value: any) => {
         if (value) {
-            hints.addError(value.data.message)
-            hints.addError(options.fetch.error.message)
-            options.fetch.error.handler?.()
+            options.fetch.error.handler?.(error.value)
         }
     })
 
-    async function fetch(): Promise<boolean> {
+    async function fetch() {
         await refresh()
-        return true
     }
     
-    async function create<T>(items: T[]): Promise<boolean> {
+    async function create<T>(items: T[]) {
         if (!options.create || items.length === 0) {
             return true
         }
@@ -169,7 +158,6 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }))
 
         if (response.error.value) {
-            hints.addError(options.create.error.message)
             options.create.error.handler?.(response.error.value)
             return false
         }
@@ -178,7 +166,7 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }
     }
     
-    async function update<T>(items: T[]): Promise<boolean> {
+    async function update<T>(items: T[]) {
         if (!options.update || items.length === 0) {
             return true
         }
@@ -193,7 +181,6 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }))
     
         if (response.error.value) {
-            hints.addError(options.update.error.message)
             options.update.error.handler?.(response.error.value)
             return false
         }
@@ -202,7 +189,7 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }
     }
     
-    async function remove<T>(items: T[]): Promise<boolean> {
+    async function remove<T>(items: T[]) {
         if (!options.remove || items.length === 0) {
             return true
         }
@@ -217,7 +204,6 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }))
     
         if (response.error.value) {
-            hints.addError(options.remove.error.message)
             options.remove.error.handler?.(response.error.value)
             return false
         }

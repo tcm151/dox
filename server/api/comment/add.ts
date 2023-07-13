@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
     
     // send a notification to relevant user
     // TODO need to account for when directly responding to posts
-    // TODO use parameters instead everywhere
     let notification = await queryOne<Notification>([`
         CREATE notification SET
         recipient = ${(replyTo.user as User).id},
