@@ -40,9 +40,30 @@ async function sendConfirmation() {
                 <label>hint duration (ms)</label>
                 <input type="number" size="4" step="250" v-model="settings.state.hintDuration">
             </div>
+            <div class="tokens field row-fit">
+                <label>
+                    <span>Tokens</span>
+                    <i class="fa-solid fa-cube"></i>
+                </label>
+                <input disabled v-model="session.user.tokens">
+            </div>
         </div>
     </Window>
 </template>
 
 <style scoped lang="scss">
+div.tokens {
+    input {
+        user-select: none;
+    }
+}
+
+label:has(span, i) {
+    @include flex-h (0.33rem);
+    align-items: center;
+
+    i.fa-cube {
+        color: $dox-yellow;
+    }
+}
 </style>
