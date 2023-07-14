@@ -24,16 +24,18 @@ async function dismiss(notification: Notification) {
     <article class="notifications p-4">
         <ClientOnly>
             <section class="column g-2" v-if="notifications && notifications.length > 0">
-                <div class="notification p-4" v-for="notification in notifications">
-                    <Markdown class="message column g-2" :content="notification.message" />
-                    <div class="row-fit g-2 mt-2">
-                        <span class="tag link" @click="viewContext(notification)">
-                            Context
-                        </span>
-                        <span class="tag info">{{ formatDate(notification.time) }}</span>
-                        <span class="tag danger" @click="dismiss(notification)">Dismiss</span>
+                <TransitionGroup name="notifications">
+                    <div class="notification p-4" v-for="notification in notifications" :key="notification.id">
+                        <Markdown class="message column g-2" :content="notification.message" />
+                        <div class="row-fit g-2 mt-2">
+                            <span class="tag link" @click="viewContext(notification)">
+                                Context
+                            </span>
+                            <span class="tag info">{{ formatDate(notification.time) }}</span>
+                            <span class="tag danger" @click="dismiss(notification)">Dismiss</span>
+                        </div>
                     </div>
-                </div>
+                </TransitionGroup>
             </section>
             <section class="empty p-4" v-else>
                 <p>You have no unread notifications.</p>
@@ -49,6 +51,7 @@ article.notifications {
 }
 
 .notification {
+    width: 100%;
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
 }
@@ -58,4 +61,17 @@ section.empty {
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
 }
+
+.notifications-move, .notifications-enter-active, .notifications-leave-active {
+    transition: all 256ms ease;
+}
+
+.notifications-enter-from,
+.notifications-leave-to {
+    opacity: 0;
+}
+
+// .notifications-leave-active {
+//     position: absolute;
+// }
 </style>

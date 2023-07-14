@@ -56,7 +56,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
 
 <template>
     <section class="comments p-5" v-if="comments.items && comments.items.length > 0">
-        <div class="sorting row g-2 mb-3">
+        <header class="sorting row g-2 mb-3">
             <button class="fill" @click="sort('new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
                 <span>New</span>
@@ -69,10 +69,10 @@ async function submitComment(replyTo: Post | Comment, content: string) {
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Top</span>
             </button>
-        </div>
+        </header>
         <Tree :items="comments.items ?? []" :children="comments.items?.filter(c => c.replyTo === post.value?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment }">
-                <div :id="comment.id" class="comment">
+                <div class="comment" :id="comment.id">
                     <header class="row-fit g-1">
                         <div class="votes row g-1">
                             <span class="tag positive" @click="vote.positive(comment)" :class="{ voted: comment.votes.positive.includes(session.user.id)}">
@@ -119,7 +119,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
                             <span class="tag danger" @click="replyToComment(comment)">Cancel</span>
                         </div>
                     </div>
-                    <div class="comment-reply field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
+                    <div class="comment-edit field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
                         <textarea class="textarea" rows="5" v-model="comment.content"></textarea>
                         <div class="row-fit g-1 pt-2">
                             <span class="tag success" @click="updateComment(comment)">Save</span>
@@ -142,7 +142,7 @@ section.comments {
     }
 }
 
-div.sorting {
+header.sorting {
     button.selected {
         color: $dox-white-ultra;
         background-color: $dox-grey-light;
@@ -168,17 +168,8 @@ div.comment {
             }
         }
     }
-
-    // .reply, .edit {
-    //     background-color: $dox-white;
-    // }
-
-    // .reply:hover, .edit:hover {
-    //     color: $dox-white-ultra;
-    //     background-color: $dox-grey-light;
-    // }
     
-    .comment-reply {
+    .comment-reply, .comment-edit {
         textarea {
             max-height: 256px;
         }

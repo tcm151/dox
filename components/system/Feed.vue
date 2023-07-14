@@ -192,9 +192,9 @@ function sort(type: string) {
     opacity: 0;
 }
 
-.feed-leave-active {
-    position: absolute;
-}
+// .feed-leave-active {
+//     position: absolute;
+// }
 
 .post {
     border-radius: 0.25rem;
