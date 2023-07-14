@@ -42,6 +42,18 @@ if (process.client) {
 </template>
 
 <style lang="scss">
+main.page {
+    height: calc(100vh - 40px);
+    height: calc(calc(var(--vh, 1vh) * 100) - 40px);
+    background-color: $dox-white-light;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    > article, > section, > div {
+        flex: 1 1;
+    }
+}
+
 .swap-enter-active,
 .swap-leave-active {
   transition: all 128ms ease-out;
