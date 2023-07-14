@@ -4,6 +4,8 @@ export interface Voteable {
         positive: string[]
         misleading: string[]
         negative: string[]
+        awards?: string[]
+        saves?: string[]
     }
 }
 

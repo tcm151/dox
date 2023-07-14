@@ -85,12 +85,14 @@ function sort(type: string) {
                             <!-- TODO decide if want to show awards or saves -->
                             <!-- I think I want to show both, but I like the way things currently look -->
                             <!-- initial tests looked bad -->
-                            <!-- <span class="tag">
+                            <span class="tag link" v-if="post.votes.awards">
                                 <i class="fa-solid fa-crown"></i>
+                                <span>{{ post.votes.awards.length }}</span>
                             </span>
-                            <span class="tag">
+                            <span class="tag link" v-if="post.votes.saves">
                                 <i class="fa-solid fa-box-archive"></i>
-                            </span> -->
+                                <span>{{ post.votes.saves.length }}</span>
+                            </span>
                         </div>
                         <span class="tag topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
                             {{ topic.split(':')[1] }}
@@ -234,10 +236,13 @@ function sort(type: string) {
 .votes {
     flex: 0 1;
     
-    > * {
-        width: 0.5rem;
+    span.tag {
         font-weight: 800;
         user-select: none;
+    }
+
+    span.positive, span.misleading, span.negative {
+        width: 0.5rem;
     }
 }
 
