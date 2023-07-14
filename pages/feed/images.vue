@@ -1,25 +1,33 @@
 <script setup lang="ts">
 import { Image } from "~/types"
 
-const session = getSession()
-
-const { data: images, refresh } = await useAsyncData<Image[]>('images', () => {
+const { data: images, pending, refresh } = await useAsyncData<Image[]>('images', () => {
     return $fetch("/api/image")
+})
+
+const spinRefresh = ref(false)
+watch(pending, (loading) => {
+    if (loading) {
+        spinRefresh.value = true
+    }
+    else {
+        setTimeout(() => spinRefresh.value = false, 512)
+    }
 })
 
 const { files, open: selectImages, reset } = useFileDialog({
     accept: "image/*"
 })
 
-const confirmImageUpload = ref(false)
 
-let uploading = ref<boolean>(false)
+const confirmImageUpload = ref(false)
 watch(files, async () => {
     if (files.value) {
         confirmImageUpload.value = true
     }
 })
 
+let uploading = ref<boolean>(false)
 async function beginUpload() {
     confirmImageUpload.value = false
     uploading.value = true
@@ -39,7 +47,7 @@ function cancelUpload() {
         <section class="column center-inline g-4 p-4">
             <div class="tools fill row center-inline g-2 p-4">
                 <button class="success" @click="refresh()">
-                    <i class="fa-solid fa-rotate"></i>
+                    <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                     <span>Refresh</span>
                 </button>
                 <button class="link" @click="selectImages()">
@@ -50,23 +58,38 @@ function cancelUpload() {
             </div>
         </section>
         <section class="all-images fill row-wrap g-4 px-4">
-            <!-- <div class="image"> -->
-                <img :src="image.url" v-for="image in images">
-            <!-- </div> -->
-            <div style="flex: 10 0"></div>
+            <div class="image fill" v-for="image in images">
+                <img :src="image.url">
+            </div>
+            <div style="flex: 25 0" />
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
 article {
-    @include fit-width(800px, 1rem);
+    @include fit-width(1200px, 1rem);
+}
+
+@keyframes spin {
+    from {
+        transform: rotateZ(0deg);
+    }
+    to {
+        transform: rotateZ(360deg);
+    }
 }
 
 div.tools {
     // TODO this should be it's own style: box (?)
     border-radius: 0.25rem;
     background-color: $dox-white-ultra;
+
+    button.success {
+        i.spin {
+            animation: spin 512ms linear infinite;
+        }
+    }
 }
 
 @keyframes spin {
@@ -79,26 +102,28 @@ div.tools {
 }
 
 section.all-images {
-    width: 100%;
     justify-content: space-between;
     align-content: flex-start;
     align-items: center;
 
-    img {
+    div.image {
         padding: 0.5rem;
-        flex: 1 1 fit-content;
-        height: 128px;
-        max-width: 256px;
-        object-fit: contain;
         border-radius: 0.25rem;
-        border: 2px solid $dox-white;
-        background-color: $dox-white;
-    }
-
-    img:hover {
+        border: 2px solid $dox-white-ultra;
+        background-color: $dox-white-ultra;
         cursor: pointer;
+        
+        img {
+            height: 128px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+    }
+    
+    div.image:hover {
         border: 2px solid $dox-blue;
     }
+
 }
 
 input[type=file]::file-selector-button {

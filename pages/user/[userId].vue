@@ -59,13 +59,13 @@ async function unfollowUser() {
             <section class="row-wrap g-1">
                 <!-- TODO add popups to view these in more detail -->
                 <div class="votes row g-1">
-                    <span class="tag positive" @click="vote.positive(user ?? null)">
+                    <span class="tag positive" @click="vote.positive(user ?? null)" :class="{ voted: user?.votes.positive.includes(session.user.id) }">
                         {{ user?.votes.positive.length }}
                     </span>
-                    <span class="tag misleading" @click="vote.misleading(user ?? null)">
+                    <span class="tag misleading" @click="vote.misleading(user ?? null)" :class="{ voted: user?.votes.misleading.includes(session.user.id) }">
                         {{ user?.votes.misleading.length }}
                     </span>
-                    <span class="tag negative" @click="vote.negative(user ?? null)">
+                    <span class="tag negative" @click="vote.negative(user ?? null)" :class="{ voted: user?.votes.negative.includes(session.user.id) }">
                         {{ user?.votes.negative.length }}
                     </span>
                 </div>
