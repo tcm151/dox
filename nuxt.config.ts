@@ -8,7 +8,8 @@ export default defineNuxtConfig({
         "@vueuse/nuxt"
     ],
     components: [
-        { path: '~/components', pathPrefix: false }
+        { path: '~/**/components', pathPrefix: false },
+        { path: '~/components', pathPrefix: false },
     ],
     imports: {
         dirs: ["services/**", "datasources/**"],
