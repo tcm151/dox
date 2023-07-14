@@ -1,88 +1,84 @@
 <script setup lang="ts">
-import { Post, User } from '~/types'
-
 definePageMeta({
-    layout: 'default'
-})
-
-const session = getSession()
-
-let queryParameters = ref({
-    pageNumber: 1,
-    pageSize: 24,
-})
-
-const feed = useFeed(queryParameters.value)
-
-onMounted(async () => {
-    await feed.fetch()
-})
-
-const feedPosts = computed(() => {
-    return feed.items!.filter(p =>
-        p.topics.some(pt => session.user?.topics.includes(pt))
-        || session.user?.following.includes((p.user as User).id)
-    )
-})
-const filteredPosts = computed(() =>  {
-    return filterType.value == "All"
-        ? feed.items
-        : feedPosts.value
-})
-
-async function goToPage(pageNumber: number) {
-    queryParameters.value.pageNumber = Math.max(1, pageNumber)
-    await feed.fetch()
-}
-
-let filterType = useSessionStorage("filterType", "All")
-
-function toggleFilter() {
-    if (session.isAuthenticated) {
-        switch (filterType.value) {
-            case "All":
-                filterType.value = "Feed"
-                return
-            case "Feed":
-                filterType.value = "All";
+    layout: 'simple',
+    middleware: (to, from) => {
+        if (to.path === "/feed") {
+            return navigateTo("/feed/posts")
         }
     }
-}
+})
+
+const route = useRoute()
+
+const tabs = [
+    { route: "/feed/posts", icon: "fa-solid fa-newspaper", label: "Posts" },
+    { route: "/feed/images", icon: "fa-solid fa-image", label: "Images" },
+    { route: "/feed/topics", icon: "fa-solid fa-tags", label: "Topics" },
+]
 </script>
 
 <template>
-    <section class="feed p-4">
-        <Feed
-            :page="queryParameters.pageNumber"
-            :sorting="true"
-            :pagination="true"
-            @page="goToPage"
-            @refresh="feed.fetch"
-            :loading="feed.loading"
-            :posts="filteredPosts ?? []"
-        >
-            <template #header>
-                <button class="filter-type " @click="toggleFilter">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>{{ filterType }}</span>
-                </button>
-            </template>
-        </Feed>
-    </section>
+    <article class="column center-inline">
+        <nav class="row">
+            <TransitionGroup name="tabs">
+                <NuxtLink v-for="tab in tabs" :key="tab.route" :to="tab.route"
+                          :class="{ selected: tab.route == route.fullPath }">
+                    <i :class="tab.icon"></i>
+                    <span>{{ tab.label }}</span>
+                </NuxtLink>
+            </TransitionGroup>
+        </nav>
+        <section class="page column center-inline">
+            <NuxtPage />
+        </section>
+    </article>
 </template>
 
 <style scoped lang="scss">
-section.feed {
-    @include fit-width(800px, 1rem);
+article {
+    width: 100%;
+    overflow-y: hidden;
 }
 
-.filter-type {
-    flex: 1 1;
-    color: $dox-white;
+nav.row {
+    width: 100%;
+    justify-content: center;
+    border-top: 1px solid $dox-black-light;
     background-color: $dox-black;
+
+    a {
+        min-height: 19px;
+        padding: 0.5rem 0.75rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: $dox-white;
+    }
+
+    a.selected {
+        background-color: $dox-black-light;
+    }
+
+    a:hover {
+        cursor: pointer;
+        background-color: $dox-black-light;
+    }
+
+    @media only screen and (max-width: 1000px) {
+        a:not(.selected) {
+            span {
+                display: none;
+            }
+        }
+    }
 }
 
-.filter-type:hover {
-    background-color: $dox-grey-dark;
+section.page {
+    width: 100%;
+    overflow-y: auto;
 }
+
+.tabs-move, .tabs-enter-active, .tabs-leave-active {
+    transition: all 128ms ease;
+}
+
 </style>

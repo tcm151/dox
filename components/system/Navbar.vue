@@ -38,7 +38,7 @@ async function login() {
                 <section class="right authenticated" v-if="session.isAuthenticated">
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
-                        <span>Feed</span>
+                        <span>Feeds</span>
                     </NuxtLink>
                     <NuxtLink to="/editor">
                         <i class="fa-solid fa-feather-pointed"></i>
@@ -55,7 +55,7 @@ async function login() {
                 <section class="right anonymous" v-else>
                     <NuxtLink to="/feed">
                         <i class="fa-solid fa-signs-post"></i>
-                        <span>Feed</span>
+                        <span>Feeds</span>
                     </NuxtLink>
                     <a @click="login">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -84,6 +84,12 @@ nav {
 
 .left {
     @include flex-h;
+
+    a.dox {
+        @media only screen and (max-width: 400px) {
+            span { display: none; }
+        }
+    }
 }
 
 section.right {
