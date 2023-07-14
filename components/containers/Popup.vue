@@ -69,6 +69,10 @@ if (process.client) {
     background-color: $dox-white-ultra;
     box-shadow: 0.25rem 0.5rem 1rem -0.25rem $dox-white-dark, 0 0 0.33rem 1px $dox-white-dark;
     animation: fade-in 256ms;
+
+    h1 {
+        font-size: 1.5rem;
+    }
 }
 
 .slot {
