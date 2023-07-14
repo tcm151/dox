@@ -62,7 +62,7 @@ function viewDraft(existingDraft: Draft) {
     showDrafts.value = false
 }
 
-let showPreview = ref(settings.state.showPreviewByDefault ?? false)
+let showPreview = ref(false)
 function togglePreview() {
     showPreview.value = !showPreview.value
 }
@@ -197,58 +197,65 @@ async function saveDraft() {
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
             <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
             <section class="editor column p-5">
-                <header class="row center-inline mb-4">
-                    <h1>New Post</h1>
-                    <button @click="showDrafts = true">
-                        <i class="fa-solid fa-compass-drafting"></i>
-                        <span>Drafts</span>
-                    </button>
-                </header>
-                <form class="form fill column">
-                    <div class="field">
-                        <label>Title</label>
-                        <input
-                            type="text"
-                            v-model="draft.title"
-                            @focus="titleFocused = true"
-                            @blur="titleFocused = false"
-                            :class="{ 'invalid': titleFocused && !validTitle() }"
-                        />
-                    </div>
-                    <div class="field fill">
-                        <label>Content</label>
-                        <textarea class="fill" v-model="draft.content" type="text" rows="12" />
-                    </div>
-                    <div class="field topic-input">
-                        <div class="row center-inline g-2 mb-2">
-                            <label class="mb-0">Topics</label>
-                            <span class="tag topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
-                                {{ topic.split(':')[1] }}
-                            </span>
+                <div class="column fill" v-if="!showPreview">
+                    <header class="row center-inline mb-4">
+                        <h1>New Post</h1>
+                        <button @click="showDrafts = true">
+                            <i class="fa-solid fa-compass-drafting"></i>
+                            <span>Drafts</span>
+                        </button>
+                    </header>
+                    <form class="form fill column">
+                        <div class="field">
+                            <label>Title</label>
+                            <input
+                                type="text"
+                                v-model="draft.title"
+                                @focus="titleFocused = true"
+                                @blur="titleFocused = false"
+                                :class="{ 'invalid': titleFocused && !validTitle() }"
+                            />
                         </div>
-                        <input
-                            type="text"
-                            v-model="newTopic"
-                            spellcheck="false"
-                            placeholder="press enter to add . . ."
-                            @keyup.enter="addTopic"
-                            @focus="topicsFocused = true"
-                            @blur="topicsFocused = false"
-                            :class="{ 'invalid': topicsFocused && !validTopic() }"
-                        />
-                    </div>
-                    <div class="field uploaded-images" v-if="uploadedImages.length > 0">
-                        <label>Images</label>
-                        <div class="row g-2">
-                            <img
-                                v-for="image in uploadedImages"
-                                @click="copyImageUrl"
-                                @contextmenu.prevent="deleteImage(image)"
-                                :src="image.url"
-                            >
+                        <div class="field fill">
+                            <label>Content</label>
+                            <textarea class="fill" v-model="draft.content" type="text" rows="12" />
                         </div>
-                    </div>
-                </form>
+                        <div class="field topic-input">
+                            <div class="row center-inline g-2 mb-2">
+                                <label class="mb-0">Topics</label>
+                                <span class="tag topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
+                                    {{ topic.split(':')[1] }}
+                                </span>
+                            </div>
+                            <input
+                                type="text"
+                                v-model="newTopic"
+                                spellcheck="false"
+                                placeholder="press enter to add . . ."
+                                @keyup.enter="addTopic"
+                                @focus="topicsFocused = true"
+                                @blur="topicsFocused = false"
+                                :class="{ 'invalid': topicsFocused && !validTopic() }"
+                            />
+                        </div>
+                        <div class="field uploaded-images" v-if="uploadedImages.length > 0">
+                            <label>Images</label>
+                            <div class="row g-2">
+                                <img
+                                    v-for="image in uploadedImages"
+                                    @click="copyImageUrl"
+                                    @contextmenu.prevent="deleteImage(image)"
+                                    :src="image.url"
+                                >
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="preview fill" v-else>
+                    <h1 class="mb-2">{{ draft.title }}</h1>
+                    <Markdown class="content" :content="draft.content" />
+                    <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
+                </div>
                 <section class="row-wrap g-2 mt-5">
                     <button class="success fill" @click="submit">
                         <i class="fa-solid fa-share"></i>
@@ -274,12 +281,6 @@ async function saveDraft() {
                     <!-- <button class="danger fill" @click="navigateTo('/')">Cancel</button> -->
                 </section>
             </section>
-            <!-- TODO toggle between showing the preview and doing editing, otherwise tons of rendering network calls -->
-            <section class="preview p-5" v-if="showPreview">
-                <h1 class="mb-2">{{ draft.title }}</h1>
-                <Markdown class="content" :content="draft.content" />
-                <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
-            </section>
         </ClientOnly>
     </article>
 </template>
@@ -293,7 +294,6 @@ article.editor {
 
 section.editor, section.preview {
     height: calc(100% - 3rem);
-    overflow-y: auto;
 
     flex: 1 1 400px;
     min-width: 250px;
@@ -348,6 +348,7 @@ div.uploaded-images {
     position: relative;
     min-height: 100px;
     white-space: normal;
+    overflow-y: auto;
 
     div.content {
         white-space: normal;

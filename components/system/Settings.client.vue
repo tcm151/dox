@@ -36,10 +36,6 @@ async function sendConfirmation() {
                 <input type="checkbox" v-model="settings.state.hoverAnimations">
                 <label>enable animations</label>
             </div>
-            <div class="row-fit g-2">
-                <input type="checkbox" v-model="settings.state.showPreviewByDefault">
-                <label>show preview by default</label>
-            </div>
             <div class="field row-fit">
                 <label>hint duration (ms)</label>
                 <input type="number" size="4" step="250" v-model="settings.state.hintDuration">
