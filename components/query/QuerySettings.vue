@@ -17,7 +17,7 @@ const { settings } = storeToRefs(useQuery())
     <ClientOnly>
         <Window
             title="Settings"
-            :width="400"
+            width="400px"
             :visible="visible"
             @close="emit('close')"
         >

@@ -1,50 +1,49 @@
 <script setup lang="ts">
 const props = defineProps<{
     visible: boolean
+    icon?: string
     title?: string
-    width?: number
-    height?: number
+    width?: string
+    height?: string
 }>()
 
 const emit = defineEmits<{
     (event: 'close'): void
 }>()
 
-let windowTop = ref((window.visualViewport!.height - props.height!) / 2);
-let windowLeft = ref((window.visualViewport!.width - props.width!) / 2);
-let holdingWindow = ref(false);
+const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
+const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
 
-function grabWindow(event: MouseEvent) {
-    holdingWindow.value = true;
+if (process.client) {
+    resizePopup()
+    window.visualViewport?.addEventListener('resize', resizePopup)
 }
 
-function moveWindow(event: MouseEvent) {
-    if (holdingWindow.value === true) {
-        windowTop.value += event.movementY;
-        windowLeft.value += event.movementX;
-    }
+function resizePopup() {
+    maxWidth.value = `${window.visualViewport!.width - 25}px`
+    maxHeight.value = `${window.visualViewport!.height- 25}px`
 }
 
-function releaseWindow() {
-    holdingWindow.value = false;
-}
 </script>
 
 <template>
     <!-- TODO use native dialog component -->
-    <div class="popup column center" v-if="props.visible" @mousemove="moveWindow" @mouseup="releaseWindow" @mouseleave="releaseWindow">
-        <div class="window" ref="window" :style="{ width: `${width}px`, height: `${height}px`, top: `${windowTop}px`, left: `${windowLeft}px` }">
-            <div class="title-bar" @mousedown="grabWindow">
-                <h2 class="title px-4 py-2" v-if="title">{{ title }}</h2>
-                <div class="close px-3" @click="$emit('close')">
+    <main class="popup column center" v-if="props.visible">
+        <section class="window" ref="window" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
+            <div class="title-bar">
+                <div class="left row center-inline g-2 px-4 py-2">
+                    <i :class="icon" v-if="icon"></i>
+                    <h2 class="title" v-if="title">{{ title }}</h2>
+                </div>
+                <div class="close px-3" @click="emit('close')">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
-            <div class="window-slot" sty>
+            <div class="window-slot">
                 <slot />
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 </template>
 
 <style scoped lang="scss">
@@ -59,7 +58,7 @@ function releaseWindow() {
     to { opacity: 100% }
 }
 
-.popup {
+main.popup {
     top: 0;
     left: 0;
     position: absolute;
@@ -70,7 +69,7 @@ function releaseWindow() {
     animation: blur 64ms forwards;
 }
 
-.window {
+section.window {
     position: absolute;
 
     @include flex-v;
@@ -90,6 +89,12 @@ function releaseWindow() {
     border-top-right-radius: 0.25rem;
     user-select: none;
 
+    div.left {
+        i {
+            font-size: 1.25rem;
+        }
+    }
+
     .close {
         display: grid;
         place-items: center;
@@ -97,7 +102,6 @@ function releaseWindow() {
 
         i {
             font-size: 1.5rem;
-            line-height: 1.5rem;
         }
     }
     
@@ -114,40 +118,4 @@ function releaseWindow() {
     background-color: $dox-white-ultra;
     overflow-y: auto;
 }
-
-// .top-left-corner,
-// .top-right-corner,
-// .bottom-left-corner,
-// .bottom-right-corner {
-//     position: absolute;
-//     user-select: none;
-
-//     polygon {
-//         fill: transparent;
-//     }
-    
-//     polygon:hover {
-//         fill: red;
-//     }
-// }
-
-// .top-left-corner {
-//     top: 0;
-//     left: 0;
-// }
-
-// .top-right-corner {
-//     top: 0;
-//     right: 0;
-// }
-
-// .bottom-left-corner {
-//     bottom: 0;
-//     left: 0;
-// }
-
-// .bottom-right-corner {
-//     bottom: 0;
-//     right: 0;
-// }
 </style>

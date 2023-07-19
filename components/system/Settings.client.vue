@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Hints } from '~/.nuxt/components'
-
 
 const props = defineProps<{
     visible: boolean
@@ -26,7 +24,12 @@ async function sendConfirmation() {
 <template>
     <!-- TODO add support for users to change their passwords -->
     <!-- TODO add two-factor authentication -->
-    <Window :visible="visible" title="Settings" @close="emit('close')">
+    <Window
+        :visible="visible"
+        title="Settings"
+        icon="fa-solid fa-gear"
+        @close="emit('close')"
+    >
         <div class="form">
             <div class="row g-2">
                 <button class="fill danger" @click="sendConfirmation" v-if="!session.user.confirmed">Confirm Account</button>

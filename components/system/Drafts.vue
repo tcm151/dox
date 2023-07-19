@@ -32,9 +32,10 @@ async function deleteDraft(draft: Draft) {
 <template>
     <ClientOnly>
         <Window
-            title="Drafts"
-            :width="600"
             :visible="visible"
+            width="600px"
+            title="Drafts"
+            icon="fa-solid fa-compass-drafting"
             @close="emit('close')"
         >
             <section class="drafts column" v-if="!loading && userDrafts.length > 0">

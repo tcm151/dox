@@ -17,10 +17,13 @@ const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
 const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
 
 if (process.client) {
-    window.visualViewport?.addEventListener('resize', () => {
-        maxWidth.value = `${window.visualViewport!.width - 50}px`
-        maxHeight.value = `${window.visualViewport!.height- 50}px`
-    })
+    resizePopup()
+    window.visualViewport?.addEventListener('resize', resizePopup)
+}
+
+function resizePopup() {
+    maxWidth.value = `${window.visualViewport!.width - 50}px`
+    maxHeight.value = `${window.visualViewport!.height- 50}px`
 }
 
 </script>
