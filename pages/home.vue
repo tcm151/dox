@@ -62,11 +62,6 @@ article {
     height: 100%;
 }
 
-.box {
-    border-radius: 0.5rem;
-    background-color: $dox-white-ultra;
-}
-
 .left {
     flex: 10 1;
     @include flex-v;

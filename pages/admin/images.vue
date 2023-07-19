@@ -34,7 +34,7 @@ async function deleteImage(image: Image) {
 <template>
     <article>
         <section class="column center-inline g-4 p-4">
-            <div class="tools fill row center-inline g-2 p-4">
+            <div class="box fill row center-inline g-2 p-4">
                 <div class="file-hint fill" v-if="files">
                     <p>{{ files?.[0].name ?? 'No file selected...' }}</p>
                     <h4>~{{ calculateTokens(files[0]) }} tokens </h4>
@@ -66,12 +66,6 @@ img.active-image {
     max-width: 100%;
     max-height: 400px;
     object-fit: contain;
-}
-
-div.tools {
-    // TODO this should be it's own style: box (?)
-    border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
 }
 
 div.file-hint {

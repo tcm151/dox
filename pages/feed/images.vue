@@ -45,7 +45,7 @@ function cancelUpload() {
 <template>
     <article>
         <section class="column center-inline g-4 p-4">
-            <div class="tools fill row center-inline g-2 p-4">
+            <div class="tools box fill row center-inline g-2 p-4">
                 <button class="success" @click="refresh()">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                     <span>Refresh</span>
@@ -81,10 +81,6 @@ article {
 }
 
 div.tools {
-    // TODO this should be it's own style: box (?)
-    border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
-
     button.success {
         i.spin {
             animation: spin 512ms linear infinite;
