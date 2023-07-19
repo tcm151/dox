@@ -64,6 +64,7 @@ function sort(type: string) {
             </button>
         </div>
         <TransitionGroup name="feed">
+            <!-- TODO allow for pinned posts -->
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
                 <!-- TODO allow reply to posts directly with another post -->
                 <div class="reply-to row center-inline g-2" v-if="post.topics.includes('topic:ReplyTo')">
