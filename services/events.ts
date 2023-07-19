@@ -9,7 +9,7 @@ export enum Trigger {
     addHint,
     authenticatedUser,
     pageFinishedLoading,
-    togglePopup,
+    showPopup,
     toggleLogin,
     clientStarted,
 }

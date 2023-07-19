@@ -28,9 +28,10 @@ onMounted(async () => {
     await $fetch(`/api/post/${postId}/visit`)
 })
 
-const vote = useVoting();
-const hints = useHints();
-const session = getSession();
+const vote = useVoting()
+const hints = useHints()
+const events = useEvents()
+const session = getSession()
 
 let editingPost = ref(false)
 function toggleEditPost() {
@@ -55,13 +56,19 @@ function togglePreview() {
 }
 
 async function deletePost() {
-    try {
-        await session.useApi(`/api/post/${postId}/delete`)
-        return navigateTo("/feed")
-    }
-    catch (ex: any) {
-        hints.addError("Failed to delete post.")
-    }
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete your post?',
+        accept: async () => {
+            try {
+                await session.useApi(`/api/post/${postId}/delete`)
+                return navigateTo("/feed")
+            }
+            catch (ex: any) {
+                hints.addError("Failed to delete post.")
+            }
+        },
+    })
 }
 
 let showPostReply = ref(false);
@@ -160,12 +167,17 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-reply-all"></i>
                             <span>Reply</span>
                         </button> -->
+                        <!-- TODO allow awarding posts -->
+                        <!-- <button>
+                            <i class="fa-solid fa-crown"></i>
+                            <span>Award</span>
+                        </button> -->
                         <button class="share" @click="copyLink">
                             <i class="fa-solid fa-copy"></i>
                             <span>Share</span>
                         </button>
-                        <!-- TODO allow saving posts, use Directory -->
-                        <!-- <button @click="copyLink">
+                        <!-- TODO allow saving posts -->
+                        <!-- <button>
                             <i class="fa-solid fa-box-archive"></i>
                             <span>Archive</span>
                         </button> -->
@@ -181,6 +193,10 @@ async function reportPost(post: Post) {
                         <button class="delete" v-if="(post.value.user as User).id === session.user?.id" @click="deletePost">
                             <i class="fa-solid fa-trash-can"></i>
                             <span>Delete</span>
+                        </button>
+                        <!-- TODO move some interactions into menu -->
+                        <button class="menu">
+                            <i class="fa-solid fa-ellipsis"></i>
                         </button>
                     </div>
                     <div class="row g-1" v-else-if="editingPost">
@@ -231,7 +247,7 @@ section.post {
 
 div.interactions {
     // TODO decide if want to keep
-    // button {
+    // button:not(.menu) {
     //     flex: 1 1 auto;
     // }
 

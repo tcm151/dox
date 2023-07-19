@@ -37,10 +37,11 @@ function resizePopup() {
                 <slot />
             </div>
             <div class="row g-2">
-                <button class="success fill" @click="$emit('accept')">{{ acceptLabel ?? "Yes" }}</button>
-                <button class="danger fill" @click="$emit('decline')">{{ declineLabel ?? "No" }}</button>
+                <button class="success fill" @click="emit('accept')">{{ acceptLabel ?? "Yes" }}</button>
+                <button class="danger fill" @click="emit('decline')">{{ declineLabel ?? "No" }}</button>
             </div>
         </div>
+        <div class="filler" />
     </div>
 </template>
 
@@ -76,6 +77,10 @@ function resizePopup() {
     h1 {
         font-size: 1.5rem;
     }
+}
+
+div.filler {
+    height: 25%;
 }
 
 .slot {

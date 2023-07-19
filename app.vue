@@ -1,17 +1,41 @@
 <script setup lang="ts">
 import { Trigger } from '~/services/events';
 
-let events = useEvents();
-
-let showPopup = ref(false);
-let showLogin = ref(false);
+let events = useEvents()
 
 useNuxtApp().hook("page:finish", () => {
     events.publish(Trigger.pageFinishedLoading)
 })
 
-events.subscribe(Trigger.togglePopup, () => showPopup.value = !showPopup.value)
+let showLogin = ref(false);
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
+
+interface PopupEvent {
+    title: string
+    message: string
+    accept: Function
+}
+
+const popupEvent = ref<PopupEvent>({
+    title: 'Default Popup',
+    message: 'This is the default message',
+    accept: () => { },
+})
+
+let showPopup = ref(false);
+events.subscribe(Trigger.showPopup, (event: PopupEvent) => {
+    showPopup.value = true
+    popupEvent.value = event
+})
+
+function acceptPopup() {
+    showPopup.value = false
+    popupEvent.value.accept?.()
+}
+
+function declinePopup() {
+    showPopup.value = false
+}
 
 onMounted(() => {
     events.publish(Trigger.clientStarted);
@@ -31,8 +55,8 @@ if (process.client) {
 <template>
     <Navbar />
     <Login :visible="showLogin"/>
-        <Popup :visible="showPopup" title="Popup" :accept="() => { }" :decline="() => { }">
-            <span>This is the default!</span>
+        <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
+            <span>{{ popupEvent.message }}</span>
         </Popup>
     <NuxtLayout>
         <NuxtLoadingIndicator />
