@@ -27,22 +27,21 @@ function resizePopup() {
 </script>
 
 <template>
-    <!-- TODO use native dialog component -->
     <main class="popup column center" v-if="props.visible">
-        <section class="window" ref="window" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
-            <div class="title-bar">
+        <article class="window" ref="window" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
+            <section class="title-bar">
                 <div class="left row center-inline g-2 px-4 py-2">
                     <i :class="icon" v-if="icon"></i>
                     <h2 class="title" v-if="title">{{ title }}</h2>
                 </div>
-                <div class="close px-3" @click="emit('close')">
+                <button class="close px-3" @click="emit('close')">
                     <i class="fa-solid fa-xmark"></i>
-                </div>
-            </div>
-            <div class="window-slot">
+                </button>
+            </section>
+            <section class="window-slot">
                 <slot />
-            </div>
-        </section>
+            </section>
+        </article>
     </main>
 </template>
 
@@ -69,7 +68,7 @@ main.popup {
     animation: blur 64ms forwards;
 }
 
-section.window {
+article.window {
     position: absolute;
 
     @include flex-v;
@@ -79,7 +78,7 @@ section.window {
     animation: fade-in 256ms;
 }
 
-.title-bar {
+section.title-bar {
     @include flex-h (1rem);
     align-items: stretch;
     justify-content: space-between;
@@ -95,9 +94,11 @@ section.window {
         }
     }
 
-    .close {
+    button.close {
         display: grid;
         place-items: center;
+        color: $dox-white-ultra;
+        background-color: transparent;
         cursor: pointer;
 
         i {
@@ -105,13 +106,14 @@ section.window {
         }
     }
     
-    .close:hover {
+    button.close:hover {
+        border-radius: 0;
         border-top-right-radius: 0.25rem;
         background-color: $dox-red;
     }
 }
 
-.window-slot {
+section.window-slot {
     padding: 1rem;
     @include flex-v;
     border-radius: 0 0 0.25rem 0.25rem;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Image } from "~/types"
 
+const session = getSession()
+
 const { data: images, pending, refresh } = await useAsyncData<Image[]>('images', () => {
     return $fetch("/api/image")
 })
@@ -13,6 +15,10 @@ watch(pending, (loading) => {
     else {
         setTimeout(() => spinRefresh.value = false, 512)
     }
+})
+
+onMounted(async () => {
+    await refresh()
 })
 
 const { files, open: selectImages, reset } = useFileDialog({
@@ -43,9 +49,9 @@ function cancelUpload() {
 </script>
 
 <template>
-    <article>
-        <section class="column center-inline g-4 p-4">
-            <div class="tools box fill row center-inline g-2 p-4">
+    <article class="column g-4 p-4">
+        <ClientOnly>
+            <section class="tools box row center-inline g-2 p-4" v-if="session.user.confirmed">
                 <button class="success" @click="refresh()">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                     <span>Refresh</span>
@@ -55,9 +61,9 @@ function cancelUpload() {
                     <span>Upload</span>
                 </button>
                 <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
-            </div>
-        </section>
-        <section class="all-images fill row-wrap g-4 px-4">
+            </section>
+        </ClientOnly>
+        <section class="all-images fill row-wrap g-4">
             <div class="image fill" v-for="image in images">
                 <img :src="image.url">
             </div>

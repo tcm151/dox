@@ -1,5 +1,7 @@
 import { Ref } from "vue";
 
+// TODO remove datasources, I don't like them anymore...
+
 export interface DatasourceItem<T> {
     value: Ref<T | null>
     options: ItemOptions
@@ -60,7 +62,6 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
         }
 
         const response = await useAsyncData(() => $fetch(options.update!.url, {
-            // TODO convert to PUT/PATCH
             method: "POST",
             headers: {
                 Authorization: `Bearer ${session.token}`,
@@ -172,7 +173,6 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }
     
         const response = await useAsyncData(() => $fetch(options.update!.url, {
-            // TODO convert to PUT/PATCH
             method: "POST",
             headers: {
                 Authorization: `Bearer ${session.token}`,
@@ -195,7 +195,6 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
         }
     
         const response = await useAsyncData(() => $fetch(options.remove!.url, {
-            // TODO convert to DELETE
             method: "POST",
             headers: {
                 Authorization: `Bearer ${session.token}`,

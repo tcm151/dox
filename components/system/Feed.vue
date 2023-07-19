@@ -64,8 +64,8 @@ function sort(type: string) {
             </button>
         </div>
         <TransitionGroup name="feed">
-            <!-- TODO allow for pinned posts -->
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
+                <!-- TODO allow for pinned posts -->
                 <!-- TODO allow reply to posts directly with another post -->
                 <div class="reply-to row center-inline g-2" v-if="post.topics.includes('topic:ReplyTo')">
                     <i class="fa-solid fa-reply"></i> 
@@ -83,9 +83,6 @@ function sort(type: string) {
                             <span class="tag negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
                                 {{ post?.votes.negative.length }}
                             </span>
-                            <!-- TODO decide if want to show awards or saves -->
-                            <!-- I think I want to show both, but I like the way things currently look -->
-                            <!-- initial tests looked bad -->
                             <span class="tag link" v-if="post.votes.awards">
                                 <i class="fa-solid fa-crown"></i>
                                 <span>{{ post.votes.awards.length }}</span>

@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (event: 'switchTabs', tab: string)
+    (event: 'switchTabs', tab: string): void
 }>()
 
 </script>
