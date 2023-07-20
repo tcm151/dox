@@ -124,7 +124,7 @@ function saveChanges() {
 let sortField = ref<string>("")
 let sortType = ref<"" | "asc" | "desc">("");
 
-// FIXME need to handle situation where value is null
+// BUG need to handle situation where value is null
 function sortBy(field: string) {
     if (sortType.value === "") {
         props.items.forEach((item, index) => {

@@ -189,12 +189,11 @@ async function reportPost(post: Post) {
                             <i class="fa-solid fa-eraser"></i>
                             <span>Edit</span>
                         </button>
-                        <!-- TODO add popup to confirm deletion -->
                         <button class="delete" v-if="(post.value.user as User).id === session.user?.id" @click="deletePost">
                             <i class="fa-solid fa-trash-can"></i>
                             <span>Delete</span>
                         </button>
-                        <!-- TODO move some interactions into menu -->
+                        <!-- REFACTOR move some interactions into menu -->
                         <button class="menu">
                             <i class="fa-solid fa-ellipsis"></i>
                         </button>
@@ -246,7 +245,7 @@ section.post {
 }
 
 div.interactions {
-    // TODO decide if want to keep
+    // REFACTOR decide if want to keep
     // button:not(.menu) {
     //     flex: 1 1 auto;
     // }

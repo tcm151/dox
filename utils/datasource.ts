@@ -1,6 +1,6 @@
 import { Ref } from "vue";
 
-// TODO remove datasources, I don't like them anymore...
+// REFACTOR remove datasources, I don't like them anymore...
 
 export interface DatasourceItem<T> {
     value: Ref<T | null>

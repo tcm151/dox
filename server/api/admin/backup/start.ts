@@ -28,6 +28,6 @@ export default defineEventHandler(async (event) => {
     sql.push('user = $user.id')
     parameters['user'] = auth
 
-    // TODO create type for backups
+    // REFACTOR create type for backups
     return await queryAll<any>({ sql, parameters })
 })
