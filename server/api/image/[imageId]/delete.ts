@@ -1,11 +1,11 @@
 import fs from "node:fs"
-import { multiQuery, queryOne } from "~/server/database"
 import { Image, User } from "~/types"
 
 
 export default defineEventHandler(async (event) => {
-    const { imageId } = event.context.params!
     const auth = await authenticateRequest(event)
+    
+    const { imageId } = event.context.params!
     const image = await queryOne<Image>([`
         SELECT *
         FROM image:${imageId}

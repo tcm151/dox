@@ -1,5 +1,5 @@
 import { Post, User } from "~/types";
-import { queryOne, queryAll } from "../../../database";
+import { queryOne, queryAll } from "../../../utils/database";
 
 export default defineEventHandler(async (event): Promise<{ user: User, posts: Post[] }> => {
     const { id } = event.context.params!;

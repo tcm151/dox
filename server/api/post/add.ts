@@ -1,9 +1,9 @@
 import { Post } from "~/types";
-import { multiQuery, queryOne } from "../../database";
 
 export default defineEventHandler(async (event) => {
-    const post = await readBody(event)
     const auth = await authenticateRequest(event);
+    
+    const post = await readBody(event)
     post.user = auth.id;
     post.votes.positive = [auth.id]
 

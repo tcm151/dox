@@ -1,4 +1,4 @@
-import { queryOne } from "../../../database";
+import { queryOne } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!;

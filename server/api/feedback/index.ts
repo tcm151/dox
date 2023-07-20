@@ -1,4 +1,3 @@
-import { queryAll } from "~/server/database";
 import { Feedback } from "~/types"
 
 export default defineEventHandler(async (event) => {

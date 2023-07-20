@@ -1,9 +1,8 @@
 import { Post, Comment, Notification, User } from "~/types";
-import { queryOne } from "../../database";
 
 export default defineEventHandler(async (event) => {
-    let comment = await readBody(event);
-    const auth = await authenticateRequest(event);
+    const auth = await authenticateRequest(event)
+    let comment = await readBody(event)
     
     // overwrite user with auth
     comment.user = auth.id;

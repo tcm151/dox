@@ -1,27 +1,24 @@
 import Surreal from 'surrealdb.js';
 
-const db = await (async () => {
-    const { surreal } = useRuntimeConfig();
-    if (surreal.url == "" || !surreal.url.includes("/rpc")) {
-        throw createError({
-            statusCode: 500,
-            message: `Database URL was [${surreal.url ?? "empty"}]. Check environment variables.`
-        })
-    }
-    const db = new Surreal(surreal.url);
-    try {
-        await db.signin({ user: surreal.username, pass: surreal.password });
-        await db.use(surreal.namespace, surreal.database);
+const { surreal } = useRuntimeConfig()
+if (surreal.url == "" || !surreal.url.includes("/rpc")) {
+    throw createError({
+        statusCode: 500,
+        message: `Database URL was [${surreal.url ?? "empty"}]. Check environment variables.`
+    })
+}
+
+const db = new Surreal(surreal.url, {
+    ns: surreal.namespace,
+    db: surreal.database,
+    auth: {
+        user: surreal.username,
+        pass: surreal.password,
+    },
+    prepare: async () => {
         console.log(`Connected to ${surreal.namespace}:${surreal.database}`)
     }
-    catch (ex: any) {
-        console.log("Unable to connect to ${surreal.namespace}:${surreal.database}...")
-        console.log(ex.message)
-    }
-    return db
-})()
-
-
+})
 
 interface Parameters {
     [key: string]: any
@@ -35,7 +32,6 @@ export interface DatabaseResponse<T> {
 }
 
 async function handleQuery<T>(sql: string[], parameters?: Parameters) {
-    await db.wait()
     const responses = await db.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
     if (responses.some(r => r.status == 'ERR')) {
         throw createError({

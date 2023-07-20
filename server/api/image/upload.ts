@@ -1,4 +1,3 @@
-import { queryOne } from "~/server/database"
 import { Image, User } from "~/types"
 
 export default defineEventHandler(async (event) => {

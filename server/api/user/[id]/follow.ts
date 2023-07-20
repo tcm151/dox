@@ -1,4 +1,4 @@
-import { multiQuery } from "../../../database";
+import { multiQuery } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!;

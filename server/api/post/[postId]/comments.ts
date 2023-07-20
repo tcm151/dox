@@ -1,5 +1,4 @@
 import { Comment } from "~/types";
-import { queryAll } from "../../../database";
 
 export default defineEventHandler(async (event) => {
     const { postId } = event.context.params!;

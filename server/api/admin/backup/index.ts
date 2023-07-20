@@ -1,6 +1,3 @@
-import { multiQuery, queryAll } from "~/server/database"
-import { User } from "~/types"
-
 // FIXME convert all endpoints to parameterized versions
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

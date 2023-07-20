@@ -1,5 +1,5 @@
 import { Draft } from "~/types";
-import { queryOne } from "../../../database";
+import { queryOne } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
     const draft = await readBody(event)

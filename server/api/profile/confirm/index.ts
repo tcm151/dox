@@ -1,4 +1,3 @@
-import { multiQuery, queryOne } from "~/server/database"
 import { User } from "~/types"
 
 interface Confirmation {

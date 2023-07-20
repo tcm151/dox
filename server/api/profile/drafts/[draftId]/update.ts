@@ -1,5 +1,4 @@
 import { Draft } from "~/types";
-import { queryOne } from "~/server/database";
 
 export default defineEventHandler(async (event) => {
     const { draftId } = event.context.params!;

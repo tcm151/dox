@@ -1,4 +1,3 @@
-import { queryOne } from "~/server/database"
 import { User } from "~/types"
 
 interface Confirmation {

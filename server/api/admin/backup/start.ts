@@ -1,13 +1,13 @@
-import { multiQuery, queryAll } from "~/server/database"
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+    
     if (!auth.admin) {
         throw createError({
             statusCode: 401,
             message: "You shall not pass!"
         })
     }
+    
     return await queryAll<any>([`
         LET $comments = (SELECT * FROM comment);
         LET $drafts = (SELECT * FROM draft);
@@ -26,5 +26,4 @@ export default defineEventHandler(async (event) => {
         time = time::now(),
         user = ${auth.id}
     `])
-    return true
 })

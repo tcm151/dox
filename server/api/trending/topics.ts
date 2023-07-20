@@ -1,4 +1,4 @@
-import { queryAll } from "../../database";
+import { queryAll } from "../../utils/database";
 
 export default defineEventHandler(async (event) => {
     return await queryAll<{ count: number, topic: string }>([`

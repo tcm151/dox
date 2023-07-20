@@ -1,5 +1,5 @@
 import { Post } from "~/types";
-import { queryAll } from "../../../database";
+import { queryAll } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!;
