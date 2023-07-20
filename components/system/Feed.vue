@@ -116,7 +116,7 @@ function sort(type: string) {
                 </div>
             </div>
         </TransitionGroup>
-        <!-- FIXME allow more than five pages -->
+        <!-- TODO allow more than five pages -->
         <div class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('page', props.page! - 1)"></i>
             <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>

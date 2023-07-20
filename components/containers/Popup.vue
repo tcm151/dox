@@ -29,7 +29,6 @@ function resizePopup() {
 </script>
 
 <template>
-    <!-- FIXME account for keyboard on mobile, screen height -->
     <div class="popup column center" v-if="props.visible">
         <div class="window p-5" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
             <h1 v-if="title">{{ title }}</h1>
