@@ -2,20 +2,25 @@ import { Comment } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    
+    const content = await readBody(event)
     const { commentId } = event.context.params!
-    let comment = await queryOne<Comment>([`
-        SELECT *
-        FROM comment:${commentId}
-    `])
     
+    const { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $comment')
+    parameters['comment'] = `comment:${commentId}`
+    const comment = await queryOne<Comment>({ sql, parameters })
+
     if (comment.user === auth.id) {
-        const content = await readBody(event)
-        return await queryOne<Comment>([`
-            UPDATE comment:${commentId} SET
-            content = "${content}",
-            edited = true,
-            timeEdited = time::now()
-        `])
+        const { sql, parameters } = queryBuilder()
+        sql.push('UPDATE $comment SET')
+        sql.push('content = $content,')
+        sql.push('edited = true,')
+        sql.push('timeEdited = time::now()')
+        parameters['comment'] = `comment:${commentId}`
+        parameters['content'] = content
+        return await queryOne<Comment>({ sql, parameters })
     }
+
+    return false
 })

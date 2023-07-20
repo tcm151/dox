@@ -2,21 +2,24 @@ import { Post } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event);
-    
     const post = await readBody(event)
     post.user = auth.id;
     post.votes.positive = [auth.id]
 
-    const createdPost = await queryOne<Post>([`
-        CREATE post
-        CONTENT ${JSON.stringify(post)}
-    `])
+    var { sql, parameters } = queryBuilder()
+    sql.push('CREATE POST')
+    sql.push('CONTENT $post')
+    parameters['post'] = post
+    const createdPost = await queryOne<Post>({ sql, parameters })
 
-    let sql = new Array<string>()
-    post.topics.forEach((t: string) => {
-        sql.push(`UPDATE ${t} SET posts += "${createdPost.id}";`)
+    var { sql, parameters } = queryBuilder()
+    parameters['post'] = createdPost.id
+    createdPost.topics.forEach((topic, i) => {
+        sql.push(`UPDATE $topic${i} SET`)
+        sql.push(`posts += $post;`)
+        parameters[`topic${i}`] = topic
     })
-    await multiQuery(sql)
+    await multiQuery({ sql, parameters })
 
     return createdPost
 })

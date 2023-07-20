@@ -4,11 +4,14 @@ import { Image } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const { imageId } = event.context.params!
-    const image = await queryOne<Image>([`
-        SELECT *
-        FROM image:${imageId}
-        FETCH user
-    `])
+
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $image')
+    sql.push('FETCH user')
+    parameters['image'] = `image:${imageId}`
+    const image = await queryOne<Image>({ sql, parameters })
+    
     try {
         return fs.readFileSync(`./images/${imageId}.${image.type}`)
     }

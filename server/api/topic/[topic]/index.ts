@@ -1,10 +1,10 @@
 import { Topic } from "~/types";
-import { queryOne } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
-    const { topic } = event.context.params!;
-    return await queryOne<Topic>([`
-        SELECT *
-        FROM topic:${topic}
-    `])
+    const { topic } = event.context.params!
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $topic')
+    parameters['topic'] = `topic:${topic}`
+    return await queryOne<Topic>({ sql, parameters })
 })

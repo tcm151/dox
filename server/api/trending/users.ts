@@ -1,17 +1,12 @@
-import { queryAll } from "../../utils/database";
-
 export default defineEventHandler(async (event) => {
-    return await queryAll<{ id: string, name: string, score: number }>([`
-        SELECT *
-        FROM (
-            SELECT id, name,
-                   array::len(votes.positive)
-                   + (array::len(votes.misleading) / 2)
-                   - array::len(votes.negative) AS score
-            FROM user
-        )
-        WHERE score > 0
-        ORDER BY score DESC
-        LIMIT 5
-    `])
+    var { sql } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM (')
+    sql.push('SELECT id, name, votes.score AS score')
+    sql.push('FROM user')
+    sql.push(')')
+    sql.push('WHERE score > 0')
+    sql.push('ORDER BY score DESC')
+    sql.push('LIMIT 5')
+    return await queryAll<{ id: string, name: string, score: number }>({ sql })
 })

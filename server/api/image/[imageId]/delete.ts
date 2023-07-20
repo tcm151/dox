@@ -4,13 +4,15 @@ import { Image, User } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    
     const { imageId } = event.context.params!
-    const image = await queryOne<Image>([`
-        SELECT *
-        FROM image:${imageId}
-        FETCH user
-    `])
+    
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $image')
+    sql.push('FETCH user')
+    parameters['image'] = `image:${imageId}`
+    const image = await queryOne<Image>({ sql, parameters })
+
 
     if ((image.user as User).id !== auth.id) {
         throw createError({
@@ -29,12 +31,14 @@ export default defineEventHandler(async (event) => {
                 break
         }
 
-        await multiQuery([`
-            UPDATE ${auth.id} SET
-            tokens += ${image.tokens};
-
-            DELETE image:${imageId};
-        `])
+        var { sql, parameters } = queryBuilder()
+        sql.push('UPDATE $user SET')
+        sql.push('tokens += $tokens;')
+        sql.push('DELETE $image;')
+        parameters['user'] = auth.id
+        parameters['tokens'] = image.tokens
+        parameters['image'] = image.id
+        await multiQuery({ sql, parameters })
         
         return true
     }

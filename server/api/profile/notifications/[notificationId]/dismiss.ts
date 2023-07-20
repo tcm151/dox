@@ -1,17 +1,20 @@
 import { Notification } from "~/types";
-import { queryOne } from "../../../../utils/database";
 
 export default defineEventHandler(async (event) => {
-    const { notificationId } = event.context.params!;
-    const auth = await authenticateRequest(event);
-    let notification = await queryOne<Notification>([`
-        SELECT *
-        FROM notification:${notificationId}
-    `])
+    const auth = await authenticateRequest(event)
+    const { notificationId } = event.context.params!
+
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $notification')
+    parameters['notification'] = `notification:${notificationId}`
+    let notification = await queryOne<Notification>({ sql, parameters })
+
     if (notification.recipient === auth.id) {
-        return await queryOne<Notification>([`
-            UPDATE notification:${notificationId} SET
-            viewed = true
-        `])
+        var { sql, parameters } = queryBuilder()
+        sql.push('UPDATE $notification SET')
+        sql.push('viewed = true')
+        parameters['notification'] = `notification:${notificationId}`
+        return await queryOne<Notification>({ sql, parameters })
     }
 })

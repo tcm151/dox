@@ -1,10 +1,12 @@
-import { queryOne } from "../../../utils/database";
-
 export default defineEventHandler(async (event) => {
-    const { topic } = event.context.params!;
-    const auth = await authenticateRequest(event);
-    return await queryOne([`
-        UPDATE ${auth.id} SET
-        topics += topic:${topic}
-    `])
+    const auth = await authenticateRequest(event)
+    const { topic } = event.context.params!
+
+    var { sql, parameters } = queryBuilder()
+    sql.push('UPDATE $user SET')
+    sql.push('topics += $topic')
+    parameters['user'] = auth.id
+    parameters['topic'] = `topic:${topic}`
+
+    return await queryOne({ sql, parameters })
 })

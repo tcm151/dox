@@ -2,12 +2,14 @@ import { Post } from "~/types";
 
 export default defineEventHandler(async (event) => {
     let { page, pageSize } = getQuery(event)
-    return await queryAll<Post>([`
-        SELECT id, title, topics, comments, time, votes, user.id, user.name
-        FROM post
-        ORDER BY time DESC
-        LIMIT ${Number(pageSize ?? 5)}
-        START ${(Number(page) - 1) * Number(pageSize ?? 5)}
-        FETCH user
-    `])
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT id, title, topics, comments, time, votes, user.id, user.name')
+    sql.push('FROM post')
+    sql.push('ORDER BY time DESC')
+    sql.push('LIMIT $pageSize')
+    sql.push('START $pageStart')
+    sql.push('FETCH user')
+    parameters['pageSize'] = Number(pageSize ?? 100)
+    parameters['pageStart'] = (Number(page) - 1) * Number(pageSize ?? 5)
+    return await queryAll<Post>({ sql, parameters })
 })

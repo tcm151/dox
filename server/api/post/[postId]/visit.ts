@@ -2,8 +2,9 @@ import { Post } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const { postId } = event.context.params!;
-    return await queryOne<Post>([`
-        UPDATE post:${postId} SET
-        visits += 1
-    `])
+    var { sql, parameters } = queryBuilder()
+    sql.push('UPDATE $post SET')
+    sql.push('visits += 1')
+    parameters['post'] = `post:${postId}`
+    return await queryOne<Post>({ sql, parameters })
 })

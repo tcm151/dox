@@ -1,7 +1,7 @@
 import { User } from "~/types";
 
 export default defineEventHandler(async (event) => {
-    const auth = await authenticateRequest(event);
+    const auth = await authenticateRequest(event)
     
     if (!auth) {
         throw createError({
@@ -10,11 +10,11 @@ export default defineEventHandler(async (event) => {
         })
     }
     
-    return await queryOne<User>([`
-        SELECT id, name, email, dateCreated,
-               followers, following, topics,
-               confirmed, verified, admin, tokens
-        FROM user
-        WHERE id = ${auth.id}
-    `])
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT id, name, email, dateCreated,')
+    sql.push('followers, following, topics,')
+    sql.push('confirmed, verified, admin, tokens')
+    sql.push('FROM $user')
+    parameters['user'] = auth.id
+    return await queryOne<User>({ sql, parameters })
 })

@@ -8,22 +8,26 @@ export default defineEventHandler(async (event) => {
         })
     }
     
-    return await queryAll<any>([`
-        LET $comments = (SELECT * FROM comment);
-        LET $drafts = (SELECT * FROM draft);
-        LET $posts = (SELECT * FROM post);
-        LET $topics = (SELECT * FROM topic);
-        LET $users = (SELECT * FROM user);
-        
-        USE NS dox DB backup;
-        
-        INSERT INTO comment $comments;
-        INSERT INTO draft $drafts;
-        INSERT INTO post $posts;
-        INSERT INTO topic $topics;
-        INSERT INTO user $users;
-        CREATE backup SET
-        time = time::now(),
-        user = ${auth.id}
-    `])
+    const { sql, parameters } = queryBuilder()
+
+    sql.push('LET $comments = (SELECT * FROM comment);')
+    sql.push('LET $drafts = (SELECT * FROM draft);')
+    sql.push('LET $posts = (SELECT * FROM post);')
+    sql.push('LET $topics = (SELECT * FROM topic);')
+    sql.push('LET $users = (SELECT * FROM user);')
+    
+    sql.push('USE NS dox DB backup;')
+    sql.push('INSERT INTO comment $comments;')
+    sql.push('INSERT INTO draft $drafts;')
+    sql.push('INSERT INTO post $posts;')
+    sql.push('INSERT INTO topic $topics;')
+    sql.push('INSERT INTO user $users;')
+    
+    sql.push('CREATE backup SET')
+    sql.push('time = time::now(),')
+    sql.push('user = $user.id')
+    parameters['user'] = auth
+
+    // TODO create type for backups
+    return await queryAll<any>({ sql, parameters })
 })

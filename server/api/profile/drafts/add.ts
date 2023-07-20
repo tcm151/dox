@@ -1,12 +1,13 @@
 import { Draft } from "~/types";
-import { queryOne } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
+    const auth = await authenticateRequest(event)
     const draft = await readBody(event)
-    const auth = await authenticateRequest(event);
-    draft.user = auth.id;
-    return await queryOne<Draft>([`
-        CREATE draft
-        CONTENT ${JSON.stringify(draft)}
-    `])
+    draft.user = auth.id
+
+    var { sql, parameters } = queryBuilder()
+    sql.push('CREATE draft')
+    sql.push('CONTENT $draft')
+    parameters['draft'] = draft
+    return await queryOne<Draft>({ sql, parameters })
 })

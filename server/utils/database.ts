@@ -1,4 +1,5 @@
 import Surreal from 'surrealdb.js';
+import { Post } from '~/types'
 
 const { surreal } = useRuntimeConfig()
 if (surreal.url == "" || !surreal.url.includes("/rpc")) {
@@ -31,8 +32,20 @@ export interface DatabaseResponse<T> {
     result: T[]
 }
 
-async function handleQuery<T>(sql: string[], parameters?: Parameters) {
-    const responses = await db.query(sql.join("\n"), parameters ?? {}) as DatabaseResponse<T>[]
+interface Query {
+    sql: string[]
+    parameters?: Parameters
+}
+
+export function queryBuilder(): { sql: string[], parameters: Parameters } {
+    return {
+        sql: [],
+        parameters: {}
+    }
+}
+
+async function handleQuery<T>(query: Query) {
+    const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as DatabaseResponse<T>[]
     if (responses.some(r => r.status == 'ERR')) {
         throw createError({
             statusCode: 500,
@@ -42,16 +55,16 @@ async function handleQuery<T>(sql: string[], parameters?: Parameters) {
     return responses
 }
 
-export async function queryOne<T>(sql: string[], parameters?: Parameters): Promise<T> {
-    let responses = await handleQuery<T>(sql, parameters)
+export async function queryOne<T>(query: Query): Promise<T> {
+    let responses = await handleQuery<T>(query)
     return responses[0].result[0]
 }
 
-export async function queryAll<T>(sql: string[], parameters?: Parameters): Promise<T[]> {
-    let response = await handleQuery<T>(sql, parameters) 
+export async function queryAll<T>(query: Query): Promise<T[]> {
+    let response = await handleQuery<T>(query) 
     return response[0].result
 }
 
-export async function multiQuery(sql: string[], parameters?: Parameters): Promise<DatabaseResponse<any>[]> {
-    return await handleQuery(sql, parameters)
+export async function multiQuery(query: Query): Promise<DatabaseResponse<any>[]> {
+    return await handleQuery(query)
 }

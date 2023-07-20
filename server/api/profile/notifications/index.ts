@@ -1,14 +1,15 @@
 import { Notification } from "~/types";
-import { queryAll } from "../../../utils/database";
 
 export default defineEventHandler(async (event) => {
-    const auth = await authenticateRequest(event);
-    return await queryAll<Notification>([`
-        SELECT *
-        FROM notification
-        WHERE recipient = ${auth.id}
-          AND viewed = false
-        ORDER BY time DESC
-        FETCH context
-    `])
+    const auth = await authenticateRequest(event)
+    
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM notification')
+    sql.push('WHERE recipient = $user')
+    sql.push('AND viewed = false')
+    sql.push('ORDER BY time DESC')
+    sql.push('FETCH context')
+    parameters['user'] = auth.id
+    return await queryAll<Notification>({ sql, parameters })
 })

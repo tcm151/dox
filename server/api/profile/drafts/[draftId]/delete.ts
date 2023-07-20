@@ -1,16 +1,20 @@
 import { Draft } from "~/types";
 
 export default defineEventHandler(async (event) => {
-    const { draftId } = event.context.params!;
-    const auth = await authenticateRequest(event);
-    let draft = await queryOne<Draft>([`
-        SELECT *
-        FROM draft:${draftId}
-    `])
+    const auth = await authenticateRequest(event)
+    const { draftId } = event.context.params!
+    
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $draft')
+    parameters['draft'] = `draft:${draftId}`
+    const draft = await queryOne<Draft>({ sql, parameters })
+
     if (draft.user === auth.id) {
-        return await queryOne<Draft>([`
-            DELETE draft:${draftId}
-        `])
+        var { sql, parameters } = queryBuilder()
+        sql.push('DELETE $draft')
+        parameters['draft'] = `draft:${draftId}`
+        return await queryOne<Draft>({ sql, parameters })
     }
 
     return false

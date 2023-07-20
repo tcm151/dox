@@ -1,9 +1,9 @@
 import { Image } from "~/types";
 
 export default defineEventHandler(async (event) => {
-    return await queryAll<Image>([`
-        SELECT *
-        FROM image
-        ORDER BY time DESC
-    `])
+    var { sql } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM image')
+    sql.push('ORDER BY time DESC')
+    return await queryAll<Image>({ sql })
 })

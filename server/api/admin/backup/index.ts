@@ -1,4 +1,3 @@
-// FIXME convert all endpoints to parameterized versions
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     if (!auth.admin) {
@@ -7,13 +6,14 @@ export default defineEventHandler(async (event) => {
             message: "You shall not pass!"
         })
     }
-    const responses = await multiQuery([`
-        USE NS dox DB backup;
-    
-        SELECT id, time, user.id, user.name
-        FROM backup
-        ORDER BY time DESC
-        FETCH user;
-    `])
-    return responses[1].result
+
+    const { sql } = queryBuilder()
+
+    sql.push('USE NS dox DB backup;')
+    sql.push('SELECT id, time, user.id, user.name')
+    sql.push('FROM backup')
+    sql.push('ORDER BY time DESC')
+    sql.push('FETCH user;')
+
+    return (await multiQuery({ sql }))[1].result
 })

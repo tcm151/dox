@@ -1,8 +1,8 @@
 export default defineEventHandler(async (event) => {
-    return await queryAll<{ subject: string, reporter: string, time?: string }>([`
-        SELECT *
-        FROM report
-        // FETCH subject, reporter
-        ORDER BY time DESC
-    `])
+    var { sql } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM report')
+    sql.push('//FETCH subject, reporter')
+    sql.push('ORDER BY time DESC')
+    return await queryAll<{ subject: string, reporter: string, time?: string }>({ sql })
 })

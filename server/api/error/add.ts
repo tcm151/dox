@@ -1,7 +1,8 @@
 export default defineEventHandler(async (event) => {
     const error = await readBody(event)
-    return await queryOne<any>([`
-        CREATE error
-        CONTENT ${JSON.stringify(error)}
-    `])
+    var { sql, parameters } = queryBuilder()
+    sql.push('CREATE error')
+    sql.push('CONTENT $error')
+    parameters['error'] = error
+    return await queryOne<any>({ sql, parameters })
 })

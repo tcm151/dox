@@ -1,20 +1,24 @@
 import { Post } from "~/types";
 
 export default defineEventHandler(async (event) => {
-    const auth = await authenticateRequest(event);
+    const auth = await authenticateRequest(event)
+    const content = await readBody(event)
+    const { postId } = event.context.params!
     
-    const { postId } = event.context.params!;
-    let post = await queryOne<Post>([`
-        SELECT *
-        FROM post:${postId}
-    `])
+    var { sql, parameters } = queryBuilder()
+    sql.push('SELECT *')
+    sql.push('FROM $post')
+    parameters['post'] = `post:${postId}`
+    let post = await queryOne<Post>({ sql, parameters })
+
     if (post.user === auth.id) {
-        const content = await readBody(event);
-        return await queryOne<Post>([`
-            UPDATE post:${postId} SET
-            content = $content,
-            edited = true,
-            timeEdited = time::now()
-        `], { content })
+        var { sql, parameters } = queryBuilder()
+        sql.push('UPDATE $post SET')
+        sql.push('content = $content,')
+        sql.push('edited = true,')
+        sql.push('timeEdited = time::now()')
+        parameters['post'] = `post:${postId}`
+        parameters['content'] = content
+        return await queryOne<Post>({ sql, parameters })
     }
 })
