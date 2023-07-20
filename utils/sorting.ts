@@ -34,10 +34,10 @@ function sortTop(first: Post | Comment, second: Post | Comment) {
 }
 
 function sortHot(first: Post | Comment, second: Post | Comment) {
-    const timeSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), "days").days
-    const timeSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), "days").days
-    const firstScore = calculateScore(first) / (timeSinceFirst + 1)
-    const secondScore = calculateScore(second) / (timeSinceSecond + 1)
+    const daysSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), "days").days
+    const daysSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), "days").days
+    const firstScore = calculateScore(first) / (daysSinceFirst + 1)
+    const secondScore = calculateScore(second) / (daysSinceSecond + 1)
     return firstScore < secondScore ? 1 : -1
 }
 
