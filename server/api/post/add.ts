@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     post.votes.positive = [auth.id]
 
     var { sql, parameters } = queryBuilder()
-    sql.push('CREATE POST')
+    sql.push('CREATE post')
     sql.push('CONTENT $post')
     parameters['post'] = post
     const createdPost = await queryOne<Post>({ sql, parameters })
