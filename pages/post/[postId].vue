@@ -108,7 +108,6 @@ async function reportPost(post: Post) {
     await session.useApi(`/api/post/${postId}/report`)
     hints.addError("This post has been reported to the development team.")
 }
-
 </script>
 
 <template>
@@ -158,45 +157,51 @@ async function reportPost(post: Post) {
             <ClientOnly>
                 <footer class="column g-2" v-if="session.isAuthenticated">
                     <div class="interactions row-wrap g-1" v-if="!showPostReply && !editingPost">
-                        <button class="comment" @click="toggleCommentBox">
-                            <i class="fa-solid fa-message"></i>
-                            <span>Comment</span>
-                        </button>
-                        <!-- TODO allow replying to posts -->
-                        <!-- <button>
-                            <i class="fa-solid fa-reply-all"></i>
-                            <span>Reply</span>
-                        </button> -->
-                        <!-- TODO allow awarding posts -->
-                        <!-- <button>
-                            <i class="fa-solid fa-crown"></i>
-                            <span>Award</span>
-                        </button> -->
-                        <button class="share" @click="copyLink">
-                            <i class="fa-solid fa-copy"></i>
-                            <span>Share</span>
-                        </button>
-                        <!-- TODO allow saving posts -->
-                        <!-- <button>
-                            <i class="fa-solid fa-box-archive"></i>
-                            <span>Archive</span>
-                        </button> -->
-                        <button class="report" @click="reportPost(post.value!)">
-                            <i class="fa-solid fa-flag"></i>
-                            <span>Report</span>
-                        </button>
-                        <button class="edit" v-if="(post.value.user as User).id === session.user?.id" @click="toggleEditPost()">
-                            <i class="fa-solid fa-eraser"></i>
-                            <span>Edit</span>
-                        </button>
-                        <button class="delete" v-if="(post.value.user as User).id === session.user?.id" @click="deletePost">
-                            <i class="fa-solid fa-trash-can"></i>
-                            <span>Delete</span>
-                        </button>
+                        <div class="first row g-1">
+                            <button class="comment" @click="toggleCommentBox">
+                                <i class="fa-solid fa-message"></i>
+                                <span>Comment</span>
+                            </button>
+                            <!-- TODO allow replying to posts -->
+                            <button class="reply" @click="hints.addWarning('This is still being working on.')">
+                                <i class="fa-solid fa-reply-all"></i>
+                                <span>Reply</span>
+                            </button>
+                            <button class="share" @click="copyLink">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                        <div class="second row g-1">
+                            <!-- TODO allow awarding posts -->
+                            <button class="award" @click="hints.addWarning('This is still being working on.')">
+                                <i class="fa-solid fa-crown"></i>
+                                <span>Award</span>
+                            </button>
+                            <!-- TODO allow saving posts -->
+                            <button class="save" @click="hints.addWarning('This is still being working on.')">
+                                <i class="fa-solid fa-box-archive"></i>
+                                <span>Save</span>
+                            </button>
+                            <button class="report" @click="reportPost(post.value!)">
+                                <i class="fa-solid fa-flag"></i>
+                                <span>Report</span>
+                            </button>
+                        </div>
+                        <div class="third row g-1" v-if="(post.value.user as User).id === session.user?.id">
+                            <button class="edit" @click="toggleEditPost()">
+                                <i class="fa-solid fa-eraser"></i>
+                                <span>Edit</span>
+                            </button>
+                            <button class="delete" @click="deletePost">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
                         <!-- REFACTOR move some interactions into menu -->
-                        <button class="menu">
+                        <!-- <button class="menu">
                             <i class="fa-solid fa-ellipsis"></i>
-                        </button>
+                        </button> -->
                     </div>
                     <div class="row g-1" v-else-if="editingPost">
                         <button class="info" @click="togglePreview">
@@ -245,25 +250,15 @@ section.post {
 }
 
 div.interactions {
-    // REFACTOR decide if want to keep
-    // button:not(.menu) {
-    //     flex: 1 1 auto;
-    // }
+    position: relative;
 
-    @media screen and (max-width: 600px) {
-        button.edit, button.delete {
-            span {
-                display: none;
-            }
-        }
+    // REFACTOR decide if want to keep
+    button:not(.menu) {
+        flex: 1 1 auto;
     }
 
-    @media screen and (max-width: 500px) {
-        button.report, button.share {
-            span {
-                display: none;
-            }
-        }
+    div.first, div.second, div.third {
+        flex: 1 1 auto;
     }
 }
 

@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         replyTo.id : (replyTo.post as Post).id
     
     // send a notification to relevant user
-    // FIXME need to account for when directly responding to posts
+    // REFACTOR need to account for when directly responding to posts
     var { sql, parameters } = queryBuilder()
     sql.push('CREATE notification SET')
     sql.push('recipient = $recipient,')
