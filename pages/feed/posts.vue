@@ -9,7 +9,7 @@ const session = getSession()
 
 let queryParameters = ref({
     pageNumber: 1,
-    pageSize: 24,
+    pageSize: 64,
 })
 
 const feed = useFeed(queryParameters.value)
