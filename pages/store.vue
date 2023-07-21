@@ -6,6 +6,7 @@ definePageMeta({
 
 <template>
     <article class="column m-4">
+        <!-- TODO scaffold store page -->
         <section class="column p-4">
             <button class="danger">
                 <i class="fa-solid fa-person-digging"></i>

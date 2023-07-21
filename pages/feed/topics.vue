@@ -1,5 +1,6 @@
 <template>
     <article class="column m-4 p-4">
+        <!-- TODO scaffold topics feed -->
         <button class="danger">
             <i class="fa-solid fa-person-digging"></i>
             This page is still under construction...
