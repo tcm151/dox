@@ -4,11 +4,11 @@ definePageMeta({
     middleware: (to, from) => {
         if (process.client) {
             const session = getSession()
-            if (to.path.startsWith("/admin") && (!session.isAuthenticated && !session.user.admin)) {
+            if (to.path.startsWith("/developer") && (!session.isAuthenticated || session.user.id != 'user:opkdyfig54tdre96jc37')) {
                 return abortNavigation()
             }
-            if (to.path === "/admin") {
-                return navigateTo("/admin/feedback")
+            if (to.path === "/developer") {
+                return navigateTo("/developer/query")
             }
         }
     }
@@ -19,9 +19,9 @@ definePageMeta({
     <article class="column center-inline">
         <PagedTabstrip
             :tabs="[
-                { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
-                { route: '/admin/feedback', icon: 'fa-solid fa-message', label: 'Feedback' },
-                { route: '/admin/backups', icon: 'fa-solid fa-warehouse', label: 'Backups' },
+                { route: '/developer/query', icon: 'fa-solid fa-terminal', label: 'Database' },
+                { route: '/developer/grid', icon: 'fa-solid fa-table', label: 'Grid' },
+                { route: '/developer/animations', icon: 'fa-solid fa-truck-fast', label: 'Animations' },
             ]"
         />
         <NuxtPage />

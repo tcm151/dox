@@ -21,12 +21,19 @@ async function login() {
             <ClientOnly>
                 <NuxtLink to="/store" v-if="session.isAuthenticated" title="Store">
                     <i class="fa-solid fa-coins"></i>
+                    <span>Store</span>
+                </NuxtLink>
+                <NuxtLink to="/feed">
+                    <i class="fa-solid fa-signs-post"></i>
+                    <span>Feeds</span>
                 </NuxtLink>
                 <NuxtLink to="/admin" v-if="session.isAuthenticated && session.user.admin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
+                    <span>Admin</span>
                 </NuxtLink>
-                <NuxtLink to="/notifications" v-if="session.isAuthenticated" title="Notifications">
-                    <i class="fa-solid fa-envelope"></i>
+                <NuxtLink to="/developer" v-if="session.isAuthenticated && session.user.id == 'user:opkdyfig54tdre96jc37'" title="Developer">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Developer</span>
                 </NuxtLink>
                 <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
                     <i class="fa-solid fa-keyboard"></i>
@@ -36,41 +43,37 @@ async function login() {
                 </Window>
             </ClientOnly>
         </section>
-        <ClientOnly>
-            <Transition name="slide">
+        <Transition name="slide">
+            <ClientOnly>
                 <section class="right authenticated" v-if="session.isAuthenticated">
-                    <NuxtLink to="/feed">
-                        <i class="fa-solid fa-signs-post"></i>
-                        <span>Feeds</span>
-                    </NuxtLink>
                     <NuxtLink to="/editor">
                         <i class="fa-solid fa-feather-pointed"></i>
                         <span>Post</span>
+                    </NuxtLink>
+                    <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
+                        <i class="fa-solid fa-inbox"></i>
+                        <span>Inbox</span>
                     </NuxtLink>
                     <NuxtLink to="/profile">
                         <i class="fa-solid fa-user"></i>
                         <span>{{ session.user?.name }}</span>
                     </NuxtLink>
-                    <a @click="session.logout(true)" @contextmenu.prevent="session.logout(false)" title="Logout">
+                    <NuxtLink @click="session.logout(true)" @contextmenu.prevent="session.logout(false)" title="Logout">
                         <i class="fa-solid fa-right-from-bracket"></i>
-                    </a>
+                    </NuxtLink>
                 </section>
                 <section class="right anonymous" v-else>
-                    <NuxtLink to="/feed">
-                        <i class="fa-solid fa-signs-post"></i>
-                        <span>Feeds</span>
-                    </NuxtLink>
-                    <a @click="login">
+                    <NuxtLink @click="login">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Login</span>
-                    </a>
+                    </NuxtLink>
                     <NuxtLink to="/register">
                         <i class="fa-solid fa-user-plus"></i>
                         <span>Register</span>
                     </NuxtLink>
                 </section>
-            </Transition>
-        </ClientOnly>
+            </ClientOnly>
+        </Transition>
     </nav>
 </template>
 
@@ -85,12 +88,24 @@ nav {
     // background: linear-gradient(45deg, $dox-blue, $dox-purple);
 }
 
-.left {
+section.left {
     @include flex-h;
 
     a.dox {
-        @media only screen and (max-width: 400px) {
+        @media only screen and (max-width: 500px) {
             span { display: none; }
+        }
+    }
+
+    a:not(.dox) {
+        @media only screen and (max-width: 1000px) {
+            span { display: none; }
+        }
+    }
+
+    a[title=Developer] {
+        @media only screen and (max-width: 600px) {
+            display: none;
         }
     }
 }
@@ -101,6 +116,10 @@ section.right {
     top: 0;
     right: 0;
     position: absolute;
+
+    @media only screen and (max-width: 600px) {
+        span { display: none; }
+    }
 }
 
 a {
@@ -118,12 +137,6 @@ a {
 
 a:hover {
     background-color: $dox-black-light;
-}
-
-.right {
-    @media only screen and (max-width: 500px) {
-        span { display: none; }
-    }
 }
 
 @keyframes slide {

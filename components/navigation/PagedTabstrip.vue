@@ -34,7 +34,7 @@ nav.row {
 
     a {
         min-height: 19px;
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 1.5rem;
         font-weight: 700;
         font-size: 1.1rem;
         color: $dox-white;
@@ -49,7 +49,7 @@ nav.row {
         background-color: $dox-black-light;
     }
 
-    @media only screen and (max-width: 1000px) {
+    @media only screen and (max-width: 600px) {
         a:not(.selected) {
             span {
                 display: none;
