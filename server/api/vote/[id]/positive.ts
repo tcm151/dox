@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 
     var { sql, parameters } = queryBuilder()
     sql.push('UPDATE $item SET')
-    sql.push('votes.positive = array::union(votes.misleading, [$user]),')
+    sql.push('votes.positive = array::union(votes.positive, [$user]),')
     sql.push('votes.misleading -= $user,')
     sql.push('votes.negative -= $user')
     parameters['item'] = id
