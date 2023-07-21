@@ -43,8 +43,8 @@ async function login() {
                 </Window>
             </ClientOnly>
         </section>
-        <Transition name="slide">
-            <ClientOnly>
+        <ClientOnly>
+            <Transition name="slide">
                 <section class="right authenticated" v-if="session.isAuthenticated">
                     <NuxtLink to="/editor">
                         <i class="fa-solid fa-feather-pointed"></i>
@@ -72,8 +72,8 @@ async function login() {
                         <span>Register</span>
                     </NuxtLink>
                 </section>
-            </ClientOnly>
-        </Transition>
+            </Transition>
+        </ClientOnly>
     </nav>
 </template>
 
