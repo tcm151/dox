@@ -50,7 +50,7 @@ function cancelUpload() {
 
 <template>
     <article class="column g-4 p-4">
-        <ClientOnly>
+        <!-- <ClientOnly>
             <section class="tools box row center-inline g-2 p-4" v-if="session.user.confirmed">
                 <button class="success" @click="refresh()">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
@@ -62,8 +62,8 @@ function cancelUpload() {
                 </button>
                 <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
             </section>
-        </ClientOnly>
-        <section class="all-images fill row-wrap g-4">
+        </ClientOnly> -->
+        <section class="all-images fill row-wrap g-2">
             <div class="image fill" v-for="image in images">
                 <img :src="image.url">
             </div>
@@ -119,6 +119,14 @@ section.all-images {
             height: 128px;
             max-width: 100%;
             object-fit: contain;
+
+            @media only screen and (max-width: 800px) {
+                height: 96px;
+            }
+
+            @media only screen and (max-width: 600px) {
+                height: 64px;
+            }
         }
     }
     
