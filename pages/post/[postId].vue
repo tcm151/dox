@@ -104,6 +104,31 @@ function copyLink() {
     hints.addSuccess("Copied post URL");
 }
 
+async function awardPost() {
+    if ((post.value?.user as User).id == session.user.id) {
+        hints.addError("You can't award your own posts.")
+        return
+    }
+    if (post.value?.votes.awards?.includes(session.user.id)) {
+        hints.addWarning('You have already awarded this post.')
+        return
+    }
+
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Award',
+        message: 'Are you sure you want to award this post? It will cost 64 tokens.',
+        accept: async () => {
+            try {
+                await session.useApi(`/api/post/${postId}/award`)
+                post.value?.votes.awards?.push(session.user.id)
+            }
+            catch (ex: any) {
+                hints.addError("Failed to award post.")
+            }
+        },
+    })
+}
+
 async function reportPost(post: Post) {
     await session.useApi(`/api/post/${postId}/report`)
     hints.addError("This post has been reported to the development team.")
@@ -123,6 +148,14 @@ async function reportPost(post: Post) {
                     </span>
                     <span class="tag negative" @click="vote.negative(post.value)" :class="{ voted: post.value.votes.negative.includes(session.user.id)}">
                         {{ post.value?.votes.negative.length }}
+                    </span>
+                    <span class="tag link" v-if="post.value.votes.awards && post.value.votes.awards.length > 0">
+                        <i class="fa-solid fa-crown"></i>
+                        <span>{{ post.value.votes.awards.length }}</span>
+                    </span>
+                    <span class="tag link" v-if="post.value.votes.saves && post.value.votes.saves.length > 0">
+                        <i class="fa-solid fa-box-archive"></i>
+                        <span>{{ post.value.votes.saves.length }}</span>
                     </span>
                 </div>
                 <span class="tag topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
@@ -173,8 +206,7 @@ async function reportPost(post: Post) {
                             </button>
                         </div>
                         <div class="second row g-1">
-                            <!-- TODO allow awarding posts -->
-                            <button class="award" @click="hints.addWarning('This is still being working on.')">
+                            <button class="award" @click="awardPost">
                                 <i class="fa-solid fa-crown"></i>
                                 <span>Award</span>
                             </button>

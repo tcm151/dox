@@ -83,11 +83,11 @@ function sort(type: string) {
                             <span class="tag negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
                                 {{ post?.votes.negative.length }}
                             </span>
-                            <span class="tag link" v-if="post.votes.awards">
+                            <span class="tag link" v-if="post.votes.awards && post.votes.awards.length > 0">
                                 <i class="fa-solid fa-crown"></i>
                                 <span>{{ post.votes.awards.length }}</span>
                             </span>
-                            <span class="tag link" v-if="post.votes.saves">
+                            <span class="tag link" v-if="post.votes.saves && post.votes.saves.length > 0">
                                 <i class="fa-solid fa-box-archive"></i>
                                 <span>{{ post.votes.saves.length }}</span>
                             </span>
