@@ -120,7 +120,7 @@ async function awardPost() {
         accept: async () => {
             try {
                 await session.useApi(`/api/post/${postId}/award`)
-                post.value?.votes.awards?.push(session.user.id)
+                await post.fetch()
             }
             catch (ex: any) {
                 hints.addError("Failed to award post.")
