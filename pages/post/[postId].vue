@@ -252,7 +252,6 @@ section.post {
 div.interactions {
     position: relative;
 
-    // REFACTOR decide if want to keep
     button:not(.menu) {
         flex: 1 1 auto;
     }

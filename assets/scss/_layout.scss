@@ -78,6 +78,14 @@
     justify-content: center;
 }
 
+.grid {
+    display: grid;
+}
+
+.grid.center {
+    place-content: center;
+}
+
 .column-wrap {
     @include flex-vw;
 }

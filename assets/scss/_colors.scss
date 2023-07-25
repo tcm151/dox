@@ -41,6 +41,11 @@ $success: $dox-green;
 $warning: $dox-yellow;
 $danger: $dox-red;
 
+.dark {
+    color: $dox-white-ultra;
+    background-color: $dox-black;
+}
+
 .positive, .success {
     color: $dox-green;
     background-color: $dox-green-light;

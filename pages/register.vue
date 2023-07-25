@@ -3,6 +3,9 @@ definePageMeta({
     layout: 'middle'
 })
 
+const route = useRoute()
+const referrer = route.query['referral']
+
 const hints = useHints()
 const session = getSession()
 
@@ -38,7 +41,8 @@ async function register() {
             body: {
                 email: email.value,
                 username: username.value,
-                password: password.value
+                password: password.value,
+                referral: referrer
             },
         })
 
@@ -69,8 +73,10 @@ function differentPasswords() {
 </script>
 
 <template>
-    <!-- TODO allow for users to gain tokens by referring new users -->
-    <article class="column">
+    <article class="column g-2">
+        <div style="text-align: center;" v-if="referrer">
+            <p>Referral: {{ referrer }}</p>
+        </div>
         <div class="register p-5">
             <h1 class="mb-4">Register</h1>
             <div class="form">
