@@ -2,6 +2,7 @@
 definePageMeta({
     layout: 'simple'
 })
+
 let { data: trendingTopics } = useFetch("/api/trending/topics");
 let { data: trendingUsers } = useFetch("/api/trending/users");
 
@@ -44,8 +45,8 @@ let { data: trendingUsers } = useFetch("/api/trending/users");
                 <div class="content fill">
                     <h2 class="mt-0">Welcome to DOX</h2>
                     <p>The place for this, that, and everything. A new forum for the modern internet</p>
-                    <p>Host your own personal blog, ask questions about scientific theories, share memes, write tutorials, create a fan page; the ideas are limitless on DOX.</p>
-                    <p>Designed from the groud up with misinformation in mind, you can vote on just about everything. Use the voting system to make informed decisions when engaging with anything on DOX.</p>
+                    <p>Host your own personal blog, ask questions about scientific theories, share memes, write tutorials, create a fan page; the ideas are limitless.</p>
+                    <p>You can vote on just about everything. Use the voting system to make informed decisions when engaging with anything on DOX.</p>
                 </div>
                 <div class="buttons column g-2">
                     <button @click="navigateTo('/feed')">View Feed</button>
