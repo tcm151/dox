@@ -24,14 +24,14 @@ function copyReferralLink() {
 </script>
 
 <template>
-    <article class="grid center g-4">
-        <section class="mb-5">
+    <article class="grid center g-4 py-4">
+        <section class="mb-4">
             <div class="box advert">
                 <h2>This could be your ad.</h2>
                 <p>Contact to showcase your product/service on this storefront.</p>
             </div>
         </section>
-        <section class="row g-4">
+        <section class="row-wrap g-4">
             <div class="offer box fill" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
                 <h2 class="tokens g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
@@ -40,8 +40,8 @@ function copyReferralLink() {
                 <p>{{ formatAs('currency', offer.cost) }}</p>
             </div>
         </section>
-        <section class="row g-4">
-            <div class="box fill column g-2">
+        <section class="row-wrap g-4">
+            <div class="welcome box fill column g-2">
                 <h2 class="row center-inline g-2">
                     <i class="fa-solid fa-coins"></i>
                     <span>Store</span>
@@ -49,7 +49,7 @@ function copyReferralLink() {
                 <p>You can buy additional tokens here. You need tokens to upload images and award posts. You start with some tokens for free, and can gain more by referring new users.</p>
                 <p>You currently have <strong>{{ session.user.tokens }}</strong> tokens.</p>
             </div>
-            <div class="referrals box grid center g-4">
+            <div class="referrals box fill grid center g-4">
                 <button class="link" @click="copyReferralLink">
                     <i class="fa-solid fa-handshake-simple"></i>
                     <span>Refer a Friend</span>
@@ -61,7 +61,7 @@ function copyReferralLink() {
             </div>
         </section>
         <section>
-            <div class="box advert mt-5">
+            <div class="box advert mt-4">
                 <h2>This could be your ad.</h2>
                 <p>Contact to showcase your product on this storefront.</p>
             </div>
@@ -76,6 +76,10 @@ article {
 
 div.box {
     padding: 2rem;
+}
+
+div.box.offer {
+    padding: 1.75rem;
 }
 
 div.box.offer {
@@ -98,7 +102,14 @@ div.box.offer:hover {
     background-color: $dox-yellow-light;
 }
 
+div.welcome {
+    flex-basis: 50%;
+    overflow-x: hidden;
+    white-space: break-spaces;
+}
+
 div.referrals {
+    flex-basis: 10%;
     white-space: nowrap;
 }
 
