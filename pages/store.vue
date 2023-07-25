@@ -26,7 +26,7 @@ function copyReferralLink() {
 <template>
     <article class="grid center g-4">
         <section class="mb-5">
-            <div class="box ad">
+            <div class="box advert">
                 <h2>This could be your ad.</h2>
                 <p>Contact to showcase your product/service on this storefront.</p>
             </div>
@@ -61,7 +61,7 @@ function copyReferralLink() {
             </div>
         </section>
         <section>
-            <div class="box ad mt-5">
+            <div class="box advert mt-5">
                 <h2>This could be your ad.</h2>
                 <p>Contact to showcase your product on this storefront.</p>
             </div>
@@ -102,7 +102,7 @@ div.referrals {
     white-space: nowrap;
 }
 
-div.box.ad {
+div.box.advert {
     text-align: center;
     border: 2px solid $dox-white-dark;
     color: $dox-white-dark;
