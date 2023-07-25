@@ -19,9 +19,11 @@ function getColor(hint: Hint) {
 
 <template>
     <aside class="hints">
-        <div class="item px-4 py-2" v-for="hint in hints.items" :style="{ backgroundColor: getColor(hint) }">
-            {{ hint.message }}
-        </div>
+        <TransitionGroup name="hints">
+            <div class="item px-4 py-2" v-for="hint in hints.items" :key="hint.number" :style="{ backgroundColor: getColor(hint) }">
+                {{ hint.message }}
+            </div>
+        </TransitionGroup>
     </aside>
 </template>
 
@@ -53,10 +55,10 @@ function getColor(hint: Hint) {
     }
 }
 
-@keyframes fade-in {
-    0% { opacity: 0% }
-    100% { opacity: 100% }
-}
+// @keyframes fade-in {
+//     0% { opacity: 0% }
+//     100% { opacity: 100% }
+// }
 
 .item {
     position: relative;
@@ -68,7 +70,15 @@ function getColor(hint: Hint) {
     border-radius: 0.25rem;
     box-shadow: 0.25rem 0.25rem 1rem -0.25rem $dox-white-dark,
                 0 0 0.33rem 1px $dox-white-dark;
-    animation: fade-in 256ms;
+    // animation: fade-in 256ms;
     pointer-events: all;
+}
+
+.hints-move, .hints-enter-active, .hints-leave-active {
+    transition: all 256ms ease-in-out;
+}
+
+.hints-enter-from, .hints-enter-to {
+    opacity: 0;
 }
 </style>
