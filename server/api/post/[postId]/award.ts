@@ -19,12 +19,28 @@ export default defineEventHandler(async (event) => {
     var { sql, parameters } = queryBuilder()
     sql.push('UPDATE $post SET')
     sql.push('votes.awards = array::union(votes.awards, [$awarder]);')
+    parameters['post'] = post.id
+    
     sql.push('UPDATE $awarder SET')
     sql.push('tokens -= 64;')
+    parameters['awarder'] = auth.id
+    
     sql.push('UPDATE $recipient SET')
     sql.push('tokens += 64;')
-    parameters['post'] = post.id
-    parameters['awarder'] = auth.id
     parameters['recipient'] = post.user
+
+    sql.push('CREATE notification SET')
+    sql.push('recipient = $recipient,')
+    sql.push('context = $context,')
+    sql.push('message = $message,')
+    sql.push('time = time::now(),')
+    sql.push('viewed = false;')
+    parameters['recipient'] = post.user
+    parameters['context'] = post.id
+    parameters['message'] = [
+        `**u/${auth.name}** awarded your post`,
+        `> You gained 64 tokens. Don't forget to thank them!\n`,
+    ].join('\n')
+
     return await multiQuery({ sql, parameters })
 })
