@@ -22,11 +22,11 @@ export default defineEventHandler(async (event) => {
     parameters['post'] = post.id
     
     sql.push('UPDATE $awarder SET')
-    sql.push('tokens -= 64;')
+    sql.push('tokens -= 256;')
     parameters['awarder'] = auth.id
     
     sql.push('UPDATE $recipient SET')
-    sql.push('tokens += 64;')
+    sql.push('tokens += 256;')
     parameters['recipient'] = post.user
 
     sql.push('CREATE notification SET')
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     parameters['context'] = post.id
     parameters['message'] = [
         `**u/${auth.name}** awarded your post`,
-        `> You gained 64 tokens. Don't forget to thank them!\n`,
+        `> You gained 256 tokens. Don't forget to thank them!\n`,
     ].join('\n')
 
     return await multiQuery({ sql, parameters })

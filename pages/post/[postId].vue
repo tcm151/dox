@@ -116,7 +116,7 @@ async function awardPost() {
 
     events.publish(Trigger.showPopup, {
         title: 'Confirm Award',
-        message: 'Are you sure you want to award this post? It will cost 64 tokens.',
+        message: 'Are you sure you want to award this post? It will cost 256 tokens.',
         accept: async () => {
             try {
                 await session.useApi(`/api/post/${postId}/award`)
