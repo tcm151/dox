@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { Notification } from '~/types'
 
+definePageMeta({
+    middleware: (to, from) => {
+        if (process.client) {
+            const session = getSession()
+            if (to.path.startsWith("/inbox") && !session.isAuthenticated) {
+                return abortNavigation()
+            }
+        }
+    }
+})
+
 const session = getSession();
 let notifications = ref<Notification[] | null>(null);
 
