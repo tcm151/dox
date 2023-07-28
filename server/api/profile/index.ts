@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     }
     
     var { sql, parameters } = queryBuilder()
-    sql.push('SELECT id, name, email, dateCreated,')
+    sql.push('SELECT id, name, email, link, description, dateCreated,')
     sql.push('followers, following, topics,')
     sql.push('confirmed, verified, admin, tokens')
     sql.push('FROM $user')

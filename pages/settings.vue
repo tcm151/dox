@@ -2,8 +2,14 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (to.path === "/settings") {
-            return navigateTo("/settings/account")
+        if (process.client) {
+            const session = getSession()
+            if (to.path.startsWith("/settings") && !session.isAuthenticated) {
+                return abortNavigation()
+            }
+            if (to.path === "/settings") {
+                return navigateTo("/settings/profile")
+            }
         }
     }
 })
@@ -13,7 +19,9 @@ definePageMeta({
     <article class="column center-inline">
         <PagedTabstrip
             :tabs="[
-                { route: '/settings/account', icon: 'fa-solid fa-address-card', label: 'Account' },
+                { route: '/settings/profile', icon: 'fa-solid fa-address-card', label: 'Profile' },
+                // { route: '/settings/account', icon: 'fa-solid fa-address-card', label: 'Account' },
+                { route: '/settings/preferences', icon: 'fa-solid fa-sliders', label: 'Preferences' },
             ]"
         />
         <section class="page column center-inline">

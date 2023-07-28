@@ -13,6 +13,8 @@ export interface User extends Voteable {
     id: string
     email: string
     name: string
+    link?: string
+    description?: string
     topics: string[]
     following: string[]
     followers: string[]

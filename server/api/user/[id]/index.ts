@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     
     var { sql, parameters } = queryBuilder()
-    sql.push('SELECT id, name, dateCreated, votes, followers, following, topics')
+    sql.push('SELECT id, name, link, description, dateCreated, votes, followers, following, topics')
     sql.push('FROM $user')
     parameters['user'] = `user:${id}`
     const user = await queryOne<User>({ sql, parameters })

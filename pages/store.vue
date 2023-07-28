@@ -74,6 +74,10 @@ article {
     @include fit-width(800px, 1rem);
 }
 
+section {
+    height: fit-content;
+}
+
 div.box {
     padding: 2rem;
 }

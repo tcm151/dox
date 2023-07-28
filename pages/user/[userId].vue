@@ -32,16 +32,21 @@ async function unfollowUser() {
 
 <template>
     <article class="user column g-2 p-4">
-        <header class="profile column g-2 p-5">
+        <header class="profile column g-3 p-5">
             <section class="row g-2">
                 <figure class="image is-64x64">
                     <img src="https://bulma.io/images/placeholders/64x64.png">
                 </figure>
-                <div class="name-follow row center-inline">
-                    <h1>{{ user?.name }}</h1>
+                <div class="name-follow row center-inline g-4">
+                    <div class="column">
+                        <h1>{{ user?.name }}</h1>
+                        <a :href="user.link" v-if="user?.link">
+                            {{ user?.link }}
+                        </a>
+                    </div>
                     <ClientOnly>
-                        <div class="row g-2" v-if="session.isAuthenticated">
-                            <button v-if="user?.id == session.user.id" @click="showSettings = true" @contextmenu.prevent="navigateTo('/settings')">
+                        <div class="buttons row g-2" v-if="session.isAuthenticated">
+                            <button v-if="user?.id == session.user.id" @click="navigateTo('/settings')">
                                 <i class="fa-solid fa-gear"></i>
                                 <span>Settings</span>
                             </button>
@@ -51,7 +56,6 @@ async function unfollowUser() {
                             <button class="tag success" v-else @click="followUser">
                                 Follow
                             </button>
-                            <Settings :visible="showSettings" @close="showSettings = false" />
                         </div>
                     </ClientOnly>
                 </div>
@@ -82,6 +86,9 @@ async function unfollowUser() {
                     joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong>
                 </span>
             </section>
+            <section class="column g-2" v-if="user?.description">
+                <p>{{ user.description }}</p>
+            </section>
         </header>
         <Feed :posts="posts ?? []" :sorting="true" :pagination="true" />
     </article>
@@ -100,9 +107,37 @@ article.user {
 .name-follow {
     flex: 1 1;
     justify-content: space-between;
+    overflow-x: hidden;
+
+    div.column {
+        overflow-x: hidden;
+
+        a {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+    }
 
     h1 {
         font-size: 1.5rem;
+    }
+
+    a {
+        color: $dox-purple;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+}
+
+div.buttons {
+    @media only screen and (max-width: 600px) {
+        span {
+            display: none;
+        }
     }
 }
 

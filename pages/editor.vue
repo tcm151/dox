@@ -319,7 +319,7 @@ section.editor {
     }
 
     input.invalid {
-        background-color: $dox-red-light !important;
+        outline: 1px solid $dox-red !important;
     }
 }
 
