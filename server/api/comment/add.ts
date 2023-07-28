@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     parameters['recipient'] = (replyTo.user as User).id
     parameters['context'] = context
     parameters['message'] = [
-        `**u/${auth.name}** replied to you`,
+        `**${auth.name}** replied to you`,
         `> ${comment.content}\n`,
     ].join('\n')
     let notification = await queryOne<Notification>({ sql, parameters })

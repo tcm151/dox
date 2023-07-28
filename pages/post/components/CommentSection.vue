@@ -88,7 +88,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
                         <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                             <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === (post.value?.user as User).id"></i>    
                             <i class="fa-solid fa-user" v-else></i>
-                            {{ `u/${comment.user?.name}` }}
+                            {{ `${comment.user?.name}` }}
                         </span>
                         <span class="tag info">
                             <i class="fa-solid fa-calendar"></i>

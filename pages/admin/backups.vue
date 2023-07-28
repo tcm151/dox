@@ -50,7 +50,7 @@ async function startBackup() {
                 <div class="fit row g-2" v-for="backup in backups">
                     <span class="fill tag link">{{ backup.id }}</span>
                     <span class="tag info">{{ formatDate(backup.time) }}</span>
-                    <span class="tag info">u/{{ backup.user.name }}</span>
+                    <span class="tag info">{{ backup.user.name }}</span>
                 </div>
             </div>
         </section>

@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     parameters['recipient'] = `user:${referral}`
     parameters['context'] = auth.id
     parameters['message'] = [
-        `**u/${auth.name}** used your referral`,
+        `**${auth.name}** used your referral`,
         `> You gained 1024 free tokens. Don't forget to thank them!\n`,
     ].join('\n')
     

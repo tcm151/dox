@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     parameters['recipient'] = post.user
     parameters['context'] = post.id
     parameters['message'] = [
-        `**u/${auth.name}** awarded your post`,
+        `**${auth.name}** awarded your post`,
         `> You gained 256 tokens. Don't forget to thank them!\n`,
     ].join('\n')
 
