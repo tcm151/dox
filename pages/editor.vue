@@ -306,7 +306,7 @@ article.editor {
     overflow-y: hidden;
 
     div.container {
-        border-radius: 0.5rem 0.5rem 0 0;
+        border-radius: 0.5rem 0.5rem;
         background-color: $dox-grey-light;
     }
 }
