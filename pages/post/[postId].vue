@@ -208,7 +208,6 @@ async function reportPost(post: Post) {
                                     <i class="fa-solid fa-message"></i>
                                     <span>Comment</span>
                                 </button>
-                                <!-- TODO allow replying to posts -->
                                 <button class="reply" @click="writePostReply">
                                     <i class="fa-solid fa-reply-all"></i>
                                     <span>Reply</span>
@@ -243,10 +242,6 @@ async function reportPost(post: Post) {
                                     <span>Delete</span>
                                 </button>
                             </div>
-                            <!-- REFACTOR move some interactions into menu -->
-                            <!-- <button class="menu">
-                                <i class="fa-solid fa-ellipsis"></i>
-                            </button> -->
                         </div>
                         <div class="row g-1" v-else-if="editingPost">
                             <button class="info" @click="togglePreview">
