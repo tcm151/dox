@@ -28,10 +28,11 @@ export interface User extends Voteable {
 
 export interface Post extends Voteable {
     id: string
-    time: string
     user: User | string
     title: string
     content: string
+    time: string
+    replyTo?: Post | string
     topics: string[]
     comments: string[]
     images?: Image[]
@@ -42,10 +43,11 @@ export interface Post extends Voteable {
 
 export interface Draft {
     id: string
-    time: string
     user: User | string
     title: string
     content: string
+    time: string
+    replyTo?: Post | string
     topics: string[]
     images?: Image[]
     edited?: boolean

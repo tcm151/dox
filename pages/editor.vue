@@ -16,8 +16,6 @@ definePageMeta({
 
 const hints = useHints()
 const session = getSession()
-const settings = useUserSettings()
-
 
 let draft = ref<Draft>({
     id: '',
@@ -27,6 +25,16 @@ let draft = ref<Draft>({
     content: '',
     topics: [],
     images: [],
+})
+
+const route = useRoute()
+const replyTo = computedAsync<Post | null>(async () => {
+    if (route.query['replyTo'] || draft.value.replyTo) {
+        const post = await $fetch(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
+        draft.value.replyTo = post.id
+        return post
+    }
+    return null
 })
 
 let newTopic = ref("")
@@ -54,7 +62,6 @@ function addTopic() {
 function removeTopic(topic: string) {
     draft.value.topics = draft.value.topics.filter(t => t !== topic)
 }
-
 
 let showDrafts = ref(false)
 function viewDraft(existingDraft: Draft) {
@@ -140,12 +147,13 @@ async function submit() {
             user: session.user!.id,
             title: draft.value.title,
             content: draft.value.content,
+            time: DateTime.now(),
+            replyTo: draft.value.replyTo,
             votes: {
                 positive: [session.user!.id],
                 misleading: [],
                 negative: [],
             },
-            time: DateTime.now(),
             topics: draft.value.topics,
             comments: [],
             images: uploadedImages.value.map(i => i.id)
@@ -171,6 +179,7 @@ async function saveDraft() {
         await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
             title: draft.value.title,
             content: draft.value.content,
+            replyTo: draft.value.replyTo,
             topics: draft.value.topics,
             images: uploadedImages.value.map(i => i.id)
         })
@@ -182,6 +191,7 @@ async function saveDraft() {
             title: draft.value.title,
             content: draft.value.content,
             time: new Date(),
+            replyTo: draft.value.replyTo,
             topics: draft.value.topics,
             images: uploadedImages.value.map(i => i.id)
         })
@@ -192,10 +202,14 @@ async function saveDraft() {
 </script>
 
 <template>
-    <article class="editor row-wrap g-4 p-4">
-        <ClientOnly>
+    <article class="editor column p-4">
+        <div class="container column fill">
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
             <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
+            <div class="reply-to row center-inline g-2" v-if="replyTo">
+                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                <p>{{ replyTo?.title }}</p>
+            </div>
             <section class="editor column p-5">
                 <div class="column fill" v-if="!showPreview">
                     <header class="row center-inline mb-4">
@@ -281,25 +295,38 @@ async function saveDraft() {
                     <!-- <button class="danger fill" @click="navigateTo('/')">Cancel</button> -->
                 </section>
             </section>
-        </ClientOnly>
+        </div>
     </article>
 </template>
 
 <style scoped lang="scss">
 article.editor {
-    @include fit-width (1200px, 1rem);
+    @include fit-width (800px, 1rem);
     justify-content: center;
     overflow-y: hidden;
+
+    div.container {
+        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: $dox-grey-light;
+    }
 }
 
 section.editor, section.preview {
-    height: calc(100% - 3rem);
-
     flex: 1 1 400px;
     min-width: 250px;
-    max-width: 800px;
     border-radius: 0.5rem;
     background-color: $dox-white-ultra;
+}
+
+.reply-to {
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    color: $dox-white-ultra;
+
+    p {
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 section.editor {

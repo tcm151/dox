@@ -75,6 +75,8 @@ export default defineNuxtConfig({
         },
     },
     routeRules: {
+        '/inbox': { ssr: false },
+        '/editor': { ssr: false },
         '/admin/**': { ssr: false },
         '/developer/**': { ssr: false },
         '/settings/**': { ssr: false },

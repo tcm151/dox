@@ -66,10 +66,9 @@ function sort(type: string) {
         <TransitionGroup name="feed">
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
                 <!-- TODO allow for pinned posts -->
-                <!-- TODO allow reply to posts directly with another post -->
-                <div class="reply-to row center-inline g-2" v-if="post.topics.includes('topic:ReplyTo')">
-                    <i class="fa-solid fa-reply"></i> 
-                    <p>This is the name of the post that is being replied to</p>
+                <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null">
+                    <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                    <p>{{ (post.replyTo as Post).title }}</p>
                 </div>
                 <div class="main">
                     <div class="row-wrap g-1">
