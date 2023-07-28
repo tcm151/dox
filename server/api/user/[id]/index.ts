@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     const user = await queryOne<User>({ sql, parameters })
 
     var { sql, parameters } = queryBuilder()
-    sql.push('SELECT id, title, topics, comments, time, votes, user.id, user.name')
+    sql.push('SELECT id, user.id, user.name, title, time, replyTo.id, replyTo.title, topics, comments, votes')
     sql.push('FROM post')
     sql.push('WHERE user = $user')
     sql.push('ORDER BY time DESC')
