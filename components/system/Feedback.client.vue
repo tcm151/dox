@@ -34,12 +34,10 @@ async function submitFeedback() {
 <template>
     <div class="field">
         <textarea rows="10" :placeholder="placeholder ?? ''" v-model="feedback"></textarea>
-        <ClientOnly>
-            <div class="column mt-3" >
-                <button class="success" v-if="session.isAuthenticated" @click="submitFeedback">Submit</button>
-                <button class="negative" v-else>You must be logged in to submit feedback.</button>
-            </div>
-        </ClientOnly>
+        <div class="column mt-3" >
+            <button class="success" v-if="session.isAuthenticated" @click="submitFeedback">Submit</button>
+            <button class="negative" v-else>You must be logged in to submit feedback.</button>
+        </div>
     </div>
 </template>
 

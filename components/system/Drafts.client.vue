@@ -30,41 +30,39 @@ async function deleteDraft(draft: Draft) {
 </script>
 
 <template>
-    <ClientOnly>
-        <Window
-            :visible="visible"
-            width="600px"
-            title="Drafts"
-            icon="fa-solid fa-compass-drafting"
-            @close="emit('close')"
-        >
-            <section class="drafts column" v-if="!loading && userDrafts.length > 0">
-                <div class="column" v-for="draft in userDrafts" :key="draft.id">
-                    <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
-                    <div class="row-wrap g-2">
-                        <span class="topic" v-for="topic in draft.topics">
-                            {{ topic.split(':')[1] }}
-                        </span>
-                        <span class="info">{{ formatDate(draft.time) }}</span>
-                        <button @click="emit('view', draft)">
-                            <i class="fa-solid fa-book-open"></i>
-                            <span>View</span>
-                        </button>
-                        <button class="danger" @click="deleteDraft(draft)">
-                            <i class="fa-solid fa-trash"></i>
-                            <span>Delete</span>
-                        </button>
-                    </div>
+    <Window
+        :visible="visible"
+        width="600px"
+        title="Drafts"
+        icon="fa-solid fa-compass-drafting"
+        @close="emit('close')"
+    >
+        <section class="drafts column" v-if="!loading && userDrafts.length > 0">
+            <div class="column" v-for="draft in userDrafts" :key="draft.id">
+                <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
+                <div class="row-wrap g-2">
+                    <span class="topic" v-for="topic in draft.topics">
+                        {{ topic.split(':')[1] }}
+                    </span>
+                    <span class="info">{{ formatDate(draft.time) }}</span>
+                    <button @click="emit('view', draft)">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>View</span>
+                    </button>
+                    <button class="danger" @click="deleteDraft(draft)">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
                 </div>
-            </section>
-            <section class="empty-drafts" v-else-if="!loading">
-                <p>You have no drafts...</p>
-            </section>
-            <section class="loading" v-else>
-                <Spinner fontSize="2rem" :showLoadingText="false" /> 
-            </section>
-        </Window>
-    </ClientOnly>
+            </div>
+        </section>
+        <section class="empty-drafts" v-else-if="!loading">
+            <p>You have no drafts...</p>
+        </section>
+        <section class="loading" v-else>
+            <Spinner fontSize="2rem" :showLoadingText="false" /> 
+        </section>
+    </Window>
 </template>
 
 <style scoped lang="scss">
