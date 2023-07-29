@@ -56,7 +56,7 @@ function toggleChildren() {
     transition: all 256ms ease-in-out;
 }
 
-.items-enter-from, .items-enter-to {
+.items-enter-from, .items-leave-to {
     opacity: 0;
 }
 

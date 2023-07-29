@@ -185,7 +185,7 @@ function sort(type: string) {
     transition: all 512ms ease;
 }
 
-.feed-enter-from, .feed-enter-to {
+.feed-enter-from, .feed-leave-to {
     opacity: 0;
 }
 

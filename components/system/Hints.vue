@@ -75,10 +75,20 @@ function getColor(hint: Hint) {
 }
 
 .hints-move, .hints-enter-active, .hints-leave-active {
-    transition: all 256ms ease-in-out;
+    transition: all 128ms ease;
 }
 
-.hints-enter-from, .hints-enter-to {
+.hints-enter-from {
+    @media only screen and (max-aspect-ratio: 1/1) {
+        transform: translateY(-200%);
+    }
+    
+    @media only screen and (min-aspect-ratio: 1/1) {
+        transform: translateY(200%);
+    }
+}
+
+.hints-enter-from, .hints-leave-to {
     opacity: 0;
 }
 </style>
