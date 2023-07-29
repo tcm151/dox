@@ -4,6 +4,9 @@ definePageMeta({
     middleware: (to, from) => {
         if (process.client) {
             const session = getSession()
+            if (to.path.includes("/reset-password")) {
+                return
+            }
             if (to.path.startsWith("/settings") && !session.isAuthenticated) {
                 return abortNavigation()
             }

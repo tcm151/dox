@@ -27,25 +27,48 @@ async function updateProfile() {
         hints.addError("Failed to update profile.")
     }
 }
+
+const events = useEvents()
+
+async function resetPassword() {
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Password Reset',
+        message: 'Are you sure you want to reset your password?',
+        accept: async () => {
+            try {
+                await session.useApi(`/api/profile/password/reset`)
+                hints.addSuccess("Password reset link sent to your email.")
+            }
+            catch (ex: any) {
+                hints.addError("Failed to send reset link.")
+            }
+        },
+    })
+}
 </script>
 
 <template>
     <article class="column g-4 p-4">
         <section class="box column g-4 p-5">
-            <!-- TODO add support for users to change their passwords -->
-            <!-- TODO add two-factor authentication -->
-            <div class="row g-2">
+            <div class="column g-2">
                 <button class="fill danger" @click="sendConfirmation" v-if="!session.user.confirmed">
                     Confirm Account
                 </button>
                 <button class="fill success" v-else>
                     Account Confirmed
                 </button>
+                <button class="link" @click="resetPassword">
+                    Reset Password
+                </button>
             </div>
             <div class="form">
                 <div class="field">
                     <label>Username</label>
                     <input disabled type="text" v-model="session.user.name"/>
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input disabled type="text" v-model="session.user.email"/>
                 </div>
                 <div class="field">
                     <label>Link</label>
