@@ -27,7 +27,7 @@ interface Parameters {
 
 export interface DatabaseResponse<T> {
     status: string
-    details?: string
+    detail?: string
     time: string
     result: T[]
 }
@@ -49,7 +49,7 @@ async function handleQuery<T>(query: Query) {
     if (responses.some(r => r.status == 'ERR')) {
         throw createError({
             statusCode: 500,
-            message: responses.find(r => r.status == 'ERR')?.details
+            message: responses.find(r => r.status == 'ERR')?.detail
         })
     }
     return responses
