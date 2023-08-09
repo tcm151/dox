@@ -63,12 +63,12 @@ async function resetPassword() {
             </div>
             <div class="form">
                 <div class="field">
-                    <label>Username</label>
-                    <input disabled type="text" v-model="session.user.name"/>
-                </div>
-                <div class="field">
                     <label>Email</label>
                     <input disabled type="text" v-model="session.user.email"/>
+                </div>
+                <div class="field">
+                    <label>Username</label>
+                    <input disabled type="text" v-model="session.user.name"/>
                 </div>
                 <div class="field">
                     <label>Link</label>
@@ -100,6 +100,12 @@ article {
 
 textarea {
     resize: none !important;
+}
+
+div.profile-picture {
+    img {
+        border-radius: 0.5rem;
+    }
 }
 
 input.invalid, textarea.invalid {
