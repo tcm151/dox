@@ -66,7 +66,7 @@ function sort(type: string) {
         <TransitionGroup name="feed">
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
                 <!-- TODO allow for pinned posts -->
-                <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null">
+                <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId(post.id!)}`)">
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p>{{ (post.replyTo as Post).title }}</p>
                 </div>
