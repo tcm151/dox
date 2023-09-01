@@ -69,7 +69,7 @@ if (process.client) {
 <style lang="scss">
 main.page {
     height: calc(100vh - 40px);
-    height: calc(calc(var(--vh, 1vh) * 100) - 40px);
+    height: calc(var(--vh, 1vh) * 100 - 40px);
     background-color: $dox-white-light;
     overflow-x: hidden;
     overflow-y: auto;
