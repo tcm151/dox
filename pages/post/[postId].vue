@@ -282,14 +282,14 @@ article {
 
     div.container {
         border-radius: 0.5rem 0.5rem;
-        background-color: $dox-grey-light;
+        background-color: $dox-white-3;
     }
 }
 
 .reply-to {
     padding: 0.5rem 0.75rem;
     font-weight: 700;
-    color: $dox-white-ultra;
+    color: $dox-white-0;
     cursor: pointer;
 
     p {
@@ -300,11 +300,16 @@ article {
 
 section.post {
     border-radius: 0.5rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
     
     @media screen and (max-width: 600px) {
         padding: 1rem !important;
     }
+}
+
+.reply-to + section.post {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 div.interactions {

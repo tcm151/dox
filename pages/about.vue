@@ -45,7 +45,7 @@ article {
     display: flex;
     flex-flow: column wrap;
     border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 }
 
 section {

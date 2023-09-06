@@ -40,12 +40,12 @@ function toggleChildren() {
     width: 3px;
     margin-right: 0.25rem;
     border-radius: 0.25em;
-    background-color: $dox-white;
+    background-color: $dox-white-2;
     cursor: pointer;
 }
 
 .comment-line:hover {
-    background-color: $dox-white-light;
+    background-color: $dox-white-1;
 }
 
 .outside {

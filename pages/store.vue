@@ -119,8 +119,8 @@ div.referrals {
 
 div.box.banner {
     text-align: center;
-    border: 2px solid $dox-white-dark;
-    color: $dox-white-dark;
-    background-color: $dox-white;
+    border: 2px solid $dox-white-3;
+    color: $dox-white-3;
+    background-color: $dox-white-2;
 }
 </style>

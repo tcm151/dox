@@ -32,26 +32,26 @@ const emit = defineEmits<{
 nav.row {
     width: 100%;
     justify-content: center;
-    border-top: 1px solid $dox-black-light;
-    background-color: $dox-black;
+    border-top: 1px solid $dox-black-1;
+    background-color: $dox-black-0;
     
     button {
         min-height: 19px;
         padding: 0.5rem 0.75rem;
         font-weight: 700;
         font-size: 1.1rem;
-        color: $dox-white;
+        color: $dox-white-2;
         border-radius: 0;
-        background-color: $dox-black;
+        background-color: $dox-black-0;
     }
 
     button.selected {
-        background-color: $dox-black-light;
+        background-color: $dox-black-1;
     }
 
     button:hover {
         cursor: pointer;
-        background-color: $dox-black-light;
+        background-color: $dox-black-1;
     }
 
     @media only screen and (max-width: 1000px) {

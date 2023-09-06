@@ -12,6 +12,6 @@
 article {
     @include fit-width(400px, 1rem);
     border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 }
 </style>

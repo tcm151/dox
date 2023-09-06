@@ -82,8 +82,8 @@ section.title-bar {
     @include flex-h (1rem);
     align-items: stretch;
     justify-content: space-between;
-    color: $dox-white-ultra;
-    background-color: $dox-black;
+    color: $dox-white-0;
+    background-color: $dox-black-0;
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
     user-select: none;
@@ -97,7 +97,7 @@ section.title-bar {
     button.close {
         display: grid;
         place-items: center;
-        color: $dox-white-ultra;
+        color: $dox-white-0;
         background-color: transparent;
         cursor: pointer;
 
@@ -117,7 +117,7 @@ section.window-slot {
     padding: 1rem;
     @include flex-v;
     border-radius: 0 0 0.25rem 0.25rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
     overflow-y: auto;
 }
 </style>

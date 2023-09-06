@@ -113,11 +113,11 @@ input.invalid, textarea.invalid {
 }
 
 input[disabled] {
-    color: $dox-white-dark;
+    color: $dox-white-3;
 }
 
 input[disabled]:hover {
-    outline: 1px solid $dox-white;
+    outline: 1px solid $dox-white-2;
     cursor: not-allowed;
 }
 </style>

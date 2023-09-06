@@ -29,24 +29,24 @@ const route = useRoute()
 nav.row {
     width: 100%;
     justify-content: center;
-    border-top: 1px solid $dox-black-light;
-    background-color: $dox-black;
+    border-top: 1px solid $dox-black-1;
+    background-color: $dox-black-0;
 
     a {
         min-height: 19px;
         padding: 0.5rem 1.5rem;
         font-weight: 700;
         font-size: 1.1rem;
-        color: $dox-white;
+        color: $dox-white-2;
     }
 
     a.selected {
-        background-color: $dox-black-light;
+        background-color: $dox-black-1;
     }
 
     a:hover {
         cursor: pointer;
-        background-color: $dox-black-light;
+        background-color: $dox-black-1;
     }
 
     @media only screen and (max-width: 600px) {

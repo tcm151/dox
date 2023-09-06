@@ -101,7 +101,7 @@ article.user {
 
 .profile {
     border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 }
 
 .name-follow {

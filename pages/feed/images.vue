@@ -111,8 +111,8 @@ section.all-images {
     div.image {
         padding: 0.5rem;
         border-radius: 0.25rem;
-        border: 2px solid $dox-white-ultra;
-        background-color: $dox-white-ultra;
+        border: 2px solid $dox-white-0;
+        background-color: $dox-white-0;
         cursor: pointer;
         
         img {

@@ -6,7 +6,7 @@ html {
     font-size: 14px;
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
-    background-color: $dox-white-light;
+    background-color: $dox-white-1;
 }
 
 body, figure {
@@ -63,13 +63,13 @@ button {
     font-family: inherit;
     font-weight: 700;
 
-    background-color: $dox-white;
+    background-color: $dox-white-2;
 }
 
 button:hover {
     cursor: pointer;
-    color: $dox-white-ultra;
-    background-color: $dox-grey-light;
+    color: $dox-white-0;
+    background-color: $dox-white-3;
     transition: color 64ms, background-color 64ms;
 }
 
@@ -94,12 +94,13 @@ button:hover {
         font-family: inherit;
         font-weight: 500;
 
-        border: 1px solid $dox-white-light;
+        border: 1px solid $dox-white-1;
         border-radius: 0.25rem;
-        background-color: $dox-white-ultra;
+        background-color: $dox-white-0;
     }
 
     textarea {
+        outline: none;
         resize: vertical;
     }
 
@@ -149,14 +150,14 @@ code {
     font-weight: 500;
     font-family: 'Source Code Pro', monospace;
     border-radius: 0.25rem;
-    background-color: $dox-white-light !important;
+    background-color: $dox-white-1 !important;
 }
 
 blockquote {
     margin: 0;
     padding: 0.5rem 1rem;
     font-style: italic;
-    border-left: 3px solid $dox-white;
+    border-left: 3px solid $dox-white-2;
     border-radius: 0.25rem;
-    background-color: $dox-white-light;
+    background-color: $dox-white-1;
 }

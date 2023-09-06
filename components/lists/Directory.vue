@@ -174,11 +174,11 @@ div.folder {
     cursor: pointer;
     padding: 0.25rem 0.75rem;
     border-radius: 0.25rem;
-    background-color: $dox-white-light;
+    background-color: $dox-white-1;
 }
 
 div.folder:hover {
-    background-color: $dox-white;
+    background-color: $dox-white-2;
 }
 
 div.folder:has(input) {

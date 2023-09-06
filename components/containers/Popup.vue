@@ -69,8 +69,8 @@ function resizePopup() {
 .window {
     width: fit-content;
     border-radius: 0.5rem;
-    background-color: $dox-white-ultra;
-    box-shadow: 0.25rem 0.5rem 1rem -0.25rem $dox-white-dark, 0 0 0.33rem 1px $dox-white-dark;
+    background-color: $dox-white-0;
+    box-shadow: 0.25rem 0.5rem 1rem -0.25rem $dox-white-3, 0 0 0.33rem 1px $dox-white-3;
     animation: fade-in 256ms;
 
     h1 {

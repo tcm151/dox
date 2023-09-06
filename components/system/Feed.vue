@@ -70,7 +70,7 @@ function sort(type: string) {
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p>{{ (post.replyTo as Post).title }}</p>
                 </div>
-                <div class="main">
+                <div class="main" @click="navigateTo(`/post/${extractId(post.id!)}`)">
                     <div class="row-wrap g-1">
                         <div class="votes row g-1">
                             <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
@@ -91,7 +91,7 @@ function sort(type: string) {
                                 <span>{{ post.votes.saves.length }}</span>
                             </span>
                         </div>
-                        <span class="tag topic" v-for="topic in post.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
+                        <span class="tag topic" v-for="topic in post.topics" @click.stop="navigateTo(`/topic/${topic.split(':')[1]}`)">
                             {{ topic.split(':')[1] }}
                         </span>
                         <div class="details row g-1">
@@ -109,7 +109,7 @@ function sort(type: string) {
                             </span>
                         </div>
                     </div>
-                    <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                    <h3 class="title mt-1">
                         {{ post.title }}
                     </h3>
                 </div>
@@ -157,8 +157,8 @@ function sort(type: string) {
 
     .refresh {
         flex: 0 1;
-        color: $dox-white;
-        background-color: $dox-black;
+        color: $dox-white-2;
+        background-color: $dox-black-0;
 
         i.spin {
             animation: spin 512ms linear infinite;
@@ -166,18 +166,18 @@ function sort(type: string) {
     }
 
     .refresh:hover {
-        background-color: $dox-grey-dark;
+        background-color: $dox-black-2;
     }
 
     .selected {
-        color: $dox-white-ultra;
-        background-color: $dox-grey-light;
+        color: $dox-white-0;
+        background-color: $dox-white-3;
     }
 
     // .selected:hover {
-    //     color: $dox-grey-light;
-    //     background-color: $dox-white-light;
-    //     border: 0.2rem solid $dox-grey-light;
+    //     color: $dox-white-3;
+    //     background-color: $dox-white-1;
+    //     border: 0.2rem solid $dox-white-3;
     // }
 }
 
@@ -195,24 +195,29 @@ function sort(type: string) {
 
 .post {
     border-radius: 0.25rem;
-    background-color: $dox-white;
-    background-color: $dox-grey-light;
+    background-color: $dox-white-3;
     transition: transform 128ms;
     
     .main {
-        border-radius: 0.25rem;
         padding: 0.75rem;
-        background-color: $dox-white-ultra;
+        border-radius: 0.25rem;
+        background-color: $dox-white-0;
+    }
+
+    .reply-to + .main {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
     }
 
     .reply-to {
         padding: 0.25rem 0.5rem 0.25rem 0.5rem;
         font-weight: 700;
-        color: $dox-white-ultra;
+        color: $dox-white-0;
         
         p {
             overflow-x: hidden;
             text-overflow: ellipsis;
+            letter-spacing: 0.025rem;
         }
     }
 }
@@ -267,22 +272,22 @@ div.details {
         text-align: center;
         line-height: 20px;
         border-radius: 0.25rem;
-        background-color: $dox-white;
+        background-color: $dox-white-2;
     }
 
     span:hover, i:hover {
         cursor: pointer;
-        color: $dox-white-ultra;
-        background-color: $dox-grey-light;
+        color: $dox-white-0;
+        background-color: $dox-white-3;
     }
 
     .current {
-        color: $dox-white;
-        background-color: $dox-black;
+        color: $dox-white-2;
+        background-color: $dox-black-0;
     }
 
     .current:hover {
-        background-color: $dox-grey-dark;
+        background-color: $dox-black-2;
     }
 }
 </style>

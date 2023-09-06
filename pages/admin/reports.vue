@@ -25,7 +25,7 @@ article {
 div.report {
     text-align: center;
     border-radius: 0.25rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 
     a {
         color: $dox-red;

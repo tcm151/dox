@@ -85,7 +85,7 @@ article {
             font-weight: 800;
             font-size: 5rem;
             line-height: 4.25rem;
-            color: $dox-black;
+            color: $dox-black-0;
         }
     }
 
@@ -100,7 +100,7 @@ article {
             font-weight: 800;
             font-size: 3rem;
             line-height: 2.5rem;
-            color: $dox-black;
+            color: $dox-black-0;
         }
     }
 
@@ -111,7 +111,7 @@ article {
     }
     
     p {
-        color: $dox-black;
+        color: $dox-black-0;
     }
 }
 

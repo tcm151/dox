@@ -307,7 +307,7 @@ article.editor {
 
     div.container {
         border-radius: 0.5rem 0.5rem;
-        background-color: $dox-grey-light;
+        background-color: $dox-white-3;
     }
 }
 
@@ -315,13 +315,13 @@ section.editor, section.preview {
     flex: 1 1 400px;
     min-width: 250px;
     border-radius: 0.5rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 }
 
 .reply-to {
     padding: 0.5rem 0.75rem;
     font-weight: 700;
-    color: $dox-white-ultra;
+    color: $dox-white-0;
 
     p {
         overflow-x: hidden;
@@ -362,7 +362,7 @@ div.uploaded-images {
         object-fit: contain;
         border-radius: 0.25rem;
         border: 1px solid transparent;
-        background-color: $dox-white-light;
+        background-color: $dox-white-1;
     }
 
     img:hover {

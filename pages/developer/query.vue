@@ -182,7 +182,7 @@ article {
 
     div.left, div.right {
         border-radius: 0.25rem;
-        background-color: $dox-white-ultra;
+        background-color: $dox-white-0;
     }
 }
 
@@ -214,7 +214,7 @@ section.history, section.saved {
             font-weight: 500;
             font-family: "Source Code Pro", monospace;
             border-radius: 0.25rem;
-            background-color: $dox-white-light;
+            background-color: $dox-white-1;
         }
 
         div.buttons {
@@ -230,7 +230,7 @@ section.history, section.saved {
             }
 
             button:hover {
-                color: $dox-white;
+                color: $dox-white-2;
             }
         }
     }
@@ -253,7 +253,7 @@ section.results {
         white-space: pre-wrap;
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
-        background-color: $dox-white-light !important;
+        background-color: $dox-white-1 !important;
     }
 }
 </style>

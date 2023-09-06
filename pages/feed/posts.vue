@@ -78,11 +78,11 @@ section.feed {
 
 .filter-type {
     flex: 1 1;
-    color: $dox-white;
-    background-color: $dox-black;
+    color: $dox-white-2;
+    background-color: $dox-black-0;
 }
 
 .filter-type:hover {
-    background-color: $dox-grey-dark;
+    background-color: $dox-black-2;
 }
 </style>

@@ -1,15 +1,15 @@
 @use "sass:color";
 
 //> COLORS
-$dox-black: #272838;
-$dox-black-light: #393A49;
-$dox-grey-dark: #656672;
-$dox-grey: #90929A;
-$dox-grey-light: #B3B5BB;
-$dox-white-dark: #C0C2C7;
-$dox-white: #D8DADC;
-$dox-white-light: #EBEBEB;
-$dox-white-ultra: #FAFAFA;
+$dox-black-0: #272838;
+$dox-black-1: #393A49;
+$dox-black-2: #444554;
+$dox-black-3: #90929A;
+
+$dox-white-3: #C0C2C7;
+$dox-white-2: #E0E0E2;
+$dox-white-1: #F0F0F1;
+$dox-white-0: #FAFAFA;
 
 $dox-green: #1FAD83;
 $dox-green-light: color.scale($dox-green, $lightness: 80%);
@@ -33,7 +33,7 @@ $dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
 
 
 //> OVERRIDES
-$primary: $dox-black;
+$primary: $dox-black-0;
 $link:    $dox-blue;
 $info:    $dox-purple;
 
@@ -42,8 +42,8 @@ $warning: $dox-yellow;
 $danger: $dox-red;
 
 .dark {
-    color: $dox-white-ultra;
-    background-color: $dox-black;
+    color: $dox-white-0;
+    background-color: $dox-black-0;
 }
 
 .positive, .success {
@@ -52,7 +52,7 @@ $danger: $dox-red;
 }
 
 .positive:hover, .success:hover {
-    color: $dox-white-light;
+    color: $dox-white-1;
     background-color: $dox-green;
 }
 
@@ -66,7 +66,7 @@ $danger: $dox-red;
 }
 
 .misleading:hover, .warning:hover {
-    color: $dox-white-light;
+    color: $dox-white-1;
     background-color: $dox-yellow;
 }
 
@@ -80,7 +80,7 @@ $danger: $dox-red;
 }
 
 .negative:hover, .danger:hover {
-    color: $dox-white-light;
+    color: $dox-white-1;
     background-color: $dox-red;
 }
 
@@ -94,7 +94,7 @@ $danger: $dox-red;
 }
 
 .topic:hover, .link:hover {
-    color: $dox-white-light;
+    color: $dox-white-1;
     background-color: $dox-purple;
 }
 
@@ -116,7 +116,7 @@ $danger: $dox-red;
 }
 
 .info:hover {
-    color: $dox-white-light;
+    color: $dox-white-1;
     background-color: $dox-blue;
 }
 

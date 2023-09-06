@@ -137,7 +137,7 @@ function differentPasswords() {
 .register {
     width: 256px;
     border-radius: 0.5rem;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 }
 
 .field {

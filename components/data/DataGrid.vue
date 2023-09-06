@@ -392,15 +392,15 @@ td:not(.active-editing), th, header, footer {
 
 div.grid {
     overflow-y: hidden;
-    color: $dox-black;
+    color: $dox-black-0;
 }
 
 header {
     align-items: center;
     justify-content: space-between;
-    border: 1px solid $dox-white-light;
+    border: 1px solid $dox-white-1;
     border-bottom: 0;
-    background-color: $dox-white-ultra;
+    background-color: $dox-white-0;
 }
 
 section.left {
@@ -435,8 +435,8 @@ section.tools {
     }
 
     button:hover, :slotted(button):hover {
-        color: $dox-black;
-        background-color: $dox-white-light;
+        color: $dox-black-0;
+        background-color: $dox-white-1;
     }
 }
 
@@ -453,27 +453,27 @@ table {
 }
 
 table, th {
-    border: 1px solid $dox-white-light;
+    border: 1px solid $dox-white-1;
     border-collapse: collapse;
     
     td {
-        border: 1px solid $dox-white-light;
+        border: 1px solid $dox-white-1;
     }
 
     tr:nth-child(even) {
-        background-color: $dox-white-ultra;
+        background-color: $dox-white-0;
     }
 
     thead {
         top: 0;
         position: sticky;
-        box-shadow: inset 0  2px 0 $dox-white-light,
-                    inset 0 -2px 0 $dox-white-light;
+        box-shadow: inset 0  2px 0 $dox-white-1,
+                    inset 0 -2px 0 $dox-white-1;
     }
 
     thead tr th {
         border-top: 0;
-        background-color: $dox-white-ultra;
+        background-color: $dox-white-0;
     }
 
     tbody tr, thead tr {
@@ -546,7 +546,7 @@ input[type=checkbox] {
 }
 
 #item:hover {
-    background-color: $dox-white-light;
+    background-color: $dox-white-1;
 }
 
 .row-tools {
@@ -563,7 +563,7 @@ input[type=checkbox] {
 
     i:hover {
         cursor: pointer;
-        color: $dox-grey;
+        color: $dox-black-3;
     }
 }
 
@@ -571,8 +571,8 @@ footer {
     align-items: stretch;
     justify-content: space-between;
     white-space: nowrap;
-    border: 1px solid $dox-white-light;
-    background-color: $dox-white-ultra;
+    border: 1px solid $dox-white-1;
+    background-color: $dox-white-0;
 }
 
 .pagination {
@@ -588,7 +588,7 @@ footer {
     }
 
     span:has(.active-page), span:hover {
-        background-color: $dox-white-light;
+        background-color: $dox-white-1;
     }
 }
 
@@ -606,7 +606,7 @@ footer {
         text-align: center;
         font-family: inherit;
         font-weight: inherit;
-        border: 1px solid $dox-white-light;
+        border: 1px solid $dox-white-1;
         border-radius: 0.25rem;
     }
 }
