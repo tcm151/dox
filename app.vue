@@ -63,7 +63,9 @@ if (process.client) {
         <NuxtPage />
     </NuxtLayout>
     <Hints />
-    <Messages />
+    <DevOnly>
+        <Messages />
+    </DevOnly>
 </template>
 
 <style lang="scss">
