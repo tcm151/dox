@@ -14,21 +14,31 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <nav class="row">
-        <TransitionGroup name="tabs">
-            <button v-for="tab in tabs"
-                :class="{ selected: tab.label == currentTab }"
-                @click="emit('switchTabs', tab.label)"
-                :key="tab.label"
-            >
-                <i v-if="tab.icon" :class="tab.icon"></i>
-                <span>{{ tab.label }}</span>
-            </button>
-        </TransitionGroup>
-    </nav>
+    <main class="column">
+        <nav class="row">
+            <TransitionGroup name="tabs">
+                <button v-for="tab in tabs"
+                    :class="{ selected: tab.label == currentTab }"
+                    @click="emit('switchTabs', tab.label)"
+                    :key="tab.label"
+                >
+                    <i v-if="tab.icon" :class="tab.icon"></i>
+                    <span>{{ tab.label }}</span>
+                </button>
+            </TransitionGroup>
+        </nav>
+        <template v-for="(_, slot) in $slots" :name="slot">
+            <slot :name="slot" v-if="currentTab == slot" />
+        </template>
+    </main>
 </template>
 
 <style scoped lang="scss">
+main {
+    width: 100%;
+    align-items: center;
+}
+
 nav.row {
     width: 100%;
     justify-content: center;
