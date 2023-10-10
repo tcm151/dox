@@ -48,7 +48,7 @@ async function login() {
                 <section class="right authenticated" v-if="session.isAuthenticated">
                     <NuxtLink to="/editor">
                         <i class="fa-solid fa-feather-pointed"></i>
-                        <span>Post</span>
+                        <span>Submit</span>
                     </NuxtLink>
                     <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
                         <i class="fa-solid fa-inbox"></i>
