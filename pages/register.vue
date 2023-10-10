@@ -8,30 +8,26 @@ const referrer = route.query['referral']
 
 const hints = useHints()
 const session = getSession()
+const valid = useValidation()
 
 const email = ref("")
 const username = ref("")
 const password = ref("")
 const confirmation = ref("")
 
-const validEmail = /^\S+@\S+\.\S+$/
-const validUsername = /^[\w]{3,32}$/
-const validPassword = /^[\S]{8,64}$/
-
 async function register() {
     try {
-
-        if (!validEmail.test(email.value)) {
+        if (!valid.email.test(email.value)) {
             hints.addError("Invalid email.")
             return
         }
 
-        if (!validUsername.test(username.value)) {
+        if (!valid.username.test(username.value)) {
             hints.addError("Invalid username.")
             return
         } 
 
-        if (!validPassword.test(password.value) || !validPassword.test(confirmation.value)) {
+        if (!valid.password.test(password.value) || !valid.password.test(confirmation.value)) {
             hints.addError("Invalid password.")
             return
         } 
@@ -56,15 +52,15 @@ async function register() {
 }
 
 function invalidEmail() {
-    return email.value !== '' && !validEmail.test(email.value)
+    return email.value !== '' && !valid.email.test(email.value)
 }
 
 function invalidUsername() {
-    return username.value !== '' && !validUsername.test(username.value)
+    return username.value !== '' && !valid.username.test(username.value)
 }
 
 function invalidPassword(password: string) {
-    return password !== '' && !validPassword.test(password)
+    return password !== '' && !valid.password.test(password)
 }
 
 function differentPasswords() {
