@@ -3,11 +3,10 @@ defineProps<{ visible: boolean }>()
 
 const session = getSession()
 const events = useEvents()
+const hints = useHints()
 
 const username = ref("")
 const password = ref("")
-
-const hints = useHints()
 
 const wrongAttempts = ref(0)
 
@@ -26,6 +25,19 @@ async function attemptLogin() {
 
 function forgetPassword() {
     hints.addWarning('We are still working on this...')
+    // events.publish(Trigger.showPopup, {
+    //     title: 'Confirm Password Reset',
+    //     message: 'Are you sure you want to reset your password?',
+    //     accept: async () => {
+    //         try {
+    //             await session.useApi(`/api/profile/password/reset`)
+    //             hints.addSuccess("Password reset link sent to your email.")
+    //         }
+    //         catch (ex: any) {
+    //             hints.addError("Failed to send reset link.")
+    //         }
+    //     },
+    // })
     // navigateTo("/register")
     // closeLogin()
 }
