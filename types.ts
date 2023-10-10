@@ -54,6 +54,20 @@ export interface Draft {
     timeEdited?: string
 }
 
+export interface Thread extends Voteable {
+    id: string
+    user: User | string
+    content: string
+    time: string
+    replyTo?: Post | string
+    topics: string[]
+    comments: string[]
+    images?: Image[]
+    edited?: boolean
+    timeEdited?: string
+    views?: number
+}
+
 export interface Topic extends Voteable {
     id: string
     posts?: Post[]
