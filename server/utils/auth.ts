@@ -1,6 +1,6 @@
 import Surreal from 'surrealdb.js';
 import { H3Event } from "h3"
-import { DatabaseResponse } from 'server/utils/database'
+import { DatabaseResponse } from '~/server/utils/database'
 import { User } from '~/types';
 
 export const authenticateRequest = async (event: H3Event) => {
