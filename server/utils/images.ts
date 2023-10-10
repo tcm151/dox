@@ -3,7 +3,7 @@ import sharp from "sharp"
 import { MultiPartData } from "h3"
 import { Image } from "~/types"
 
-// TODO implement server-side token calculations
+// REFACTOR implement server-side token calculations
 export async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
     console.log(image.type)
     switch (image.type) {
