@@ -55,7 +55,7 @@ function toggleFilter() {
         <Feed
             :page="queryParameters.pageNumber"
             :sorting="true"
-            :pagination="true"
+            :pagination="false"
             @page="goToPage"
             @refresh="feed.fetch"
             :loading="feed.loading"
