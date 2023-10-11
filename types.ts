@@ -108,3 +108,9 @@ export interface Feedback {
     time: string
     content: string
 }
+
+export interface Backup {
+    environment: string
+    user: User | string
+    date: string
+}
