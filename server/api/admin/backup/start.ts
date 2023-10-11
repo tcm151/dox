@@ -1,3 +1,5 @@
+import { Backup } from "~/types"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     
@@ -10,6 +12,8 @@ export default defineEventHandler(async (event) => {
     
     const { sql, parameters } = queryBuilder()
 
+
+    sql.push('LET $environment = $session.db;')
     sql.push('LET $comments = (SELECT * FROM comment);')
     sql.push('LET $drafts = (SELECT * FROM draft);')
     sql.push('LET $posts = (SELECT * FROM post);')
@@ -24,10 +28,10 @@ export default defineEventHandler(async (event) => {
     sql.push('INSERT INTO user $users;')
     
     sql.push('CREATE backup SET')
+    sql.push('environment = $environment,')
     sql.push('time = time::now(),')
     sql.push('user = $user.id')
     parameters['user'] = auth
 
-    // REFACTOR create type for backups
-    return await queryAll<any>({ sql, parameters })
+    return await queryAll<Backup>({ sql, parameters })
 })

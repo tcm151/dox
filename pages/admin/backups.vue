@@ -5,11 +5,7 @@ const hints = useHints()
 const session = getSession()
 
 const { data: backups, refresh } = useAsyncData('backups', () => {
-    return $fetch("/api/admin/backup", {
-        headers: {
-            Authorization: `Bearer ${session.token}`,
-        }
-    })
+    return session.useApi<any[]>("/api/admin/backup")
 })
 
 let backupInterval = ref<number>(24)
@@ -49,8 +45,8 @@ async function startBackup() {
             <div class="column g-2">
                 <div class="fit row g-2" v-for="backup in backups">
                     <span class="fill tag link">{{ backup.id }}</span>
-                    <span class="tag info">{{ formatDate(backup.time) }}</span>
                     <span class="tag info">{{ backup.user.name }}</span>
+                    <span class="tag info time">{{ formatDate(backup.time) }}</span>
                 </div>
             </div>
         </section>
@@ -65,6 +61,10 @@ article {
 section {
     border-radius: 0.25rem;
     background-color: $dox-white-0;
+}
+
+span.tag.time {
+    width: 2.5rem;
 }
 </style>
 
