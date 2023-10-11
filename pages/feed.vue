@@ -14,9 +14,9 @@ definePageMeta({
         <PagedTabstrip
             :tabs="[
                 { route: '/feed/posts', icon: 'fa-solid fa-newspaper', label: 'Posts' },
-                { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images' },
                 { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads' },
                 { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics' },
+                { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images' },
             ]"
         />
         <section class="page column center-inline">
