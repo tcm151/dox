@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     sql.push('FROM (')
     sql.push('SELECT id, topics AS topic')
     sql.push('FROM post')
-    sql.push('WHERE time > time::now() -4w')
+    sql.push('WHERE time > time::now() -3mo')
     sql.push('SPLIT topic')
     sql.push(')')
     
