@@ -26,12 +26,6 @@
                 <p>What you share about yourself is up to you, however anything you post on DOX will be there for as long as the site is available. You may delete your account and any metadata related to yourself, however the content of your posts and your comments will not be deleted and will remain available indefinitely.</p>
                 <p>It is important to us at DOX that information is saved and kept for the future. Knowledge and understanding is sum of all human experience and DOX aims to be THE internet archive of the future.</p>
             </section>
-            <section>
-                <h1>Will this ever cost money?</h1>
-                <p>We will never charge our users for access to any of the functionality of DOX.</p>
-                <p>However for this site to remain operational, then our costs need to be covered and our developers need to be compensated fairly. Our goal is not profits. We care about the free access to information on the internet.</p>
-                <p>If you wish to support us financially, you can do so on our Patreon.</p>
-            </section>
         </div>
     </article>
 </template>
