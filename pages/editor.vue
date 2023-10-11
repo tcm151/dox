@@ -15,6 +15,7 @@ definePageMeta({
 })
 
 const hints = useHints()
+const valid = useValidation()
 const session = getSession()
 
 let draft = ref<Draft>({
@@ -43,11 +44,11 @@ let topicsFocused = ref(false)
 
 
 function validTitle() {
-    return draft.value.title !== '' ? /.{4,128}/.test(draft.value.title) : true
+    return draft.value.title !== '' ? valid.title.test(draft.value.title) : true
 }
 
 function validTopic() {
-    return newTopic.value !== '' ? /^\b[A-Za-z]{3,24}\b$/.test(newTopic.value) : true
+    return newTopic.value !== '' ? valid.topic.test(newTopic.value) : true
 }
 
 function addTopic() {
@@ -82,11 +83,11 @@ const { files, open: openFileDialog, reset } = useFileDialog({
 })
 
 function selectImages() {
-    if (!session.user.confirmed) {
-        hints.addWarning("You must confirm your account before uploading images.")
+    if (session.user.confirmed) {
+        openFileDialog()
     }
     else {
-        openFileDialog()
+        hints.addWarning("You must confirm your account before uploading images.")
     }
 }
 
