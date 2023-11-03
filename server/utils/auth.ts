@@ -7,8 +7,8 @@ export const authenticateRequest = async (event: H3Event) => {
     const { surreal } = useRuntimeConfig()
     const auth = new Surreal(surreal.url)
     try {
-        const token = getHeader(event, 'Authorization')
-        await auth.authenticate(token ?? "")
+        const token = getHeader(event, 'Authorization') ?? ""
+        await auth.authenticate(token.split(' ')[1])
     }
     catch (ex) {
         throw createError({
