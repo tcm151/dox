@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Draft } from '~/types';
+import type { Draft } from '~/types';
 
 const props = defineProps<{
     visible: boolean

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import Datasource from "~/utils/datasource"
-import { Post } from "~/types";
+import type { Post } from "~/types";
 
 interface QueryParameters {
     pageNumber: number

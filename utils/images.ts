@@ -1,4 +1,4 @@
-import { Image } from "~/types"
+import type { Image } from "~/types"
 
 function packageFiles(files: FileList | null) {
     const data = new FormData()

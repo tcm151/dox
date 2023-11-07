@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DateTime } from 'luxon'
-import { Post, Draft, Image } from '~/types'
+import type { Post, Draft, Image } from '~/types'
 
 definePageMeta({
     layout: 'simple',

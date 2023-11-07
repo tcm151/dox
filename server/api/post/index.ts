@@ -1,4 +1,4 @@
-import { Post } from "~/types";
+import type { Post } from "~/types";
 
 export default defineEventHandler(async (event) => {
     let { page, pageSize } = getQuery(event)

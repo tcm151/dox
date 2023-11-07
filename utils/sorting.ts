@@ -1,5 +1,5 @@
 import { DateTime } from "luxon"
-import { Post, Comment, Voteable } from "~/types"
+import type { Post, Comment, Voteable } from "~/types"
 
 export function sortBy(list: Post[] | Comment[] | null, sortType: string) {
     if (!list) {

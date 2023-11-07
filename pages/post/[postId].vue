@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CommentSection from "./components/CommentSection.vue"
-import { Post, Comment, User } from '~/types'
+import type { Post, Comment, User } from '~/types'
 
 const route = useRoute();
 const postId = route.params.postId.toString();

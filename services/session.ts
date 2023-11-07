@@ -1,7 +1,7 @@
 import { Ref } from "vue"
 import { defineStore, skipHydrate } from "pinia"
 import Surreal from "surrealdb.js"
-import { User } from "~/types"
+import type { User } from "~/types"
 import { Trigger } from "~/services/events";
 
 

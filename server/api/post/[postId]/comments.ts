@@ -1,4 +1,4 @@
-import { Comment } from "~/types";
+import type { Comment } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const { postId } = event.context.params!

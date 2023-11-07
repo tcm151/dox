@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Notification } from '~/types'
+import type { Notification } from '~/types'
 
 definePageMeta({
     middleware: (to, from) => {

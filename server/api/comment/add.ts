@@ -1,4 +1,4 @@
-import { Post, Comment, Notification, User } from "~/types";
+import type { Post, Comment, Notification, User } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

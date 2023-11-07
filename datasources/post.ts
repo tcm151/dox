@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import Datasource from "~/utils/datasource"
-import { Post, Comment } from "~/types";
+import type { Post, Comment } from "~/types";
 
 export const usePost = (id: string) => {
     return defineStore(`post:${id}`, () => {

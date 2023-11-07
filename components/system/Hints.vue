@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Hint } from '~/services/hints';
+import type { Hint } from '~/services/hints';
 
 const hints = useHints()
 

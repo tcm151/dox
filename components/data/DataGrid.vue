@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Format } from "~/utils/format";
+import type { Format } from "~/utils/format";
 
 export interface GridColumn {
     field: string

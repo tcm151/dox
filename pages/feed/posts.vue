@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Post, User } from '~/types'
+import type { Post, User } from '~/types'
 
 definePageMeta({
     // layout: 'default'

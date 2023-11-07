@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import Datasource from "~/utils/datasource"
-import { Post, Topic } from "~/types";
+import type { Post, Topic } from "~/types";
 
 export const useTopic = (topic: string) => {
     return defineStore(`topic:${topic}`, () => {

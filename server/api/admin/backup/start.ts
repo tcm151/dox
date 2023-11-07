@@ -1,4 +1,4 @@
-import { Backup } from "~/types"
+import type { Backup } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

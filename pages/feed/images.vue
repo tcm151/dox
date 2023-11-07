@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Image } from "~/types"
+import type { Image } from "~/types"
 
 const session = getSession()
 

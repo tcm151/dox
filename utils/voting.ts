@@ -1,4 +1,4 @@
-import { Voteable } from "~/types";
+import type { Voteable } from "~/types";
 
 export const useVoting = () => {
 

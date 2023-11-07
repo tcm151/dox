@@ -1,4 +1,4 @@
-import { Post, User } from "~/types";
+import type { Post, User } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!

@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import sharp from "sharp"
 import { MultiPartData } from "h3"
-import { Image } from "~/types"
+import type { Image } from "~/types"
 
 // REFACTOR implement server-side token calculations
 export async function processImage(image: MultiPartData): Promise<{ buffer: Buffer, type: string }> {

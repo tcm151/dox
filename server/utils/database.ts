@@ -1,5 +1,5 @@
 import Surreal from 'surrealdb.js';
-import { Post } from '~/types'
+import type { Post } from '~/types'
 
 const { surreal } = useRuntimeConfig()
 if (surreal.url == "" || !surreal.url.includes("/rpc")) {
