@@ -70,7 +70,7 @@ function sort(type: string) {
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p>{{ (post.replyTo as Post).title }}</p>
                 </div>
-                <div class="main" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                <div class="main">
                     <div class="row-wrap g-1">
                         <div class="votes row g-1">
                             <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
@@ -109,7 +109,7 @@ function sort(type: string) {
                             </span>
                         </div>
                     </div>
-                    <h3 class="title mt-1">
+                    <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
                         {{ post.title }}
                     </h3>
                 </div>
