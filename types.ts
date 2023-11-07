@@ -19,11 +19,15 @@ export interface User extends Voteable {
     following: string[]
     followers: string[]
     dateCreated: string
-    confirmed: boolean
-    admin: boolean
     tokens: number
-    // TODO implement fields for:
-    verified: boolean
+    confirmed: boolean
+    verified: boolean // TODO implement sitewide
+    admin: boolean
+}
+
+export interface Topic extends Voteable {
+    id: string
+    posts?: Post[]
 }
 
 export interface Post extends Voteable {
@@ -35,10 +39,10 @@ export interface Post extends Voteable {
     replyTo?: Post | string
     topics: string[]
     comments: string[]
-    images?: Image[]
-    edited?: boolean
+    images: Image[]
+    edited: boolean
     timeEdited?: string
-    visits?: number
+    visits: number
 }
 
 export interface Draft {
@@ -49,8 +53,8 @@ export interface Draft {
     time: string
     replyTo?: Post | string
     topics: string[]
-    images?: Image[]
-    edited?: boolean
+    images: Image[]
+    edited: boolean
     timeEdited?: string
 }
 
@@ -68,19 +72,15 @@ export interface Thread extends Voteable {
     views?: number
 }
 
-export interface Topic extends Voteable {
-    id: string
-    posts?: Post[]
-}
 
 export interface Comment extends Voteable {
     id: string
-    time: string
     user: User | string
     post: Post | string
-    replyTo: string
     content: string
-    edited?: boolean
+    time: string
+    replyTo: Post | Comment | string
+    edited: boolean
     timeEdited?: string
 }
 
@@ -107,6 +107,13 @@ export interface Feedback {
     user: User | string
     time: string
     content: string
+}
+
+export interface Report {
+    id: string
+    reporter: User | string
+    subject: string
+    time: string
 }
 
 export interface Backup {
