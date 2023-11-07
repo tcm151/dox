@@ -2,7 +2,7 @@ import type { Comment } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const content = await readBody(event)
+    const { content } = await readBody<{ content: string }>(event)
     const { commentId } = event.context.params!
     
     const { sql, parameters } = queryBuilder()

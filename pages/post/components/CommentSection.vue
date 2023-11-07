@@ -27,7 +27,7 @@ function editComment(comment: Comment) {
 }
 
 async function updateComment(comment: Comment) {
-    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, comment.content)
+    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
     commentToEdit.value = "";
 }
 
