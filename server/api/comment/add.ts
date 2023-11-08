@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
 
     sql.push('RETURN {')
     
-    sql.push('LET $comment = (CREATE comment CONTENT $comment);')
-    parameters['comment'] = comment
+    sql.push('LET $comment = (CREATE ONLY comment CONTENT $content);')
+    parameters['content'] = comment
 
     // send a notification to relevant user
     // REFACTOR need to account for when directly responding to posts
@@ -27,5 +27,5 @@ export default defineEventHandler(async (event) => {
     sql.push('RETURN $comment;')
     sql.push('};')
 
-    await queryOne<Comment>({ sql, parameters })
+    return await queryAll<Comment>({ sql, parameters })
 })
