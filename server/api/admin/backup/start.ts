@@ -2,7 +2,6 @@ import type { Backup } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    
     if (!auth.admin) {
         throw createError({
             statusCode: 401,
@@ -11,8 +10,6 @@ export default defineEventHandler(async (event) => {
     }
     
     const { sql, parameters } = queryBuilder()
-
-
     sql.push('LET $environment = $session.db;')
     sql.push('LET $comments = (SELECT * FROM comment);')
     sql.push('LET $drafts = (SELECT * FROM draft);')

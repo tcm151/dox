@@ -2,7 +2,6 @@ import type { User } from "~/types";
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    
     if (!auth) {
         throw createError({
             statusCode: 400,

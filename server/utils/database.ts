@@ -58,7 +58,7 @@ async function handleQuery<T>(query: Query) {
 
 export async function queryOne<T>(query: Query): Promise<T> {
     let responses = await handleQuery<T>(query)
-    return responses[0].result[0]
+    return responses[0].result?.[0]
 }
 
 export async function queryAll<T>(query: Query): Promise<T[]> {
@@ -68,4 +68,9 @@ export async function queryAll<T>(query: Query): Promise<T[]> {
 
 export async function multiQuery(query: Query): Promise<DatabaseResponse<any>[]> {
     return await handleQuery(query)
+}
+
+export async function complexQuery(query: Query): Promise<unknown[]> {
+    const responses = await handleQuery(query)
+    return responses.map(r => r.result)
 }

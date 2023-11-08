@@ -37,25 +37,24 @@ export default defineEventHandler(async (event) => {
 
     if (referral) {
         const { sql, parameters } = queryBuilder()
-        sql.push('IF $user != NONE THEN')
-        sql.push('(UPDATE $user SET tokens += 1024)')
-        sql.push('END;')
+        sql.push('RETURN {')
+        sql.push('IF $user != NONE {')
         parameters['user'] = `user:${referral}`
-        
+        sql.push('UPDATE $user SET tokens += 1024;')
+        sql.push('};')
         sql.push('CREATE notification SET')
         sql.push('recipient = $user,')
         sql.push('context = $context,')
-        sql.push('message = $message,')
-        sql.push('time = time::now(),')
-        sql.push('viewed = false;')
+        sql.push('message = $message')
         parameters['recipient'] = `user:${referral}`
         parameters['context'] = auth.id
         parameters['message'] = [
             `**${auth.name}** used your referral`,
             `> You gained 1024 free tokens. Don't forget to thank them!\n`,
         ].join('\n')
-        
-        await multiQuery({ sql, parameters })
+        sql.push('RETURN "Referral completed successfully.";')
+        sql.push('};')
+        await queryAll<string>({ sql, parameters })
     }
 
     return token

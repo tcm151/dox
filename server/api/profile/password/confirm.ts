@@ -7,6 +7,8 @@ interface PasswordReset {
     used: boolean
     expired: boolean
 }
+
+// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const body = await readBody<{
         resetId: string,

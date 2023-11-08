@@ -1,4 +1,4 @@
-import type { Image, User } from "~/types"
+import type { Image } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -8,33 +8,33 @@ export default defineEventHandler(async (event) => {
     const { buffer, type } = await processImage(data![0])
     const tokens = Math.round(buffer.byteLength / 1_024)
     
-    if (auth.tokens >= tokens) {
-        var { sql, parameters } = queryBuilder()
-        sql.push('UPDATE $user SET')
-        sql.push('tokens -= $tokens')
-        parameters['user'] = auth.id
-        parameters['tokens'] = tokens
-        await queryOne<User>({ sql, parameters })
-    }
-    else {
+    if (auth.tokens < tokens) {
         throw createError({
             statusCode: 401,
             message: "You do not have enough tokens to upload this image."
         })
     }
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('CREATE image SET')
+    const { sql, parameters } = queryBuilder()
+    sql.push('RETURN {')
+    
+    // TODO add event log for all token transactions
+    sql.push('UPDATE $user SET')
+    sql.push('tokens -= $tokens;')
+    parameters['user'] = auth.id
+    parameters['tokens'] = tokens
+
+    sql.push('RETURN CREATE image SET')
     sql.push('user = $user,')
     sql.push('type = $type,')
     sql.push('tokens = $tokens,')
     sql.push('time = time::now(),')
-    sql.push(`url = <future> { string::concat("${baseUrl}/image/", meta::id(id)) }`)
-    parameters['user'] = auth.id
+    sql.push(`url = <future> { string::concat("${baseUrl}/image/", meta::id(id)) };`)
     parameters['type'] = type
-    parameters['tokens'] = tokens
+
+    sql.push('};')
+
     const image = await queryOne<Image>({ sql, parameters })
-    
     await writeToDisk(image, buffer, type)
     return { image, tokens }
 })

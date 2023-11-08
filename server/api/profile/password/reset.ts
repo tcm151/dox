@@ -8,6 +8,7 @@ interface PasswordReset {
     expired: boolean
 }
 
+// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
@@ -27,7 +28,8 @@ export default defineEventHandler(async (event) => {
     template = template.replace('{{resetPasswordLink}}', `${baseUrl}/settings/reset-password?id=${extractId(passwordReset.id)}`)
     template = template.replace('{{reportLink}}', `${baseUrl}/settings/reset-password?report=${extractId(passwordReset.id)}`)
     
-    return await useEmail().sendMessage({
+    const email = useEmail()
+    return await email.sendMessage({
         recipient: auth.email,
         subject: `Reset Password: ${auth.name}`,
         text: 'password reset request.',

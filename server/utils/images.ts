@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import sharp from "sharp"
-import { MultiPartData } from "h3"
+import type { MultiPartData } from "h3"
 import type { Image } from "~/types"
 
 // REFACTOR implement server-side token calculations
@@ -30,6 +30,7 @@ export async function processImage(image: MultiPartData): Promise<{ buffer: Buff
     }
 }
 
+// TODO add support for refund if failed
 export async function writeToDisk(image: Image, buffer: Buffer, type: string) {
     try {
         fs.writeFileSync(`./images/${image.id.split(':')[1]}.${type}`, buffer, {

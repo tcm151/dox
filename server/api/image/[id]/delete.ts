@@ -4,13 +4,13 @@ import type { Image, User } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const { imageId } = event.context.params!
+    const { id } = event.context.params!
     
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')
     sql.push('FROM $image')
     sql.push('FETCH user')
-    parameters['image'] = `image:${imageId}`
+    parameters['image'] = `image:${id}`
     const image = await queryOne<Image>({ sql, parameters })
 
 
@@ -24,17 +24,20 @@ export default defineEventHandler(async (event) => {
     try {
         switch (process.env.NODE_ENV) {
             case "development":
-                fs.rmSync(`./images/${imageId}.${image.type}`)
+                fs.rmSync(`./images/${id}.${image.type}`)
                 break
             case "production":
-                fs.rmSync(`./.production/images/${imageId}.${image.type}`)
+                fs.rmSync(`./.production/images/${id}.${image.type}`)
                 break
         }
 
+        // TODO add event log for all token transactions
         var { sql, parameters } = queryBuilder()
+        sql.push('BEGIN TRANSACTION;')
         sql.push('UPDATE $user SET')
         sql.push('tokens += $tokens;')
         sql.push('DELETE $image;')
+        sql.push('COMMIT TRANSACTION;')
         parameters['user'] = auth.id
         parameters['tokens'] = image.tokens
         parameters['image'] = image.id

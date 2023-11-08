@@ -1,13 +1,6 @@
-import type { User } from "~/types"
+import type { User, Confirmation } from "~/types"
 
-interface Confirmation {
-    id: string
-    user: User
-    time: string
-    used: boolean
-    expired: boolean
-}
-
+// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const confirmationId = await readBody<string>(event)
@@ -32,9 +25,9 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    if (confirmation.user.id === auth.id) {
+    if ((confirmation.user as User).id === auth.id) {
         var { sql, parameters } = queryBuilder()
-        sql.push(' UPDATE $user SET')
+        sql.push('UPDATE $user SET')
         sql.push('confirmed = true;')
         sql.push('UPDATE $confirmation SET')
         sql.push('used = true;')

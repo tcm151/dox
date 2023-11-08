@@ -132,6 +132,13 @@ DEFINE FIELD votes.score ON post DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
 };
 
+DEFINE EVENT updateTopics ON post WHEN $event = 'CREATE' THEN {
+    FOR $topic in $after.topics {
+        UPDATE $topic SET
+        posts += $after.id;
+    };
+};
+
 -- ------------------------------
 -- TABLE: draft
 -- ------------------------------
@@ -148,9 +155,6 @@ DEFINE FIELD topics ON draft TYPE array DEFAULT [];
 DEFINE FIELD topics[*] ON draft TYPE record<topic>;
 DEFINE FIELD images ON post TYPE array DEFAULT [];
 DEFINE FIELD images[*] ON post TYPE record<image>;
-
-DEFINE FIELD edited ON draft TYPE bool DEFAULT false;
-DEFINE FIELD timeEdited ON draft TYPE option<datetime>;
 
 -- ------------------------------
 -- TABLE: comment
@@ -188,11 +192,11 @@ DEFINE EVENT updatePost ON comment WHEN $event = 'CREATE' THEN {
 
 DEFINE TABLE image SCHEMALESS;
 
-DEFINE FIELD url ON image TYPE any;
-DEFINE FIELD type ON image TYPE string;
 DEFINE FIELD user ON image TYPE record<user>;
-DEFINE FIELD time ON image TYPE datetime DEFAULT time::now();
+DEFINE FIELD type ON image TYPE string;
 DEFINE FIELD tokens ON image TYPE number;
+DEFINE FIELD time ON image TYPE datetime DEFAULT time::now();
+DEFINE FIELD url ON image TYPE any;
 
 -- ------------------------------
 -- TABLE: notification
@@ -201,7 +205,7 @@ DEFINE FIELD tokens ON image TYPE number;
 DEFINE TABLE notification SCHEMALESS;
 
 DEFINE FIELD recipient ON notification TYPE record<user>;
-DEFINE FIELD context ON notification TYPE record<post | comment>;
+DEFINE FIELD context ON notification TYPE record<post | comment | user>;
 DEFINE FIELD message ON notification TYPE string;
 DEFINE FIELD time ON notification TYPE datetime DEFAULT time::now();
 DEFINE FIELD viewed ON notification TYPE bool DEFAULT false;

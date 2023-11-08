@@ -25,6 +25,14 @@ export interface User extends Voteable {
     admin: boolean
 }
 
+export interface Confirmation {
+    id: string
+    user: User | string
+    time: string
+    used: boolean
+    expired: boolean
+}
+
 export interface Topic extends Voteable {
     id: string
     posts?: Post[]
@@ -86,11 +94,11 @@ export interface Comment extends Voteable {
 
 export interface Image {
     id: string
-    url: string
-    type: string
     user: User | string
-    time: string
+    type: string
     tokens: number
+    time: string
+    url: string
 }
 
 export interface Notification {

@@ -1,13 +1,6 @@
-import type { User } from "~/types"
+import type { User, Confirmation } from "~/types"
 
-interface Confirmation {
-    id: string
-    user: User
-    time: string
-    used: boolean
-    expired: boolean
-}
-
+// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
@@ -26,8 +19,9 @@ export default defineEventHandler(async (event) => {
     template = template.replace('{{user.name}}', auth.name)
     template = template.replace('{{confirmLink}}', `${baseUrl}/profile?confirmation=${confirmation.id}`)
     template = template.replace('{{reportLink}}', `${baseUrl}/profile?report=${confirmation.id}`)
-    
-    return await useEmail().sendMessage({
+
+    const email = useEmail()
+    return await email.sendMessage({
         recipient: auth.email,
         subject: `Confirm Account: ${auth.name}`,
         text: 'account verification.',

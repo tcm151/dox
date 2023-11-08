@@ -38,16 +38,15 @@ function toggleEditPost() {
     editingPost.value = !editingPost.value;
 }
 
-function updatePost(changes: Post | null ) {
+async function updatePost(changes: Post | null ) {
     if (!changes) {
         hints.addError("You can't edit something that doesn't exist.")
         return
     }
 
-    const response = session.useApi(`/api/post/${postId}/edit`, post.value?.content);
-    post.value!.edited = true;
-    console.log(response);
-    toggleEditPost();
+    await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
+    post.value!.edited = true
+    toggleEditPost()
 }
 
 const showPreview = ref(false)

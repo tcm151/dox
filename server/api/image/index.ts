@@ -1,4 +1,4 @@
-import type { Image } from "~/types";
+import type { Image } from "~/types"
 
 export default defineEventHandler(async (event) => {
     var { sql } = queryBuilder()
