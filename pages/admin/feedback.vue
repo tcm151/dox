@@ -10,9 +10,15 @@ const { data: feedback } = useAsyncData("feedback", () => {
     <article class="column g-2 p-4">
         <div class="feedback column g-1 p-4" v-for="item in feedback">
             <p>{{ item.content }}</p>
-            <div class="row g-1">
-                <span class="tag info">{{ (item.user as User).name }}</span>
-                <span class="tag info">{{ formatDate(item.time) }}</span>
+            <div class="tags row g-1 pt-1">
+                <span class="tag info">
+                    <i class="fa-solid fa-calendar" />
+                    {{ formatDate(item.time) }}
+                </span>
+                <span class="tag info">
+                    <i class="fa-solid fa-user" />
+                    {{ (item.user as User).name }}
+                </span>
             </div>
         </div>
     </article>
@@ -20,7 +26,7 @@ const { data: feedback } = useAsyncData("feedback", () => {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(500px, 1rem);
+    @include fit-width(800px, 1rem);
 }
 
 div.feedback {
@@ -32,7 +38,9 @@ div.feedback {
     }
 }
 
-div.row {
+div.tags {
+    align-items: flex-end;
+
     span {
         cursor: pointer;
     }

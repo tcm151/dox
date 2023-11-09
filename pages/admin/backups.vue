@@ -44,9 +44,15 @@ async function startBackup() {
             </header>
             <div class="column g-2">
                 <div class="fit row g-2" v-for="backup in backups">
+                    <span class="tag info time">
+                        <i class="fa-solid fa-calendar" />
+                        {{ formatDate(backup.time) }}
+                    </span>
+                    <span class="tag info">
+                        <i class="fa-solid fa-user" />
+                        {{ backup.user.name }}
+                    </span>
                     <span class="fill tag link">{{ backup.id }}</span>
-                    <span class="tag info">{{ backup.user.name }}</span>
-                    <span class="tag info time">{{ formatDate(backup.time) }}</span>
                 </div>
             </div>
         </section>
@@ -55,7 +61,7 @@ async function startBackup() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(500px, 1rem);
+    @include fit-width(800px, 1rem);
 }
 
 section {
@@ -64,7 +70,7 @@ section {
 }
 
 span.tag.time {
-    width: 2.5rem;
+    width: 3rem;
 }
 </style>
 

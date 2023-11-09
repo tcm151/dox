@@ -14,19 +14,23 @@ async function downloadSchema() {
 </script>
 
 <template>
-    <article class="p-4" style="overflow-y: hidden;">
+    <article class="column g-2 p-4" style="overflow-y: hidden;">
         <header class="box row g-2 p-4">
-            <button class="danger" @click="syncDatabase">
+            <button class="danger fill" @click="syncDatabase">
                 <i class="fa-solid fa-rotate" />
                 <span>Sync Database</span>
             </button>
-            <button class="link" @click="downloadSchema">
+            <button class="link fill" @click="downloadSchema">
                 <i class="fa-solid fa-cloud-arrow-down" />
                 <span>Download Schema</span>
             </button>
         </header>
-        <section style="overflow-y: auto;">
-            <pre style="overflow-x: hidden; white-space: pre-wrap;">{{ schema }}</pre>
+        <section class="box px-4" v-if="schema">
+            <Codeblock
+                :wrap="true"
+                language="javascript"
+                :code="JSON.stringify(schema, undefined, 4)"
+            />
         </section>
     </article>
 </template>

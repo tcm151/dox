@@ -90,7 +90,7 @@ async function submitQuery() {
 </script>
 
 <template>
-    <article class="row g-2 m-4">
+    <article class="g-2 m-4">
         <QuerySettings :visible="showSettings" @close="showSettings = false" />
         <div class="left column g-2 p-4">
             <section class="editor fill column g-2">
@@ -105,7 +105,7 @@ async function submitQuery() {
                     </button>
                 </header>
                 <div class="field">
-                    <textarea rows="16" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
+                    <textarea rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
                 </div>
                 <div class="saved-query-directory">
                     <Directory
@@ -150,11 +150,14 @@ async function submitQuery() {
                 </div>
             </section>
             <section class="history column g-2" v-if="tab == 'History'">
-                <div class="query" v-for="(item, index) in filteredHistory()" :key="index" draggable="true" @dragstart="grabbedQuery = item">
+                <div class="query" v-for="(item, index) in filteredHistory()" :key="index">
                     <p class="p-2">{{ item }}</p>
                     <div class="buttons row g-2">
                         <button @click="reuseQuery(item)">
                             <i class="fa-solid fa-rotate"></i>
+                        </button>
+                        <button draggable="true" @dragstart="grabbedQuery = item">
+                            <i class="fa-solid fa-floppy-disk"></i>
                         </button>
                         <button @click="removeQueryFromHistory(item)">
                             <i class="fa-solid fa-trash-can"></i>
@@ -173,12 +176,25 @@ input[type=search]::-webkit-search-cancel-button:hover {
 }
 
 article {
+
+    @include flex-h;
+
+    @media only screen and (max-width: 1000px) {
+        @include flex-v;
+    }
+    
     height: 100%;
     @include fit-width (2000px, 1rem);
     overflow: hidden;
 
-    div.left { flex: 1 1 40% }
-    div.right { flex: 1 1 60% }
+
+    div.left { flex: 4 1 }
+    div.right { flex: 6 1 }
+
+    @media only screen and (max-width: 1000px) {
+        div.left { flex: 1 1 }
+        div.right { flex: 10 1 }
+    }
 
     div.left, div.right {
         border-radius: 0.25rem;
@@ -195,11 +211,22 @@ section.editor {
         flex: 1 1;
     }
 
+    div.saved-query-directory {
+        @media only screen and (max-width: 1000px) {
+            display: none;
+        }
+    }
+
     textarea {
-        height: 100%;
+        flex: 1 1;
         resize: none;
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
+        
+        @media only screen and (max-width: 1000px) {
+            flex: none;
+            resize: vertical;
+        }
     }
 }
 

@@ -66,7 +66,6 @@ article.notifications {
 }
 
 .notification {
-    width: 100%;
     border-radius: 0.25rem;
     background-color: $dox-white-0;
 }
