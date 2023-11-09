@@ -17,13 +17,13 @@ let showSettings = ref(false)
 let following = computed(() => session.user?.following.includes(`user:${userId}`))
 
 async function followUser() {
-    if (await session.follow("user", userId)) {
+    if (await session.follow(user.value!.id)) {
         await refresh()
     }
 }
 
 async function unfollowUser() {
-    if (await session.unfollow("user", userId)) {
+    if (await session.unfollow(user.value!.id)) {
         await refresh()
     }
 }

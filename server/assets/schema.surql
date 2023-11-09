@@ -96,6 +96,12 @@ DEFINE FIELD votes.score ON topic DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
 };
 
+DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
+    IF array::len($after.posts) = 0 {
+        DELETE $after.id;
+    };
+};
+
 -- ------------------------------
 -- TABLE: post
 -- ------------------------------

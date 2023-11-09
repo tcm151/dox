@@ -1,4 +1,4 @@
-import { Ref } from "vue"
+import type { Ref } from "vue"
 import { defineStore, skipHydrate } from "pinia"
 import Surreal from "surrealdb.js"
 import type { User } from "~/types"
@@ -14,8 +14,8 @@ export interface Session {
     login: (id: string, password: string) => Promise<boolean>
     logout: (clear: boolean) => void
     fetchProfile(): Promise<void>
-    follow: (type: "user" | "topic", target: string) => Promise<boolean>
-    unfollow: (type: "user" | "topic", target: string) => Promise<boolean>
+    follow: (target: string) => Promise<boolean>
+    unfollow: (target: string) => Promise<boolean>
 }
 
 export const getSession = defineStore("session", (): Session => {
@@ -143,52 +143,60 @@ export const getSession = defineStore("session", (): Session => {
     }
 
     //> FOLLOW/UNFOLLOW
-    async function follow(type: "user" | "topic", target: string) {
+    async function follow(target: string) {
         if (!isAuthenticated) {
             hints.addError("You must be logged into interact with others.")
             return false
         }
         
         try {
-            switch (type) {
-                case "user":
-                    await useApi(`/api/user/${target}/follow`)
-                    user.value?.following.push(`user:${target}`)
-                    return true
-                case "topic":
-                    await useApi(`/api/topic/${target}/follow`)
-                    user.value?.topics.push(`topic:${target}`)
-                    return true
+            if (target.startsWith("user")) {
+                await useApi(`/api/user/${extractId(target)}/follow`)
+                user.value?.following.push(target)
+                return true
+            }
+            if (target.startsWith("topic")) {
+                await useApi(`/api/topic/${extractId(target)}/follow`)
+                user.value?.topics.push(target)
+                return true
             }
         }
         catch (error: any) {
             hints.addError(error.message)
-            return false;
         }
+
+        return false
     }
     
-    async function unfollow(type: "user" | "topic", target: string) {
+    async function unfollow(target: string) {
         if (!isAuthenticated) {
             hints.addError("You must be logged into interact with others.")
             return false
         }
         
         try {
-            switch (type) {
-                case "user":
-                    await useApi(`/api/user/${target}/unfollow`)
-                    user.value!.following = user.value?.following.filter(u => u !== `user:${target}`)!
-                    return true
-                case "topic":
-                    await useApi(`/api/topic/${target}/unfollow`)
-                    user.value!.topics = user.value?.topics.filter(t => t !== `topic:${target}`)!
-                    return true
+            if (target.startsWith("user")) {
+                await useApi(`/api/user/${extractId(target)}/unfollow`)
+                user.value!.following = user.value?.following.filter(u => u !== target)!
+                return true
+                // await useApi(`/api/user/${extractId(target)}/follow`)
+                // user.value?.following.push(target)
+                // return true
+            }
+            if (target.startsWith("topic")) {
+                await useApi(`/api/topic/${extractId(target)}/unfollow`)
+                user.value!.topics = user.value?.topics.filter(t => t !== target)!
+                return true
+                // await useApi(`/api/topic/${extractId(target)}/follow`)
+                // user.value?.topics.push(target)
+                // return true
             }
         }
         catch (error: any) {
             hints.addError(error.message)
-            return false
         }
+
+        return false
     }
 
     return { user, token, isAuthenticated, authenticate, login, logout, fetchProfile, useApi, follow, unfollow }

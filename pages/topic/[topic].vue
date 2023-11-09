@@ -14,7 +14,7 @@ let following = computed(() => session.user?.topics.includes(`topic:${topic}`))
 
 async function followTopic() {
     try {
-        await session.follow("topic", topic)
+        await session.follow(info.value!.id)
         await followers.fetch()
     }
     catch (error: any) {
@@ -24,7 +24,7 @@ async function followTopic() {
 
 async function unfollowTopic() {
     try {
-        await session.unfollow("topic", topic)
+        await session.unfollow(info.value!.id)
         await followers.fetch()
     }
     catch (error: any) {

@@ -62,8 +62,8 @@ export interface Draft {
     replyTo?: Post | string
     topics: string[]
     images: Image[]
-    edited: boolean
-    timeEdited?: string
+    // edited: boolean
+    // timeEdited?: string
 }
 
 export interface Thread extends Voteable {
