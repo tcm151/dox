@@ -14,10 +14,9 @@ export default defineEventHandler(async (event) => {
     parameters['content'] = comment
 
     // send a notification to relevant user
-    // REFACTOR need to account for when directly responding to posts
     sql.push('CREATE notification SET')
     sql.push('recipient = $comment.replyTo.user,')
-    sql.push('context = $comment.replyTo,')
+    sql.push('context = $comment.post,')
     sql.push('message = $message;')
     parameters['message'] = [
         `**${auth.name}** replied to you`,
