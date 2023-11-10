@@ -70,17 +70,22 @@ function sort(type: string) {
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p>{{ (post.replyTo as Post).title }}</p>
                 </div>
-                <div class="main">
-                    <div class="row-wrap g-1">
-                        <Votes :target="post" />
-                        <TopicTag v-for="topic in post.topics" :topic="topic" />
-                        <UserTag :user="(post.user as User)" />
-                        <Tag type="info" icon="fa-message" :label="post.comments.length.toString()" />
-                        <TimeTag :time="post.time" />
+                <div class="main row g-2">
+                    <div class="fill">
+                        <div class="row-wrap g-1">
+                            <Votes :target="post" />
+                            <TopicTag v-for="topic in post.topics" :topic="topic" />
+                            <div class="fill row-wrap g-1">
+                                <UserTag :user="(post.user as User)" />
+                                <Tag type="info" icon="fa-message" :label="post.comments.length.toString()" />
+                                <TimeTag :time="post.time" />
+                            </div>
+                        </div>
+                        <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id)}`)">
+                            {{ post.title }}
+                        </h3>
                     </div>
-                    <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id)}`)">
-                        {{ post.title }}
-                    </h3>
+                    <img v-if="post.images.length > 0" :src="post.images[0].url">
                 </div>
             </div>
         </TransitionGroup>
@@ -168,10 +173,24 @@ function sort(type: string) {
     transition: transform 128ms;
     
     .main {
+        overflow: hidden;
+        white-space: break-spaces;
         padding: 0.75rem;
         border-radius: 0.25rem;
         background-color: $dox-white-0;
     }
+
+    // .image {
+    //     min-width: 96px;
+    //     object-fit: cover;
+        
+        img {
+            max-width: 64px;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+    // }
 
     .reply-to + .main {
         border-top-left-radius: 0;
