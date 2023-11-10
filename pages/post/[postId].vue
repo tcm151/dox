@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import ExtraOptions from "./components/ExtraOptions.vue"
 import CommentSection from "./components/CommentSection.vue"
 import type { Post, Comment, User } from '~/types'
 
-const route = useRoute();
-const postId = route.params.postId.toString();
+const route = useRoute()
+const postId = route.params.postId.toString()
 const { post, comments } = usePost(postId)
 
 useSeoMeta({
@@ -38,20 +39,25 @@ function toggleEditPost() {
     editingPost.value = !editingPost.value;
 }
 
-async function updatePost(changes: Post | null ) {
+// const showPreview = ref(false)
+// function togglePreview() {
+//     showPreview.value = !showPreview.value
+// }
+
+async function updatePost(changes: Post | null) {
     if (!changes) {
         hints.addError("You can't edit something that doesn't exist.")
         return
     }
 
-    await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
-    post.value!.edited = true
-    toggleEditPost()
-}
-
-const showPreview = ref(false)
-function togglePreview() {
-    showPreview.value = !showPreview.value
+    try {
+        await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
+        post.value!.edited = true
+        toggleEditPost()
+    }
+    catch (ex: any) {
+        hints.addError("Failed to save changes to post.")
+    }
 }
 
 async function deletePost() {
@@ -70,12 +76,12 @@ async function deletePost() {
     })
 }
 
-let showPostReply = ref(false);
+let showCommentBox = ref(false)
 function toggleCommentBox() {
-    showPostReply.value = !showPostReply.value;
+    showCommentBox.value = !showCommentBox.value
 }
 
-let postReply = ref("");
+let comment = ref("")
 async function submitComment(replyTo: Post | Comment, content: string) {
     await session.useApi<Comment>("/api/comment/add", {
         time: new Date(),
@@ -93,8 +99,8 @@ async function submitComment(replyTo: Post | Comment, content: string) {
     post.fetch()
     comments.fetch()
 
-    postReply.value = ""
-    showPostReply.value = false
+    comment.value = ""
+    showCommentBox.value = false
 }
 
 function copyLink() {
@@ -132,143 +138,110 @@ function writePostReply() {
     return navigateTo(`/editor?replyTo=${extractId(post.value?.id)}`)
 }
 
-async function reportPost(post: Post) {
+async function reportPost() {
     await session.useApi(`/api/post/${postId}/report`)
     hints.addError("This post has been reported to the development team.")
+}
+
+const showOptions = ref<boolean>(false)
+function toggleOptions() {
+    showOptions.value = !showOptions.value
 }
 </script>
 
 <template>
     <article class="column g-2 p-4">
         <div class="container column" v-if="post.value">
-            <div 
+            <aside 
                 v-if="(post.value.replyTo as Post).id != null"
                 class="reply-to row center-inline g-2"
                 @click="navigateTo(`/post/${extractId((post.value.replyTo as Post).id)}`)"
             >
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ (post.value.replyTo as Post).title }}</p>
-            </div>
+            </aside>
             <section class="post p-5">
                 <header class="tags row-wrap g-1">
-                    <div class="fit row g-1">
-                        <span class="tag positive" @click="vote.positive(post.value)" :class="{ voted: post.value.votes.positive.includes(session.user.id)}">
-                            {{ post.value?.votes.positive.length }}
-                        </span>
-                        <span class="tag misleading" @click="vote.misleading(post.value)" :class="{ voted: post.value.votes.misleading.includes(session.user.id)}">
-                            {{ post.value?.votes.misleading.length }}
-                        </span>
-                        <span class="tag negative" @click="vote.negative(post.value)" :class="{ voted: post.value.votes.negative.includes(session.user.id)}">
-                            {{ post.value?.votes.negative.length }}
-                        </span>
-                        <span class="tag link" v-if="post.value.votes.awards && post.value.votes.awards.length > 0">
-                            <i class="fa-solid fa-crown"></i>
-                            <span>{{ post.value.votes.awards.length }}</span>
-                        </span>
-                        <span class="tag link" v-if="post.value.votes.saves && post.value.votes.saves.length > 0">
-                            <i class="fa-solid fa-box-archive"></i>
-                            <span>{{ post.value.votes.saves.length }}</span>
-                        </span>
-                    </div>
-                    <span class="tag topic" v-for="topic in post.value?.topics" @click="navigateTo(`/topic/${topic.split(':')[1]}`)">
-                        {{ topic.split(':')[1] }}
-                    </span>
-                    <span class="tag info" @click="navigateTo(`/user/${extractId((post.value.user as User).id)}`)">
-                        <i class="fa-solid fa-user"></i>
-                        <span>{{ (post.value.user as User).name ?? "deleted" }}</span>
-                    </span>
-                    <ClientOnly>
-                        <span class="tag info">
-                            <i class="fa-solid fa-calendar"></i>
-                            <span>{{ formatDate(post.value.time as any) }}</span>
-                        </span>
-                        <span class="tag info">
-                            <i class="fa-solid fa-chart-simple"></i>
-                            <span>{{ post.value.visits ?? 0 }}</span>
-                        </span>
-                        <span class="tag danger" v-if="post.value?.edited">
-                            <i class="fa-solid fa-eraser"></i>
-                            <span>{{ formatDate(post.value?.timeEdited!) }}</span>
-                        </span>
-                    </ClientOnly>
+                    <Votes :target="post.value" />
+                    <TopicTag v-for="topic in post.value.topics" :topic="topic" />
+                    <UserTag :user="(post.value.user as User)" />
+                    <TimeTag :time="post.value.time" />
+                    <Tag type="info" icon="fa-chart-simple" :label="post.value.visits ?? 0" />
+                    <Tag type="danger" icon="fa-eraser" :label="formatDate(post.value?.timeEdited!)" />
                 </header>
                 <h2 class="mt-4">
                     {{ post.value?.title }}
                 </h2>
-                <Markdown class="content my-4" :content="post.value?.content" v-if="!editingPost" />
-                <div class="field my-4" v-if="post.value && editingPost && (post.value.user as User).id === session.user?.id">
-                    <textarea rows="10" v-model="post.value.content"></textarea>
+                <Markdown v-if="!editingPost"
+                    class="content my-4"
+                    :content="post.value?.content" 
+                />
+                <div v-if="editingPost && (post.value.user as User).id === session.user.id" class="field my-4">
+                    <textarea rows="10" v-model="post.value.content" />
                 </div>
                 <ClientOnly>
                     <footer class="column g-2" v-if="session.isAuthenticated">
-                        <div class="interactions row-wrap g-1" v-if="!showPostReply && !editingPost">
-                            <div class="first row g-1">
-                                <button class="comment" @click="toggleCommentBox">
-                                    <i class="fa-solid fa-message"></i>
-                                    <span>Comment</span>
-                                </button>
-                                <button class="reply" @click="writePostReply">
-                                    <i class="fa-solid fa-reply-all"></i>
-                                    <span>Reply</span>
-                                </button>
-                                <button class="share" @click="copyLink">
-                                    <i class="fa-solid fa-copy"></i>
-                                    <span>Share</span>
-                                </button>
-                            </div>
-                            <div class="second row g-1">
-                                <button class="award" @click="awardPost">
-                                    <i class="fa-solid fa-crown"></i>
-                                    <span>Award</span>
-                                </button>
-                                <!-- TODO allow saving posts -->
-                                <button class="save" @click="hints.addWarning('This is still being working on.')">
-                                    <i class="fa-solid fa-box-archive"></i>
-                                    <span>Save</span>
-                                </button>
-                                <button class="report" @click="reportPost(post.value!)">
-                                    <i class="fa-solid fa-flag"></i>
-                                    <span>Report</span>
-                                </button>
-                            </div>
-                            <div class="third row g-1" v-if="(post.value.user as User).id === session.user?.id">
-                                <button class="edit" @click="toggleEditPost()">
-                                    <i class="fa-solid fa-eraser"></i>
-                                    <span>Edit</span>
-                                </button>
-                                <button class="delete" @click="deletePost">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                    <span>Delete</span>
-                                </button>
-                            </div>
+                        <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
+                            <button class="comment" @click="toggleCommentBox">
+                                <i class="fa-solid fa-message"></i>
+                                <span>Comment</span>
+                            </button>
+                            <button class="reply" @click="writePostReply">
+                                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                                <span>Reply</span>
+                            </button>
+                            <button class="share" @click="copyLink">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="options" @click="toggleOptions">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button>
+                            <ExtraOptions
+                                :post="post.value"
+                                :visible="showOptions"
+                                @award-post="awardPost"
+                                @save-post="hints.addWarning('This is still being working on.')"
+                                @report-post="reportPost"
+                                @edit-post="toggleEditPost"
+                                @delete-post="deletePost"
+                                @close="showOptions = false"
+                            />
                         </div>
                         <div class="row g-1" v-else-if="editingPost">
-                            <button class="info" @click="togglePreview">
-                                <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                                <i class="fa-solid fa-eye-slash" v-else></i>
-                                <span>Preview</span>
-                            </button>
-                            <button class="link" @click="updatePost(post.value)">
+                            <button class="success fill" @click="updatePost(post.value)">
                                 <i class="fa-solid fa-folder-open"></i>
                                 <span>Save</span>
                             </button>
+                            <!-- <button class="info fill" @click="togglePreview">
+                                <i class="fa-solid fa-eye" v-if="!showPreview"></i>
+                                <i class="fa-solid fa-eye-slash" v-else></i>
+                                <span>Preview</span>
+                            </button> -->
                             <button class="danger" @click="toggleEditPost()">
                                 <i class="fa-solid fa-ban"></i>
                                 <span>Cancel</span>
                             </button>
                         </div>
-                        <div class="field" v-else-if="showPostReply">
-                            <textarea rows="5" v-model="postReply"></textarea>
+                        <div class="field" v-else-if="showCommentBox">
+                            <textarea rows="5" v-model="comment"></textarea>
                             <div class="row g-2 mt-2">
-                                <button class="success" @click="submitComment(post.value!, postReply)">Submit</button>
-                                <button class="danger" @click="toggleCommentBox">Cancel</button>
+                                <button class="success fill" @click="submitComment(post.value!, comment)">
+                                    <i class="fa-solid fa-message"></i>
+                                    <span>Submit</span>
+                                </button>
+                                <button class="danger" @click="toggleCommentBox">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span>Cancel</span>
+                                </button>
                             </div>
                         </div>
                     </footer>
-                    <div class="row not-logged-in" v-else>
-                        <button class="danger fill">You must be logged in to interact with others.</button>
-                    </div>
+                    <footer class="column not-logged-in" v-else>
+                        <button class="danger">You must be logged in to interact with others.</button>
+                    </footer>
                 </ClientOnly>
+                
             </section>
         </div>
         <CommentSection v-if="comments.items && comments.items.length > 0" />
@@ -285,7 +258,7 @@ article {
     }
 }
 
-.reply-to {
+aside.reply-to {
     padding: 0.5rem 0.75rem;
     font-weight: 700;
     color: $dox-white-0;
@@ -297,6 +270,11 @@ article {
     }
 }
 
+aside.reply-to + section.post {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
 section.post {
     border-radius: 0.5rem;
     background-color: $dox-white-0;
@@ -306,21 +284,21 @@ section.post {
     }
 }
 
-.reply-to + section.post {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
 div.interactions {
-    position: relative;
-
-    button:not(.menu) {
+    button:not(.options) {
         flex: 1 1 auto;
     }
 
-    div.first, div.second, div.third {
-        flex: 1 1 auto;
+    @media screen and (max-width: 425px) {
+        button:is(.reply, .share) {
+            flex: 1 0;
+
+            span {
+                display: none;
+            }
+        }
     }
+
 }
 
 header.tags {

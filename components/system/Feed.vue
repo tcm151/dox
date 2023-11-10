@@ -100,11 +100,11 @@ function sort(type: string) {
                                 <span>{{ (post.user as User).name ?? "deleted" }}</span>
                             </span>
                             <span class="tag info comments">
-                                <i class="fa-solid fa-comment-dots"></i>
+                                <i class="fa-solid fa-message"></i>
                                 <span>{{ post.comments.length }}</span>
                             </span>
                             <span class="tag info time">
-                                <i class="fa-solid fa-calendar"></i>
+                                <i class="fa-solid fa-stopwatch"></i>
                                 <span>{{ formatDate(post.time as any) }}</span>
                             </span>
                         </div>
