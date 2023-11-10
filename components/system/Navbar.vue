@@ -19,13 +19,13 @@ async function login() {
                 <span>DOX</span>
             </NuxtLink>
             <ClientOnly>
-                <NuxtLink to="/store" v-if="session.isAuthenticated" title="Store">
-                    <i class="fa-solid fa-coins"></i>
-                    <span>Store</span>
-                </NuxtLink>
                 <NuxtLink to="/feed">
                     <i class="fa-solid fa-signs-post"></i>
                     <span>Feeds</span>
+                </NuxtLink>
+                <NuxtLink to="/store" v-if="session.isAuthenticated" title="Store">
+                    <i class="fa-solid fa-coins"></i>
+                    <span>Store</span>
                 </NuxtLink>
                 <NuxtLink to="/admin" v-if="session.isAuthenticated && session.user.admin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
