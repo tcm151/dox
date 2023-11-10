@@ -42,6 +42,7 @@ function resizePopup() {
                 <slot />
             </section>
         </article>
+        <div class="filler" />
     </main>
 </template>
 
@@ -69,7 +70,7 @@ main.popup {
 }
 
 article.window {
-    position: absolute;
+    // position: absolute;
 
     @include flex-v;
     border-radius: 0.25rem;
@@ -119,5 +120,9 @@ section.window-slot {
     border-radius: 0 0 0.25rem 0.25rem;
     background-color: $dox-white-0;
     overflow-y: auto;
+}
+
+div.filler {
+    height: 10%;
 }
 </style>
