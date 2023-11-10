@@ -62,5 +62,9 @@ section {
     border-radius: 0.25rem;
     background-color: $dox-white-0;
 }
+
+span.fill {
+    flex: 10 1 1rem;
+}
 </style>
 

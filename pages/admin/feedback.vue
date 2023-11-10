@@ -33,10 +33,6 @@ div.feedback {
 }
 
 div.tags {
-    align-items: flex-end;
-
-    span {
-        cursor: pointer;
-    }
+    width: min-content;
 }
 </style>
