@@ -16,7 +16,4 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
-span.tag {
-    flex: 1 1 1rem;
-}
 </style>

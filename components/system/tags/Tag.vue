@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+    fill?: number
     type?: string
     icon?: string
     label?: string | number
@@ -8,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span class="tag" :class="type" v-if="!hidden">
+    <span v-if="!hidden" class="tag" :class="type" :style="{ flex: fill ?? 0 }">
         <i v-if="icon" class="fa-solid" :class="icon"></i>
         <span v-if="label">{{ label }}</span>
         <slot />
@@ -16,7 +17,4 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
-span.tag {
-    flex: 1 1 1rem;
-}
 </style>

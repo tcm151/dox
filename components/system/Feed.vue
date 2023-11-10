@@ -42,6 +42,7 @@ function sort(type: string) {
 
 <template>
     <div class="feed">
+        <!-- REFACTOR update styling and simplify -->
         <div class="sorting row center g-2" v-if="props.sorting">
             <!-- does not work with pagination -->
             <!-- REFACTOR sorting needs to be done from the database -->
@@ -75,9 +76,9 @@ function sort(type: string) {
                             <Votes :target="post" />
                             <TopicTag v-for="topic in post.topics" :topic="topic" />
                             <div class="fill row-wrap g-1">
-                                <UserTag :user="(post.user as User)" />
-                                <Tag type="info" icon="fa-message" :label="post.comments.length.toString()" />
-                                <TimeTag :time="post.time" />
+                                <UserTag :fill="1" :user="(post.user as User)" />
+                                <Tag :fill="1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
+                                <TimeTag :fill="1" :time="post.time" />
                             </div>
                         </div>
                         <h3 class="title mt-2">
@@ -126,7 +127,6 @@ function sort(type: string) {
             }    
         }
     }
-
 
     .refresh {
         flex: 0 1;
@@ -220,18 +220,6 @@ function sort(type: string) {
 
 .row {
     white-space: nowrap;
-}
-
-.topic {
-    flex: 10 1 1rem;
-}
-
-div.details {
-    flex: 1 1;
-
-    .info {
-        flex: 1 1 1rem;
-    }
 }
 
 .pagination {

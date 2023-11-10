@@ -29,8 +29,8 @@ const { data: topics } = await useAsyncData('topics', () => {
             </header>
             <div class="row g-1">
                 <Votes :target="topic" />
-                <Tag class="fill" type="link" :label="`${0} posts`" />
-                <Tag class="fill" type="info" :label="`${0} followers`" />
+                <Tag :fill="1" type="link" :label="`${0} posts`" />
+                <Tag :fill="1" type="info" :label="`${0} followers`" />
             </div>
         </div>
     </article>

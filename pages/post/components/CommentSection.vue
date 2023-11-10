@@ -131,8 +131,6 @@ div.comment {
     @include flex-v;
 
     header.row-fit {
-        width: min-content;
-        
         @media screen and (max-width: 600px) {
             flex-wrap: wrap;
 

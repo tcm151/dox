@@ -169,10 +169,10 @@ function toggleOptions() {
                 <header class="tags row-wrap g-1">
                     <Votes :target="post.value" />
                     <TopicTag v-for="topic in post.value.topics" :topic="topic" />
-                    <UserTag :user="(post.value.user as User)" />
-                    <TimeTag :time="post.value.time" />
-                    <Tag type="info" icon="fa-chart-simple" :label="post.value.visits ?? 0" />
-                    <Tag v-if="post.value.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.value.timeEdited)" />
+                    <UserTag :fill="1" :user="(post.value.user as User)" />
+                    <TimeTag :fill="1" :time="post.value.time" />
+                    <Tag :fill="1" type="info" icon="fa-chart-simple" :label="post.value.visits ?? 0" />
+                    <Tag :fill="1" v-if="post.value.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.value.timeEdited)" />
                 </header>
                 <h2 class="mt-4">
                     {{ post.value?.title }}

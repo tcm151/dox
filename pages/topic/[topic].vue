@@ -48,10 +48,10 @@ async function unfollowTopic() {
             </section>
             <section class="row g-1 mt-4">
                 <Votes :target="info.value!" />
-                <Tag class="fill" type="link">
+                <Tag :fill="1" type="link">
                     <strong>{{ posts.items?.length }}</strong> posts
                 </Tag>
-                <Tag class="fill" type="info" @click="showFollowers = !showFollowers">
+                <Tag :fill="1" type="info" @click="showFollowers = !showFollowers">
                     <strong>{{ followers.value?.count }}</strong> followers
                 </Tag>
                 <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >

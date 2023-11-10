@@ -6,6 +6,7 @@ const props = defineProps<{
 
 <template>
     <Tag
+        :fill="10"
         type="topic"
         :label="extractId(topic)"
         @click.stop="navigateTo(`/topic/${extractId(topic)}`)"
@@ -13,7 +14,4 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
-span.tag.topic {
-    flex: 10 1 2rem;
-}
 </style>

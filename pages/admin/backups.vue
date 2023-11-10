@@ -46,7 +46,7 @@ async function startBackup() {
                 <div class="fit row g-2" v-for="backup in backups">
                     <TimeTag :time="backup.time" />
                     <UserTag :user="backup.user" />
-                    <Tag class="fill" type="link" :label="backup.id" />
+                    <Tag :fill="1" type="link" :label="backup.id" />
                 </div>
             </div>
         </section>
