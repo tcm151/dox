@@ -80,7 +80,7 @@ function sort(type: string) {
                                 <TimeTag :time="post.time" />
                             </div>
                         </div>
-                        <h3 class="title mt-1">
+                        <h3 class="title mt-2">
                             {{ post.title }}
                         </h3>
                     </div>
@@ -184,6 +184,7 @@ function sort(type: string) {
         aspect-ratio: 1 / 1;
         object-fit: cover;
         border-radius: 0.25rem;
+        border: 1px solid $dox-white-1;
     }
 
     .reply-to + .main {
