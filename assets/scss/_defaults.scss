@@ -41,6 +41,7 @@ a, a:hover, a:active, a:visited {
     }
 }
 
+// TODO setup default font sizes
 :not(.content) > {
     :is(h1, h2, h3, h4, h5, h6, p) {
         margin: 0;

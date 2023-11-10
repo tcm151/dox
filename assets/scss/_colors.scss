@@ -17,23 +17,23 @@ $dox-white-1: #F0F0F1;
 $dox-white-0: #FAFAFA;
 
 $dox-green: #1FAD83;
-$dox-green-light: color.scale($dox-green, $lightness: 80%);
+$dox-green-light: color.scale($dox-green, $lightness: 75%);
 $dox-green-dark: color.scale($dox-green, $lightness: -80%);
 
-$dox-yellow: #FFCF33;
-$dox-yellow-light: color.scale($dox-yellow, $lightness: 65%);
+$dox-yellow: #FFBF1A;
+$dox-yellow-light: color.scale($dox-yellow, $lightness: 75%);
 $dox-yellow-dark: color.scale($dox-yellow, $lightness: -25%);
 
 $dox-red: #F55D3E;
-$dox-red-light: color.scale($dox-red, $lightness: 80%);
+$dox-red-light: color.scale($dox-red, $lightness: 75%);
 $dox-red-dark: color.scale($dox-red, $lightness: -50%);
 
 $dox-blue: #78C3FB;
-$dox-blue-light: color.scale($dox-blue, $lightness: 70%);
+$dox-blue-light: color.scale($dox-blue, $lightness: 65%);
 $dox-blue-dark: color.scale($dox-blue, $lightness: -70%);
 
 $dox-purple: #8783D1;
-$dox-purple-light: color.scale($dox-purple, $lightness: 75%);
+$dox-purple-light: color.scale($dox-purple, $lightness: 70%);
 $dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
 
 
@@ -57,7 +57,7 @@ $danger: $dox-red;
 }
 
 .positive:hover, .success:hover {
-    color: $dox-white-1;
+    color: $dox-green-light;
     background-color: $dox-green;
 }
 
@@ -71,7 +71,7 @@ $danger: $dox-red;
 }
 
 .misleading:hover, .warning:hover {
-    color: $dox-white-1;
+    color: $dox-yellow-light;
     background-color: $dox-yellow;
 }
 
@@ -85,7 +85,7 @@ $danger: $dox-red;
 }
 
 .negative:hover, .danger:hover {
-    color: $dox-white-1;
+    color: $dox-red-light;
     background-color: $dox-red;
 }
 
@@ -99,10 +99,11 @@ $danger: $dox-red;
 }
 
 .topic:hover, .link:hover {
-    color: $dox-white-1;
+    color: $dox-purple-light;
     background-color: $dox-purple;
 }
 
+// REFACTOR remove the dark version, are unused
 .topic-dark, .link-dark {
     color: $dox-purple-light;
     background-color: $dox-purple;
@@ -121,7 +122,7 @@ $danger: $dox-red;
 }
 
 .info:hover {
-    color: $dox-white-1;
+    color: $dox-blue-light;
     background-color: $dox-blue;
 }
 

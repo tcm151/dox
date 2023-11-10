@@ -172,7 +172,7 @@ function toggleOptions() {
                     <UserTag :user="(post.value.user as User)" />
                     <TimeTag :time="post.value.time" />
                     <Tag type="info" icon="fa-chart-simple" :label="post.value.visits ?? 0" />
-                    <Tag type="danger" icon="fa-eraser" :label="formatDate(post.value?.timeEdited!)" />
+                    <Tag v-if="post.value.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.value.timeEdited)" />
                 </header>
                 <h2 class="mt-4">
                     {{ post.value?.title }}

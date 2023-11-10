@@ -15,6 +15,7 @@ function toggleChildren() {
     <div class="tree" v-if="children.length > 0">
         <TransitionGroup name="items">
             <div class="outside" v-for="item in children" :key="item.id">
+                <!-- BUG this collapses all comments -->
                 <div class="comment-line mb-1" @click="toggleChildren"></div>
                 <div class="item">
                     <slot name="item" :item="item">

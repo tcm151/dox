@@ -25,6 +25,7 @@ async function attemptLogin() {
 
 function forgetPassword() {
     hints.addWarning('We are still working on this...')
+    // TODO allow users to reset their password without being logged in
     // events.publish(Trigger.showPopup, {
     //     title: 'Confirm Password Reset',
     //     message: 'Are you sure you want to reset your password?',

@@ -15,9 +15,7 @@ const emit = defineEmits<{
     (event: 'pageSize', size: number): void
 }>()
 
-const vote = useVoting();
-const session = getSession()
-const settings = useUserSettings();
+const settings = useUserSettings()
 
 onMounted(() => sortBy(props.posts, sortType.value))
 watch(props.posts, () => {
@@ -45,6 +43,7 @@ function sort(type: string) {
 <template>
     <div class="feed">
         <div class="sorting row center g-2" v-if="props.sorting">
+            <!-- does not work with pagination -->
             <!-- REFACTOR sorting needs to be done from the database -->
             <button class="refresh" @click="emit('refresh')">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
@@ -65,7 +64,7 @@ function sort(type: string) {
         </div>
         <TransitionGroup name="feed">
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
-                <!-- TODO allow for pinned posts -->
+                <!-- TODO include active pinned posts here -->
                 <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p>{{ (post.replyTo as Post).title }}</p>
