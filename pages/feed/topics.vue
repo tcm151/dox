@@ -18,31 +18,19 @@ const { data: topics } = await useAsyncData('topics', () => {
                 </h2>
                 <ClientOnly>
                     <div v-if="session.isAuthenticated">
-                        <button class="tag danger" v-if="session.user?.topics.includes(topic.id)" @click="session.unfollow(topic.id)">
+                        <button class="danger" v-if="session.user?.topics.includes(topic.id)" @click="session.unfollow(topic.id)">
                             Unfollow
                         </button>
-                        <button class="tag success" v-else @click="session.follow(topic.id)">
+                        <button class="success" v-else @click="session.follow(topic.id)">
                             Follow
                         </button>
                     </div>
                 </ClientOnly>
             </header>
             <div class="row g-1">
-                <span class="tag positive" @click="vote.positive(topic)">
-                    {{ topic.votes.positive.length }}
-                </span>
-                <span class="tag misleading" @click="vote.misleading(topic)">
-                    {{ topic.votes.misleading.length }}
-                </span>
-                <span class="tag negative" @click="vote.negative(topic)">
-                    {{ topic.votes.negative.length }}
-                </span>
-                <span class="tag link fill">
-                    {{ 0 }} posts
-                </span>
-                <span class="tag info fill">
-                    {{ 0 }} followers
-                </span>
+                <Votes :target="topic" />
+                <Tag class="fill" type="link" :label="`${0} posts`" />
+                <Tag class="fill" type="info" :label="`${0} followers`" />
             </div>
         </div>
     </article>

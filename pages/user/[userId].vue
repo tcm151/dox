@@ -50,10 +50,10 @@ async function unfollowUser() {
                                 <i class="fa-solid fa-gear"></i>
                                 <span>Settings</span>
                             </button>
-                            <button class="tag danger" v-else-if="following" @click="unfollowUser">
+                            <button class="danger" v-else-if="following" @click="unfollowUser">
                                 Unfollow
                             </button>
-                            <button class="tag success" v-else @click="followUser">
+                            <button class="success" v-else @click="followUser">
                                 Follow
                             </button>
                         </div>
@@ -61,30 +61,20 @@ async function unfollowUser() {
                 </div>
             </section>
             <section class="row-wrap g-1">
+                <Votes :target="user!" />
                 <!-- TODO add popups to view these in more detail -->
-                <div class="votes row g-1">
-                    <span class="tag positive" @click="vote.positive(user ?? null)" :class="{ voted: user?.votes.positive.includes(session.user.id) }">
-                        {{ user?.votes.positive.length }}
-                    </span>
-                    <span class="tag misleading" @click="vote.misleading(user ?? null)" :class="{ voted: user?.votes.misleading.includes(session.user.id) }">
-                        {{ user?.votes.misleading.length }}
-                    </span>
-                    <span class="tag negative" @click="vote.negative(user ?? null)" :class="{ voted: user?.votes.negative.includes(session.user.id) }">
-                        {{ user?.votes.negative.length }}
-                    </span>
-                </div>
-                <span class="tag link fill">
+                <Tag class="fill" type="link">
                     <strong>{{ user?.topics.length }}</strong> topics
-                </span>
-                <span class="tag info fill">
+                </Tag>
+                <Tag class="fill" type="info">
                     <strong>{{ user?.followers.length }}</strong> followers
-                </span>
-                <span class="tag info fill">
+                </Tag>
+                <Tag class="fill" type="info">
                     <strong>{{ user?.following.length }}</strong> following
-                </span>
-                <span class="tag info fill">
+                </Tag>
+                <Tag class="fill" type="info">
                     joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong>
-                </span>
+                </Tag>
             </section>
             <section class="column g-2" v-if="user?.description">
                 <p>{{ user.description }}</p>

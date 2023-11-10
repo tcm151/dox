@@ -72,44 +72,13 @@ function sort(type: string) {
                 </div>
                 <div class="main">
                     <div class="row-wrap g-1">
-                        <div class="votes row g-1">
-                            <span class="tag positive" @click="vote.positive(post)" :class="{ voted: post.votes.positive.includes(session.user.id)}">
-                                {{ post?.votes.positive.length }}
-                            </span>
-                            <span class="tag misleading" @click="vote.misleading(post)" :class="{ voted: post.votes.misleading.includes(session.user.id)}">
-                                {{ post?.votes.misleading.length }}
-                            </span>
-                            <span class="tag negative" @click="vote.negative(post)" :class="{ voted: post.votes.negative.includes(session.user.id)}">
-                                {{ post?.votes.negative.length }}
-                            </span>
-                            <span class="tag link" v-if="post.votes.awards && post.votes.awards.length > 0">
-                                <i class="fa-solid fa-crown"></i>
-                                <span>{{ post.votes.awards.length }}</span>
-                            </span>
-                            <span class="tag link" v-if="post.votes.saves && post.votes.saves.length > 0">
-                                <i class="fa-solid fa-box-archive"></i>
-                                <span>{{ post.votes.saves.length }}</span>
-                            </span>
-                        </div>
-                        <span class="tag topic" v-for="topic in post.topics" @click.stop="navigateTo(`/topic/${topic.split(':')[1]}`)">
-                            {{ topic.split(':')[1] }}
-                        </span>
-                        <div class="details row g-1">
-                            <span class="tag info" @click="navigateTo(`/user/${extractId((post.user as User).id ?? '')}`)">
-                                <i class="fa-solid fa-user"></i>
-                                <span>{{ (post.user as User).name ?? "deleted" }}</span>
-                            </span>
-                            <span class="tag info comments">
-                                <i class="fa-solid fa-message"></i>
-                                <span>{{ post.comments.length }}</span>
-                            </span>
-                            <span class="tag info time">
-                                <i class="fa-solid fa-stopwatch"></i>
-                                <span>{{ formatDate(post.time as any) }}</span>
-                            </span>
-                        </div>
+                        <Votes :target="post" />
+                        <TopicTag v-for="topic in post.topics" :topic="topic" />
+                        <UserTag :user="(post.user as User)" />
+                        <Tag type="info" icon="fa-message" :label="post.comments.length.toString()" />
+                        <TimeTag :time="post.time" />
                     </div>
-                    <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                    <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id)}`)">
                         {{ post.title }}
                     </h3>
                 </div>
@@ -233,19 +202,6 @@ function sort(type: string) {
 
 .row {
     white-space: nowrap;
-}
-
-.votes {
-    flex: 0 1;
-    
-    span.tag {
-        font-weight: 800;
-        user-select: none;
-    }
-
-    span.positive, span.misleading, span.negative {
-        width: 0.5rem;
-    }
 }
 
 .topic {

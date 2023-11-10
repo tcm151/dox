@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 
     var { sql, parameters } = queryBuilder()
     sql.push('UPDATE $user SET')
-    sql.push('topics -= array::difference(topics, [$topic])')
+    sql.push('topics = array::difference(topics, [$topic])')
     parameters['user'] = auth.id
     parameters['topic'] = `topic:${topic}`
 

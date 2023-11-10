@@ -238,9 +238,7 @@ async function saveDraft() {
                         <div class="field topic-input">
                             <div class="row center-inline g-2 mb-2">
                                 <label class="mb-0">Topics</label>
-                                <span class="tag topic" v-for="topic in draft.topics" @contextmenu.prevent="removeTopic(topic)">
-                                    {{ topic.split(':')[1] }}
-                                </span>
+                                <TopicTag v-for="topic in draft.topics" :topic="topic" @contextmenu.prevent="removeTopic(topic)" />
                             </div>
                             <input
                                 type="text"

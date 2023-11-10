@@ -1,12 +1,9 @@
 <script setup lang="ts">
 const route = useRoute()
 const topic = route.params.topic.toString()
-
 const { info, posts, followers } = useTopic(topic)
 
-const vote = useVoting()
 const hints = useHints()
-const events = useEvents()
 const session = getSession()
 
 let showFollowers = ref(false)
@@ -40,33 +37,23 @@ async function unfollowTopic() {
                 <h1>{{ topic }}</h1>
                 <ClientOnly>
                     <div v-if="session.isAuthenticated">
-                        <button class="tag danger" v-if="following" @click="unfollowTopic">
+                        <button class="danger" v-if="following" @click="unfollowTopic">
                             Unfollow
                         </button>
-                        <button class="tag success" v-else @click="followTopic">
+                        <button class="success" v-else @click="followTopic">
                             Follow
                         </button>
                     </div>
                 </ClientOnly>
             </section>
             <section class="row g-1 mt-4">
-                <div class="votes row g-1">
-                    <span class="tag positive" @click="vote.positive(info.value)">
-                        {{ info.value?.votes.positive.length }}
-                    </span>
-                    <span class="tag misleading" @click="vote.misleading(info.value)">
-                        {{ info.value?.votes.misleading.length }}
-                    </span>
-                    <span class="tag negative" @click="vote.negative(info.value)">
-                        {{ info.value?.votes.negative.length }}
-                    </span>
-                </div>
-                <span class="tag link fill">
+                <Votes :target="info.value!" />
+                <Tag class="fill" type="link">
                     <strong>{{ posts.items?.length }}</strong> posts
-                </span>
-                <span class="tag info fill" @click="showFollowers = !showFollowers">
+                </Tag>
+                <Tag class="fill" type="info" @click="showFollowers = !showFollowers">
                     <strong>{{ followers.value?.count }}</strong> followers
-                </span>
+                </Tag>
                 <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
                     <!-- TODO show usernames of followers -->
                     <span v-for="user in followers.value">

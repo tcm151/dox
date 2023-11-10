@@ -11,14 +11,8 @@ const { data: feedback } = useAsyncData("feedback", () => {
         <div class="feedback column g-1 p-4" v-for="item in feedback">
             <p>{{ item.content }}</p>
             <div class="tags row g-1 pt-1">
-                <span class="tag info">
-                    <i class="fa-solid fa-calendar" />
-                    {{ formatDate(item.time) }}
-                </span>
-                <span class="tag info">
-                    <i class="fa-solid fa-user" />
-                    {{ (item.user as User).name }}
-                </span>
+                <TimeTag :time="item.time" />
+                <UserTag :user="(item.user as User)" />
             </div>
         </div>
     </article>

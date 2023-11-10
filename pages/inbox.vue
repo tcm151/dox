@@ -38,17 +38,9 @@ async function dismiss(notification: Notification) {
                 <div class="notification p-4" v-for="notification in notifications" :key="notification.id">
                     <Markdown class="message column g-2" :content="notification.message" />
                     <div class="row-fit g-2 mt-2">
-                        <span class="tag info">
-                            <i class="fa-solid fa-calendar" />
-                            {{ formatDate(notification.time) }}
-                        </span>
-                        <span class="tag link" @click="viewContext(notification)">
-                            <i class="fa-solid fa-link" />
-                            Context
-                        </span>
-                        <span class="tag danger" @click="dismiss(notification)">
-                            Dismiss
-                        </span>
+                        <TimeTag :time="notification.time" />
+                        <Tag type="link" icon="fa-link" label="Context" @click="viewContext(notification)" />
+                        <Tag type="danger" label="Dismiss"  @click="dismiss(notification)" />
                     </div>
                 </div>
             </TransitionGroup>

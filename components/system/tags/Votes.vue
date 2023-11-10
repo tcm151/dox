@@ -5,13 +5,13 @@ const vote = useVoting()
 const session = getSession()
 
 const props = defineProps<{
-    target: Voteable
+    target: Voteable | null
 }>()
 
 </script>
 
 <template>
-    <div class="fit row g-1">
+    <div class="fit row g-1" v-if="target">
         <span class="tag positive" @click="vote.positive(target)" :class="{ voted: target.votes.positive.includes(session.user.id)}">
             {{ target.votes.positive.length }}
         </span>
@@ -33,4 +33,8 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
+span:is(.positive, .misleading, .negative) {
+    width: 0.5rem;
+    user-select: none;
+}
 </style>

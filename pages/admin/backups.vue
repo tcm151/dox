@@ -44,15 +44,9 @@ async function startBackup() {
             </header>
             <div class="column g-2">
                 <div class="fit row g-2" v-for="backup in backups">
-                    <span class="tag info time">
-                        <i class="fa-solid fa-calendar" />
-                        {{ formatDate(backup.time) }}
-                    </span>
-                    <span class="tag info">
-                        <i class="fa-solid fa-user" />
-                        {{ backup.user.name }}
-                    </span>
-                    <span class="fill tag link">{{ backup.id }}</span>
+                    <TimeTag :time="backup.time" />
+                    <UserTag :user="backup.user" />
+                    <Tag class="fill" type="link" :label="backup.id" />
                 </div>
             </div>
         </section>
@@ -67,10 +61,6 @@ article {
 section {
     border-radius: 0.25rem;
     background-color: $dox-white-0;
-}
-
-span.tag.time {
-    width: 3rem;
 }
 </style>
 

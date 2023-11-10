@@ -6,7 +6,7 @@ const props = defineProps<{
 
 <template>
     <span class="tag info">
-        <i class="fa-solid fa-calendar"></i>
+        <i class="fa-solid fa-stopwatch"></i>
         <span>{{ formatDate(time) }}</span>
     </span>
 </template>
