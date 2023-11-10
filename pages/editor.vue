@@ -334,6 +334,11 @@ section.editor {
     }
 
     .topic-input {
+
+        .row {
+            width: min-content;
+        }
+        
         label {
             vertical-align: middle;
             line-height: 1.5rem;
