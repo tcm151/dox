@@ -53,6 +53,14 @@ export interface Post extends Voteable {
     visits: number
 }
 
+export interface Pin {
+    id: string
+    post: Post | string
+    user: User | string
+    active: boolean
+    time: string
+}
+
 export interface Draft {
     id: string
     user: User | string

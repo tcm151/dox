@@ -163,6 +163,17 @@ DEFINE FIELD images ON post TYPE array DEFAULT [];
 DEFINE FIELD images[*] ON post TYPE record<image>;
 
 -- ------------------------------
+-- TABLE: pin
+-- ------------------------------
+
+DEFINE TABLE pin SCHEMALESS;
+
+DEFINE FIELD post ON pin TYPE record<post>;
+DEFINE FIELD user ON pin TYPE record<user>;
+DEFINE FIELD active ON pin TYPE bool DEFAULT false;
+DEFINE FIELD time ON pin TYPE datetime DEFAULT time::now();
+
+-- ------------------------------
 -- TABLE: comment
 -- ------------------------------
 

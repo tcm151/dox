@@ -143,6 +143,11 @@ async function reportPost() {
     hints.addError("This post has been reported to the development team.")
 }
 
+async function pinPost() {
+    await session.useApi(`/api/post/${postId}/pin`)
+    hints.addSuccess("This post has been pinned.")
+}
+
 const showOptions = ref<boolean>(false)
 function toggleOptions() {
     showOptions.value = !showOptions.value
@@ -200,6 +205,7 @@ function toggleOptions() {
                             <ExtraOptions
                                 :post="post.value"
                                 :visible="showOptions"
+                                @pin-post="pinPost"
                                 @award-post="awardPost"
                                 @save-post="hints.addWarning('This is still being working on.')"
                                 @report-post="reportPost"

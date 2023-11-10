@@ -1,17 +1,31 @@
+<script setup lang="ts">
+
+const session = getSession()
+
+const { data: pins, pending, refresh } = useAsyncData('pins', () => {
+    return session.useApi<any[]>("/api/admin/pin")
+})
+
+const pinnedPosts = computed(() => {
+    return pins.value?.map(p => p.post)
+})
+
+</script>
+
 <template>
-    <article class="column m-4 p-4">
-        <!-- TODO scaffold admin pins page -->
-        <button class="danger">
-            <i class="fa-solid fa-person-digging"></i>
-            This page is still under construction...
-        </button>
+    <article class="column p-4">
+        <Feed
+            :pagination="false"
+            @refresh="refresh"
+            :loading="pending"
+            :posts="pinnedPosts ?? []"
+        >
+        </Feed>
     </article>
 </template>
 
 <style scoped lang="scss">
 article {
-    @include fit-width(400px, 1rem);
-    border-radius: 0.25rem;
-    background-color: $dox-white-0;
+    @include fit-width(800px, 1rem);
 }
 </style>

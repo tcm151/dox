@@ -9,6 +9,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+    (event: 'pinPost'): void
     (event: 'awardPost'): void
     (event: 'savePost'): void
     (event: 'reportPost'): void
@@ -16,32 +17,6 @@ const emit = defineEmits<{
     (event: 'deletePost'): void
     (event: 'close'): void
 }>()
-
-function savePost() {
-    emit('savePost')
-    emit('close')
-}
-
-function awardPost() {
-    emit('awardPost')
-    emit('close')
-}
-
-function reportPost() {
-    emit('reportPost')
-    emit('close')
-}
-
-function editPost() {
-    emit('editPost')
-    emit('close')
-}
-
-function deletePost() {
-    emit('deletePost')
-    emit('close')
-}
-
 </script>
 
 <template>
@@ -53,23 +28,50 @@ function deletePost() {
         @close="emit('close')"
     >
         <section class="column g-2">
-            <button class="save" @click="savePost">
+            <button v-if="session.user.admin" class="pin" @click="() => {
+                emit('pinPost')
+                emit('close')
+            }">
+                <i class="fa-solid fa-thumbtack"></i>
+                Pin
+            </button>
+            
+            <button class="save" @click="() => {
+                emit('savePost')
+                emit('close')
+            }">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>Save</span>
             </button>
-            <button class="award" @click="awardPost">
+            
+            <button class="award" @click="() => {
+                emit('awardPost')
+                emit('close')
+            }">
                 <i class="fa-solid fa-crown"></i>
                 <span>Award</span>
             </button>
-            <button class="report" @click="reportPost">
+            
+            <button class="report" @click="() => {
+                emit('reportPost')
+                emit('close')
+            }">
                 <i class="fa-solid fa-flag"></i>
                 <span>Report</span>
             </button>
-            <button v-if="(post.user as User).id === session.user?.id" class="edit" @click="editPost">
+            
+            <button v-if="(post.user as User).id === session.user.id" class="edit" @click="() => {
+                emit('editPost')
+                emit('close')
+            }">
                 <i class="fa-solid fa-eraser"></i>
                 <span>Edit</span>
             </button>
-            <button v-if="(post.user as User).id === session.user?.id" class="delete" @click="deletePost">
+            
+            <button v-if="(post.user as User).id === session.user.id" class="delete" @click="() => {
+                emit('deletePost')
+                emit('close')
+            }">
                 <i class="fa-solid fa-trash-can"></i>
                 <span>Delete</span>
             </button>
