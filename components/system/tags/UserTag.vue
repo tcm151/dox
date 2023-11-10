@@ -7,11 +7,12 @@ const props = defineProps<{
 </script>
 
 <template>
-    <Tag type="info" icon="fa-user" :label="user.name ?? 'deleted'" @click="navigateTo(`/user/${extractId(user.id)}`)" />
-    <!-- <span class="tag info" @click="navigateTo(`/user/${extractId(user.id)}`)">
-        <i class="fa-solid fa-user"></i>
-        <span>{{ user.name ?? "deleted" }}</span>
-    </span> -->
+    <Tag
+        type="info"
+        icon="fa-user"
+        :label="user.name ?? 'deleted'"
+        @click.stop="navigateTo(`/user/${extractId(user.id)}`)"
+    />
 </template>
 
 <style scoped lang="scss">

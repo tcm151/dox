@@ -40,7 +40,7 @@ async function dismiss(notification: Notification) {
                     <div class="row-fit g-2 mt-2">
                         <TimeTag :time="notification.time" />
                         <Tag type="link" icon="fa-link" label="Context" @click="viewContext(notification)" />
-                        <Tag type="danger" label="Dismiss"  @click="dismiss(notification)" />
+                        <Tag type="danger" label="Dismiss" @click="dismiss(notification)" />
                     </div>
                 </div>
             </TransitionGroup>

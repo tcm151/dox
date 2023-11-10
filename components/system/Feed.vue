@@ -66,11 +66,11 @@ function sort(type: string) {
         <TransitionGroup name="feed">
             <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
                 <!-- TODO allow for pinned posts -->
-                <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId(post.id!)}`)">
+                <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p>{{ (post.replyTo as Post).title }}</p>
                 </div>
-                <div class="main row g-2">
+                <div class="main row g-2" @click="navigateTo(`/post/${extractId(post.id)}`)">
                     <div class="fill">
                         <div class="row-wrap g-1">
                             <Votes :target="post" />
@@ -81,7 +81,7 @@ function sort(type: string) {
                                 <TimeTag :time="post.time" />
                             </div>
                         </div>
-                        <h3 class="title mt-1" @click="navigateTo(`/post/${extractId(post.id)}`)">
+                        <h3 class="title mt-1">
                             {{ post.title }}
                         </h3>
                     </div>
@@ -180,17 +180,12 @@ function sort(type: string) {
         background-color: $dox-white-0;
     }
 
-    // .image {
-    //     min-width: 96px;
-    //     object-fit: cover;
-        
-        img {
-            max-width: 64px;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            border-radius: 0.25rem;
-        }
-    // }
+    img {
+        max-width: 64px;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 0.25rem;
+    }
 
     .reply-to + .main {
         border-top-left-radius: 0;
@@ -208,6 +203,10 @@ function sort(type: string) {
             letter-spacing: 0.025rem;
         }
     }
+}
+
+.post:has(.reply-to:hover)  {
+    background-color: $dox-white-4;
 }
 
 .post:hover {

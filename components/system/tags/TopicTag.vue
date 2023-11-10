@@ -5,7 +5,11 @@ const props = defineProps<{
 </script>
 
 <template>
-    <Tag type="topic" :label="extractId(topic)" @click="navigateTo(`/topic/${extractId(topic)}`)" />
+    <Tag
+        type="topic"
+        :label="extractId(topic)"
+        @click.stop="navigateTo(`/topic/${extractId(topic)}`)"
+    />
 </template>
 
 <style scoped lang="scss">

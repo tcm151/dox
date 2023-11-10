@@ -12,13 +12,13 @@ const props = defineProps<{
 
 <template>
     <div class="fit row g-1" v-if="target">
-        <span class="tag positive" @click="vote.positive(target)" :class="{ voted: target.votes.positive.includes(session.user.id)}">
+        <span class="tag positive" @click.stop="vote.positive(target)" :class="{ voted: target.votes.positive.includes(session.user.id)}">
             {{ target.votes.positive.length }}
         </span>
-        <span class="tag misleading" @click="vote.misleading(target)" :class="{ voted: target.votes.misleading.includes(session.user.id)}">
+        <span class="tag misleading" @click.stop="vote.misleading(target)" :class="{ voted: target.votes.misleading.includes(session.user.id)}">
             {{ target.votes.misleading.length }}
         </span>
-        <span class="tag negative" @click="vote.negative(target)" :class="{ voted: target.votes.negative.includes(session.user.id)}">
+        <span class="tag negative" @click.stop="vote.negative(target)" :class="{ voted: target.votes.negative.includes(session.user.id)}">
             {{ target.votes.negative.length }}
         </span>
         <span class="tag link" v-if="target.votes.awards && target.votes.awards.length > 0">
