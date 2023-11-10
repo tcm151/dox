@@ -5,10 +5,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span class="tag info">
-        <i class="fa-solid fa-stopwatch"></i>
-        <span>{{ formatDate(time) }}</span>
-    </span>
+    <Tag type="info" icon="fa-stopwatch" :label="formatDate(time)" />
 </template>
 
 <style scoped lang="scss">
