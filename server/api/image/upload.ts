@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const baseUrl = getHeader(event, 'origin')
 
     const { buffer, type } = await processImage(data![0])
-    const tokens = Math.round(buffer.byteLength / 1_024)
+    const tokens = Math.round(buffer.byteLength / 2_048)
     
     if (auth.tokens < tokens) {
         throw createError({
