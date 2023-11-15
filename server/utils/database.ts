@@ -1,5 +1,4 @@
-import Surreal from 'surrealdb.js';
-import type { Post } from '~/types'
+import Surreal from 'surrealdb.js'
 
 const { surreal } = useRuntimeConfig()
 if (surreal.url == "" || !surreal.url.includes("/rpc")) {
@@ -16,7 +15,7 @@ const db = new Surreal(surreal.url, {
         user: surreal.username,
         pass: surreal.password,
     },
-    prepare: async () => {
+    prepare: () => {
         console.log(`Connected to ${surreal.namespace}:${surreal.database}`)
     }
 })
@@ -47,7 +46,6 @@ export function queryBuilder(): { sql: string[], parameters: Parameters } {
 async function handleQuery<T>(query: Query) {
     const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as DatabaseResponse<T>[]
     if (responses.some(r => r.status == 'ERR')) {
-        console.log(JSON.stringify(responses, undefined, 4))
         throw createError({
             statusCode: 500,
             message: responses.find(r => r.status == 'ERR')?.result.toString() ?? "UNKNOWN ERROR."
