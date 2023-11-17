@@ -11,11 +11,13 @@ export default defineEventHandler(async (event) => {
     const { email, username, password, referral } = await readBody<Register>(event)
     
     const { surreal } = useRuntimeConfig()
-    const db = new Surreal(surreal.url)
+    const db = new Surreal()
+    await db.connect(surreal.url)
+    
     const token = await db.signup({
-        NS: surreal.namespace,
-        DB: surreal.database,
-        SC: "account",
+        namespace: surreal.namespace,
+        database: surreal.database,
+        scope: "account",
         email: email,
         username: username,
         password: password,
@@ -29,6 +31,7 @@ export default defineEventHandler(async (event) => {
         following: [],
     })
 
+    // REFACTOR use session to grab this information!
     const auth = await $fetch('/api/profile', {
         headers: {
             Authorization: `Bearer ${token}`,

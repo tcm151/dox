@@ -32,6 +32,6 @@
         "pinia": "^2.0.28",
         "sass": "^1.57.1",
         "sharp": "^0.32.1",
-        "surrealdb.js": "^0.8.3"
+        "surrealdb.js": "^0.11.0"
     }
 }

@@ -1,14 +1,15 @@
 import Surreal from 'surrealdb.js';
 import { H3Event } from "h3"
-import type { DatabaseResponse } from '~/server/utils/database'
 import type { User } from '~/types';
 
 export const authenticateRequest = async (event: H3Event) => {
     const { surreal } = useRuntimeConfig()
-    const auth = new Surreal(surreal.url)
+    const auth = new Surreal()
     try {
         const token = getHeader(event, 'Authorization') ?? ""
-        await auth.authenticate(token.split(' ')[1])
+        await auth.connect(surreal.url, {
+            auth: token.split(' ')[1]
+        })
     }
     catch (ex) {
         throw createError({
@@ -16,8 +17,8 @@ export const authenticateRequest = async (event: H3Event) => {
             message: "Failed to authenticate request."
         })
     }
-    let response = await auth.query("SELECT * FROM $auth") as unknown as DatabaseResponse<User>[]
-    let user = response[0].result[0]
+    let response = await auth.query("SELECT * FROM $auth") as unknown as User[][]
+    let user = response[0][0]
     if (user == null) {
         throw createError({
             statusCode: 500,

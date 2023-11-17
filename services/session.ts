@@ -24,7 +24,6 @@ export const getSession = defineStore("session", (): Session => {
     const events = useEvents()
 
     const db = new Surreal()
-    db.connect("https://db.tcmdev.ca/rpc")
     
     //> SESSION
     const isAuthenticated = skipHydrate(useSessionStorage<boolean>("authenticated", false))
@@ -78,8 +77,9 @@ export const getSession = defineStore("session", (): Session => {
     //> AUTH
     async function authenticate() {
         try {
-            await db.wait()
-            await db.authenticate(token.value)
+            await db.connect("https://db.tcmdev.ca/rpc", {
+                auth: token.value
+            })
             await fetchProfile()
 
             isAuthenticated.value = true
@@ -95,14 +95,19 @@ export const getSession = defineStore("session", (): Session => {
     async function login(id: string, password: string) {
         const { public: { surreal } } = useRuntimeConfig()
         try {
-            await db.wait()
+            await db.connect("https://db.tcmdev.ca/rpc", {
+                namespace: surreal.namespace,
+                database: surreal.database,
+            })
+
             token.value = await db.signin({
-                NS: surreal.namespace,
-                DB: surreal.database,
-                SC: "account",
+                namespace: surreal.namespace,
+                database: surreal.database,
+                scope: "account",
                 id: id,
                 password: password,
             })
+            
             await fetchProfile()
 
             isAuthenticated.value = true

@@ -8,17 +8,20 @@ if (surreal.url == "" || !surreal.url.includes("/rpc")) {
     })
 }
 
-const db = new Surreal(surreal.url, {
-    ns: surreal.namespace,
-    db: surreal.database,
-    auth: {
-        user: surreal.username,
-        pass: surreal.password,
-    },
-    prepare: () => {
-        console.log(`Connected to ${surreal.namespace}:${surreal.database}`)
-    }
-})
+const db = new Surreal();
+(async () => {
+    return await db.connect(surreal.url, {
+        namespace: surreal.namespace,
+        database: surreal.database,
+        auth: {
+            username: surreal.username,
+            password: surreal.password,
+        },
+        prepare: () => {
+            console.log(`Connected to ${surreal.namespace}:${surreal.database}`)
+        }
+    })
+})()
 
 interface Parameters {
     [key: string]: any
@@ -44,32 +47,41 @@ export function queryBuilder(): { sql: string[], parameters: Parameters } {
 }
 
 async function handleQuery<T>(query: Query) {
-    const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as DatabaseResponse<T>[]
-    if (responses.some(r => r.status == 'ERR')) {
+    try {
+        const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
+        // console.log(responses)
+        return responses
+    }
+    catch (ex: any) {
+
+        console.log(ex)
+
         throw createError({
             fatal: true,
             statusCode: 500,
-            message: responses.find(r => r.status == 'ERR')?.result.toString() ?? "UNKNOWN ERROR."
+            message: "Internal Server Error."
+            // message: responses.find(r => r.status == 'ERR')?.result.toString() ?? "UNKNOWN ERROR."
         })
     }
-    return responses
 }
 
 export async function queryOne<T>(query: Query): Promise<T> {
     let responses = await handleQuery<T>(query)
-    return responses[0].result?.[0]
+    return responses[0][0]
 }
 
 export async function queryAll<T>(query: Query): Promise<T[]> {
     let response = await handleQuery<T>(query) 
-    return response[0].result
+    return response[0]
 }
 
-export async function multiQuery(query: Query): Promise<DatabaseResponse<any>[]> {
-    return await handleQuery(query)
+export async function multiQuery(query: Query): Promise<any[]> {
+    return await handleQuery<any>(query)
 }
 
-export async function complexQuery(query: Query): Promise<unknown[]> {
+export async function complexQuery(query: Query): Promise<unknown[][]> {
     const responses = await handleQuery(query)
-    return responses.map(r => r.result)
+    // return responses.map(r => r.result)
+    // return responses.flatMap(r => r)
+    return responses
 }

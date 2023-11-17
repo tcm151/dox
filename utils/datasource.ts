@@ -34,11 +34,13 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
 
     const session = getSession()
     
-    const { data, error, pending, refresh } = useAsyncData<T>(options.fetch.url(), () => $fetch(options.fetch.url(), {
-        headers: {
-            Authorization: `Bearer ${session.token}`,
-        },
-    }))
+    const { data, error, pending, refresh } = useAsyncData(options.fetch.url(), () => {
+        return $fetch<T>(options.fetch.url(), {
+            headers: {
+                Authorization: `Bearer ${session.token}`,
+            },
+        })
+    })
 
     watch(error, (value: any) => {
         if (value) {
@@ -61,13 +63,15 @@ function defineItem<T>(options: ItemOptions): DatasourceItem<T | null> {
             return true
         }
 
-        const response = await useAsyncData(() => $fetch(options.update!.url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${session.token}`,
-            },
-            body: data,
-        }))
+        const response = await useAsyncData(() => {
+            return $fetch<T>(options.update!.url, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${session.token}`,
+                },
+                body: data,
+            })
+        })
     
         if (response.error.value) {
             options.update.error.handler?.(response.error.value)
@@ -129,11 +133,13 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
 
     const session = getSession()
     
-    const { data, error, pending, refresh } = useAsyncData<T[]>(options.fetch.url(), () => $fetch(options.fetch.url(), {
-        headers: {
-            Authorization: `Bearer ${session.token}`,
-        },
-    }))
+    const { data, error, pending, refresh } = useAsyncData(options.fetch.url(), () => {
+        return $fetch<T[]>(options.fetch.url(), {
+            headers: {
+                Authorization: `Bearer ${session.token}`,
+            },
+        })
+    })
 
     watch(error, (value: any) => {
         if (value) {
@@ -150,13 +156,15 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
             return true
         }
     
-        const response = await useAsyncData(() => $fetch(options.create!.url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${session.token}`,
-            },
-            body: items,
-        }))
+        const response = await useAsyncData(() => {
+            return $fetch<T>(options.create!.url, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${session.token}`,
+                },
+                body: items,
+            })
+        })
 
         if (response.error.value) {
             options.create.error.handler?.(response.error.value)
@@ -172,13 +180,15 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
             return true
         }
     
-        const response = await useAsyncData(() => $fetch(options.update!.url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${session.token}`,
-            },
-            body: items,
-        }))
+        const response = await useAsyncData(() => { 
+            return $fetch<T>(options.update!.url, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${session.token}`,
+                },
+                body: items,
+            })
+        })
     
         if (response.error.value) {
             options.update.error.handler?.(response.error.value)
@@ -194,13 +204,15 @@ function defineList<T>(options: ListOptions): DatasourceList<T> {
             return true
         }
     
-        const response = await useAsyncData(() => $fetch(options.remove!.url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${session.token}`,
-            },
-            body: items,
-        }))
+        const response = await useAsyncData(() => { 
+            return $fetch<T>(options.remove!.url, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${session.token}`,
+                },
+                body: items,
+            })
+        })
     
         if (response.error.value) {
             options.remove.error.handler?.(response.error.value)

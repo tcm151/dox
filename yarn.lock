@@ -6105,13 +6105,14 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-surrealdb.js@^0.8.3:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/surrealdb.js/-/surrealdb.js-0.8.4.tgz#ca780c99b324ad12100ad9f4ebf449c27a770100"
-  integrity sha512-ToCyBHxpVPGXth31ZktQvv+s7fvZG6+sR3mXHNAlhq0/43yYiYx3+3cYvCDGZQNBNUI42KENv8/aBQ5mGQZEEA==
+surrealdb.js@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/surrealdb.js/-/surrealdb.js-0.11.0.tgz#56957c9be779899c851620b6d75b26c8b803db1c"
+  integrity sha512-x/Qd0UYyNilwY27JZlWgP8NsCdBzDtextRzP9oIm7xO27qsZvE5Rh4wnYN0xD68zgRAE4W8Jsufbm+hKbaGsTg==
   dependencies:
     unws "^0.2.3"
     ws "^8.13.0"
+    zod "^3.22.4"
 
 svg-tags@^1.0.0:
   version "1.0.0"
@@ -6989,3 +6990,8 @@ zip-stream@^5.0.1:
     archiver-utils "^4.0.1"
     compress-commons "^5.0.1"
     readable-stream "^3.6.0"
+
+zod@^3.22.4:
+  version "3.22.4"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
+  integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==
