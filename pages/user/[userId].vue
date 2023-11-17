@@ -6,8 +6,8 @@ const userId = route.params.userId as string
 
 const user = computed(() => response.value?.user)
 const posts = computed(() => response.value?.posts)
-const { data: response, refresh } = await useAsyncData<{ user: User, posts: Post[] }>(() => {
-    return $fetch(`/api/user/${userId}`)
+const { data: response, refresh } = await useAsyncData(() => {
+    return $fetch<{ user: User, posts: Post[] }>(`/api/user/${userId}`)
 })
 
 const vote = useVoting()

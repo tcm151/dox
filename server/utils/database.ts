@@ -47,6 +47,7 @@ async function handleQuery<T>(query: Query) {
     const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as DatabaseResponse<T>[]
     if (responses.some(r => r.status == 'ERR')) {
         throw createError({
+            fatal: true,
             statusCode: 500,
             message: responses.find(r => r.status == 'ERR')?.result.toString() ?? "UNKNOWN ERROR."
         })
