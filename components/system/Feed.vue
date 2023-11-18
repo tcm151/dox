@@ -17,7 +17,6 @@ const emit = defineEmits<{
 }>()
 
 const cache = useCache()
-const settings = useUserSettings()
 
 onMounted(() => sortBy(props.posts, sortType.value))
 watch(props.posts, () => {
@@ -44,9 +43,8 @@ function sort(type: string) {
 </script>
 
 <template>
-    <div class="feed">
-        <!-- REFACTOR update styling and simplify -->
-        <div class="sorting row center g-2" v-if="props.sorting">
+    <section class="column g-2">
+        <header class="sorting row center g-2" v-if="props.sorting">
             <!-- does not work with pagination -->
             <!-- REFACTOR sorting needs to be done from the database -->
             <button class="refresh" @click="emit('refresh')">
@@ -65,35 +63,12 @@ function sort(type: string) {
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Top</span>
             </button>
-        </div>
+        </header>
         <TransitionGroup name="feed">
-            <div class="post" :class="{ 'animate': settings.state.hoverAnimations }" v-for="post in posts" :key="post.id">
-                <!-- TODO include active pinned posts here -->
-                <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
-                    <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                    <p>{{ (post.replyTo as Post).title }}</p>
-                </div>
-                <div class="main row g-2" @click="navigateTo(`/post/${extractId(post.id)}`)">
-                    <div class="fill">
-                        <div class="row-wrap g-1">
-                            <Votes :target="post" />
-                            <TopicTag v-for="topic in post.topics" :topic="topic" />
-                            <div class="fill row-wrap g-1">
-                                <UserTag :fill="1" :user="(post.user as User)" />
-                                <Tag :fill="1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
-                                <TimeTag :fill="1" :time="post.time" />
-                            </div>
-                        </div>
-                        <h3 class="title mt-2">
-                            {{ post.title }}
-                        </h3>
-                    </div>
-                    <img v-if="post.images.length > 0" :src="post.images[0].url">
-                </div>
-            </div>
+            <PostPreview :post="post" v-for="post in posts" :key="post.id" />
         </TransitionGroup>
         <!-- TODO allow more than five pages -->
-        <div class="pagination" v-if="pagination">
+        <footer class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('page', props.page! - 1)"></i>
             <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>
             <span :class="{ current: page! == 2 }" @click="emit('page', 2)">2</span>
@@ -101,26 +76,13 @@ function sort(type: string) {
             <span :class="{ current: page! == 4 }" @click="emit('page', 4)">4</span>
             <span :class="{ current: page! == 5 }" @click="emit('page', 5)">5</span>
             <i class="fa-solid fa-caret-right" @click="emit('page', props.page! + 1)"></i>
-        </div>
-    </div>
+        </footer>
+    </section>
 </template>
 
 <style scoped lang="scss">
 
-@keyframes spin {
-    from {
-        transform: rotateZ(0deg);
-    }
-    to {
-        transform: rotateZ(360deg);
-    }
-}
-
-.feed {
-    @include flex-v (0.5rem);
-}
-
-.sorting {
+header.sorting {
     button {
         flex: 1 1;
         
@@ -149,12 +111,6 @@ function sort(type: string) {
         color: $dox-white-0;
         background-color: $dox-white-3;
     }
-
-    // .selected:hover {
-    //     color: $dox-white-3;
-    //     background-color: $dox-white-1;
-    //     border: 0.2rem solid $dox-white-3;
-    // }
 }
 
 .feed-move, .feed-enter-active, .feed-leave-active {
@@ -165,67 +121,7 @@ function sort(type: string) {
     opacity: 0;
 }
 
-// .feed-leave-active {
-//     position: absolute;
-// }
-
-.post {
-    border-radius: 0.25rem;
-    background-color: $dox-white-3;
-    transition: transform 128ms;
-    
-    .main {
-        overflow: hidden;
-        white-space: break-spaces;
-        padding: 0.75rem;
-        border-radius: 0.25rem;
-        background-color: $dox-white-0;
-    }
-
-    img {
-        max-width: 64px;
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
-        border-radius: 0.25rem;
-        border: 1px solid $dox-white-1;
-    }
-
-    .reply-to + .main {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-    }
-
-    .reply-to {
-        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-        font-weight: 700;
-        color: $dox-white-0;
-        
-        p {
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-            letter-spacing: 0.025rem;
-        }
-    }
-}
-
-.post:has(.reply-to:hover)  {
-    background-color: $dox-white-4;
-}
-
-.post:hover {
-    cursor: pointer;
-    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-}
-
-.post.animate:hover {
-    transform: scale(102%, 105%);
-}
-
-.row {
-    white-space: nowrap;
-}
-
-.pagination {
+footer.pagination {
     @include flex-h (0.5rem);
     justify-content: center;
 
