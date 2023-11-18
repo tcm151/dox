@@ -76,12 +76,17 @@ export const getSession = defineStore("session", (): Session => {
 
     //> AUTH
     async function authenticate() {
+        const { public: { surreal } } = useRuntimeConfig()
         try {
-            await db.connect("https://db.tcmdev.ca/rpc", {
-                auth: token.value
-            })
-            await fetchProfile()
+            if (token.value != "") {
+                await db.connect("https://db.tcmdev.ca/rpc", {
+                    namespace: surreal.namespace,
+                    database: surreal.database,
+                    auth: token.value
+                })
+            }
 
+            await fetchProfile()
             isAuthenticated.value = true
             events.publish(Trigger.authenticatedUser)
         }
