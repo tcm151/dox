@@ -20,8 +20,8 @@ definePageMeta({
         <PagedTabstrip
             :tabs="[
                 { route: '/admin/pins', icon: 'fa-solid fa-thumbtack', label: 'Pins' },
-                { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
                 { route: '/admin/feedback', icon: 'fa-solid fa-message', label: 'Feedback' },
+                { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
                 { route: '/admin/backups', icon: 'fa-solid fa-warehouse', label: 'Backups' },
             ]"
         />
