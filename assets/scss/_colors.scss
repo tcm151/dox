@@ -103,19 +103,6 @@ $danger: $dox-red;
     background-color: $dox-purple;
 }
 
-// REFACTOR remove the dark version, are unused
-.topic-dark, .link-dark {
-    color: $dox-purple-light;
-    background-color: $dox-purple;
-    border: 0.2rem solid transparent;
-}
-
-.topic-dark:hover, .link-dark:hover {
-    color: $dox-purple;
-    background-color: $dox-purple-light;
-    border: 0.2rem solid $dox-purple;
-}
-
 .info {
     color: $dox-blue;
     background-color: $dox-blue-light;
@@ -125,19 +112,6 @@ $danger: $dox-red;
     color: $dox-blue-light;
     background-color: $dox-blue;
 }
-
-.info-dark {
-    color: $dox-blue-light;
-    background-color: $dox-blue;
-    border: 0.2rem solid transparent;
-}
-
-.info-dark:hover {
-    color: $dox-blue;
-    background-color: $dox-blue-light;
-    border: 0.2rem solid $dox-blue;
-}
-
 
 .positive, .success, .misleading, .negative, .danger, .topic, .info {
     transition: color 64ms, background-color 64ms;
