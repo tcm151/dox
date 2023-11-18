@@ -315,6 +315,7 @@ section.editor, section.preview {
     min-width: 250px;
     border-radius: 0.5rem;
     background-color: $dox-white-0;
+    overflow-y: hidden;
 }
 
 .reply-to {
