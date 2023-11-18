@@ -2,8 +2,13 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
+        const cache = useCache()
+        const lastTab = cache.get("feed.lastTab", () => "posts")
         if (to.path === "/feed") {
-            return navigateTo("/feed/posts")
+            return navigateTo(`/feed/${lastTab.value}`)
+        }
+        else {
+            lastTab.value = to.path.split("/").at(-1)!
         }
     }
 })

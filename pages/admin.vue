@@ -7,8 +7,13 @@ definePageMeta({
             if (to.path.startsWith("/admin") && (!session.isAuthenticated && !session.user.admin)) {
                 return abortNavigation()
             }
+            const cache = useCache()
+            const lastTab = cache.get("admin.lastTab", () => "feedback")
             if (to.path === "/admin") {
-                return navigateTo("/admin/feedback")
+                return navigateTo(`/admin/${lastTab.value}`)
+            }
+            else {
+                lastTab.value = to.path.split("/").at(-1)!
             }
         }
     }

@@ -78,6 +78,7 @@ export const getSession = defineStore("session", (): Session => {
     async function authenticate() {
         const { public: { surreal } } = useRuntimeConfig()
         try {
+            // BUG there is some kind of issue here
             if (token.value != "") {
                 await db.connect("https://db.tcmdev.ca/rpc", {
                     namespace: surreal.namespace,

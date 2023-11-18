@@ -5,10 +5,10 @@ const route = useRoute()
 const postId = route.params.postId.toString()
 const { post, comments } = usePost(postId)
 
-const vote = useVoting()
+const cache = useCache()
 const session = getSession()
 
-let sortType = ref("hot")
+const sortType = cache.get("comments.sortType", () => "new")
 function sort(type: string) {
     sortType.value = type
     sortBy(comments.items!, type)

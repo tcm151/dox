@@ -7,8 +7,13 @@ definePageMeta({
             if (to.path.startsWith("/developer") && (!session.isAuthenticated || session.user.id != 'user:opkdyfig54tdre96jc37')) {
                 return abortNavigation()
             }
+            const cache = useCache()
+            const lastTab = cache.get("developer.lastTab", () => "query")
             if (to.path === "/developer") {
-                return navigateTo("/developer/query")
+                return navigateTo(`/developer/${lastTab.value}`)
+            }
+            else {
+                lastTab.value = to.path.split("/").at(-1)!
             }
         }
     }

@@ -1,6 +1,3 @@
-
-import type { emit } from 'process';
-
 <script setup lang="ts">
 
 const props = defineProps<{
@@ -9,7 +6,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (event: 'update:enabled'): void
+    (event: 'update:enabled', enabled: boolean): void
 }>()
 
 </script>
@@ -20,7 +17,7 @@ const emit = defineEmits<{
             <input
                 type="checkbox"
                 :checked="enabled"
-                @change="emit('update:enabled', $event.target.checked)"
+                @change="emit('update:enabled', ($event.target as HTMLInputElement).checked)"
             />
             <span class="slider" />
         </label>

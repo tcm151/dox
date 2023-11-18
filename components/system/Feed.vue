@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Post, User } from "~/types"
 
+// REFACTOR this component needs to be split up into smaller pieces
 const props = defineProps<{
     posts: Post[]
     loading?: boolean
@@ -15,6 +16,7 @@ const emit = defineEmits<{
     (event: 'pageSize', size: number): void
 }>()
 
+const cache = useCache()
 const settings = useUserSettings()
 
 onMounted(() => sortBy(props.posts, sortType.value))
@@ -32,7 +34,8 @@ watch(() => props.loading, (loading) => {
     }
 })
 
-let sortType = ref("new")
+// BUG this does not work correctly, perhaps because of SSR
+let sortType = cache.get("feed.sortType", () => "new")
 function sort(type: string) {
     sortType.value = type
     sortBy(props.posts, type)

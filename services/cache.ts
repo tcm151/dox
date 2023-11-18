@@ -10,6 +10,7 @@ export const useCache = defineStore("cache", () => {
     let cache = useLocalStorage<Cache>(`cache:${session.user.id}`, {})
 
     function get<T>(key: string, fallback?: () => T): Ref<T> {
+        // WARN potential for performance degradations here
         if (cache.value[key]) {
             const cachedRef = ref<T>(cache.value[key]) as Ref<T>
             watch (cachedRef, () => cache.value[key] = cachedRef.value)

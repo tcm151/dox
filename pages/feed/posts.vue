@@ -5,6 +5,7 @@ definePageMeta({
     // layout: 'default'
 })
 
+const cache = useCache()
 const session = getSession()
 
 let queryParameters = ref({
@@ -35,7 +36,7 @@ async function goToPage(pageNumber: number) {
     await feed.fetch()
 }
 
-let filterType = useSessionStorage("filterType", "All")
+const filterType = cache.get("feed.posts.filterType", () => "All")
 
 function toggleFilter() {
     if (session.isAuthenticated) {
