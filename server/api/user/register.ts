@@ -60,5 +60,6 @@ export default defineEventHandler(async (event) => {
         await queryAll<string>({ sql, parameters })
     }
 
+    await db.close()
     return token
 })

@@ -25,5 +25,7 @@ export const authenticateRequest = async (event: H3Event) => {
             message: "User did not exist with provided credentials."
         })
     }
+
+    await auth.close()
     return user
 }
