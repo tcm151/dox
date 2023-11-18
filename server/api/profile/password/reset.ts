@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     const passwordReset = await queryOne<PasswordReset>({ sql, parameters })
 
     const { public: { baseUrl } } = useRuntimeConfig()
-    let template = await useStorage("assets:server").getItem("reset-password.html") as string
+    let template = await useStorage("assets:server").getItem("templates/reset-password.html") as string
     template = template.replace('{{user.email}}', auth.email)
     template = template.replace('{{user.name}}', auth.name)
     template = template.replace('{{resetPasswordLink}}', `${baseUrl}/settings/reset-password?id=${extractId(passwordReset.id)}`)

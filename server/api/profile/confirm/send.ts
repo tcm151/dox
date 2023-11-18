@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const confirmation = await queryOne<Confirmation>({ sql, parameters })
 
     const { public: { baseUrl } } = useRuntimeConfig()
-    let template = await useStorage("assets:server").getItem("confirm-account.html") as string
+    let template = await useStorage("assets:server").getItem("templates/confirm-account.html") as string
     template = template.replace('{{user.email}}', auth.email)
     template = template.replace('{{user.name}}', auth.name)
     template = template.replace('{{confirmLink}}', `${baseUrl}/profile?confirmation=${confirmation.id}`)
