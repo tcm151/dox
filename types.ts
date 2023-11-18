@@ -123,6 +123,7 @@ export interface Feedback {
     user: User | string
     time: string
     content: string
+    active: boolean
 }
 
 export interface Report {
