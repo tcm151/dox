@@ -23,8 +23,6 @@ export const getSession = defineStore("session", (): Session => {
     const hints = useHints()
     const events = useEvents()
 
-    const db = new Surreal()
-    
     //> SESSION
     const isAuthenticated = skipHydrate(useSessionStorage<boolean>("authenticated", false))
     const token = skipHydrate(useLocalStorage<string>("token", ""))
@@ -79,16 +77,16 @@ export const getSession = defineStore("session", (): Session => {
     async function authenticate() {
         const { public: { surreal } } = useRuntimeConfig()
         try {
-            // BUG there is some kind of issue here
-            if (token.value != "") {
-                await db.connect("https://db.tcmdev.ca/rpc", {
-                    namespace: surreal.namespace,
-                    database: surreal.database,
-                    auth: token.value
-                })
-            }
-
+            const db = new Surreal()
+            await db.connect("https://db.tcmdev.ca/rpc", {
+                namespace: surreal.namespace,
+                database: surreal.database,
+            })
+            
+            await db.authenticate(token.value)
             await fetchProfile()
+            await db.close()
+
             isAuthenticated.value = true
             events.publish(Trigger.authenticatedUser)
         }
@@ -102,6 +100,7 @@ export const getSession = defineStore("session", (): Session => {
     async function login(id: string, password: string) {
         const { public: { surreal } } = useRuntimeConfig()
         try {
+            const db = new Surreal()
             await db.connect("https://db.tcmdev.ca/rpc", {
                 namespace: surreal.namespace,
                 database: surreal.database,
@@ -116,12 +115,12 @@ export const getSession = defineStore("session", (): Session => {
             })
             
             await fetchProfile()
+            await db.close()
 
             isAuthenticated.value = true
             events.publish(Trigger.authenticatedUser)
         }
         catch (ex: any) {
-            console.log(ex)
             logout(true)
         }
 
@@ -192,17 +191,11 @@ export const getSession = defineStore("session", (): Session => {
                 await useApi(`/api/user/${extractId(target)}/unfollow`)
                 user.value!.following = user.value?.following.filter(u => u !== target)!
                 return true
-                // await useApi(`/api/user/${extractId(target)}/follow`)
-                // user.value?.following.push(target)
-                // return true
             }
             if (target.startsWith("topic")) {
                 await useApi(`/api/topic/${extractId(target)}/unfollow`)
                 user.value!.topics = user.value?.topics.filter(t => t !== target)!
                 return true
-                // await useApi(`/api/topic/${extractId(target)}/follow`)
-                // user.value?.topics.push(target)
-                // return true
             }
         }
         catch (error: any) {

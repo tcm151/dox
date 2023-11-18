@@ -5,10 +5,7 @@ const session = getSession();
 const showFeedback = ref(false)
 
 async function login() {
-    try {
-        await session.authenticate()
-    }
-    catch (ex: any) {
+    if (!(await session.authenticate())) {
         events.publish(Trigger.toggleLogin)
     }
 }
