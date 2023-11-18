@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Post, User } from "~/types"
 
-// REFACTOR this component needs to be split up into smaller pieces
 const props = defineProps<{
     posts: Post[]
     loading?: boolean
