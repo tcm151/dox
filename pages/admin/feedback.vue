@@ -11,12 +11,7 @@ const { data: feedback, refresh } = useAsyncData("feedback", () => {
 const showInactive = cache.get('admin.feedback.showInactive', () => false)
 
 const activeFeedback = computed(() => {
-    // if (showInactive.value) {
-    //     return feedback.value
-    // }
-    // else {
-        return feedback.value?.filter(f => (showInactive.value) ? f : f.active)
-    // }
+    return feedback.value?.filter(f => (showInactive.value) ? f : f.active)
 })
 
 async function dismissFeedback(feedback: Feedback) {
@@ -29,7 +24,7 @@ async function dismissFeedback(feedback: Feedback) {
 <template>
     <article class="column g-2 p-4">
         <header class="box p-4">
-            <Toggle v-model:enabled="showInactive" label="Show Inactive" />
+            <Toggle v-model:enabled="showInactive" label="Show Dismissed" />
         </header>
         <div class="feedback column g-1 p-4" v-for="item in activeFeedback">
             <p>{{ item.content }}</p>
