@@ -6,6 +6,7 @@ export interface Voteable {
         negative: string[]
         awards?: string[]
         saves?: string[]
+        score: number
     }
 }
 

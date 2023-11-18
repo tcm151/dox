@@ -36,6 +36,7 @@ export const getSession = defineStore("session", (): Session => {
             positive: [],
             misleading: [],
             negative: [],
+            score: 0
         },
         topics: [],
         following: [],
@@ -139,6 +140,7 @@ export const getSession = defineStore("session", (): Session => {
                     positive: [],
                     misleading: [],
                     negative: [],
+                    score: 0
                 },
                 topics: [],
                 following: [],
