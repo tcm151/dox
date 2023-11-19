@@ -1,57 +1,85 @@
 <script setup lang="ts">
 const showTop = ref(true)
 const showMiddle = ref(true)
+const showBottom = ref(true)
+
+const shownTab = ref<string>("top")
 </script>
 
 <template>
     <article class="p-5">
         <header class="row g-2">
-            <button @click="showTop = !showTop">
-                Toggle Top
+            <button @click="shownTab = 'top'">
+                Show Top
             </button>
-            <button @click="showMiddle = !showMiddle">
-                Toggle Middle
+            <button @click="shownTab = 'middle'">
+                Show Middle
+            </button>
+            <button @click="shownTab = 'bottom'">
+                Show Bottom
             </button>
         </header>
-        <div class="column g-4 mt-4" style="position: relative;">
-            <TransitionGroup name="scale-up">
-                <section class="top" v-if="showTop" key="top">
-                    <h1>Top</h1>
+        <section class="animations column g-4 mt-4">
+            <TransitionGroup name="scale-example">
+                <!-- <section class="beginning box p-4">
+                    <h2>Beginning</h2>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora id iure nostrum optio, et molestiae dicta qui eveniet eius, sint architecto temporibus suscipit similique assumenda, hic adipisci officia consequatur vitae.</p>
+                </section> -->
+                <section class="top box p-4" v-if="shownTab == 'top'" key="top">
+                    <h2>Top</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat suscipit rerum recusandae ducimus cum, soluta impedit esse iusto, beatae doloremque dolor eligendi aliquam iste sit consectetur! Reiciendis odit sed optio.</p>
                     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat suscipit rerum recusandae ducimus cum, soluta impedit esse iusto, beatae doloremque dolor eligendi aliquam iste sit consectetur! Reiciendis odit sed optio.</p>
                 </section>
-                <section class="middle" v-if="showMiddle" key="middle">
+                <section class="middle box p-4" v-if="shownTab == 'middle'" key="middle">
                     <h2>Middle</h2>
                     <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora id iure nostrum optio, et molestiae dicta qui eveniet eius, sint architecto temporibus suscipit similique assumenda, hic adipisci officia consequatur vitae.</p>
                 </section>
+                <section class="bottom box p-4" v-if="shownTab == 'bottom'" key="bottom">
+                    <h2>Bottom</h2>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora id iure nostrum optio, et molestiae dicta qui eveniet eius, sint architecto temporibus suscipit similique assumenda, hic adipisci officia consequatur vitae.</p>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora id iure nostrum optio, et molestiae dicta qui eveniet eius, sint architecto temporibus suscipit similique assumenda, hic adipisci officia consequatur vitae.</p>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora id iure nostrum optio, et molestiae dicta qui eveniet eius, sint architecto temporibus suscipit similique assumenda, hic adipisci officia consequatur vitae.</p>
+                </section>
+                <section class="final box p-4">
+                    <h2>Final</h2>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora id iure nostrum optio, et molestiae dicta qui eveniet eius, sint architecto temporibus suscipit similique assumenda, hic adipisci officia consequatur vitae.</p>
+                </section>
             </TransitionGroup>
-        </div>
+        </section>
     </article>
 </template>
-
-<style lang="scss">
-.scale-up-move,
-.scale-up-enter-active,
-.scale-up-leave-active {
-  transition: all 256ms ease;
-}
-
-.scale-up-enter-from {
-    opacity: 0;
-    transform: translateY(-50%) scaleY(0);
-}
-
-.scale-up-leave-to {
-    opacity: 0;
-    transform: translateY(-50%) scaleY(0);
-}
-
-.scale-up-leave-active:not(:last-child) {
-    position: absolute;
-}
-</style>
 
 <style scoped lang="scss">
 article {
     @include fit-width(800px, 1rem);
+}
+
+section.animations {
+    transition: all 256ms;
+}
+
+.scale-example-move,
+.scale-example-enter-active,
+.scale-example-leave-active {
+    transition: all 1s ease;
+}
+
+.scale-example-enter-from {
+    // opacity: 0;
+    transform: translateY(-50%) scaleY(0);
+}
+
+.scale-example-leave-to {
+    opacity: 0;
+    transform: translateY(-50%) scaleY(0);
+}
+
+.scale-example-leave-to:not(:first-child, :last-child) {
+    opacity: 0;
+    transform: scaleY(0);
+}
+
+.scale-example-leave-active:not(:last-child) {
+    position: absolute;
 }
 </style>

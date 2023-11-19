@@ -46,6 +46,19 @@ $success: $dox-green;
 $warning: $dox-yellow;
 $danger: $dox-red;
 
+
+@keyframes voted {
+    0% {
+        outline-width: 1px;
+    }
+    50% {
+        outline-width: 4px;
+    }
+    100% {
+        outline-width: 1px;
+    }
+}
+
 .dark {
     color: $dox-white-0;
     background-color: $dox-black-0;
@@ -114,5 +127,9 @@ $danger: $dox-red;
 }
 
 .positive, .success, .misleading, .negative, .danger, .topic, .info {
-    transition: color 64ms, background-color 64ms;
+    transition: color 256ms, background-color 256ms;
+}
+
+.voted {
+    animation: voted 256ms ease-in-out;
 }

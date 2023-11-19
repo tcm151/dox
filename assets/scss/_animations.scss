@@ -1,3 +1,4 @@
+// CSS Animations
 @keyframes spin {
     from {
         transform: rotateZ(0deg);
@@ -5,4 +6,29 @@
     to {
         transform: rotateZ(360deg);
     }
+}
+
+// Transition Group Animations
+.scale-up-move,
+.scale-up-enter-active,
+.scale-up-leave-active {
+  transition: all 512ms ease;
+}
+
+.scale-up-enter-from {
+    transform: translateY(-50%) scaleY(0);
+}
+
+.scale-up-leave-to {
+    opacity: 0;
+    transform: translateY(-50%) scaleY(0);
+}
+
+.scale-up-leave-to:not(:first-child, :last-child) {
+    opacity: 0;
+    transform: scaleY(0);
+}
+
+.scale-up-leave-active:not(:last-child) {
+    position: absolute;
 }
