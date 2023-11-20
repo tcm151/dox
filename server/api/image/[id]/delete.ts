@@ -14,20 +14,26 @@ export default defineEventHandler(async (event) => {
     const image = await queryOne<Image>({ sql, parameters })
 
 
-    if ((image.user as User).id !== auth.id) {
+    if ((image.user as User).id !== auth.id && !auth.admin) {
         throw createError({
             statusCode: 401,
-            message: "You are not the uploader of this image." 
+            message: "You are not allowed to delete this." 
         })
     }
 
     try {
         switch (process.env.NODE_ENV) {
             case "development":
-                fs.rmSync(`./images/${id}.${image.type}`)
+                const devPath = `./images/${id}.${image.type}`
+                if (fs.existsSync(devPath)) {
+                    fs.rmSync(devPath)
+                }
                 break
             case "production":
-                fs.rmSync(`./.production/images/${id}.${image.type}`)
+                const prodPath = `./.production/images/${id}.${image.type}`
+                if (fs.existsSync(prodPath)) {
+                    fs.rmSync(prodPath)
+                }
                 break
         }
 
