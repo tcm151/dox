@@ -38,7 +38,7 @@ const { data: topics } = await useAsyncData('topics', () => {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(500px, 1rem);
+    @include fit-width(800px, 1rem);
 }
 
 header.row {
