@@ -31,7 +31,7 @@ let draft = ref<Draft>({
 const route = useRoute()
 const replyTo = computedAsync<Post | null>(async () => {
     if (route.query['replyTo'] || draft.value.replyTo) {
-        const post = await $fetch(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
+        const post = await $fetch<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
         draft.value.replyTo = post.id
         return post
     }
