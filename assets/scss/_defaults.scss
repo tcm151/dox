@@ -23,31 +23,6 @@ a, a:hover, a:active, a:visited {
     text-decoration: none;
 }
 
-.content {
-    a {
-        color: $dox-blue;
-        font-weight: 600;
-        text-decoration: underline;
-    }
-    
-    a:visited {
-        color: $dox-purple;
-    }
-
-    br {
-        content: "";
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-}
-
-// TODO setup default font sizes
-:not(.content) > {
-    :is(h1, h2, h3, h4, h5, h6, p) {
-        margin: 0;
-    }
-}
-
 a:has(i, span), button:has(i, span) {
     @include flex-h (0.5rem);
     justify-content: center;
@@ -117,17 +92,21 @@ button:hover {
     }
 }
 
+// REFACTOR What is this? Should be more scoped
 p:has(img) {
     display: grid;
     place-items: center;
     
     img {
+        // margin-block: 1rem;
         margin-inline: auto;
         max-width: calc(100% - 8rem);
+        border-radius: 0.5rem;
         // max-height: 256px;
     }
 }
 
+// REFACTOR What is this? Should be more scoped
 pre:has(code) {
     code {
         display: block;
@@ -136,6 +115,7 @@ pre:has(code) {
     }
 }
 
+// REFACTOR What is this? Should be more scoped
 .content.wrap {
     pre:has(code) {
         code {
@@ -150,7 +130,7 @@ code {
     font-size: 0.95rem;
     font-weight: 500;
     font-family: 'Source Code Pro', monospace;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     background-color: $dox-white-1 !important;
 }
 
@@ -159,6 +139,92 @@ blockquote {
     padding: 0.5rem 1rem;
     font-style: italic;
     border-left: 3px solid $dox-white-2;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     background-color: $dox-white-1;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 2rem;
+    letter-spacing: -1px;
+    word-spacing: -2px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.5rem;
+    letter-spacing: -0.5px;
+    word-spacing: -1.5px;
+}
+
+h3 {
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    letter-spacing: -0.25px;
+    word-spacing: -1px;
+}
+
+h4, h5, h6, p {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.2rem;
+}
+
+// TODO setup default font sizes
+:not(.content) > {
+    :is(h1, h2, h3, h4, h5, h6, p) {
+        margin: 0;
+    }
+}
+
+// RENDERED HTML OUTPUT
+.content {
+    h1 {
+        margin-block: 1rem;
+        font-size: 1.75rem;
+    }
+    
+    h2 {
+        margin-block: 0.75rem;
+    }
+    
+    h3 {
+        font-weight: 600;
+        margin-block: 0.5rem;
+    }
+
+    p {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    p:last-child {
+        margin-bottom: 0.5rem;
+    }
+
+    a {
+        color: $dox-blue;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+    
+    a:visited {
+        color: $dox-purple;
+    }
+
+    br {
+        content: "";
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    ul, ol {
+        margin-block: 0.75rem;
+    }
+
+    blockquote {
+        margin-block: 0.75rem;
+    }
 }

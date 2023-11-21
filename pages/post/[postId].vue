@@ -174,9 +174,9 @@ function toggleOptions() {
                     <Tag :fill="1" type="info" icon="fa-chart-simple" :label="post.value.visits ?? 0" />
                     <Tag :fill="1" v-if="post.value.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.value.timeEdited)" />
                 </header>
-                <h2 class="mt-4">
+                <h1 class="mt-4">
                     {{ post.value?.title }}
-                </h2>
+                </h1>
                 <Markdown v-if="!editingPost"
                     class="content my-4"
                     :content="post.value?.content" 
