@@ -116,7 +116,7 @@ async function reportSelectedImage() {
                     <UserTag :fill="1" :user="(selectedImage.user as User)" />
                     <TimeTag :time="selectedImage.time" />
                     <Tag type="info" icon="fa-image" :label="selectedImage.type" />
-                    <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" />
+                    <!-- <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" /> -->
                     <Tag type="danger" icon="fa-flag" label="Report" @click="reportSelectedImage" />
                     <Tag
                         v-if="session.user.id == (selectedImage.user as User).id || session.user.admin"
