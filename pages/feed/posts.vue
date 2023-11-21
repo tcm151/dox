@@ -14,9 +14,13 @@ let queryParameters = ref({
 })
 
 const feed = useFeed(queryParameters.value)
+const { data: pins, refresh: refreshPins } = await useAsyncData('activePins', () => {
+    return $fetch<Post[]>("/api/post/pinned")
+})
 
 onMounted(async () => {
     await feed.fetch()
+    await refreshPins()
 })
 
 const feedPosts = computed(() => {
@@ -26,9 +30,16 @@ const feedPosts = computed(() => {
     )
 })
 const filteredPosts = computed(() =>  {
-    return filterType.value == "All"
+    const filtered = filterType.value == "All"
         ? feed.items
         : feedPosts.value
+
+    if (pins.value && pins.value.length > 0) {
+        return filtered?.filter(f => pins.value?.some(p => p.id != f.id))
+    }
+    else {
+        return filtered
+    }
 })
 
 async function goToPage(pageNumber: number) {
@@ -52,7 +63,8 @@ function toggleFilter() {
 </script>
 
 <template>
-    <section class="feed p-4">
+    <section class="feed column g-2 p-4">
+        <PostPreview :post="post" :pinned="true" v-for="post in pins" :key="post.id" />
         <Feed
             :page="queryParameters.pageNumber"
             :sorting="true"

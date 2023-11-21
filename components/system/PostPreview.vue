@@ -3,6 +3,7 @@ import type { Post, User } from '~/types'
 
 const props = defineProps<{
     post: Post
+    pinned?: boolean
 }>()
 
 const settings = useUserSettings()
@@ -11,7 +12,6 @@ const settings = useUserSettings()
 
 <template>
     <div class="post" :class="{ 'animate': settings.state.hoverAnimations }">
-        <!-- TODO include active pinned posts here -->
         <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (post.replyTo as Post).title }}</p>
@@ -25,6 +25,7 @@ const settings = useUserSettings()
                         <UserTag :fill="1" :user="(post.user as User)" />
                         <Tag :fill="1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
                         <TimeTag :fill="1" :time="post.time" />
+                        <Tag type="danger" icon="fa-thumbtack" v-if="pinned" />
                     </div>
                 </div>
                 <h3 class="title mt-2">

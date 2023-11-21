@@ -14,14 +14,19 @@ async function updatePin(pin: Pin) {
     await refresh()
 }
 
+async function deletePin(pin: Pin) {
+    await session.useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/delete`)
+    await refresh()
+}
 </script>
 
 <template>
     <article class="column p-4">
         <div class="box" v-for="pin in pins" :key="pin.id">
             <header class="row g-1 p-3">
-                <UserTag :user="((pin.post as Post).user as User)" />
-                <TimeTag :time="(pin.post as Post).time" />
+                <UserTag :user="(pin.user as User)" />
+                <TimeTag :time="pin.time" />
+                <Tag type="danger" icon="fa-trash-can" label="Delete" @click="deletePin(pin)" />
                 <Toggle class="ml-2" :enabled="pin.active" @update:enabled="updatePin(pin)" label="Active" />
             </header>
             <hr>
