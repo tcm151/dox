@@ -52,9 +52,10 @@ const settings = useUserSettings()
 
     img {
         max-width: 64px;
+        max-height: 64px;
         aspect-ratio: 1 / 1;
         object-fit: cover;
-        border-radius: 0.25rem;
+        border-radius: 0.5rem;
         border: 1px solid $dox-white-1;
     }
 
