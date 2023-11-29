@@ -6,7 +6,9 @@ definePageMeta({
         if (session.isAuthenticated || await session.authenticate()) {
             if (from.query["confirmation"]) {
                 try {
-                    await session.useApi("/api/profile/confirm", from.query["confirmation"])
+                    await session.useApi("/api/profile/confirm", {
+                        id: from.query["confirmation"]
+                    })
                     await session.fetchProfile()
                     hints.addSuccess("Your account has been confirmed.")
                 }

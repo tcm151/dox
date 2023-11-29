@@ -1,42 +1,34 @@
-import type { User, Confirmation } from "~/types"
-
-// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const confirmationId = await readBody<string>(event)
+    const { id } = await readBody<{ id: string }>(event)
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT * FROM $confirmation')
-    sql.push('FETCH user')
-    parameters['confirmation'] = confirmationId
-    const confirmation = await queryOne<Confirmation>({ sql, parameters })
+    let { sql, parameters } = queryBuilder()
 
-    if (confirmation.expired) {
-        throw createError({
-            statusCode: 400,
-            message: "Confirmation period has expired, please try again and complete within 15 minutes."
-        })
-    }
+    sql.push('RETURN {')
+    
+    sql.push('IF $confirmation.user != $user.id {')
+    sql.push('THROW "You are not allowed to do this.";')
+    sql.push('};')
 
-    if (confirmation.used) {
-        throw createError({
-            statusCode: 400,
-            message: "This confirmation has already been used."
-        })
-    }
+    sql.push('IF $confirmation.expired {')
+    sql.push('THROW "Confirmation period has expired, please try again and complete within 15 minutes."')
+    sql.push('};')
 
-    if ((confirmation.user as User).id === auth.id) {
-        var { sql, parameters } = queryBuilder()
-        sql.push('UPDATE $user SET')
-        sql.push('confirmed = true;')
-        sql.push('UPDATE $confirmation SET')
-        sql.push('used = true;')
-        parameters['user'] = auth.id
-        parameters['confirmation'] = confirmationId
-        await multiQuery({ sql, parameters })
-        
-        return true
-    }
+    sql.push('IF $confirmation.used {')
+    sql.push('THROW "This confirmation has already been used.";')
+    sql.push('};')
 
-    return false
+    sql.push('UPDATE $user SET')
+    sql.push('confirmed = true;')
+    sql.push('UPDATE $confirmation SET')
+    sql.push('used = true;')
+    
+    sql.push('RETURN $user.confirmed;')
+
+    sql.push('};')
+
+    parameters['confirmation'] = id
+    parameters['user'] = auth
+
+    return await queryOne<boolean>({ sql, parameters })
 })
