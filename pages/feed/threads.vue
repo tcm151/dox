@@ -36,7 +36,7 @@ const { data: threads, pending, refresh } = await useAsyncData<Thread[]>('thread
 </script>
 
 <template>
-    <article class="column g-2 p-4">
+    <article class="column g-4 p-4">
         <header class="box column g-2 p-4">
             <div class="field">
                 <label>Content</label>
@@ -63,7 +63,9 @@ const { data: threads, pending, refresh } = await useAsyncData<Thread[]>('thread
                 </button>
             </div>
         </header>
-        <ThreadPreview :thread="thread" v-for="thread in threads" :key="thread.id" />
+        <section class="column g-2">
+            <ThreadPreview :thread="thread" v-for="thread in threads" :key="thread.id" />
+        </section>
     </article>
 </template>
 
