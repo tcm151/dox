@@ -84,6 +84,8 @@ DEFINE TABLE topic SCHEMALESS;
 
 DEFINE FIELD posts ON topic TYPE array DEFAULT [];
 DEFINE FIELD posts[*] ON topic TYPE record<post>;
+DEFINE FIELD threads ON topic TYPE array DEFAULT [];
+DEFINE FIELD threads[*] ON topic TYPE record<thread>;
 
 DEFINE FIELD votes.positive ON topic TYPE array DEFAULT [];
 DEFINE FIELD votes.positive[*] ON topic TYPE record<user>;
@@ -172,6 +174,46 @@ DEFINE FIELD post ON pin TYPE record<post>;
 DEFINE FIELD user ON pin TYPE record<user>;
 DEFINE FIELD active ON pin TYPE bool DEFAULT false;
 DEFINE FIELD time ON pin TYPE datetime DEFAULT time::now();
+
+-- ------------------------------
+-- TABLE: thread
+-- ------------------------------
+
+DEFINE TABLE thread SCHEMALESS;
+
+DEFINE FIELD user ON thread TYPE record<user>;
+DEFINE FIELD content ON thread TYPE string ASSERT $value = /.{4,512}/;;
+DEFINE FIELD time ON thread TYPE datetime DEFAULT time::now();
+DEFINE FIELD replyTo ON thread TYPE option<record<thread>>;
+
+DEFINE FIELD topics ON thread TYPE array DEFAULT [];
+DEFINE FIELD topics[*] ON thread TYPE record<topic>;
+DEFINE FIELD images ON thread TYPE array DEFAULT [];
+DEFINE FIELD images[*] ON thread TYPE record<image>;
+
+DEFINE FIELD edited ON thread TYPE bool DEFAULT false;
+DEFINE FIELD timeEdited ON thread TYPE option<datetime>;
+DEFINE FIELD visits ON thread TYPE number DEFAULT 0;
+
+DEFINE FIELD votes.positive ON thread TYPE array DEFAULT [];
+DEFINE FIELD votes.positive[*] ON thread TYPE record<user>;
+DEFINE FIELD votes.misleading ON thread TYPE array DEFAULT [];
+DEFINE FIELD votes.misleading[*] ON thread TYPE record<user>;
+DEFINE FIELD votes.negative ON thread TYPE array DEFAULT [];
+DEFINE FIELD votes.negative[*] ON thread TYPE record<user>;
+DEFINE FIELD votes.awards ON thread TYPE array DEFAULT [];
+DEFINE FIELD votes.awards[*] ON thread TYPE record<user>;
+
+DEFINE FIELD votes.score ON thread DEFAULT <future> {
+    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
+};
+
+DEFINE EVENT updateTopics ON thread WHEN $event = 'CREATE' THEN {
+    FOR $topic in $after.topics {
+        UPDATE $topic SET
+        threads += $after.id;
+    };
+};
 
 -- ------------------------------
 -- TABLE: comment

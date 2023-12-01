@@ -80,10 +80,9 @@ export interface Thread extends Voteable {
     user: User | string
     content: string
     time: string
-    replyTo?: Post | string
+    replyTo?: Thread | string
     topics: string[]
-    comments: string[]
-    images?: Image[]
+    images: Image[]
     edited?: boolean
     timeEdited?: string
     views?: number
