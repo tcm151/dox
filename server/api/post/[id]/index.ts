@@ -5,9 +5,10 @@ export default defineEventHandler(async (event) => {
     
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, title, content, time,')
-    sql.push('replyTo.id, replyTo.title, topics, votes, edited, timeEdited, visits')
+    sql.push('replyTo.id, replyTo.title, topics, votes, edited, timeEdited, visits,')
+    sql.push('images')
     sql.push('FROM $post')
-    sql.push('FETCH user, replyTo')
+    sql.push('FETCH user, replyTo, images')
     parameters['post'] = `post:${id}`
     
     return await queryOne<Post>({ sql, parameters })
