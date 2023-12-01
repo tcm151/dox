@@ -66,7 +66,7 @@ function sort(type: string) {
         <TransitionGroup name="feed">
             <PostPreview :post="post" v-for="post in posts" :key="post.id" />
         </TransitionGroup>
-        <!-- TODO allow more than five pages -->
+        <!-- TODO convert to infinite scroll -->
         <footer class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('page', props.page! - 1)"></i>
             <span :class="{ current: page! == 1 }" @click="emit('page', 1)">1</span>
