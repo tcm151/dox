@@ -1,12 +1,20 @@
 <script setup lang="ts">
 
+const cache = useCache()
+const hints = useHints()
 const session = getSession()
 
 async function syncDatabase() {
-    const result = await session.useApi("/api/developer/database/sync")
+    try {
+        await session.useApi("/api/developer/database/sync")
+        hints.addSuccess("Database synced.")
+    }
+    catch {
+        hints.addError("Failed to sync database.")
+    }
 }
 
-const schema = ref<string | null>("")
+const schema = cache.get<string | null>("developer.schema.download", () => "")
 async function downloadSchema() {
     schema.value = await session.useApi<string>("/api/developer/database/schema")
 }
