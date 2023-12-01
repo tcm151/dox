@@ -235,7 +235,8 @@ async function saveDraft() {
                             <label>Content</label>
                             <textarea class="fill" v-model="draft.content" type="text" rows="12" />
                         </div>
-                        <div class="field topic-input">
+                        <TopicField v-model:input="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
+                        <!-- <div class="field topic-input">
                             <div class="row center-inline g-2 mb-2">
                                 <label class="mb-0">Topics</label>
                                 <TopicTag v-for="topic in draft.topics" :topic="topic" @contextmenu.prevent="removeTopic(topic)" />
@@ -250,7 +251,7 @@ async function saveDraft() {
                                 @blur="topicsFocused = false"
                                 :class="{ 'invalid': topicsFocused && !validTopic() }"
                             />
-                        </div>
+                        </div> -->
                         <div class="field uploaded-images" v-if="uploadedImages.length > 0">
                             <label>Images</label>
                             <div class="row g-2">
