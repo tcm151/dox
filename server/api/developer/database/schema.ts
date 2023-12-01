@@ -7,5 +7,5 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    return (await multiQuery({ sql: [`INFO FOR DB;`] }))[0].result
+    return await complexQuery({ sql: [`INFO FOR DB;`] })
 })
