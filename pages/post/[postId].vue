@@ -25,8 +25,10 @@ useServerSeoMeta({
 })
 
 onMounted(async () => {
-    sortBy(comments.items!, "hot")
-    await $fetch(`/api/post/${postId}/visit`)
+    if (process.client) {
+        sortBy(comments.items!, "hot")
+        await $fetch(`/api/post/${postId}/visit`)
+    }
 })
 
 const vote = useVoting()
