@@ -126,6 +126,11 @@ article {
     @include fit-width(800px, 1rem);
 }
 
+header.box {
+    // border: 2px solid $dox-white-2;
+    outline: 2px solid $dox-white-2;
+}
+
 header.sorting {
     button:not(.refresh) {
         flex: 1 1;
