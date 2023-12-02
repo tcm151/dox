@@ -52,21 +52,22 @@ async function submit() {
 }
 
 function selectImages() {
-
+    hints.addWarning('We are still working on this...')
 }
 
 const showPreview = ref<boolean>(false)
 function togglePreview() {
     showPreview.value = !showPreview.value
+    hints.addWarning('We are still working on this...')
 }
 
-const { data: threads, pending, refresh } = await useAsyncData<Thread[]>('threads', () => {
-    return $fetch("/api/thread")
+const { data: threads, pending, refresh } = await useAsyncData('threads', () => {
+    return $fetch<Thread[]>("/api/thread")
 })
 </script>
 
 <template>
-    <article class="column g-4 p-4">
+    <article class="column g-2 p-4">
         <header class="box column g-2 p-4">
             <div class="field">
                 <label>Content</label>
@@ -87,11 +88,32 @@ const { data: threads, pending, refresh } = await useAsyncData<Thread[]>('thread
                     <i class="fa-solid fa-eye-slash" v-else></i>
                     <span>Preview</span>
                 </button>
-                <button class="danger fill" @click="">
+                <button class="danger fill" @click="hints.addWarning('We are still working on this...')">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
             </div>
+        </header>
+        <header class="sorting row center g-2">
+            <button class="refresh dark" @click="refresh()">
+                <i class="fa-solid fa-rotate" :class="{ spin: pending }"></i>
+            </button>
+            <button class="dark" @click="hints.addWarning('We are still working on this...')">
+                <i class="fa-solid fa-globe"></i>
+                <span>{{ "All" }}</span>
+            </button>
+            <button @click="hints.addWarning('We are still working on this...')" :class="{ selected: false }">
+                <i class="fa-solid fa-egg"></i>
+                <span>New</span>
+            </button>
+            <button @click="hints.addWarning('We are still working on this...')" :class="{ selected: false }">
+                <i class="fa-solid fa-fire"></i>
+                <span>Hot</span>
+            </button>
+            <button @click="hints.addWarning('We are still working on this...')" :class="{ selected: false }">
+                <i class="fa-solid fa-ranking-star"></i>
+                <span>Top</span>
+            </button>
         </header>
         <section class="column g-2">
             <ThreadPreview :thread="thread" v-for="thread in threads" :key="thread.id" />
@@ -102,5 +124,11 @@ const { data: threads, pending, refresh } = await useAsyncData<Thread[]>('thread
 <style scoped lang="scss">
 article {
     @include fit-width(800px, 1rem);
+}
+
+header.sorting {
+    button:not(.refresh) {
+        flex: 1 1;
+    }
 }
 </style>

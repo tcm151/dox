@@ -97,7 +97,7 @@ async function reportSelectedImage() {
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                     <span>Refresh</span>
                 </button>
-                <button class="link" @click="selectImages()"  v-if="session.user.confirmed">
+                <button class="link fill" @click="selectImages()"  v-if="session.user.confirmed">
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>

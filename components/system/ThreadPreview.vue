@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Thread, User } from '~/types'
 
+const hints = useHints()
+
 const props = defineProps<{
     thread: Thread
 }>()
@@ -29,10 +31,10 @@ const settings = useUserSettings()
                 </div>
             </div>
             <div class="fill row-wrap g-1">
-                <Tag :fill="1" type="default" icon="fa-reply-all fa-flip-horizontal" label="Reply" />
-                <Tag :fill="1" type="default" icon="fa-copy" label="Share" />
-                <Tag type="default" icon="fa-flag" label="Report" />
-                <Tag type="default" icon="fa-ellipsis" />
+                <Tag :fill="1" type="default" icon="fa-reply-all fa-flip-horizontal" label="Reply" @click.stop="hints.addWarning('We are still working on this...')" />
+                <Tag :fill="1" type="default" icon="fa-copy" label="Share" @click.stop="hints.addWarning('We are still working on this...')" />
+                <Tag :fill="1" type="default" icon="fa-flag" label="Report" @click.stop="hints.addWarning('We are still working on this...')" />
+                <Tag type="default" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" />
             </div>
         </div>
     </div>
