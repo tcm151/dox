@@ -64,6 +64,10 @@ $danger: $dox-red;
     background-color: $dox-black-0;
 }
 
+.dark:hover {
+    background-color: $dox-black-3;
+}
+
 .positive, .success {
     color: $dox-green;
     background-color: $dox-green-light;
