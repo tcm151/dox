@@ -1,24 +1,54 @@
 <script setup lang="ts">
 import type { Thread } from '~/types';
 
+const hints = useHints()
+const session = getSession()
+
 const newTopic = ref<string>("")
-const topics = ref<string[]>([])
 
 function addTopic(topic: string) {
-    topics.value.push(`topic:${topic}`)
+    newThread.value.topics.push(`topic:${topic}`)
     newTopic.value = ""
 }
 
 function removeTopic(topic: string) {
-    topics.value = topics.value.filter(t => t !== topic)
+    newThread.value.topics = newThread.value.topics.filter(t => t !== topic)
 }
 
+let newThread = ref<Thread>({
+    id: '',
+    user: '',
+    content: '',
+    time: '',
+    topics: [],
+    images: [],
+    votes: {
+        positive: [],
+        misleading: [],
+        negative: [],
+        score: 0,
+    },
+    visits: 0,
+})
 async function submit() {
+    try {
+        const thread = await session.useApi<Thread>("/api/thread/add", {
+            user: session.user.id,
+            content: newThread.value.content,
+            topics: newThread.value.topics,
+            votes: {
+                positive: [session.user.id],
+                misleading: [],
+                negative: [],
+            },
+        })
 
-}
-
-async function saveDraft() {
-
+        hints.addSuccess(`Submitted new ${thread?.id}`)
+        await refresh()
+    }
+    catch (ex: any) {
+        hints.addError("Failed to submit thread.")
+    }
 }
 
 function selectImages() {
@@ -40,9 +70,9 @@ const { data: threads, pending, refresh } = await useAsyncData<Thread[]>('thread
         <header class="box column g-2 p-4">
             <div class="field">
                 <label>Content</label>
-                <textarea class="fill" type="text" rows="4" />
+                <textarea class="fill" type="text" rows="4" v-model="newThread.content" />
             </div>
-            <TopicField v-model:input="newTopic" :topics="topics" @add="addTopic" @remove="removeTopic" />
+            <TopicField v-model:input="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             <div class="row g-2 mt-2">
                 <button class="success fill" @click="submit">
                     <i class="fa-solid fa-share"></i>

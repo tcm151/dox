@@ -15,8 +15,8 @@ const settings = useUserSettings()
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (thread.replyTo as Thread).content.slice(128) }}</p>
         </div>
-        <div class="main column g-2" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
-            <Markdown :content="thread.content" />
+        <div class="main box column g-1 p-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
+            <Markdown class="mb-1" :content="thread.content" />
             <div class="row-wrap g-1">
                 <Votes :target="thread" />
                 <TopicTag v-for="topic in thread.topics" :topic="topic" />
@@ -24,9 +24,15 @@ const settings = useUserSettings()
                     <UserTag :fill="1" :user="(thread.user as User)" />
                     <!-- <Tag :fill="1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
                     <TimeTag :fill="1" :time="thread.time" />
-                    <Tag :fill="1" type="info" icon="fa-chart-simple" :label="thread.views ?? '0'" />
+                    <Tag :fill="1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
                     <Tag :fill="1" v-if="thread.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                 </div>
+            </div>
+            <div class="fill row-wrap g-1">
+                <Tag :fill="1" type="default" icon="fa-reply-all fa-flip-horizontal" label="Reply" />
+                <Tag :fill="1" type="default" icon="fa-copy" label="Share" />
+                <Tag type="default" icon="fa-flag" label="Report" />
+                <Tag type="default" icon="fa-ellipsis" />
             </div>
         </div>
     </div>
@@ -40,19 +46,7 @@ const settings = useUserSettings()
     
     .main {
         overflow: hidden;
-        padding: 0.75rem;
-        border-radius: 0.25rem;
-        background-color: $dox-white-0;
     }
-
-    // img {
-    //     max-width: 64px;
-    //     max-height: 64px;
-    //     aspect-ratio: 1 / 1;
-    //     object-fit: cover;
-    //     border-radius: 0.5rem;
-    //     border: 1px solid $dox-white-1;
-    // }
 
     .reply-to + .main {
         border-top-left-radius: 0;

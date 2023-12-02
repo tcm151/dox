@@ -85,7 +85,7 @@ export interface Thread extends Voteable {
     images: Image[]
     edited?: boolean
     timeEdited?: string
-    views?: number
+    visits: number
 }
 
 
