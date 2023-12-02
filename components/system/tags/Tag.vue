@@ -17,4 +17,13 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
+span.tag.default {
+    background-color: $dox-white-2;
+    transition: color 256ms, background-color 256ms;
+}
+
+span.tag.default:hover {
+    color: $dox-white-0;
+    background-color: $dox-white-3;
+}
 </style>
