@@ -45,10 +45,29 @@ async function submit() {
 
         hints.addSuccess(`Submitted new ${thread?.id}`)
         await refresh()
+        clearEditor()
     }
     catch (ex: any) {
         hints.addError("Failed to submit thread.")
     }
+}
+
+function clearEditor() {
+    newThread.value = {
+            id: '',
+            user: '',
+            content: '',
+            time: '',
+            topics: [],
+            images: [],
+            votes: {
+                positive: [],
+                misleading: [],
+                negative: [],
+                score: 0,
+            },
+            visits: 0,
+        }
 }
 
 function selectImages() {
@@ -88,7 +107,7 @@ const { data: threads, pending, refresh } = await useAsyncData('threads', () => 
                     <i class="fa-solid fa-eye-slash" v-else></i>
                     <span>Preview</span>
                 </button>
-                <button class="danger fill" @click="hints.addWarning('We are still working on this...')">
+                <button class="danger fill" @click="clearEditor">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
