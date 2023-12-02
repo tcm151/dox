@@ -148,11 +148,29 @@ article {
 header.box {
     // border: 2px solid $dox-white-2;
     outline: 2px solid $dox-white-2;
+
+    @media only screen and (max-width: 1000px) {
+        button:not(.success) {
+            flex: 0.25 1;
+
+            span {
+                display: none;
+            }
+        }
+    }
 }
 
 header.sorting {
     button:not(.refresh) {
         flex: 1 1;
+    }
+
+    @media only screen and (max-width: 1000px) {
+        button:not(.dark, .selected) {
+            span {
+                display: none;
+            }
+        }
     }
 }
 </style>
