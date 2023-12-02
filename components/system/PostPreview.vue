@@ -11,7 +11,7 @@ const settings = useUserSettings()
 </script>
 
 <template>
-    <div class="post" :class="{ 'animate': settings.state.hoverAnimations }">
+    <div class="post" :class="{ 'animate': settings.state.hoverAnimations, 'pinned': pinned }">
         <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (post.replyTo as Post).title }}</p>
@@ -20,12 +20,12 @@ const settings = useUserSettings()
             <div class="fill">
                 <div class="row-wrap g-1">
                     <Votes :target="post" />
+                    <Tag type="link" icon="fa-thumbtack" v-if="pinned" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <div class="fill row-wrap g-1">
                         <UserTag :fill="1" :user="(post.user as User)" />
                         <Tag :fill="1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
                         <TimeTag :fill="1" :time="post.time" />
-                        <Tag type="danger" icon="fa-thumbtack" v-if="pinned" />
                     </div>
                 </div>
                 <h3 class="title mt-2">
@@ -89,5 +89,16 @@ const settings = useUserSettings()
 
 .post.animate:hover {
     transform: scale(102%, 105%);
+}
+
+.post.pinned {
+    // outline: 2px solid $dox-purple;
+    // outline: 2px solid $dox-purple-light;
+    // outline: 2px solid $dox-white-2;
+
+    .main {
+        color: $dox-white-0;
+        background-color: $dox-white-3;
+    }
 }
 </style>
