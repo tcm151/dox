@@ -21,7 +21,9 @@ const emit = defineEmits<{
             />
             <span class="slider" />
         </label>
-        <span class="label">{{ label }}</span>
+        <slot name="label">
+            <span class="label">{{ label }}</span>
+        </slot>
     </div>
 </template>
 

@@ -21,16 +21,19 @@ async function deletePin(pin: Pin) {
 </script>
 
 <template>
-    <article class="column p-4">
+    <article class="column g-4 p-4">
         <div class="box" v-for="pin in pins" :key="pin.id">
+            <PostPreview :post="(pin.post as Post)"  />
             <header class="row g-1 p-3">
                 <UserTag :user="(pin.user as User)" />
                 <TimeTag :time="pin.time" />
                 <Tag type="danger" icon="fa-trash-can" label="Delete" @click="deletePin(pin)" />
-                <Toggle class="ml-2" :enabled="pin.active" @update:enabled="updatePin(pin)" label="Active" />
+                <Toggle class="toggle ml-2" :enabled="pin.active" @update:enabled="updatePin(pin)">
+                    <template #label>
+                        <span>Active</span>
+                    </template>
+                </Toggle>
             </header>
-            <hr>
-            <PostPreview :post="(pin.post as Post)"  />
         </div>
     </article>
 </template>
@@ -40,8 +43,13 @@ article {
     @include fit-width(800px, 1rem);
 }
 
-hr {
-    margin: 0;
-    border: 1px solid $dox-white-1;
+header {
+    border-top: 1px solid $dox-white-2;
+}
+
+.toggle {
+    span {
+        font-weight: 700;
+    }
 }
 </style>

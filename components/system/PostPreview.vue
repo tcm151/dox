@@ -67,12 +67,12 @@ const settings = useUserSettings()
 
     .reply-to {
         padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-        font-weight: 700;
         color: $dox-white-0;
         
         p {
             overflow-x: hidden;
             text-overflow: ellipsis;
+            font-weight: 700;
             letter-spacing: 0.025rem;
         }
     }
@@ -92,13 +92,14 @@ const settings = useUserSettings()
 }
 
 .post.pinned {
-    // outline: 2px solid $dox-purple;
-    // outline: 2px solid $dox-purple-light;
-    // outline: 2px solid $dox-white-2;
-
     .main {
-        color: $dox-white-0;
-        background-color: $dox-white-3;
+        border: 2px solid $dox-white-2;
+    }
+}
+    
+.post:has(.reply-to)  {
+    .main {
+        border-top: none;
     }
 }
 </style>
