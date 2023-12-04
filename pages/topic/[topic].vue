@@ -62,7 +62,16 @@ async function unfollowTopic() {
                 </Popup>
             </section>
         </header>
-        <LegacyFeed :posts="posts.items ?? []" :sorting="true" :pagination="true" />
+        <Feed
+            :sorting="true"
+            :loading="posts.loading"
+            :items="posts.items ?? []"
+            @refresh="posts.fetch"
+        >
+            <template #item="post">
+                <PostPreview :post="post" />
+            </template>
+        </Feed>
     </article>
 </template>
 

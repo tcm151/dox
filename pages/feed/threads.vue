@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { Thread } from '~/types';
 
+const { data: threads, pending, refresh } = await useAsyncData('threads', () => {
+    return $fetch<Thread[]>("/api/thread")
+})
+
 const hints = useHints()
 const session = getSession()
 
@@ -79,10 +83,6 @@ function togglePreview() {
     showPreview.value = !showPreview.value
     hints.addWarning('We are still working on this...')
 }
-
-const { data: threads, pending, refresh } = await useAsyncData('threads', () => {
-    return $fetch<Thread[]>("/api/thread")
-})
 </script>
 
 <template>
@@ -113,30 +113,16 @@ const { data: threads, pending, refresh } = await useAsyncData('threads', () => 
                 </button>
             </div>
         </header>
-        <header class="sorting row center g-2">
-            <button class="refresh dark" @click="refresh()">
-                <i class="fa-solid fa-rotate" :class="{ spin: pending }"></i>
-            </button>
-            <button class="dark" @click="hints.addWarning('We are still working on this...')">
-                <i class="fa-solid fa-globe"></i>
-                <span>{{ "All" }}</span>
-            </button>
-            <button @click="hints.addWarning('We are still working on this...')" :class="{ selected: false }">
-                <i class="fa-solid fa-egg"></i>
-                <span>New</span>
-            </button>
-            <button @click="hints.addWarning('We are still working on this...')" :class="{ selected: false }">
-                <i class="fa-solid fa-fire"></i>
-                <span>Hot</span>
-            </button>
-            <button @click="hints.addWarning('We are still working on this...')" :class="{ selected: false }">
-                <i class="fa-solid fa-ranking-star"></i>
-                <span>Top</span>
-            </button>
-        </header>
-        <section class="column g-2">
-            <ThreadPreview :thread="thread" v-for="thread in threads" :key="thread.id" />
-        </section>
+        <Feed
+            :sorting="true"
+            :loading="pending"
+            :items="threads ?? []"
+            @refresh="refresh"
+        >
+            <template #item="thread">
+                <ThreadPreview :thread="thread" />
+            </template>
+        </Feed>
     </article>
 </template>
 
@@ -146,27 +132,12 @@ article {
 }
 
 header.box {
-    // border: 2px solid $dox-white-2;
     outline: 2px solid $dox-white-2;
 
     @media only screen and (max-width: 1000px) {
         button:not(.success) {
             flex: 0.25 1;
 
-            span {
-                display: none;
-            }
-        }
-    }
-}
-
-header.sorting {
-    button:not(.refresh) {
-        flex: 1 1;
-    }
-
-    @media only screen and (max-width: 1000px) {
-        button:not(.dark, .selected) {
             span {
                 display: none;
             }

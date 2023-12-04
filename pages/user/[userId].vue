@@ -6,7 +6,7 @@ const userId = route.params.userId as string
 
 const user = computed(() => response.value?.user)
 const posts = computed(() => response.value?.posts)
-const { data: response, refresh } = await useAsyncData(() => {
+const { data: response, pending, refresh } = await useAsyncData(() => {
     return $fetch<{ user: User, posts: Post[] }>(`/api/user/${userId}`)
 })
 
@@ -80,7 +80,16 @@ async function unfollowUser() {
                 <p>{{ user.description }}</p>
             </section>
         </header>
-        <LegacyFeed :posts="posts ?? []" :sorting="true" :pagination="true" />
+        <Feed
+            :sorting="true"
+            :loading="pending"
+            :items="posts ?? []"
+            @refresh="refresh"
+        >
+            <template #item="post">
+                <PostPreview :post="post" />
+            </template>
+        </Feed>
     </article>
 </template>
 

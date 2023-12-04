@@ -28,14 +28,15 @@ const settings = useUserSettings()
                     <TimeTag :fill="1" :time="thread.time" />
                     <Tag :fill="1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
                     <Tag :fill="1" v-if="thread.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
+                    <Tag type="info" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" />
                 </div>
             </div>
-            <div class="fill row-wrap g-1">
+            <!-- <div class="fill row-wrap g-1">
                 <Tag :fill="1" type="default" icon="fa-reply-all fa-flip-horizontal" label="Reply" @click.stop="hints.addWarning('We are still working on this...')" />
                 <Tag :fill="1" type="default" icon="fa-copy" label="Share" @click.stop="hints.addWarning('We are still working on this...')" />
                 <Tag :fill="1" type="default" icon="fa-flag" label="Report" @click.stop="hints.addWarning('We are still working on this...')" />
                 <Tag type="default" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" />
-            </div>
+            </div> -->
         </div>
     </div>
 </template>

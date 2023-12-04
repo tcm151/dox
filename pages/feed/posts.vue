@@ -64,21 +64,21 @@ function toggleFilter() {
 
 <template>
     <section class="feed column g-2 p-4">
-        <PostPreview :post="post" :pinned="true" v-for="post in pins" :key="post.id" />
+        <PostPreview v-for="post in pins" :post="post" :pinned="true" :key="post.id" />
         <Feed
-            :page="queryParameters.pageNumber"
             :sorting="true"
-            :pagination="false"
-            @page="goToPage"
-            @refresh="feed.fetch"
             :loading="feed.loading"
-            :posts="filteredPosts ?? []"
+            :items="filteredPosts ?? []"
+            @refresh="feed.fetch"
         >
-            <template #header>
-                <button class="filter-type " @click="toggleFilter">
+            <template #buttons>
+                <button class="dark fill" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
                     <span>{{ filterType }}</span>
                 </button>
+            </template>
+            <template #item="post">
+                <PostPreview :post="post" />
             </template>
         </Feed>
     </section>
@@ -87,15 +87,5 @@ function toggleFilter() {
 <style scoped lang="scss">
 section.feed {
     @include fit-width(800px, 1rem);
-}
-
-.filter-type {
-    flex: 1 1;
-    color: $dox-white-2;
-    background-color: $dox-black-0;
-}
-
-.filter-type:hover {
-    background-color: $dox-black-2;
 }
 </style>
