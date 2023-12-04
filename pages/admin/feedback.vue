@@ -19,11 +19,21 @@ async function dismissFeedback(feedback: Feedback) {
     await refresh()
 }
 
+async function importFeedback() {
+    // TODO setup endpoint to download feedback
+}
+
 </script>
 
 <template>
     <article class="column g-2 p-4">
-        <header class="box p-4">
+        <header class="box row g-4 p-4">
+            <DevOnly>
+                <button class="link" @click="importFeedback">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Import Feedback</span>
+                </button>
+            </DevOnly>
             <Toggle v-model:enabled="showInactive" label="Show Dismissed" />
         </header>
         <div class="feedback column g-1 p-4" v-for="item in activeFeedback">
