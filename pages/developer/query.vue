@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import QuerySettings from './components/QuerySettings.client.vue';
 import { storeToRefs } from 'pinia';
 
 const hints = useHints()

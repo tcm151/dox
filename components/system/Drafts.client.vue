@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Draft } from '~/types';
+// REFACTOR move to pages/editor/components
 
 const props = defineProps<{
     visible: boolean
