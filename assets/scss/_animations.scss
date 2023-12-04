@@ -29,6 +29,7 @@
     transform: scaleY(0);
 }
 
+// .scale-up-leave-active {
 .scale-up-leave-active:not(:last-child) {
     position: absolute;
 }
