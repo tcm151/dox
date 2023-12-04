@@ -25,7 +25,7 @@ async function startBackup() {
 
 <template>
     <article class="p-4">
-        <section class="column g-4 p-4">
+        <section class="column box g-4 p-4">
             <header class="row g-2">
                 <div class="field">
                     <input v-model="backupInterval" style="width: 64px; text-align: center">
@@ -44,9 +44,9 @@ async function startBackup() {
             </header>
             <div class="column g-2">
                 <div class="fit row g-2" v-for="backup in backups">
-                    <TimeTag :time="backup.time" />
-                    <UserTag :user="backup.user" />
-                    <Tag :fill="1" type="link" :label="backup.id" />
+                    <TimeTag :fill="2" :time="backup.time" />
+                    <UserTag :fill="2" :user="backup.user" />
+                    <Tag :fill="10" type="link" :label="backup.id" />
                 </div>
             </div>
         </section>
@@ -56,15 +56,6 @@ async function startBackup() {
 <style scoped lang="scss">
 article {
     @include fit-width(800px, 1rem);
-}
-
-section {
-    border-radius: 0.25rem;
-    background-color: $dox-white-0;
-}
-
-span.fill {
-    flex: 10 1 1rem;
 }
 </style>
 

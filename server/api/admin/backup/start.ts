@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
     sql.push('LET $comments = (SELECT * FROM comment);')
     sql.push('LET $drafts = (SELECT * FROM draft);')
     sql.push('LET $posts = (SELECT * FROM post);')
+    sql.push('LET $threads = (SELECT * FROM thread);')
     sql.push('LET $topics = (SELECT * FROM topic);')
     sql.push('LET $users = (SELECT * FROM user);')
     
@@ -21,6 +22,7 @@ export default defineEventHandler(async (event) => {
     sql.push('INSERT INTO comment $comments;')
     sql.push('INSERT INTO draft $drafts;')
     sql.push('INSERT INTO post $posts;')
+    sql.push('INSERT INTO thread $threads;')
     sql.push('INSERT INTO topic $topics;')
     sql.push('INSERT INTO user $users;')
     
