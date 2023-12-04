@@ -17,6 +17,13 @@ UPDATE topic SET followers = <future> {
 }
 WHERE followers = NONE;
 
+-- 2023-12-04: add promoted and dismissed default fields on feedback
+UPDATE feedback SET
+promoted = false,
+dismissed = !active
+WHERE promoted = NONE
+AND active != NONE AND dismissed = NONE;
+
 -- 2023-12-04: add promoted default value on feedback
 UPDATE feedback SET promoted = false
 WHERE promoted = NONE;
