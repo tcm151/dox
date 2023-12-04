@@ -17,8 +17,8 @@ const settings = useUserSettings()
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (thread.replyTo as Thread).content.slice(128) }}</p>
         </div>
-        <div class="main box column g-1 p-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
-            <Markdown class="mb-1" :content="thread.content" />
+        <div class="main box column px-3 pb-3 pt-1" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
+            <Markdown class="content" :content="thread.content" />
             <div class="row-wrap g-1">
                 <Votes :target="thread" />
                 <TopicTag v-for="topic in thread.topics" :topic="topic" />
