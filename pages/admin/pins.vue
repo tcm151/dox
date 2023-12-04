@@ -27,7 +27,7 @@ async function deletePin(pin: Pin) {
             <header class="row g-1 p-3">
                 <UserTag :user="(pin.user as User)" />
                 <TimeTag :time="pin.time" />
-                <Tag type="danger" icon="fa-trash-can" label="Delete" @click="deletePin(pin)" />
+                <Tag type="danger" icon="fa-trash-can" label="Remove" @click="deletePin(pin)" />
                 <Toggle class="toggle ml-2" :enabled="pin.active" @update:enabled="updatePin(pin)">
                     <template #label>
                         <span>Active</span>
