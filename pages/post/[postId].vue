@@ -26,7 +26,7 @@ useServerSeoMeta({
 
 onMounted(async () => {
     if (process.client) {
-        sortBy(comments.items!, "hot")
+        sortList(comments.items!, "hot")
         await $fetch(`/api/post/${postId}/visit`)
     }
 })

@@ -80,7 +80,7 @@ async function unfollowUser() {
                 <p>{{ user.description }}</p>
             </section>
         </header>
-        <Feed :posts="posts ?? []" :sorting="true" :pagination="true" />
+        <LegacyFeed :posts="posts ?? []" :sorting="true" :pagination="true" />
     </article>
 </template>
 

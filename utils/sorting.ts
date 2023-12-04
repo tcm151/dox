@@ -1,11 +1,11 @@
 import { DateTime } from "luxon"
 import type { Voteable } from "~/types"
 
-interface Sortable extends Voteable {
+export interface Sortable extends Voteable {
     time: string
 }
 
-export function sortBy(items: Sortable[], sortType: string) {
+export function sortList(items: Sortable[], sortType: string) {
     if (!items) {
         return null
     }

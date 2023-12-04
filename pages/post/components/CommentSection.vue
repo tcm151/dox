@@ -11,7 +11,7 @@ const session = getSession()
 const sortType = cache.get("comments.sortType", () => "new")
 function sort(type: string) {
     sortType.value = type
-    sortBy(comments.items!, type)
+    sortList(comments.items!, type)
 }
 
 let commentReply = ref("")
