@@ -33,8 +33,6 @@ watch(() => props.loading, (loading) => {
     }
 })
 
-// BUG this does not work correctly, perhaps because of SSR
-// sees that the transition group is the problem
 let sortType = cache.get("feed.sortType", () => "new")
 function sort(type: string) {
     sortType.value = type
