@@ -18,17 +18,6 @@ body, figure {
     height: 100vh;
 }
 
-a, a:hover, a:active, a:visited {
-    color: inherit;
-    text-decoration: none;
-}
-
-a:has(i, span), button:has(i, span) {
-    @include flex-h (0.5rem);
-    justify-content: center;
-    align-items: center;
-}
-
 button {
     padding: 0.5rem 1rem;
 
@@ -141,6 +130,17 @@ blockquote {
     border-left: 3px solid $dox-white-2;
     border-radius: 0.5rem;
     background-color: $dox-white-1;
+}
+
+a, a:hover, a:active, a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:has(i, span), button:has(i, span) {
+    @include flex-h (0.5rem);
+    justify-content: center;
+    align-items: center;
 }
 
 h1 {
