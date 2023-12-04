@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import type { Post, User } from '~/types'
 
-definePageMeta({
-    // layout: 'default'
-})
-
 const cache = useCache()
 const session = getSession()
 
@@ -14,41 +10,17 @@ let queryParameters = ref({
 })
 
 const feed = useFeed(queryParameters.value)
+
 const { data: pins, refresh: refreshPins } = await useAsyncData('activePins', () => {
     return $fetch<Post[]>("/api/post/pinned")
 })
 
 onMounted(async () => {
-    await feed.fetch()
     await refreshPins()
-})
-
-const feedPosts = computed(() => {
-    return feed.items!.filter(p =>
-        p.topics.some(pt => session.user?.topics.includes(pt))
-        || session.user?.following.includes((p.user as User).id)
-    )
-})
-const filteredPosts = computed(() =>  {
-    const filtered = filterType.value == "All"
-        ? feed.items
-        : feedPosts.value
-
-    if (pins.value && pins.value.length > 0) {
-        return filtered?.filter(f => pins.value?.some(p => p.id != f.id))
-    }
-    else {
-        return filtered
-    }
-})
-
-async function goToPage(pageNumber: number) {
-    queryParameters.value.pageNumber = Math.max(1, pageNumber)
     await feed.fetch()
-}
+})
 
 const filterType = cache.get("feed.posts.filterType", () => "All")
-
 function toggleFilter() {
     if (session.isAuthenticated) {
         switch (filterType.value) {
@@ -60,6 +32,25 @@ function toggleFilter() {
         }
     }
 }
+
+const filteredPosts = computed(() => {
+    let posts = feed.items?.filter(f => pins.value?.every(p => p.id != f.id)) ?? []
+    
+    if (filterType.value == "Feed") {
+        posts = posts.filter(p => {
+            return p.topics.some(pt => session.user.topics.includes(pt))
+            || session.user.following.includes((p.user as User).id)
+        })
+    }
+
+    return posts
+})
+
+// async function goToPage(pageNumber: number) {
+//     queryParameters.value.pageNumber = Math.max(1, pageNumber)
+//     await feed.fetch()
+// }
+
 </script>
 
 <template>
@@ -72,7 +63,7 @@ function toggleFilter() {
             @refresh="feed.fetch"
         >
             <template #buttons>
-                <button class="dark fill" @click="toggleFilter">
+                <button class="dark" @click="toggleFilter">
                     <i class="fa-solid fa-globe"></i>
                     <span>{{ filterType }}</span>
                 </button>
@@ -88,4 +79,8 @@ function toggleFilter() {
 section.feed {
     @include fit-width(800px, 1rem);
 }
+
+// button.dark {
+//     width: 8em;
+// }
 </style>
