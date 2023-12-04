@@ -4,20 +4,12 @@ import type { Post, User } from '~/types'
 const cache = useCache()
 const session = getSession()
 
-let queryParameters = ref({
-    pageNumber: 1,
-    pageSize: 256,
+const posts = await useAsyncData('postFeed', () => {
+    return $fetch<Post[]>("/api/post")
 })
 
-const feed = useFeed(queryParameters.value)
-
-const { data: pins, refresh: refreshPins } = await useAsyncData('activePins', () => {
+const pins = await useAsyncData('pinnedPosts', () => {
     return $fetch<Post[]>("/api/post/pinned")
-})
-
-onMounted(async () => {
-    await refreshPins()
-    await feed.fetch()
 })
 
 const filterType = cache.get("feed.posts.filterType", () => "All")
@@ -34,33 +26,27 @@ function toggleFilter() {
 }
 
 const filteredPosts = computed(() => {
-    let posts = feed.items?.filter(f => pins.value?.every(p => p.id != f.id)) ?? []
+    let filtered = posts.data.value?.filter(f => pins.data.value?.every(p => p.id != f.id)) ?? []
     
     if (filterType.value == "Feed") {
-        posts = posts.filter(p => {
+        filtered = filtered.filter(p => {
             return p.topics.some(pt => session.user.topics.includes(pt))
             || session.user.following.includes((p.user as User).id)
         })
     }
 
-    return posts
+    return filtered
 })
-
-// async function goToPage(pageNumber: number) {
-//     queryParameters.value.pageNumber = Math.max(1, pageNumber)
-//     await feed.fetch()
-// }
-
 </script>
 
 <template>
     <section class="feed column g-2 p-4">
-        <PostPreview v-for="post in pins" :post="post" :pinned="true" :key="post.id" />
+        <PostPreview v-for="post in pins.data.value" :post="post" :pinned="true" :key="post.id" />
         <Feed
             :sorting="true"
-            :loading="feed.loading"
+            :loading="posts.pending.value"
             :items="filteredPosts ?? []"
-            @refresh="feed.fetch"
+            @refresh="posts.refresh"
         >
             <template #buttons>
                 <button class="dark" @click="toggleFilter">
@@ -79,8 +65,4 @@ const filteredPosts = computed(() => {
 section.feed {
     @include fit-width(800px, 1rem);
 }
-
-// button.dark {
-//     width: 8em;
-// }
 </style>
