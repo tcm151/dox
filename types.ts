@@ -36,7 +36,9 @@ export interface Confirmation {
 
 export interface Topic extends Voteable {
     id: string
-    posts?: Post[]
+    posts: Post[]
+    threads: Thread[]
+    followers: (User | string)[]
 }
 
 export interface Post extends Voteable {
