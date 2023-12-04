@@ -1,39 +1,31 @@
 <script setup lang="ts">
+import type { User, Report, Voteable } from '~/types';
+
 const { data: reports } = useAsyncData('reports', () => {
-    return $fetch("/api/report")
+    return $fetch<Report[]>("/api/report")
 })
 </script>
     
 <template>
-    <article class="column g-4 p-4">
-        <div class="report p-3" v-for="report in reports">
-            <p>
-                <NuxtLink :to="`/${report.reporter.replace(':', '/')}`">{{ report.reporter }}</NuxtLink>
-                reported
-                <NuxtLink :to="`/${report.subject.replace(':', '/')}`">{{ report.subject }}</NuxtLink>
-                {{ formatDate(report.time) }}
-            </p>
-        </div>
+    <article class="p-4">
+        <section class="box column g-2 p-3">
+            <div class="row g-2" v-for="report in reports">
+                <UserTag :fill="2" :user="(report.reporter as User)" />
+                <TimeTag :fill="2" :time="report.time" />
+                <Tag
+                    :fill="10"
+                    type="danger"
+                    icon="fa-flag"
+                    :label="(report.subject as Voteable).id"
+                    @click="navigateTo(`/${(report.subject as Voteable).id.replace(':', '/')}`)"
+                    />
+            </div>
+        </section>
     </article>
 </template>
 
 <style scoped lang="scss">
 article {
     @include fit-width(800px, 1rem);
-}
-
-div.report {
-    text-align: center;
-    border-radius: 0.25rem;
-    background-color: $dox-white-0;
-
-    a {
-        color: $dox-red;
-        font-weight: 700;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
 }
 </style>

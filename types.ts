@@ -132,7 +132,7 @@ export interface Feedback {
 export interface Report {
     id: string
     reporter: User | string
-    subject: string
+    subject: Voteable | string
     time: string
 }
 
