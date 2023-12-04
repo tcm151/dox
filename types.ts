@@ -49,7 +49,7 @@ export interface Post extends Voteable {
     time: string
     replyTo?: Post | string
     topics: string[]
-    comments: string[]
+    comments: (Comment | string)[]
     images: Image[]
     edited: boolean
     timeEdited?: string

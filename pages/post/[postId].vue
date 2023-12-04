@@ -5,7 +5,10 @@ import type { Post, Comment, User } from '~/types'
 
 const route = useRoute()
 const postId = route.params.postId.toString()
-const { post, comments } = usePost(postId)
+
+const { data: post, pending, refresh } = useAsyncData(`post:${postId}`, () => {
+    return $fetch<Post>(`/api/post/${postId}`)
+})
 
 useSeoMeta({
     title: () => post.value?.title ?? 'DOX For Everything',
@@ -13,7 +16,7 @@ useSeoMeta({
     author: () => post.value ? (post.value.user as User).name : 'unknown',
     description: () => post.value?.content.slice(0, 256),
     ogDescription: () => post.value?.content.slice(0, 256),
-    ogImage: () => post.value?.images?.[0].url,
+    // ogImage: () => post.value?.images?.[0].url ?? '',
 })
 
 useServerSeoMeta({
@@ -25,13 +28,12 @@ useServerSeoMeta({
 })
 
 onMounted(async () => {
-    if (process.client) {
-        sortList(comments.items!, "hot")
+    if (process.client && post.value) {
+        // sortList(post.value.comments as Comment[], "hot")
         await $fetch(`/api/post/${postId}/visit`)
     }
 })
 
-const vote = useVoting()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
@@ -98,9 +100,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
         },
     })
 
-    post.fetch()
-    comments.fetch()
-
+    await refresh()
     comment.value = ""
     showCommentBox.value = false
 }
@@ -127,7 +127,7 @@ async function awardPost() {
         accept: async () => {
             try {
                 await session.useApi(`/api/post/${postId}/award`)
-                await post.fetch()
+                await refresh()
             }
             catch (ex: any) {
                 hints.addError("Failed to award post.")
@@ -158,33 +158,33 @@ function toggleOptions() {
 
 <template>
     <article class="column g-2 p-4">
-        <div class="container column" v-if="post.value">
+        <div class="container column" v-if="post">
             <aside 
-                v-if="(post.value.replyTo as Post).id != null"
+                v-if="(post.replyTo as Post).id != null"
                 class="reply-to row center-inline g-2"
-                @click="navigateTo(`/post/${extractId((post.value.replyTo as Post).id)}`)"
+                @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)"
             >
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p>{{ (post.value.replyTo as Post).title }}</p>
+                <p>{{ (post.replyTo as Post).title }}</p>
             </aside>
             <section class="post p-5">
                 <header class="tags row-wrap g-1">
-                    <Votes :target="post.value" />
-                    <TopicTag v-for="topic in post.value.topics" :topic="topic" />
-                    <UserTag :fill="1" :user="(post.value.user as User)" />
-                    <TimeTag :fill="1" :time="post.value.time" />
-                    <Tag :fill="1" type="info" icon="fa-chart-simple" :label="post.value.visits ?? 0" />
-                    <Tag :fill="1" v-if="post.value.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.value.timeEdited)" />
+                    <Votes :target="post" />
+                    <TopicTag v-for="topic in post.topics" :topic="topic" />
+                    <UserTag :fill="1" :user="(post.user as User)" />
+                    <TimeTag :fill="1" :time="post.time" />
+                    <Tag :fill="1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
+                    <Tag :fill="1" v-if="post.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.timeEdited)" />
                 </header>
                 <h1 class="mt-4">
-                    {{ post.value?.title }}
+                    {{ post.title }}
                 </h1>
                 <Markdown v-if="!editingPost"
                     class="content my-4"
-                    :content="post.value?.content" 
+                    :content="post.content" 
                 />
-                <div v-if="editingPost && (post.value.user as User).id === session.user.id" class="field my-4">
-                    <textarea rows="10" v-model="post.value.content" />
+                <div v-if="editingPost && (post.user as User).id === session.user.id" class="field my-4">
+                    <textarea rows="10" v-model="post.content" />
                 </div>
                 <ClientOnly>
                     <footer class="column g-2" v-if="session.isAuthenticated">
@@ -205,7 +205,7 @@ function toggleOptions() {
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
                             <ExtraOptions
-                                :post="post.value"
+                                :post="post"
                                 :visible="showOptions"
                                 @pin-post="pinPost"
                                 @award-post="awardPost"
@@ -217,7 +217,7 @@ function toggleOptions() {
                             />
                         </div>
                         <div class="row g-1" v-else-if="editingPost">
-                            <button class="success fill" @click="updatePost(post.value)">
+                            <button class="success fill" @click="updatePost(post)">
                                 <i class="fa-solid fa-folder-open"></i>
                                 <span>Save</span>
                             </button>
@@ -234,7 +234,7 @@ function toggleOptions() {
                         <div class="field" v-else-if="showCommentBox">
                             <textarea rows="5" v-model="comment"></textarea>
                             <div class="row g-2 mt-2">
-                                <button class="success fill" @click="submitComment(post.value!, comment)">
+                                <button class="success fill" @click="submitComment(post, comment)">
                                     <i class="fa-solid fa-message"></i>
                                     <span>Submit</span>
                                 </button>
@@ -252,7 +252,7 @@ function toggleOptions() {
                 
             </section>
         </div>
-        <CommentSection v-if="comments.items && comments.items.length > 0" />
+        <CommentSection v-if="post && post.comments && post.comments.length > 0" />
     </article>
 </template>
 
@@ -268,11 +268,11 @@ article {
 
 aside.reply-to {
     padding: 0.5rem 0.75rem;
-    font-weight: 700;
     color: $dox-white-0;
     cursor: pointer;
-
+    
     p {
+        font-weight: 700;
         overflow-x: hidden;
         text-overflow: ellipsis;
     }

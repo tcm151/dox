@@ -3,7 +3,10 @@ import type { Post, Comment, User } from '~/types'
 
 const route = useRoute()
 const postId = route.params.postId.toString()
-const { post, comments } = usePost(postId)
+
+const { data: post, pending, refresh } = useAsyncData(`post:${postId}`, () => {
+    return $fetch<Post>(`/api/post/${postId}`)
+})
 
 const cache = useCache()
 const session = getSession()
@@ -11,7 +14,7 @@ const session = getSession()
 const sortType = cache.get("comments.sortType", () => "new")
 function sort(type: string) {
     sortType.value = type
-    sortList(comments.items!, type)
+    sortList(post.value!.comments as Comment[], sortType.value)
 }
 
 let commentReply = ref("")
@@ -45,8 +48,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
         },
     })
 
-    post.fetch()
-    comments.fetch()
+    await refresh()
 
     commentReply.value = ""
     commentToReplyTo.value = ""
@@ -55,7 +57,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
 </script>
 
 <template>
-    <section class="comments p-5" v-if="comments.items && comments.items.length > 0">
+    <section class="comments p-5" v-if="post && post.comments.length > 0">
         <header class="sorting row g-1 mb-3">
             <button class="fill" @click="sort('new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
@@ -70,14 +72,14 @@ async function submitComment(replyTo: Post | Comment, content: string) {
                 <span>Top</span>
             </button>
         </header>
-        <Tree :items="comments.items ?? []" :children="comments.items?.filter(c => c.replyTo === post.value?.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
+        <Tree :items="post.comments ?? []" :children="(post.comments as Comment[]).filter(c => c.replyTo === post!.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment }">
                 <div class="comment" :id="comment.id">
                     <header class="row-fit g-1">
                         <Votes :target="comment" />
                         <!-- TODO create AuthorTag -->
-                        <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
-                            <i class="fa-solid fa-feather-pointed" v-if="comment.user.id === (post.value?.user as User).id"></i>    
+                        <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user)}`)">
+                            <i class="fa-solid fa-feather-pointed" v-if="comment.user === (post.user as User).id"></i>    
                             <i class="fa-solid fa-user" v-else></i>
                             {{ `${comment.user?.name}` }}
                         </span>
