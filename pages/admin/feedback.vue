@@ -5,13 +5,13 @@ const cache = useCache()
 const session = getSession()
 
 const { data: feedback, refresh } = useAsyncData("feedback", () => {
-    return $fetch("/api/feedback")
+    return $fetch<Feedback[]>("/api/feedback")
 })
 
-const showInactive = cache.get('admin.feedback.showInactive', () => false)
+const showDismissed = cache.get('admin.feedback.showDismissed', () => false)
 
 const activeFeedback = computed(() => {
-    return feedback.value?.filter(f => (showInactive.value) ? f : f.active)
+    return feedback.value?.filter(f => (showDismissed.value) ? f : !f.dismissed)
 })
 
 async function dismissFeedback(feedback: Feedback) {
@@ -19,8 +19,9 @@ async function dismissFeedback(feedback: Feedback) {
     await refresh()
 }
 
-async function importFeedback() {
-    // TODO setup endpoint to download feedback
+async function promoteFeedback(feedback: Feedback) {
+    await session.useApi<Feedback>(`/api/feedback/${extractId(feedback.id)}/promote`)
+    await refresh()
 }
 
 </script>
@@ -29,20 +30,20 @@ async function importFeedback() {
     <article class="column g-2 p-4">
         <header class="box row g-4 p-4">
             <DevOnly>
-                <button class="link" @click="importFeedback">
+                <button class="link" @click="">
                     <i class="fa-solid fa-download"></i>
                     <span>Import Feedback</span>
                 </button>
             </DevOnly>
-            <Toggle v-model:enabled="showInactive" label="Show Dismissed" />
+            <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
         </header>
         <div class="feedback column g-1 p-4" v-for="item in activeFeedback">
             <p>{{ item.content }}</p>
-            <div class="tags row g-2 pt-1">
-                <Tag type="link" icon="fa-arrow-trend-up" label="Promote" />
+            <div class="tags row g-1 pt-1">
+                <Tag type="link" icon="fa-arrow-trend-up" label="Promote" @click="promoteFeedback(item)" />
                 <TimeTag :time="item.time" />
                 <UserTag :user="(item.user as User)" />
-                <Tag type="danger" label="Dismiss" @click="dismissFeedback(item)" />
+                <Tag v-if="!item.dismissed" type="danger" label="Dismiss" @click="dismissFeedback(item)" />
             </div>
         </div>
     </article>

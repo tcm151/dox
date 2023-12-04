@@ -125,7 +125,8 @@ export interface Feedback {
     user: User | string
     time: string
     content: string
-    active: boolean
+    dismissed: boolean
+    promoted: boolean
 }
 
 export interface Report {

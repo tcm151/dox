@@ -285,7 +285,8 @@ DEFINE TABLE feedback SCHEMALESS;
 DEFINE FIELD user ON feedback TYPE record<user>;
 DEFINE FIELD time ON feedback TYPE datetime DEFAULT time::now();
 DEFINE FIELD content ON feedback TYPE string;
-DEFINE FIELD active ON feedback TYPE bool DEFAULT true;
+DEFINE FIELD dismissed ON feedback TYPE bool DEFAULT false;
+DEFINE FIELD promoted ON feedback TYPE bool DEFAULT false;
 
 -- ------------------------------
 -- TABLE: report
