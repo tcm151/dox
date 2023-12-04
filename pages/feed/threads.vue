@@ -6,7 +6,13 @@ const { data: threads, pending, refresh } = await useAsyncData('threads', () => 
 })
 
 const hints = useHints()
+const cache = useCache()
 const session = getSession()
+
+const showEditor = cache.get("feed.threads.showEditor", () => true)
+function toggleEditor() {
+    showEditor.value = !showEditor.value
+}
 
 const newTopic = ref<string>("")
 
@@ -87,7 +93,7 @@ function togglePreview() {
 
 <template>
     <article class="column g-2 p-4">
-        <header class="box column g-2 p-4">
+        <header class="box column g-2 p-4" v-if="showEditor">
             <div class="field">
                 <label>Content</label>
                 <textarea class="fill" type="text" rows="4" v-model="newThread.content" />
@@ -107,7 +113,7 @@ function togglePreview() {
                     <i class="fa-solid fa-eye-slash" v-else></i>
                     <span>Preview</span>
                 </button>
-                <button class="danger fill" @click="clearEditor">
+                <button class="danger fill" @click="toggleEditor">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
@@ -119,6 +125,12 @@ function togglePreview() {
             :items="threads ?? []"
             @refresh="refresh"
         >
+            <template #buttons>
+                <button class="dark px-5" @click="toggleEditor">
+                    <i class="fa-solid fa-feather"></i>
+                    <span>Submit</span>
+                </button>
+            </template>
             <template #item="thread">
                 <ThreadPreview :thread="thread" />
             </template>
