@@ -4,8 +4,8 @@ import type { Image, User } from "~/types"
 const hints = useHints()
 const session = getSession()
 
-const { data: images, pending, refresh } = await useAsyncData<Image[]>('images', () => {
-    return $fetch("/api/image")
+const { data: images, pending, refresh } = await useAsyncData('images', () => {
+    return $fetch<Image[]>("/api/image")
 })
 
 const spinRefresh = ref(false)
