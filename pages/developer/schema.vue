@@ -9,8 +9,9 @@ async function syncDatabase() {
         await session.useApi("/api/developer/database/sync")
         hints.addSuccess("Database synced.")
     }
-    catch {
+    catch (ex: any) {
         hints.addError("Failed to sync database.")
+        hints.addError(ex.toString())
     }
 }
 
