@@ -63,7 +63,9 @@ function sort(type: string) {
             </button>
         </header>
         <!-- BUG transition group breaks SSR and sorting -->
-        <slot v-for="item in items" name="item" v-bind="item" :key="item.id" />
+        <!-- <TransitionGroup name="items"> -->
+            <slot v-for="item in items" name="item" v-bind="item" :key="item.id" />
+        <!-- </TransitionGroup> -->
         <!-- TODO convert to infinite scroll -->
         <footer class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('pagination', { size: 250, page: pagination.page - 1 })"></i>
@@ -80,7 +82,7 @@ function sort(type: string) {
 <style scoped lang="scss">
 
 header.sorting {
-    button:not(.refresh) {
+    button:not(.refresh), :slotted(button) {
         flex: 1 1;
         
         @media only screen and (max-width: 400px) {
