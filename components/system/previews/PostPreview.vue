@@ -16,7 +16,7 @@ const settings = useUserSettings()
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (post.replyTo as Post).title }}</p>
         </div>
-        <div class="main row g-2" @click="navigateTo(`/post/${extractId(post.id)}`)">
+        <div class="main box row g-2 p-3" @click="navigateTo(`/post/${extractId(post.id)}`)">
             <div class="fill">
                 <div class="row-wrap g-1">
                     <Votes :target="post" />
@@ -28,7 +28,7 @@ const settings = useUserSettings()
                         <TimeTag :fill="1" :time="post.time" />
                     </div>
                 </div>
-                <h3 class="title mt-2">
+                <h3 class="title mt-3">
                     {{ post.title }}
                 </h3>
             </div>
@@ -46,9 +46,6 @@ const settings = useUserSettings()
     .main {
         overflow: hidden;
         white-space: break-spaces;
-        padding: 0.75rem;
-        border-radius: 0.25rem;
-        background-color: $dox-white-0;
     }
 
     img {

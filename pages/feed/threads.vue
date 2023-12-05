@@ -9,7 +9,7 @@ const hints = useHints()
 const cache = useCache()
 const session = getSession()
 
-const showEditor = cache.get("feed.threads.showEditor", () => true)
+const showEditor = cache.get("feed.threads.showEditor", () => false)
 function toggleEditor() {
     showEditor.value = !showEditor.value
 }
@@ -156,4 +156,4 @@ header.box {
         }
     }
 }
-</style>
+</style>~/types/core
