@@ -63,7 +63,7 @@ With the site and database running, you will need to sync the schema to define a
 surreal import --conn <surrealdb_url> --user <username> --pass <password> --ns dox --db development <path_to_schema_surql>
 ```
 
-> Once completed the first time, you can sync the schema from within the site much easier.
+> **Note:** uncomment the `account` scope when running the sync for the first time, then comment it out afterwards. Your session will be invalidated every time you do a sync, if left uncommented. Once completed the first time, you can sync the schema from within the site much easier.
 
 ## It's Running
 
