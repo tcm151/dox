@@ -1,3 +1,5 @@
+> If you are interested in contributing, check out the [Contribution Guide](./docs/ContributionGuide.md) to build and run the project.
+
 # DOX For Everything
 
 DOX is a flexible forum which can facilitate questions, answers, discussion, blogs, documenation, wikis, and many other types of online forums. People are free to talk about whatever they want, and form communities around certains interests, topics, events, cultures, individuals... whatever.
