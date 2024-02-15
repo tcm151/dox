@@ -78,7 +78,7 @@ export const getSession = defineStore("session", (): Session => {
         const { public: { surreal } } = useRuntimeConfig()
         try {
             const db = new Surreal()
-            await db.connect("https://db.tcmdev.ca/rpc", {
+            await db.connect(surreal.url, {
                 namespace: surreal.namespace,
                 database: surreal.database,
             })
@@ -101,7 +101,7 @@ export const getSession = defineStore("session", (): Session => {
         const { public: { surreal } } = useRuntimeConfig()
         try {
             const db = new Surreal()
-            await db.connect("https://db.tcmdev.ca/rpc", {
+            await db.connect(surreal.url, {
                 namespace: surreal.namespace,
                 database: surreal.database,
             })
