@@ -30,10 +30,10 @@ function toggleChildren(id: string) {
 
 <style scoped lang="scss">
 .indent-line {
-    width: 0.33rem;
     border-radius: 0.25rem;
     background-color: $dox-white-1;
     cursor: pointer;
+    flex: 0 0 5px;
 }
 
 .indent-line:hover {
