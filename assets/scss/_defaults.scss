@@ -156,22 +156,28 @@ h4, h5, h6, p {
     }
 
     h1 {
-        margin-block: 1rem;
+        margin-top: 1.25rem;
+        margin-bottom: 1rem;
         font-size: 1.75rem;
     }
     
     h2 {
-        margin-block: 0.75rem;
+        margin-top: 1rem;
+        margin-bottom: 0.75rem;
     }
     
     h3 {
+        margin-top: 0.75rem;
+        margin-bottom: 0.5rem;
         font-weight: 600;
-        margin-block: 0.5rem;
     }
-
+    
     p {
         margin-top: 0.5rem;
         margin-bottom: 1rem;
+        // text-indent: 1rem;
+        text-align: justify;
+        hyphens: auto;
     }
 
     a {
@@ -196,15 +202,20 @@ h4, h5, h6, p {
 
     blockquote {
         margin-block: 0.75rem;
+        
+        p {
+            margin-block: 0.5rem;
+        }
     }
-
+    
     p:has(img) {
         display: grid;
         place-items: center;
+        margin-block: 1.25rem;
         
         img {
             margin-inline: auto;
-            max-width: calc(100% - 8rem);
+            max-width: calc(100% - 5rem);
             border-radius: 0.5rem;
         }
     }
