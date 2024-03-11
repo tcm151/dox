@@ -59,7 +59,7 @@ if (process.client) {
             <span>{{ popupEvent.message }}</span>
         </Popup>
     <NuxtLayout>
-        <NuxtLoadingIndicator />
+        <!-- <NuxtLoadingIndicator /> -->
         <NuxtPage />
     </NuxtLayout>
     <Hints />
