@@ -7,6 +7,7 @@ html {
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
     background-color: $dox-white-1;
+    color: $dox-black-0;
 }
 
 body, figure {
@@ -169,7 +170,7 @@ h4, h5, h6, p {
     h3 {
         margin-top: 0.75rem;
         margin-bottom: 0.5rem;
-        font-weight: 600;
+        // font-weight: 600;
     }
     
     p {
@@ -226,6 +227,19 @@ h4, h5, h6, p {
             padding: 1rem;
             overflow-x: auto;
         }
+    }
+
+    span.spoiler {
+        user-select: none;
+        background-color: $dox-black-0;
+        transition: background-color 128ms;
+        cursor: pointer;
+    }
+    
+    span.spoiler:focus {
+        user-select: auto;
+        background-color: transparent;
+        cursor: auto;
     }
 }
 
