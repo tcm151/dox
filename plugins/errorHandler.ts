@@ -5,4 +5,4 @@ export default defineNuxtPlugin((nuxtApp) => {
             body: { error, context: null }
         })
     }
-  })
+})
