@@ -34,23 +34,19 @@ async function unfollowTopic() {
 </script>
 
 <template>
-    <div class="box column p-5">
-        <header class="name-follow row space-between">
+    <div class="box column p-4">
+        <header class="name-follow row center-inline space-between">
             <h1 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
                 {{ extractId(topic.id) }}
             </h1>
             <ClientOnly>
                 <div v-if="session.isAuthenticated">
-                    <button class="danger" v-if="following" @click="unfollowTopic">
-                        Unfollow
-                    </button>
-                    <button class="success" v-else @click="followTopic">
-                        Follow
-                    </button>
+                    <Tag v-if="following" class="danger" label="Unfollow" @click="unfollowTopic" />
+                    <Tag v-else class="success" label="Follow" @click="followTopic" />
                 </div>
             </ClientOnly>
         </header>
-        <footer class="row g-1 mt-3">
+        <footer class="row g-1 mt-2">
             <Votes :target="topic" />
             <Tag :fill="1" type="link">
                 <strong>{{ topic.posts.length }}</strong> posts

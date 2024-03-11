@@ -114,7 +114,6 @@ a:has(i, span), button:has(i, span) {
 h1 {
     font-size: 2rem;
     font-weight: 800;
-    line-height: 2rem;
     letter-spacing: -1px;
     word-spacing: -2px;
 }
@@ -122,22 +121,19 @@ h1 {
 h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1.5rem;
     letter-spacing: -0.5px;
     word-spacing: -1.5px;
 }
 
 h3 {
     font-size: 1.25rem;
-    line-height: 1.25rem;
-    letter-spacing: -0.25px;
+    letter-spacing: -0.33px;
     word-spacing: -1px;
 }
 
 h4, h5, h6, p {
     font-size: 1rem;
     font-weight: 500;
-    line-height: 1.2rem;
 }
 
 :not(.content) > {

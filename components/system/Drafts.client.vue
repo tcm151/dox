@@ -38,29 +38,22 @@ async function deleteDraft(draft: Draft) {
         icon="fa-solid fa-compass-drafting"
         @close="emit('close')"
     >
-        <section class="drafts column" v-if="!loading && userDrafts.length > 0">
-            <div class="column" v-for="draft in userDrafts" :key="draft.id">
+        <section class="drafts column g-3" v-if="!loading && userDrafts.length > 0">
+            <div v-for="draft in userDrafts" :key="draft.id">
                 <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
-                <div class="row-wrap g-2">
-                    <span class="topic" v-for="topic in draft.topics">
-                        {{ topic.split(':')[1] }}
-                    </span>
-                    <span class="info">{{ formatDate(draft.time) }}</span>
-                    <button @click="emit('view', draft)">
-                        <i class="fa-solid fa-book-open"></i>
-                        <span>View</span>
-                    </button>
-                    <button class="danger" @click="deleteDraft(draft)">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>Delete</span>
-                    </button>
+                <div class="row-wrap g-1">
+                    <TopicTag v-for="topic in draft.topics" :topic="topic"/>
+                    <TimeTag :time="draft.time" />
+                    <Tag class="default" label="View" icon="fa-book-open" @click="emit('view', draft)" />
+                    <Tag class="danger" label="Delete" icon="fa-trash" @click="deleteDraft(draft)">
+                    </Tag>
                 </div>
             </div>
         </section>
-        <section class="empty-drafts" v-else-if="!loading">
+        <section class="grid center" v-else-if="!loading">
             <p>You have no drafts...</p>
         </section>
-        <section class="loading" v-else>
+        <section class="grid center" v-else>
             <Spinner fontSize="2rem" :showLoadingText="false" /> 
         </section>
     </Window>
@@ -73,37 +66,11 @@ section {
 }
 
 section.drafts {
-    @include flex-v (0.5rem);
-    
     h3 {
         overflow-x: hidden;
+        white-space: nowrap;
         text-overflow: ellipsis;
     }
-
-    #post-title {
-        font-size: 1.25rem;
-        font-weight: 500;
-        white-space: nowrap;
-    }    
-
-    .topic, .info, button {
-        font-size: 1rem;
-        font-weight: 700;
-        text-align: center;
-        white-space: nowrap;
-        border-radius: 0.25rem;
-        padding: 0.25rem 1rem;
-    }
-
-    .topic, .info {
-        flex: 1 1 auto;
-    }
-}
-
-section.empty-drafts, section.loading {
-    @include flex-v;
-    justify-content: center;
-    text-align: center;
 }
 
 section.empty-drafts {

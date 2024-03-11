@@ -20,6 +20,7 @@ const props = defineProps<{
 span.tag.default {
     background-color: $dox-white-2;
     transition: color 256ms, background-color 256ms;
+    font-weight: 800;
 }
 
 span.tag.default:hover {

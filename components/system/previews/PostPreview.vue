@@ -28,7 +28,7 @@ const settings = useUserSettings()
                         <TimeTag :fill="1" :time="post.time" />
                     </div>
                 </div>
-                <h3 class="title mt-3">
+                <h3 class="title mt-2">
                     {{ post.title }}
                 </h3>
             </div>
