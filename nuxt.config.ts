@@ -44,9 +44,6 @@ export default defineNuxtConfig({
             namespace: process.env.SURREAL_NAMESPACE,
             database: process.env.SURREAL_DATABASE,
         },
-        ml: {
-            openAiKey: process.env.OPENAI_APIKEY
-        },
         public: {
             baseUrl: process.env.BASE_URL,
             surreal: {
@@ -71,7 +68,8 @@ export default defineNuxtConfig({
                 },
             ],
             meta: [
-                { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" }
+                { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" },
+                { name: "google-adsense-account", content: "ca-pub-3080690900599338" }
             ]
         },
     },
