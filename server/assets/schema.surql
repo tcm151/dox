@@ -50,7 +50,9 @@ DEFINE TABLE passwordReset SCHEMALESS;
 -- TABLE: user
 -- ------------------------------
 
-DEFINE TABLE user SCHEMALESS;
+DEFINE TABLE user SCHEMALESS PERMISSIONS
+FOR select, update WHERE id = $auth.id
+FOR create, delete WHERE admin = true;
 
 DEFINE FIELD email ON user TYPE string ASSERT string::is::email($value);
 DEFINE INDEX email ON user FIELDS email UNIQUE;
@@ -323,7 +325,7 @@ DEFINE FIELD promoted ON feedback TYPE bool DEFAULT false;
 DEFINE TABLE report SCHEMALESS;
 
 DEFINE FIELD reporter ON report TYPE record<user>;
-DEFINE FIELD subject ON report TYPE record();
+DEFINE FIELD subject ON report TYPE record;
 DEFINE FIELD time ON report TYPE datetime DEFAULT time::now();
 
 -- ------------------------------

@@ -52,7 +52,7 @@ export const getSession = defineStore("session", (): Session => {
             return $fetch<T>(route, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token.value}`,
+                    Authorization: token.value,
                 },
                 body: body,
             }) as T

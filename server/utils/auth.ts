@@ -8,8 +8,13 @@ export const authenticateRequest = async (event: H3Event) => {
     try {
         const token = getHeader(event, 'Authorization') ?? ""
         await auth.connect(surreal.url, {
-            auth: token.split(' ')[1]
+            auth: token
         })
+        
+        let user = await auth.info() as unknown as User
+    
+        await auth.close()
+        return user
     }
     catch (ex) {
         throw createError({
@@ -17,15 +22,4 @@ export const authenticateRequest = async (event: H3Event) => {
             message: "Failed to authenticate request."
         })
     }
-    let response = await auth.query("SELECT * FROM $auth") as unknown as User[][]
-    let user = response[0][0]
-    if (user == null) {
-        throw createError({
-            statusCode: 500,
-            message: "User did not exist with provided credentials."
-        })
-    }
-
-    await auth.close()
-    return user
 }
