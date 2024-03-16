@@ -49,18 +49,14 @@ export function queryBuilder(): { sql: string[], parameters: Parameters } {
 async function handleQuery<T>(query: Query) {
     try {
         const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
-        // console.log(responses)
         return responses
     }
     catch (ex: any) {
-
         console.log(ex)
-
         throw createError({
             fatal: true,
             statusCode: 500,
             message: "Internal Server Error."
-            // message: responses.find(r => r.status == 'ERR')?.result.toString() ?? "UNKNOWN ERROR."
         })
     }
 }
@@ -75,13 +71,8 @@ export async function queryAll<T>(query: Query): Promise<T[]> {
     return response[0]
 }
 
-export async function multiQuery(query: Query): Promise<any[]> {
-    return await handleQuery<any>(query)
-}
-
 export async function complexQuery(query: Query): Promise<unknown[][]> {
     const responses = await handleQuery(query)
-    // return responses.map(r => r.result)
-    // return responses.flatMap(r => r)
+    // maybe do something before just returning things
     return responses
 }

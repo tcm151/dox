@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
         parameters['user'] = auth.id
         parameters['tokens'] = image.tokens
         parameters['image'] = image.id
-        await multiQuery({ sql, parameters })
+        await complexQuery({ sql, parameters })
         
         return true
     }

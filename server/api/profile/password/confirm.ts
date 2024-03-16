@@ -52,5 +52,5 @@ export default defineEventHandler(async (event) => {
     sql.push('UPDATE $passwordReset SET')
     sql.push('used = true;')
     parameters['passwordReset'] = `passwordReset:${body.resetId}`
-    return await multiQuery({ sql, parameters })
+    return await complexQuery({ sql, parameters })
 })

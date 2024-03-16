@@ -9,5 +9,5 @@ export default defineEventHandler(async (event) => {
 
     let schema = await useStorage("assets:server").getItem<string>("schema.surql")
     let migrations = await useStorage("assets:server").getItem<string>("migrations.surql")
-    return await multiQuery({ sql: [schema ?? "", migrations ?? ""] })
+    return await complexQuery({ sql: [schema ?? "", migrations ?? ""] })
 })
