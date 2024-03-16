@@ -10,8 +10,6 @@ defineProps<{ content?: string }>()
 
 <style lang="scss">
 div.markdown:not(.content) {
-    padding: 2rem;
-
     p:not(:first-child) {
         margin-top: 0.5rem;
     }

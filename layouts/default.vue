@@ -19,6 +19,7 @@
 footer.row {
     @include fit-width (800px, 1rem);
     justify-content: space-between;
+    order: 9999;
 
     .links {
         @include flex-v (0.25rem);

@@ -36,8 +36,8 @@ async function dismiss(notification: Notification) {
         <section class="column g-2" v-if="notifications && notifications.length > 0">
             <TransitionGroup name="notifications">
                 <div class="notification p-4" v-for="notification in notifications" :key="notification.id">
-                    <Markdown class="message column g-2" :content="notification.message" />
-                    <div class="row-fit g-2 mt-2">
+                    <Markdown class="message column" :content="notification.message" />
+                    <div class="row-fit g-2 mt-3">
                         <TimeTag :time="notification.time" />
                         <Tag type="link" icon="fa-link" label="Context" @click="viewContext(notification)" />
                         <Tag type="danger" label="Dismiss" @click="dismiss(notification)" />
