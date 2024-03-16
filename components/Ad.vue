@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const adsbygoogle = window.adsbygoogle || []
-adsbygoogle.push({})
+if (process.client) {
+    const adsbygoogle = window.adsbygoogle || []
+    adsbygoogle.push({})
+}
 </script>
 
 <template>
