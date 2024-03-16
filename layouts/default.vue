@@ -24,10 +24,10 @@ footer.row {
     .links {
         @include flex-v (0.25rem);
         font-weight: 700;
-    }
 
-    .links:hover {
-        color: #777;
+        a:hover {
+            color: #777;
+        }
     }
 
     .icon {

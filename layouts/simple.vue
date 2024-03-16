@@ -3,7 +3,7 @@
 
 <template>
     <main class="page column center-inline">
-        <slot />
+        <slot class="slot" />
     </main>
 </template>
 

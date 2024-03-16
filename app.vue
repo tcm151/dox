@@ -54,17 +54,17 @@ if (process.client) {
 
 <template>
     <Navbar />
-    <Login :visible="showLogin"/>
-        <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
-            <span>{{ popupEvent.message }}</span>
-        </Popup>
+    <Login :visible="showLogin" />
+    <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
+        <span>{{ popupEvent.message }}</span>
+    </Popup>
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>
     <Hints />
-    <DevOnly>
+    <!-- <DevOnly>
         <Messages />
-    </DevOnly>
+    </DevOnly> -->
 </template>
 
 <style lang="scss">
