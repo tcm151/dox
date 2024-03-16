@@ -8,16 +8,17 @@ if (process.client) {
 <template>
     <ins
         class="adsbygoogle box"
-        data-ad-format="fluid"
+        data-ad-format="auto"
         data-ad-layout-key="-hb-q-24-bk+x6"
+        data-full-width-responsive="true"
         data-ad-client="ca-pub-3080690900599338"
-        data-ad-slot="5356268808"
+        data-ad-slot="1685559050"
     />
 </template>
 
 <style scoped lang="scss">
 ins.adsbygoogle {
-    display: inline-block;
-    height: 66px;
+    display: block;
+    width: 256px;
 }
 </style>

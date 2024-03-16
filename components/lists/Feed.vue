@@ -62,13 +62,13 @@ function sort(type: string) {
                 <span>Top</span>
             </button>
         </header>
-        <Ad />
+        <InlineAd />
         <!-- BUG transition group breaks SSR and sorting -->
         <!-- <TransitionGroup name="items"> -->
             <slot v-for="item in items" name="item" v-bind="item" :key="item.id" />
         <!-- </TransitionGroup> -->
         <!-- TODO convert to infinite scroll -->
-        <Ad />
+        <InlineAd />
         <footer class="pagination" v-if="pagination">
             <i class="fa-solid fa-caret-left" @click="emit('pagination', { size: 250, page: pagination.page - 1 })"></i>
             <span :class="{ current: pagination.page == 1 }" @click="emit('pagination', { size: 250, page: 1 })">1</span>
