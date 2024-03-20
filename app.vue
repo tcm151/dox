@@ -49,6 +49,9 @@ if (process.client) {
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`)
     })
+
+    const adsbygoogle = window.adsbygoogle || []
+    adsbygoogle.push({})
 }
 </script>
 
