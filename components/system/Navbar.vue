@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const events = useEvents();
 const session = getSession();
+const { public: { site } } = useRuntimeConfig()
 
 const showFeedback = ref(false)
 
@@ -14,9 +15,9 @@ async function login() {
 <template>
     <nav>
         <section class="left">
-            <NuxtLink class="dox" to="/home" title="Home">
+            <NuxtLink class="title" to="/home" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
-                <span>DOX</span>
+                <span>{{ site.titleShort }}</span>
             </NuxtLink>
             <ClientOnly>
                 <NuxtLink to="/feed">
@@ -91,13 +92,13 @@ nav {
 section.left {
     @include flex-h;
 
-    a.dox {
+    a.title {
         @media only screen and (max-width: 500px) {
             span { display: none; }
         }
     }
 
-    a:not(.dox) {
+    a:not(.title) {
         @media only screen and (max-width: 1000px) {
             span { display: none; }
         }

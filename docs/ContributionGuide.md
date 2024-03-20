@@ -25,6 +25,9 @@ You will need to populate a `.env` file with a few specific parameters which the
 ```bash
 BASE_URL= # the address of your running Nuxt instance. Ex: http://localhost:3000
 
+SITE_TITLE= # the title you'd like to be displayed in the browser tab
+SITE_TITLE_SHORT= # the shortened title used when space is limited
+
 SURREAL_URL= # the address of your running SurrealDB instance. Ex: http://localhost:8000/rpc
 SURREAL_USERNAME= # your SurrealDB root username
 SURREAL_PASSWORD= # your SurrealDB root password

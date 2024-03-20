@@ -21,7 +21,7 @@ interface Email {
 export const useEmail = () => {
     async function sendMessage(email: Email) {
         return client.sendMail({
-            from: '"DOX Official" <tylermckay10@gmail.com>',
+            from: smtp.title,
             to: email.recipient,
             subject: email.subject,
             text: email.text ?? 'Oops.',

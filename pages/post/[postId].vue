@@ -5,13 +5,14 @@ import type { Post, Comment, User } from '~/types'
 
 const route = useRoute()
 const postId = route.params.postId.toString()
+const { public: { site } } = useRuntimeConfig()
 
 const { data: post, pending, refresh } = useAsyncData(`post:${postId}`, () => {
     return $fetch<Post>(`/api/post/${postId}`)
 })
 
 useSeoMeta({
-    title: () => post.value?.title ?? 'DOX For Everything',
+    title: () => post.value?.title ?? site.title,
     ogTitle: () => post.value?.title,
     author: () => post.value ? (post.value.user as User).name : 'unknown',
     description: () => post.value?.content.slice(0, 256),
@@ -24,7 +25,7 @@ useServerSeoMeta({
         index: true,
     },
     ogType: 'article',
-    ogSiteName: 'DOX For Everything',
+    ogSiteName: site.title,
 })
 
 onMounted(async () => {

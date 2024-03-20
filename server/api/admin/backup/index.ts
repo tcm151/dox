@@ -7,10 +7,11 @@ export default defineEventHandler(async (event) => {
         })
     }
 
+    const { surreal } = useRuntimeConfig()
     const { sql } = queryBuilder()
 
     sql.push('LET $environment = $session.db;')
-    sql.push('USE NS dox DB backup;')
+    sql.push(`USE NS ${surreal.namespace} DB backup;`)
     
     sql.push('SELECT id, time, user.id, user.name')
     sql.push('FROM backup')

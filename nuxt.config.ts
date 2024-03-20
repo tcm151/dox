@@ -36,6 +36,7 @@ export default defineNuxtConfig({
             port: process.env.SMTP_PORT,
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
+            title: process.env.SMTP_SENDER_TITLE,
         },
         surreal: {
             url: process.env.SURREAL_URL,
@@ -46,6 +47,10 @@ export default defineNuxtConfig({
         },
         public: {
             baseUrl: process.env.BASE_URL,
+            site: {
+                title: process.env.SITE_TITLE,
+                titleShort: process.env.SITE_TITLE_SHORT,
+            },
             surreal: {
                 url: process.env.SURREAL_URL,
                 namespace: process.env.SURREAL_NAMESPACE,
@@ -57,7 +62,7 @@ export default defineNuxtConfig({
         pageTransition: { name: "swap", mode: 'out-in'},
         layoutTransition: { name: "swap", mode: 'out-in'},
         head: {
-            title: "DOX For Everything",
+            title: process.env.SITE_TITLE,
             link: [
                 {
                     rel: "stylesheet",

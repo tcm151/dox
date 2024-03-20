@@ -9,7 +9,9 @@ export default defineEventHandler(async (event) => {
         })
     }
     
+    const { surreal } = useRuntimeConfig()
     const { sql, parameters } = queryBuilder()
+
     sql.push('LET $environment = $session.db;')
     sql.push('LET $comments = (SELECT * FROM comment);')
     sql.push('LET $drafts = (SELECT * FROM draft);')
@@ -18,7 +20,7 @@ export default defineEventHandler(async (event) => {
     sql.push('LET $topics = (SELECT * FROM topic);')
     sql.push('LET $users = (SELECT * FROM user);')
     
-    sql.push('USE NS dox DB backup;')
+    sql.push(`USE NS ${surreal.namespace} DB backup;`)
     sql.push('INSERT INTO comment $comments;')
     sql.push('INSERT INTO draft $drafts;')
     sql.push('INSERT INTO post $posts;')
