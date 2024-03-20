@@ -39,7 +39,7 @@ article {
     display: flex;
     flex-flow: column wrap;
     border-radius: 0.25rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
 }
 
 section {

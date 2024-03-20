@@ -101,8 +101,8 @@ header.sorting {
     }
 
     .selected {
-        color: $dox-white-0;
-        background-color: $dox-white-3;
+        color: $white-0;
+        background-color: $white-3;
     }
 }
 
@@ -126,22 +126,22 @@ footer.pagination {
         text-align: center;
         line-height: 20px;
         border-radius: 0.25rem;
-        background-color: $dox-white-2;
+        background-color: $white-2;
     }
 
     span:hover, i:hover {
         cursor: pointer;
-        color: $dox-white-0;
-        background-color: $dox-white-3;
+        color: $white-0;
+        background-color: $white-3;
     }
 
     .current {
-        color: $dox-white-2;
-        background-color: $dox-black-0;
+        color: $white-2;
+        background-color: $black-0;
     }
 
     .current:hover {
-        background-color: $dox-black-2;
+        background-color: $black-2;
     }
 }
 </style>

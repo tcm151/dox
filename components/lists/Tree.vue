@@ -31,17 +31,17 @@ function toggleChildren(id: string) {
 <style scoped lang="scss">
 .indent-line {
     border-radius: 0.25rem;
-    background-color: $dox-white-1;
+    background-color: $white-1;
     cursor: pointer;
     flex: 0 0 5px;
 }
 
 .indent-line:hover {
-    background-color: $dox-white-2;
+    background-color: $white-2;
 }
 
 .indent-line.collapsed {
-    background-color: $dox-white-2;
+    background-color: $white-2;
 }
 
 .items-move, .items-enter-active, .items-leave-active {

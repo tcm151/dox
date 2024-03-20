@@ -307,7 +307,7 @@ article.editor {
 
     div.container {
         border-radius: 0.5rem 0.5rem;
-        background-color: $dox-white-3;
+        background-color: $white-3;
     }
 }
 
@@ -315,14 +315,14 @@ section.editor, section.preview {
     flex: 1 1 400px;
     min-width: 250px;
     border-radius: 0.5rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
     overflow-y: hidden;
 }
 
 .reply-to {
     padding: 0.5rem 0.75rem;
     font-weight: 700;
-    color: $dox-white-0;
+    color: $white-0;
 
     p {
         overflow-x: hidden;
@@ -352,7 +352,7 @@ section.editor {
     }
 
     input.invalid {
-        outline: 1px solid $dox-red !important;
+        outline: 1px solid $red !important;
     }
 }
 
@@ -368,12 +368,12 @@ div.uploaded-images {
         object-fit: contain;
         border-radius: 0.25rem;
         border: 1px solid transparent;
-        background-color: $dox-white-1;
+        background-color: $white-1;
     }
 
     img:hover {
         cursor: pointer;
-        border: 1px solid $dox-blue;
+        border: 1px solid $blue;
     }
 }
 
@@ -398,7 +398,7 @@ div.uploaded-images {
         font-size: 4.5rem;
         font-weight: 900;
         opacity: 0.05;
-        color: $dox-purple;
+        color: $purple;
         text-align: center;
         text-transform: uppercase;
         transform: translate(-50%, -50%);

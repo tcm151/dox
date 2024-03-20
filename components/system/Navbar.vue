@@ -82,10 +82,10 @@ nav {
     @include flex-h;
     align-items: stretch;
     justify-content: space-between;
-    color: $dox-white-1;
-    background-color: $dox-black-0;
+    color: $white-1;
+    background-color: $black-0;
     // background-clip: text;
-    // background: linear-gradient(45deg, $dox-blue, $dox-purple);
+    // background: linear-gradient(45deg, $blue, $blue);
 }
 
 section.left {
@@ -136,7 +136,7 @@ a {
 }
 
 a:hover {
-    background-color: $dox-black-1;
+    background-color: $black-1;
 }
 
 @keyframes slide {

@@ -263,13 +263,13 @@ article {
 
     div.container {
         border-radius: 0.5rem 0.5rem;
-        background-color: $dox-white-3;
+        background-color: $white-3;
     }
 }
 
 aside.reply-to {
     padding: 0.5rem 0.75rem;
-    color: $dox-white-0;
+    color: $white-0;
     cursor: pointer;
     
     p {
@@ -286,7 +286,7 @@ aside.reply-to + section.post {
 
 section.post {
     border-radius: 0.5rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
     
     @media screen and (max-width: 600px) {
         padding: 1rem !important;

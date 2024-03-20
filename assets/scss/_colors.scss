@@ -1,50 +1,50 @@
 @use "sass:color";
 
 //> COLORS
-$dox-black-0: #272838;
-$dox-black-1: #393A49;
-$dox-black-2: #444554;
-$dox-black-3: #575966;
-$dox-black-4: #6A6C77;
+$black-0: #272838;
+$black-1: #393A49;
+$black-2: #444554;
+$black-3: #575966;
+$black-4: #6A6C77;
 
-$dox-black-5: #8F919A;
-$dox-white-5: #8F919A;
+$black-5: #8F919A;
+$white-5: #8F919A;
 
-$dox-white-4: #B4B6BC;
-$dox-white-3: #C0C2C7;
-$dox-white-2: #E0E0E2;
-$dox-white-1: #F0F0F1;
-$dox-white-0: #FAFAFA;
+$white-4: #B4B6BC;
+$white-3: #C0C2C7;
+$white-2: #E0E0E2;
+$white-1: #F0F0F1;
+$white-0: #FAFAFA;
 
-$dox-green: #1FAD83;
-$dox-green-light: color.scale($dox-green, $lightness: 75%);
-$dox-green-dark: color.scale($dox-green, $lightness: -80%);
+$green: #1FAD83;
+$green-light: color.scale($green, $lightness: 75%);
+$green-dark: color.scale($green, $lightness: -80%);
 
-$dox-yellow: #FFBF1A;
-$dox-yellow-light: color.scale($dox-yellow, $lightness: 75%);
-$dox-yellow-dark: color.scale($dox-yellow, $lightness: -25%);
+$yellow: #FFBF1A;
+$yellow-light: color.scale($yellow, $lightness: 75%);
+$yellow-dark: color.scale($yellow, $lightness: -25%);
 
-$dox-red: #F55D3E;
-$dox-red-light: color.scale($dox-red, $lightness: 75%);
-$dox-red-dark: color.scale($dox-red, $lightness: -50%);
+$red: #F55D3E;
+$red-light: color.scale($red, $lightness: 75%);
+$red-dark: color.scale($red, $lightness: -50%);
 
-$dox-blue: #78C3FB;
-$dox-blue-light: color.scale($dox-blue, $lightness: 65%);
-$dox-blue-dark: color.scale($dox-blue, $lightness: -70%);
+$blue: #78C3FB;
+$blue-light: color.scale($blue, $lightness: 65%);
+$blue-dark: color.scale($blue, $lightness: -70%);
 
-$dox-purple: #8783D1;
-$dox-purple-light: color.scale($dox-purple, $lightness: 70%);
-$dox-purple-dark: color.scale($dox-purple, $lightness: -75%);
+$purple: #8783D1;
+$purple-light: color.scale($purple, $lightness: 70%);
+$purple-dark: color.scale($purple, $lightness: -75%);
 
 
 //> OVERRIDES
-$primary: $dox-black-0;
-$link:    $dox-blue;
-$info:    $dox-purple;
+$primary: $black-0;
+$link:    $blue;
+$info:    $purple;
 
-$success: $dox-green;
-$warning: $dox-yellow;
-$danger: $dox-red;
+$success: $green;
+$warning: $yellow;
+$danger: $red;
 
 
 @keyframes voted {
@@ -60,74 +60,74 @@ $danger: $dox-red;
 }
 
 .dark {
-    color: $dox-white-0;
-    background-color: $dox-black-0;
+    color: $white-0;
+    background-color: $black-0;
 }
 
 .dark:hover {
-    background-color: $dox-black-3;
+    background-color: $black-3;
 }
 
 .positive, .success {
-    color: $dox-green;
-    background-color: $dox-green-light;
+    color: $green;
+    background-color: $green-light;
 }
 
 .positive:hover, .success:hover {
-    color: $dox-green-light;
-    background-color: $dox-green;
+    color: $green-light;
+    background-color: $green;
 }
 
 .positive.voted {
-    outline: 1px solid $dox-green;
+    outline: 1px solid $green;
 }
 
 .misleading, .warning {
-    color: $dox-yellow;
-    background-color: $dox-yellow-light;
+    color: $yellow;
+    background-color: $yellow-light;
 }
 
 .misleading:hover, .warning:hover {
-    color: $dox-yellow-light;
-    background-color: $dox-yellow;
+    color: $yellow-light;
+    background-color: $yellow;
 }
 
 .misleading.voted {
-    outline: 1px solid $dox-yellow;
+    outline: 1px solid $yellow;
 }
 
 .negative, .danger {
-    color: $dox-red;
-    background-color: $dox-red-light;
+    color: $red;
+    background-color: $red-light;
 }
 
 .negative:hover, .danger:hover {
-    color: $dox-red-light;
-    background-color: $dox-red;
+    color: $red-light;
+    background-color: $red;
 }
 
 .negative.voted {
-    outline: 1px solid $dox-red;
+    outline: 1px solid $red;
 }
 
 .topic, .link {
-    color: $dox-purple;
-    background-color: $dox-purple-light;
+    color: $purple;
+    background-color: $purple-light;
 }
 
 .topic:hover, .link:hover {
-    color: $dox-purple-light;
-    background-color: $dox-purple;
+    color: $purple-light;
+    background-color: $purple;
 }
 
 .info {
-    color: $dox-blue;
-    background-color: $dox-blue-light;
+    color: $blue;
+    background-color: $blue-light;
 }
 
 .info:hover {
-    color: $dox-blue-light;
-    background-color: $dox-blue;
+    color: $blue-light;
+    background-color: $blue;
 }
 
 .positive, .success, .misleading, .negative, .danger, .topic, .info {

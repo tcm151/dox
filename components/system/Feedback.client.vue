@@ -47,7 +47,7 @@ h1 {
 }
 
 textarea::placeholder {
-    color: $dox-white-2;
+    color: $white-2;
     font-style: italic;
 }
 </style>

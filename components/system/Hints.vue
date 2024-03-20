@@ -68,8 +68,8 @@ function getColor(hint: Hint) {
     font-weight: 600;
     text-align: center;
     border-radius: 0.25rem;
-    box-shadow: 0.25rem 0.25rem 1rem -0.25rem $dox-white-3,
-                0 0 0.33rem 1px $dox-white-3;
+    box-shadow: 0.25rem 0.25rem 1rem -0.25rem $white-3,
+                0 0 0.33rem 1px $white-3;
     // animation: fade-in 256ms;
     pointer-events: all;
 }

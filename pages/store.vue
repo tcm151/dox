@@ -88,7 +88,7 @@ div.box.offer {
 
 div.box.offer {
     text-align: right;
-    border: 2px solid $dox-yellow;
+    border: 2px solid $yellow;
     cursor: pointer;
 
     .tokens {
@@ -97,13 +97,13 @@ div.box.offer {
         align-items: center;
 
         i.fa-cube {
-            color: $dox-yellow;
+            color: $yellow;
         }
     }
 }
 
 div.box.offer:hover {
-    background-color: $dox-yellow-light;
+    background-color: $yellow-light;
 }
 
 div.welcome {
@@ -119,8 +119,8 @@ div.referrals {
 
 div.box.banner {
     text-align: center;
-    border: 2px solid $dox-white-3;
-    color: $dox-white-3;
-    background-color: $dox-white-2;
+    border: 2px solid $white-3;
+    color: $white-3;
+    background-color: $white-2;
 }
 </style>

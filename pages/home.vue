@@ -85,7 +85,7 @@ article {
             font-weight: 800;
             font-size: 5rem;
             line-height: 4.25rem;
-            color: $dox-black-0;
+            color: $black-0;
         }
     }
 
@@ -100,18 +100,18 @@ article {
             font-weight: 800;
             font-size: 3rem;
             line-height: 2.5rem;
-            color: $dox-black-0;
+            color: $black-0;
         }
     }
 
     span {
-        background: linear-gradient(55deg, $dox-blue, $dox-purple);
+        background: linear-gradient(55deg, $blue, $blue);
         background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
     p {
-        color: $dox-black-0;
+        color: $black-0;
     }
 }
 

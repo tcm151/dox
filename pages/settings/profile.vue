@@ -109,15 +109,15 @@ div.profile-picture {
 }
 
 input.invalid, textarea.invalid {
-    outline: 1px solid $dox-red !important;
+    outline: 1px solid $red !important;
 }
 
 input[disabled] {
-    color: $dox-white-3;
+    color: $white-3;
 }
 
 input[disabled]:hover {
-    outline: 1px solid $dox-white-2;
+    outline: 1px solid $white-2;
     cursor: not-allowed;
 }
 </style>

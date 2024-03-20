@@ -40,7 +40,7 @@ const settings = useUserSettings()
 <style scoped lang="scss">
 .post {
     border-radius: 0.25rem;
-    background-color: $dox-white-3;
+    background-color: $white-3;
     transition: transform 128ms;
     
     .main {
@@ -54,7 +54,7 @@ const settings = useUserSettings()
         aspect-ratio: 1 / 1;
         object-fit: cover;
         border-radius: 0.5rem;
-        border: 1px solid $dox-white-1;
+        border: 1px solid $white-1;
     }
 
     .reply-to + .main {
@@ -64,7 +64,7 @@ const settings = useUserSettings()
 
     .reply-to {
         padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-        color: $dox-white-0;
+        color: $white-0;
         
         p {
             overflow-x: hidden;
@@ -76,7 +76,7 @@ const settings = useUserSettings()
 }
 
 .post:has(.reply-to:hover)  {
-    background-color: $dox-white-4;
+    background-color: $white-4;
 }
 
 .post:hover {
@@ -90,7 +90,7 @@ const settings = useUserSettings()
 
 .post.pinned {
     .main {
-        border: 2px solid $dox-white-2;
+        border: 2px solid $white-2;
     }
 }
     

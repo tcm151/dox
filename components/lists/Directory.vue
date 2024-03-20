@@ -157,8 +157,8 @@ header {
     div {
         padding: 5px 0.75rem;
         border-radius: 0.25rem;
-        color: $dox-blue;
-        background-color: $dox-blue-light;
+        color: $blue;
+        background-color: $blue-light;
     }
 
     span {
@@ -174,15 +174,15 @@ div.folder {
     cursor: pointer;
     padding: 0.25rem 0.75rem;
     border-radius: 0.25rem;
-    background-color: $dox-white-1;
+    background-color: $white-1;
 }
 
 div.folder:hover {
-    background-color: $dox-white-2;
+    background-color: $white-2;
 }
 
 div.folder:has(input) {
-    border: 1px solid $dox-blue;
+    border: 1px solid $blue;
     padding: 0;
     
     input {

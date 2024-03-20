@@ -100,7 +100,7 @@ article.user {
 
 .profile {
     border-radius: 0.25rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
 }
 
 .name-follow {
@@ -122,7 +122,7 @@ article.user {
     }
 
     a {
-        color: $dox-purple;
+        color: $purple;
         cursor: pointer;
         font-weight: 600;
     }

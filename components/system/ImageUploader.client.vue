@@ -58,7 +58,7 @@ div.image {
         max-width: 256px;
         max-height: 256px;
         object-fit: contain;
-        background-color: $dox-white-1;
+        background-color: $white-1;
         border-radius: 0.25rem;
         padding: 0.5rem;
     }
@@ -68,7 +68,7 @@ div.image {
     }
 
     i.fa-cube {
-        color: $dox-yellow;
+        color: $yellow;
     }
 }
 </style>

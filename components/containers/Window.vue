@@ -75,7 +75,7 @@ article.window {
     @include flex-v;
     border-radius: 0.5rem;
     background-color: white;
-    // box-shadow: 0.25rem 0.5rem 1rem -0.25rem $dox-black-4, 0 0 0.33rem 1px $dox-black-4;
+    // box-shadow: 0.25rem 0.5rem 1rem -0.25rem $black-4, 0 0 0.33rem 1px $black-4;
     animation: fade-in 256ms;
 }
 
@@ -83,8 +83,8 @@ header.title-bar {
     @include flex-h (1rem);
     align-items: stretch;
     justify-content: space-between;
-    color: $dox-white-0;
-    background-color: $dox-black-0;
+    color: $white-0;
+    background-color: $black-0;
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
     user-select: none;
@@ -98,7 +98,7 @@ header.title-bar {
     button.close {
         display: grid;
         place-items: center;
-        color: $dox-white-0;
+        color: $white-0;
         background-color: transparent;
         cursor: pointer;
 
@@ -110,7 +110,7 @@ header.title-bar {
     button.close:hover {
         border-radius: 0;
         border-top-right-radius: 0.5rem;
-        background-color: $dox-red;
+        background-color: $red;
     }
 }
 
@@ -118,8 +118,8 @@ section.window-slot {
     padding: 1rem;
     @include flex-v;
     border-radius: 0 0 0.5rem 0.5rem;
-    border: 1px solid $dox-white-2;
-    background-color: $dox-white-0;
+    border: 1px solid $white-2;
+    background-color: $white-0;
     overflow-y: auto;
 }
 

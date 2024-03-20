@@ -144,7 +144,7 @@ article {
 }
 
 header.box {
-    outline: 2px solid $dox-white-2;
+    outline: 2px solid $white-2;
 
     @media only screen and (max-width: 1000px) {
         button:not(.success) {

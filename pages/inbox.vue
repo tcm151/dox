@@ -59,13 +59,13 @@ article.notifications {
 
 .notification {
     border-radius: 0.25rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
 }
 
 section.empty {
     text-align: center;
     border-radius: 0.25rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
 }
 
 .notifications-move, .notifications-enter-active, .notifications-leave-active {

@@ -25,7 +25,7 @@ defineProps<{
 
 .spinner {
     i {
-        color: $dox-blue;
+        color: $blue;
         font-size: v-bind('fontSize');
         animation: spin 1s linear infinite;
     }

@@ -77,9 +77,9 @@ section.toggle {
 section.chat {
     width: 200px;
     justify-content: space-between;
-    color: $dox-white-0;
+    color: $white-0;
     border-radius: 0.25rem 0.25rem 0 0;
-    background-color: $dox-black-0;
+    background-color: $black-0;
     cursor: pointer;
 }
 </style>

@@ -44,7 +44,7 @@ const settings = useUserSettings()
 <style scoped lang="scss">
 .thread {
     border-radius: 0.25rem;
-    background-color: $dox-white-3;
+    background-color: $white-3;
     transition: transform 128ms;
     
     .main {
@@ -59,7 +59,7 @@ const settings = useUserSettings()
     .reply-to {
         padding: 0.25rem 0.5rem 0.25rem 0.5rem;
         font-weight: 700;
-        color: $dox-white-0;
+        color: $white-0;
         
         p {
             overflow-x: hidden;
@@ -70,7 +70,7 @@ const settings = useUserSettings()
 }
 
 .thread:has(.reply-to:hover)  {
-    background-color: $dox-white-4;
+    background-color: $white-4;
 }
 
 .thread:hover {

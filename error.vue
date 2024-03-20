@@ -30,13 +30,13 @@ article.error {
     height: 100%;
     display: grid;
     place-items: center;
-    background-color: $dox-white-1;
+    background-color: $white-1;
 
     
     section.details {
         @include fit-width(30rem, 1rem);
         border-radius: 0.25rem;
-        background-color: $dox-white-0;
+        background-color: $white-0;
         
         div {
             text-align: center;

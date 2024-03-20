@@ -78,7 +78,7 @@ function closeLogin() {
 
 label.forgot {
     a {
-        color: $dox-red;
+        color: $red;
         text-decoration: underline;
         cursor: pointer;
     }

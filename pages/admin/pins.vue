@@ -44,7 +44,7 @@ article {
 }
 
 header {
-    border-top: 1px solid $dox-white-2;
+    border-top: 1px solid $white-2;
 }
 
 .toggle {

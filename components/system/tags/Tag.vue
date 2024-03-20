@@ -18,13 +18,13 @@ const props = defineProps<{
 
 <style scoped lang="scss">
 span.tag.default {
-    background-color: $dox-white-2;
+    background-color: $white-2;
     transition: color 256ms, background-color 256ms;
     font-weight: 800;
 }
 
 span.tag.default:hover {
-    color: $dox-white-0;
-    background-color: $dox-white-3;
+    color: $white-0;
+    background-color: $white-3;
 }
 </style>

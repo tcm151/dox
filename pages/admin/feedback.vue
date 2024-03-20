@@ -56,7 +56,7 @@ article {
 
 div.feedback {
     border-radius: 0.25rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
 
     p {
         font-weight: 600;

@@ -114,7 +114,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
 <style scoped lang="scss">
 section.comments {
     border-radius: 0.5rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
     
     @media screen and (max-width: 600px) {
         padding: 1rem !important;
@@ -123,8 +123,8 @@ section.comments {
 
 header.sorting {
     button.selected {
-        color: $dox-white-0;
-        background-color: $dox-white-3;
+        color: $white-0;
+        background-color: $white-3;
     }
 }
 

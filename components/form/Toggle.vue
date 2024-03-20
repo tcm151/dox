@@ -39,7 +39,7 @@ label.toggle {
     width: 2rem;
     height: 1rem;
     border-radius: 0.75rem;
-    background-color: $dox-white-2;
+    background-color: $white-2;
     cursor: pointer;
     
     input {
@@ -53,19 +53,19 @@ label.toggle {
         width: 1rem;
         height: 1rem;
         border-radius: 0.5rem;
-        background-color: $dox-white-0;
+        background-color: $white-0;
         transition: all 256ms;
     }
 
     input:checked + span.slider {
-        background-color: $dox-green-light;
+        background-color: $green-light;
         transform: translateX(100%);
     }
 
 }
 
 label.toggle:has(input:checked) {
-    background-color: $dox-green;
+    background-color: $green;
     transition: all 256ms;
 }
 

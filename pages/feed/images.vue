@@ -160,8 +160,8 @@ section.all-images {
     div.image {
         padding: 0.5rem;
         border-radius: 0.25rem;
-        border: 2px solid $dox-white-0;
-        background-color: $dox-white-0;
+        border: 2px solid $white-0;
+        background-color: $white-0;
         cursor: pointer;
         
         img {
@@ -180,7 +180,7 @@ section.all-images {
     }
     
     div.image:hover {
-        border: 2px solid $dox-blue;
+        border: 2px solid $blue;
     }
 
 }

@@ -6,8 +6,8 @@ html {
     font-size: 14px;
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
-    background-color: $dox-white-1;
-    color: $dox-black-0;
+    background-color: $white-1;
+    color: $black-0;
 }
 
 body, figure {
@@ -29,13 +29,13 @@ button {
     font-family: inherit;
     font-weight: 700;
 
-    background-color: $dox-white-2;
+    background-color: $white-2;
 }
 
 button:hover {
     cursor: pointer;
-    color: $dox-white-0;
-    background-color: $dox-white-3;
+    color: $white-0;
+    background-color: $white-3;
     transition: color 256ms, background-color 256ms;
 }
 
@@ -60,9 +60,9 @@ button:hover {
         font-family: inherit;
         font-weight: 500;
 
-        border: 1px solid $dox-white-1;
+        border: 1px solid $white-1;
         border-radius: 0.25rem;
-        background-color: $dox-white-0;
+        background-color: $white-0;
     }
 
     textarea {
@@ -73,7 +73,7 @@ button:hover {
     input:hover, input:focus,
     textarea:hover, textarea:focus
     select:hover, select:focus {
-        outline: 1px solid $dox-blue;
+        outline: 1px solid $blue;
     }
 
     input::placeholder {
@@ -88,16 +88,16 @@ code {
     font-weight: 500;
     font-family: 'Source Code Pro', monospace;
     border-radius: 0.5rem;
-    background-color: $dox-white-1 !important;
+    background-color: $white-1 !important;
 }
 
 blockquote {
     margin: 0;
     padding: 0.5rem 1rem;
     font-style: italic;
-    border-left: 3px solid $dox-white-2;
+    border-left: 3px solid $white-2;
     border-radius: 0.5rem;
-    background-color: $dox-white-1;
+    background-color: $white-1;
 }
 
 a, a:hover, a:active, a:visited {
@@ -178,13 +178,13 @@ h4, h5, h6, p {
     }
 
     a {
-        color: $dox-blue;
+        color: $blue;
         font-weight: 600;
         text-decoration: underline;
     }
     
     a:visited {
-        color: $dox-purple;
+        color: $purple;
     }
 
     br {
@@ -229,7 +229,7 @@ h4, h5, h6, p {
 .markdown {
     span.spoiler {
         user-select: none;
-        background-color: $dox-black-0;
+        background-color: $black-0;
         transition: background-color 128ms;
         cursor: pointer;
     }

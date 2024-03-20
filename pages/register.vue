@@ -133,12 +133,12 @@ function differentPasswords() {
 .register {
     width: 256px;
     border-radius: 0.5rem;
-    background-color: $dox-white-0;
+    background-color: $white-0;
 }
 
 .field {
     input.invalid {
-        outline: 1px solid $dox-red !important;
+        outline: 1px solid $red !important;
     }
 }
 </style>
