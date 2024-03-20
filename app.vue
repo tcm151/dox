@@ -50,8 +50,8 @@ if (process.client) {
         document.documentElement.style.setProperty('--vh', `${vh}px`)
     })
 
-    const adsbygoogle = window.adsbygoogle || []
-    adsbygoogle.push({})
+    // const adsbygoogle = window.adsbygoogle || []
+    // adsbygoogle.push({})
 }
 </script>
 
