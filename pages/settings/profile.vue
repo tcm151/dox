@@ -95,7 +95,7 @@ async function resetPassword() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(600px, 1rem);
+    @include fit-width(40rem, 1rem);
 }
 
 textarea {

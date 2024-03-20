@@ -34,7 +34,7 @@ article.error {
 
     
     section.details {
-        @include fit-width(400px, 1rem);
+        @include fit-width(30rem, 1rem);
         border-radius: 0.25rem;
         background-color: $dox-white-0;
         

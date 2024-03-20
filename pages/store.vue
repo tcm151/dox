@@ -71,7 +71,7 @@ function copyReferralLink() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(800px, 1rem);
+    @include fit-width(60rem, 1rem);
 }
 
 section {

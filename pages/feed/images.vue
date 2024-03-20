@@ -141,7 +141,7 @@ async function reportSelectedImage() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(1200px, 1rem);
+    @include fit-width(75rem, 1rem);
 }
 
 header.tools {

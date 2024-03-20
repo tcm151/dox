@@ -96,7 +96,7 @@ function differentPasswords() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(400px, 1rem);
+    @include fit-width(30rem, 1rem);
 }
 
 .field {

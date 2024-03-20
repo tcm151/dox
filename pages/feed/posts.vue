@@ -63,6 +63,6 @@ const filteredPosts = computed(() => {
 
 <style scoped lang="scss">
 section.feed {
-    @include fit-width(800px, 1rem);
+    @include fit-width(60rem, 1rem);
 }
 </style>
