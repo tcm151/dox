@@ -1,4 +1,5 @@
-@use "colors";
+@use "colors" as *;
+@use "layout" as *;
 
 //> DEFAULT STYLING
 html {

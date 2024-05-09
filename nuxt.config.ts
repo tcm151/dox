@@ -14,11 +14,18 @@ export default defineNuxtConfig({
     imports: {
         dirs: ["services/**", "datasources/**"],
     },
+    css: [
+        '~/assets/scss/global.scss',
+    ],
     vite: {
         css: {
             preprocessorOptions: {
                 scss: {
-                    additionalData: '@import "~/assets/scss/global.scss";\n'
+                    additionalData: [
+                        '@use "~/assets/scss/colors" as *;',
+                        '@use "~/assets/scss/layout" as *;',
+                        '@use "~/assets/scss/mixins" as *;',
+                    ].join('\n'),
                 }
             }
         }

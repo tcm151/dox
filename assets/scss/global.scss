@@ -1,20 +1,14 @@
-@charset "UTF-8";
+@forward "colors";
+@forward "mixins";
+@forward "layout";
+@forward "defaults";
+@forward "elements";
+@forward "animations";
+
+@use "bulma/sass/utilities";
+@use "bulma/sass/helpers/spacing";
+@use "bulma/sass/elements/image";
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;700;900&display=swap');
-
 @import "highlight.js/scss/base16/solarized-light.scss";
-
-// @media only screen and (max-width: 600px) {
-//     $spacing-values: ("0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "auto": auto);
-// }
-
-@import "bulma/sass/utilities/_all.sass";
-@import "bulma/sass/helpers/spacing.sass";
-@import "bulma/sass/elements/image.sass";
-
-@import "colors";
-@import "mixins";
-@import "layout";
-@import "defaults";
-@import "elements";
-@import "animations";

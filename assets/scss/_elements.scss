@@ -1,3 +1,6 @@
+@use "colors" as *;
+@use "layout" as *;
+
 .box {
     border-radius: 0.25rem;
     background-color: $white-0;
