@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import type { TokenizerExtension, RendererExtension } from "marked";
 
 // const heading: marked.RendererExtension = {
 //     name: "heading",
@@ -15,7 +16,7 @@ import { marked } from "marked";
 //     }
 // }
 
-const spoiler: marked.TokenizerExtension & marked.RendererExtension = {
+const spoiler: TokenizerExtension & RendererExtension = {
     name: "spoiler",
     level: "inline",
     start(src) {
