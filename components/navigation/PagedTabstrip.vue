@@ -4,6 +4,7 @@ const props = defineProps<{
         route: string
         label: string
         icon: string
+        hide?: () => boolean
     }[]
 }>()
 
@@ -13,14 +14,15 @@ const route = useRoute()
 <template>
     <nav class="row">
         <TransitionGroup name="tabs">
-            <NuxtLink v-for="tab in tabs"
-                :class="{ selected: tab.route == route.fullPath }"
-                :key="tab.route"
-                :to="tab.route"
-            >
-                <i :class="tab.icon"></i>
-                <span>{{ tab.label }}</span>
-            </NuxtLink>
+            <template v-for="tab in tabs" :key="tab.route">
+                <NuxtLink v-if="!tab.hide?.()"
+                    :class="{ selected: tab.route == route.fullPath }"
+                    :to="tab.route"
+                >
+                    <i :class="tab.icon"></i>
+                    <span>{{ tab.label }}</span>
+                </NuxtLink>
+            </template>
         </TransitionGroup>
     </nav>
 </template>

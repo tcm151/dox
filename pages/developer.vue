@@ -27,7 +27,7 @@ definePageMeta({
                 { route: '/developer/schema', icon: 'fa-solid fa-table-columns', label: 'Schema' },
                 { route: '/developer/query', icon: 'fa-solid fa-terminal', label: 'Database' },
                 { route: '/developer/tickets', icon: 'fa-solid fa-ticket', label: 'Tickets' },
-                // { route: '/developer/tabs', icon: 'fa-solid fa-tags', label: 'Tabs' },
+                { route: '/developer/tabs', icon: 'fa-solid fa-tags', label: 'Tabs', hide: () => true },
                 // { route: '/developer/grid', icon: 'fa-solid fa-table-list', label: 'Grid' },
                 // { route: '/developer/animations', icon: 'fa-solid fa-truck-fast', label: 'Animations' },
                 { route: '/developer/misc', icon: 'fa-solid fa-dice-d20', label: 'Misc' },

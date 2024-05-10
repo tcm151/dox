@@ -13,7 +13,7 @@ hljs.configure({ ignoreUnescapedHTML: true })
 
 export function renderMarkdown(text: string | undefined) {
     const html = marked.parse(text ?? "")
-    const cleaned = DOMPurify.sanitize(html)
+    const cleaned = DOMPurify.sanitize(html as string)
     const decoded = decode(cleaned)
     const colorized = colorize(decoded)
     return colorized

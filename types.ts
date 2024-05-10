@@ -10,6 +10,7 @@ export interface Voteable {
     }
 }
 
+// REFACTOR consolidate traits into array
 export interface User extends Voteable {
     id: string
     email: string

@@ -35,7 +35,7 @@ async function unfollowUser() {
         <header class="profile column g-3 p-5">
             <section class="row g-2">
                 <figure class="image is-64x64">
-                    <img src="https://bulma.io/images/placeholders/64x64.png">
+                    <img src="https://bulma.io/assets/images/placeholders/64x64.png">
                 </figure>
                 <div class="name-follow row center-inline g-4">
                     <div class="column">

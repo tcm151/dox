@@ -26,7 +26,9 @@ function toggleFilter() {
 }
 
 const filteredPosts = computed(() => {
-    let filtered = posts.data.value?.filter(f => pins.data.value?.every(p => p.id != f.id)) ?? []
+    let filtered = posts.data.value?.filter(f => {
+        return pins.data.value?.every(p => p.id != f.id)
+    }) ?? []
     
     if (filterType.value == "Feed") {
         filtered = filtered.filter(p => {
@@ -41,7 +43,12 @@ const filteredPosts = computed(() => {
 
 <template>
     <section class="feed column g-2 p-4">
-        <PostPreview v-for="post in pins.data.value" :post="post" :pinned="true" :key="post.id" />
+        <PostPreview
+            v-for="post in pins.data.value"
+            :post="post"
+            :pinned="true"
+            :key="post.id"
+        />
         <Feed
             :sorting="true"
             :loading="posts.pending.value"
