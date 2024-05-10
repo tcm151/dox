@@ -1,8 +1,3 @@
--- 2023-11-17: add active default value to feedback
-UPDATE feedback SET
-active = true
-WHERE active = NONE;
-
 -- 2023-12-03: add threads default value to topics
 UPDATE topic SET
 threads = []
@@ -17,22 +12,10 @@ UPDATE topic SET followers = <future> {
 }
 WHERE followers = NONE;
 
--- 2023-12-04: add promoted and dismissed default fields on feedback
-UPDATE feedback SET
-promoted = false,
-dismissed = !active
-WHERE promoted = NONE
-AND active != NONE AND dismissed = NONE;
-
 -- 2023-12-04: add promoted default value on feedback
 UPDATE feedback SET promoted = false
 WHERE promoted = NONE;
 
 -- 2023-12-04: rename active to dismissed and reverse value
-UPDATE feedback SET dismissed = !active
-WHERE active != NONE AND dismissed = NONE;
-
--- 2023-12-04: remove active field
-REMOVE FIELD active ON feedback;
-UPDATE feedback SET active = NONE
-WHERE active != NONE;
+UPDATE feedback SET dismissed = false
+WHERE dismissed = NONE;

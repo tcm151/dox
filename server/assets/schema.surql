@@ -62,12 +62,9 @@ DEFINE INDEX name ON user FIELDS name UNIQUE;
 DEFINE FIELD link ON user TYPE option<string>;
 DEFINE FIELD description on user TYPE option<string>;
 
-DEFINE FIELD topics ON user TYPE array DEFAULT [];
-DEFINE FIELD topics[*] ON user TYPE record<topic>;
-DEFINE FIELD followers ON user TYPE array DEFAULT [];
-DEFINE FIELD followers[*] ON user TYPE record<user>;
-DEFINE FIELD following ON user TYPE array DEFAULT [];
-DEFINE FIELD following[*] ON user TYPE record<user>;
+DEFINE FIELD topics ON user TYPE array<record<topic>> DEFAULT [];
+DEFINE FIELD followers ON user TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD following ON user TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD dateCreated ON user TYPE datetime DEFAULT time::now();
 DEFINE FIELD tokens ON user TYPE int DEFAULT 0 ASSERT $value >= 0 AND $value <= 65536;
@@ -75,12 +72,9 @@ DEFINE FIELD confirmed ON user TYPE bool DEFAULT false;
 DEFINE FIELD verified ON user TYPE bool DEFAULT false;
 DEFINE FIELD admin ON user TYPE bool DEFAULT false;
 
-DEFINE FIELD votes.positive ON user TYPE array DEFAULT [];
-DEFINE FIELD votes.positive[*] ON user TYPE record<user>;
-DEFINE FIELD votes.misleading ON user TYPE array DEFAULT [];
-DEFINE FIELD votes.misleading[*] ON user TYPE record<user>;
-DEFINE FIELD votes.negative ON user TYPE array DEFAULT [];
-DEFINE FIELD votes.negative[*] ON user TYPE record<user>;
+DEFINE FIELD votes.positive ON user TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.misleading ON user TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.negative ON user TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD votes.score ON user DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
@@ -92,17 +86,11 @@ DEFINE FIELD votes.score ON user DEFAULT <future> {
 
 DEFINE TABLE topic SCHEMALESS;
 
-DEFINE FIELD posts ON topic TYPE array DEFAULT [];
-DEFINE FIELD posts[*] ON topic TYPE record<post>;
-DEFINE FIELD threads ON topic TYPE array DEFAULT [];
-DEFINE FIELD threads[*] ON topic TYPE record<thread>;
-
-DEFINE FIELD votes.positive ON topic TYPE array DEFAULT [];
-DEFINE FIELD votes.positive[*] ON topic TYPE record<user>;
-DEFINE FIELD votes.misleading ON topic TYPE array DEFAULT [];
-DEFINE FIELD votes.misleading[*] ON topic TYPE record<user>;
-DEFINE FIELD votes.negative ON topic TYPE array DEFAULT [];
-DEFINE FIELD votes.negative[*] ON topic TYPE record<user>;
+DEFINE FIELD posts ON topic TYPE array<record<post>> DEFAULT [];
+DEFINE FIELD threads ON topic TYPE array<record<thread>> DEFAULT [];
+DEFINE FIELD votes.positive ON topic TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.misleading ON topic TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.negative ON topic TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD votes.score ON topic DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
@@ -133,25 +121,19 @@ DEFINE FIELD content ON post TYPE string;
 DEFINE FIELD time ON post TYPE datetime DEFAULT time::now();
 DEFINE FIELD replyTo ON post TYPE option<record<post>>;
 
-DEFINE FIELD topics ON post TYPE array DEFAULT [];
-DEFINE FIELD topics[*] ON post TYPE record<topic>;
-DEFINE FIELD comments ON post TYPE array DEFAULT [];
-DEFINE FIELD comments[*] ON post TYPE record<comment>;
-DEFINE FIELD images ON post TYPE array DEFAULT [];
+DEFINE FIELD topics ON post TYPE array<record<topic>> DEFAULT [];
+DEFINE FIELD comments ON post TYPE array<record<comment>> DEFAULT [];
+DEFINE FIELD images ON post TYPE array<record<image>> DEFAULT [];
 DEFINE FIELD images[*] ON post TYPE record<image>;
 
 DEFINE FIELD edited ON post TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON post TYPE option<datetime>;
 DEFINE FIELD visits ON post TYPE number DEFAULT 0;
 
-DEFINE FIELD votes.positive ON post TYPE array DEFAULT [];
-DEFINE FIELD votes.positive[*] ON post TYPE record<user>;
-DEFINE FIELD votes.misleading ON post TYPE array DEFAULT [];
-DEFINE FIELD votes.misleading[*] ON post TYPE record<user>;
-DEFINE FIELD votes.negative ON post TYPE array DEFAULT [];
-DEFINE FIELD votes.negative[*] ON post TYPE record<user>;
-DEFINE FIELD votes.awards ON post TYPE array DEFAULT [];
-DEFINE FIELD votes.awards[*] ON post TYPE record<user>;
+DEFINE FIELD votes.positive ON post TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.misleading ON post TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.negative ON post TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.awards ON post TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD votes.score ON post DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
@@ -186,10 +168,8 @@ DEFINE FIELD content ON draft TYPE string;
 DEFINE FIELD time ON draft TYPE datetime DEFAULT time::now();
 DEFINE FIELD replyTo ON draft TYPE option<record<post>>;
 
-DEFINE FIELD topics ON draft TYPE array DEFAULT [];
-DEFINE FIELD topics[*] ON draft TYPE record<topic>;
-DEFINE FIELD images ON post TYPE array DEFAULT [];
-DEFINE FIELD images[*] ON post TYPE record<image>;
+DEFINE FIELD topics ON draft TYPE array<record<topic>> DEFAULT [];
+DEFINE FIELD images ON post TYPE array<record<image>> DEFAULT [];
 
 -- ------------------------------
 -- TABLE: pin
@@ -213,23 +193,17 @@ DEFINE FIELD content ON thread TYPE string ASSERT $value = /.{4,512}/;;
 DEFINE FIELD time ON thread TYPE datetime DEFAULT time::now();
 DEFINE FIELD replyTo ON thread TYPE option<record<thread>>;
 
-DEFINE FIELD topics ON thread TYPE array DEFAULT [];
-DEFINE FIELD topics[*] ON thread TYPE record<topic>;
-DEFINE FIELD images ON thread TYPE array DEFAULT [];
-DEFINE FIELD images[*] ON thread TYPE record<image>;
+DEFINE FIELD topics ON thread TYPE array<record<topic>> DEFAULT [];
+DEFINE FIELD images ON thread TYPE array<record<image>> DEFAULT [];
 
 DEFINE FIELD edited ON thread TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON thread TYPE option<datetime>;
 DEFINE FIELD visits ON thread TYPE number DEFAULT 0;
 
-DEFINE FIELD votes.positive ON thread TYPE array DEFAULT [];
-DEFINE FIELD votes.positive[*] ON thread TYPE record<user>;
-DEFINE FIELD votes.misleading ON thread TYPE array DEFAULT [];
-DEFINE FIELD votes.misleading[*] ON thread TYPE record<user>;
-DEFINE FIELD votes.negative ON thread TYPE array DEFAULT [];
-DEFINE FIELD votes.negative[*] ON thread TYPE record<user>;
-DEFINE FIELD votes.awards ON thread TYPE array DEFAULT [];
-DEFINE FIELD votes.awards[*] ON thread TYPE record<user>;
+DEFINE FIELD votes.positive ON thread TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.misleading ON thread TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.negative ON thread TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.awards ON thread TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD votes.score ON thread DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
@@ -261,12 +235,9 @@ DEFINE FIELD replyTo ON comment TYPE record<post | comment>;
 DEFINE FIELD edited ON comment TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON comment TYPE option<datetime>;
 
-DEFINE FIELD votes.positive ON comment TYPE array DEFAULT [];
-DEFINE FIELD votes.positive[*] ON comment TYPE record<user>;
-DEFINE FIELD votes.misleading ON comment TYPE array DEFAULT [];
-DEFINE FIELD votes.misleading[*] ON comment TYPE record<user>;
-DEFINE FIELD votes.negative ON comment TYPE array DEFAULT [];
-DEFINE FIELD votes.negative[*] ON comment TYPE record<user>;
+DEFINE FIELD votes.positive ON comment TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.misleading ON comment TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.negative ON comment TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD votes.score ON comment DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
