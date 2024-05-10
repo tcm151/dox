@@ -4,7 +4,7 @@ import type { Image, User } from "~/types"
 const hints = useHints()
 const session = getSession()
 
-const { data: images, pending, refresh } = await useAsyncData('images', () => {
+const { data: images, pending, refresh } = await useLazyAsyncData('images', () => {
     return $fetch<Image[]>("/api/image")
 })
 
