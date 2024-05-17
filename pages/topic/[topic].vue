@@ -1,17 +1,26 @@
 <script setup lang="ts">
+import type { Topic, Post } from '~/types';
+
 const route = useRoute()
-const topic = route.params.topic.toString()
-const { info, posts, followers } = useTopic(topic)
+const topicId = route.params.topic.toString()
+
+const { data: topic } = useAsyncData(`topic:${topicId}`, () => {
+    return $fetch<Topic>(`/api/topic/${topicId}`)
+})
+const { data: posts, pending, refresh } = useAsyncData(`topic:${topicId}/posts`, () => {
+    return $fetch<Post[]>(`/api/topic/${topicId}/posts`)
+})
+
 </script>
 
 <template>
     <article class="column g-2 p-4">
-        <TopicPreview :topic="info.value!" />
+        <TopicPreview :topic="topic!" />
         <Feed
             :sorting="true"
-            :loading="posts.loading"
-            :items="posts.items ?? []"
-            @refresh="posts.fetch"
+            :loading="pending"
+            :items="posts ?? []"
+            @refresh="refresh"
         >
             <template #item="post">
                 <PostPreview :post="post" />
