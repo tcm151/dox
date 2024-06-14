@@ -3,7 +3,7 @@
 
 <template>
     <DevOnly>
-        <aside class="box grid center">
+        <!-- <aside class="box grid center">
             <ins
                 class="adsbygoogle"
                 data-ad-format="fluid"
@@ -12,7 +12,7 @@
                 data-ad-slot="5356268808"
             />
             <h3>This is an Ad.</h3>
-        </aside>
+        </aside> -->
     </DevOnly>
 </template>
 

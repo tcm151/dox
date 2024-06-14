@@ -1,19 +1,19 @@
 <script setup lang="ts">
-if (process.client) {
-    const adsbygoogle = window.adsbygoogle || []
-    adsbygoogle.push({})
-}
 </script>
 
 <template>
-    <ins
-        class="adsbygoogle box"
-        data-ad-format="auto"
-        data-ad-layout-key="-hb-q-24-bk+x6"
-        data-full-width-responsive="true"
-        data-ad-client="ca-pub-3080690900599338"
-        data-ad-slot="1685559050"
-    />
+    <DevOnly>
+        <aside>
+            <!-- <ins
+                class="adsbygoogle box"
+                data-ad-format="auto"
+                data-ad-layout-key="-hb-q-24-bk+x6"
+                data-full-width-responsive="true"
+                data-ad-client="ca-pub-3080690900599338"
+                data-ad-slot="1685559050"
+            /> -->
+        </aside>
+    </DevOnly>
 </template>
 
 <style scoped lang="scss">
