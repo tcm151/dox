@@ -19,28 +19,24 @@ async function dismissFeedback(feedback: Feedback) {
     await refresh()
 }
 
-async function promoteFeedback(feedback: Feedback) {
-    await session.useApi<Feedback>(`/api/feedback/${extractId(feedback.id)}/promote`)
-    await refresh()
-}
-
 </script>
 
 <template>
     <article class="column g-2 p-4">
-        <header class="box row g-4 p-4">
+        <header class="row g-2">
             <DevOnly>
-                <button class="link" @click="">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Import Feedback</span>
+                <button class="link" @click="refresh()">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Refresh</span>
                 </button>
+                <div class="box px-4 py-2">
+                    <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
+                </div>
             </DevOnly>
-            <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
         </header>
         <div class="feedback column g-1 p-4" v-for="item in activeFeedback">
             <p>{{ item.content }}</p>
             <div class="tags row g-1 pt-1">
-                <Tag type="link" icon="fa-arrow-trend-up" label="Promote" @click="promoteFeedback(item)" />
                 <TimeTag :time="item.time" />
                 <UserTag :user="(item.user as User)" />
                 <Tag v-if="!item.dismissed" type="danger" label="Dismiss" @click="dismissFeedback(item)" />

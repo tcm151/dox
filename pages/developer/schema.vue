@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-const cache = useCache()
 const hints = useHints()
 const session = getSession()
 
@@ -15,29 +14,27 @@ async function syncDatabase() {
     }
 }
 
-const schema = cache.get<string | null>("developer.schema.download", () => "")
-async function downloadSchema() {
-    schema.value = await session.useApi<string>("/api/developer/database/schema")
-}
-
+const { data: schema, refresh } = useAsyncData("schema", () => {
+    return $fetch<string[]>("/api/developer/database/schema")
+})
 </script>
 
 <template>
-    <article class="column g-2 p-4" style="overflow-y: hidden;">
-        <header class="box row g-2 p-4">
-            <button class="danger fill" @click="syncDatabase">
-                <i class="fa-solid fa-rotate" />
-                <span>Sync Database</span>
-            </button>
-            <button class="link fill" @click="downloadSchema">
-                <i class="fa-solid fa-cloud-arrow-down" />
-                <span>Download Schema</span>
-            </button>
-        </header>
-        <section class="box px-4" v-if="schema">
-            <Codeblock
+    <article class="p-4">
+        <section class="box column g-2 p-4">
+            <header class="row g-2">
+                <button class="danger fill" @click="syncDatabase">
+                    <i class="fa-solid fa-cloud-arrow-down" />
+                    <span>Sync Database</span>
+                </button>
+                <button class="link fill" @click="refresh()">
+                    <i class="fa-solid fa-cloud-arrow-down" />
+                    <span>Refresh Schema</span>
+                </button>
+            </header>
+            <Codeblock v-if="schema"
                 :wrap="true"
-                language="javascript"
+                language="json"
                 :code="JSON.stringify(schema, undefined, 4)"
             />
         </section>

@@ -386,21 +386,19 @@ function toggleSelectAll() {
 
 <style scoped lang="scss">
 
-td:not(.active-editing), th, header, footer {
+td:not(.active-editing), th, header {
     padding: 5px 10px !important;
 }
 
 div.grid {
     overflow-y: hidden;
-    color: $black-0;
 }
 
 header {
     align-items: center;
     justify-content: space-between;
-    border: 1px solid $white-1;
-    border-bottom: 0;
     background-color: $white-0;
+    border-radius: 0.25rem 0.25rem 0 0;
 }
 
 section.left {
@@ -444,20 +442,24 @@ section.tools {
     flex: 1 1;
     margin: 0;
     overflow: auto;
-    background-color: white;
+    background-color: $white-0;
 }
 
 table {
     width: 100%;
-    // table-layout: fixed;
 }
 
 table, th {
-    border: 1px solid $white-1;
+    border-block: 1px solid $white-1;
     border-collapse: collapse;
     
+    th:hover {
+        cursor: pointer;
+        background-color: $white-1;
+    }
+
     td {
-        border: 1px solid $white-1;
+        border-block: 1px solid $white-1;
     }
 
     tr:nth-child(even) {
@@ -472,17 +474,11 @@ table, th {
     }
 
     thead tr th {
-        border-top: 0;
         background-color: $white-0;
     }
 
     tbody tr, thead tr {
-        td:first-child, th:first-child {
-            border-left: 0;
-        }
-        td:last-child, th:last-child {
-            border-right: 0;
-        }
+        border-inline: 0;
     }
 }
 
@@ -568,11 +564,12 @@ input[type=checkbox] {
 }
 
 footer {
+    padding: 5px;
     align-items: stretch;
     justify-content: space-between;
     white-space: nowrap;
-    border: 1px solid $white-1;
     background-color: $white-0;
+    border-radius: 0 0 0.25rem 0.25rem;
 }
 
 .pagination {
@@ -593,7 +590,7 @@ footer {
 }
 
 .items-per-page {
-    @include flex-h (1rem);
+    @include flex-h (0.5rem);
     justify-content: right;
     align-items: center;
     

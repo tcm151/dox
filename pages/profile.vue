@@ -16,6 +16,7 @@ definePageMeta({
                     hints.addError("Unable to confirm your account.")
                 }
             }
+            await session.fetchProfile()
             return navigateTo(`/user/${extractId(session.user.id)}`)
         }
     }

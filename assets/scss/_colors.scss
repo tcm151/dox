@@ -59,6 +59,15 @@ $danger: $red;
     }
 }
 
+.light {
+    color: $black-0;
+    background-color: $white-0;
+}
+
+.light:hover {
+    background-color: $white-1;
+}
+
 .dark {
     color: $white-0;
     background-color: $black-0;

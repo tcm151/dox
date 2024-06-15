@@ -18,4 +18,13 @@ div.markdown:not(.content) {
         margin-bottom: 0.5rem;
     }
 }
+
+.wrap {
+    pre:has(code) {
+        code {
+            overflow-x: hidden;
+            white-space: break-spaces;
+        }
+    }
+}
 </style>

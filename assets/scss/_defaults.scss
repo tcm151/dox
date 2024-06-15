@@ -84,7 +84,7 @@ button:hover {
 }
 
 code {
-    padding: 0.1rem 0.33rem;
+    // padding: 0.1rem 0.33rem;
     font-size: 0.95rem;
     font-weight: 500;
     font-family: 'Source Code Pro', monospace;
@@ -141,6 +141,10 @@ h4, h5, h6, p {
     :is(h1, h2, h3, h4, h5, h6, p) {
         margin: 0;
     }
+}
+
+pre {
+    margin: 0;
 }
 
 // RENDERED HTML OUTPUT
@@ -249,14 +253,5 @@ h4, h5, h6, p {
     
     >:last-child {
         margin-bottom: 0.75rem;
-    }
-}
-
-.content.wrap {
-    pre:has(code) {
-        code {
-            overflow-x: hidden;
-            white-space: break-spaces;
-        }
     }
 }

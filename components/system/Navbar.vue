@@ -17,7 +17,7 @@ async function login() {
         <section class="left">
             <NuxtLink class="title" to="/home" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
-                <span>{{ site.titleShort }}</span>
+                <span>{{ site.titleShort.toUpperCase() }}</span>
             </NuxtLink>
             <ClientOnly>
                 <NuxtLink to="/feed">

@@ -9,7 +9,7 @@ const { data: users } = useAsyncData('users', () => {
 <template>
     <article class="p-4">
         <section class="box column g-2 p-3">
-            <div class="row g-2" v-for="user in users">
+            <div class="row g-1" v-for="user in users">
                 <Votes :target="user" />
                 <UserTag :fill="1" :user="user" />
                 <TimeTag :time="user.dateCreated" />

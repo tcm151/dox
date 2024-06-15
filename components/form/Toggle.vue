@@ -36,8 +36,8 @@ div.row {
 label.toggle {
     display: inline-block;
     position: relative;
-    width: 2rem;
-    height: 1rem;
+    width: 1.6rem;
+    height: 0.8rem;
     border-radius: 0.75rem;
     background-color: $white-2;
     cursor: pointer;
@@ -50,8 +50,8 @@ label.toggle {
     span.slider {
         right: 50%;
         position: absolute;
-        width: 1rem;
-        height: 1rem;
+        width: 0.8rem;
+        height: 0.8rem;
         border-radius: 0.5rem;
         background-color: $white-0;
         transition: all 256ms;

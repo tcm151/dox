@@ -15,9 +15,13 @@ const markdown = computed(() => {
 </script>
 
 <template>
-    <div class="content" :class="{ wrap: wrap }" v-html="renderMarkdown(markdown)"></div>
+    <div class="codeblock p-4" :class="{ wrap: wrap }" v-html="renderMarkdown(markdown)"></div>
 </template>
 
 <style scoped lang="scss">
-
+    div.codeblock {
+        overflow-x: auto;
+        background-color: $white-1;
+        border-radius: 0.25rem;
+    }
 </style>
