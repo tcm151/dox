@@ -8,8 +8,7 @@ export default defineEventHandler(async (event) => {
             })
         }
     }
-
-    let schema = await useStorage("assets:server").getItem<string>("schema.surql")
-    let migrations = await useStorage("assets:server").getItem<string>("migrations.surql")
-    return await complexQuery({ sql: [schema ?? "", migrations ?? ""] })
+    
+    let { query } = await readBody<{ query: string }>(event)
+    return await complexQuery({ sql: [query] })
 })

@@ -11,20 +11,20 @@ DEFINE FUNCTION fn::days_since($time: datetime) {
 -- ------------------------------
 
 -- WARN: invalidates current session token, only uncomment if necessary
--- DEFINE SCOPE account SESSION 1d
--- SIGNUP (
---     CREATE user SET
---     email = $email,
---     name = $username,
---     password = crypto::argon2::generate($password),
---     dateCreated = time::now()
--- )
--- SIGNIN (
---     SELECT *
---     FROM user
---     WHERE (email = $id OR name = $id)
---     AND crypto::argon2::compare(password, $password)
--- );
+DEFINE SCOPE account SESSION 1d
+SIGNUP (
+    CREATE user SET
+    email = $email,
+    name = $username,
+    password = crypto::argon2::generate($password),
+    dateCreated = time::now()
+)
+SIGNIN (
+    SELECT *
+    FROM user
+    WHERE (email = $id OR name = $id)
+    AND crypto::argon2::compare(password, $password)
+);
 
 -- ------------------------------
 -- ANALYZERS

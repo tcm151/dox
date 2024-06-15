@@ -22,19 +22,17 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        switch (process.env.NODE_ENV) {
-            case "development":
-                const devPath = `./images/${id}.${image.type}`
-                if (fs.existsSync(devPath)) {
-                    fs.rmSync(devPath)
-                }
-                break
-            case "production":
-                const prodPath = `./.production/images/${id}.${image.type}`
-                if (fs.existsSync(prodPath)) {
-                    fs.rmSync(prodPath)
-                }
-                break
+        if (ENV.isDevelopment()) {
+            const devPath = `./images/${id}.${image.type}`
+            if (fs.existsSync(devPath)) {
+                fs.rmSync(devPath)
+            }
+        }
+        else {
+            const prodPath = `./.production/images/${id}.${image.type}`
+            if (fs.existsSync(prodPath)) {
+                fs.rmSync(prodPath)
+            }
         }
 
         // TODO add event log for all token transactions

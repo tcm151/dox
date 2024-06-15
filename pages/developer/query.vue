@@ -3,6 +3,7 @@ import QuerySettings from './components/QuerySettings.client.vue';
 import { storeToRefs } from 'pinia';
 
 const hints = useHints()
+const session = getSession()
 const { settings, history, saved } = storeToRefs(useQuery())
 
 let tab = ref<string>("History")
@@ -63,29 +64,17 @@ function removeQueryFromSaved(item: any) {
 }
 
 async function submitQuery() {
-    const response = await fetch(`${settings.value.host}/sql`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "text",
-            "Accept": "application/json",
-            "NS": settings.value.namespace,
-            "DB": settings.value.database,
-            "Authorization": `Basic ${btoa(`${settings.value.username}:${settings.value.password}`)}`
-        },
-        body: query.value
-    });
-
-    if (response.ok) {
-        history.value = history.value.filter(q => q !== query.value);
-        history.value.unshift(query.value);
-        results.value = await response.json();
-        results.value.forEach((r: any) => {
-            hints.addSuccess(r.time)
+    try {
+        const response = await session.useApi<any[]>("/api/developer/database/query", {
+            query: query.value
         })
+        history.value = history.value.filter(q => q !== query.value)
+        history.value.unshift(query.value)
+        results.value = response ?? []
         tab.value = 'Results'
-    } else {
-        const json = await response.json();
-        hints.addError(json.information)
+    }
+    catch (error: any) {
+        hints.addError(error.statusMessage)
     }
 }
 </script>
@@ -145,10 +134,14 @@ async function submitQuery() {
                     <input type="search" v-model="searchBar">
                 </div>
             </header>
-            <section class="results column g-2" v-if="tab == 'Results'">
-                <div class="result column g-2" v-for="result in results">
-                    <code class="p-4">{{ result.result }}</code>
-                </div>
+            <section class="results column" v-if="tab == 'Results'">
+                <template v-for="result in results">
+                    <Codeblock
+                        wrap
+                        language="json"
+                        :code="JSON.stringify(result, undefined, 4)"
+                    />
+                </template>
             </section>
             <section class="history column g-2" v-if="tab == 'History'">
                 <div class="query" v-for="(item, index) in filteredHistory()" :key="index">

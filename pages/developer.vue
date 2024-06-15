@@ -5,7 +5,9 @@ definePageMeta({
         if (process.client) {
             const session = getSession()
             if (to.path.startsWith("/developer") && (!session.isAuthenticated || session.user.id != 'user:opkdyfig54tdre96jc37')) {
-                return abortNavigation()
+                if (!ENV.isDevelopment) {
+                    return abortNavigation()
+                }
             }
             const cache = useCache()
             const lastTab = cache.get("developer.lastTab", () => "query")
