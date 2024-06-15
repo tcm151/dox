@@ -8,7 +8,7 @@ definePageMeta({
                 return abortNavigation()
             }
             const cache = useCache()
-            const lastTab = cache.get("admin.lastTab", () => "feedback")
+            const lastTab = cache.get("admin.lastTab", () => "users")
             if (to.path === "/admin") {
                 return navigateTo(`/admin/${lastTab.value}`)
             }
@@ -24,11 +24,10 @@ definePageMeta({
     <article class="column center-inline">
         <PagedTabstrip
             :tabs="[
+                { route: '/admin/users', icon: 'fa-solid fa-user', label: 'Users' },
+                { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
                 { route: '/admin/pins', icon: 'fa-solid fa-thumbtack', label: 'Pins' },
                 { route: '/admin/feedback', icon: 'fa-solid fa-message', label: 'Feedback' },
-                { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
-                { route: '/admin/users', icon: 'fa-solid fa-user', label: 'Users' },
-                { route: '/admin/backups', icon: 'fa-solid fa-warehouse', label: 'Backups' },
             ]"
         />
         <section class="page column center-inline">
