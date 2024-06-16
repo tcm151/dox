@@ -14,9 +14,17 @@ async function syncDatabase() {
     }
 }
 
-const { data: schema, refresh } = useAsyncData("schema", () => {
-    return $fetch<string[]>("/api/developer/database/schema")
-})
+const schema = ref<string>("")
+async function refreshSchema() {
+    try {
+        schema.value = await session.useApi<string>("/api/developer/database/schema") ?? ""
+        hints.addSuccess("Downloaded current database schema.")
+    }
+    catch (ex: any) {
+        hints.addError("Failed to download schema.")
+        hints.addError(ex.toString())
+    }
+}
 </script>
 
 <template>
@@ -27,7 +35,7 @@ const { data: schema, refresh } = useAsyncData("schema", () => {
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Sync Database</span>
                 </button>
-                <button class="link fill" @click="refresh()">
+                <button class="link fill" @click="refreshSchema">
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Refresh Schema</span>
                 </button>
