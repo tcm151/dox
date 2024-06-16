@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 
 const hints = useHints()
 const session = getSession()
-const { settings, history, saved } = storeToRefs(useQuery())
+const { history, saved } = storeToRefs(useQuery())
 
 let tab = ref<string>("History")
 let results = ref<any[]>([]);
