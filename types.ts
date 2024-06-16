@@ -10,7 +10,13 @@ export interface Voteable {
     }
 }
 
-// REFACTOR consolidate traits into array
+// REFACTOR split off account into its own type
+export interface Account {
+    id: string
+    email: string
+    password: string
+}
+
 export interface User extends Voteable {
     id: string
     email: string
@@ -20,12 +26,14 @@ export interface User extends Voteable {
     topics: string[]
     following: string[]
     followers: string[]
-    dateCreated: string
+    dateJoined: string
     tokens: number
-    confirmed: boolean
-    verified: boolean // TODO implement sitewide
-    admin: boolean
+    roles: Role[]
+    traits: Trait[]
 }
+
+export type Role = "admin" | "developer" | "moderator"
+export type Trait = "confirmed" | "verified" 
 
 export interface Confirmation {
     id: string
@@ -127,7 +135,6 @@ export interface Feedback {
     time: string
     content: string
     dismissed: boolean
-    promoted: boolean
 }
 
 export interface Report {

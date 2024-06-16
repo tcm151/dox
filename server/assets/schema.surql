@@ -17,7 +17,7 @@ SIGNUP (
     email = $email,
     name = $username,
     password = crypto::argon2::generate($password),
-    dateCreated = time::now()
+    dateJoined = time::now()
 )
 SIGNIN (
     SELECT *
@@ -52,7 +52,7 @@ DEFINE TABLE passwordReset SCHEMALESS;
 
 DEFINE TABLE user SCHEMALESS PERMISSIONS
 FOR select, update WHERE id = $auth.id
-FOR create, delete WHERE admin = true;
+FOR create, delete WHERE roles CONTAINS "admin";
 
 DEFINE FIELD email ON user TYPE string ASSERT string::is::email($value);
 DEFINE INDEX email ON user FIELDS email UNIQUE;
@@ -66,11 +66,10 @@ DEFINE FIELD topics ON user TYPE array<record<topic>> DEFAULT [];
 DEFINE FIELD followers ON user TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD following ON user TYPE array<record<user>> DEFAULT [];
 
-DEFINE FIELD dateCreated ON user TYPE datetime DEFAULT time::now();
+DEFINE FIELD dateJoined ON user TYPE datetime DEFAULT time::now();
 DEFINE FIELD tokens ON user TYPE int DEFAULT 0 ASSERT $value >= 0 AND $value <= 65536;
-DEFINE FIELD confirmed ON user TYPE bool DEFAULT false;
-DEFINE FIELD verified ON user TYPE bool DEFAULT false;
-DEFINE FIELD admin ON user TYPE bool DEFAULT false;
+DEFINE FIELD roles ON user TYPE array<string> DEFAULT [];
+DEFINE FIELD traits ON user TYPE array<string> DEFAULT [];
 
 DEFINE FIELD votes.positive ON user TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.misleading ON user TYPE array<record<user>> DEFAULT [];

@@ -4,7 +4,7 @@ definePageMeta({
     middleware: (to, from) => {
         if (process.client) {
             const session = getSession()
-            if (to.path.startsWith("/developer") && (!session.isAuthenticated || session.user.id != 'user:opkdyfig54tdre96jc37')) {
+            if (to.path.startsWith("/developer") && (!session.isAuthenticated || hasRole(session.user, "developer"))) {
                 if (!ENV.isDevelopment) {
                     return abortNavigation()
                 }

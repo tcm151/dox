@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
     if (!ENV.isDevelopment()) {
         const auth = await authenticateRequest(event)
-        if (!auth.admin) {
+        if (!hasRole(auth, "admin")) {
             throw createError({
                 statusCode: 401,
                 message: "You shall not pass!"

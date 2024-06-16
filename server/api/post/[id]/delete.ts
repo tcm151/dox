@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     parameters['post'] = `post:${id}`
     parameters['user'] = auth
     
-    sql.push('IF $post.user != $user.id AND !$user.admin {')
+    sql.push('IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {')
     sql.push('THROW "You are not allowed to do this.";')
     sql.push('};')
 

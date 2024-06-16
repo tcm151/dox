@@ -83,7 +83,7 @@ const { files, open: openFileDialog, reset } = useFileDialog({
 })
 
 function selectImages() {
-    if (session.user.confirmed) {
+    if (hasTrait(session.user, "confirmed")) {
         openFileDialog()
     }
     else {

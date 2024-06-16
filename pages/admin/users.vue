@@ -11,9 +11,9 @@ const { data: users } = useAsyncData('users', () => {
         <section class="box column g-2 p-3">
             <div class="row g-1" v-for="user in users">
                 <Votes :target="user" />
-                <Tag v-if="user.admin" type="link" icon="fa-shield" />
+                <Tag v-if="hasRole(user, 'admin')" type="link" icon="fa-shield" />
                 <UserTag :fill="5" :user="user" />
-                <TimeTag :time="user.dateCreated" />
+                <TimeTag :time="user.dateJoined" />
                 <!-- <Tag type="danger" icon="fa-trash" /> -->
             </div>
         </section>

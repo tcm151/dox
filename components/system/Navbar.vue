@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 const events = useEvents();
 const session = getSession();
 const { public: { site } } = useRuntimeConfig()
@@ -28,11 +29,11 @@ async function login() {
                     <i class="fa-solid fa-coins"></i>
                     <span>Store</span>
                 </NuxtLink>
-                <NuxtLink to="/admin" v-if="session.isAuthenticated && session.user.admin" title="Admin">
+                <NuxtLink to="/admin" v-if="session.isAuthenticated && hasRole(session.user, 'admin')" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                     <span>Admin</span>
                 </NuxtLink>
-                <NuxtLink to="/developer" v-if="(session.isAuthenticated && session.user.id == 'user:opkdyfig54tdre96jc37') || ENV.isDevelopment()" title="Developer">
+                <NuxtLink to="/developer" v-if="(session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment()" title="Developer">
                     <i class="fa-solid fa-code"></i>
                     <span>Developer</span>
                 </NuxtLink>

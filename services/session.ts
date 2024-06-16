@@ -1,7 +1,7 @@
 import type { Ref } from "vue"
 import { skipHydrate } from "pinia"
 import Surreal from "surrealdb.js"
-import type { User } from "~/types"
+import type { User, Role, Trait } from "~/types"
 import { Trigger } from "~/services/events";
 
 
@@ -37,11 +37,10 @@ export const getSession = defineStore("session", (): Session => {
         topics: [],
         following: [],
         followers: [],
-        dateCreated: '',
-        confirmed: false,
-        verified: false,
-        admin: false,
-        tokens: 0
+        dateJoined: '',
+        tokens: 0,
+        roles: [],
+        traits: []
     })
 
     //> API
@@ -145,11 +144,10 @@ export const getSession = defineStore("session", (): Session => {
                 topics: [],
                 following: [],
                 followers: [],
-                dateCreated: '',
-                confirmed: false,
-                verified: false,
-                admin: false,
+                dateJoined: '',
                 tokens: 0,
+                roles: [],
+                traits: [],
             }
         }
         events.publish(Trigger.userLoggedOut)
@@ -229,6 +227,6 @@ export const getSession = defineStore("session", (): Session => {
         fetchProfile,
         useApi,
         follow,
-        unfollow
+        unfollow,
     }
 })

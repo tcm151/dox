@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const image = await queryOne<Image>({ sql, parameters })
 
 
-    if ((image.user as User).id !== auth.id && !auth.admin) {
+    if ((image.user as User).id !== auth.id && !hasRole(auth, "admin")) {
         throw createError({
             statusCode: 401,
             message: "You are not allowed to delete this." 

@@ -28,7 +28,7 @@ const emit = defineEmits<{
         @close="emit('close')"
     >
         <section class="column g-2">
-            <button v-if="session.user.admin" class="pin" @click="() => {
+            <button v-if="hasRole(session.user, 'admin')" class="pin" @click="() => {
                 emit('pinPost')
                 emit('close')
             }">

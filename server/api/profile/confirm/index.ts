@@ -19,11 +19,11 @@ export default defineEventHandler(async (event) => {
     sql.push('};')
 
     sql.push('UPDATE $user SET')
-    sql.push('confirmed = true;')
+    sql.push('traits = array::union(traits, ["confirmed"]);')
     sql.push('UPDATE $confirmation SET')
     sql.push('used = true;')
     
-    sql.push('RETURN $user.confirmed;')
+    sql.push('RETURN $user.traits;')
 
     sql.push('};')
 

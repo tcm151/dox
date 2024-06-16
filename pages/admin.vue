@@ -1,10 +1,12 @@
 <script setup lang="ts">
+
+
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
         if (process.client) {
             const session = getSession()
-            if (to.path.startsWith("/admin") && (!session.isAuthenticated && !session.user.admin)) {
+            if (to.path.startsWith("/admin") && (!session.isAuthenticated && !hasRole(session.user, "admin"))) {
                 return abortNavigation()
             }
             const cache = useCache()

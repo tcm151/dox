@@ -73,7 +73,7 @@ async function unfollowUser() {
                     <strong>{{ user?.following.length }}</strong> following
                 </Tag>
                 <Tag :fill="1" type="info">
-                    joined <strong>{{ formatDate(user?.dateCreated ?? "") }}</strong>
+                    joined <strong>{{ formatDate(user?.dateJoined ?? "") }}</strong>
                 </Tag>
             </section>
             <section class="column g-2" v-if="user?.description">

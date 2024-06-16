@@ -97,7 +97,7 @@ async function reportSelectedImage() {
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                     <span>Refresh</span>
                 </button>
-                <button class="link fill" @click="selectImages()"  v-if="session.user.confirmed">
+                <button class="link fill" @click="selectImages()"  v-if="hasTrait(session.user, 'confirmed')">
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
@@ -119,7 +119,7 @@ async function reportSelectedImage() {
                     <!-- <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" /> -->
                     <Tag type="danger" icon="fa-flag" label="Report" @click="reportSelectedImage" />
                     <Tag
-                        v-if="session.user.id == (selectedImage.user as User).id || session.user.admin"
+                        v-if="session.user.id == (selectedImage.user as User).id || hasRole(session.user, 'admin')"
                         type="danger"
                         icon="fa-trash-can"
                         label="Delete"

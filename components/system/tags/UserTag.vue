@@ -6,7 +6,7 @@ const props = defineProps<{
 }>()
 
 const icon = computed(() => {
-    return (props.user.admin)
+    return (hasRole(props.user, "admin"))
         ? "fa-user-shield"
         : "fa-user"
 })
