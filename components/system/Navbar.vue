@@ -32,7 +32,7 @@ async function login() {
                     <i class="fa-solid fa-shield"></i>
                     <span>Admin</span>
                 </NuxtLink>
-                <NuxtLink to="/developer" v-if="(session.isAuthenticated && session.user.id == 'user:07bx2kmgdobstza7tn2b') || ENV.isDevelopment()" title="Developer">
+                <NuxtLink to="/developer" v-if="(session.isAuthenticated && session.user.id == 'user:opkdyfig54tdre96jc37') || ENV.isDevelopment()" title="Developer">
                     <i class="fa-solid fa-code"></i>
                     <span>Developer</span>
                 </NuxtLink>
