@@ -9,6 +9,10 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    return await useStorage("assets:server").getItem<string>("schema.surql") ?? ""
+    const schema = await useStorage("assets:server").getItem<string>("schema.surql") ?? ""
+    console.log(typeof schema)
+
+    return schema.toString()
+    
     // return await complexQuery({ sql: [`INFO FOR DB;`] })
 })
