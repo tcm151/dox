@@ -4,6 +4,13 @@ import type { User } from '~/types'
 const props = defineProps<{
     user: User
 }>()
+
+const icon = computed(() => {
+    return (props.user.admin)
+        ? "fa-user-shield"
+        : "fa-user"
+})
+
 </script>
 
 <template>
