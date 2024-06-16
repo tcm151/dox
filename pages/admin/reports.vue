@@ -8,7 +8,7 @@ const { data: reports } = useAsyncData('reports', () => {
     
 <template>
     <article class="p-4">
-        <section class="box column g-2 p-3">
+        <section class="box column g-2 p-3" v-if="reports!.length > 0">
             <div class="row g-2" v-for="report in reports">
                 <UserTag :fill="2" :user="(report.reporter as User)" />
                 <TimeTag :fill="2" :time="report.time" />
@@ -21,11 +21,20 @@ const { data: reports } = useAsyncData('reports', () => {
                     />
             </div>
         </section>
+        <section class="box p-3" v-else>
+            <p>There are currently no reports...</p>
+        </section>
     </article>
 </template>
 
 <style scoped lang="scss">
 article {
     @include fit-width(60rem, 1rem);
+}
+
+section.box {
+    p {
+        text-align: center;
+    }
 }
 </style>

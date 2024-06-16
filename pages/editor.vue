@@ -220,7 +220,7 @@ async function saveDraft() {
                             <span>Drafts</span>
                         </button>
                     </header>
-                    <form class="form fill column">
+                    <form class="form fill column g-2">
                         <div class="field">
                             <label>Title</label>
                             <input

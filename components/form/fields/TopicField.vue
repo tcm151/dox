@@ -22,7 +22,7 @@ function validTopic() {
     <div class="field topic-input">
         <div class="row center-inline g-2 mb-2">
             <label class="mb-0">Topics</label>
-            <TopicTag v-for="topic in topics" :topic="topic" @contextmenu.prevent="emit('remove', topic)" />
+            <TopicTag v-for="topic in topics" :topic="topic" disable @contextmenu.prevent="emit('remove', topic)" />
         </div>
         <input
             type="text"

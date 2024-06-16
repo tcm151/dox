@@ -317,15 +317,13 @@ function toggleSelectAll() {
                             <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" />
                         </th>
                         <th class="column-header" v-for="column in columns" @click="sortBy(column.field)" :style="{ width: column.width, textAlign: column.textAlign }">
-                            <span v-if="sortField === column.field">
-                                <span>{{ column.label }}</span>
+                            <span>{{ column.label }}</span>
+                            <template v-if="sortField === column.field">
                                 <i class="fa-solid fa-caret-down" v-if="sortType === 'asc'"></i>
                                 <i class="fa-solid fa-caret-up" v-if="sortType === 'desc'"></i>
-                            </span>
-                            <span v-else>{{ column.label }}</span>
+                            </template>
                         </th>
                         <th v-if="props.tools?.some(t => ['edit', 'delete'].includes(t))" style="width: 1%"></th>
-                        
                     </tr>
                 </thead>
                 <tbody>
@@ -484,8 +482,16 @@ table, th {
 
 
 .column-header {
-    text-align: left;
+    position: relative;
     white-space: nowrap;
+    text-align: left;
+
+
+    i.fa-solid {
+        top: 50%;
+        transform: translate(0, -50%);
+        position: absolute;
+    }
     
     i { margin-left: 0.25rem }
 }

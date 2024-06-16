@@ -1,7 +1,13 @@
 <script setup lang="ts">
 const props = defineProps<{
     topic: string
+    disable?: boolean
 }>()
+
+function viewTopic(topic: string) {
+    if (props.disable) return
+    navigateTo(`/topic/${extractId(topic)}`)
+}
 </script>
 
 <template>
@@ -9,7 +15,7 @@ const props = defineProps<{
         :fill="10"
         type="topic"
         :label="extractId(topic)"
-        @click.stop="navigateTo(`/topic/${extractId(topic)}`)"
+        @click.stop="viewTopic(topic)"
     />
 </template>
 
