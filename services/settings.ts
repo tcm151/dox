@@ -1,15 +1,16 @@
-import { defineStore, skipHydrate } from "pinia"
+import { skipHydrate } from "pinia"
 
 interface Settings {
     hintDuration: number
     hoverAnimations: boolean
 }
 
-export const useUserSettings = defineStore("userSettings", () => {
-    const state = skipHydrate(useLocalStorage<Settings>("userSettings", {
+export const useSettings = defineStore("settings", () => {
+    const cache = useCache()
+    const user = cache.get<Settings>("user.settings", () => ({
         hintDuration: 2500,
         hoverAnimations: true,
-    }));
-
-    return { state };
+    }))
+    
+    return { user: skipHydrate(user) }
 })

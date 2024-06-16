@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import QuerySettings from './components/QuerySettings.client.vue';
 import { storeToRefs } from 'pinia';
 
+const cache = useCache()
 const hints = useHints()
 const session = getSession()
 const { history, saved } = storeToRefs(useQuery())
 
-let tab = ref<string>("History")
-let results = ref<any[]>([]);
-let query = useSessionStorage<string>("query", "");
-let showSettings = ref(false)
-
-const showSearch = useSessionStorage("showQueryHistorySearch", false)
+const tab = ref<string>("History")
+const results = ref<any[]>([]);
+const query = cache.get<string>("query.sql", () => "")
+const showSearch = cache.get<boolean>("query.showSearch", () => false)
 const searchBar = ref("");
 
 function filteredHistory(): any[] {
@@ -81,7 +79,6 @@ async function submitQuery() {
 
 <template>
     <article class="g-2 m-4">
-        <QuerySettings :visible="showSettings" @close="showSettings = false" />
         <div class="left column g-2 p-4">
             <section class="editor fill column g-2">
                 <header class="row g-2">
@@ -125,9 +122,6 @@ async function submitQuery() {
                     </button>
                     <button class="link fit" @click="clearHistory">
                         <i class="fa-solid fa-broom"></i>
-                    </button>
-                    <button class="link fit" @click="showSettings = true">
-                        <i class="fa-solid fa-gear"></i>
                     </button>
                 </div>
                 <div class="field" v-if="showSearch">

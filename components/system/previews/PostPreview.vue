@@ -6,12 +6,12 @@ const props = defineProps<{
     pinned?: boolean
 }>()
 
-const settings = useUserSettings()
+const settings = useSettings()
 
 </script>
 
 <template>
-    <div class="post" :class="{ 'animate': settings.state.hoverAnimations, 'pinned': pinned }">
+    <div class="post" :class="{ 'animate': settings.user.hoverAnimations, 'pinned': pinned }">
         <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (post.replyTo as Post).title }}</p>

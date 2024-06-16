@@ -1,4 +1,3 @@
-import { defineStore } from "pinia"
 
 export interface Hint {
     number: number
@@ -7,20 +6,28 @@ export interface Hint {
 }
 
 export const useHints = defineStore("hints", () => {
-
-    const settings = useUserSettings();
+    const events = useEvents()
+    const settings = useSettings()
     
     let count = ref(0);
     let items = ref<Hint[]>([])
     
     function addHint(payload: Hint) {
         items.value.push(payload);
-        setTimeout(() => remove(payload), settings.state.hintDuration);
+        setTimeout(() => remove(payload), settings.user.hintDuration);
     }
     
     function remove(hint: Hint) {
         items.value = items.value.filter(n => n.number !== hint.number)
     }
+
+    events.subscribe(Trigger.addHint, (payload: Hint) => {
+        addHint({
+            number: count.value += 1,
+            message: payload.message,
+            type: payload.type
+        })
+    })
 
     function addMessage(message: string) {
         addHint({

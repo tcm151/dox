@@ -1,5 +1,5 @@
 import type { Ref } from "vue"
-import { defineStore, skipHydrate } from "pinia"
+import { skipHydrate } from "pinia"
 import Surreal from "surrealdb.js"
 import type { User } from "~/types"
 import { Trigger } from "~/services/events";
@@ -19,15 +19,13 @@ export interface Session {
 }
 
 export const getSession = defineStore("session", (): Session => {
-    
-    const hints = useHints()
     const events = useEvents()
 
     //> SESSION
-    const isAuthenticated = skipHydrate(useSessionStorage<boolean>("authenticated", false))
-    const token = skipHydrate(useLocalStorage<string>("token", ""))
-    const user = skipHydrate(useSessionStorage<User>("user", {
-        id: '',
+    const isAuthenticated = useSessionStorage<boolean>("authenticated", false)
+    const token = useLocalStorage<string>("token", "")
+    const user = useSessionStorage<User>("user", {
+        id: 'user:temp',
         email: '',
         name: '',
         votes: {
@@ -44,7 +42,7 @@ export const getSession = defineStore("session", (): Session => {
         verified: false,
         admin: false,
         tokens: 0
-    }))
+    })
 
     //> API
     async function useApi<T>(route: string, body?: any) {
@@ -58,8 +56,11 @@ export const getSession = defineStore("session", (): Session => {
             }) as T
         }
         catch (ex: any) {
-            hints.addError(ex.message)
-            throw ex
+            events.publish(Trigger.addHint, {
+                message: ex.message,
+                type: "error",
+            })
+            return null
         }
     }
 
@@ -132,7 +133,7 @@ export const getSession = defineStore("session", (): Session => {
         if (clear == true) {
             token.value = ""
             user.value = {
-                id: '',
+                id: 'user:temp',
                 email: '',
                 name: '',
                 votes: {
@@ -151,13 +152,17 @@ export const getSession = defineStore("session", (): Session => {
                 tokens: 0,
             }
         }
+        events.publish(Trigger.userLoggedOut)
         return navigateTo("/feed")
     }
 
     //> FOLLOW/UNFOLLOW
     async function follow(target: string) {
         if (!isAuthenticated) {
-            hints.addError("You must be logged into interact with others.")
+            events.publish(Trigger.addHint, {
+                message: "You must be logged into interact with others.",
+                type: "error",
+            })
             return false
         }
         
@@ -174,7 +179,10 @@ export const getSession = defineStore("session", (): Session => {
             }
         }
         catch (error: any) {
-            hints.addError(error.message)
+            events.publish(Trigger.addHint, {
+                message: error.message,
+                type: "error",
+            })
         }
 
         return false
@@ -182,7 +190,10 @@ export const getSession = defineStore("session", (): Session => {
     
     async function unfollow(target: string) {
         if (!isAuthenticated) {
-            hints.addError("You must be logged into interact with others.")
+            events.publish(Trigger.addHint, {
+                message: "You must be logged into interact with others.",
+                type: "error",
+            })
             return false
         }
         
@@ -199,11 +210,25 @@ export const getSession = defineStore("session", (): Session => {
             }
         }
         catch (error: any) {
-            hints.addError(error.message)
+            events.publish(Trigger.addHint, {
+                message: error.message,
+                type: "error",
+            })
         }
 
         return false
     }
 
-    return { user, token, isAuthenticated, authenticate, login, logout, fetchProfile, useApi, follow, unfollow }
+    return {
+        user: skipHydrate(user),
+        token: skipHydrate(token),
+        isAuthenticated: skipHydrate(isAuthenticated),
+        authenticate,
+        login,
+        logout,
+        fetchProfile,
+        useApi,
+        follow,
+        unfollow
+    }
 })

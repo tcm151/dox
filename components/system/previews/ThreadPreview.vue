@@ -7,12 +7,12 @@ const props = defineProps<{
     thread: Thread
 }>()
 
-const settings = useUserSettings()
+const settings = useSettings()
 
 </script>
 
 <template>
-    <div class="thread" :class="{ 'animate': settings.state.hoverAnimations }">
+    <div class="thread" :class="{ 'animate': settings.user.hoverAnimations }">
         <div class="reply-to row center-inline g-2" v-if="(thread.replyTo as Thread).id != null" @click="navigateTo(`/thread/${extractId((thread.replyTo as Thread).id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (thread.replyTo as Thread).content.slice(128) }}</p>

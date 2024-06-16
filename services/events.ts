@@ -1,4 +1,3 @@
-import { defineStore } from "pinia"
 
 interface Event {
     trigger: Trigger
@@ -8,6 +7,7 @@ interface Event {
 export enum Trigger {
     addHint,
     authenticatedUser,
+    userLoggedOut,
     pageFinishedLoading,
     showPopup,
     toggleLogin,

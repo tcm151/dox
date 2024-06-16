@@ -253,8 +253,7 @@ function toggleOptions() {
                 
             </section>
         </div>
-        <InlineAd />
-        <CommentSection v-if="post && post.comments && post.comments.length > 0" />
+        <CommentSection />
     </article>
 </template>
 
