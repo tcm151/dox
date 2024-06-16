@@ -42,8 +42,8 @@ async function refreshSchema() {
             </header>
             <Codeblock v-if="schema"
                 :wrap="true"
-                language="json"
-                :code="JSON.stringify(schema, undefined, 4)"
+                language="sql"
+                :code="schema"
             />
         </section>
     </article>

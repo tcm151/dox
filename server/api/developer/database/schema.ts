@@ -9,5 +9,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    return await complexQuery({ sql: [`INFO FOR DB;`] })
+    return await useStorage("assets:server").getItem<string>("schema.surql") ?? ""
+    // return await complexQuery({ sql: [`INFO FOR DB;`] })
 })

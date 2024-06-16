@@ -33,7 +33,9 @@ definePageMeta({
 
             ]"
         />
-        <NuxtPage />
+        <section class="page column center-inline">
+            <NuxtPage />
+        </section>
     </article>
 </template>
 
@@ -41,5 +43,10 @@ definePageMeta({
 article {
     width: 100%;
     overflow-y: hidden;
+}
+
+section.page {
+    width: 100%;
+    overflow-y: auto;
 }
 </style>
