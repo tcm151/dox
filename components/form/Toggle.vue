@@ -21,7 +21,7 @@ const emit = defineEmits<{
             />
             <span class="slider" />
         </label>
-        <slot name="label">
+        <slot name="label" v-if="label">
             <span class="label">{{ label }}</span>
         </slot>
     </div>

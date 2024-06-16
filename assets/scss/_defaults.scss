@@ -44,12 +44,17 @@ button:hover {
     @include flex-v (0.75rem);
 }
 
+.field:not(.row) {
+    label {
+        margin-bottom: 0.5rem;
+    }
+}
+
 .field {
     display: flex;
     flex-direction: column;
 
     label {
-        margin-bottom: 0.5rem;
         font-size: 0.95rem;
         font-weight: 600;
     }

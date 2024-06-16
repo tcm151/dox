@@ -7,13 +7,17 @@ const settings = useSettings()
 
 <template>
     <article class="column g-4 p-4">
-        <section class="form box p-5">
-            <div class="row-fit g-2">
-                <input type="checkbox" v-model="settings.user.hoverAnimations">
-                <label>enable animations</label>
+        <section class="box form g-2 p-5">
+            <div class="field row center py-2">
+                <label class="f-1">enable animations</label>
+                <Toggle v-model:enabled="settings.user.hoverAnimations" />
             </div>
-            <div class="field">
-                <label>hint duration (ms)</label>
+            <!-- <div class="field row center py-2">
+                <label class="f-1">allow notifications</label>
+                <Toggle v-model:enabled="settings.user.hoverAnimations" />
+            </div> -->
+            <div class="field row center">
+                <label class="f-1">hint duration (ms)</label>
                 <input type="number" size="4" step="250" v-model="settings.user.hintDuration">
             </div>
         </section>
@@ -23,5 +27,11 @@ const settings = useSettings()
 <style scoped lang="scss">
 article {
     @include fit-width(40rem, 1rem);
+}
+
+section.form {
+    input {
+        max-width: 8rem;
+    }
 }
 </style>
