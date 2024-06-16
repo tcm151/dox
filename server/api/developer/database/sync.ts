@@ -1,3 +1,5 @@
+import { isBuffer } from "util"
+
 export default defineEventHandler(async (event) => {
     if (!ENV.isDevelopment()) {
         const auth = await authenticateRequest(event)
@@ -12,11 +14,12 @@ export default defineEventHandler(async (event) => {
     let schema = await useStorage("assets:server").getItem<string>("schema.surql") ?? ""
     // let migrations = await useStorage("assets:server").getItem<string>("migrations.surql") ?? ""
     
-    if (isBuffer(schema)) {
-        schema = Buffer.from(schema).toString()
+    console.log(typeof schema)
+    // if (isBuffer(schema)) {
+    //     schema = Buffer.from(schema).toString()
     
-    }
+    // }
     
-    console.log(schema)
+    // console.log(schema)
     return await complexQuery({ sql: [schema] })
 })
