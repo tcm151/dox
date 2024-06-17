@@ -138,16 +138,6 @@ DEFINE FIELD votes.score ON post DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
 };
 
-DEFINE INDEX searchTitle
-ON post COLUMNS title
-SEARCH ANALYZER relevanceSearch
-BM25 HIGHLIGHTS;
-
-DEFINE INDEX searchContent
-ON post COLUMNS content
-SEARCH ANALYZER relevanceSearch
-BM25 HIGHLIGHTS;
-
 DEFINE EVENT updateTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         UPDATE $topic SET
@@ -208,11 +198,6 @@ DEFINE FIELD votes.score ON thread DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
 };
 
-DEFINE INDEX searchContent
-ON thread COLUMNS content
-SEARCH ANALYZER relevanceSearch
-BM25 HIGHLIGHTS;
-
 DEFINE EVENT updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         UPDATE $topic SET
@@ -241,11 +226,6 @@ DEFINE FIELD votes.negative ON comment TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.score ON comment DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
 };
-
-DEFINE INDEX searchContent
-ON comment COLUMNS content
-SEARCH ANALYZER relevanceSearch
-BM25 HIGHLIGHTS;
 
 DEFINE EVENT updatePost ON comment WHEN $event = 'CREATE' THEN {
     LET $post = (SELECT VALUE post FROM $after);
