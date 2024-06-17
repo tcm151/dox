@@ -9,7 +9,7 @@ function validDescription() {
 async function sendConfirmation() {
     await session.useApi("/api/profile/confirm/send")
     hints.addSuccess("Confirmation sent!")
-    await new Promise(resolve => setTimeout(resolve, 1024));
+    await new Promise(resolve => setTimeout(resolve, 1024))
     hints.addError("Expires in 15 minutes...")
 }
 

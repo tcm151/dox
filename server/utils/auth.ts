@@ -1,6 +1,6 @@
-import Surreal from 'surrealdb.js';
+import Surreal from 'surrealdb.js'
 import { H3Event } from "h3"
-import type { User } from '~/types';
+import type { User } from '~/types'
 
 export const authenticateRequest = async (event: H3Event) => {
     const { surreal } = useRuntimeConfig()

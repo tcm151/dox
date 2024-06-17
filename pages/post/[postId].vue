@@ -41,7 +41,7 @@ const session = getSession()
 
 let editingPost = ref(false)
 function toggleEditPost() {
-    editingPost.value = !editingPost.value;
+    editingPost.value = !editingPost.value
 }
 
 // const showPreview = ref(false)
@@ -108,8 +108,8 @@ async function submitComment(replyTo: Post | Comment, content: string) {
 
 function copyLink() {
     const postLink = window.location.href
-    navigator.clipboard.writeText(postLink);
-    hints.addSuccess("Copied post URL");
+    navigator.clipboard.writeText(postLink)
+    hints.addSuccess("Copied post URL")
 }
 
 async function awardPost() {

@@ -1,9 +1,9 @@
-import type { Thread } from "~/types";
+import type { Thread } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    const auth = await authenticateRequest(event);
+    const auth = await authenticateRequest(event)
     let thread = await readBody<Thread>(event)
-    thread.user = auth.id;
+    thread.user = auth.id
     thread.votes.positive = [auth.id]
 
     var { sql, parameters } = queryBuilder()

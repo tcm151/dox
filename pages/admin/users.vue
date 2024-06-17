@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '~/types';
+import type { User } from '~/types'
 
 const { data: users } = useAsyncData('users', () => {
     return $fetch<User[]>("/api/user")

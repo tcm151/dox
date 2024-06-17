@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Thread } from '~/types';
+import type { Thread } from '~/types'
 
 const { data: threads, pending, refresh } = await useAsyncData('threads', () => {
     return $fetch<Thread[]>("/api/thread")

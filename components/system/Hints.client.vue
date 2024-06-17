@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import type { Hint } from '~/services/hints';
+import type { Hint } from '~/services/hints'
 
 const hints = useHints()
 
 function getColor(hint: Hint) {
     switch (hint.type) {
         case "message":
-            return "link inverted";
+            return "link inverted"
         case "success":
-            return "success inverted";
+            return "success inverted"
         case "warning":
-            return "warning inverted";
+            return "warning inverted"
         case "error":
-            return "error inverted";
+            return "error inverted"
     }
 }
 </script>

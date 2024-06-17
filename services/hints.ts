@@ -9,12 +9,12 @@ export const useHints = defineStore("hints", () => {
     const events = useEvents()
     const settings = useSettings()
     
-    let count = ref(0);
+    let count = ref(0)
     let items = ref<Hint[]>([])
     
     function addHint(payload: Hint) {
-        items.value.push(payload);
-        setTimeout(() => remove(payload), settings.user.hintDuration);
+        items.value.push(payload)
+        setTimeout(() => remove(payload), settings.user.hintDuration)
     }
     
     function remove(hint: Hint) {

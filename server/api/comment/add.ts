@@ -1,9 +1,9 @@
-import type { Comment } from "~/types";
+import type { Comment } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     let comment = await readBody(event)
-    comment.user = auth.id;
+    comment.user = auth.id
     comment.votes.positive = [auth.id]
     
     const { sql, parameters } = queryBuilder()

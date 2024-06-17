@@ -20,7 +20,7 @@ function toggleFilter() {
                 filterType.value = "Feed"
                 return
             case "Feed":
-                filterType.value = "All";
+                filterType.value = "All"
         }
     }
 }

@@ -1,5 +1,5 @@
-import { marked } from "marked";
-import type { TokenizerExtension, RendererExtension } from "marked";
+import { marked } from "marked"
+import type { TokenizerExtension, RendererExtension } from "marked"
 
 // const heading: marked.RendererExtension = {
 //     name: "heading",

@@ -1,9 +1,9 @@
-import type { Post } from "~/types";
+import type { Post } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    const auth = await authenticateRequest(event);
+    const auth = await authenticateRequest(event)
     let post = await readBody<Post>(event)
-    post.user = auth.id;
+    post.user = auth.id
     post.votes.positive = [auth.id]
 
     var { sql, parameters } = queryBuilder()

@@ -19,7 +19,7 @@ export enum Trigger {
 }
 
 export const useEvents = defineStore("events", () => {
-    let events = ref<Event[]>([]);
+    let events = ref<Event[]>([])
 
     function subscribe(trigger: Trigger, action: Function) {
         events.value.push({ trigger: trigger, action: action})

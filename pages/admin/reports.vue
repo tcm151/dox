@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User, Report, Voteable } from '~/types';
+import type { User, Report, Voteable } from '~/types'
 
 const { data: reports } = useAsyncData('reports', () => {
     return $fetch<Report[]>("/api/report")

@@ -12,8 +12,8 @@ definePageMeta({
     }
 })
 
-const session = getSession();
-let notifications = ref<Notification[] | null>(null);
+const session = getSession()
+let notifications = ref<Notification[] | null>(null)
 
 onMounted(async () => {
     if (process.client) {

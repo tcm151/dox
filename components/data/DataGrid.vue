@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Format } from "~/utils/format";
+import type { Format } from "~/utils/format"
 
 export interface GridColumn {
     field: string
@@ -40,7 +40,7 @@ const props = defineProps<{
     tools?: Tools[]         // define which tools are shown
     items: GridItem[]       // the items to be displayed
     columns: GridColumn[]   // the grid columns definitions
-}>();
+}>()
 type Tools = "edit" | "add" | "delete" | "save" | "refresh"
 
 
@@ -59,26 +59,26 @@ const emit = defineEmits<{
 // EDITING FUNCTIONS
 function openItem(item: any) {
     if (!item.editing) {
-        emit('openItem', item);
+        emit('openItem', item)
     }
 }
 
 function editItem(item: any) {
-    item.backup = {};
+    item.backup = {}
     for (let key in item) {
         if (key !== "backup") {
-            item.backup[key] = item[key];
+            item.backup[key] = item[key]
         }
     }
-    item.editing = true;
+    item.editing = true
     emit('editItem', item, resetItem)
 }
 
 function saveItem(item: any) {
-    delete item.backup;
-    item.editing = false;
-    item.modified = true;
-    emit("saveItem", item);
+    delete item.backup
+    item.editing = false
+    item.modified = true
+    emit("saveItem", item)
 }
 
 function resetItem(item: any) {
@@ -91,7 +91,7 @@ function resetItem(item: any) {
     }
     else if (item.backup) {
         for (let key in item.backup) {
-            item[key] = item.backup[key];
+            item[key] = item.backup[key]
         }
         delete item.backup
         item.editing = false
@@ -100,7 +100,7 @@ function resetItem(item: any) {
 }
 
 function removeItem(item: any) {
-    item.deleted = true;
+    item.deleted = true
     emit('removeItem', item)
 }
 
@@ -122,61 +122,61 @@ function saveChanges() {
 
 //> SORTING FUNCTIONS
 let sortField = ref<string>("")
-let sortType = ref<"" | "asc" | "desc">("");
+let sortType = ref<"" | "asc" | "desc">("")
 
 // BUG need to handle situation where value is null
 function sortBy(field: string) {
     if (sortType.value === "") {
         props.items.forEach((item, index) => {
-            item.index = index;
+            item.index = index
         })
-        sortType.value = "asc";
+        sortType.value = "asc"
     }
     else if (field !== sortField.value) sortType.value = "asc"
-    else if (sortType.value === "asc") sortType.value = "desc";
-    else if (sortType.value === "desc") sortType.value = "";
+    else if (sortType.value === "asc") sortType.value = "desc"
+    else if (sortType.value === "desc") sortType.value = ""
 
     switch (sortType.value) {
         case "": {
-            sortField.value = "";
+            sortField.value = ""
             props.items.sort((first, second) => {
-                return (first.index ?? -1) > (second.index ?? -1) ? 1 : -1;
+                return (first.index ?? -1) > (second.index ?? -1) ? 1 : -1
             })
-            return;
+            return
         }
         case "asc": {
-            sortField.value = field;
+            sortField.value = field
             props.items.sort((first, second) => {
                 if (first[field] === second[field]) return 0
                 if (isNaN(first[field]) && isNaN(second[field])) {
                     return first[field].localeCompare(second[field], 'en', { sensitivity: 'base'})
                 }
                 else {
-                    return first[field] > second[field] ? 1 : -1;
+                    return first[field] > second[field] ? 1 : -1
                 }
             })
-            return;
+            return
         }
         case "desc": {
-            sortField.value = field;
+            sortField.value = field
             props.items.sort((first, second) => {
                 if (first[field] === second[field]) return 0
                 if (isNaN(first[field]) && isNaN(second[field])) {
                     return second[field].localeCompare(first[field], 'en', { sensitivity: 'base'})
                 }
                 else {
-                    return first[field] > second[field] ? -1 : 1;
+                    return first[field] > second[field] ? -1 : 1
                 }
             })
-            return;
+            return
         }
     }
 }
 
 
 //> PAGING FUNCTIONS
-let pageNumber = ref(1);
-let itemsPerPage = ref(props.pagination?.pageSize ?? 250);
+let pageNumber = ref(1)
+let itemsPerPage = ref(props.pagination?.pageSize ?? 250)
 
 function pageCount() {
     // minumum 1 page, max 10 pages, otherwise only required amount of pages
@@ -184,42 +184,42 @@ function pageCount() {
 }
 
 function gotoPage(page: number) {
-    pageNumber.value = page;
+    pageNumber.value = page
 }
 
 const pagedItems = computed(() => {
-    let startIndex = (pageNumber.value - 1) * itemsPerPage.value;
+    let startIndex = (pageNumber.value - 1) * itemsPerPage.value
     return filteredItems.value.slice(startIndex, startIndex + itemsPerPage.value)
 })
 
 function nextPage() {
     const lastPage = Math.ceil(props.items.length / itemsPerPage.value)
-    pageNumber.value = Math.min(pageNumber.value + 1, lastPage);
+    pageNumber.value = Math.min(pageNumber.value + 1, lastPage)
 }
 
 function previousPage() {
-    pageNumber.value = Math.max(1, pageNumber.value - 1);
+    pageNumber.value = Math.max(1, pageNumber.value - 1)
 }
 
 
 //> DRAGGING FUNCTIONS
-let dragStartIndex = ref(-1);
-let dragStopIndex = ref(-1);
-let draggedItem = ref<any>({});
+let dragStartIndex = ref(-1)
+let dragStopIndex = ref(-1)
+let draggedItem = ref<any>({})
 
 function dragItem(item: any) {
-    draggedItem.value = item;
-    dragStartIndex.value = props.items.indexOf(item);
+    draggedItem.value = item
+    dragStartIndex.value = props.items.indexOf(item)
 }
 
 function placeItem(item: any) {
-    dragStopIndex.value = props.items.indexOf(item);
-    props.items.splice(dragStartIndex.value, 1);
-    props.items.splice(dragStopIndex.value, 0, draggedItem.value);
+    dragStopIndex.value = props.items.indexOf(item)
+    props.items.splice(dragStartIndex.value, 1)
+    props.items.splice(dragStopIndex.value, 0, draggedItem.value)
 }
 
 //> SEARCH FUNCTIONS
-let searchContent = ref("");
+let searchContent = ref("")
 
 const filteredItems = computed(() => {
     if (props.search) {

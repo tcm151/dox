@@ -2,7 +2,7 @@ import type { Ref } from "vue"
 import { skipHydrate } from "pinia"
 import Surreal from "surrealdb.js"
 import type { User, Role, Trait } from "~/types"
-import { Trigger } from "~/services/events";
+import { Trigger } from "~/services/events"
 
 
 export interface Session {

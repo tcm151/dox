@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '~/types';
+import type { User } from '~/types'
 
 const hints = useHints()
 const events = useEvents()

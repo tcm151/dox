@@ -3,8 +3,8 @@ definePageMeta({
     layout: 'simple'
 })
 
-let { data: trendingTopics } = useFetch("/api/trending/topics");
-let { data: trendingUsers } = useFetch("/api/trending/users");
+let { data: trendingTopics } = useFetch("/api/trending/topics")
+let { data: trendingUsers } = useFetch("/api/trending/users")
 
 </script>
 

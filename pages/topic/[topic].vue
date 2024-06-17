@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Topic, Post } from '~/types';
+import type { Topic, Post } from '~/types'
 
 const route = useRoute()
 const topicId = route.params.topic.toString()

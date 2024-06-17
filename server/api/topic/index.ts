@@ -1,4 +1,4 @@
-import type { Topic } from "~/types";
+import type { Topic } from "~/types"
 
 export default defineEventHandler(async (event) => {
     var { sql } = queryBuilder()

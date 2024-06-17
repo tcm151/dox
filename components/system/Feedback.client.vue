@@ -9,9 +9,9 @@ const emit = defineEmits<{
 }>()
 
 const hints = useHints()
-const session = getSession();
+const session = getSession()
 
-let feedback = ref("");
+let feedback = ref("")
 
 async function submitFeedback() {
 
@@ -26,7 +26,7 @@ async function submitFeedback() {
             time: new Date(),
     })
 
-    feedback.value = "";
+    feedback.value = ""
     emit('submit')
 }
 </script>

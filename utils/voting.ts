@@ -1,9 +1,9 @@
-import type { Voteable } from "~/types";
+import type { Voteable } from "~/types"
 
 export const useVoting = () => {
 
-    const hints = useHints();
-    const session = getSession();
+    const hints = useHints()
+    const session = getSession()
 
     async function positive(item: Voteable | null) {
         if (!session.isAuthenticated) {

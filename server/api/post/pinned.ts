@@ -1,4 +1,4 @@
-import type { Post } from "~/types";
+import type { Post } from "~/types"
 
 export default defineEventHandler(async (event) => {
     var { sql, parameters } = queryBuilder()

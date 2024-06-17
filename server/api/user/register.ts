@@ -1,4 +1,4 @@
-import Surreal from "surrealdb.js";
+import Surreal from "surrealdb.js"
 
 interface Register {
     email: string,

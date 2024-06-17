@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from 'pinia'
 
 const cache = useCache()
 const hints = useHints()
@@ -7,10 +7,10 @@ const session = getSession()
 const { history, saved } = storeToRefs(useQuery())
 
 const tab = ref<string>("History")
-const results = ref<any[]>([]);
+const results = ref<any[]>([])
 const query = cache.get<string>("query.sql", () => "")
 const showSearch = cache.get<boolean>("query.showSearch", () => false)
-const searchBar = ref("");
+const searchBar = ref("")
 
 function filteredHistory(): any[] {
     if (searchBar.value !== '') {

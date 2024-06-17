@@ -22,16 +22,16 @@ let commentToReplyTo = ref("")
 let commentToEdit = ref("")
 
 function replyToComment(comment: Comment) {
-    commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : "";
+    commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : ""
 }
 
 function editComment(comment: Comment) {
-    commentToEdit.value = (commentToEdit.value !== comment.id) ? comment.id : "";
+    commentToEdit.value = (commentToEdit.value !== comment.id) ? comment.id : ""
 }
 
 async function updateComment(comment: Comment) {
     await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
-    commentToEdit.value = "";
+    commentToEdit.value = ""
 }
 
 async function submitComment(replyTo: Post | Comment, content: string) {

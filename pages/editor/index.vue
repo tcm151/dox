@@ -128,8 +128,8 @@ async function deleteImage(image: Image) {
 
 function copyImageUrl(event: Event) {
     let imageUrl = (event.target as HTMLImageElement).currentSrc
-    navigator.clipboard.writeText(`![](${imageUrl})`);
-    hints.addSuccess("Copied image in markdown syntax.");
+    navigator.clipboard.writeText(`![](${imageUrl})`)
+    hints.addSuccess("Copied image in markdown syntax.")
 }
 
 async function submit() {

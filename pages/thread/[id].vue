@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Thread, User } from '~/types';
+import type { Thread, User } from '~/types'
 
 const route = useRoute()
 const id = route.params.id.toString()

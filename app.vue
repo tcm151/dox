@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Trigger } from '~/services/events';
+import { Trigger } from '~/services/events'
 
 let events = useEvents()
 
@@ -7,10 +7,10 @@ useNuxtApp().hook("page:finish", () => {
     events.publish(Trigger.pageFinishedLoading)
 })
 
-let showLogin = ref(false);
+let showLogin = ref(false)
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 
-let showUserManager = ref(false);
+let showUserManager = ref(false)
 events.subscribe(Trigger.toggleUserManager, () => showUserManager.value = !showUserManager.value)
 
 interface PopupEvent {
@@ -25,7 +25,7 @@ const popupEvent = ref<PopupEvent>({
     accept: () => { },
 })
 
-let showPopup = ref(false);
+let showPopup = ref(false)
 events.subscribe(Trigger.showPopup, (event: PopupEvent) => {
     showPopup.value = true
     popupEvent.value = event
@@ -41,15 +41,15 @@ function declinePopup() {
 }
 
 onMounted(() => {
-    events.publish(Trigger.clientStarted);
+    events.publish(Trigger.clientStarted)
 })
 
 if (process.client) {
-    const vh = window.innerHeight * 0.01;
+    const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
 
     window.addEventListener('resize', () => {
-        const vh = window.innerHeight * 0.01;
+        const vh = window.innerHeight * 0.01
         document.documentElement.style.setProperty('--vh', `${vh}px`)
     })
 

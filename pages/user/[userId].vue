@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Post, User } from '~~/types'
 
-const route = useRoute();
+const route = useRoute()
 const userId = route.params.userId as string
 
 const user = computed(() => response.value?.user)

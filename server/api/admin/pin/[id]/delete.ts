@@ -1,4 +1,4 @@
-import type { Pin } from "~/types";
+import type { Pin } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

@@ -1,4 +1,4 @@
-import type { Draft } from "~/types";
+import type { Draft } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

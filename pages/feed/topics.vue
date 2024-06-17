@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Topic } from '~/types';
+import type { Topic } from '~/types'
 
 const { data: topics } = await useAsyncData('topics', () => {
     return $fetch<Topic[]>("/api/topic")

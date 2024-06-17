@@ -1,4 +1,4 @@
-import type { Thread } from "~/types";
+import type { Thread } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!

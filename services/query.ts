@@ -5,5 +5,5 @@ export const useQuery = defineStore("query", () => {
     const history = cache.get<string[]>("query.history", () => [])
     const saved = cache.get<any[]>("query.saved", () => [])
 
-    return { history, saved };
+    return { history, saved }
 })
