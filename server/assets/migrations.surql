@@ -1,3 +1,7 @@
+-- ------------------------------
+-- MIGRATIONS
+-- ------------------------------
+
 -- 2023-12-03: add threads default value to topics
 UPDATE topic SET
     threads = []

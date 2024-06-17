@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const schema = await useStorage("assets:server").getItem<string>("schema.surql") ?? ""
-    return Buffer.from(schema).toString()
+    let schema = Buffer.from(await useStorage("assets:server").getItem<string>("schema.surql") ?? "").toString()
+    let migrations = Buffer.from(await useStorage("assets:server").getItem<string>("migrations.surql") ?? "").toString()
+    return [migrations, schema].join("\n\n\n")
 })
