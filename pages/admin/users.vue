@@ -12,9 +12,10 @@ const { data: users } = useAsyncData('users', () => {
             <div class="row g-1" v-for="user in users">
                 <Votes :target="user" />
                 <Tag v-if="hasRole(user, 'admin')" type="link" icon="fa-shield" />
+                <Tag v-if="hasRole(user, 'developer')" type="link" icon="fa-code" />
                 <UserTag :fill="5" :user="user" />
                 <TimeTag :time="user.dateJoined" />
-                <!-- <Tag type="danger" icon="fa-trash" /> -->
+                <Tag type="info" icon="fa-ellipsis" />
             </div>
         </section>
     </article>
