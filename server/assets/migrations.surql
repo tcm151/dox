@@ -38,11 +38,11 @@ REMOVE FIELD IF EXISTS verified ON TABLE user;
 UPDATE user SET
     traits = array::union(traits ?? [], ["confirmed"]),
     confirmed = NONE
-WHERE confirmed != NONE;
+WHERE confirmed = true;
 UPDATE user SET
     traits = array::union(traits ?? [], ["verified"]),
     verified = NONE
-WHERE verified != NONE;
+WHERE verified = true;
 
 -- 2024-06-16: add roles
 REMOVE FIELD IF EXISTS admin ON TABLE user;
@@ -51,12 +51,12 @@ REMOVE FIELD IF EXISTS moderator ON TABLE user;
 UPDATE user SET
     roles = array::union(roles ?? [], ["admin"]),
     admin = NONE
-WHERE admin != NONE;
+WHERE admin = true;
 UPDATE user SET
     roles = array::union(roles ?? [], ["developer"]),
     developer = NONE
-WHERE developer != NONE;
+WHERE developer = true;
 UPDATE user SET
     roles = array::union(roles ?? [], ["moderator"]),
     moderator = NONE
-WHERE moderator != NONE;
+WHERE moderator = true;
