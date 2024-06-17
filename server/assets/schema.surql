@@ -101,6 +101,10 @@ DEFINE FIELD followers ON topic DEFAULT <future> {
     WHERE topics CONTAINS $id;
 };
 
+DEFINE FIELD firstUsed ON topic DEFAULT <future> {
+    time::min(array::union(posts.time, threads.time))
+};
+
 DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
     IF array::len($after.posts) = 0 {
         DELETE $after.id;

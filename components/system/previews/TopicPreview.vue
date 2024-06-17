@@ -57,6 +57,9 @@ async function unfollowTopic() {
             <Tag :fill="1" type="info">
                 <strong>{{ topic.followers.length }}</strong> followers
             </Tag>
+            <Tag class="f-1" type="info">
+                first used <strong>{{ formatDate(topic.firstUsed) }}</strong>
+            </Tag>
             <!-- TODO show usernames of followers -->
             <!-- <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
                 <span v-for="user in followers.value">

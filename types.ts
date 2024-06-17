@@ -48,6 +48,7 @@ export interface Topic extends Voteable {
     posts: Post[]
     threads: Thread[]
     followers: (User | string)[]
+    firstUsed: string
 }
 
 export interface Post extends Voteable {

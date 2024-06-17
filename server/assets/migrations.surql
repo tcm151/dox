@@ -63,3 +63,10 @@ UPDATE user SET
     roles = array::union(roles ?? [], ["moderator"]),
     moderator = NONE
 WHERE moderator = true;
+
+-- 2024-06-17: add first used field for topics
+UPDATE topic SET
+    firstUsed = <future> {
+        time::min(array::union(posts.time, threads.time))
+    }
+WHERE firstUsed = NONE;
