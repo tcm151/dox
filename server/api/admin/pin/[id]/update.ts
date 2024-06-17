@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     
     const { sql, parameters } = queryBuilder()
     
-    sql.push('IF $user.admin {')
+    sql.push('IF $user.roles CONTAINS "admin" {')
     sql.push('RETURN UPDATE $pin SET')
     sql.push('active = $active')
     sql.push('}')
