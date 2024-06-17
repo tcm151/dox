@@ -11,9 +11,7 @@ let showLogin = ref(false);
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 
 let showUserManager = ref(false);
-events.subscribe(Trigger.toggleUserManager, () => {
-    showUserManager.value = !showUserManager.value
-})
+events.subscribe(Trigger.toggleUserManager, () => showUserManager.value = !showUserManager.value)
 
 interface PopupEvent {
     title: string
