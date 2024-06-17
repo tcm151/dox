@@ -63,16 +63,16 @@ async function unfollowUser() {
             <section class="row-wrap g-1">
                 <Votes :target="user!" />
                 <!-- TODO add popups to view these in more detail -->
-                <Tag :fill="1" type="link">
+                <Tag class="f-1" type="link">
                     <strong>{{ user?.topics.length }}</strong> topics
                 </Tag>
-                <Tag :fill="1" type="info">
+                <Tag class="f-1" type="info">
                     <strong>{{ user?.followers.length }}</strong> followers
                 </Tag>
-                <Tag :fill="1" type="info">
+                <Tag class="f-1" type="info">
                     <strong>{{ user?.following.length }}</strong> following
                 </Tag>
-                <Tag :fill="1" type="info">
+                <Tag class="f-1" type="info">
                     joined <strong>{{ formatDate(user?.dateJoined ?? "") }}</strong>
                 </Tag>
             </section>

@@ -213,7 +213,7 @@ async function saveDraft() {
                 <p>{{ replyTo?.title }}</p>
             </div>
             <section class="editor column p-5">
-                <div class="column fill" v-if="!showPreview">
+                <div class="column fill" v-show="!showPreview">
                     <header class="row center-inline mb-4">
                         <h1>New Post</h1>
                         <button @click="showDrafts = true">
@@ -266,7 +266,7 @@ async function saveDraft() {
                         </div>
                     </form>
                 </div>
-                <div class="preview fill" v-else>
+                <div class="preview fill" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>
                     <Markdown class="content" :content="draft.content" />
                     <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>

@@ -113,7 +113,7 @@ async function reportSelectedImage() {
         >
             <section class="popup-image column g-2" v-if="selectedImage">
                 <header class="row-wrap g-1">
-                    <UserTag :fill="1" :user="(selectedImage.user as User)" />
+                    <UserTag class="f-1" :user="(selectedImage.user as User)" />
                     <TimeTag :time="selectedImage.time" />
                     <Tag type="info" icon="fa-image" :label="selectedImage.type" />
                     <!-- <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" /> -->

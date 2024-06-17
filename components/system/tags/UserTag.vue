@@ -3,6 +3,7 @@ import type { User } from '~/types'
 
 const props = defineProps<{
     user: User
+    disable?: boolean
 }>()
 
 const icon = computed(() => {
@@ -11,6 +12,10 @@ const icon = computed(() => {
         : "fa-user"
 })
 
+function viewUser(userId: string) {
+    if (props.disable) return
+    navigateTo(`/user/${extractId(userId)}`)
+}
 </script>
 
 <template>
@@ -18,7 +23,7 @@ const icon = computed(() => {
         type="info"
         icon="fa-user"
         :label="user.name ?? 'deleted'"
-        @click.stop="navigateTo(`/user/${extractId(user.id)}`)"
+        @click.stop="viewUser(user.id)"
     />
 </template>
 

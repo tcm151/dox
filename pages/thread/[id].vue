@@ -19,11 +19,11 @@ const hints = useHints()
                 <Votes :target="thread" />
                 <TopicTag v-for="topic in thread.topics" :topic="topic" />
                 <div class="fill row-wrap g-1">
-                    <UserTag :fill="1" :user="(thread.user as User)" />
-                    <!-- <Tag :fill="1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
-                    <TimeTag :fill="1" :time="thread.time" />
-                    <Tag :fill="1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
-                    <Tag :fill="1" v-if="thread.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
+                    <UserTag class="f-1" :user="(thread.user as User)" />
+                    <!-- <Tag class="f-1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
+                    <TimeTag class="f-1" :time="thread.time" />
+                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
+                    <Tag class="f-1" v-if="thread.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                     <Tag type="info" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" />
                 </div>
             </header>

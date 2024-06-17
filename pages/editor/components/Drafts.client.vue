@@ -41,10 +41,10 @@ async function deleteDraft(draft: Draft) {
             <div v-for="draft in userDrafts" :key="draft.id">
                 <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
                 <div class="row-wrap g-1">
-                    <TopicTag v-for="topic in draft.topics" :topic="topic"/>
                     <TimeTag :time="draft.time" />
+                    <TopicTag class="f-1" v-for="topic in draft.topics" :topic="topic"/>
                     <Tag class="default" label="View" icon="fa-book-open" @click="emit('view', draft)" />
-                    <Tag class="danger" label="Delete" icon="fa-trash" @click="deleteDraft(draft)">
+                    <Tag class="danger" icon="fa-trash" @click="deleteDraft(draft)">
                     </Tag>
                 </div>
             </div>

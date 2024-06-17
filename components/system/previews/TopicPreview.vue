@@ -48,13 +48,13 @@ async function unfollowTopic() {
         </header>
         <footer class="row g-1 mt-2">
             <Votes :target="topic" />
-            <Tag :fill="1" type="link">
+            <Tag class="f-1" type="link">
                 <strong>{{ topic.posts.length }}</strong> posts
             </Tag>
-            <Tag :fill="1" type="link">
+            <Tag class="f-1" type="link">
                 <strong>{{ topic.threads.length }}</strong> threads
             </Tag>
-            <Tag :fill="1" type="info">
+            <Tag class="f-1" type="info">
                 <strong>{{ topic.followers.length }}</strong> followers
             </Tag>
             <Tag class="f-1" type="info">

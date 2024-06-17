@@ -20,12 +20,12 @@ const settings = useSettings()
             <div class="fill">
                 <div class="row-wrap g-1">
                     <Votes :target="post" />
-                    <Tag type="link" icon="fa-thumbtack" v-if="pinned" />
-                    <TopicTag v-for="topic in post.topics" :topic="topic" />
-                    <div class="fill row-wrap g-1">
-                        <UserTag :fill="1" :user="(post.user as User)" />
-                        <Tag :fill="1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
-                        <TimeTag :fill="1" :time="post.time" />
+                    <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
+                    <TopicTag v-for="topic in post.topics" class="f-10" :topic="topic" />
+                    <div class="f-1 row-wrap g-1">
+                        <UserTag class="f-1" :user="(post.user as User)" />
+                        <Tag class="f-1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
+                        <TimeTag class="f-1" :time="post.time" />
                     </div>
                 </div>
                 <h3 class="title mt-2">

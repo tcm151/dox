@@ -10,10 +10,10 @@ const { data: reports } = useAsyncData('reports', () => {
     <article class="p-4">
         <section class="box column g-2 p-3" v-if="reports!.length > 0">
             <div class="row g-2" v-for="report in reports">
-                <UserTag :fill="2" :user="(report.reporter as User)" />
-                <TimeTag :fill="2" :time="report.time" />
+                <UserTag width="6rem" :user="(report.reporter as User)" />
+                <TimeTag width="4rem" :time="report.time" />
                 <Tag
-                    :fill="10"
+                    class="f-1"
                     type="danger"
                     icon="fa-flag"
                     :label="(report.subject as Voteable).id"

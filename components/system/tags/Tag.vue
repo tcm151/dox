@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-    fill?: number
+    width?: string
     type?: string
     icon?: string
     label?: string | number
@@ -9,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span v-if="!hidden" class="tag" :class="type" :style="{ flex: fill ?? 0 }">
+    <span v-if="!hidden" class="tag" :class="type" :style="{ width: width }">
         <i v-if="icon" class="fa-solid" :class="icon"></i>
         <span v-if="label">{{ label }}</span>
         <slot />
