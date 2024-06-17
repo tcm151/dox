@@ -2,7 +2,7 @@ import type { Backup } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    if (!hasRole(auth, "admin")) {
+    if (!hasRole(auth, "developer")) {
         throw createError({
             statusCode: 401,
             message: "You shall not pass!"

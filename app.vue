@@ -7,42 +7,42 @@ useNuxtApp().hook("page:finish", () => {
     events.publish(Trigger.pageFinishedLoading)
 })
 
+onMounted(() => {
+    events.publish(Trigger.clientStarted)
+})
+
 let showLogin = ref(false)
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 
 let showUserManager = ref(false)
 events.subscribe(Trigger.toggleUserManager, () => showUserManager.value = !showUserManager.value)
 
-interface PopupEvent {
-    title: string
-    message: string
-    accept: Function
-}
+// interface PopupEvent {
+//     title: string
+//     message: string
+//     accept: Function
+// }
 
-const popupEvent = ref<PopupEvent>({
-    title: 'Default Popup',
-    message: 'This is the default message',
-    accept: () => { },
-})
+// const popupEvent = ref<PopupEvent>({
+//     title: 'Default Popup',
+//     message: 'This is the default message',
+//     accept: () => { },
+// })
 
-let showPopup = ref(false)
-events.subscribe(Trigger.showPopup, (event: PopupEvent) => {
-    showPopup.value = true
-    popupEvent.value = event
-})
+// let showPopup = ref(false)
+// events.subscribe(Trigger.showPopup, (event: PopupEvent) => {
+//     showPopup.value = true
+//     popupEvent.value = event
+// })
 
-function acceptPopup() {
-    showPopup.value = false
-    popupEvent.value.accept?.()
-}
+// function acceptPopup() {
+//     showPopup.value = false
+//     popupEvent.value.accept?.()
+// }
 
-function declinePopup() {
-    showPopup.value = false
-}
-
-onMounted(() => {
-    events.publish(Trigger.clientStarted)
-})
+// function declinePopup() {
+//     showPopup.value = false
+// }
 
 if (process.client) {
     const vh = window.innerHeight * 0.01
@@ -62,9 +62,9 @@ if (process.client) {
     <Navbar />
     <Login :visible="showLogin" />
     <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
-    <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
+    <!-- <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
         <span>{{ popupEvent.message }}</span>
-    </Popup>
+    </Popup> -->
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>

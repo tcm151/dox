@@ -57,7 +57,7 @@ function newProfile() {
     <Window
         width="25rem"
         :visible="visible"
-        title="User Manager"
+        title="Profiles"
     >
         <main class="column g-2">
             <div class="row g-2" v-for="user in otherAccounts">
@@ -69,7 +69,7 @@ function newProfile() {
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
-            <button v-if="!session.isAuthenticated" class="link" @click="newProfile">
+            <button class="link" @click="newProfile">
                 <i class="fa-solid fa-plus"></i>
                 <span>New Profile</span>
             </button>
