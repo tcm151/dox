@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Drafts from "./components/Drafts.client.vue"
 import { DateTime } from 'luxon'
 import type { Post, Draft, Image } from '~/types'
 
