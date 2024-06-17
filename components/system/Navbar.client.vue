@@ -5,9 +5,12 @@ const session = getSession();
 const { public: { site } } = useRuntimeConfig()
 
 const showFeedback = ref(false)
-
+const accounts = useLocalStorage<any[]>("profiles", [])
 async function login() {
-    if (!(await session.authenticate())) {
+    if (accounts.value.length > 0) {
+        events.publish(Trigger.toggleUserManager)
+    }
+    else {
         events.publish(Trigger.toggleLogin)
     }
 }

@@ -67,7 +67,7 @@ function resizePopup() {
 }
 
 .window {
-    width: fit-content;
+    box-sizing: border-box;
     border-radius: 0.5rem;
     background-color: $white-0;
     box-shadow: 0.25rem 0.5rem 1rem -0.25rem $white-3, 0 0 0.33rem 1px $white-3;
@@ -79,7 +79,7 @@ function resizePopup() {
 }
 
 div.filler {
-    height: 25%;
+    height: 20%;
 }
 
 .slot {

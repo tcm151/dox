@@ -29,7 +29,7 @@ export const useEvents = defineStore("events", () => {
         events.value = events.value.filter((e) => e === event)
     }
 
-    function publish(trigger: Trigger, payload?: object) {
+    function publish(trigger: Trigger, payload?: any) {
         events.value.forEach((e) => {
             if (e.trigger === trigger) {
                 e.action(payload)

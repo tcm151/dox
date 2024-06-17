@@ -136,7 +136,7 @@ export const getSession = defineStore("session", (): Session => {
     }
 
     async function logout(clear: boolean) {
-        events.publish(Trigger.userLoggedOut, user.value)
+        events.publish(Trigger.userLoggedOut, { user: user.value, clear: clear })
         isAuthenticated.value = false
         if (clear == true) {
             token.value = ""
