@@ -12,8 +12,6 @@ export const authenticateRequest = async (event: H3Event) => {
         })
         
         let user = await auth.info() as unknown as User
-        console.log(user)
-    
         await auth.close()
         return user
     }
