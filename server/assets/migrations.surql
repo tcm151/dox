@@ -31,6 +31,9 @@ WHERE dateCreated != NONE;
 
 -- 2024-06-16: removed field
 REMOVE FIELD IF EXISTS promoted ON TABLE feedback;
+UPDATE feedback SET
+    promoted = NONE
+WHERE promoted != NONE;
 
 -- 2024-06-16: add traits
 REMOVE FIELD IF EXISTS confirmed ON TABLE user;
