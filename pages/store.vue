@@ -24,15 +24,15 @@ function copyReferralLink() {
 </script>
 
 <template>
-    <article class="grid center g-4 py-4">
-        <section class="mb-4">
+    <article class="grid center g-2 py-4">
+        <!-- <section class="mb-4">
             <div class="box banner">
                 <h2>This could be your ad.</h2>
                 <p>Contact to showcase your product/service on this storefront.</p>
             </div>
-        </section>
-        <section class="row-wrap g-4">
-            <div class="offer box fill" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
+        </section> -->
+        <section class="box row-wrap g-4 p-5">
+            <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
                 <h2 class="tokens g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
                     <i class="fa-solid fa-cube"></i>
@@ -40,32 +40,32 @@ function copyReferralLink() {
                 <p>{{ formatAs('currency', offer.cost) }}</p>
             </div>
         </section>
-        <section class="row-wrap g-4">
-            <div class="welcome box fill column g-2">
+        <section class="row-wrap g-2">
+            <div class="welcome box column f-1 g-2 p-5">
                 <h2 class="row center-inline g-2">
-                    <i class="fa-solid fa-coins"></i>
+                    <i class="fa-solid fa-cube"></i>
                     <span>Store</span>
                 </h2>
                 <p>You can buy additional tokens here. You need tokens to upload images and award posts. You start with some tokens for free, and can gain more by referring new users.</p>
                 <p>You currently have <strong>{{ session.user.tokens }}</strong> tokens.</p>
             </div>
-            <div class="referrals box fill grid center g-4">
-                <button class="link" @click="copyReferralLink">
+            <div class="referrals box f-1 grid center g-4 p-5">
+                <button class="link px-6 py-4" @click="copyReferralLink">
                     <i class="fa-solid fa-handshake-simple"></i>
                     <span>Refer a Friend</span>
                 </button>
-                <button class="link" @click="hints.addWarning('We are still working on this...')">
+                <button class="link px-6 py-4" @click="hints.addWarning('We are still working on this...')">
                     <i class="fa-solid fa-barcode"></i>
                     <span>Enter Referral</span>
                 </button>
             </div>
         </section>
-        <section>
+        <!-- <section>
             <div class="box banner mt-4">
                 <h2>This could be your ad.</h2>
                 <p>Contact to showcase your product on this storefront.</p>
             </div>
-        </section>
+        </section> -->
     </article>
 </template>
 
@@ -74,36 +74,23 @@ article {
     @include fit-width(60rem, 1rem);
 }
 
-section {
-    height: fit-content;
-}
-
-div.box {
-    padding: 2rem;
-}
-
-div.box.offer {
-    padding: 1.75rem;
-}
-
-div.box.offer {
+div.offer {
     text-align: right;
-    border: 2px solid $yellow;
+    color: $yellow;
+    // border: 2px solid $yellow;
+    background-color: $yellow-light;
     cursor: pointer;
 
     .tokens {
         @include flex-h (0.25rem);
         justify-content: flex-end;
         align-items: center;
-
-        i.fa-cube {
-            color: $yellow;
-        }
     }
 }
 
-div.box.offer:hover {
-    background-color: $yellow-light;
+div.offer:hover {
+    color: $yellow-light;
+    background-color: $yellow;
 }
 
 div.welcome {

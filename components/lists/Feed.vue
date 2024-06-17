@@ -44,23 +44,25 @@ function sort(type: string) {
 <template>
     <section class="column g-2">
         <header class="sorting row center g-2" v-if="props.sorting">
-            <!-- REFACTOR sorting needs to be done from the database -->
-            <button class="refresh dark" @click="emit('refresh')">
-                <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
-            </button>
-            <slot name="buttons" />
-            <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
-                <i class="fa-solid fa-egg"></i>
-                <span>New</span>
-            </button>
-            <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
-                <i class="fa-solid fa-fire"></i>
-                <span>Hot</span>
-            </button>
-            <button @click="sort('top')" :class="{ selected: sortType === 'top' }">
-                <i class="fa-solid fa-ranking-star"></i>
-                <span>Top</span>
-            </button>
+            <ClientOnly>
+                <!-- REFACTOR sorting needs to be done from the database -->
+                <button class="refresh dark" @click="emit('refresh')">
+                    <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
+                </button>
+                <slot name="buttons" />
+                <button @click="sort('new')" :class="{ selected: sortType === 'new' }">
+                    <i class="fa-solid fa-egg"></i>
+                    <span>New</span>
+                </button>
+                <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>Hot</span>
+                </button>
+                <button @click="sort('top')" :class="{ selected: sortType === 'top' }">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Top</span>
+                </button>
+            </ClientOnly>
         </header>
         <!-- BUG transition group breaks SSR and sorting -->
         <!-- <TransitionGroup name="items"> -->

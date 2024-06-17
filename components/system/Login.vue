@@ -50,8 +50,16 @@ function closeLogin() {
 </script>
 
 <template>
-    <Popup :visible="visible" title="Login" accept-label="Login" @accept="attemptLogin" decline-label="Cancel" @decline="closeLogin">
-        <div class="login form">
+    <Popup
+        title="Login"
+        width="20rem"
+        :visible="visible"
+        accept-label="Login"
+        @accept="attemptLogin"
+        decline-label="Cancel"
+        @decline="closeLogin"
+    >
+        <main class="login form">
             <div class="field">
                 <label>Username</label>
                 <input v-model="username" type="text" />
@@ -67,15 +75,11 @@ function closeLogin() {
                 </label>
                 <input v-model="password" @keyup.enter="attemptLogin" type="password" />
             </div>
-        </div>
+        </main>
     </Popup>
 </template>
 
 <style scoped lang="scss">
-.form {
-    width: 256px;
-}
-
 label.forgot {
     a {
         color: $red;

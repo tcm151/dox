@@ -10,6 +10,11 @@ useNuxtApp().hook("page:finish", () => {
 let showLogin = ref(false);
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 
+let showUserManager = ref(false);
+events.subscribe(Trigger.toggleUserManager, () => {
+    showUserManager.value = !showUserManager.value
+})
+
 interface PopupEvent {
     title: string
     message: string
@@ -58,6 +63,7 @@ if (process.client) {
 <template>
     <Navbar />
     <Login :visible="showLogin" />
+    <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
     <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
         <span>{{ popupEvent.message }}</span>
     </Popup>

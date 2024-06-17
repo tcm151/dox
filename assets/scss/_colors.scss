@@ -21,7 +21,7 @@ $green-light: color.scale($green, $lightness: 75%);
 $green-dark: color.scale($green, $lightness: -80%);
 
 $yellow: #FFBF1A;
-$yellow-light: color.scale($yellow, $lightness: 75%);
+$yellow-light: color.scale($yellow, $lightness: 70%);
 $yellow-dark: color.scale($yellow, $lightness: -25%);
 
 $red: #F55D3E;
@@ -77,12 +77,14 @@ $danger: $red;
     background-color: $black-3;
 }
 
-.positive, .success {
+.positive, .positive.inverted:hover,
+.success, .success.inverted:hover {
     color: $green;
     background-color: $green-light;
 }
 
-.positive:hover, .success:hover {
+.positive:hover, .positive.inverted,
+.success:hover, .success.inverted {
     color: $green-light;
     background-color: $green;
 }
@@ -91,12 +93,14 @@ $danger: $red;
     outline: 1px solid $green;
 }
 
-.misleading, .warning {
+.misleading, .misleading.inverted:hover,
+.warning, .warning.inverted:hover {
     color: $yellow;
     background-color: $yellow-light;
 }
 
-.misleading:hover, .warning:hover {
+.misleading:hover, .misleading.inverted,
+.warning:hover, .warning.inverted {
     color: $yellow-light;
     background-color: $yellow;
 }
@@ -105,12 +109,14 @@ $danger: $red;
     outline: 1px solid $yellow;
 }
 
-.negative, .danger {
+.negative, .negative.inverted:hover,
+.danger, .danger.inverted:hover {
     color: $red;
     background-color: $red-light;
 }
 
-.negative:hover, .danger:hover {
+.negative:hover, .negative.inverted,
+.danger:hover, .danger.inverted {
     color: $red-light;
     background-color: $red;
 }
@@ -119,22 +125,25 @@ $danger: $red;
     outline: 1px solid $red;
 }
 
-.topic, .link {
+.topic, .topic.inverted:hover,
+.link, .link.inverted:hover {
     color: $purple;
     background-color: $purple-light;
 }
 
-.topic:hover, .link:hover {
+.topic:hover, .topic.inverted,
+.link:hover, .link.inverted {
     color: $purple-light;
     background-color: $purple;
 }
 
-.info {
+
+.info, .info.inverted:hover {
     color: $blue;
     background-color: $blue-light;
 }
 
-.info:hover {
+.info:hover, .info.inverted {
     color: $blue-light;
     background-color: $blue;
 }

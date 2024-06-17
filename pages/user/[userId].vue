@@ -47,8 +47,8 @@ async function unfollowUser() {
                     <ClientOnly>
                         <div class="buttons row g-2" v-if="session.isAuthenticated">
                             <button v-if="user?.id == session.user.id" @click="navigateTo('/settings')">
-                                <i class="fa-solid fa-gear"></i>
-                                <span>Settings</span>
+                                <i class="fa-solid fa-address-card"></i>
+                                <span>Profile</span>
                             </button>
                             <button class="danger" v-else-if="following" @click="unfollowUser">
                                 Unfollow

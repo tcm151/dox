@@ -10,7 +10,7 @@ export interface Session {
     token: Ref<string>
     user: Ref<User>
     useApi: <T>(route: string, body?: any) => Promise<T | null>
-    authenticate: () => Promise<boolean>
+    authenticate: (userToken?: string) => Promise<boolean>
     login: (id: string, password: string) => Promise<boolean>
     logout: (clear: boolean) => void
     fetchProfile(): Promise<void>
@@ -74,7 +74,7 @@ export const getSession = defineStore("session", (): Session => {
     }
 
     //> AUTH
-    async function authenticate() {
+    async function authenticate(userToken?: string) {
         const { public: { surreal } } = useRuntimeConfig()
         try {
             const db = new Surreal()
@@ -83,12 +83,17 @@ export const getSession = defineStore("session", (): Session => {
                 database: surreal.database,
             })
             
-            await db.authenticate(token.value)
+            if ((await db.authenticate(userToken ?? token.value)) && userToken) {
+                token.value = userToken
+            }
             await fetchProfile()
             await db.close()
 
             isAuthenticated.value = true
-            events.publish(Trigger.authenticatedUser)
+            events.publish(Trigger.authenticatedUser, {
+                user: user.value,
+                token: userToken ?? token.value,
+            })
         }
         catch (ex: any) {
             isAuthenticated.value = false
@@ -118,7 +123,10 @@ export const getSession = defineStore("session", (): Session => {
             await db.close()
 
             isAuthenticated.value = true
-            events.publish(Trigger.authenticatedUser)
+            events.publish(Trigger.authenticatedUser, {
+                user: user.value,
+                token: token.value,
+            })
         }
         catch (ex: any) {
             logout(true)
@@ -127,8 +135,9 @@ export const getSession = defineStore("session", (): Session => {
         return isAuthenticated.value
     }
 
-    function logout(clear: boolean) {
-        isAuthenticated.value = false;
+    async function logout(clear: boolean) {
+        events.publish(Trigger.userLoggedOut, user.value)
+        isAuthenticated.value = false
         if (clear == true) {
             token.value = ""
             user.value = {
@@ -150,7 +159,6 @@ export const getSession = defineStore("session", (): Session => {
                 traits: [],
             }
         }
-        events.publish(Trigger.userLoggedOut)
         return navigateTo("/feed")
     }
 

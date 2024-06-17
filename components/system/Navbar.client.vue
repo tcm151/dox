@@ -11,6 +11,10 @@ async function login() {
         events.publish(Trigger.toggleLogin)
     }
 }
+
+function toggleUserManager() {
+    events.publish(Trigger.toggleUserManager)
+}
 </script>
 
 <template>
@@ -25,10 +29,6 @@ async function login() {
                     <i class="fa-solid fa-signs-post"></i>
                     <span>Feeds</span>
                 </NuxtLink>
-                <NuxtLink to="/store" v-if="session.isAuthenticated" title="Store">
-                    <i class="fa-solid fa-coins"></i>
-                    <span>Store</span>
-                </NuxtLink>
                 <NuxtLink to="/admin" v-if="session.isAuthenticated && hasRole(session.user, 'admin')" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                     <span>Admin</span>
@@ -36,6 +36,9 @@ async function login() {
                 <NuxtLink to="/developer" v-if="(session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment()" title="Developer">
                     <i class="fa-solid fa-code"></i>
                     <span>Developer</span>
+                </NuxtLink>
+                <NuxtLink to="/store" v-if="session.isAuthenticated" title="Store">
+                    <i class="fa-solid fa-coins"></i>
                 </NuxtLink>
                 <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
                     <i class="fa-solid fa-keyboard"></i>
@@ -56,7 +59,7 @@ async function login() {
                         <i class="fa-solid fa-inbox"></i>
                         <span>Inbox</span>
                     </NuxtLink>
-                    <NuxtLink to="/profile">
+                    <NuxtLink to="/profile" @contextmenu.prevent="toggleUserManager">
                         <i class="fa-solid fa-user"></i>
                         <span>{{ session.user?.name }}</span>
                     </NuxtLink>

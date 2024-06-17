@@ -5,13 +5,17 @@ interface Event {
 }
 
 export enum Trigger {
-    addHint,
+    // auth
+    toggleLogin,
+    toggleUserManager,
     authenticatedUser,
     userLoggedOut,
-    pageFinishedLoading,
+    // system
+    addHint,
     showPopup,
-    toggleLogin,
+    // hooks
     clientStarted,
+    pageFinishedLoading,
 }
 
 export const useEvents = defineStore("events", () => {
