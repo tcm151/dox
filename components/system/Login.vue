@@ -10,6 +10,12 @@ const password = ref("")
 
 const wrongAttempts = ref(0)
 
+events.subscribe(Trigger.toggleLogin, (name?: string) => {
+    if (name) {
+        username.value = name
+    }
+})
+
 async function attemptLogin() {
     if (await session.login(username.value, password.value)) {
         events.publish(Trigger.toggleLogin)

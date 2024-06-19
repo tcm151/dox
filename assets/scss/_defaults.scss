@@ -33,11 +33,21 @@ button {
     background-color: $white-2;
 }
 
-button:hover {
+button:hover, button.selected {
     cursor: pointer;
     color: $white-0;
     background-color: $white-3;
     transition: color 256ms, background-color 256ms;
+}
+
+button.inverted {
+    color: $white-0;
+    background-color: $white-3;
+}
+
+button.inverted:hover {
+    color: $black-0;
+    background-color: $white-2;
 }
 
 .form {

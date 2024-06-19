@@ -38,10 +38,14 @@ events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: User, clear: b
     }
 })
 
-async function switchProfile(token: string) {
-    if (await session.authenticate(token))
+async function switchProfile(profile: Profile) {
+    if (await session.authenticate(profile.token))
     {
         hints.addSuccess(`Logged into profile: ${session.user.name}`)
+        events.publish(Trigger.toggleUserManager)
+    }
+    else {
+        events.publish(Trigger.toggleLogin, profile.name)
         events.publish(Trigger.toggleUserManager)
     }
 }
@@ -65,7 +69,7 @@ function newProfile() {
                     <i class="fa-solid fa-user"></i>
                     <span>{{ user.name }}</span>
                 </button>
-                <button class="link" @click="switchProfile(user.token)">
+                <button class="link" @click="switchProfile(user)">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>

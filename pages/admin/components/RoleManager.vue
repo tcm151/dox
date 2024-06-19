@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '~/types'
+import type { Role, User } from '~/types'
 
 const hints = useHints()
 const session = getSession()
@@ -9,22 +9,39 @@ const props = defineProps<{
     user: User | undefined
 }>()
 
-async function toggleAdmin() {
-    if (!hasRole(props.user!, "admin")) {
+async function toggleRole(role: Role) {
+    if (!hasRole(props.user!, role)) {
         await session.useApi<User>("/api/admin/role/add", {
             user: props.user?.id,
-            role: "admin"
+            role: role
         })
-        hints.addSuccess("User given admin role.")
+        hints.addSuccess(`User given ${role} role.`)
     }
     else {
         await session.useApi<User>("/api/admin/role/remove", {
             user: props.user?.id,
-            role: "admin"
+            role: role
         })
-        hints.addWarning("User removed from admin role.")
+        hints.addWarning(`User removed from ${role} role.`)
     }
 }
+
+// async function toggleAdmin() {
+//     if (!hasRole(props.user!, "admin")) {
+//         await session.useApi<User>("/api/admin/role/add", {
+//             user: props.user?.id,
+//             role: "admin"
+//         })
+//         hints.addSuccess("User given admin role.")
+//     }
+//     else {
+//         await session.useApi<User>("/api/admin/role/remove", {
+//             user: props.user?.id,
+//             role: "admin"
+//         })
+//         hints.addWarning("User removed from admin role.")
+//     }
+// }
 
 </script>
 
@@ -35,26 +52,18 @@ async function toggleAdmin() {
         title="Role Manager"
     >
         <main class="column g-2">
-            <button class="danger f-1">
-                <i class="fa-solid fa-ban"></i>
-                <span>Ban User</span>
-            </button>
-            <button class="default f-1" @click="toggleAdmin">
+            <button class="default f-1" :class="{ inverted: hasRole(user!, 'admin') }" @click="toggleRole('admin')">
                 <i class="fa-solid fa-shield"></i>
-                <span>Make Admin</span>
+                <span>Admin</span>
             </button>
-            <button class="default f-1">
-                <i class="fa-solid fa-code"></i>
-                <span>Make Developer</span>
-            </button>
-            <button class="default f-1">
+            <button class="default f-1" :class="{ inverted: hasRole(user!, 'moderator') }" @click="toggleRole('moderator')">
                 <i class="fa-solid fa-user-tie"></i>
-                <span>Make Moderator</span>
+                <span>Moderator</span>
             </button>
-            <!-- <button v-if="!session.isAuthenticated" class="link" @click="newProfile">
-                <i class="fa-solid fa-plus"></i>
-                <span>New Profile</span>
-            </button> -->
+            <button class="default f-1" :class="{ inverted: hasRole(user!, 'developer') }" @click="toggleRole('developer')">
+                <i class="fa-solid fa-code"></i>
+                <span>Developer</span>
+            </button>
         </main>
     </Window>
 </template>
