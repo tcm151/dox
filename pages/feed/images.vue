@@ -54,6 +54,10 @@ function cancelUpload() {
 }
 
 const selectedImage = ref<Image | null>(null)
+function viewImage(image: Image) {
+    return navigateTo(`/image/${extractId(image.id)}`)
+}
+
 
 async function deleteSelectedImage() {
     if (!selectedImage.value) {
@@ -104,7 +108,7 @@ async function reportSelectedImage() {
                 <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
             </header>
         </ClientOnly>
-        <Window
+        <!-- <Window
             :visible="selectedImage != null"
             width="800px"
             icon="fa-solid fa-image"
@@ -116,7 +120,7 @@ async function reportSelectedImage() {
                     <UserTag class="f-1" :user="(selectedImage.user as User)" />
                     <TimeTag :time="selectedImage.time" />
                     <Tag type="info" icon="fa-image" :label="selectedImage.type" />
-                    <!-- <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" /> -->
+                    <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" />
                     <Tag type="danger" icon="fa-flag" label="Report" @click="reportSelectedImage" />
                     <Tag
                         v-if="session.user.id == (selectedImage.user as User).id || hasRole(session.user, 'admin')"
@@ -126,12 +130,14 @@ async function reportSelectedImage() {
                         @click="deleteSelectedImage"
                     />
                 </header>
-                <img :src="selectedImage.url">
+                <figure class="image">
+                    <img :src="selectedImage.url">
+                </figure>
             </section>
             
-        </Window>
+        </Window> -->
         <section class="all-images fill row-wrap g-2">
-            <div class="image fill" v-for="image in images" @click="selectedImage = image">
+            <div class="image fill" v-for="image in images" @click="viewImage(image)">
                 <img :src="image.url">
             </div>
             <div style="flex: 25 0" />
@@ -186,14 +192,19 @@ section.all-images {
 }
 
 section.popup-image {
-    overflow: hidden;
-    
-    img {
-        height: calc(100% - 2rem);
-        border-radius: 0.25rem;
-        object-fit: contain;
+    height: 100%;
+
+    figure {
+        overflow-y: hidden;
+ 
+        img {
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0.25rem;
+        }
     }
 }
+    
 
 input[type=file]::file-selector-button {
     display: none;

@@ -112,7 +112,7 @@ export interface Comment extends Voteable {
     timeEdited?: string
 }
 
-export interface Image {
+export interface Image extends Voteable {
     id: string
     user: User | string
     type: string

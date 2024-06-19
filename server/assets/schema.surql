@@ -247,6 +247,14 @@ DEFINE FIELD tokens ON image TYPE number;
 DEFINE FIELD time ON image TYPE datetime DEFAULT time::now();
 DEFINE FIELD url ON image TYPE any;
 
+DEFINE FIELD votes.positive ON image TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.misleading ON image TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.negative ON image TYPE array<record<user>> DEFAULT [];
+
+DEFINE FIELD votes.score ON image DEFAULT <future> {
+    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
+};
+
 
 -- ------------------------------
 -- TABLE: notification

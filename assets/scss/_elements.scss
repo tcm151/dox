@@ -2,6 +2,7 @@
 @use "layout" as *;
 
 .box {
+    box-sizing: border-box;
     border-radius: 0.25rem;
     background-color: $white-0;
 }

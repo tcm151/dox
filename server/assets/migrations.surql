@@ -70,3 +70,13 @@ UPDATE topic SET
         time::min(array::union(posts.time, threads.time))
     }
 WHERE firstUsed = NONE;
+
+-- 2024-06-17: change url of images
+UPDATE image SET
+    url = string::replace(url, /\/image\/([\w\d]+)$/, "/cdn/image/$1")
+WHERE !string::matches(url, /\/cdn\/image\/([\w\d]+)/);
+UPDATE image SET
+    votes.positive = [],
+    votes.misleading = [],
+    votes.negative = [],
+WHERE votes = NONE;

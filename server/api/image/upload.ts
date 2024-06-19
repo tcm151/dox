@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     sql.push('type = $type,')
     sql.push('tokens = $tokens,')
     sql.push('time = time::now(),')
-    sql.push(`url = <future> { string::concat("${baseUrl}/image/", meta::id(id)) };`)
+    sql.push(`url = <future> { string::concat("${baseUrl}/cdn/image/", meta::id(id)) };`)
     parameters['type'] = type
 
     sql.push('};')
