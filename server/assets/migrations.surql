@@ -78,5 +78,5 @@ WHERE !string::matches(url, /\/cdn\/image\/([\w\d]+)/);
 UPDATE image SET
     votes.positive = [],
     votes.misleading = [],
-    votes.negative = [],
+    votes.negative = []
 WHERE votes = NONE;
