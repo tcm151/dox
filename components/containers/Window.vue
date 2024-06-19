@@ -28,7 +28,7 @@ function resizePopup() {
 
 <template>
     <aside class="background column center" v-if="props.visible">
-        <main class="window" ref="window" :style="{ maxWidth: maxWidth, maxHeight: maxHeight }">
+        <main class="window" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
             <header class="title-bar">
                 <div class="left row center-inline g-2 px-3 py-2">
                     <i :class="icon" v-if="icon"></i>

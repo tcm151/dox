@@ -58,7 +58,7 @@ function closeLogin() {
 <template>
     <Popup
         title="Login"
-        width="25rem"
+        width="20rem"
         :visible="visible"
         accept-label="Login"
         @accept="attemptLogin"

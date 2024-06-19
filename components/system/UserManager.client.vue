@@ -59,7 +59,7 @@ function newProfile() {
 
 <template>
     <Window
-        width="25rem"
+        width="20rem"
         :visible="visible"
         title="Profiles"
     >
