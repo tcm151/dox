@@ -46,7 +46,7 @@ function toggleUserManager() {
                 <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
                     <i class="fa-solid fa-keyboard"></i>
                 </NuxtLink>
-                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="400px" :visible="showFeedback" @close="showFeedback = false">
+                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="showFeedback" @close="showFeedback = false">
                     <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
                 </Window>
             </ClientOnly>

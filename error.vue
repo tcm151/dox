@@ -29,7 +29,7 @@ let complain = ref(false)
                 </button>
             </div>
         </section>
-        <Window title="Submit Feedback" icon="fa-solid fa-keyboard" :visible="true" @close="complain = false" v-if="complain">
+        <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="true" @close="complain = false" v-if="complain">
             <section class="p-2">
                 <Feedback placeholder="Tell us what happened..." @submit="clearError({ redirect: '/feed' })" />
             </section>

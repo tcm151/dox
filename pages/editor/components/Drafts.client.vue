@@ -32,7 +32,7 @@ async function deleteDraft(draft: Draft) {
 <template>
     <Window
         :visible="visible"
-        width="600px"
+        width="40rem"
         title="Drafts"
         icon="fa-solid fa-compass-drafting"
         @close="emit('close')"
@@ -61,7 +61,7 @@ async function deleteDraft(draft: Draft) {
 <style scoped lang="scss">
 
 section {
-    min-height: 512px;
+    min-height: 20rem;
 }
 
 section.drafts {

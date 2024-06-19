@@ -22,7 +22,7 @@ const emit = defineEmits<{
 <template>
     <Window
         :visible="visible"
-        width="250px"
+        width="20rem"
         title="Options"
         icon="fa-solid fa-list-ul"
         @close="emit('close')"
