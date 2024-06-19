@@ -128,7 +128,7 @@ async function submitQuery() {
                     <input type="search" v-model="searchBar">
                 </div>
             </header>
-            <section class="results column" v-if="tab == 'Results'">
+            <section class="results column g-2" v-if="tab == 'Results'">
                 <template v-for="result in results">
                     <Codeblock
                         wrap
@@ -139,7 +139,7 @@ async function submitQuery() {
             </section>
             <section class="history column g-2" v-if="tab == 'History'">
                 <div class="query" v-for="(item, index) in filteredHistory()" :key="index">
-                    <p class="p-2">{{ item }}</p>
+                    <Codeblock wrap language="sql" :code="item" />
                     <div class="buttons row g-2">
                         <button @click="reuseQuery(item)">
                             <i class="fa-solid fa-rotate"></i>
@@ -236,7 +236,7 @@ section.history, section.saved {
             top: 0;
             right: 0;
             position: absolute;
-            padding: 0.5rem;
+            padding: 0.75rem;
 
             button {
                 padding: 0;

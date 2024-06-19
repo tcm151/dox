@@ -20,8 +20,11 @@ const markdown = computed(() => {
 
 <style scoped lang="scss">
     div.codeblock {
-        overflow-x: auto;
         background-color: $white-1;
         border-radius: 0.25rem;
+    }
+    
+    div.codeblock:not(.wrap) {
+        overflow-x: auto;
     }
 </style>
