@@ -16,7 +16,7 @@ const { data: image, refresh } = await useAsyncData(`image:${id}`, () => {
 </script>
 
 <template>
-    <article class="px-5">
+    <article class="p-4">
         <section class="box p-2" v-if="image">
             <header class="row-wrap g-1 mb-2">
                 <ClientOnly>

@@ -11,6 +11,7 @@
 
 <style scoped lang="scss">
 div.slot {
+    flex: 1 1;
     display: grid;
     place-items: center;
     width: 100%;
