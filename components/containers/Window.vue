@@ -20,15 +20,15 @@ if (process.client) {
 }
 
 function resizePopup() {
-    maxWidth.value = `${window.visualViewport!.width - 25}px`
-    maxHeight.value = `${window.visualViewport!.height- 25}px`
+    maxWidth.value = `calc(${window.visualViewport!.width}px - 2rem)`
+    maxHeight.value = `calc(${window.visualViewport!.height}px - 2rem)`
 }
 
 </script>
 
 <template>
-    <main class="popup column center" v-if="props.visible">
-        <article class="window" ref="window" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
+    <aside class="background column center" v-if="props.visible">
+        <main class="window" ref="window" :style="{ maxWidth: maxWidth, maxHeight: maxHeight }">
             <header class="title-bar">
                 <div class="left row center-inline g-2 px-3 py-2">
                     <i :class="icon" v-if="icon"></i>
@@ -41,9 +41,9 @@ function resizePopup() {
             <section class="window-slot">
                 <slot />
             </section>
-        </article>
+        </main>
         <!-- <div class="filler" /> -->
-    </main>
+    </aside>
 </template>
 
 <style scoped lang="scss">
@@ -58,7 +58,7 @@ function resizePopup() {
     to { opacity: 100% }
 }
 
-main.popup {
+aside.background {
     top: 0;
     left: 0;
     position: absolute;
@@ -69,8 +69,9 @@ main.popup {
     animation: blur 64ms forwards;
 }
 
-article.window {
+main.window {
     // position: absolute;
+    width: min-content;
 
     @include flex-v;
     border-radius: 0.5rem;
