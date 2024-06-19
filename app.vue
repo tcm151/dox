@@ -17,33 +17,6 @@ events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 let showUserManager = ref(false)
 events.subscribe(Trigger.toggleUserManager, () => showUserManager.value = !showUserManager.value)
 
-// interface PopupEvent {
-//     title: string
-//     message: string
-//     accept: Function
-// }
-
-// const popupEvent = ref<PopupEvent>({
-//     title: 'Default Popup',
-//     message: 'This is the default message',
-//     accept: () => { },
-// })
-
-// let showPopup = ref(false)
-// events.subscribe(Trigger.showPopup, (event: PopupEvent) => {
-//     showPopup.value = true
-//     popupEvent.value = event
-// })
-
-// function acceptPopup() {
-//     showPopup.value = false
-//     popupEvent.value.accept?.()
-// }
-
-// function declinePopup() {
-//     showPopup.value = false
-// }
-
 if (process.client) {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
@@ -52,9 +25,6 @@ if (process.client) {
         const vh = window.innerHeight * 0.01
         document.documentElement.style.setProperty('--vh', `${vh}px`)
     })
-
-    // const adsbygoogle = window.adsbygoogle || []
-    // adsbygoogle.push({})
 }
 </script>
 
@@ -62,16 +32,10 @@ if (process.client) {
     <Navbar />
     <Login :visible="showLogin" />
     <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
-    <!-- <Popup :visible="showPopup" :title="popupEvent.title" @accept="acceptPopup" @decline="declinePopup">
-        <span>{{ popupEvent.message }}</span>
-    </Popup> -->
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>
     <Hints />
-    <!-- <DevOnly>
-        <Messages />
-    </DevOnly> -->
 </template>
 
 <style lang="scss">
@@ -82,7 +46,8 @@ main.page {
     overflow-x: hidden;
     overflow-y: auto;
 
-    > article, > section, > div {
+    > article, > section {
+        // box-sizing: border-box;
         flex: 1 1;
     }
 }

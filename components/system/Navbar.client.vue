@@ -21,7 +21,7 @@ function toggleUserManager() {
 </script>
 
 <template>
-    <nav>
+    <nav class="navbar">
         <section class="left">
             <NuxtLink class="title" to="/home" title="Home">
                 <i class="fa-solid fa-box-archive"></i>

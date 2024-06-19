@@ -3,7 +3,7 @@
 
 <template>
     <main class="page column center-inline">
-        <slot class="slot" />
+        <slot />
         <footer class="row center-inline px-5 m-5">
                 <div class="links">
                     <NuxtLink to="/home">Home</NuxtLink>

@@ -66,6 +66,8 @@ export default defineNuxtConfig({
         }
     },
     app: {
+        rootId: "app",
+        rootTag: "main",
         pageTransition: { name: "swap", mode: 'out-in'},
         layoutTransition: { name: "swap", mode: 'out-in'},
         head: {
@@ -83,9 +85,6 @@ export default defineNuxtConfig({
                 { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" },
                 { name: "google-adsense-account", content: "ca-pub-3080690900599338" }
             ],
-            script: [
-                { async: true, src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3080690900599338", crossorigin: "anonymous" }
-            ]
         },
     },
     routeRules: {
