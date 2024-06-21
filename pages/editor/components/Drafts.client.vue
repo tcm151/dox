@@ -53,7 +53,7 @@ async function deleteDraft(draft: Draft) {
             <p>You have no drafts...</p>
         </section>
         <section class="grid center" v-else>
-            <Spinner fontSize="2rem" :showLoadingText="false" /> 
+            <Spinner fontSize="2rem" :showText="false" /> 
         </section>
     </Window>
 </template>
@@ -66,6 +66,7 @@ section {
 
 section.drafts {
     h3 {
+        padding-right: 2rem;
         overflow-x: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;

@@ -7,15 +7,15 @@ const settings = useSettings()
 
 <template>
     <article class="column g-4 p-4">
-        <section class="box form g-2 p-5">
+        <section class="box form g-1 p-5">
             <div class="field row center py-2">
                 <label class="f-1">enable animations</label>
                 <Toggle v-model:enabled="settings.user.hoverAnimations" />
             </div>
-            <!-- <div class="field row center py-2">
-                <label class="f-1">allow notifications</label>
-                <Toggle v-model:enabled="settings.user.hoverAnimations" />
-            </div> -->
+            <div class="field row center py-2">
+                <label class="f-1">enable notifications</label>
+                <Toggle :enabled="false" />
+            </div>
             <div class="field row center">
                 <label class="f-1">hint duration (ms)</label>
                 <input type="number" size="4" step="250" v-model="settings.user.hintDuration">

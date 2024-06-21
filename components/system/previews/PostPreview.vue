@@ -38,54 +38,23 @@ const settings = useSettings()
 </template>
 
 <style scoped lang="scss">
-.post {
-    border-radius: 0.25rem;
-    background-color: $white-3;
-    transition: transform 128ms;
-    
-    .main {
-        overflow: hidden;
-        white-space: break-spaces;
-    }
-
-    img {
-        max-width: 64px;
-        max-height: 64px;
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
-        border-radius: 0.5rem;
-        border: 1px solid $white-1;
-    }
-
-    .reply-to + .main {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-    }
-
-    .reply-to {
-        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-        color: $white-0;
-        
-        p {
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-            font-weight: 700;
-            letter-spacing: 0.025rem;
-        }
-    }
-}
-
-.post:has(.reply-to:hover)  {
-    background-color: $white-4;
-}
-
 .post:hover {
-    cursor: pointer;
     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
 }
 
 .post.animate:hover {
     transform: scale(102%, 105%);
+    transition: transform 128ms;
+}
+
+.post {
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: $white-3;
+}
+
+.post:has(.reply-to:hover)  {
+    background-color: $white-4;
 }
 
 .post.pinned {
@@ -97,6 +66,37 @@ const settings = useSettings()
 .post:has(.reply-to)  {
     .main {
         border-top: none;
+    }
+}
+
+.main {
+    overflow: hidden;
+    white-space: break-spaces;
+}
+
+img {
+    max-width: 64px;
+    max-height: 64px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid $white-1;
+}
+
+.reply-to + .main {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.reply-to {
+    padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+    color: $white-0;
+    
+    p {
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        font-weight: 700;
+        letter-spacing: 0.025rem;
     }
 }
 </style>

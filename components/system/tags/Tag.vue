@@ -9,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span v-if="!hidden" class="tag" :class="type" :style="{ width: width }">
+    <span v-if="!hidden" class="tag" :class="type" :style="{ width }">
         <i v-if="icon" class="fa-solid" :class="icon"></i>
         <span v-if="label">{{ label }}</span>
         <slot />

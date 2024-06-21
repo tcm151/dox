@@ -8,15 +8,18 @@ const hints = useHints()
 const username = ref("")
 const password = ref("")
 
-const wrongAttempts = ref(0)
-
 events.subscribe(Trigger.toggleLogin, (name?: string) => {
-    if (name) {
-        username.value = name
-    }
+    if (name) username.value = name
 })
 
+function closeLogin() {
+    events.publish(Trigger.toggleLogin)
+    wrongAttempts.value = 0
+}
+
+const loading = ref<boolean>(false)
 async function attemptLogin() {
+    loading.value = true
     if (await session.login(username.value, password.value)) {
         events.publish(Trigger.toggleLogin)
         wrongAttempts.value = 0
@@ -27,8 +30,10 @@ async function attemptLogin() {
         hints.addError("Username or password were incorrect.")
         wrongAttempts.value += 1
     }
+    loading.value = false
 }
 
+const wrongAttempts = ref(0)
 function forgetPassword() {
     hints.addWarning('We are still working on this...')
     // TODO allow users to reset their password without being logged in
@@ -48,11 +53,6 @@ function forgetPassword() {
     // navigateTo("/register")
     // closeLogin()
 }
-
-function closeLogin() {
-    events.publish(Trigger.toggleLogin)
-    wrongAttempts.value = 0
-}
 </script>
 
 <template>
@@ -60,6 +60,7 @@ function closeLogin() {
         title="Login"
         width="20rem"
         :visible="visible"
+        :loading="loading"
         accept-label="Login"
         @accept="attemptLogin"
         decline-label="Cancel"

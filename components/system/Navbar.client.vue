@@ -108,12 +108,6 @@ section.left {
             span { display: none; }
         }
     }
-
-    a[title=Developer] {
-        @media only screen and (max-width: 600px) {
-            display: none;
-        }
-    }
 }
 
 section.right {

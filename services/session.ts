@@ -176,22 +176,20 @@ export const getSession = defineStore("session", (): Session => {
             if (target.startsWith("user")) {
                 await useApi(`/api/user/${extractId(target)}/follow`)
                 user.value?.following.push(target)
-                return true
             }
             if (target.startsWith("topic")) {
                 await useApi(`/api/topic/${extractId(target)}/follow`)
                 user.value?.topics.push(target)
-                return true
             }
+            return true
         }
         catch (error: any) {
             events.publish(Trigger.addHint, {
                 message: error.message,
                 type: "error",
             })
+            return false
         }
-
-        return false
     }
     
     async function unfollow(target: string) {
@@ -207,22 +205,20 @@ export const getSession = defineStore("session", (): Session => {
             if (target.startsWith("user")) {
                 await useApi(`/api/user/${extractId(target)}/unfollow`)
                 user.value!.following = user.value?.following.filter(u => u !== target)!
-                return true
             }
             if (target.startsWith("topic")) {
                 await useApi(`/api/topic/${extractId(target)}/unfollow`)
                 user.value!.topics = user.value?.topics.filter(t => t !== target)!
-                return true
             }
+            return true
         }
         catch (error: any) {
             events.publish(Trigger.addHint, {
                 message: error.message,
                 type: "error",
             })
+            return false
         }
-
-        return false
     }
 
     return {

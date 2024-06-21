@@ -4,6 +4,7 @@ const props = defineProps<{
     title?: string
     width?: string
     height?: string
+    loading?: boolean
     acceptLabel?: string
     declineLabel?: string
 }>()
@@ -29,29 +30,39 @@ function resizePopup() {
 </script>
 
 <template>
-    <div class="popup column center" v-if="props.visible">
-        <div class="window p-5" :style="{ width: width ?? 'fit-content', height: height ?? 'auto', maxWidth: maxWidth, maxHeight: maxHeight }">
-            <h1 v-if="title">{{ title }}</h1>
+    <aside class="background column center" v-if="props.visible">
+        <main class="window p-5" :style="{ width, maxWidth, maxHeight }">
+            <header class="" v-if="title">
+                <h1>{{ title }}</h1>
+            </header>
             <div class="slot">
                 <slot />
             </div>
-            <div class="row g-2">
-                <button class="success fill" @click="emit('accept')">{{ acceptLabel ?? "Yes" }}</button>
-                <button class="danger fill" @click="emit('decline')">{{ declineLabel ?? "No" }}</button>
+            <div class="row-wrap g-2">
+                <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="emit('accept')">
+                    {{ acceptLabel ?? "Yes" }}
+                </ButtonSpinner>
+                <button class="danger f-1 b-0" @click="emit('decline')">
+                    {{ declineLabel ?? "No" }}
+                </button>
             </div>
-        </div>
-        <div class="filler" />
-    </div>
+        </main>
+        <aside class="filler" />
+    </aside>
 </template>
 
 <style scoped lang="scss">
-
 @keyframes blur {
     from { backdrop-filter: none }
     to { backdrop-filter: blur(0.5rem) }
 }
 
-.popup {
+@keyframes fade-in {
+    from { opacity: 0% }
+    to { opacity: 100% }
+}
+
+aside.background {
     top: 0;
     left: 0;
     position: absolute;
@@ -61,12 +72,7 @@ function resizePopup() {
     animation: blur 64ms forwards;
 }
 
-@keyframes fade-in {
-    from { opacity: 0% }
-    to { opacity: 100% }
-}
-
-.window {
+main.window {
     box-sizing: border-box;
     border-radius: 0.5rem;
     background-color: $white-0;
@@ -78,7 +84,7 @@ function resizePopup() {
     }
 }
 
-div.filler {
+aside.filler {
     height: 20%;
 }
 

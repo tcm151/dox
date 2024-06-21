@@ -1,32 +1,30 @@
 <script setup lang="ts">
-defineProps<{
-    fontSize: string
-    showLoadingText: boolean
+const props = defineProps<{
+    fontSize?: string
+    showText?: boolean
 }>()
+
+let size = props.fontSize ?? "1rem"
 </script>
 
 <template>
-    <div class="spinner column center-inline g-4">
+    <span class="column center-inline g-4">
         <i class="fa-solid fa-spinner"></i>
-        <p v-if="showLoadingText">Loading . . .</p>
-    </div>
+        <p v-if="showText">Loading . . .</p>
+    </span>
 </template>
 
 <style scoped lang="scss">
 
 @keyframes spin {
-    from {
-        transform: rotateZ(0deg);
-    }
-    to {
-        transform: rotateZ(360deg);
-    }
+    from { transform: rotateZ(0deg) }
+    to { transform: rotateZ(360deg) }
 }
 
-.spinner {
-    i {
-        color: $blue;
-        font-size: v-bind('fontSize');
+span {
+    i.fa-spinner {
+        color: inherit;
+        font-size: v-bind('size');
         animation: spin 1s linear infinite;
     }
 }

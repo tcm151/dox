@@ -1,7 +1,7 @@
 @use "sass:color";
 
 //> COLORS
-$black-0: #272838;
+$black-0: #2D2E42;
 $black-1: #393A49;
 $black-2: #444554;
 $black-3: #575966;
@@ -47,17 +47,18 @@ $warning: $yellow;
 $danger: $red;
 
 
-@keyframes voted {
-    0% {
-        outline-width: 1px;
-    }
-    50% {
-        outline-width: 4px;
-    }
-    100% {
-        outline-width: 1px;
-    }
-}
+// TODO re-enable voting animations
+// @keyframes voted {
+//     0% {
+//         outline-width: 1px;
+//     }
+//     50% {
+//         outline-width: 4px;
+//     }
+//     100% {
+//         outline-width: 1px;
+//     }
+// }
 
 .light {
     color: $black-0;

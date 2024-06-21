@@ -10,7 +10,7 @@ DEFINE FUNCTION fn::days_since($time: datetime) {
 -- SCOPES
 -- ------------------------------
 -- WARN: invalidates current session token, only uncomment if necessary
-DEFINE SCOPE account SESSION 1d
+DEFINE SCOPE account SESSION 7d
 SIGNUP (
     CREATE user SET
     email = $email,
@@ -49,9 +49,10 @@ DEFINE TABLE passwordReset SCHEMALESS;
 -- ------------------------------
 -- TABLE: user
 -- ------------------------------
-DEFINE TABLE user SCHEMALESS PERMISSIONS
-FOR select, update WHERE id = $auth.id
-FOR create, delete WHERE roles CONTAINS "admin";
+DEFINE TABLE user SCHEMALESS
+PERMISSIONS
+    FOR select, update WHERE id = $auth.id
+    FOR create, delete WHERE roles CONTAINS "admin";
 
 DEFINE FIELD email ON user TYPE string ASSERT string::is::email($value);
 DEFINE INDEX email ON user FIELDS email UNIQUE;
@@ -83,7 +84,6 @@ DEFINE FIELD votes.score ON user DEFAULT <future> {
 -- TABLE: topic
 -- ------------------------------
 DEFINE TABLE topic SCHEMALESS;
-
 DEFINE FIELD posts ON topic TYPE array<record<post>> DEFAULT [];
 DEFINE FIELD threads ON topic TYPE array<record<thread>> DEFAULT [];
 DEFINE FIELD votes.positive ON topic TYPE array<record<user>> DEFAULT [];
@@ -116,7 +116,6 @@ DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
 -- TABLE: post
 -- ------------------------------
 DEFINE TABLE post SCHEMALESS;
-
 DEFINE FIELD user ON post TYPE record<user>;
 DEFINE FIELD title ON post TYPE string ASSERT $value = /.{4,128}/;
 DEFINE FIELD content ON post TYPE string;
@@ -153,7 +152,6 @@ DEFINE EVENT updateTopics ON post WHEN $event = 'CREATE' THEN {
 -- TABLE: draft
 -- ------------------------------
 DEFINE TABLE draft SCHEMALESS;
-
 DEFINE FIELD user ON draft TYPE record<user>;
 DEFINE FIELD title ON draft TYPE string ASSERT $value = /.{4,128}/;
 DEFINE FIELD content ON draft TYPE string;
@@ -168,7 +166,6 @@ DEFINE FIELD images ON post TYPE array<record<image>> DEFAULT [];
 -- TABLE: pin
 -- ------------------------------
 DEFINE TABLE pin SCHEMALESS;
-
 DEFINE FIELD post ON pin TYPE record<post>;
 DEFINE FIELD user ON pin TYPE record<user>;
 DEFINE FIELD active ON pin TYPE bool DEFAULT false;
@@ -179,7 +176,6 @@ DEFINE FIELD time ON pin TYPE datetime DEFAULT time::now();
 -- TABLE: thread
 -- ------------------------------
 DEFINE TABLE thread SCHEMALESS;
-
 DEFINE FIELD user ON thread TYPE record<user>;
 DEFINE FIELD content ON thread TYPE string ASSERT $value = /.{4,512}/;;
 DEFINE FIELD time ON thread TYPE datetime DEFAULT time::now();
@@ -213,7 +209,6 @@ DEFINE EVENT updateTopics ON thread WHEN $event = 'CREATE' THEN {
 -- TABLE: comment
 -- ------------------------------
 DEFINE TABLE comment SCHEMALESS;
-
 DEFINE FIELD user ON comment TYPE record<user>;
 DEFINE FIELD post ON comment TYPE record<post>;
 DEFINE FIELD content ON comment TYPE string;
@@ -240,7 +235,6 @@ DEFINE EVENT updatePost ON comment WHEN $event = 'CREATE' THEN {
 -- TABLE: image
 -- ------------------------------
 DEFINE TABLE image SCHEMALESS;
-
 DEFINE FIELD user ON image TYPE record<user>;
 DEFINE FIELD type ON image TYPE string;
 DEFINE FIELD tokens ON image TYPE number;
@@ -260,7 +254,6 @@ DEFINE FIELD votes.score ON image DEFAULT <future> {
 -- TABLE: notification
 -- ------------------------------
 DEFINE TABLE notification SCHEMALESS;
-
 DEFINE FIELD recipient ON notification TYPE record<user>;
 DEFINE FIELD context ON notification TYPE record<post | comment | user>;
 DEFINE FIELD message ON notification TYPE string;
@@ -272,7 +265,6 @@ DEFINE FIELD viewed ON notification TYPE bool DEFAULT false;
 -- TABLE: feedback
 -- ------------------------------
 DEFINE TABLE feedback SCHEMALESS;
-
 DEFINE FIELD user ON feedback TYPE record<user>;
 DEFINE FIELD time ON feedback TYPE datetime DEFAULT time::now();
 DEFINE FIELD content ON feedback TYPE string;
@@ -283,7 +275,6 @@ DEFINE FIELD dismissed ON feedback TYPE bool DEFAULT false;
 -- TABLE: report
 -- ------------------------------
 DEFINE TABLE report SCHEMALESS;
-
 DEFINE FIELD reporter ON report TYPE record<user>;
 DEFINE FIELD subject ON report TYPE record;
 DEFINE FIELD time ON report TYPE datetime DEFAULT time::now();

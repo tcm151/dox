@@ -45,11 +45,11 @@ let topicsFocused = ref(false)
 
 
 function validTitle() {
-    return draft.value.title !== '' ? valid.title.test(draft.value.title) : true
+    return (draft.value.title == '') ? true : valid.title.test(draft.value.title)
 }
 
 function validTopic() {
-    return newTopic.value !== '' ? valid.topic.test(newTopic.value) : true
+    return (newTopic.value == '') ? true : valid.topic.test(newTopic.value)
 }
 
 function addTopic() {
@@ -83,21 +83,20 @@ const { files, open: openFileDialog, reset } = useFileDialog({
     accept: "image/*"
 })
 
+whenever(files, () => {
+    confirmImageUpload.value = true
+})
+
 function selectImages() {
-    if (hasTrait(session.user, "confirmed")) {
-        openFileDialog()
-    }
-    else {
+    if (!hasTrait(session.user, "confirmed")) {
         hints.addWarning("You must confirm your account before uploading images.")
+        return
     }
+    openFileDialog()
 }
 
 let uploading = ref<boolean>(false)
-watch(files, async () => {
-    if (files.value) {
-        confirmImageUpload.value = true
-    }
-})
+
 
 async function beginUpload() {
     confirmImageUpload.value = false
@@ -132,19 +131,19 @@ function copyImageUrl(event: Event) {
     hints.addSuccess("Copied image in markdown syntax.")
 }
 
+const submitting = ref<boolean>(false)
 async function submit() {
-    
     if (!validTitle()) {
         hints.addError("Title is invalid.")
         return
     }
-
     if (draft.value.topics.length == 0) {
         hints.addError("You must include at least one topic.")
         return
     }
     
     try {
+        submitting.value = true
         const post = await session.useApi<Post>("/api/post/add", {
             user: session.user!.id,
             title: draft.value.title,
@@ -168,6 +167,7 @@ async function submit() {
         hints.addError(ex.message)
         console.log(ex)
     }
+    submitting.value = false
 }
 
 async function saveDraft() {
@@ -272,23 +272,23 @@ async function saveDraft() {
                     <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
                 </div>
                 <section class="row-wrap g-2 mt-5">
-                    <button class="success fill" @click="submit">
+                    <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                         <i class="fa-solid fa-share"></i>
                         <span>Submit</span>
-                    </button>
-                    <button class="link fill" @click="saveDraft" v-if="draft.id != ''">
+                    </ButtonSpinner>
+                    <button class="link f-1 b-0" @click="saveDraft" v-if="draft.id != ''">
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Update</span>
                     </button>
-                    <button class="link fill" @click="saveDraft" v-else>
+                    <button class="link f-1 b-0" @click="saveDraft" v-else>
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
                     </button>
-                    <button class="link fill" @click="selectImages">
+                    <button class="link f-1 b-0" @click="selectImages">
                         <i class="fa-solid fa-images"></i>
                         <span>Upload</span>
                     </button>
-                    <button class="info fill" @click="togglePreview">
+                    <button class="info f-1 b-0" @click="togglePreview">
                         <i class="fa-solid fa-eye" v-if="!showPreview"></i>
                         <i class="fa-solid fa-eye-slash" v-else></i>
                         <span>Preview</span>

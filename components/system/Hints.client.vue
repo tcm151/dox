@@ -12,65 +12,60 @@ function getColor(hint: Hint) {
         case "warning":
             return "warning inverted"
         case "error":
-            return "error inverted"
+            return "danger inverted"
     }
 }
 </script>
 
 <template>
-    <aside class="hints">
+    <aside class="background">
         <TransitionGroup name="hints">
-            <div
-            v-for="hint in hints.items"
-            :key="hint.number"
-            class="tag px-4 py-2"
-            :class="getColor(hint)"
-            :style="{ backgroundColor: getColor(hint) }"
-            >
+        <template v-for="hint in hints.items" :key="hint.number">
+            <span class="hint px-4 py-2" :class="getColor(hint)" :style="{ backgroundColor: getColor(hint) }">
                 {{ hint.message }}
-            </div>
+            </span>
+        </template>
         </TransitionGroup>
     </aside>
 </template>
 
 <style scoped lang="scss">
-.hints {
+aside.background {
     width: 100%;
     position: absolute;
     align-items: center;
     pointer-events: none;
     isolation: isolate;
     z-index: 10000;
-}
-
-@media only screen and (max-aspect-ratio: 1/1) {
-    .hints {
+    
+    @media only screen and (max-aspect-ratio: 1/1) {
         top: 0;
         display: flex;
         flex-direction: column-reverse;
         gap: 0.5rem;
         margin-top: 10rem;
     }
-}
-
-@media only screen and (min-aspect-ratio: 1/1) {
-    .hints {
+    
+    @media only screen and (min-aspect-ratio: 1/1) {
         bottom: 0;
         @include flex-v (0.5rem);
         margin-bottom: 10rem;
     }
 }
 
-div.tag {
+
+span.hint {
+    pointer-events: all;
     position: relative;
     width: fit-content;
     max-width: 60rem;
+    
+    font-weight: 700;
     white-space: break-spaces;
+    
     border-radius: 0.25rem;
     box-shadow: 0.25rem 0.25rem 1rem -0.25rem $white-3,
                 0 0 0.33rem 1px $white-3;
-    pointer-events: all;
-
 }
 
 .hints-move, .hints-enter-active, .hints-leave-active {

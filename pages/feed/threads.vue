@@ -100,20 +100,20 @@ function togglePreview() {
             </div>
             <TopicField v-model:input="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             <div class="row g-2 mt-2">
-                <button class="success fill" @click="submit">
+                <button class="success f-1 b-0" @click="submit">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>
                 </button>
-                <button class="link fill" @click="selectImages">
+                <button class="link f-1 b-0" @click="selectImages">
                     <i class="fa-solid fa-images"></i>
                     <span>Upload</span>
                 </button>
-                <button class="info fill" @click="togglePreview">
+                <button class="info f-1 b-0" @click="togglePreview">
                     <i class="fa-solid fa-eye" v-if="!showPreview"></i>
                     <i class="fa-solid fa-eye-slash" v-else></i>
                     <span>Preview</span>
                 </button>
-                <button class="danger fill" @click="toggleEditor">
+                <button class="danger f-1 b-0" @click="toggleEditor">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
@@ -128,7 +128,7 @@ function togglePreview() {
             <template #buttons>
                 <button class="dark px-5" @click="toggleEditor">
                     <i class="fa-solid fa-feather"></i>
-                    <span>Submit</span>
+                    <span>Write</span>
                 </button>
             </template>
             <template #item="thread">

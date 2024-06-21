@@ -33,6 +33,10 @@ button {
     background-color: $white-2;
 }
 
+button.small {
+    font-size: 0.8rem;
+}
+
 button:hover, button.selected {
     cursor: pointer;
     color: $white-0;

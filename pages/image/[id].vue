@@ -17,7 +17,7 @@ const { data: image, refresh } = await useAsyncData(`image:${id}`, () => {
 
 <template>
     <article class="p-4">
-        <section class="box p-2" v-if="image">
+        <section class="box p-4" v-if="image">
             <header class="row-wrap g-1 mb-2">
                 <ClientOnly>
                     <Votes :target="image" />
@@ -50,7 +50,7 @@ article {
 figure {
     img {
         height: 100%;
-        max-height: calc(100vh - 40px - 5rem);
+        max-height: calc(100vh - 40px - 6rem);
         border-radius: 0.25rem;
         object-fit: contain;
     }
