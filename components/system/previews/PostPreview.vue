@@ -24,6 +24,7 @@ const settings = useSettings()
                     <TopicTag v-for="topic in post.topics" class="f-10" :topic="topic" />
                     <div class="f-1 row-wrap g-1">
                         <UserTag class="f-1" :user="(post.user as User)" />
+                        <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
                         <Tag class="f-1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
                         <TimeTag class="f-1" :time="post.time" />
                     </div>

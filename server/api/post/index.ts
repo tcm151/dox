@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, title, time,')
     sql.push('replyTo.id, replyTo.title, topics, comments, votes,')
-    sql.push('images')
+    sql.push('images, visits')
     sql.push('FROM post')
     sql.push('ORDER BY time DESC')
     if (page && pageSize) {

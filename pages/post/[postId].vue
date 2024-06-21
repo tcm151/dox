@@ -173,8 +173,8 @@ function toggleOptions() {
                     <Votes :target="post" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <UserTag class="f-1" :user="(post.user as User)" />
-                    <TimeTag class="f-1" :time="post.time" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
+                    <TimeTag class="f-1" :time="post.time" />
                     <Tag class="f-1" v-if="post.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.timeEdited)" />
                 </header>
                 <h1 class="mt-2">
