@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, title, content, time,')
-    sql.push('replyTo.id, replyTo.title, topics, votes, edited, timeEdited, visits,')
+    sql.push('replyTo.id, replyTo.title, topics, votes, archived, edited, timeEdited, visits,')
     sql.push('images,')
     sql.push('(')
     sql.push('SELECT id, time, user.id, user.name, post.id,')

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, title, time, replyTo.id, replyTo.title,')
-    sql.push('topics, comments, votes, images')
+    sql.push('topics, comments, votes, archived, images, visits')
     sql.push('FROM post')
     sql.push('WHERE user = $user')
     sql.push('ORDER BY time DESC')

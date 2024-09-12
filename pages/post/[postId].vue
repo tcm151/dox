@@ -146,6 +146,11 @@ async function reportPost() {
     hints.addError("This post has been reported to the development team.")
 }
 
+async function archivePost() {
+    await session.useApi(`/api/post/${postId}/archive`)
+    hints.addSuccess("This post has been archived.")
+}
+
 async function pinPost() {
     await session.useApi(`/api/post/${postId}/pin`)
     hints.addSuccess("This post has been pinned.")
@@ -208,12 +213,12 @@ function toggleOptions() {
                             <ExtraOptions
                                 :post="post"
                                 :visible="showOptions"
-                                @pin-post="pinPost"
-                                @award-post="awardPost"
-                                @save-post="hints.addWarning('This is still being working on.')"
-                                @report-post="reportPost"
-                                @edit-post="toggleEditPost"
-                                @delete-post="deletePost"
+                                @edit="toggleEditPost"
+                                @award="awardPost"
+                                @report="reportPost"
+                                @delete="deletePost"
+                                @archive="archivePost"
+                                @pin="pinPost"
                                 @close="showOptions = false"
                             />
                         </div>

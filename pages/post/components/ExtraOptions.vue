@@ -9,14 +9,20 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (event: 'pinPost'): void
-    (event: 'awardPost'): void
-    (event: 'savePost'): void
-    (event: 'reportPost'): void
-    (event: 'editPost'): void
-    (event: 'deletePost'): void
+    (event: 'edit'): void
+    (event: 'save'): void
+    (event: 'award'): void
+    (event: 'report'): void
+    (event: 'delete'): void
+    (event: 'archive'): void
+    (event: 'pin'): void
     (event: 'close'): void
 }>()
+
+function emitAndClose(event: string) {
+    emit(event)
+    emit('close')
+}
 </script>
 
 <template>
@@ -28,52 +34,34 @@ const emit = defineEmits<{
         @close="emit('close')"
     >
         <section class="column g-2">
-            <button v-if="hasRole(session.user, 'admin')" class="pin" @click="() => {
-                emit('pinPost')
-                emit('close')
-            }">
-                <i class="fa-solid fa-thumbtack"></i>
-                Pin
-            </button>
-            
-            <button class="save" @click="() => {
-                emit('savePost')
-                emit('close')
-            }">
-                <i class="fa-solid fa-box-archive"></i>
-                <span>Save</span>
-            </button>
-            
-            <button class="award" @click="() => {
-                emit('awardPost')
-                emit('close')
-            }">
-                <i class="fa-solid fa-crown"></i>
-                <span>Award</span>
-            </button>
-            
-            <button class="report" @click="() => {
-                emit('reportPost')
-                emit('close')
-            }">
-                <i class="fa-solid fa-flag"></i>
-                <span>Report</span>
-            </button>
-            
-            <button v-if="(post.user as User).id === session.user.id" class="edit" @click="() => {
-                emit('editPost')
-                emit('close')
-            }">
+            <button v-if="(post.user as User).id === session.user.id" @click="emitAndClose('edit')">
                 <i class="fa-solid fa-eraser"></i>
                 <span>Edit</span>
             </button>
-            
-            <button v-if="(post.user as User).id === session.user.id" class="delete" @click="() => {
-                emit('deletePost')
-                emit('close')
-            }">
+            <!-- <button class="save" @click="emitAndClose('save')">
+                <i class="fa-solid fa-box-archive"></i>
+                <span>Save</span>
+            </button> -->
+            <button class="award" @click="emitAndClose('award')">
+                <i class="fa-solid fa-crown"></i>
+                <span>Award</span>
+            </button>
+            <button class="report" @click="emitAndClose('report')">
+                <i class="fa-solid fa-flag"></i>
+                <span>Report</span>
+            </button>
+            <button v-if="hasRole(session.user, 'admin')" @click="emitAndClose('archive')">
+                <i class="fa-solid fa-box"></i>
+                <span v-if="!post.archived">Archive</span>
+                <span v-else>Unarchive</span>
+            </button>
+            <button v-if="(post.user as User).id === session.user.id" @click="emitAndClose('delete')">
                 <i class="fa-solid fa-trash-can"></i>
                 <span>Delete</span>
+            </button>
+            <button v-if="hasRole(session.user, 'admin')" @click="emitAndClose('pin')">
+                <i class="fa-solid fa-thumbtack"></i>
+                <span>Pin</span>
             </button>
         </section>
     </Window>

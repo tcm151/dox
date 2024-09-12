@@ -80,3 +80,8 @@ UPDATE image SET
     votes.misleading = [],
     votes.negative = []
 WHERE votes = NONE;
+
+-- 2024-09-12: add ability to archive posts
+UPDATE post SET
+    archived = false
+WHERE archived = NONE;

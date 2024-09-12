@@ -61,6 +61,7 @@ export interface Post extends Voteable {
     topics: string[]
     comments: (Comment | string)[]
     images: Image[]
+    archived: boolean
     edited: boolean
     timeEdited?: string
     visits: number
