@@ -17,7 +17,7 @@
         "@types/sanitize-html": "^2.9.0",
         "@vueuse/core": "^10.9.0",
         "@vueuse/nuxt": "^10.9.0",
-        "nuxt": "^3.11.2"
+        "nuxt": "^3.13.1"
     },
     "dependencies": {
         "@pinia/nuxt": "^0.5.1",
