@@ -46,6 +46,7 @@ function sort(type: string) {
         <header class="sorting row center g-2" v-if="props.sorting">
             <ClientOnly>
                 <!-- REFACTOR sorting needs to be done from the database -->
+                 <!-- BUG sorting is completely broken currently -->
                 <button class="refresh dark" @click="emit('refresh')">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 </button>
