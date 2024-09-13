@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ visible: boolean }>()
+const props = defineProps<{ visible: boolean }>()
 
 const session = getSession()
 const events = useEvents()
@@ -7,6 +7,13 @@ const hints = useHints()
 
 const username = ref("")
 const password = ref("")
+
+const input = useTemplateRef('usernameInput')
+watch(() => props.visible, (visible) => {
+    if (visible) {
+        nextTick(() => input.value?.focus())
+    }
+})
 
 events.subscribe(Trigger.toggleLogin, (name?: string) => {
     if (name) username.value = name
@@ -69,7 +76,7 @@ function forgetPassword() {
         <main class="login form">
             <div class="field">
                 <label>Username</label>
-                <input v-model="username" type="text" />
+                <input v-model="username" type="text" ref="usernameInput" />
             </div>
             <div class="field">
                 <label class="forgot" v-if="wrongAttempts >= 3">
