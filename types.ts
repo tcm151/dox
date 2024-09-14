@@ -122,6 +122,15 @@ export interface Image extends Voteable {
     url: string
 }
 
+export interface Audio extends Voteable {
+    id: string
+    user: User | string
+    type: string
+    tokens: number
+    time: string
+    url: string
+}
+
 export interface Notification {
     id: string
     recipient: User | string

@@ -22,6 +22,7 @@ definePageMeta({
                 { route: '/feed/posts', icon: 'fa-solid fa-newspaper', label: 'Posts' },
                 { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads' },
                 { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images' },
+                { route: '/feed/audio', icon: 'fa-solid fa-microphone', label: 'Audio' },
             ]"
         />
         <section class="page column center-inline">

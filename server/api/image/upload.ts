@@ -35,6 +35,6 @@ export default defineEventHandler(async (event) => {
     sql.push('};')
 
     const image = await queryOne<Image>({ sql, parameters })
-    await writeToDisk(image, buffer, type)
+    await writeImage(image, buffer, type)
     return { image, tokens }
 })
