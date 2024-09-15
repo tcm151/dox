@@ -20,13 +20,13 @@ async function beginUpload() {
     try {
         confirmUpload.value = false
         uploading.value = true
-        await uploadAudio(files.value)
+        const audio = await uploadMedia<Audio>(files.value, "audio")
         uploading.value = false
         // await refresh()
         reset()
     }
     catch (ex: any) {
-        hints.addError("Failed to upload image.")
+        hints.addError("Failed to upload audio.")
     }
 }
 

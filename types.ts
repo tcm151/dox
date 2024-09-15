@@ -113,7 +113,7 @@ export interface Comment extends Voteable {
     timeEdited?: string
 }
 
-export interface Image extends Voteable {
+export interface Media extends Voteable {
     id: string
     user: User | string
     type: string
@@ -122,14 +122,8 @@ export interface Image extends Voteable {
     url: string
 }
 
-export interface Audio extends Voteable {
-    id: string
-    user: User | string
-    type: string
-    tokens: number
-    time: string
-    url: string
-}
+export interface Image extends Media { }
+export interface Audio extends Media { }
 
 export interface Notification {
     id: string

@@ -1,4 +1,4 @@
-import type { Image } from "~/types"
+import type { Audio } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -6,14 +6,15 @@ export default defineEventHandler(async (event) => {
     const baseUrl = getHeader(event, 'origin')
 
     const { buffer, type } = await processMedia(data![0])
-    const tokens = Math.round(buffer.byteLength / 2_048)
+    // const tokens = Math.round(buffer.byteLength / 2_048)
+    const tokens = 1234
     
-    if (auth.tokens < tokens) {
-        throw createError({
-            statusCode: 401,
-            message: "You do not have enough tokens to upload this image."
-        })
-    }
+    // if (auth.tokens < tokens) {
+    //     throw createError({
+    //         statusCode: 401,
+    //         message: "You do not have enough tokens to upload this audio."
+    //     })
+    // }
 
     const { sql, parameters } = queryBuilder()
     sql.push('RETURN {')
@@ -24,17 +25,17 @@ export default defineEventHandler(async (event) => {
     parameters['user'] = auth.id
     parameters['tokens'] = tokens
 
-    sql.push('RETURN CREATE image SET')
+    sql.push('RETURN CREATE audio SET')
     sql.push('user = $user,')
     sql.push('type = $type,')
     sql.push('tokens = $tokens,')
     sql.push('time = time::now(),')
-    sql.push(`url = <future> { string::concat("${baseUrl}/cdn/image/", meta::id(id)) };`)
+    sql.push(`url = <future> { string::concat("${baseUrl}/cdn/audio/", meta::id(id)) };`)
     parameters['type'] = type
 
     sql.push('};')
 
-    const image = await queryOne<Image>({ sql, parameters })
-    await writeMedia(image, buffer, "image")
-    return { image, tokens }
+    const audio = await queryOne<Audio>({ sql, parameters })
+    await writeMedia(audio, buffer, "audio")
+    return { audio, tokens }
 })

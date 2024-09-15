@@ -38,7 +38,7 @@ async function beginUpload() {
     try {
         confirmImageUpload.value = false
         uploading.value = true
-        await uploadImage(files.value)
+        const image = await uploadMedia<Image>(files.value, "image")
         uploading.value = false
         await refresh()
         reset()

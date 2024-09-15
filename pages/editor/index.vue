@@ -101,7 +101,7 @@ let uploading = ref<boolean>(false)
 async function beginUpload() {
     confirmImageUpload.value = false
     uploading.value = true
-    const image = await uploadImage(files.value)
+    const image = await uploadMedia<Image>(files.value, "image")
     if (image != null) {
         uploadedImages.value.push(image)
     }
