@@ -18,7 +18,7 @@ export const authenticateRequest = async (event: H3Event) => {
     catch (ex) {
         throw createError({
             statusCode: 401,
-            message: "Failed to authenticate request."
+            statusMessage: "Failed to authenticate request."
         })
     }
 }

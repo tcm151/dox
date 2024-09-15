@@ -13,10 +13,16 @@ export default defineEventHandler(async (event) => {
     sql.push('edited = true,')
     sql.push('timeEdited = time::now();')
     sql.push('}')
+    sql.push('ELSE {')
+    sql.push('THROW "You are not the author of this post."')
+    sql.push('}')
     
     parameters['post'] = `post:${id}`
     parameters['user'] = auth.id
     parameters['content'] = content
 
-    return await queryOne<Post>({ sql, parameters })
+    return await queryOne<Post>({
+        label: "Editing a post",
+        sql, parameters
+    })
 })

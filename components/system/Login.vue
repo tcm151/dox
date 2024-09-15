@@ -13,24 +13,26 @@ events.subscribe(Trigger.toggleLogin, (name?: string) => {
 })
 
 function closeLogin() {
-    events.publish(Trigger.toggleLogin)
+    username.value = ""
+    password.value = ""
     wrongAttempts.value = 0
+    events.publish(Trigger.toggleLogin)
 }
 
 const loading = ref<boolean>(false)
 async function attemptLogin() {
-    loading.value = true
-    if (await session.login(username.value, password.value)) {
-        events.publish(Trigger.toggleLogin)
-        wrongAttempts.value = 0
-        username.value = ""
-        password.value = ""
+    try {
+        loading.value = true
+        await session.login(username.value, password.value)
+        closeLogin()
     }
-    else {
-        hints.addError("Username or password were incorrect.")
+    catch (ex) {
         wrongAttempts.value += 1
+        hints.addError("Caught bad login...")
     }
-    loading.value = false
+    finally {
+        loading.value = false
+    }
 }
 
 const wrongAttempts = ref(0)

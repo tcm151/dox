@@ -49,20 +49,15 @@ function toggleEditPost() {
 //     showPreview.value = !showPreview.value
 // }
 
-async function updatePost(changes: Post | null) {
-    if (!changes) {
+async function updatePost(changedPost: Post | null) {
+    if (!changedPost) {
         hints.addError("You can't edit something that doesn't exist.")
         return
     }
 
-    try {
-        await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
-        post.value!.edited = true
-        toggleEditPost()
-    }
-    catch (ex: any) {
-        hints.addError("Failed to save changes to post.")
-    }
+    await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
+    post.value!.edited = true
+    toggleEditPost()
 }
 
 async function deletePost() {
@@ -70,13 +65,9 @@ async function deletePost() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your post?',
         accept: async () => {
-            try {
-                await session.useApi(`/api/post/${postId}/delete`)
-                return navigateTo("/feed")
-            }
-            catch (ex: any) {
-                hints.addError("Failed to delete post.")
-            }
+            await session.useApi(`/api/post/${postId}/delete`)
+            hints.addSuccess("Successfully deleted post.")
+            return navigateTo("/feed")
         },
     })
 }

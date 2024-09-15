@@ -11,7 +11,7 @@ export interface Session {
     user: Ref<User>
     useApi: <T>(route: string, body?: any) => Promise<T | null>
     authenticate: (userToken?: string) => Promise<boolean>
-    login: (id: string, password: string) => Promise<boolean>
+    login: (id: string, password: string) => Promise<void>
     logout: (clear: boolean) => void
     fetchProfile(): Promise<void>
     follow: (target: string) => Promise<boolean>
@@ -130,9 +130,11 @@ export const getSession = defineStore("session", (): Session => {
         }
         catch (ex: any) {
             logout(true)
+            throw createError({
+                statusCode: 401,
+                statusMessage: "Unable to login to account."
+            })
         }
-
-        return isAuthenticated.value
     }
 
     async function logout(clear: boolean) {
