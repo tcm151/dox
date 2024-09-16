@@ -117,6 +117,7 @@ export interface Media extends Voteable {
     id: string
     user: User | string
     type: string
+    name: string
     tokens: number
     time: string
     url: string

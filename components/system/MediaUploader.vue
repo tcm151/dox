@@ -1,7 +1,16 @@
 <script setup lang="ts">
+interface MediaFile extends File {
+    description: string
+}
+
+interface FilePackage extends FileList {
+    [Symbol.iterator](): IterableIterator<MediaFile>;
+}
+
 const props = defineProps<{
     visible: boolean
     media: FileList | null
+    loading?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -26,49 +35,37 @@ function getMediaUrl(image: File) {
 <template>
     <Popup
         :visible="visible"
+        :loading="loading"
         title="Confirm Media"
         accept-label="Upload"
         decline-label="Cancel"
         @decline="emit('close')"
     >
-        <div class="media column g-2" v-for="item in media">
+        <div class="media column g-2" v-for="item in (media as FilePackage)">
             <section v-if="item.type.startsWith('image/')">
                 <img :src="getMediaUrl(item)" alt="">
             </section>
             <section v-if="item.type.startsWith('audio/')">
                 <audio controls :src="getMediaUrl(item)" />
             </section>
-            <footer class="row center g-2">
-                <span>{{ item.name }}</span>
-                <span>{{ getFileSize(item.size) }}</span>
+            <footer class="form">
+                <div class="field">
+                    <label>File - {{ getFileSize(item.size) }}</label>
+                    <input type="text" v-model="item.name">
+                </div>
+                <div class="field">
+                    <label>Description</label>
+                    <textarea resize="none" rows="5" v-model="item.description" />
+                </div>
             </footer>
         </div>
     </Popup>
 </template>
 
 <style scoped lang="scss">
-.form {
-    width: 256px;
-}
-
-div.media {
-    text-align: center;
-    
-    img {
-        max-width: 256px;
-        max-height: 256px;
-        object-fit: contain;
-        background-color: $white-1;
-        border-radius: 0.25rem;
-        padding: 0.5rem;
-    }
-
-    div.receipt {
-        justify-content: space-around;
-    }
-
-    i.fa-cube {
-        color: $yellow;
+div.field {
+    textarea {
+        resize: none;
     }
 }
 </style>

@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
     const baseUrl = getHeader(event, 'origin')
 
     const { buffer, type } = await processMedia(data![0])
-    // const tokens = Math.round(buffer.byteLength / 2_048)
-    const tokens = 1234
+    const tokens = Math.round(buffer.byteLength / 2_048)
+    // const tokens = 1234
     
     // if (auth.tokens < tokens) {
     //     throw createError({
@@ -20,10 +20,9 @@ export default defineEventHandler(async (event) => {
     sql.push('RETURN {')
     
     // TODO add event log for all token transactions
-    sql.push('UPDATE $user SET')
-    sql.push('tokens -= $tokens;')
-    parameters['user'] = auth.id
-    parameters['tokens'] = tokens
+    // sql.push('UPDATE $user SET')
+    // sql.push('tokens -= $tokens;')
+    // parameters['user'] = auth.id
 
     sql.push('RETURN CREATE audio SET')
     sql.push('user = $user,')
@@ -32,6 +31,7 @@ export default defineEventHandler(async (event) => {
     sql.push('time = time::now(),')
     sql.push(`url = <future> { string::concat("${baseUrl}/cdn/audio/", meta::id(id)) };`)
     parameters['type'] = type
+    parameters['tokens'] = tokens
 
     sql.push('};')
 

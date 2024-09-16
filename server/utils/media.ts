@@ -26,7 +26,7 @@ export async function processMedia(media: MultiPartData): Promise<{ buffer: Buff
                 buffer: await sharp(media.data).jpeg({ quality: 80, force: true }).toBuffer(),
                 type: "jpeg"
             }
-        case "audio/mp3": {
+        case "audio/mpeg": {
             return {
                 type: "mp3",
                 buffer: media.data,
@@ -34,7 +34,8 @@ export async function processMedia(media: MultiPartData): Promise<{ buffer: Buff
         }
         default:
             throw createError({
-
+                statusCode: 400,
+                statusMessage: "Unsupported media type."
             })
     }
 }
@@ -51,7 +52,8 @@ export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaT
         removeMediaFromDatabase(media)
         throw createError({
             statusCode: 500,
-            message: `Unable to upload media "${media.id}"...\n${error.message}`
+            statusMessage: 'Unable to save file on server.',
+            message: error.message,
         })
     }
 }
