@@ -8,4 +8,10 @@ node_modules
 .production
 .env
 dist
-images/
+images/*.gif
+images/*.webp
+images/*.png
+images/*.jpeg
+audio/*.mp3
+media/images/*
+media/audio/*
