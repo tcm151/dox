@@ -17,6 +17,29 @@ events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 let showUserManager = ref(false)
 events.subscribe(Trigger.toggleUserManager, () => showUserManager.value = !showUserManager.value)
 
+let showPopup = ref(false)
+const popupTitle = ref<string>("")
+const popupMessage = ref<string>("")
+const handlingPopup = ref(false)
+const popupOnAccept = ref<($event?: undefined) => any>(() => {})
+events.subscribe(Trigger.showPopup, (payload: any) => {
+    popupTitle.value = payload.title
+    popupMessage.value = payload.message
+    popupOnAccept.value = payload.accept
+    showPopup.value = true
+})
+
+async function popupAccept() {
+    try {
+        handlingPopup.value = true
+        await popupOnAccept.value()
+        showPopup.value = false
+    }
+    finally {
+        handlingPopup.value = false
+    }
+}
+
 if (process.client) {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
@@ -31,6 +54,9 @@ if (process.client) {
 <template>
     <Navbar />
     <Login :visible="showLogin" />
+    <Popup :visible="showPopup" :loading="handlingPopup" :title="popupTitle" @accept="popupAccept" @decline="showPopup = false">
+        {{ popupMessage }}
+    </Popup>
     <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
     <NuxtLayout>
         <NuxtPage />

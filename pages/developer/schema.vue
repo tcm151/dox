@@ -6,30 +6,19 @@ const events = useEvents()
 const session = getSession()
 
 async function syncDatabase() {
-    try {
-        await session.useApi("/api/developer/database/sync")
-        hints.addSuccess("Database synced. Logging Out...")
-        setTimeout(() => {
-            session.logout(true)
-            events.publish(Trigger.toggleLogin)
-        }, 2500)
-    }
-    catch (ex: any) {
-        hints.addError("Failed to sync database.")
-        hints.addError(ex.toString())
-    }
+    await session.useApi("/api/developer/database/sync")
+    hints.addSuccess("Database synced. Logging Out...")
+    
+    setTimeout(() => {
+        session.logout(true)
+        events.publish(Trigger.toggleLogin)
+    }, 2500)
 }
 
 const schema = cache.get<string>("developer.schema.sql", () => "")
 async function refreshSchema() {
-    try {
-        schema.value = await session.useApi<string>("/api/developer/database/schema") ?? ""
-        hints.addSuccess("Downloaded current database schema.")
-    }
-    catch (ex: any) {
-        hints.addError("Failed to download schema.")
-        hints.addError(ex.toString())
-    }
+    schema.value = await session.useApi<string>("/api/developer/database/schema") ?? ""
+    hints.addSuccess("Downloaded current database schema.")
 }
 </script>
 

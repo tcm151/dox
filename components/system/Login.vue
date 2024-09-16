@@ -20,45 +20,39 @@ events.subscribe(Trigger.toggleLogin, (name?: string) => {
 })
 
 function closeLogin() {
-    events.publish(Trigger.toggleLogin)
+    username.value = ""
+    password.value = ""
     wrongAttempts.value = 0
+    events.publish(Trigger.toggleLogin)
 }
 
 const loading = ref<boolean>(false)
 async function attemptLogin() {
-    loading.value = true
-    if (await session.login(username.value, password.value)) {
-        events.publish(Trigger.toggleLogin)
-        wrongAttempts.value = 0
-        username.value = ""
-        password.value = ""
+    try {
+        loading.value = true
+        await session.login(username.value, password.value)
+        closeLogin()
     }
-    else {
-        hints.addError("Username or password were incorrect.")
+    catch (ex) {
         wrongAttempts.value += 1
     }
-    loading.value = false
+    finally {
+        loading.value = false
+    }
 }
 
 const wrongAttempts = ref(0)
 function forgetPassword() {
-    hints.addWarning('We are still working on this...')
-    // TODO allow users to reset their password without being logged in
-    // events.publish(Trigger.showPopup, {
-    //     title: 'Confirm Password Reset',
-    //     message: 'Are you sure you want to reset your password?',
-    //     accept: async () => {
-    //         try {
-    //             await session.useApi(`/api/profile/password/reset`)
-    //             hints.addSuccess("Password reset link sent to your email.")
-    //         }
-    //         catch (ex: any) {
-    //             hints.addError("Failed to send reset link.")
-    //         }
-    //     },
-    // })
-    // navigateTo("/register")
-    // closeLogin()
+    closeLogin()
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Password Reset',
+        message: 'Are you sure you want to reset your password?',
+        accept: async () => {
+            // TODO allow users to reset their password without being logged in
+            await session.useApi(`/api/profile/password/reset`)
+            hints.addSuccess("Password reset link sent to your email.")
+        },
+    })
 }
 </script>
 

@@ -1,8 +1,23 @@
+interface Error {
+    cause?: string
+    name?: string
+    url: string
+    statusCode: number
+    statusMessage: string
+    message: string
+    stack: string
+    data?: any
+    fatal?: boolean
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
-    nuxtApp.vueApp.config.errorHandler = async (error, context) => {
-        // await $fetch("/api/error/add", {
-        //     method: "POST",
-        //     body: { error, context: null }
-        // })
+    const hints = useHints()
+    
+    async function errorHandler(error: Error, context: unknown) {
+        hints.addError(error.statusMessage)
+    }
+
+    nuxtApp.vueApp.config.errorHandler = async (error: unknown, context) => {
+        errorHandler(error as Error, context)
     }
 })

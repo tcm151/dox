@@ -4,10 +4,10 @@ import type { Topic, Post } from '~/types'
 const route = useRoute()
 const topicId = route.params.topic.toString()
 
-const { data: topic } = useAsyncData(`topic:${topicId}`, () => {
+const { data: topic } = await useAsyncData(`topic:${topicId}`, () => {
     return $fetch<Topic>(`/api/topic/${topicId}`)
 })
-const { data: posts, pending, refresh } = useAsyncData(`topic:${topicId}/posts`, () => {
+const { data: posts, pending, refresh } = await useAsyncData(`topic:${topicId}/posts`, () => {
     return $fetch<Post[]>(`/api/topic/${topicId}/posts`)
 })
 

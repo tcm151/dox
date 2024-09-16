@@ -4,7 +4,7 @@ import type { Feedback, User } from '~/types'
 const cache = useCache()
 const session = getSession()
 
-const { data: feedback, refresh } = useAsyncData("feedback", () => {
+const { data: feedback, refresh } = await useAsyncData("feedback", () => {
     return $fetch<Feedback[]>("/api/feedback")
 })
 

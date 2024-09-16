@@ -4,7 +4,7 @@ import type { Thread, User } from '~/types'
 const route = useRoute()
 const id = route.params.id.toString()
 
-const { data: thread, pending, refresh } = useAsyncData(`thread:${id}`, () => {
+const { data: thread, pending, refresh } = await useAsyncData(`thread:${id}`, () => {
     return $fetch<Thread>(`/api/thread/${id}`)
 })
 

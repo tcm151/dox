@@ -41,25 +41,19 @@ let newThread = ref<Thread>({
     visits: 0,
 })
 async function submit() {
-    try {
-        const thread = await session.useApi<Thread>("/api/thread/add", {
-            user: session.user.id,
-            content: newThread.value.content,
-            topics: newThread.value.topics,
-            votes: {
-                positive: [session.user.id],
-                misleading: [],
-                negative: [],
-            },
-        })
+    await session.useApi<Thread>("/api/thread/add", {
+        user: session.user.id,
+        content: newThread.value.content,
+        topics: newThread.value.topics,
+        votes: {
+            positive: [session.user.id],
+            misleading: [],
+            negative: [],
+        },
+    })
 
-        hints.addSuccess(`Submitted new ${thread?.id}`)
-        await refresh()
-        clearEditor()
-    }
-    catch (ex: any) {
-        hints.addError("Failed to submit thread.")
-    }
+    clearEditor()
+    await refresh()
 }
 
 function clearEditor() {
