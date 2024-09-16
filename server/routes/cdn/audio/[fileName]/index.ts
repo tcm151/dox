@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const audio = await queryOne<Audio>({ sql, parameters })
     
     try {
-        return fs.readFileSync(`./audio/${id}.${audio.type}`)
+        return fs.readFileSync(`./media/audio/${id}.${audio.type}`)
     }
     catch (error: any) {
         throw createError({

@@ -41,7 +41,6 @@ export async function processMedia(media: MultiPartData): Promise<{ buffer: Buff
 
 type MediaType = "image" | "audio"
 
-// TODO add support for refund if failed
 export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaType) {
     try {
         fs.writeFileSync(`./media/${mediaType}/${extractId(media.id)}.${media.type}`, buffer, {
@@ -49,9 +48,18 @@ export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaT
         })
     }
     catch (error: any) {
+        removeMediaFromDatabase(media)
         throw createError({
             statusCode: 500,
             message: `Unable to upload media "${media.id}"...\n${error.message}`
         })
     }
+}
+
+// TODO add support for refund if failed
+async function removeMediaFromDatabase(media: Media) {
+    var { sql, parameters } = queryBuilder()
+    sql.push('DELETE $media')
+    parameters['media'] = media.id
+    await queryOne({ sql, parameters })
 }

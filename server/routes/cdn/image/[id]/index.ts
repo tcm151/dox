@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const image = await queryOne<Image>({ sql, parameters })
     
     try {
-        return fs.readFileSync(`./images/${id}.${image.type}`)
+        return fs.readFileSync(`./media/image/${id}.${image.type}`)
     }
     catch (error: any) {
         throw createError({

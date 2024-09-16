@@ -22,13 +22,13 @@ export default defineEventHandler(async (event) => {
     }
 
     if (ENV.isDevelopment()) {
-        const devPath = `./images/${id}.${image.type}`
+        const devPath = `./media/images/${id}.${image.type}`
         if (fs.existsSync(devPath)) {
             fs.rmSync(devPath)
         }
     }
     else {
-        const prodPath = `./.production/images/${id}.${image.type}`
+        const prodPath = `./.production/media/images/${id}.${image.type}`
         if (fs.existsSync(prodPath)) {
             fs.rmSync(prodPath)
         }
