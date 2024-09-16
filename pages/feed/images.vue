@@ -61,7 +61,7 @@ function viewImage(image: Image) {
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
-                <ImageUploader :visible="showImageUploader" :images="files" @accept="beginUpload" @close="reset" />
+                <MediaUploader :visible="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
             </header>
         </ClientOnly>
         <section class="all-images fill row-wrap g-2">
@@ -92,23 +92,27 @@ section.all-images {
     align-items: center;
 
     div.image {
-        padding: 0.5rem;
+        padding: 0.25rem;
         border-radius: 0.25rem;
         border: 2px solid $white-0;
         background-color: $white-0;
         cursor: pointer;
         
         img {
-            height: 128px;
+            height: fit-content;
+            min-height: 100px;
+            max-height: 200px;
             max-width: 100%;
-            object-fit: contain;
+            object-fit: cover;
 
             @media only screen and (max-width: 800px) {
-                height: 96px;
+                min-height: 50px;
+                max-height: 100px;
             }
 
             @media only screen and (max-width: 600px) {
-                height: 64px;
+                min-height: 40px;
+                max-height: 80px;
             }
         }
     }

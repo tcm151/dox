@@ -76,7 +76,7 @@ function togglePreview() {
     showPreview.value = !showPreview.value
 }
 
-const confirmImageUpload = ref(false)
+const confirmUpload = ref(false)
 let uploadedImages = useSessionStorage<Image[]>('uploadedImages', [])
 
 const { files, open: openFileDialog, reset } = useFileDialog({
@@ -84,7 +84,7 @@ const { files, open: openFileDialog, reset } = useFileDialog({
 })
 
 whenever(files, () => {
-    confirmImageUpload.value = true
+    confirmUpload.value = true
 })
 
 function selectImages() {
@@ -99,7 +99,7 @@ let uploading = ref<boolean>(false)
 
 
 async function beginUpload() {
-    confirmImageUpload.value = false
+    confirmUpload.value = false
     uploading.value = true
     const image = await uploadMedia<Image>(files.value, "image")
     if (image != null) {
@@ -110,7 +110,7 @@ async function beginUpload() {
 }
 
 function cancelUpload() {
-    confirmImageUpload.value = false
+    confirmUpload.value = false
     reset()
 }
 
@@ -200,7 +200,7 @@ async function saveDraft() {
     <article class="editor column p-4">
         <div class="container column fill">
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-            <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
+            <MediaUploader :visible="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
             <div class="reply-to row center-inline g-2" v-if="replyTo">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ replyTo?.title }}</p>

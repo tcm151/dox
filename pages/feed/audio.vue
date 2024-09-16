@@ -53,7 +53,7 @@ function viewAudio(audio: Audio) {
                     <i class="fa-solid fa-microphone"></i>
                     <span>Upload</span>
                 </button>
-                <AudioUploader :visible="confirmUpload" :audio="files" @accept="beginUpload" @close="cancelUpload" />
+                <MediaUploader :visible="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
             </header>
         </ClientOnly>
         <!-- <section class="all-images fill row-wrap g-2">

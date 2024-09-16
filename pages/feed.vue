@@ -15,7 +15,7 @@ definePageMeta({
 </script>
 
 <template>
-    <article class="column center-inline">
+    <article class="feed column center-inline">
         <PagedTabstrip
             :tabs="[
                 { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics' },
@@ -32,7 +32,7 @@ definePageMeta({
 </template>
 
 <style scoped lang="scss">
-article {
+article.feed {
     width: 100%;
     overflow-y: hidden;
 }
