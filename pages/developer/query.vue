@@ -62,18 +62,14 @@ function removeQueryFromSaved(item: any) {
 }
 
 async function submitQuery() {
-    try {
-        const response = await session.useApi<any[]>("/api/developer/database/query", {
-            query: query.value
-        })
-        history.value = history.value.filter(q => q !== query.value)
-        history.value.unshift(query.value)
-        results.value = response ?? []
-        tab.value = 'Results'
-    }
-    catch (error: any) {
-        hints.addError(error.statusMessage)
-    }
+    const response = await session.useApi<any[]>("/api/developer/database/query", {
+        query: query.value
+    })
+    
+    history.value = history.value.filter(q => q !== query.value)
+    history.value.unshift(query.value)
+    results.value = response ?? []
+    tab.value = 'Results'
 }
 </script>
 

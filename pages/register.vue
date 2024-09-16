@@ -16,39 +16,34 @@ const password = ref("")
 const confirmation = ref("")
 
 async function register() {
-    try {
-        if (!valid.email.test(email.value)) {
-            hints.addError("Invalid email.")
-            return
-        }
-
-        if (!valid.username.test(username.value)) {
-            hints.addError("Invalid username.")
-            return
-        } 
-
-        if (!valid.password.test(password.value) || !valid.password.test(confirmation.value)) {
-            hints.addError("Invalid password.")
-            return
-        } 
-
-        session.token = await $fetch<string>("/api/user/register", {
-            method: "POST",
-            body: {
-                email: email.value,
-                username: username.value,
-                password: password.value,
-                referral: referrer
-            },
-        })
-
-        hints.addSuccess('Created account successfully!')
-        await session.authenticate()
-        navigateTo('/profile')
+    if (!valid.email.test(email.value)) {
+        hints.addError("Invalid email.")
+        return
     }
-    catch (ex: any) {
-        hints.addError(ex.message)
-    }
+
+    if (!valid.username.test(username.value)) {
+        hints.addError("Invalid username.")
+        return
+    } 
+
+    if (!valid.password.test(password.value) || !valid.password.test(confirmation.value)) {
+        hints.addError("Invalid password.")
+        return
+    } 
+
+    session.token = await $fetch<string>("/api/user/register", {
+        method: "POST",
+        body: {
+            email: email.value,
+            username: username.value,
+            password: password.value,
+            referral: referrer
+        },
+    })
+
+    await session.authenticate()
+    hints.addSuccess('Created account successfully!')
+    navigateTo('/profile')
 }
 
 function invalidEmail() {

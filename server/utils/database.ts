@@ -4,7 +4,7 @@ const { surreal } = useRuntimeConfig()
 if (surreal.url == "" || !surreal.url.includes("/rpc")) {
     throw createError({
         statusCode: 500,
-        message: `Database URL was [${surreal.url ?? "empty"}]. Check environment variables.`
+        statusMessage: `Database URL was [${surreal.url ?? "empty"}]. Check environment variables.`
     })
 }
 
@@ -37,27 +37,37 @@ export interface DatabaseResponse<T> {
 interface Query {
     sql: string[]
     parameters?: Parameters
+    label?: string
 }
 
 export function queryBuilder(): { sql: string[], parameters: Parameters } {
     return {
         sql: [],
-        parameters: {}
+        parameters: {},
     }
 }
 
 async function handleQuery<T>(query: Query) {
     try {
-        const responses = await db.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
-        return responses
+        return await db.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
     }
     catch (ex: any) {
-        console.log(ex)
-        throw createError({
-            fatal: true,
-            statusCode: 500,
-            message: "Internal Server Error."
-        })
+        if (ex.message.startsWith("An error occurred:")) {
+            const message = ex.message.split(":").at(1).trim()
+            throw createError({
+                fatal: true,
+                statusCode: 500,
+                statusMessage: message,
+            })
+        }
+        else {
+            throw createError({
+                fatal: true,
+                statusCode: 500,
+                statusMessage: `API Error: ${query.label ?? "Unable to execute query."}`,
+                message: ex.message
+            })
+        }
     }
 }
 

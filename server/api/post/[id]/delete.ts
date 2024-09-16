@@ -7,9 +7,6 @@ export default defineEventHandler(async (event) => {
     const { sql, parameters } = queryBuilder()
 
     sql.push('RETURN {')
-    parameters['post'] = `post:${id}`
-    parameters['user'] = auth
-    
     sql.push('IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {')
     sql.push('THROW "You are not allowed to do this.";')
     sql.push('};')
@@ -27,9 +24,13 @@ export default defineEventHandler(async (event) => {
     sql.push('};')
     
     sql.push('DELETE $post;')
-
-    sql.push('RETURN "Deleted post successfully.";')
     sql.push('};')
 
-    return await queryAll<string>({ sql, parameters })
+    parameters['post'] = `post:${id}`
+    parameters['user'] = auth
+
+    return await queryAll<string>({ 
+        label: "Deleting a post",
+        sql, parameters
+     })
 })

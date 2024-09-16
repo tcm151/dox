@@ -4,22 +4,16 @@ import { DateTime } from 'luxon'
 const hints = useHints()
 const session = getSession()
 
-const { data: backups, refresh } = useAsyncData('backups', () => {
+const { data: backups, refresh } = await useAsyncData('backups', () => {
     return session.useApi<any[]>("/api/developer/backup")
 })
 
 let backupInterval = ref<number>(24)
 
 async function startBackup() {
-    try {
-        console.log(await session.useApi("/api/developer/backup/start"))
-        hints.addSuccess(`Backup created at ${DateTime.now().toLocaleString(DateTime.DATETIME_FULL)}`)
-        await refresh()
-    }
-    catch (error: any) {
-        console.log(error.message)
-        hints.addError("Backup FAILED!")
-    }
+    await session.useApi("/api/developer/backup/start")
+    hints.addSuccess(`Backup created at ${DateTime.now().toLocaleString(DateTime.DATETIME_FULL)}`)
+    await refresh()
 }
 </script>
 
