@@ -19,13 +19,8 @@ async function updateProfile() {
         return
     }
 
-    try {
-        await session.useApi("/api/profile/update", session.user)
-        await session.fetchProfile()
-    }
-    catch (ex: any) {
-        hints.addError("Failed to update profile.")
-    }
+    await session.useApi("/api/profile/update", session.user)
+    await session.fetchProfile()
 }
 
 const events = useEvents()
@@ -35,13 +30,8 @@ async function resetPassword() {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            try {
-                await session.useApi(`/api/profile/password/reset`)
-                hints.addSuccess("Password reset link sent to your email.")
-            }
-            catch (ex: any) {
-                hints.addError("Failed to send reset link.")
-            }
+            await session.useApi(`/api/profile/password/reset`)
+            hints.addSuccess("Password reset link sent to your email.")
         },
     })
 }

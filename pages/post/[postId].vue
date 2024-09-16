@@ -7,7 +7,7 @@ const route = useRoute()
 const postId = route.params.postId.toString()
 const { public: { site } } = useRuntimeConfig()
 
-const { data: post, pending, refresh } = useAsyncData(`post:${postId}`, () => {
+const { data: post, pending, refresh } = await useAsyncData(`post:${postId}`, () => {
     return $fetch<Post>(`/api/post/${postId}`)
 })
 
@@ -117,13 +117,9 @@ async function awardPost() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this post? It will cost 256 tokens.',
         accept: async () => {
-            try {
-                await session.useApi(`/api/post/${postId}/award`)
-                await refresh()
-            }
-            catch (ex: any) {
-                hints.addError("Failed to award post.")
-            }
+            await session.useApi(`/api/post/${postId}/award`)
+            hints.addSuccess("Successfully awarded post.")
+            await refresh()
         },
     })
 }

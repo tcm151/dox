@@ -36,11 +36,11 @@ export interface DatabaseResponse<T> {
 
 interface Query {
     sql: string[]
-    parameters: Parameters
+    parameters?: Parameters
     label?: string
 }
 
-export function queryBuilder(): Query {
+export function queryBuilder(): { sql: string[], parameters: Parameters } {
     return {
         sql: [],
         parameters: {},

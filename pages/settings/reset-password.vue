@@ -31,24 +31,20 @@ async function resetPassword() {
         return
     }
 
-    try {
-        await $fetch("/api/profile/password/confirm", {
-            method: "POST",
-            body: {
-                resetId: resetId,
-                email: email.value,
-                password: password.value
-            }
-        })
-        email.value = ""
-        password.value = ""
-        confirmation.value = ""
-        events.publish(Trigger.toggleLogin)
-        navigateTo("/feed")
-    }
-    catch (ex: any) {
-        hints.addError("Failed to reset password.")
-    }
+    await $fetch("/api/profile/password/confirm", {
+        method: "POST",
+        body: {
+            resetId: resetId,
+            email: email.value,
+            password: password.value
+        }
+    })
+    
+    email.value = ""
+    password.value = ""
+    confirmation.value = ""
+    events.publish(Trigger.toggleLogin)
+    navigateTo("/feed")
 }
 
 function invalidEmail() {

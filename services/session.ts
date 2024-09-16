@@ -45,22 +45,13 @@ export const getSession = defineStore("session", (): Session => {
 
     //> API
     async function useApi<T>(route: string, body?: any) {
-        try {
-            return $fetch<T>(route, {
-                method: "POST",
-                headers: {
-                    Authorization: token.value,
-                },
-                body: body,
-            }) as T
-        }
-        catch (ex: any) {
-            events.publish(Trigger.addHint, {
-                message: ex.message,
-                type: "error",
-            })
-            return null
-        }
+        return await $fetch<T>(route, {
+            method: "POST",
+            headers: {
+                Authorization: token.value,
+            },
+            body: body,
+        })
     }
 
     async function fetchProfile(): Promise<void> {
@@ -77,6 +68,7 @@ export const getSession = defineStore("session", (): Session => {
     async function authenticate(userToken?: string) {
         const { public: { surreal } } = useRuntimeConfig()
         try {
+            // TODO convert to API route
             const db = new Surreal()
             await db.connect(surreal.url, {
                 namespace: surreal.namespace,
@@ -105,6 +97,7 @@ export const getSession = defineStore("session", (): Session => {
     async function login(id: string, password: string) {
         const { public: { surreal } } = useRuntimeConfig()
         try {
+            // TODO convert to API method
             const db = new Surreal()
             await db.connect(surreal.url, {
                 namespace: surreal.namespace,
@@ -174,24 +167,15 @@ export const getSession = defineStore("session", (): Session => {
             return false
         }
         
-        try {
-            if (target.startsWith("user")) {
-                await useApi(`/api/user/${extractId(target)}/follow`)
-                user.value?.following.push(target)
-            }
-            if (target.startsWith("topic")) {
-                await useApi(`/api/topic/${extractId(target)}/follow`)
-                user.value?.topics.push(target)
-            }
-            return true
+        if (target.startsWith("user")) {
+            await useApi(`/api/user/${extractId(target)}/follow`)
+            user.value?.following.push(target)
         }
-        catch (error: any) {
-            events.publish(Trigger.addHint, {
-                message: error.message,
-                type: "error",
-            })
-            return false
+        if (target.startsWith("topic")) {
+            await useApi(`/api/topic/${extractId(target)}/follow`)
+            user.value?.topics.push(target)
         }
+        return true
     }
     
     async function unfollow(target: string) {
@@ -203,24 +187,15 @@ export const getSession = defineStore("session", (): Session => {
             return false
         }
         
-        try {
-            if (target.startsWith("user")) {
-                await useApi(`/api/user/${extractId(target)}/unfollow`)
-                user.value!.following = user.value?.following.filter(u => u !== target)!
-            }
-            if (target.startsWith("topic")) {
-                await useApi(`/api/topic/${extractId(target)}/unfollow`)
-                user.value!.topics = user.value?.topics.filter(t => t !== target)!
-            }
-            return true
+        if (target.startsWith("user")) {
+            await useApi(`/api/user/${extractId(target)}/unfollow`)
+            user.value!.following = user.value?.following.filter(u => u !== target)!
         }
-        catch (error: any) {
-            events.publish(Trigger.addHint, {
-                message: error.message,
-                type: "error",
-            })
-            return false
+        if (target.startsWith("topic")) {
+            await useApi(`/api/topic/${extractId(target)}/unfollow`)
+            user.value!.topics = user.value?.topics.filter(t => t !== target)!
         }
+        return true
     }
 
     return {

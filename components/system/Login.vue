@@ -28,7 +28,6 @@ async function attemptLogin() {
     }
     catch (ex) {
         wrongAttempts.value += 1
-        hints.addError("Caught bad login...")
     }
     finally {
         loading.value = false
@@ -37,23 +36,16 @@ async function attemptLogin() {
 
 const wrongAttempts = ref(0)
 function forgetPassword() {
-    hints.addWarning('We are still working on this...')
-    // TODO allow users to reset their password without being logged in
-    // events.publish(Trigger.showPopup, {
-    //     title: 'Confirm Password Reset',
-    //     message: 'Are you sure you want to reset your password?',
-    //     accept: async () => {
-    //         try {
-    //             await session.useApi(`/api/profile/password/reset`)
-    //             hints.addSuccess("Password reset link sent to your email.")
-    //         }
-    //         catch (ex: any) {
-    //             hints.addError("Failed to send reset link.")
-    //         }
-    //     },
-    // })
-    // navigateTo("/register")
-    // closeLogin()
+    closeLogin()
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Password Reset',
+        message: 'Are you sure you want to reset your password?',
+        accept: async () => {
+            // TODO allow users to reset their password without being logged in
+            await session.useApi(`/api/profile/password/reset`)
+            hints.addSuccess("Password reset link sent to your email.")
+        },
+    })
 }
 </script>
 

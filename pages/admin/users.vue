@@ -2,7 +2,7 @@
 import RoleManager from "./components/RoleManager.vue"
 import type { Role, User } from '~/types'
 
-const { data: users, refresh } = useAsyncData('users', () => {
+const { data: users, refresh } = await useAsyncData('users', () => {
     return $fetch<User[]>("/api/user")
 })
 

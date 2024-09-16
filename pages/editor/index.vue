@@ -115,14 +115,9 @@ function cancelUpload() {
 }
 
 async function deleteImage(image: Image) {
-    try {
-        await session.useApi(`/api/image/${extractId(image.id)}/delete`)
-        uploadedImages.value = uploadedImages.value.filter(i => i !== image)
-        hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
-    }
-    catch (ex: any) {
-        hints.addError(`Failed to delete image. Please try again.`)
-    }
+    await session.useApi(`/api/image/${extractId(image.id)}/delete`)
+    uploadedImages.value = uploadedImages.value.filter(i => i !== image)
+    hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
 }
 
 function copyImageUrl(event: Event) {
@@ -163,11 +158,9 @@ async function submit() {
         uploadedImages.value = []
         navigateTo(`/post/${extractId(post?.id)}`)
     }
-    catch (ex: any) {
-        hints.addError(ex.message)
-        console.log(ex)
+    finally {
+        submitting.value = false
     }
-    submitting.value = false
 }
 
 async function saveDraft() {

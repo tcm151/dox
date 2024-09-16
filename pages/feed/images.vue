@@ -26,71 +26,27 @@ const { files, open: selectImages, reset } = useFileDialog({
     accept: "image/*"
 })
 
-const confirmImageUpload = ref(false)
-watch(files, async () => {
-    if (files.value) {
-        confirmImageUpload.value = true
-    }
+const showImageUploader = computed(() => {
+    return files.value != null && files.value.length >= 1
 })
 
 let uploading = ref<boolean>(false)
 async function beginUpload() {
     try {
-        confirmImageUpload.value = false
         uploading.value = true
         await uploadImage(files.value)
         uploading.value = false
         await refresh()
         reset()
     }
-    catch (ex: any) {
-        hints.addError("Failed to upload image.")
+    finally {
+        uploading.value = false
     }
 }
 
-function cancelUpload() {
-    confirmImageUpload.value = false
-    reset()
-}
-
-const selectedImage = ref<Image | null>(null)
 function viewImage(image: Image) {
     return navigateTo(`/image/${extractId(image.id)}`)
 }
-
-
-async function deleteSelectedImage() {
-    if (!selectedImage.value) {
-        hints.addWarning("You haven't selected any image.")
-        return
-    }
-
-    try {
-        await session.useApi(`/api/image/${extractId(selectedImage.value.id)}/delete`)
-        hints.addSuccess(`${(selectedImage.value.user as User).name} has been refunded ${selectedImage.value.tokens} tokens.`)
-        selectedImage.value = null
-        await refresh()
-    }
-    catch (ex: any) {
-        hints.addError(`Failed to delete image. Please try again.`)
-    }
-}
-
-async function reportSelectedImage() {
-    if (!selectedImage.value) {
-        hints.addWarning("You haven't selected any image.")
-        return
-    }
-
-    try {
-        await session.useApi(`/api/image/${extractId(selectedImage.value.id)}/report`)
-        hints.addError("This image has been reported to the development team.")
-    }
-    catch (ex: any) {
-        hints.addError(`Failed to report image. Please try again.`)
-    }
-}
-
 </script>
 
 <template>
@@ -105,37 +61,9 @@ async function reportSelectedImage() {
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
-                <ImageUploader :visible="confirmImageUpload" :images="files" @accept="beginUpload" @close="cancelUpload" />
+                <ImageUploader :visible="showImageUploader" :images="files" @accept="beginUpload" @close="reset" />
             </header>
         </ClientOnly>
-        <!-- <Window
-            :visible="selectedImage != null"
-            width="800px"
-            icon="fa-solid fa-image"
-            :title="extractId(selectedImage?.id)"
-            @close="selectedImage = null"
-        >
-            <section class="popup-image column g-2" v-if="selectedImage">
-                <header class="row-wrap g-1">
-                    <UserTag class="f-1" :user="(selectedImage.user as User)" />
-                    <TimeTag :time="selectedImage.time" />
-                    <Tag type="info" icon="fa-image" :label="selectedImage.type" />
-                    <Tag type="warning" icon="fa-cube" :label="`${selectedImage.tokens} tokens`" />
-                    <Tag type="danger" icon="fa-flag" label="Report" @click="reportSelectedImage" />
-                    <Tag
-                        v-if="session.user.id == (selectedImage.user as User).id || hasRole(session.user, 'admin')"
-                        type="danger"
-                        icon="fa-trash-can"
-                        label="Delete"
-                        @click="deleteSelectedImage"
-                    />
-                </header>
-                <figure class="image">
-                    <img :src="selectedImage.url">
-                </figure>
-            </section>
-            
-        </Window> -->
         <section class="all-images fill row-wrap g-2">
             <div class="image fill" v-for="image in images" @click="viewImage(image)">
                 <img :src="image.url">
