@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-const settings = useSettings()
+const settings = useUserSettings()
 
 </script>
 

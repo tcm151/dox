@@ -7,7 +7,7 @@ export interface Hint {
 
 export const useHints = defineStore("hints", () => {
     const events = useEvents()
-    const settings = useSettings()
+    const settings = useUserSettings()
     
     let count = ref(0)
     let items = ref<Hint[]>([])

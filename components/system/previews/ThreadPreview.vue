@@ -7,7 +7,7 @@ const props = defineProps<{
     thread: Thread
 }>()
 
-const settings = useSettings()
+const settings = useUserSettings()
 
 </script>
 

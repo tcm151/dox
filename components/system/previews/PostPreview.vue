@@ -6,7 +6,7 @@ const props = defineProps<{
     pinned?: boolean
 }>()
 
-const settings = useSettings()
+const settings = useUserSettings()
 
 </script>
 

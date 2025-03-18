@@ -12,16 +12,18 @@ definePageMeta({
         }
     }
 })
+
+const settings = useAppSettings()
 </script>
 
 <template>
     <article class="feed column center-inline">
         <PagedTabstrip
             :tabs="[
-                { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics' },
+                { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics', hide: () => !settings.app.feed.showTopics },
                 { route: '/feed/posts', icon: 'fa-solid fa-newspaper', label: 'Posts' },
-                { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads' },
-                { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images' },
+                { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads', hide: () => !settings.app.feed.showThreads },
+                { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images', hide: () => !settings.app.feed.showImages },
                 // { route: '/feed/audio', icon: 'fa-solid fa-microphone', label: 'Audio' },
             ]"
         />

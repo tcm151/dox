@@ -1,10 +1,12 @@
-<script setup lang="ts">
+feedbackVisible<script setup lang="ts">
 
+const config = useAppSettings()
 const events = useEvents()
 const session = getSession()
+
 const { public: { site } } = useRuntimeConfig()
 
-const showFeedback = ref(false)
+const feedbackVisible = ref(false)
 const accounts = useLocalStorage<any[]>("profiles", [])
 async function login() {
     if (accounts.value.length > 0) {
@@ -18,36 +20,41 @@ async function login() {
 function toggleUserManager() {
     events.publish(Trigger.toggleUserManager)
 }
+
+const showAdmin = computed(() => session.isAuthenticated && hasRole(session.user, 'admin'))
+const showDeveloper = computed(() => (session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment())
+const showStore = computed(() => session.isAuthenticated && config.app.navbar.showStore)
+const showFeedback = computed(() => session.isAuthenticated && config.app.navbar.showFeedback)
 </script>
 
 <template>
     <nav class="navbar">
         <section class="left">
-            <NuxtLink class="title" to="/home" title="Home">
+            <NuxtLink class="title" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>{{ site.titleShort.toUpperCase() }}</span>
             </NuxtLink>
             <ClientOnly>
-                <NuxtLink to="/feed">
+                <NuxtLink to="/feed" title="Feed">
                     <i class="fa-solid fa-signs-post"></i>
                     <span>Feeds</span>
                 </NuxtLink>
-                <NuxtLink to="/admin" v-if="session.isAuthenticated && hasRole(session.user, 'admin')" title="Admin">
+                <NuxtLink to="/admin" v-if="showAdmin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                     <span>Admin</span>
                 </NuxtLink>
-                <NuxtLink to="/developer" v-if="(session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment()" title="Developer">
+                <NuxtLink to="/developer" v-if="showDeveloper" title="Developer">
                     <i class="fa-solid fa-code"></i>
                     <span>Developer</span>
                 </NuxtLink>
-                <NuxtLink to="/store" v-if="session.isAuthenticated" title="Store">
+                <NuxtLink to="/store" v-if="showStore" title="Store">
                     <i class="fa-solid fa-coins"></i>
                 </NuxtLink>
-                <NuxtLink @click="showFeedback = true" v-if="session.isAuthenticated" title="Feedback">
+                <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
                     <i class="fa-solid fa-keyboard"></i>
                 </NuxtLink>
-                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="showFeedback" @close="showFeedback = false">
-                    <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
+                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
+                    <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
                 </Window>
             </ClientOnly>
         </section>
