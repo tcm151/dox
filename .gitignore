@@ -10,3 +10,4 @@ node_modules
 dist
 media/image/*
 media/audio/*
+images/*
