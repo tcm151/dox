@@ -60,7 +60,7 @@ if (import.meta.client) {
     </Popup>
     <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
     <NuxtLayout>
-        <NuxtPage :key="route.path" />
+        <NuxtPage />
     </NuxtLayout>
     <Hints />
 </template>
