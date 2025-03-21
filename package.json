@@ -11,17 +11,15 @@
     },
     "devDependencies": {
         "@types/luxon": "^3.2.0",
-        "@types/marked": "^6.0.0",
         "@types/node": "^20.12.11",
         "@types/nodemailer": "^6.4.7",
         "@types/sanitize-html": "^2.9.0",
         "@vueuse/core": "^10.9.0",
         "@vueuse/nuxt": "^10.9.0",
-        "nuxt": "^3.13.1"
+        "nuxt": "^3.16.0"
     },
     "dependencies": {
         "@pinia/nuxt": "^0.5.1",
-        "apidoc": "^1.2.0",
         "bulma": "^1.0.0",
         "highlight.js": "^11.7.0",
         "html-entities": "^2.3.3",
