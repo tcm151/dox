@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     sql.push(');')
     
     sql.push('RETURN SELECT id, user.id, user.name, title, time,')
-    sql.push('replyTo.id, replyTo.title, topics, comments, votes,')
+    sql.push('replyTo.id, replyTo.title, topics, comments, votes, visits,')
     sql.push('images')
     sql.push('FROM $pins')
     sql.push('FETCH user, replyTo, images;')

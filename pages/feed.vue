@@ -13,6 +13,7 @@ definePageMeta({
     }
 })
 
+const route = useRoute()
 const settings = useAppSettings()
 </script>
 
@@ -28,7 +29,7 @@ const settings = useAppSettings()
             ]"
         />
         <section class="page column center-inline">
-            <NuxtPage />
+            <NuxtPage :key="route.path" />
         </section>
     </article>
 </template>

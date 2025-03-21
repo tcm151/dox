@@ -11,7 +11,7 @@ const { data: reports } = await useAsyncData('reports', () => {
         <section class="box column g-2 p-3" v-if="reports!.length > 0">
             <div class="row g-2" v-for="report in reports">
                 <UserTag width="6rem" :user="(report.reporter as User)" />
-                <TimeTag width="4rem" :time="report.time" />
+                <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(report.time)" />
                 <Tag
                     class="f-1"
                     type="danger"

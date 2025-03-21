@@ -14,7 +14,7 @@ const emit = defineEmits<{
 const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
 const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
 
-if (process.client) {
+if (import.meta.client) {
     resizePopup()
     window.visualViewport?.addEventListener('resize', resizePopup)
 }

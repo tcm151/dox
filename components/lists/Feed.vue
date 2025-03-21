@@ -46,7 +46,7 @@ function sort(type: string) {
         <header class="sorting row center g-2" v-if="props.sorting">
             <ClientOnly>
                 <!-- REFACTOR sorting needs to be done from the database -->
-                 <!-- BUG sorting is completely broken currently -->
+                 <!-- BUG sorting is completely broken currently?? -->
                 <button class="refresh dark" @click="emit('refresh')">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 </button>
@@ -55,10 +55,10 @@ function sort(type: string) {
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>
                 </button>
-                <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
+                <!-- <button @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
                     <i class="fa-solid fa-fire"></i>
                     <span>Hot</span>
-                </button>
+                </button> -->
                 <button @click="sort('top')" :class="{ selected: sortType === 'top' }">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Top</span>

@@ -14,7 +14,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     const hints = useHints()
     
     async function errorHandler(error: Error, context: unknown) {
-        hints.addError(error.statusMessage)
+        hints.addError(error.message)
+        console.log(error.message)
     }
 
     nuxtApp.vueApp.config.errorHandler = async (error: unknown, context) => {

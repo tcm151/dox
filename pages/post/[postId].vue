@@ -7,9 +7,8 @@ const route = useRoute()
 const postId = route.params.postId.toString()
 const { public: { site } } = useRuntimeConfig()
 
-const { data: post, pending, refresh } = await useAsyncData(`post:${postId}`, () => {
-    return $fetch<Post>(`/api/post/${postId}`)
-})
+const { data: post, refresh } = await useFetch<Post>(`/api/post/${postId}`)
+await useFetch(`/api/post/${postId}/visit`)
 
 useSeoMeta({
     title: () => post.value?.title ?? site.title,
@@ -26,13 +25,6 @@ useServerSeoMeta({
     },
     ogType: 'article',
     ogSiteName: site.title,
-})
-
-onMounted(async () => {
-    if (process.client && post.value) {
-        // sortList(post.value.comments as Comment[], "hot")
-        await $fetch(`/api/post/${postId}/visit`)
-    }
 })
 
 const hints = useHints()
@@ -166,7 +158,7 @@ function toggleOptions() {
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <UserTag class="f-1" :user="(post.user as User)" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
-                    <TimeTag class="f-1" :time="post.time" />
+                    <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
                     <Tag class="f-1" v-if="post.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.timeEdited)" />
                 </header>
                 <h1 class="mt-2">

@@ -26,7 +26,7 @@ const settings = useUserSettings()
                         <UserTag class="f-1" :user="(post.user as User)" />
                         <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
                         <Tag class="f-1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
-                        <TimeTag class="f-1" :time="post.time" />
+                        <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
                     </div>
                 </div>
                 <h3 class="title mt-2">

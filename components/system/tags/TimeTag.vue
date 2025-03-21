@@ -1,16 +1,9 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
     time: string
 }>()
 </script>
 
 <template>
-    <Tag
-        type="info"
-        icon="fa-stopwatch"
-        :label="formatDate(time)"
-    />
+    <span>Oops...</span>
 </template>
-
-<style scoped lang="scss">
-</style>

@@ -3,9 +3,9 @@ interface MediaFile extends File {
     description: string
 }
 
-interface FilePackage extends FileList {
-    [Symbol.iterator](): IterableIterator<MediaFile>;
-}
+// interface FilePackage extends FileList {
+//     [Symbol.iterator](): IterableIterator<MediaFile>;
+// }
 
 const props = defineProps<{
     visible: boolean
@@ -41,7 +41,7 @@ function getMediaUrl(image: File) {
         decline-label="Cancel"
         @decline="emit('close')"
     >
-        <div class="media column g-2" v-for="item in (media as FilePackage)">
+        <div class="media column g-2" v-for="item in (media as FileList)">
             <section v-if="item.type.startsWith('image/')">
                 <img :src="getMediaUrl(item)" alt="">
             </section>
@@ -55,7 +55,7 @@ function getMediaUrl(image: File) {
                 </div>
                 <div class="field">
                     <label>Description</label>
-                    <textarea resize="none" rows="5" v-model="item.description" />
+                    <textarea resize="none" rows="5" v-model="(item as MediaFile).description" />
                 </div>
             </footer>
         </div>

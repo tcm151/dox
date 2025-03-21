@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Trigger } from '~/services/events'
 
+const route = useRoute()
 let events = useEvents()
 
 useNuxtApp().hook("page:finish", () => {
@@ -40,7 +41,7 @@ async function popupAccept() {
     }
 }
 
-if (process.client) {
+if (import.meta.client) {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
 
@@ -59,7 +60,7 @@ if (process.client) {
     </Popup>
     <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
     <NuxtLayout>
-        <NuxtPage />
+        <NuxtPage :key="route.path" />
     </NuxtLayout>
     <Hints />
 </template>

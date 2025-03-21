@@ -3,7 +3,7 @@ import type { Notification } from '~/types'
 
 definePageMeta({
     middleware: (to, from) => {
-        if (process.client) {
+        if (import.meta.client) {
             const session = getSession()
             if (to.path.startsWith("/inbox") && !session.isAuthenticated) {
                 return abortNavigation()
@@ -16,7 +16,7 @@ const session = getSession()
 let notifications = ref<Notification[] | null>(null)
 
 onMounted(async () => {
-    if (process.client) {
+    if (import.meta.client) {
         notifications.value = await session.useApi<Notification[]>("/api/profile/notifications")
     }
 })
@@ -38,7 +38,7 @@ async function dismiss(notification: Notification) {
                 <div class="notification p-4" v-for="notification in notifications" :key="notification.id">
                     <Markdown class="message column" :content="notification.message" />
                     <div class="row-fit g-2 mt-3">
-                        <TimeTag :time="notification.time" />
+                        <Tag type="info" icon="fa-stopwatch" :label="formatDate(notification.time)" />
                         <Tag type="link" icon="fa-link" label="Context" @click="viewContext(notification)" />
                         <Tag type="danger" label="Dismiss" @click="dismiss(notification)" />
                     </div>

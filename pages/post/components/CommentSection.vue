@@ -83,7 +83,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
                             <i class="fa-solid fa-user" v-else></i>
                             {{ `${comment.user?.name}` }}
                         </span>
-                        <TimeTag :time="comment.time" />
+                        <Tag type="info" icon="fa-stopwatch" :label="formatDate(comment.time)" />
                         <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
                         <ClientOnly>
                             <Tag :hidden="!session.isAuthenticated" type="link" icon="fa-reply" label="Reply" @click="replyToComment(comment)" />

@@ -20,7 +20,7 @@ const emit = defineEmits<{
 }>()
 
 function emitAndClose(event: string) {
-    emit(event)
+    emit(event as any)
     emit('close')
 }
 </script>

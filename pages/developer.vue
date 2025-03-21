@@ -2,7 +2,7 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (process.client) {
+        if (import.meta.client) {
             const session = getSession()
             if (to.path.startsWith("/developer") && (!session.isAuthenticated || hasRole(session.user, "developer"))) {
                 if (!ENV.isDevelopment) {

@@ -6,7 +6,7 @@ import type { Post, Draft, Image } from '~/types'
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (process.client) {
+        if (import.meta.client) {
             const session = getSession()
             if (to.path.startsWith("/editor") && !session.isAuthenticated) {
                 return abortNavigation()
