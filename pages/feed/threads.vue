@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Thread } from '~/types'
 
-const { data: threads, status, refresh } = await useFetch<Thread[]>("/api/thread")
+const threads = useFetch<Thread[]>("/api/thread")
 
 const hints = useHints()
 const cache = useCache()
@@ -51,7 +51,7 @@ async function submit() {
     })
 
     clearEditor()
-    await refresh()
+    await threads.refresh()
 }
 
 function clearEditor() {
@@ -111,12 +111,7 @@ function togglePreview() {
                 </button>
             </div>
         </header>
-        <Feed
-            :sorting="true"
-            :status="status"
-            :items="threads ?? []"
-            @refresh="refresh"
-        >
+        <Feed :items="threads" :sorting="true">
             <template #buttons>
                 <button class="dark px-5" @click="toggleEditor">
                     <i class="fa-solid fa-feather"></i>

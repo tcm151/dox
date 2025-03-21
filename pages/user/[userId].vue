@@ -4,9 +4,8 @@ import type { Post, User } from '~~/types'
 const route = useRoute()
 const userId = route.params.userId as string
 
-const { data: response, status, refresh } = await useFetch<{ user: User, posts: Post[] }>(`/api/user/${userId}`)
-const user = computed(() => response.value?.user)
-const posts = computed(() => response.value?.posts)
+const { data: user, refresh } = useFetch<User>(`/api/user/${userId}`)
+const posts = useFetch<Post[]>(`/api/user/${userId}/posts`)
 
 const vote = useVoting()
 const session = getSession()
@@ -78,12 +77,7 @@ async function unfollowUser() {
                 <p>{{ user.description }}</p>
             </section>
         </header>
-        <Feed
-            :sorting="true"
-            :status="status"
-            :items="posts ?? []"
-            @refresh="refresh"
-        >
+        <Feed :items="posts" :sorting="true">
             <template #item="post">
                 <PostPreview :post="post" />
             </template>

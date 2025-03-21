@@ -2,6 +2,10 @@
 import type { User, Report, Voteable } from '~/types'
 
 const { data: reports } = await useFetch<Report[]>("/api/report")
+
+function viewSubject(report: Report) {
+    navigateTo(`/${(report.subject as Voteable).id.replace(':', '/')}`)
+}
 </script>
     
 <template>
@@ -9,14 +13,8 @@ const { data: reports } = await useFetch<Report[]>("/api/report")
         <section class="box column g-2 p-3" v-if="reports!.length > 0">
             <div class="row g-2" v-for="report in reports">
                 <UserTag width="6rem" :user="(report.reporter as User)" />
-                <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(report.time)" />
-                <Tag
-                    class="f-1"
-                    type="danger"
-                    icon="fa-flag"
-                    :label="(report.subject as Voteable).id"
-                    @click="navigateTo(`/${(report.subject as Voteable).id.replace(':', '/')}`)"
-                    />
+                <Tag width="4rem" type="info" icon="fa-stopwatch" :label="formatDate(report.time)" />
+                <Tag class="f-1" type="danger" icon="fa-flag" :label="(report.subject as Voteable).id" @click="viewSubject(report)" />
             </div>
         </section>
         <section class="box p-3" v-else>

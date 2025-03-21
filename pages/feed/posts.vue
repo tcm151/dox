@@ -4,58 +4,16 @@ import type { Post, User } from '~/types'
 const cache = useCache()
 const session = getSession()
 
-const pins = await useFetch<Post[]>("/api/post/pinned")
-const posts = await useFetch<Post[]>("/api/post")
-
-const filterType = cache.get("feed.posts.filterType", () => "All")
-function toggleFilter() {
-    if (session.isAuthenticated) {
-        switch (filterType.value) {
-            case "All":
-                filterType.value = "Feed"
-                return
-            case "Feed":
-                filterType.value = "All"
-        }
-    }
-}
-
-const filteredPosts = computed(() => {
-    let filtered = posts.data.value?.filter(f => {
-        return pins.data.value?.every(p => p.id != f.id)
-    }) ?? []
-    
-    if (filterType.value == "Feed") {
-        filtered = filtered.filter(p => {
-            return p.topics.some(pt => session.user.topics.includes(pt))
-            || session.user.following.includes((p.user as User).id)
-        })
-    }
-
-    return filtered
-})
+const pins = useFetch<Post[]>("/api/post/pinned")
+const posts = useFetch<Post[]>("/api/post")
 </script>
 
 <template>
     <section class="feed column g-2 p-4">
-        <PostPreview
-            v-for="post in pins.data.value"
-            :post="post"
-            :pinned="true"
-            :key="post.id"
-        />
-        <Feed
-            :sorting="true"
-            :status="posts.status.value"
-            :items="filteredPosts ?? []"
-            @refresh="posts.refresh"
-        >
-            <template #buttons>
-                <button class="dark" @click="toggleFilter">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>{{ filterType }}</span>
-                </button>
-            </template>
+        <template v-for="post in pins.data.value" :key="post.id">
+            <PostPreview :post="post" :pinned="true" />
+        </template>
+        <Feed :items="posts" :sorting="true">
             <template #item="post">
                 <PostPreview :post="post" />
             </template>
