@@ -4,9 +4,7 @@ import { DateTime } from 'luxon'
 const hints = useHints()
 const session = getSession()
 
-const { data: backups, refresh } = await useAsyncData('backups', () => {
-    return session.useApi<any[]>("/api/developer/backup")
-})
+const { data: backups, refresh } = await useFetch<any[]>("/api/developer/backup")
 
 let backupInterval = ref<number>(24)
 

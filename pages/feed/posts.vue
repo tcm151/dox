@@ -4,13 +4,8 @@ import type { Post, User } from '~/types'
 const cache = useCache()
 const session = getSession()
 
-const posts = await useAsyncData('postFeed', () => {
-    return $fetch<Post[]>("/api/post")
-})
-
-const pins = await useAsyncData('pinnedPosts', () => {
-    return $fetch<Post[]>("/api/post/pinned")
-})
+const pins = await useFetch<Post[]>("/api/post/pinned")
+const posts = await useFetch<Post[]>("/api/post")
 
 const filterType = cache.get("feed.posts.filterType", () => "All")
 function toggleFilter() {
@@ -51,7 +46,7 @@ const filteredPosts = computed(() => {
         />
         <Feed
             :sorting="true"
-            :loading="posts.pending.value"
+            :status="posts.status.value"
             :items="filteredPosts ?? []"
             @refresh="posts.refresh"
         >

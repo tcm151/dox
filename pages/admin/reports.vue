@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { User, Report, Voteable } from '~/types'
 
-const { data: reports } = await useAsyncData('reports', () => {
-    return $fetch<Report[]>("/api/report")
-})
+const { data: reports } = await useFetch<Report[]>("/api/report")
 </script>
     
 <template>

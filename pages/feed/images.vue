@@ -4,13 +4,11 @@ import type { Image, User } from "~/types"
 const hints = useHints()
 const session = getSession()
 
-const { data: images, pending, refresh } = await useLazyAsyncData('images', () => {
-    return $fetch<Image[]>("/api/image")
-})
+const { data: images, status, refresh } = await useFetch<Image[]>("/api/image")
 
 const spinRefresh = ref(false)
-watch(pending, (loading) => {
-    if (loading) {
+watch(status, (status) => {
+    if (status == "pending") {
         spinRefresh.value = true
     }
     else {

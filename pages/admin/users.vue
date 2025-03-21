@@ -2,9 +2,7 @@
 import RoleManager from "./components/RoleManager.vue"
 import type { Role, User } from '~/types'
 
-const { data: users, refresh } = await useAsyncData('users', () => {
-    return $fetch<User[]>("/api/user")
-})
+const { data: users, refresh } = await useFetch<User[]>("/api/user")
 
 const filter = ref<Role | "">("")
 const filteredUsers = computed(() => {

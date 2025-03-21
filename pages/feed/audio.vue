@@ -3,13 +3,11 @@ import type { Audio } from "~/types"
 
 const session = getSession()
 
-const { data: audio, pending, refresh } = await useLazyAsyncData('audio', () => {
-    return $fetch<Audio[]>("/api/audio")
-})
+const { data: audio, status, refresh } = await useFetch<Audio[]>("/api/audio")
 
 const spinRefresh = ref(false)
-watch(pending, (loading) => {
-    if (loading) {
+watch(status, (status) => {
+    if (status == "pending") {
         spinRefresh.value = true
     }
     else {

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { Thread } from '~/types'
 
-const { data: threads, pending, refresh } = await useAsyncData('threads', () => {
-    return $fetch<Thread[]>("/api/thread")
-})
+const { data: threads, status, refresh } = await useFetch<Thread[]>("/api/thread")
 
 const hints = useHints()
 const cache = useCache()
@@ -115,7 +113,7 @@ function togglePreview() {
         </header>
         <Feed
             :sorting="true"
-            :loading="pending"
+            :status="status"
             :items="threads ?? []"
             @refresh="refresh"
         >

@@ -4,9 +4,7 @@ import type { Post, Comment, User } from '~/types'
 const route = useRoute()
 const postId = route.params.postId.toString()
 
-const { data: post, pending, refresh } = await useAsyncData(`post:${postId}`, () => {
-    return $fetch<Post>(`/api/post/${postId}`)
-})
+const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
 
 const cache = useCache()
 const session = getSession()

@@ -11,10 +11,7 @@ const route = useRoute()
 const fileName = route.params.fileName.toString()
 const id = computed(() => fileName.split('.').at(0))
 
-const { data: audio, refresh } = await useAsyncData(`audio:${id}`, () => {
-    return $fetch<Audio>(`/api/audio/${id.value}`)
-})
-
+const { data: audio, refresh } = await useFetch<Audio>(`/api/audio/${id.value}`)
 </script>
 
 <template>

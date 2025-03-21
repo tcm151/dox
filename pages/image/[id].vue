@@ -11,9 +11,7 @@ const session = getSession()
 const route = useRoute()
 const id = route.params.id.toString()
 
-const { data: image } = await useAsyncData(`image:${id}`, () => {
-    return $fetch<Image>(`/api/image/${id}`)
-})
+const { data: image } = await useFetch<Image>(`/api/image/${id}`)
 
 async function deleteImage() {
     if (!image.value) {

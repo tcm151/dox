@@ -7,7 +7,7 @@ const props = defineProps<{
         size: number
     }
     sorting?: boolean
-    loading?: boolean
+    status?: string
     items: T[]
 }>()
 
@@ -24,8 +24,8 @@ watch(props.items, () => {
 })
 
 const spinRefresh = ref(false)
-watch(() => props.loading, (loading) => {
-    if (loading) {
+watch(() => props.status, (status) => {
+    if (status = "pending") {
         spinRefresh.value = true
     }
     else {

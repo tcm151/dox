@@ -4,12 +4,8 @@ import type { Topic, Post } from '~/types'
 const route = useRoute()
 const topicId = route.params.topic.toString()
 
-const { data: topic } = await useAsyncData(`topic:${topicId}`, () => {
-    return $fetch<Topic>(`/api/topic/${topicId}`)
-})
-const { data: posts, pending, refresh } = await useAsyncData(`topic:${topicId}/posts`, () => {
-    return $fetch<Post[]>(`/api/topic/${topicId}/posts`)
-})
+const { data: topic } = await useFetch<Topic>(`/api/topic/${topicId}`)
+const { data: posts, status, refresh } = await useFetch<Post[]>(`/api/topic/${topicId}/posts`)
 
 </script>
 
@@ -18,7 +14,7 @@ const { data: posts, pending, refresh } = await useAsyncData(`topic:${topicId}/p
         <TopicPreview :topic="topic!" />
         <Feed
             :sorting="true"
-            :loading="pending"
+            :status="status"
             :items="posts ?? []"
             @refresh="refresh"
         >
