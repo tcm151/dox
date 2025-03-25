@@ -1,35 +1,21 @@
 import { skipHydrate } from "pinia"
+import type { AppSettings } from "~/types"
 
-interface Settings {
+interface UserPreferences {
     hintDuration: number
     hoverAnimations: boolean
 }
 
-export const useUserSettings = defineStore("user.settings", () => {
+export const useSettings = defineStore("user.settings", () => {
     const cache = useCache()
-    const user = cache.get<Settings>("user.settings", () => ({
+
+    const user = cache.get<UserPreferences>("user.settings", () => ({
         hintDuration: 2500,
         hoverAnimations: true,
     }))
-    
-    return { user: skipHydrate(user) }
-})
 
-interface AppSettings {
-    navbar: {
-        showStore: boolean,
-        showFeedback: boolean,
-    }
-    feed: {
-        showTopics: boolean,
-        showThreads: boolean,
-        showImages: boolean,
-    }
-}
-
-export const useAppSettings = defineStore("app.settings", () => {
-    const cache = useCache()
-    const config = cache.get<AppSettings>("app.settings", () => ({
+    const app = ref<AppSettings>({
+        id: "appSettings:default", 
         navbar: {
             showStore: true,
             showFeedback: true,
@@ -39,7 +25,12 @@ export const useAppSettings = defineStore("app.settings", () => {
             showThreads: true,
             showImages: true,
         }
-    }))
-    
-    return { app: skipHydrate(config) }
+    })
+
+    async function fetch() {
+        let temp = await $fetch<AppSettings[]>("/api/admin/config")
+        app.value = temp[0]
+    }
+
+    return { user: skipHydrate(user), app, fetch }
 })

@@ -14,7 +14,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-const settings = useAppSettings()
+const settings = useSettings()
 </script>
 
 <template>

@@ -6,7 +6,7 @@ const props = defineProps<{
 }>()
 
 const session = getSession()
-const settings = useUserSettings()
+const settings = useSettings()
 
 
 let showFollowers = ref(false)

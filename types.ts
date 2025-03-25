@@ -1,3 +1,16 @@
+export interface AppSettings {
+    id: string
+    navbar: {
+        showStore: boolean,
+        showFeedback: boolean,
+    }
+    feed: {
+        showTopics: boolean,
+        showThreads: boolean,
+        showImages: boolean,
+    }
+}
+
 export interface Voteable {
     id: string
     votes: {

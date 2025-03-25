@@ -1,46 +1,55 @@
 <script setup lang="ts">
 
-const settings = useAppSettings()
+const session = getSession()
+const settings = useSettings()
+
+watch(settings.app, async (updatedConfig) => {
+    try {
+        await session.useApi("/api/admin/config/update", { config: updatedConfig })
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
+})
+
 
 </script>
 
 
 <template>
     <article class="box form column g-4 p-5 m-4">
-        <section>
-            <header>
-                <h2>Navbar</h2>
-            </header>
-            <div class="field row center py-2">
-                <label class="f-1">show store</label>
-                <Toggle v-model:enabled="settings.app.navbar.showStore" />
-            </div>
-            <div class="field row center py-2">
-                <label class="f-1">show feedback</label>
-                <Toggle v-model:enabled="settings.app.navbar.showFeedback" />
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Feeds</h2>
-            </header>
-            <div class="field row center py-2">
-                <label class="f-1">show topics</label>
-                <Toggle v-model:enabled="settings.app.feed.showTopics" />
-            </div>
-            <div class="field row center py-2">
-                <label class="f-1">show threads</label>
-                <Toggle v-model:enabled="settings.app.feed.showThreads" />
-            </div>
-            <div class="field row center py-2">
-                <label class="f-1">show images</label>
-                <Toggle v-model:enabled="settings.app.feed.showImages" />
-            </div>
-            <!-- <div class="field row center">
-                <label class="f-1">hint duration (ms)</label>
-                <input type="number" size="4" step="250" v-model="settings.user.hintDuration">
-            </div> -->
-        </section>
+        <ClientOnly>
+            <section>
+                <header>
+                    <h2>Navbar</h2>
+                </header>
+                <div class="field row center py-2">
+                    <label class="f-1">show store</label>
+                    <Toggle v-model:enabled="settings.app.navbar.showStore" />
+                </div>
+                <div class="field row center py-2">
+                    <label class="f-1">show feedback</label>
+                    <Toggle v-model:enabled="settings.app.navbar.showFeedback" />
+                </div>
+            </section>
+            <section>
+                <header>
+                    <h2>Feeds</h2>
+                </header>
+                <div class="field row center py-2">
+                    <label class="f-1">show topics</label>
+                    <Toggle v-model:enabled="settings.app.feed.showTopics" />
+                </div>
+                <div class="field row center py-2">
+                    <label class="f-1">show threads</label>
+                    <Toggle v-model:enabled="settings.app.feed.showThreads" />
+                </div>
+                <div class="field row center py-2">
+                    <label class="f-1">show images</label>
+                    <Toggle v-model:enabled="settings.app.feed.showImages" />
+                </div>
+            </section>
+        </ClientOnly>
     </article>
 </template>
 

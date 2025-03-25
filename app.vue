@@ -2,13 +2,15 @@
 import { Trigger } from '~/services/events'
 
 const route = useRoute()
-let events = useEvents()
+const events = useEvents()
+const settings = useSettings()
 
 useNuxtApp().hook("page:finish", () => {
     events.publish(Trigger.pageFinishedLoading)
 })
 
 onMounted(() => {
+    settings.fetch()
     events.publish(Trigger.clientStarted)
 })
 

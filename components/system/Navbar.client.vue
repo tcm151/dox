@@ -1,8 +1,8 @@
 feedbackVisible<script setup lang="ts">
 
-const config = useAppSettings()
 const events = useEvents()
 const session = getSession()
+const config = useSettings()
 
 const { public: { site } } = useRuntimeConfig()
 

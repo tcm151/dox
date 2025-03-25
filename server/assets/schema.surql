@@ -33,6 +33,23 @@ DEFINE ANALYZER relevanceSearch
 TOKENIZERS camel, class
 FILTERS ascii, snowball(english);
 
+-- ------------------------------
+-- TABLE: appSettings
+-- ------------------------------
+IF !(SELECT * FROM appSettings) {
+    CREATE appSettings CONTENT {
+        id: "appSettings:default", 
+        navbar: {
+            showStore: true,
+            showFeedback: true,
+        },
+        feed: {
+            showTopics: true,
+            showThreads: true,
+            showImages: true,
+        }
+    }
+}
 
 -- ------------------------------
 -- TABLE: confirmation
