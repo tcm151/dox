@@ -49,7 +49,7 @@ IF !(SELECT * FROM appSettings) {
             showImages: true,
         }
     }
-}
+};
 
 -- ------------------------------
 -- TABLE: confirmation
