@@ -55,6 +55,7 @@ if (import.meta.client) {
 </script>
 
 <template>
+    <NuxtLoadingIndicator />
     <Navbar />
     <Login :visible="showLogin" />
     <Popup :visible="showPopup" :loading="handlingPopup" :title="popupTitle" @accept="popupAccept" @decline="showPopup = false">
