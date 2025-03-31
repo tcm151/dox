@@ -10,8 +10,8 @@ const posts = useFetch<Post[]>(`/api/topic/${topicId}/posts`)
 </script>
 
 <template>
-    <article class="column g-2 p-4">
-        <TopicPreview :topic="topic.data.value!" />
+    <article class="column g-2 p-4" v-if="topic.data.value">
+        <TopicPreview :topic="topic.data.value" />
         <Feed :items="posts" :sorting="true">
             <template #item="post">
                 <PostPreview :post="post" />
