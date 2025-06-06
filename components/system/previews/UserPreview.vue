@@ -1,0 +1,142 @@
+<script setup lang="ts">
+import type { User } from '~/types'
+
+const props = defineProps<{
+    user: User
+}>()
+
+const emit = defineEmits<{
+    (event: 'refresh'): void
+}>()
+
+const session = getSession()
+
+const loading = ref<boolean>(false)
+const following = computed(() => session.user?.following.includes(props.user.id))
+
+async function followUser() {
+    loading.value = true
+    if (await session.follow(props.user.id)) {
+        emit('refresh')
+    }
+    loading.value = false
+}
+
+async function unfollowUser() {
+    loading.value = true
+    if (await session.unfollow(props.user.id)) {
+        emit('refresh')
+    }
+    loading.value = false
+}
+
+</script>
+
+<template>
+    <header class="profile column g-3 p-5">
+        <section class="row g-2">
+            <figure class="image is-64x64">
+                <img src="https://bulma.io/assets/images/placeholders/64x64.png">
+            </figure>
+            <div class="name-follow row center-inline g-4">
+                <div class="column">
+                    <h1>{{ user.name }}</h1>
+                    <a :href="user.link" v-if="user.link">
+                        {{ user.link }}
+                    </a>
+                </div>
+                <ClientOnly>
+                    <div class="buttons row g-2" v-if="session.isAuthenticated">
+                        <button v-if="user.id == session.user.id" @click="navigateTo('/settings')">
+                            <i class="fa-solid fa-address-card"></i>
+                            <span>Profile</span>
+                        </button>
+                        <ButtonSpinner v-else-if="following" class="danger" :loading="loading" @click="unfollowUser">
+                            Unfollow
+                        </ButtonSpinner>
+                        <ButtonSpinner v-else class="success" :loading="loading" @click="followUser">
+                            Follow
+                        </ButtonSpinner>
+                    </div>
+                </ClientOnly>
+            </div>
+        </section>
+        <section class="row-wrap g-1">
+            <Votes :target="user" />
+            <!-- TODO add popups to view these in more detail -->
+            <Tag class="f-1" type="link">
+                <strong>{{ user.topics.length }}</strong> topics
+            </Tag>
+            <Tag class="f-1" type="info">
+                <strong>{{ user.followers.length }}</strong> followers
+            </Tag>
+            <Tag class="f-1" type="info">
+                <strong>{{ user.following.length }}</strong> following
+            </Tag>
+            <Tag class="f-1" type="info">
+                joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong>
+            </Tag>
+        </section>
+        <section class="column g-2" v-if="user.description">
+            <p>{{ user.description }}</p>
+        </section>
+    </header>
+</template>
+
+<style scoped lang="scss">
+.profile {
+    border-radius: 0.25rem;
+    background-color: $white-0;
+}
+
+.name-follow {
+    flex: 1 1;
+    justify-content: space-between;
+    overflow-x: hidden;
+
+    div.column {
+        overflow-x: hidden;
+
+        a {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    a {
+        color: $purple;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+}
+
+div.buttons {
+    @media only screen and (max-width: 600px) {
+        span {
+            display: none;
+        }
+    }
+
+    button {
+        min-width: 7.5rem;
+    }
+}
+
+.image {
+    img {
+        border-radius: 0.25rem;
+    }
+}
+
+.tag.info, .tag.link {
+    font-weight: 500;
+}
+</style>
