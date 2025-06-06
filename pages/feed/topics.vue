@@ -6,7 +6,9 @@ const { data: topics } = await useFetch<Topic[]>("/api/topic")
 
 <template>
     <article class="column g-2 p-4">
-        <TopicPreview v-for="topic in topics" :topic="topic" />
+        <template v-for="topic in topics" :key="topic.id">
+            <TopicPreview :topic="topic" />
+        </template>
     </article>
 </template>
 
