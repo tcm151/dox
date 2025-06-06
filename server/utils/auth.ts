@@ -32,18 +32,43 @@ async function returnConnection(db: Surreal) {
 
 export const authenticateRequest = async (event: H3Event) => {
     try {
-        const db = await openConnection()
         const token = getHeader(event, 'Authorization') ?? ""
-        await db.authenticate(token)
-        let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
-        returnConnection(db)
-        return user[0][0]
-
+        const sessionManager = useSessions()
+        const user = sessionManager.isAuthenticated(token)
+        if (user != undefined) {
+            return user;
+        }
+        else {
+            const db = await openConnection()
+            await db.authenticate(token)
+            let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
+            sessionManager.add(token, user[0][0])
+            returnConnection(db)
+            return user[0][0]
+        }
     }
     catch (ex: any) {
         throw createError({
             statusCode: 401,
             statusMessage: "Failed to authenticate request.",
+            message: ex.message,
+        })
+    }
+}
+
+export const invalidateSession = async (event: H3Event) => {
+    try {
+        const sessionManager = useSessions()
+        const token = getHeader(event, 'Authorization') ?? ""
+        const auth = sessionManager.isAuthenticated(token)
+        if (auth != undefined) {
+            sessionManager.invalidate(token)
+        }
+    }
+    catch (ex: any) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: "You aren't allowed invalidate this session.",
             message: ex.message,
         })
     }

@@ -1,7 +1,7 @@
 import * as nodemailer from "nodemailer"
 
 const { smtp } = useRuntimeConfig()
-const client =  nodemailer.createTransport({
+const client = nodemailer.createTransport({
     host: smtp.host,
     port: Number.parseInt(smtp.port),
     secure: false,

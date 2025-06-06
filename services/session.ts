@@ -131,6 +131,7 @@ export const getSession = defineStore("session", (): Session => {
     }
 
     async function logout(clear: boolean) {
+        await useApi<User>('/api/profile/logout')
         events.publish(Trigger.userLoggedOut, { user: user.value, clear: clear })
         isAuthenticated.value = false
         if (clear == true) {
