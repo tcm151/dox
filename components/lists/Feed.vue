@@ -1,6 +1,14 @@
 <script setup lang="ts" generic="T extends Sortable">
-import type { AsyncData } from "#app";
 import type { Sortable } from "~/utils/sorting"
+
+interface AsyncData<DataT, ErrorT> {
+    data: Ref<DataT>
+    refresh: (opts?: any) => Promise<void>
+    execute: (opts?: any) => Promise<void>
+    clear: () => void
+    error: Ref<ErrorT | null>
+    status: Ref<'idle' | 'pending' | 'success' | 'error'>
+}
 
 const props = defineProps<{
     items: AsyncData<T[] | null, any>

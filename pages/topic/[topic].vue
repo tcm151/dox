@@ -4,8 +4,8 @@ import type { Topic, Post } from '~/types'
 const route = useRoute()
 const topicId = route.params.topic.toString()
 
-const topic = useFetch<Topic>(`/api/topic/${topicId}`)
-const posts = useFetch<Post[]>(`/api/topic/${topicId}/posts`)
+const topic = await useFetch<Topic>(`/api/topic/${topicId}`)
+const posts = await useFetch<Post[]>(`/api/topic/${topicId}/posts`)
 
 </script>
 

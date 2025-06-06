@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import type { Post, User } from '~/types'
+import type { Post } from '~/types'
 
-const cache = useCache()
-const session = getSession()
-
-const pins = useFetch<Post[]>("/api/post/pinned")
-const posts = useFetch<Post[]>("/api/post")
+const pins = await useFetch<Post[]>("/api/post/pinned")
+const posts = await useFetch<Post[]>("/api/post")
 </script>
 
 <template>

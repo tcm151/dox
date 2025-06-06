@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Thread } from '~/types'
 
-const threads = useFetch<Thread[]>("/api/thread")
+const threads = await useFetch<Thread[]>("/api/thread")
 
 const hints = useHints()
 const cache = useCache()
@@ -143,4 +143,4 @@ header.box {
         }
     }
 }
-</style>~/types/core
+</style>
