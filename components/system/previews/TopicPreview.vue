@@ -8,8 +8,6 @@ const props = defineProps<{
 const session = getSession()
 const settings = useSettings()
 
-
-let showFollowers = ref(false)
 let following = computed(() => {
     return session.user?.topics.includes(props.topic.id)
 })
@@ -43,8 +41,6 @@ async function unfollowTopic() {
                     <ButtonSpinner v-else class="small success" :loading="loading" @click="followTopic">
                         Follow
                     </ButtonSpinner>
-                    <!-- <Tag v-if="following" class="danger px-4 py-2" width="4rem" label="Unfollow" @click="unfollowTopic" />
-                    <Tag v-else class="success px-4 py-2" width="4rem" label="Follow" @click="followTopic" /> -->
                 </div>
             </ClientOnly>
         </header>
@@ -56,18 +52,12 @@ async function unfollowTopic() {
             <Tag class="f-1 b-0" type="link">
                 <strong>{{ topic.threads.length }}</strong> threads
             </Tag>
-            <Tag class="f-1 b-0" type="info">
+            <Tag class="f-1 b-0" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
                 <strong>{{ topic.followers.length }}</strong> followers
             </Tag>
             <Tag class="f-1 b-0" type="info">
                 first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
             </Tag>
-            <!-- TODO show usernames of followers -->
-            <!-- <Popup title="Followers" :visible="showFollowers" @accept="showFollowers = !showFollowers" @decline="showFollowers = !showFollowers" >
-                <span v-for="user in followers.value">
-                    {{ user }}
-                </span>
-            </Popup> -->
         </footer>
     </div>
 </template>
