@@ -90,11 +90,10 @@ button.inverted:hover {
         resize: vertical;
     }
 
-    input:hover, input:focus,
-    textarea:hover, textarea:focus
-    select:hover, select:focus {
+    input:hover, input:focus, input:focus-visible,
+    textarea:hover, textarea:focus, textarea:focus-visible
+    select:hover, select:focus, select:focus-visible {
         outline: 1px solid $blue;
-        // background-color: $white-1;
     }
 
     input::placeholder {
