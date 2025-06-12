@@ -3,6 +3,7 @@ import type { Voteable } from '~/types'
 
 const vote = useVoting()
 const session = getSession()
+const settings = useSettings()
 
 const props = defineProps<{
     target: Voteable | null
@@ -21,14 +22,6 @@ const props = defineProps<{
             </span>
             <span v-if="settings.app.voting.showNegative" class="tag negative" @click.stop="vote.negative(target)" :class="{ voted: target.votes.negative.includes(session.user.id)}">
                 {{ target.votes.negative.length }}
-            </span>
-            <span class="tag link" v-if="target.votes.awards && target.votes.awards.length > 0">
-                <i class="fa-solid fa-crown"></i>
-                <span>{{ target.votes.awards.length }}</span>
-            </span>
-            <span class="tag link" v-if="target.votes.saves && target.votes.saves.length > 0">
-                <i class="fa-solid fa-box-archive"></i>
-                <span>{{ target.votes.saves.length }}</span>
             </span>
         </ClientOnly>
     </div>

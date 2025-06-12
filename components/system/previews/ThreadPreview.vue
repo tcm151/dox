@@ -21,7 +21,6 @@ const settings = useSettings()
             <Markdown class="content preview" :content="thread.content" />
             <div class="row-wrap g-1">
                 <Votes :target="thread" />
-                <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
                 <div class="row-wrap f-1 g-1">
                     <UserTag class="f-1" :user="(thread.user as User)" />
                     <!-- <Tag class="f-1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
@@ -30,6 +29,7 @@ const settings = useSettings()
                     <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                     <!-- <Tag type="info" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" /> -->
                 </div>
+                <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
             </div>
             <!-- <div class="fill row-wrap g-1">
                 <Tag class="f-1" type="default" icon="fa-reply-all fa-flip-horizontal" label="Reply" @click.stop="hints.addWarning('We are still working on this...')" />

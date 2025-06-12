@@ -20,13 +20,17 @@ const settings = useSettings()
             <div class="fill">
                 <div class="row-wrap g-1">
                     <Votes :target="post" />
-                    <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
-                    <TopicTag v-for="topic in post.topics" class="f-10" :topic="topic" />
                     <div class="f-1 row-wrap g-1">
-                        <UserTag class="f-1" :user="(post.user as User)" />
                         <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
                         <Tag class="f-1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
+                        <UserTag class="f-1" :user="(post.user as User)" />
                         <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
+                    </div>
+                    <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
+                    <Tag v-if="post.votes.awards && post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
+                    <Tag v-if="post.votes.saves && post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
+                    <div class="f-1 row-wrap g-1">
+                        <TopicTag v-for="topic in post.topics" class="f-10" :topic="topic" />
                     </div>
                 </div>
                 <h3 class="title mt-2">
