@@ -7,7 +7,7 @@ const route = useRoute()
 const postId = route.params.postId.toString()
 const { public: { site } } = useRuntimeConfig()
 
-const { data: post, refresh } = await useFetch<Post>(`/api/post/${postId}`)
+const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
 await useFetch(`/api/post/${postId}/visit`)
 
 useSeoMeta({
@@ -142,8 +142,8 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article class="column g-2 p-4">
-        <div class="container column" v-if="post">
+    <article class="column g-2 p-4" v-if="post">
+        <div class="container column">
             <aside 
                 v-if="(post.replyTo as Post).id != null"
                 class="reply-to row center-inline g-2"
@@ -237,7 +237,7 @@ function toggleOptions() {
                 
             </section>
         </div>
-        <CommentSection />
+        <CommentSection :post="post" :loading="status" />
     </article>
 </template>
 

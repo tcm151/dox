@@ -1,21 +1,25 @@
 <script setup lang="ts">
 import type { Post, Comment } from '~/types'
 
-const route = useRoute()
-const postId = route.params.postId.toString()
+const props = defineProps<{
+    post: Post
+    loading: string
+}>()
 
-const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
+const emit = defineEmits<{
+    (event: 'refresh'): void
+}>()
 
 const cache = useCache()
 
 const sortType = cache.get("comments.sortType", () => "new")
 function sort(type: string) {
     sortType.value = type
-    sortList(post.value!.comments as Comment[], sortType.value)
+    sortList(props.post.comments as Comment[], sortType.value)
 }
 
 const spinRefresh = ref(false)
-watch(status, (status) => {
+watch(() => props.loading, (status) => {
     if (status == "pending") {
         spinRefresh.value = true
     }
@@ -29,7 +33,7 @@ watch(status, (status) => {
 <template>
     <section class="comments p-5" v-if="post && post.comments.length > 0">
         <header class="sorting row g-1 mb-3">
-            <button class="refresh dark" @click="refresh()">
+            <button class="refresh dark" @click="emit('refresh')">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <button class="fill" @click="sort('new')" :class="{ selected: sortType === 'new' }">
@@ -47,7 +51,7 @@ watch(status, (status) => {
         </header>
         <Tree :items="post.comments ?? []" :children="(post.comments as Comment[]).filter(c => c.replyTo === post!.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment }">
-                <CommentPreview :comment="comment" :post="post" @refresh="refresh" />
+                <CommentPreview :comment="comment" :post="post" @refresh="emit('refresh')" />
             </template>
         </Tree>
     </section>
