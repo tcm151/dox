@@ -47,6 +47,10 @@ IF !(SELECT * FROM appSettings) {
             showTopics: true,
             showThreads: true,
             showImages: true,
+        },
+        voting: {
+            showMisleading: true,
+            showNegative: true,
         }
     }
 };

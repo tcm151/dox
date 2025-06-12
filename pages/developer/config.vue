@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+const hints = useHints()
 const session = getSession()
 const settings = useSettings()
 
@@ -47,6 +48,19 @@ watch(settings.app, async (updatedConfig) => {
                 <div class="field row center py-2">
                     <label class="f-1">show images</label>
                     <Toggle v-model:enabled="settings.app.feed.showImages" />
+                </div>
+            </section>
+            <section>
+                <header>
+                    <h2>Voting</h2>
+                </header>
+                <div class="field row center py-2">
+                    <label class="f-1">show misleading</label>
+                    <Toggle v-model:enabled="settings.app.voting.showMisleading" />
+                </div>
+                <div class="field row center py-2">
+                    <label class="f-1">show negative</label>
+                    <Toggle v-model:enabled="settings.app.voting.showNegative" />
                 </div>
             </section>
         </ClientOnly>

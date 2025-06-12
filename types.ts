@@ -9,6 +9,10 @@ export interface AppSettings {
         showThreads: boolean,
         showImages: boolean,
     }
+    voting: {
+        showMisleading: boolean
+        showNegative: boolean
+    }
 }
 
 export interface Voteable {
@@ -17,8 +21,8 @@ export interface Voteable {
         positive: string[]
         misleading: string[]
         negative: string[]
-        awards?: string[]
-        saves?: string[]
+        awards: string[]
+        saves: string[]
         score: number
     }
 }

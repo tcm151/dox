@@ -24,6 +24,10 @@ export const useSettings = defineStore("user.settings", () => {
             showTopics: true,
             showThreads: true,
             showImages: true,
+        },
+        voting: {
+            showMisleading: false,
+            showNegative: true,
         }
     })
 
