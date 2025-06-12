@@ -39,7 +39,6 @@ watch(() => props.items.status.value, (status) => {
     <section class="column g-2">
         <header class="sorting row center g-2" v-if="props.sorting">
             <ClientOnly>
-                <!-- REFACTOR sorting needs to be done from the database -->
                 <button class="refresh dark" @click="items.refresh()">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 </button>
