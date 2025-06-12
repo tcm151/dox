@@ -115,7 +115,7 @@ function differentPasswords() {
                     <button class="success fill" @click="register">
                         Register
                     </button>
-                    <button class="danger fill" @click="navigateTo('/home')">
+                    <button class="danger fill" @click="navigateTo('/feed')">
                         Cancel
                     </button>
                 </div>

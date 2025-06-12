@@ -6,7 +6,6 @@
         <slot />
         <footer class="row center-inline px-5 m-5">
                 <div class="links">
-                    <NuxtLink to="/home">Home</NuxtLink>
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
                 </div>

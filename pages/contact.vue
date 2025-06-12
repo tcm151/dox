@@ -4,20 +4,14 @@
 
 <template>
     <article class="column g-4 p-4">
-        <section class="links column g-4 p-5">
+        <section class="box p-5">
             <h1>Contact</h1>
-            <div class="content column g-2">
-                <div>
-                    <span>General: </span>
-                    <a href="mailto:contact@tcmdev.ca">contact@tcmdev.ca</a>
-                </div>
-                <div>
-                    <span>Business: </span>
-                    <a href="mailto:inquiries@tcmdev.ca">inquiries@tcmdev.ca</a>
-                </div>
-            </div>
+            <ul class="content">
+                <li><a href="mailto:support@tcmdev.ca">support@tcmdev.ca</a></li>
+                <li><a href="mailto:inquiries@tcmdev.ca">inquiries@tcmdev.ca</a></li>
+            </ul>
         </section>
-        <section class="feedback p-5">
+        <section class="box p-5">
             <h1 class="mb-2">Submit Feedback</h1>
             <Feedback placeholder="Let us know what you think..."/>
         </section>
@@ -29,12 +23,7 @@ article.column {
     @include fit-width (500px, 1rem);
 }
 
-h1 {
-    font-size: 1.5rem;
-}
-
-section.links, section.feedback {
-    border-radius: 0.25rem;
-    background-color: $white-0;
+ul {
+    margin-left: -1rem;
 }
 </style>

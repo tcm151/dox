@@ -19,10 +19,6 @@ let complain = ref(false)
                     <i class="fa-solid fa-hand-point-left"></i>
                     <span>Go Back</span>
                 </button>
-                <!-- <button class="success" @click="clearError({ redirect: '/feed' })">
-                    <i class="fa-solid fa-house-chimney"></i>
-                    <span>Home</span>
-                </button> -->
                 <button class="danger" @click="complain = true">
                     <i class="fa-solid fa-keyboard"></i>
                     <span>Complain</span>
