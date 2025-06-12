@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post, Comment, User } from '~/types'
+import type { Post, Comment } from '~/types'
 
 const route = useRoute()
 const postId = route.params.postId.toString()
@@ -7,7 +7,6 @@ const postId = route.params.postId.toString()
 const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
 
 const cache = useCache()
-const session = getSession()
 
 const sortType = cache.get("comments.sortType", () => "new")
 function sort(type: string) {
@@ -15,48 +14,24 @@ function sort(type: string) {
     sortList(post.value!.comments as Comment[], sortType.value)
 }
 
-let commentReply = ref("")
-let commentToReplyTo = ref("")
-let commentToEdit = ref("")
-
-function replyToComment(comment: Comment) {
-    commentToReplyTo.value = (commentToReplyTo.value !== comment.id) ? comment.id : ""
-}
-
-function editComment(comment: Comment) {
-    commentToEdit.value = (commentToEdit.value !== comment.id) ? comment.id : ""
-}
-
-async function updateComment(comment: Comment) {
-    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
-    commentToEdit.value = ""
-}
-
-async function submitComment(replyTo: Post | Comment, content: string) {
-    await session.useApi<Comment>("/api/comment/add", {
-        time: new Date(),
-        user: session.user?.id,
-        post: post.value?.id,
-        replyTo: replyTo.id,
-        content: content,
-        votes: {
-            positive: [session.user!.id],
-            misleading: [],
-            negative: [],
-        },
-    })
-
-    await refresh()
-
-    commentReply.value = ""
-    commentToReplyTo.value = ""
-}
+const spinRefresh = ref(false)
+watch(status, (status) => {
+    if (status == "pending") {
+        spinRefresh.value = true
+    }
+    else {
+        setTimeout(() => spinRefresh.value = false, 512)
+    }
+})
 
 </script>
 
 <template>
     <section class="comments p-5" v-if="post && post.comments.length > 0">
         <header class="sorting row g-1 mb-3">
+            <button class="refresh dark" @click="refresh()">
+                <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
+            </button>
             <button class="fill" @click="sort('new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
                 <span>New</span>
@@ -72,38 +47,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
         </header>
         <Tree :items="post.comments ?? []" :children="(post.comments as Comment[]).filter(c => c.replyTo === post!.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
             <template #item="{ item: comment }">
-                <div class="comment" :id="comment.id">
-                    <header class="row-fit g-1">
-                        <Votes :target="comment" />
-                        <!-- TODO create AuthorTag -->
-                        <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user)}`)">
-                            <i class="fa-solid fa-feather-pointed" v-if="comment.user === (post.user as User).id"></i>    
-                            <i class="fa-solid fa-user" v-else></i>
-                            {{ `${comment.user?.name}` }}
-                        </span>
-                        <Tag type="info" icon="fa-stopwatch" :label="formatDate(comment.time)" />
-                        <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
-                        <ClientOnly>
-                            <Tag :hidden="!session.isAuthenticated" type="link" icon="fa-reply" label="Reply" @click="replyToComment(comment)" />
-                            <Tag :hidden="comment.user.id !== session.user.id" type="link" icon="fa-eraser" label="Edit" @click="editComment(comment)" />
-                        </ClientOnly>
-                    </header>
-                    <Markdown class="body p-3" v-if="commentToEdit !== comment.id" :content="comment.content" />
-                    <div class="comment-reply field px-3 pb-3" v-if="commentToReplyTo === comment.id">
-                        <textarea class="textarea" rows="2" v-model="commentReply"></textarea>
-                        <div class="row-fit g-1 pt-2">
-                            <Tag type="success" icon="fa-message" label="Submit" @click="submitComment(comment, commentReply)" />
-                            <Tag type="danger" icon="fa-cancel" label="Cancel" @click="replyToComment(comment)" />
-                        </div>
-                    </div>
-                    <div class="comment-edit field px-3 pb-3 mt-2" v-if="commentToEdit === comment.id">
-                        <textarea class="textarea" rows="5" v-model="comment.content"></textarea>
-                        <div class="row-fit g-1 pt-2">
-                            <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
-                            <Tag type="danger" icon="fa-cancel" label="Cancel" @click="editComment(comment)" />
-                        </div>
-                    </div>
-                </div>
+                <CommentPreview :comment="comment" :post="post" @refresh="refresh" />
             </template>
         </Tree>
     </section>
@@ -113,13 +57,19 @@ async function submitComment(replyTo: Post | Comment, content: string) {
 section.comments {
     border-radius: 0.5rem;
     background-color: $white-0;
-    
+
     @media screen and (max-width: 600px) {
         padding: 1rem !important;
     }
 }
 
 header.sorting {
+    button.refresh {
+        i.spin {
+            animation: spin 512ms linear infinite;
+        }
+    }
+
     button.selected {
         color: $white-0;
         background-color: $white-3;
