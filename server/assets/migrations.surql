@@ -85,3 +85,11 @@ WHERE votes = NONE;
 UPDATE post SET
     archived = false
 WHERE archived = NONE;
+
+--2024-09-12: add voting app settings
+UPDATE appSettings SET
+    voting.showMisleading = true
+WHERE voting.showMisleading = NONE;
+UPDATE appSettings SET
+    voting.showNegative = true
+WHERE voting.showNegative = NONE;
