@@ -1,6 +1,5 @@
 import type { Post } from "~/types"
 
-// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     var { sql, parameters } = queryBuilder()

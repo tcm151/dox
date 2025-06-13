@@ -28,7 +28,6 @@ async function returnConnection(db: Surreal) {
         throw createError({
             statusCode: 401,
             statusMessage: "Failed to close connection.",
-            message: ex.message,
         })
     }
 }
@@ -54,7 +53,6 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
         throw createError({
             statusCode: 401,
             statusMessage: "Failed to authenticate request.",
-            message: ex.message,
         })
     }
 }
@@ -78,7 +76,6 @@ export const authenticateLogin = async (event: H3Event): Promise<string> => {
         throw createError({
             statusCode: 401,
             statusMessage: "Failed to authenticate login.",
-            message: ex.message,
         })
     }
 }
@@ -94,7 +91,6 @@ export const invalidateSession = async (event: H3Event) => {
         throw createError({
             statusCode: 400,
             statusMessage: "You aren't allowed invalidate this session.",
-            message: ex.message,
         })
     }
 }

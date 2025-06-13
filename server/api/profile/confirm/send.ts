@@ -1,6 +1,5 @@
 import type { User, Confirmation } from "~/types"
 
-// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
