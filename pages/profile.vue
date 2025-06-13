@@ -4,14 +4,15 @@ definePageMeta({
         const hints = useHints()
         const session = getSession()
         if (session.isAuthenticated || await session.authenticate()) {
-            if (from.query["confirmation"]) {
-                await session.useApi("/api/profile/confirm", {
-                    id: from.query["confirmation"]
-                })
-                hints.addSuccess("Your account has been confirmed.")
-            }
-            await session.fetchProfile()
-            return navigateTo(`/user/${extractId(session.user.id)}`)
+            hints.addError("This is currently non-functional.")
+            // if (from.query["confirmation"]) {
+            //     await session.useApi("/api/profile/confirm", {
+            //         id: from.query["confirmation"]
+            //     })
+            //     hints.addSuccess("Your account has been confirmed.")
+            // }
+            // await session.fetchProfile()
+            // return navigateTo(`/user/${extractId(session.user.id)}`)
         }
     }
 })

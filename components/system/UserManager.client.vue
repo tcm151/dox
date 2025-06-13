@@ -40,17 +40,19 @@ events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: User, clear: b
 
 const waiting = ref<boolean>(false)
 async function switchProfile(profile: Profile) {
-    waiting.value = true
-    if (await session.authenticate(profile.token))
-    {
+    try {
+        waiting.value = true
+        await session.authenticate(profile.token)
+        events.publish(Trigger.toggleUserManager)
         hints.addSuccess(`Logged into profile: ${session.user.name}`)
-        events.publish(Trigger.toggleUserManager)
     }
-    else {
+    catch (ex: any) {
+        events.publish(Trigger.toggleUserManager)
         events.publish(Trigger.toggleLogin, profile.name)
-        events.publish(Trigger.toggleUserManager)
     }
-    waiting.value = false
+    finally {
+        waiting.value = false
+    }
 }
 
 function newProfile() {

@@ -11,7 +11,10 @@ async function openConnection(): Promise<Surreal> {
     else {
         const db = new Surreal()
         const config = useRuntimeConfig()
-        await db.connect(config.surreal.url)
+        await db.connect(config.surreal.url, {
+            namespace: config.surreal.namespace,
+            database: config.surreal.database,
+        })
         return db
     }
 }
@@ -30,10 +33,10 @@ async function returnConnection(db: Surreal) {
     }
 }
 
-export const authenticateRequest = async (event: H3Event) => {
+export const authenticateRequest = async (event: H3Event): Promise<User> => {
     try {
-        const token = getHeader(event, 'Authorization') ?? ""
         const sessionManager = useSessions()
+        const token = getHeader(event, 'Authorization') ?? ""
         const user = sessionManager.isAuthenticated(token)
         if (user != undefined) {
             return user;
@@ -56,14 +59,36 @@ export const authenticateRequest = async (event: H3Event) => {
     }
 }
 
+export const authenticateLogin = async (event: H3Event): Promise<string> => {
+    try {
+        const sessionManager = useSessions()
+        const header = atob(getHeader(event, 'Authorization') ?? "")
+        const db = await openConnection()
+        const token = await db.signin({
+            scope: "account",
+            password: header.split(":")[1],
+            id: header.split(":")[0],
+        })
+        let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
+        sessionManager.add(token, user[0][0])
+        returnConnection(db)
+        return token
+    }
+    catch (ex: any) {
+        throw createError({
+            statusCode: 401,
+            statusMessage: "Failed to authenticate login.",
+            message: ex.message,
+        })
+    }
+}
+
 export const invalidateSession = async (event: H3Event) => {
     try {
         const sessionManager = useSessions()
         const token = getHeader(event, 'Authorization') ?? ""
-        const auth = sessionManager.isAuthenticated(token)
-        if (auth != undefined) {
-            sessionManager.invalidate(token)
-        }
+        sessionManager.invalidate(token)
+        return token
     }
     catch (ex: any) {
         throw createError({

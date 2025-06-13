@@ -31,19 +31,24 @@ async function register() {
         return
     } 
 
-    session.token = await $fetch<string>("/api/user/register", {
-        method: "POST",
-        body: {
-            email: email.value,
-            username: username.value,
-            password: password.value,
-            referral: referrer
-        },
-    })
-
-    await session.authenticate()
-    hints.addSuccess('Created account successfully!')
-    navigateTo('/profile')
+    try {
+        session.token = await $fetch<string>("/api/user/register", {
+            method: "POST",
+            body: {
+                email: email.value,
+                username: username.value,
+                password: password.value,
+                referral: referrer
+            },
+        })
+    
+        await session.authenticate()
+        hints.addSuccess('Created account successfully!')
+        navigateTo('/profile')
+    }
+    catch (ex: any) {
+        hints.addError("Failed to register your account.")
+    }
 }
 
 function invalidEmail() {

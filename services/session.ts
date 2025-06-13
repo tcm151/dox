@@ -1,7 +1,6 @@
 import type { Ref } from "vue"
 import { skipHydrate } from "pinia"
-import Surreal from "surrealdb.js"
-import type { User, Role, Trait } from "~/types"
+import type { User } from "~/types"
 import { Trigger } from "~/services/events"
 
 
@@ -10,7 +9,7 @@ export interface Session {
     token: Ref<string>
     user: Ref<User>
     useApi: <T>(route: string, body?: any) => Promise<T | null>
-    authenticate: (userToken?: string) => Promise<boolean>
+    authenticate: (userToken?: string) => Promise<void>
     login: (id: string, password: string) => Promise<void>
     logout: (clear: boolean) => void
     fetchProfile(): Promise<void>
@@ -32,6 +31,8 @@ export const getSession = defineStore("session", (): Session => {
             positive: [],
             misleading: [],
             negative: [],
+            awards: [],
+            saves: [],
             score: 0
         },
         topics: [],
@@ -65,69 +66,34 @@ export const getSession = defineStore("session", (): Session => {
     }
 
     //> AUTH
-    async function authenticate(userToken?: string) {
-        const { public: { surreal } } = useRuntimeConfig()
-        try {
-            // TODO convert to API route
-            const db = new Surreal()
-            await db.connect(surreal.url, {
-                namespace: surreal.namespace,
-                database: surreal.database,
-            })
-            
-            if ((await db.authenticate(userToken ?? token.value)) && userToken) {
-                token.value = userToken
+    async function authenticate(existingToken?: string) {
+        token.value = await $fetch<string>("/api/profile/authenticate", {
+            headers: {
+                Authorization: existingToken ?? token.value,
             }
-            await fetchProfile()
-            await db.close()
+        })
 
-            isAuthenticated.value = true
-            events.publish(Trigger.authenticatedUser, {
-                user: user.value,
-                token: userToken ?? token.value,
-            })
-        }
-        catch (ex: any) {
-            isAuthenticated.value = false
-        }
-
-        return isAuthenticated.value
+        await fetchProfile()
+        isAuthenticated.value = true
+        events.publish(Trigger.authenticatedUser, {
+            user: user.value,
+            token: token.value,
+        })
     }
 
     async function login(id: string, password: string) {
-        const { public: { surreal } } = useRuntimeConfig()
-        try {
-            // TODO convert to API method
-            const db = new Surreal()
-            await db.connect(surreal.url, {
-                namespace: surreal.namespace,
-                database: surreal.database,
-            })
+        token.value = await $fetch<string>("/api/profile/login", {
+            headers: {
+                Authorization: btoa(`${id}:${password}`),
+            }
+        })
 
-            token.value = await db.signin({
-                namespace: surreal.namespace,
-                database: surreal.database,
-                scope: "account",
-                id: id,
-                password: password,
-            })
-            
-            await fetchProfile()
-            await db.close()
-
-            isAuthenticated.value = true
-            events.publish(Trigger.authenticatedUser, {
-                user: user.value,
-                token: token.value,
-            })
-        }
-        catch (ex: any) {
-            logout(true)
-            throw createError({
-                statusCode: 401,
-                statusMessage: "Unable to login to account."
-            })
-        }
+        await fetchProfile()
+        isAuthenticated.value = true
+        events.publish(Trigger.authenticatedUser, {
+            user: user.value,
+            token: token.value,
+        })
     }
 
     async function logout(clear: boolean) {
@@ -144,6 +110,8 @@ export const getSession = defineStore("session", (): Session => {
                     positive: [],
                     misleading: [],
                     negative: [],
+                    awards: [],
+                    saves: [],
                     score: 0
                 },
                 topics: [],
@@ -170,11 +138,11 @@ export const getSession = defineStore("session", (): Session => {
         
         if (target.startsWith("user")) {
             await useApi(`/api/user/${extractId(target)}/follow`)
-            user.value?.following.push(target)
+            user.value.following.push(target)
         }
         if (target.startsWith("topic")) {
             await useApi(`/api/topic/${extractId(target)}/follow`)
-            user.value?.topics.push(target)
+            user.value.topics.push(target)
         }
         return true
     }
@@ -190,11 +158,11 @@ export const getSession = defineStore("session", (): Session => {
         
         if (target.startsWith("user")) {
             await useApi(`/api/user/${extractId(target)}/unfollow`)
-            user.value!.following = user.value?.following.filter(u => u !== target)!
+            user.value.following = user.value.following.filter(u => u !== target)
         }
         if (target.startsWith("topic")) {
             await useApi(`/api/topic/${extractId(target)}/unfollow`)
-            user.value!.topics = user.value?.topics.filter(t => t !== target)!
+            user.value.topics = user.value.topics.filter(t => t !== target)
         }
         return true
     }

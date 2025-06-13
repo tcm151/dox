@@ -35,6 +35,7 @@ async function attemptLogin() {
     }
     catch (ex) {
         wrongAttempts.value += 1
+        hints.addError("Failed to authenticate.")
     }
     finally {
         loading.value = false
