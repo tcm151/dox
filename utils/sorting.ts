@@ -3,12 +3,11 @@ import type { Voteable } from "~/types"
 
 export interface Sortable extends Voteable {
     time: string
+    visits?: number
 }
 
 export function sortList(items: Sortable[], sortType: string) {
-    if (!items) {
-        return null
-    }
+    if (!items) return null
     
     return items.sort((first: Sortable, second: Sortable) => {
         switch (sortType) {
@@ -31,19 +30,22 @@ function sortNew(first: Sortable, second: Sortable) {
 }
 
 function sortTop(first: Sortable, second: Sortable) {
-    if (first.votes.score === second.votes.score) {
+    const firstRanking = first.votes.score * (first.visits ?? 1)
+    const secondRanking = second.votes.score * (second.visits ?? 1)
+    if (firstRanking === secondRanking) {
         return sortNew(first, second)
     }
     else {
-        return first.votes.score < second.votes.score ? 1 : -1
+        return firstRanking < secondRanking ? 1 : -1
     }
 }
 
 function sortHot(first: Sortable, second: Sortable) {
-    const daysSinceFirst = DateTime.now().diff(DateTime.fromISO(first.time), "days").days
-    const daysSinceSecond = DateTime.now().diff(DateTime.fromISO(second.time), "days").days
-    const firstAdjustedScore = first.votes.score / (daysSinceFirst + 1)
-    const secondAdjustedScore = second.votes.score / (daysSinceSecond + 1)
+    const now = DateTime.now()
+    const daysSinceFirst = now.diff(DateTime.fromISO(first.time), "days").days
+    const daysSinceSecond = now.diff(DateTime.fromISO(second.time), "days").days
+    const firstAdjustedScore = first.votes.score * (first.visits ?? 1) / (daysSinceFirst * (first.visits ?? 1))
+    const secondAdjustedScore = second.votes.score * (second.visits ?? 1) / (daysSinceSecond * (second.visits ?? 1))
     return firstAdjustedScore < secondAdjustedScore ? 1 : -1
 }
 

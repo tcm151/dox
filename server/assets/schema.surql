@@ -151,7 +151,7 @@ DEFINE FIELD images[*] ON post TYPE record<image>;
 DEFINE FIELD archived ON post TYPE bool DEFAULT false;
 DEFINE FIELD edited ON post TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON post TYPE option<datetime>;
-DEFINE FIELD visits ON post TYPE number DEFAULT 0;
+DEFINE FIELD visits ON post TYPE number DEFAULT 1;
 
 DEFINE FIELD votes.positive ON post TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.misleading ON post TYPE array<record<user>> DEFAULT [];
@@ -208,7 +208,7 @@ DEFINE FIELD images ON thread TYPE array<record<image>> DEFAULT [];
 
 DEFINE FIELD edited ON thread TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON thread TYPE option<datetime>;
-DEFINE FIELD visits ON thread TYPE number DEFAULT 0;
+DEFINE FIELD visits ON thread TYPE number DEFAULT 1;
 
 DEFINE FIELD votes.positive ON thread TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.misleading ON thread TYPE array<record<user>> DEFAULT [];
