@@ -33,7 +33,7 @@ function copyReferralLink() {
         </section> -->
         <section class="box row-wrap g-4 p-5">
             <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
-                <h2 class="tokens g-2">
+                <h2 class="tokens row g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
                     <i class="fa-solid fa-cube"></i>
                 </h2>
@@ -82,7 +82,6 @@ div.offer {
     cursor: pointer;
 
     .tokens {
-        @include flex-h (0.25rem);
         justify-content: flex-end;
         align-items: center;
     }

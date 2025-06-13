@@ -28,8 +28,8 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
 </script>
 
 <template>
-    <nav class="navbar">
-        <section class="left">
+    <nav class="navbar row">
+        <section class="left row">
             <NuxtLink class="title" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>{{ site.titleShort.toUpperCase() }}</span>
@@ -94,7 +94,6 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
 
 <style scoped lang="scss">
 nav {
-    @include flex-h;
     align-items: stretch;
     justify-content: space-between;
     color: $white-1;
@@ -102,8 +101,6 @@ nav {
 }
 
 section.left {
-    @include flex-h;
-
     a.title {
         @media only screen and (max-width: 500px) {
             span { display: none; }
@@ -118,8 +115,6 @@ section.left {
 }
 
 section.right {
-    @include flex-h;
-
     top: 0;
     right: 0;
     position: absolute;

@@ -74,7 +74,7 @@ async function submitQuery() {
 </script>
 
 <template>
-    <article class="g-2 m-4">
+    <article class="row g-2 m-4">
         <div class="left column g-2 p-4">
             <section class="editor fill column g-2">
                 <header class="row g-2">
@@ -160,17 +160,13 @@ input[type=search]::-webkit-search-cancel-button:hover {
 }
 
 article {
-
-    @include flex-h;
+    @include fit-width (2000px, 1rem);
+    height: 100%;
+    overflow: hidden;
 
     @media only screen and (max-width: 1000px) {
         @include flex-v;
     }
-    
-    height: 100%;
-    @include fit-width (2000px, 1rem);
-    overflow: hidden;
-
 
     div.left { flex: 4 1 }
     div.right { flex: 6 1 }

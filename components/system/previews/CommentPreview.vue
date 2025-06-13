@@ -81,3 +81,19 @@ async function submitComment(replyId: Post | Comment, content: string) {
         </div>
     </main>
 </template>
+
+<style lang="scss">
+main.comment {
+    header.row-fit {
+        @media screen and (max-width: 600px) {
+            flex-wrap: wrap;
+        }
+    }
+    
+    .comment-reply, .comment-edit {
+        textarea {
+            max-height: 256px;
+        }
+    }
+}
+</style>

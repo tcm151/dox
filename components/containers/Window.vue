@@ -28,8 +28,8 @@ function resizePopup() {
 
 <template>
     <aside class="background column center" v-if="props.visible">
-        <main class="window" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
-            <header class="title-bar">
+        <main class="window box column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
+            <header class="title-bar row g-4">
                 <div class="left row center-inline g-2 px-3 py-2">
                     <i :class="icon" v-if="icon"></i>
                     <h2 class="title" v-if="title">{{ title }}</h2>
@@ -38,7 +38,7 @@ function resizePopup() {
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </header>
-            <section class="window-slot">
+            <section class="window-slot column p-4">
                 <slot />
             </section>
         </main>
@@ -70,18 +70,11 @@ aside.background {
 }
 
 main.window {
-    // position: absolute;
     width: min-content;
-
-    @include flex-v;
-    border-radius: 0.5rem;
-    background-color: white;
-    // box-shadow: 0.25rem 0.5rem 1rem -0.25rem $black-4, 0 0 0.33rem 1px $black-4;
     animation: fade-in 256ms;
 }
 
 header.title-bar {
-    @include flex-h (1rem);
     align-items: stretch;
     justify-content: space-between;
     color: $white-0;
@@ -116,8 +109,6 @@ header.title-bar {
 }
 
 section.window-slot {
-    padding: 1rem;
-    @include flex-v;
     border-radius: 0 0 0.5rem 0.5rem;
     border: 1px solid $white-2;
     background-color: $white-0;

@@ -5,7 +5,7 @@
     <main class="page column center-inline">
         <slot />
         <footer class="row center-inline px-5 m-5">
-                <div class="links">
+                <div class="links column g-1">
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
                 </div>
@@ -21,7 +21,6 @@ footer.row {
     order: 9999;
 
     .links {
-        @include flex-v (0.25rem);
         font-weight: 700;
 
         a:hover {

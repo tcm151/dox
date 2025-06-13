@@ -79,25 +79,4 @@ header.sorting {
         background-color: $white-3;
     }
 }
-
-div.comment {
-    flex: 1 1;
-    @include flex-v;
-
-    header.row-fit {
-        @media screen and (max-width: 600px) {
-            flex-wrap: wrap;
-
-            span.tag {
-                padding-inline: 0.75rem;
-            }
-        }
-    }
-    
-    .comment-reply, .comment-edit {
-        textarea {
-            max-height: 256px;
-        }
-    }
-}
 </style>

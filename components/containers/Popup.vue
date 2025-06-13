@@ -35,7 +35,7 @@ function resizePopup() {
             <header class="" v-if="title">
                 <h1>{{ title }}</h1>
             </header>
-            <div class="slot">
+            <div class="column px-4">
                 <slot />
             </div>
             <div class="row-wrap g-2">
@@ -89,8 +89,6 @@ aside.filler {
 }
 
 .slot {
-    @include flex-v;
-    padding: 1rem 0;
     max-height: 512px;
 }
 </style>
