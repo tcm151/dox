@@ -44,16 +44,18 @@ async function attemptLogin() {
 
 const wrongAttempts = ref(0)
 function forgetPassword() {
-    closeLogin()
+    const possibleUsername = username.value
     events.publish(Trigger.showPopup, {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            // TODO allow users to reset their password without being logged in
-            await session.useApi(`/api/profile/password/reset`)
+            await session.useApi(`/api/profile/password/reset`, {
+                id: possibleUsername
+            })
             hints.addSuccess("Password reset link sent to your email.")
         },
     })
+    closeLogin()
 }
 </script>
 
