@@ -60,7 +60,7 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
         </section>
         <ClientOnly>
             <Transition name="slide">
-                <section class="right authenticated" v-if="session.isAuthenticated">
+                <section class="right row authenticated" v-if="session.isAuthenticated">
                     <NuxtLink to="/editor">
                         <i class="fa-solid fa-feather-pointed"></i>
                         <span>Submit</span>
@@ -77,7 +77,7 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </NuxtLink>
                 </section>
-                <section class="right anonymous" v-else>
+                <section class="right row anonymous" v-else>
                     <NuxtLink @click="login">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Login</span>
