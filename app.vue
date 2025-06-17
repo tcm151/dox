@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Trigger } from '~/services/events'
 
-const route = useRoute()
 const events = useEvents()
 const settings = useSettings()
 
@@ -10,9 +9,10 @@ useNuxtApp().hook("page:finish", () => {
 })
 
 onMounted(() => {
-    settings.fetch()
     events.publish(Trigger.clientStarted)
 })
+
+await callOnce("app.settings", () => settings.fetch())
 
 let showLogin = ref(false)
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
