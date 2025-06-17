@@ -313,12 +313,12 @@ section.editor, section.preview {
     overflow-y: hidden;
 }
 
-.reply-to {
+div.reply-to {
     padding: 0.5rem 0.75rem;
-    font-weight: 700;
     color: $white-0;
-
+    
     p {
+        font-weight: 700;
         overflow-x: hidden;
         text-overflow: ellipsis;
     }
