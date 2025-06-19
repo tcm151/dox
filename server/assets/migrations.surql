@@ -111,3 +111,9 @@ WHERE votes.awards = NONE;
 UPDATE post SET
     votes.saves = []
 WHERE votes.saves = NONE;
+UPDATE thread SET
+    votes.awards = []
+WHERE votes.awards = NONE;
+UPDATE thread SET
+    votes.saves = []
+WHERE votes.saves = NONE;
