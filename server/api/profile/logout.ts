@@ -1,4 +1,9 @@
 export default defineEventHandler(async (event) => {
-    await authenticateRequest(event)
-    return await invalidateSession(event)
+    try {
+        await authenticateRequest(event)
+        return await invalidateSession(event)
+    }
+    catch (ex: any) {
+        // failed to authenticate session to invalidate
+    }
 })
