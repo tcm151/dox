@@ -237,7 +237,7 @@ function toggleOptions() {
                 
             </section>
         </div>
-        <CommentSection :post="post" :loading="status" />
+        <CommentSection :post="post" :loading="status" @refresh="refresh" />
     </article>
 </template>
 
