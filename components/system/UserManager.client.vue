@@ -38,10 +38,10 @@ events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: User, clear: b
     }
 })
 
-const waiting = ref<boolean>(false)
+const waiting = ref<string>("")
 async function switchProfile(profile: Profile) {
     try {
-        waiting.value = true
+        waiting.value = profile.id
         await session.authenticate(profile.token)
         events.publish(Trigger.toggleUserManager)
         hints.addSuccess(`Logged into profile: ${session.user.name}`)
@@ -51,7 +51,7 @@ async function switchProfile(profile: Profile) {
         events.publish(Trigger.toggleLogin, profile.name)
     }
     finally {
-        waiting.value = false
+        waiting.value = ""
     }
 }
 
@@ -74,7 +74,7 @@ function newProfile() {
                     <i class="fa-solid fa-user"></i>
                     <span>{{ user.name }}</span>
                 </button>
-                <ButtonSpinner class="link" :loading="waiting" @click="switchProfile(user)">
+                <ButtonSpinner class="link" :loading="waiting == user.id" @click="switchProfile(user)">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </ButtonSpinner>
             </div>
