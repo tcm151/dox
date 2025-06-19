@@ -22,7 +22,14 @@ const emit = defineEmits<{
 const cache = useCache()
 
 let sortType = cache.get("feed.sortType", () => "new")
-const sortedItems = computed(() => sortList(props.items.data.value ?? [], sortType.value))
+const sortedItems = computed(() => {
+    if (props.sorting) {
+        return sortList(props.items.data.value ?? [], sortType.value)
+    }
+    else {
+        return props.items.data.value ?? []
+    }
+})
 
 const spinRefresh = ref(false)
 watch(() => props.items.status.value, (status) => {
@@ -36,7 +43,7 @@ watch(() => props.items.status.value, (status) => {
 </script>
 
 <template>
-    <section class="column g-2">
+    <section class="column g-2" v-if="items">
         <header class="sorting row center g-2" v-if="props.sorting">
             <ClientOnly>
                 <button class="refresh dark" @click="items.refresh()">
@@ -58,7 +65,9 @@ watch(() => props.items.status.value, (status) => {
             </ClientOnly>
         </header>
         <ClientOnly>
-            <slot v-for="item in sortedItems" name="item" v-bind="(item as T)" :key="item.id" />
+            <template v-for="item in sortedItems" :key="item.id">
+                <slot name="item" v-bind="(item as T)" />
+            </template>
         </ClientOnly>
     </section>
 </template>
