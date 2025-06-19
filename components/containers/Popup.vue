@@ -35,7 +35,7 @@ function resizePopup() {
             <header class="" v-if="title">
                 <h1>{{ title }}</h1>
             </header>
-            <div class="column px-4">
+            <div class="column py-4">
                 <slot />
             </div>
             <div class="row-wrap g-2">
