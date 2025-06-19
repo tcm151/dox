@@ -2,11 +2,12 @@
 import type { Thread, User } from '~/types'
 
 const route = useRoute()
-const id = route.params.id.toString()
-
-const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
-
 const hints = useHints()
+
+const id = route.params.id.toString()
+const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
+await useFetch(`/api/thread/${id}/visit`)
+
 
 </script>
 
