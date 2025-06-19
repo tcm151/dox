@@ -30,8 +30,8 @@ SIGNIN (
 -- ANALYZERS
 -- ------------------------------
 DEFINE ANALYZER relevanceSearch
-TOKENIZERS camel, class
-FILTERS ascii, snowball(english);
+TOKENIZERS class, camel
+FILTERS lowercase, ascii, snowball(english);
 
 -- ------------------------------
 -- TABLE: appSettings
@@ -40,10 +40,11 @@ IF !(SELECT * FROM appSettings) {
     CREATE appSettings CONTENT {
         id: "appSettings:default", 
         navbar: {
-            showStore: true,
+            showStore: false,
             showFeedback: true,
         },
         feed: {
+            showSearch: false,
             showTopics: true,
             showThreads: true,
             showImages: true,

@@ -21,6 +21,7 @@ const settings = useSettings()
     <article class="feed column center-inline">
         <PagedTabstrip
             :tabs="[
+                { route: '/feed/search', icon: 'fa-solid fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feed.showSearch },
                 { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics', hide: () => !settings.app.feed.showTopics },
                 { route: '/feed/posts', icon: 'fa-solid fa-newspaper', label: 'Posts' },
                 { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads', hide: () => !settings.app.feed.showThreads },

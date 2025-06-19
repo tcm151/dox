@@ -38,6 +38,10 @@ watch(settings.app, async (updatedConfig) => {
                     <h2>Feeds</h2>
                 </header>
                 <div class="field row center py-2">
+                    <label class="f-1">show search</label>
+                    <Toggle v-model:enabled="settings.app.feed.showSearch" />
+                </div>
+                <div class="field row center py-2">
                     <label class="f-1">show topics</label>
                     <Toggle v-model:enabled="settings.app.feed.showTopics" />
                 </div>

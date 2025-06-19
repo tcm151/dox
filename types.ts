@@ -5,6 +5,7 @@ export interface AppSettings {
         showFeedback: boolean,
     }
     feed: {
+        showSearch: boolean,
         showTopics: boolean,
         showThreads: boolean,
         showImages: boolean,

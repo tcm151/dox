@@ -21,6 +21,7 @@ export const useSettings = defineStore("user.settings", () => {
             showFeedback: true,
         },
         feed: {
+            showSearch: true,
             showTopics: true,
             showThreads: true,
             showImages: true,
