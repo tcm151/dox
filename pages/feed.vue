@@ -15,20 +15,22 @@ definePageMeta({
 
 const route = useRoute()
 const settings = useSettings()
+
+const tabs = ref<any[]>([
+    { route: '/feed/search', icon: 'fa-solid fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feed.showSearch },
+    { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics', hide: () => !settings.app.feed.showTopics },
+    { route: '/feed/posts', icon: 'fa-solid fa-newspaper', label: 'Posts' },
+    { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads', hide: () => !settings.app.feed.showThreads },
+    { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images', hide: () => !settings.app.feed.showImages },
+    { route: '/feed/audio', icon: 'fa-solid fa-microphone', label: 'Audio', hide: ()=> true },
+])
 </script>
 
 <template>
     <article class="feed column center-inline">
-        <PagedTabstrip
-            :tabs="[
-                { route: '/feed/search', icon: 'fa-solid fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feed.showSearch },
-                { route: '/feed/topics', icon: 'fa-solid fa-tags', label: 'Topics', hide: () => !settings.app.feed.showTopics },
-                { route: '/feed/posts', icon: 'fa-solid fa-newspaper', label: 'Posts' },
-                { route: '/feed/threads', icon: 'fa-solid fa-comments', label: 'Threads', hide: () => !settings.app.feed.showThreads },
-                { route: '/feed/images', icon: 'fa-solid fa-image', label: 'Images', hide: () => !settings.app.feed.showImages },
-                // { route: '/feed/audio', icon: 'fa-solid fa-microphone', label: 'Audio' },
-            ]"
-        />
+        <ClientOnly>
+            <PagedTabstrip :tabs="tabs" />
+        </ClientOnly>
         <section class="page column center-inline">
             <NuxtPage :key="route.path" />
         </section>
