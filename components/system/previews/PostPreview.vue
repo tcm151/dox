@@ -27,8 +27,9 @@ const settings = useSettings()
                         <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
                     </div>
                     <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
-                    <Tag v-if="post.votes.awards && post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
-                    <Tag v-if="post.votes.saves && post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
+                    <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
+                    <Tag v-if="post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
+                    <Tag v-if="post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
                     <div class="f-1 row-wrap g-1">
                         <TopicTag v-for="topic in post.topics" class="f-10" :topic="topic" />
                     </div>

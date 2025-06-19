@@ -158,6 +158,7 @@ DEFINE FIELD votes.positive ON post TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.misleading ON post TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.negative ON post TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.awards ON post TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.saves ON post TYPE array<record<user>> DEFAULT [];
 
 DEFINE FIELD votes.score ON post DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
@@ -215,6 +216,8 @@ DEFINE FIELD votes.positive ON thread TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.misleading ON thread TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.negative ON thread TYPE array<record<user>> DEFAULT [];
 DEFINE FIELD votes.awards ON thread TYPE array<record<user>> DEFAULT [];
+DEFINE FIELD votes.saves ON thread TYPE array<record<user>> DEFAULT [];
+
 
 DEFINE FIELD votes.score ON thread DEFAULT <future> {
     array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)

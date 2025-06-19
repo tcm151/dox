@@ -103,3 +103,11 @@ WHERE visits = 0;
 UPDATE appSettings SET
     feed.showSearch = false
 WHERE feed.showSearch = NONE;
+
+-- 2025-06-19: votes.awards and votes.saves should always be defined
+UPDATE post SET
+    votes.awards = []
+WHERE votes.awards = NONE;
+UPDATE post SET
+    votes.saves = []
+WHERE votes.saves = NONE;
