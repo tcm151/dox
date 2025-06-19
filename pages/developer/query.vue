@@ -61,15 +61,25 @@ function removeQueryFromSaved(item: any) {
     saved.value = saved.value.filter(s => s !== item)
 }
 
+const loading = ref<boolean>(false)
 async function submitQuery() {
-    const response = await session.useApi<any[]>("/api/developer/database/query", {
-        query: query.value
-    })
-    
-    history.value = history.value.filter(q => q !== query.value)
-    history.value.unshift(query.value)
-    results.value = response ?? []
-    tab.value = 'Results'
+    try {
+        loading.value = true
+        const response = await session.useApi<any[]>("/api/developer/database/query", {
+            query: query.value
+        })
+        
+        history.value = history.value.filter(q => q !== query.value)
+        history.value.unshift(query.value)
+        results.value = response ?? []
+        tab.value = 'Results'
+    }
+    catch (ex: any) {
+        hints.addError(ex.message)
+    }
+    finally {
+        loading.value = false
+    }
 }
 </script>
 
@@ -82,10 +92,10 @@ async function submitQuery() {
                         <span>Clear</span>
                         <i class="fa-solid fa-soap"></i>
                     </button>
-                    <button class="success fill" @click="submitQuery">
+                    <ButtonSpinner class="success fill" :loading="loading" @click="submitQuery">
                         <span>Submit</span>
                         <i class="fa-solid fa-paper-plane"></i>
-                    </button>
+                    </ButtonSpinner>
                 </header>
                 <div class="field">
                     <textarea rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
