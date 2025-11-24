@@ -5,9 +5,10 @@ export default defineEventHandler(async (event) => {
     
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, content, time,')
-    sql.push('replyTo.id, replyTo.title, topics, votes, edited, timeEdited, visits,')
+    sql.push('replyTo.id, replyTo.title, topics, replies, votes, edited, timeEdited, visits,')
     sql.push('images')
     sql.push('FROM thread')
+    // sql.push('WHERE replyTo = NONE')
     sql.push('ORDER BY time DESC')
     if (page && pageSize) {
         sql.push('LIMIT $pageSize')

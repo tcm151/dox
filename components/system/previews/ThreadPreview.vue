@@ -13,10 +13,6 @@ const settings = useSettings()
 
 <template>
     <div class="thread" :class="{ 'animate': settings.user.hoverAnimations }">
-        <div class="reply-to row center-inline g-2" v-if="(thread.replyTo as Thread).id != null" @click="navigateTo(`/thread/${extractId((thread.replyTo as Thread).id)}`)">
-            <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-            <p>{{ (thread.replyTo as Thread).content.slice(128) }}</p>
-        </div>
         <div class="main box column px-3 pb-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
             <Markdown class="content preview" :content="thread.content" />
             <div class="row-wrap g-1">
@@ -50,27 +46,6 @@ const settings = useSettings()
     .main {
         overflow: hidden;
     }
-
-    .reply-to + .main {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-    }
-
-    .reply-to {
-        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
-        font-weight: 700;
-        color: $white-0;
-        
-        p {
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-            letter-spacing: 0.025rem;
-        }
-    }
-}
-
-.thread:has(.reply-to:hover)  {
-    background-color: $white-4;
 }
 
 .thread:hover {

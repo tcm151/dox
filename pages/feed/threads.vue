@@ -29,6 +29,7 @@ let newThread = ref<Thread>({
     content: '',
     time: '',
     topics: [],
+    replies: [],
     images: [],
     votes: {
         positive: [],
@@ -40,6 +41,7 @@ let newThread = ref<Thread>({
     },
     visits: 0,
 })
+
 async function submit() {
     await session.useApi<Thread>("/api/thread/add", {
         user: session.user.id,
@@ -63,6 +65,7 @@ function clearEditor() {
             content: '',
             time: '',
             topics: [],
+            replies: [],
             images: [],
             votes: {
                 positive: [],

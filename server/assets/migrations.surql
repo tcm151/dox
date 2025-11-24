@@ -117,3 +117,8 @@ WHERE votes.awards = NONE;
 UPDATE thread SET
     votes.saves = []
 WHERE votes.saves = NONE;
+
+-- 2025-06-19: add thread replies
+UPDATE thread SET
+    replies = []
+WHERE replies = NONE;

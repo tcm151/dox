@@ -113,6 +113,7 @@ export interface Thread extends Voteable {
     time: string
     replyTo?: Thread | string
     topics: string[]
+    replies: Thread[]
     images: Image[]
     edited?: boolean
     timeEdited?: string

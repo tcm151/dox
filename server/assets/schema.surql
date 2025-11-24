@@ -206,6 +206,7 @@ DEFINE FIELD time ON thread TYPE datetime DEFAULT time::now();
 DEFINE FIELD replyTo ON thread TYPE option<record<thread>>;
 
 DEFINE FIELD topics ON thread TYPE array<record<topic>> DEFAULT [];
+DEFINE FIELD replies ON thread TYPE array<record<thread>> DEFAULT [];
 DEFINE FIELD images ON thread TYPE array<record<image>> DEFAULT [];
 
 DEFINE FIELD edited ON thread TYPE bool DEFAULT false;
