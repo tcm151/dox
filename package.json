@@ -10,26 +10,27 @@
         "start:production": "PORT=8001 node .production/server/index.mjs"
     },
     "devDependencies": {
-        "@types/luxon": "^3.2.0",
+        "@types/luxon": "^3.7.1",
         "@types/node": "^20.12.11",
-        "@types/nodemailer": "^6.4.7",
-        "@types/sanitize-html": "^2.9.0",
-        "@vueuse/core": "^10.9.0",
-        "@vueuse/nuxt": "^10.9.0",
-        "nuxt": "^3.16.0"
+        "@types/nodemailer": "^7.0.4",
+        "@types/sanitize-html": "^2.16.0",
+        "@vueuse/core": "^14.1.0",
+        "@vueuse/nuxt": "^14.1.0",
+        "nuxt": "^4.2.1"
     },
     "dependencies": {
-        "@pinia/nuxt": "^0.5.1",
-        "bulma": "^1.0.0",
-        "highlight.js": "^11.7.0",
-        "html-entities": "^2.3.3",
-        "isomorphic-dompurify": "^2.9.0",
-        "luxon": "^3.2.1",
-        "marked": "^12.0.2",
-        "nodemailer": "^6.9.1",
-        "pinia": "^2.0.28",
-        "sass": "^1.57.1",
-        "sharp": "^0.32.1",
+        "@pinia/nuxt": "^0.11.3",
+        "bulma": "^1.0.4",
+        "highlight.js": "^11.11.1",
+        "html-entities": "^2.6.0",
+        "isomorphic-dompurify": "^2.33.0",
+        "luxon": "^3.7.2",
+        "marked": "^17.0.1",
+        "nodemailer": "^7.0.11",
+        "pinia": "^3.0.4",
+        "sass": "^1.94.2",
+        "sharp": "^0.34.5",
         "surrealdb.js": "^0.11.1"
-    }
+    },
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
