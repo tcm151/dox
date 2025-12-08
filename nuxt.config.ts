@@ -32,7 +32,7 @@ export default defineNuxtConfig({
             ],
         },
     },
-    compatibilityDate: "2024-09-13",
+    compatibilityDate: "2025-12-01",
     devtools: { enabled: false },
     ssr: true,
     routeRules: {
@@ -47,8 +47,8 @@ export default defineNuxtConfig({
         "@vueuse/nuxt"
     ],
     components: [
-        { path: "~/**/components", pathPrefix: false },
         { path: "~/components", pathPrefix: false },
+        { path: "~/**/components", pathPrefix: false },
     ],
     imports: {
         dirs: ["services/**", "datasources/**"],
