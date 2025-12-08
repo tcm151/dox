@@ -5,7 +5,7 @@ const route = useRoute()
 const hints = useHints()
 const session = getSession()
 
-const id = route.params.id.toString()
+const id = route.params.id?.toString()
 const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
 await useFetch(`/api/thread/${id}/visit`)
 

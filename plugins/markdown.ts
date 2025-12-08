@@ -24,7 +24,7 @@ const spoiler: TokenizerExtension & RendererExtension = {
     },
     tokenizer(src, tokens) {
         const match = /^\[\[([^\]]+)\]\]/.exec(src)
-        if (match) {
+        if (match && match[1]) {
             return {
                 type: "spoiler",
                 raw: match[0],

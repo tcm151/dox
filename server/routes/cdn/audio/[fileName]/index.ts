@@ -4,7 +4,7 @@ import type { Audio } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const { fileName } = event.context.params!
-    const id = fileName.split('.').at(0)
+    const id = fileName?.split('.').at(0)
 
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')

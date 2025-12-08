@@ -38,7 +38,7 @@ const settings = useSettings()
                     {{ post.title }}
                 </h3>
             </div>
-            <img v-if="post.images.length > 0" :src="post.images[0].url">
+            <img v-if="post.images[0]" :src="post.images[0].url">
         </div>
     </div>
 </template>

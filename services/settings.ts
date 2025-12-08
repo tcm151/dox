@@ -34,7 +34,7 @@ export const useSettings = defineStore("user.settings", () => {
 
     async function fetch() {
         let temp = await $fetch<AppSettings[]>("/api/admin/config")
-        app.value = temp[0]
+        app.value = temp[0]!
     }
 
     return { user: skipHydrate(user), app, fetch }

@@ -23,7 +23,7 @@ export const uploadMedia = async <T extends Media>(files: FileList | null, media
     const hints = useHints()
     const session = getSession()
     
-    if (files == null || files.length == 0) {
+    if (!files || !files[0]) {
         hints.addWarning("Please select a file.")
         return
     }
