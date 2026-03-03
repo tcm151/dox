@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Trigger } from '~/services/events'
 
+const config = useRuntimeConfig()
 const events = useEvents()
 const settings = useSettings()
 
@@ -10,6 +11,11 @@ useNuxtApp().hook("page:finish", () => {
 
 onMounted(() => {
     events.publish(Trigger.clientStarted)
+})
+
+useSeoMeta({
+    robots: { index: true },
+    ogSiteName: config.public.site.title,
 })
 
 await callOnce("app.settings", () => settings.fetch())
