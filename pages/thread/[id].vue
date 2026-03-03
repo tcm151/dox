@@ -13,6 +13,11 @@ const [showReplyBox, toggleReply] = useToggle(false)
 const reply = ref<string>("")
 
 async function submitReply() {
+    if (!session.isAuthenticated) {
+        hints.addError("You must be logged in to interact with others.")
+        return
+    }
+
     await session.useApi<Thread>(`/api/thread/${id}/reply`, {
         user: session.user.id,
         content: reply.value,
@@ -35,9 +40,9 @@ async function submitReply() {
         <section class="main box column p-4" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
             <header class="row-wrap g-1">
                 <Votes :target="thread" />
-                <TopicTag v-for="topic in thread.topics" :topic="topic" />
-                <div class="fill row-wrap g-1">
-                    <UserTag class="f-1" :user="(thread.user as User)" />
+                <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
+                <div class="row-wrap f-1 g-1">
+                    <UserTag :user="(thread.user as User)" />
                     <!-- <Tag class="f-1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
                     <Tag type="info" icon="fa-stopwatch" :label="formatDate(thread.time)" />
                     <Tag type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
@@ -47,13 +52,13 @@ async function submitReply() {
             </header>
             <Markdown class="content" :content="thread.content" />
             <ClientOnly>
-                <footer v-if="session.isAuthenticated">
+                <footer>
                     <div class="fill row-wrap g-1" v-if="!showReplyBox">
                         <button class="fill" @click="toggleReply()">
                             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                             <span>Reply</span>
                         </button>
-                        <button class="fill">
+                        <!-- <button class="fill">
                             <i class="fa-solid fa-quote-left"></i>
                             <span>Quote</span>
                         </button>
@@ -67,7 +72,7 @@ async function submitReply() {
                         </button>
                         <button>
                             <i class="fa-solid fa-ellipsis"></i>
-                        </button>
+                        </button> -->
                     </div>
                     <div class="field" v-else-if="showReplyBox">
                         <textarea rows="5" v-model="reply"></textarea>
@@ -82,9 +87,6 @@ async function submitReply() {
                             </button>
                         </div>
                     </div>
-                </footer>
-                <footer class="column not-logged-in" v-else>
-                    <button class="danger">You must be logged in to interact with others.</button>
                 </footer>
             </ClientOnly>
         </section>

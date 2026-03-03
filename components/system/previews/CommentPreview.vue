@@ -23,6 +23,10 @@ async function updateComment(comment: Comment) {
 }
 
 async function submitComment(replyId: Post | Comment, content: string) {
+    if (!session.isAuthenticated) {
+        hints.addError("You must be logged in to interact with others.")
+        return
+    }
     try {
         replyTo.value = false
         await session.useApi<Comment>("/api/comment/add", {
@@ -59,8 +63,8 @@ async function submitComment(replyId: Post | Comment, content: string) {
             </span>
             <Tag type="info" icon="fa-stopwatch" :label="formatDate(comment.time)" />
             <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
+            <Tag type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
             <ClientOnly>
-                <Tag :hidden="!session.isAuthenticated" type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
                 <Tag :hidden="(comment.user as User).id !== session.user.id" type="link" icon="fa-eraser" label="Edit" @click="editComment = true" />
             </ClientOnly>
         </header>

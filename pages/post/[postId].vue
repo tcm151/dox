@@ -63,6 +63,11 @@ function toggleCommentBox() {
 
 let comment = ref("")
 async function submitComment(replyTo: Post | Comment, content: string) {
+    if (!session.isAuthenticated) {
+        hints.addError("You must be logged in to interact with others.")
+        return
+    }
+
     await session.useApi<Comment>("/api/comment/add", {
         time: new Date(),
         user: session.user?.id,
@@ -109,6 +114,10 @@ async function awardPost() {
 }
 
 function writePostReply() {
+    if (!session.isAuthenticated) {
+        hints.addError("You must be logged in to interact with others.")
+        return
+    }
     return navigateTo(`/editor?replyTo=${extractId(post.value?.id)}`)
 }
 
@@ -120,6 +129,7 @@ async function reportPost() {
 async function archivePost() {
     await session.useApi(`/api/post/${postId}/archive`)
     hints.addSuccess("This post has been archived.")
+    await refresh()
 }
 
 async function pinPost() {
@@ -148,6 +158,7 @@ function toggleOptions() {
                 <header class="tags row-wrap g-1">
                     <Votes :target="post" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
+                    <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
                     <UserTag class="f-1" :user="(post.user as User)" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
                     <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
@@ -164,7 +175,7 @@ function toggleOptions() {
                     <textarea rows="10" v-model="post.content" />
                 </div>
                 <ClientOnly>
-                    <footer class="column g-2" v-if="session.isAuthenticated">
+                    <footer class="column g-2">
                         <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
                             <button class="comment" @click="toggleCommentBox">
                                 <i class="fa-solid fa-message"></i>
@@ -178,10 +189,10 @@ function toggleOptions() {
                                 <i class="fa-solid fa-copy"></i>
                                 <span>Share</span>
                             </button>
-                            <button class="options" @click="toggleOptions">
+                            <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
-                            <ExtraOptions
+                            <ExtraOptions 
                                 :post="post"
                                 :visible="showOptions"
                                 @edit="toggleEditPost"
@@ -221,9 +232,6 @@ function toggleOptions() {
                                 </button>
                             </div>
                         </div>
-                    </footer>
-                    <footer class="column not-logged-in" v-else>
-                        <button class="danger">You must be logged in to interact with others.</button>
                     </footer>
                 </ClientOnly>
                 
