@@ -4,7 +4,7 @@
 //> DEFAULT STYLING
 html {
     overflow: hidden;
-    font-size: 12pt;
+    font-size: 14pt;
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
     background-color: $white-1;
@@ -103,7 +103,6 @@ button.inverted:hover {
 }
 
 code {
-    // padding: 0.1rem 0.33rem;
     font-size: 0.95rem;
     font-weight: 500;
     font-family: 'Source Code Pro', monospace;
@@ -182,33 +181,30 @@ pre {
     }
 
     h1 {
-        margin-top: 1.25rem;
-        margin-bottom: 0.5rem;
-        font-size: 1.75rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 2rem;
     }
     
     h2 {
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+
     }
     
     h3 {
-        margin-top: 0.75rem;
-        margin-bottom: 0.5rem;
-        // font-weight: 600;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+
     }
     
     p {
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
-        // TODO: turn into a user preference
-        // text-indent: 1rem;
-        // text-align: justify;
+        margin-block: 0.5rem;
         hyphens: auto;
-    }
-
-    p + p {
-        margin-bottom: 0.5rem;
+        // TODO: turn into a user preference
+        // text-align: justify;
     }
 
     a {
@@ -228,11 +224,11 @@ pre {
     }
 
     ul, ol {
-        margin-block: 0.75rem;
+        margin-block: 1rem;
     }
 
     blockquote {
-        margin-block: 0.75rem;
+        margin-block: 1rem;
         
         p {
             margin-block: 0.5rem;
@@ -244,15 +240,19 @@ pre {
         place-items: center;
         margin-block: 1.25rem;
         
+        
         img {
+            width: 100%;
             margin-inline: auto;
-            max-width: calc(100% - 10rem);
             border-radius: 0.5rem;
-            border: 0.2rem solid $white-1;
+            border: 0.25rem solid $white-1;
+            box-sizing: border-box;
         }
     }
 
     pre:has(code) {
+        margin-block: 1rem;
+
         code {
             display: block;
             padding: 1rem;
@@ -261,10 +261,9 @@ pre {
     }
 
     table {
-        margin-block: 2rem;
+        margin-block: 1rem;
         border-collapse: collapse;
         border: 1px solid $white-2;
-        // border-radius: 1rem;
     }
 
     th {
