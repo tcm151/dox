@@ -9,7 +9,7 @@ const hints = useHints()
 const session = getSession()
 
 const route = useRoute()
-const id = route.params.id.toString()
+const id = route.params.id?.toString()
 
 const { data: image } = await useFetch<Image>(`/api/image/${id}`)
 
@@ -34,7 +34,7 @@ async function reportImage() {
 }
 </script>
 
-<template>
+<template v-if="id">
     <article class="p-4">
         <section class="box p-4" v-if="image">
             <header class="row-wrap g-1 mb-2">

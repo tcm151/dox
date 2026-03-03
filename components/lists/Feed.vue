@@ -6,12 +6,12 @@ interface AsyncData<DataT, ErrorT> {
     refresh: (opts?: any) => Promise<void>
     execute: (opts?: any) => Promise<void>
     clear: () => void
-    error: Ref<ErrorT | null>
+    error: Ref<ErrorT | undefined>
     status: Ref<'idle' | 'pending' | 'success' | 'error'>
 }
 
 const props = defineProps<{
-    items: AsyncData<T[] | null, any>
+    items: AsyncData<T[] | undefined, any>
     sorting?: boolean
 }>()
 
@@ -40,25 +40,30 @@ watch(() => props.items.status.value, (status) => {
         setTimeout(() => spinRefresh.value = false, 512)
     }
 })
+
+function sortFeed(type: string) {
+    sortType.value = type
+    props.items.refresh()
+}
 </script>
 
 <template>
     <section class="column g-2" v-if="items">
         <header class="sorting row center g-2" v-if="props.sorting">
             <ClientOnly>
-                <button class="refresh dark" @click="items.refresh()">
+                <button class="refresh dark" @click="items.refresh">
                     <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 </button>
                 <slot name="buttons" />
-                <button @click="sortType = 'new'" :class="{ selected: sortType === 'new' }">
+                <button @click="sortFeed('new')" :class="{ selected: sortType === 'new' }">
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>
                 </button>
-                <button @click="sortType = 'hot'" :class="{ selected: sortType === 'hot' }">
+                <button @click="sortFeed('hot')" :class="{ selected: sortType === 'hot' }">
                     <i class="fa-solid fa-fire"></i>
                     <span>Hot</span>
                 </button>
-                <button @click="sortType = 'top'" :class="{ selected: sortType === 'top' }">
+                <button @click="sortFeed('top')" :class="{ selected: sortType === 'top' }">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Top</span>
                 </button>

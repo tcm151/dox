@@ -18,7 +18,7 @@ function toggleChildren(id: string) {
             <div class="item fill">
                 <slot name="item" :item="item" />
                 <Tree class="ml-3" v-if="hideChildren != item.id" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
-                    <template v-for="(_, slot) in $slots" v-slot:[slot]="scope: any">
+                    <template v-for="(_, slot) in $slots" v-slot:[slot]="scope">
                         <slot :name="slot" v-bind="scope ?? {}">
                         </slot>
                     </template>

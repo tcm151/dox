@@ -73,12 +73,12 @@ async function handleQuery<T>(query: Query) {
 
 export async function queryOne<T>(query: Query): Promise<T> {
     let responses = await handleQuery<T>(query)
-    return responses[0][0]
+    return responses[0]![0]!
 }
 
 export async function queryAll<T>(query: Query): Promise<T[]> {
     let response = await handleQuery<T>(query) 
-    return response[0]
+    return response[0]!
 }
 
 export async function complexQuery(query: Query): Promise<unknown[][]> {

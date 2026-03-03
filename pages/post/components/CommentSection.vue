@@ -49,7 +49,11 @@ watch(() => props.loading, (status) => {
                 <span>Top</span>
             </button>
         </header>
-        <Tree :items="post.comments ?? []" :children="(post.comments as Comment[]).filter(c => c.replyTo === post!.id) ?? []" :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)">
+        <Tree
+            :items="post.comments ?? []"
+            :children="(post.comments as Comment[]).filter(c => c.replyTo === post!.id) ?? []"
+            :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)"
+        >
             <template #item="{ item: comment }">
                 <CommentPreview :comment="comment" :post="post" @refresh="emit('refresh')" />
             </template>

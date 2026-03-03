@@ -4,27 +4,19 @@ import CommentSection from "./components/CommentSection.vue"
 import type { Post, Comment, User } from '~/types'
 
 const route = useRoute()
-const postId = route.params.postId.toString()
-const { public: { site } } = useRuntimeConfig()
+const postId = route.params.postId?.toString()
 
-const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
 await useFetch(`/api/post/${postId}/visit`)
+const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
 
 useSeoMeta({
-    title: () => post.value?.title ?? site.title,
+    ogType: "article",
+    title: () => post.value?.title,
     ogTitle: () => post.value?.title,
     author: () => post.value ? (post.value.user as User).name : 'unknown',
     description: () => post.value?.content.slice(0, 256),
     ogDescription: () => post.value?.content.slice(0, 256),
-    // ogImage: () => post.value?.images?.[0].url ?? '',
-})
-
-useServerSeoMeta({
-    robots: {
-        index: true,
-    },
-    ogType: 'article',
-    ogSiteName: site.title,
+    ogImage: () => post.value?.images?.[0]?.url ?? '',
 })
 
 const hints = useHints()

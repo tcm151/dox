@@ -5,6 +5,13 @@ export default defineEventHandler(async (event) => {
     const data = await readMultipartFormData(event)
     const baseUrl = getHeader(event, 'origin')
 
+    if (!data || !data[0]) {
+        return createError({
+            statusCode: 400,
+            message: "You did pass any files to be uploaded."
+        })
+    }
+
     const { buffer, type } = await processMedia(data![0])
     const tokens = Math.round(buffer.byteLength / 2_048)
     // const tokens = 1234

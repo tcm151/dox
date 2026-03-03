@@ -59,8 +59,8 @@ function viewAudio(audio: Audio) {
             </header>
         </ClientOnly>
         <section class="column g-2">
-            <div class="audio" v-for="audio in audio">
-                <audio controls :src="audio.url" />
+            <div class="audio" v-for="a in audio">
+                <audio controls :src="a.url" />
             </div>
             <div style="flex: 25 0" />
         </section>

@@ -44,9 +44,9 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
             const db = await openConnection()
             await db.authenticate(token)
             let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
-            sessionManager.add(token, user[0][0])
+            sessionManager.add(token, user[0]![0]!)
             returnConnection(db)
-            return user[0][0]
+            return user[0]![0]!
         }
     }
     catch (ex: any) {
@@ -68,7 +68,7 @@ export const authenticateLogin = async (event: H3Event): Promise<string> => {
             id: header.split(":")[0],
         })
         let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
-        sessionManager.add(token, user[0][0])
+        sessionManager.add(token, user[0]![0]!)
         returnConnection(db)
         return token
     }
