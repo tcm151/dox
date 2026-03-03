@@ -5,19 +5,24 @@ const props = defineProps<{
     getChildren: Function
 }>()
 
-const hideChildren = ref<string>("")
+const hiddenChildren = ref<string[]>([])
 function toggleChildren(id: string) {
-    hideChildren.value = (hideChildren.value == id) ? "" : id
+    if (hiddenChildren.value.includes(id)) {
+        hiddenChildren.value = hiddenChildren.value.filter(c => c != id)
+    }
+    else {
+        hiddenChildren.value.push(id)
+    }
 }
 </script>
 
 <template>
     <main class="tree" v-if="children.length > 0">
-        <div class="outside row" v-for="item in children" :key="item.id">
-            <aside class="indent-line mb-1 mr-2" :class="{ 'collapsed': hideChildren == item.id }" @click="toggleChildren(item.id)" />
+        <div class="outside row" v-for="item in children" :key="item.id" :class="{ 'collapsed': hiddenChildren.includes(item.id) }">
+            <aside class="indent-line mb-1 mr-2" @click="toggleChildren(item.id)" />
             <div class="item fill">
                 <slot name="item" :item="item" />
-                <Tree class="ml-3" v-if="hideChildren != item.id" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
+                <Tree class="ml-3" v-if="!hiddenChildren.includes(item.id)" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
                     <template v-for="(_, slot) in $slots" v-slot:[slot]="scope">
                         <slot :name="slot" v-bind="scope ?? {}">
                         </slot>
@@ -40,7 +45,7 @@ function toggleChildren(id: string) {
     background-color: $white-2;
 }
 
-.indent-line.collapsed {
+.outside.collapsed .indent-line {
     background-color: $white-2;
 }
 
