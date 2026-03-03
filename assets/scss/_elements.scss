@@ -1,5 +1,101 @@
 @use "colors" as *;
-@use "layout" as *;
+@use "mixins" as *;
+
+.light {
+    color: $black-0;
+    background-color: $white-0;
+}
+
+.light:hover {
+    background-color: $white-1;
+}
+
+.dark {
+    color: $white-0;
+    background-color: $black-0;
+}
+
+.dark:hover {
+    background-color: $black-3;
+}
+
+.positive, .positive.inverted:hover,
+.success, .success.inverted:hover {
+    color: $green;
+    background-color: $green-light;
+}
+
+.positive:hover, .positive.inverted,
+.success:hover, .success.inverted {
+    color: $green-light;
+    background-color: $green;
+}
+
+.positive.voted {
+    outline: 1px solid $green;
+}
+
+.misleading, .misleading.inverted:hover,
+.warning, .warning.inverted:hover {
+    color: $yellow;
+    background-color: $yellow-light;
+}
+
+.misleading:hover, .misleading.inverted,
+.warning:hover, .warning.inverted {
+    color: $yellow-light;
+    background-color: $yellow;
+}
+
+.misleading.voted {
+    outline: 1px solid $yellow;
+}
+
+.negative, .negative.inverted:hover,
+.danger, .danger.inverted:hover {
+    color: $red;
+    background-color: $red-light;
+}
+
+.negative:hover, .negative.inverted,
+.danger:hover, .danger.inverted {
+    color: $red-light;
+    background-color: $red;
+}
+
+.negative.voted {
+    outline: 1px solid $red;
+}
+
+.topic, .topic.inverted:hover,
+.link, .link.inverted:hover {
+    color: $purple;
+    background-color: $purple-light;
+}
+
+.topic:hover, .topic.inverted,
+.link:hover, .link.inverted {
+    color: $purple-light;
+    background-color: $purple;
+}
+
+.info, .info.inverted:hover {
+    color: $blue;
+    background-color: $blue-light;
+}
+
+.info:hover, .info.inverted {
+    color: $blue-light;
+    background-color: $blue;
+}
+
+.positive, .success, .misleading, .negative, .danger, .topic, .info {
+    transition: color 256ms, background-color 256ms;
+}
+
+.voted {
+    animation: voted 256ms ease-in-out;
+}
 
 .box {
     box-sizing: border-box;

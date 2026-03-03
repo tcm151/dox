@@ -62,7 +62,6 @@ export default defineNuxtConfig({
                 scss: {
                     additionalData: [
                         '@use "~/assets/scss/colors" as *;',
-                        '@use "~/assets/scss/layout" as *;',
                         '@use "~/assets/scss/mixins" as *;',
                     ].join("\n"),
                 },
