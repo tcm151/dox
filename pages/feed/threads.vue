@@ -42,7 +42,9 @@ let newThread = ref<Thread>({
     visits: 0,
 })
 
+const submitting = ref<boolean>(false)
 async function submit() {
+    submitting.value = true
     await session.useApi<Thread>("/api/thread/add", {
         user: session.user.id,
         content: newThread.value.content,
@@ -53,6 +55,7 @@ async function submit() {
             negative: [],
         },
     })
+    submitting.value = false
 
     clearEditor()
     await threads.refresh()
@@ -99,10 +102,10 @@ function togglePreview() {
             </div>
             <TopicField v-model:input="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             <div class="row g-2 mt-2">
-                <button class="success f-1 b-0" @click="submit">
+                <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>
-                </button>
+                </ButtonSpinner>
                 <button class="link f-1 b-0" @click="selectImages">
                     <i class="fa-solid fa-images"></i>
                     <span>Upload</span>

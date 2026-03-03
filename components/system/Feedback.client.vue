@@ -13,18 +13,20 @@ const session = getSession()
 
 let feedback = ref("")
 
+let submitting = ref<boolean>(false)
 async function submitFeedback() {
-
     if (feedback.value == "") {
         hints.addWarning("You can't submit nothing.")
         return
     }
-
-    const result = await session.useApi("/api/feedback/submit", {
+    
+    submitting.value = true
+    await session.useApi("/api/feedback/submit", {
         user: session.user!.id,
             content: feedback.value,
             time: new Date(),
     })
+    submitting.value = false
 
     feedback.value = ""
     emit('submit')
@@ -35,8 +37,12 @@ async function submitFeedback() {
     <div class="field">
         <textarea rows="10" :placeholder="placeholder ?? ''" v-model="feedback"></textarea>
         <div class="column mt-3" >
-            <button class="success" v-if="session.isAuthenticated" @click="submitFeedback">Submit</button>
-            <button class="negative" v-else>You must be logged in to submit feedback.</button>
+            <ButtonSpinner class="success" v-if="session.isAuthenticated" :loading="submitting" @click="submitFeedback">
+                Submit
+            </ButtonSpinner>
+            <button class="negative" v-else>
+                You must be logged in to submit feedback.
+            </button>
         </div>
     </div>
 </template>
