@@ -1,4 +1,4 @@
-feedbackVisible<script setup lang="ts">
+<script setup lang="ts">
 
 const events = useEvents()
 const session = getSession()

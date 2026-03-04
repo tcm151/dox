@@ -4,7 +4,7 @@
 //> DEFAULT STYLING
 html {
     overflow: hidden;
-    font-size: 14pt;
+    font-size: 12pt;
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
     background-color: $white-1;
@@ -59,6 +59,8 @@ button.inverted:hover {
 }
 
 .field:not(.row) {
+    flex-direction: column;
+
     label {
         margin-bottom: 0.5rem;
     }
@@ -66,7 +68,7 @@ button.inverted:hover {
 
 .field {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 
     label {
         font-size: 0.95rem;
