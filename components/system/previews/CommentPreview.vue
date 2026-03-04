@@ -33,6 +33,7 @@ function cancelComment() {
 async function updateComment(comment: Comment) {
     try {
         await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
+        editComment.value = false
         emit("refresh")
     }
     catch (error: any) {
@@ -46,7 +47,6 @@ async function submitComment(replyId: Post | Comment, content: string) {
         return
     }
     try {
-        replyTo.value = false
         await session.useApi<Comment>("/api/comment/add", {
             time: new Date(),
             user: session.user?.id,
@@ -59,6 +59,7 @@ async function submitComment(replyId: Post | Comment, content: string) {
                 negative: [],
             },
         })
+        replyTo.value = false
         replyText.value = ""
         emit("refresh")
     }
