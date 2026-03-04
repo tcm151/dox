@@ -17,6 +17,19 @@ let replyText = ref("")
 let editComment = ref(false)
 let replyTo = ref(false)
 
+let commentBox = useTemplateRef("comment-box")
+
+async function replyToComment() {
+    replyTo.value = true
+    await nextTick()
+    commentBox.value?.focus()
+}
+
+function cancelComment() {
+    replyTo.value = false
+    replyText.value = ""
+}
+
 async function updateComment(comment: Comment) {
     try {
         await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
@@ -78,21 +91,20 @@ async function deleteComment(commentId: string) {
             </span>
             <Tag type="info" icon="fa-stopwatch" :label="formatDate(comment.time)" />
             <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
-            <Tag type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
+            <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
             <ClientOnly>
-                <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
                 <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">
                     <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
-                    <Tag type="danger" icon="fa-trash" title="Delete" @click="deleteComment(comment.id)" />
+                    <Tag type="link" icon="fa-trash" title="Delete" @click="deleteComment(comment.id)" />
                 </template>
             </ClientOnly>
         </header>
         <Markdown class="body p-3" v-if="!editComment" :content="comment.content" />
         <div class="comment-reply field px-3 pb-3" v-if="replyTo">
-            <textarea rows="2" v-model="replyText"></textarea>
+            <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
             <div class="row-fit g-1 pt-2">
                 <Tag type="success" icon="fa-message" label="Submit" @click="submitComment(comment, replyText)" />
-                <Tag type="danger" icon="fa-cancel" label="Cancel" @click="replyTo = false" />
+                <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
             </div>
         </div>
         <div class="comment-edit field px-3 pb-3 mt-2" v-if="editComment">

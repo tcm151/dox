@@ -39,9 +39,18 @@ async function updatePost(changedPost: Post | null) {
         return
     }
 
-    await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
-    post.value!.edited = true
-    toggleEditPost()
+    try {
+        submitting.value = true
+        await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
+        post.value!.edited = true
+        toggleEditPost()
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
+    finally {
+        submitting.value = false
+    }
 }
 
 async function deletePost() {
@@ -164,8 +173,13 @@ function toggleOptions() {
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
                     <UserTag class="f-1" :user="(post.user as User)" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
-                    <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
-                    <Tag class="f-1" v-if="post.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(post.timeEdited)" />
+                    <Tag v-if="post.edited" class="f-1" type="info">
+                        <i class="fa-solid fa-stopwatch"></i>
+                        {{ formatDate(post.time) }}
+                        <i class="fa-solid fa-eraser"></i>
+                        {{ formatDate(post.timeEdited) }}
+                    </Tag>
+                    <Tag v-else class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}
@@ -208,10 +222,10 @@ function toggleOptions() {
                             />
                         </div>
                         <div class="row g-1" v-else-if="editingPost">
-                            <button class="success fill" @click="updatePost(post)">
+                            <ButtonSpinner class="success fill" :loading="submitting" @click="updatePost(post)">
                                 <i class="fa-solid fa-folder-open"></i>
                                 <span>Save</span>
-                            </button>
+                            </ButtonSpinner>
                             <!-- <button class="info fill" @click="togglePreview">
                                 <i class="fa-solid fa-eye" v-if="!showPreview"></i>
                                 <i class="fa-solid fa-eye-slash" v-else></i>

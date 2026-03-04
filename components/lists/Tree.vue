@@ -18,8 +18,8 @@ function toggleChildren(id: string) {
 
 <template>
     <main class="tree" v-if="children.length > 0">
-        <template v-for="item in children" :key="item.id" :class="{ 'collapsed': hiddenChildren.includes(item.id) }">
-            <div class="outside row">
+        <template v-for="item in children" :key="item.id">
+            <div class="outside row" :class="{ 'collapsed': hiddenChildren.includes(item.id) }">
                 <aside class="indent-line mb-1 mr-4" @click="toggleChildren(item.id)" />
                 <div class="item fill">
                     <slot name="item" :item="item" />
@@ -53,7 +53,7 @@ function toggleChildren(id: string) {
 
 :deep(.outside.collapsed) {
     header {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
     .markdown {
         display: none;
