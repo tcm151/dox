@@ -12,12 +12,14 @@ await useFetch(`/api/thread/${id}/visit`)
 const [showReplyBox, toggleReply] = useToggle(false)
 const reply = ref<string>("")
 
+const submitting = ref<boolean>(false)
 async function submitReply() {
     if (!session.isAuthenticated) {
         hints.addError("You must be logged in to interact with others.")
         return
     }
-
+    
+    submitting.value = true
     await session.useApi<Thread>(`/api/thread/${id}/reply`, {
         user: session.user.id,
         content: reply.value,
@@ -27,6 +29,7 @@ async function submitReply() {
             negative: [],
         },
     })
+    submitting.value = false
 
     reply.value = ""
     toggleReply()
@@ -77,10 +80,10 @@ async function submitReply() {
                     <div class="field" v-else-if="showReplyBox">
                         <textarea rows="5" v-model="reply"></textarea>
                         <div class="row g-2 mt-2">
-                            <button class="success fill" @click="submitReply">
+                            <ButtonSpinner class="success fill" :loading="submitting" @click="submitReply">
                                 <i class="fa-solid fa-message"></i>
                                 <span>Submit</span>
-                            </button>
+                            </ButtonSpinner>
                             <button class="danger" @click="toggleReply()">
                                 <i class="fa-solid fa-ban"></i>
                                 <span>Cancel</span>

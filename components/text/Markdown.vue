@@ -3,8 +3,6 @@ defineProps<{ content?: string }>()
 </script>
 
 <template>
-    <!-- CONFLICT try to find alternative to passing props -->
-    <!-- issue when content is very large, receive error request-uri it too large -->
     <div class="markdown" v-html="renderMarkdown(content)"></div>
 </template>
 

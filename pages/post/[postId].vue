@@ -62,12 +62,14 @@ function toggleCommentBox() {
 }
 
 let comment = ref("")
+const submitting = ref<boolean>(false)
 async function submitComment(replyTo: Post | Comment, content: string) {
     if (!session.isAuthenticated) {
         hints.addError("You must be logged in to interact with others.")
         return
     }
 
+    submitting.value = true
     await session.useApi<Comment>("/api/comment/add", {
         time: new Date(),
         user: session.user?.id,
@@ -80,6 +82,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
             negative: [],
         },
     })
+    submitting.value = false
 
     await refresh()
     comment.value = ""
@@ -222,10 +225,10 @@ function toggleOptions() {
                         <div class="field" v-else-if="showCommentBox">
                             <textarea rows="5" v-model="comment"></textarea>
                             <div class="row g-2 mt-2">
-                                <button class="success fill" @click="submitComment(post, comment)">
+                                <ButtonSpinner class="success fill" :loading="submitting" @click="submitComment(post, comment)">
                                     <i class="fa-solid fa-message"></i>
                                     <span>Submit</span>
-                                </button>
+                                </ButtonSpinner>
                                 <button class="danger" @click="toggleCommentBox">
                                     <i class="fa-solid fa-ban"></i>
                                     <span>Cancel</span>

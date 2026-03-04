@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     sql.push('images,')
     sql.push('(')
     sql.push('SELECT id, time, user.id, user.name, post.id,')
-    sql.push('replyTo, content, votes, edited, timeEdited')
+    sql.push('replyTo, content, votes, edited, deleted, timeEdited')
     sql.push('FROM $post.comments')
     sql.push('ORDER BY time DESC')
     sql.push('FETCH user, post')

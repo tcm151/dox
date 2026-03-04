@@ -10,20 +10,20 @@ DEFINE FUNCTION fn::days_since($time: datetime) {
 -- SCOPES
 -- ------------------------------
 -- WARN: invalidates current session token, only uncomment if necessary
-DEFINE SCOPE account SESSION 7d
-SIGNUP (
-    CREATE user SET
-    email = $email,
-    name = $username,
-    password = crypto::argon2::generate($password),
-    dateJoined = time::now()
-)
-SIGNIN (
-    SELECT *
-    FROM user
-    WHERE (email = $id OR name = $id)
-    AND crypto::argon2::compare(password, $password)
-);
+-- DEFINE SCOPE account SESSION 7d
+-- SIGNUP (
+--     CREATE user SET
+--     email = $email,
+--     name = $username,
+--     password = crypto::argon2::generate($password),
+--     dateJoined = time::now()
+-- )
+-- SIGNIN (
+--     SELECT *
+--     FROM user
+--     WHERE (email = $id OR name = $id)
+--     AND crypto::argon2::compare(password, $password)
+-- );
 
 
 -- ------------------------------
@@ -242,6 +242,7 @@ DEFINE FIELD content ON comment TYPE string;
 DEFINE FIELD time ON comment TYPE datetime DEFAULT time::now();
 DEFINE FIELD replyTo ON comment TYPE record<post | comment>;
 DEFINE FIELD edited ON comment TYPE bool DEFAULT false;
+DEFINE FIELD deleted ON comment TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON comment TYPE option<datetime>;
 
 DEFINE FIELD votes.positive ON comment TYPE array<record<user>> DEFAULT [];

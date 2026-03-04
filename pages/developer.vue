@@ -42,12 +42,12 @@ definePageMeta({
 
 <style scoped lang="scss">
 article {
-    width: 100%;
+    width: stretch;
     overflow-y: hidden;
 }
 
 section.page {
-    width: 100%;
+    width: stretch;
     overflow-y: auto;
 }
 </style>

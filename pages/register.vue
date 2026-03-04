@@ -15,6 +15,7 @@ const username = ref("")
 const password = ref("")
 const confirmation = ref("")
 
+const submitting = ref<boolean>(false)
 async function register() {
     if (!valid.email.test(email.value)) {
         hints.addError("Invalid email.")
@@ -32,6 +33,7 @@ async function register() {
     } 
 
     try {
+        submitting.value = true
         session.token = await $fetch<string>("/api/user/register", {
             method: "POST",
             body: {
@@ -48,6 +50,9 @@ async function register() {
     }
     catch (ex: any) {
         hints.addError("Failed to register your account.")
+    }
+    finally {
+        submitting.value = false
     }
 }
 

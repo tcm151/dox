@@ -6,11 +6,13 @@ const hints = useHints()
 const session = getSession()
 const { history, saved } = storeToRefs(useQuery())
 
-const tab = ref<string>("History")
-const results = ref<any[]>([])
+const searchBar = ref("")
+
+const tab = cache.get<string>("query.tab", () => "History")
 const query = cache.get<string>("query.sql", () => "")
 const showSearch = cache.get<boolean>("query.showSearch", () => false)
-const searchBar = ref("")
+const results = cache.get<any[]>("query.results", () => [])
+const selectedResult = cache.get<number>("query.selectedResult", () => 0)
 
 function filteredHistory(): any[] {
     if (searchBar.value !== '') {
@@ -72,6 +74,9 @@ async function submitQuery() {
         history.value = history.value.filter(q => q !== query.value)
         history.value.unshift(query.value)
         results.value = response ?? []
+        if (results.value.length > 0) {
+            selectedResult.value = 0
+        }
         tab.value = 'Results'
     }
     catch (ex: any) {
@@ -81,6 +86,11 @@ async function submitQuery() {
         loading.value = false
     }
 }
+
+function clearQuery() {
+    query.value = ""
+    results.value = []
+}
 </script>
 
 <template>
@@ -88,7 +98,7 @@ async function submitQuery() {
         <div class="left column g-2 p-4">
             <section class="editor fill column g-2">
                 <header class="row g-2">
-                    <button class="danger" @click="query = ''">
+                    <button class="danger" @click="clearQuery">
                         <span>Clear</span>
                         <i class="fa-solid fa-soap"></i>
                     </button>
@@ -134,9 +144,16 @@ async function submitQuery() {
                     <input type="search" v-model="searchBar">
                 </div>
             </header>
-            <section class="results column g-2" v-if="tab == 'Results'">
-                <template v-for="result in results">
-                    <Codeblock
+            <section class="results column" v-if="tab == 'Results'">
+                <header v-if="results.length > 0" class="tabs row">
+                    <template v-for="(tab, index) in results">
+                        <div :class="{ active: selectedResult == index }" class="px-4 py-2" @click="selectedResult = index">
+                            {{ `Result #${index+1}` }}
+                        </div>
+                    </template>
+                </header>
+                <template v-for="(result, index) in results">
+                    <Codeblock v-if="selectedResult == index"
                         wrap
                         language="json"
                         :code="JSON.stringify(result, undefined, 4)"
@@ -263,6 +280,38 @@ div.right {
 
 section.results {
     overflow-y: auto;
+
+    header.tabs {
+        
+        > div:first-child {
+            border-radius: 0.25rem 0 0 0;
+        }
+
+        > div {
+            white-space: nowrap;
+            background-color: $white-2;
+            border-right: 1px solid $white-1;
+        }
+        
+
+        > div:last-child {
+            border-radius: 0 0.25rem 0 0;
+            border-right: 0;
+        }
+
+
+        > div:hover, > div.active {
+            cursor: pointer;
+            background-color: $white-1;
+
+            i:hover {
+                background-color: $white-3;
+                color: $red;
+
+                border-radius: 0.25rem;
+            }
+        }
+    }
 
     code {
         overflow-x: hidden;
