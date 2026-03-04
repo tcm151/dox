@@ -9,8 +9,7 @@ export default defineEventHandler(async (event) => {
     sql.push('IF $comment.user = $user {')
     sql.push('RETURN UPDATE $comment SET')
     sql.push('content = "[deleted]",')
-    sql.push('deleted = true,')
-    sql.push('user = NONE')
+    sql.push('deleted = true')
     sql.push('}')
     
     parameters['comment'] = `comment:${id}`
