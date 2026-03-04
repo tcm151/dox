@@ -78,9 +78,8 @@ async function deleteComment(commentId: string) {
             </span>
             <Tag type="info" icon="fa-stopwatch" :label="formatDate(comment.time)" />
             <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
-            <Tag type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
+            <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
             <ClientOnly>
-                <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
                 <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">
                     <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
                     <Tag type="danger" icon="fa-trash" title="Delete" @click="deleteComment(comment.id)" />
