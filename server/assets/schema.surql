@@ -242,6 +242,7 @@ DEFINE FIELD content ON comment TYPE string;
 DEFINE FIELD time ON comment TYPE datetime DEFAULT time::now();
 DEFINE FIELD replyTo ON comment TYPE record<post | comment>;
 DEFINE FIELD edited ON comment TYPE bool DEFAULT false;
+DEFINE FIELD deleted ON comment TYPE bool DEFAULT false;
 DEFINE FIELD timeEdited ON comment TYPE option<datetime>;
 
 DEFINE FIELD votes.positive ON comment TYPE array<record<user>> DEFAULT [];

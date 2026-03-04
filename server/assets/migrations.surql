@@ -122,3 +122,9 @@ WHERE votes.saves = NONE;
 UPDATE thread SET
     replies = []
 WHERE replies = NONE;
+
+-- 2026-03-03: allow comments to be deleted
+REMOVE FIELD IF EXISTS deleted ON TABLE post;
+UPDATE comment SET
+    deleted = false
+WHERE deleted = NONE;

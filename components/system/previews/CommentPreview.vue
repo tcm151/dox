@@ -18,8 +18,13 @@ let editComment = ref(false)
 let replyTo = ref(false)
 
 async function updateComment(comment: Comment) {
-    await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
-    emit("refresh")
+    try {
+        await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
+        emit("refresh")
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
 }
 
 async function submitComment(replyId: Post | Comment, content: string) {
@@ -44,6 +49,16 @@ async function submitComment(replyId: Post | Comment, content: string) {
         hints.addError(error.message)
     }
 }
+
+async function deleteComment(commentId: string) {
+    try {
+        await session.useApi(`/api/comment/${extractId(commentId)}/delete`)
+        emit("refresh")
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
+}
 </script>
 
 
@@ -60,20 +75,23 @@ async function submitComment(replyId: Post | Comment, content: string) {
             <Tag type="info" icon="fa-stopwatch" :label="formatDate(comment.time)" />
             <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
             <ClientOnly>
-                <Tag :hidden="!session.isAuthenticated" type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
-                <Tag :hidden="(comment.user as User).id !== session.user.id" type="link" icon="fa-eraser" label="Edit" @click="editComment = true" />
+                <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyTo = true" />
+                <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">
+                    <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
+                    <Tag type="danger" icon="fa-trash" title="Delete" @click="deleteComment(comment.id)" />
+                </template>
             </ClientOnly>
         </header>
         <Markdown class="body p-3" v-if="!editComment" :content="comment.content" />
         <div class="comment-reply field px-3 pb-3" v-if="replyTo">
-            <textarea class="textarea" rows="2" v-model="replyText"></textarea>
+            <textarea rows="2" v-model="replyText"></textarea>
             <div class="row-fit g-1 pt-2">
                 <Tag type="success" icon="fa-message" label="Submit" @click="submitComment(comment, replyText)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="replyTo = false" />
             </div>
         </div>
         <div class="comment-edit field px-3 pb-3 mt-2" v-if="editComment">
-            <textarea class="textarea" rows="5" v-model="comment.content"></textarea>
+            <textarea rows="5" v-model="comment.content"></textarea>
             <div class="row-fit g-1 pt-2">
                 <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="editComment = false" />

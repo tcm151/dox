@@ -127,6 +127,7 @@ export interface Comment extends Voteable {
     time: string
     replyTo: Post | Comment | string
     edited: boolean
+    deleted: boolean
     timeEdited?: string
 }
 
