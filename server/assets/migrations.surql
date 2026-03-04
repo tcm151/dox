@@ -128,3 +128,18 @@ REMOVE FIELD IF EXISTS deleted ON TABLE post;
 UPDATE comment SET
     deleted = false
 WHERE deleted = NONE;
+
+--2026-03-04: images used in posts are not public
+LET $used = (
+  SELECT array::group(images) as images
+  FROM post
+  GROUP ALL
+);
+FOR $img in $used.images {
+  UPDATE $img SET public = false;
+};
+UPDATE image SET
+  public = true
+WHERE public = NONE;
+SELECT *
+FROM image;
