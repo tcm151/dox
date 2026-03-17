@@ -1,7 +1,11 @@
 import type { Thread } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    let { page, pageSize } = getQuery(event)
+    let query = getQuery<{
+        sortBy: string,
+        page: number,
+        pageSize: number
+    }>(event)
     
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, content, time,')
@@ -10,13 +14,14 @@ export default defineEventHandler(async (event) => {
     sql.push('FROM thread')
     // sql.push('WHERE replyTo = NONE')
     sql.push('ORDER BY time DESC')
-    if (page && pageSize) {
+    if (query.page && query.pageSize) {
         sql.push('LIMIT $pageSize')
         sql.push('START $pageStart')
-        parameters['pageSize'] = Number(pageSize ?? 100)
-        parameters['pageStart'] = (Number(page) - 1) * Number(pageSize ?? 5)
+        parameters['pageSize'] = Number(query.pageSize ?? 100)
+        parameters['pageStart'] = (Number(query.page) - 1) * Number(query.pageSize ?? 5)
     }
     sql.push('FETCH user, replyTo, images')
-    
-    return await queryAll<Thread>({ sql, parameters })
+    let threads =  await queryAll<Thread>({ sql, parameters })
+
+    return sortList(threads, query.sortBy)
 })

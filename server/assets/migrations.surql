@@ -129,7 +129,7 @@ UPDATE comment SET
     deleted = false
 WHERE deleted = NONE;
 
---2026-03-04: images used in posts are not public
+-- 2026-03-04: images used in posts are not public
 LET $used = (
   SELECT array::group(images) as images
   FROM post
@@ -143,3 +143,8 @@ UPDATE image SET
 WHERE public = NONE;
 SELECT *
 FROM image;
+
+-- 2026-03-17
+UPDATE image SET votes.score = <future> {
+    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative)
+};

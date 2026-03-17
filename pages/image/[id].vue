@@ -41,7 +41,7 @@ async function reportImage() {
                 <ClientOnly>
                     <Votes :target="image" />
                     <UserTag class="f-1" :user="(image.user as User)" />
-                    <Tag type="info" icon="fa-stopwatch" :label="formatDate(image.time)" />
+                    <DurationTag :time="image.time" />
                     <Tag type="info" icon="fa-image" :label="image.type" />
                     <Tag type="warning" icon="fa-cube" :label="`${image.tokens} tokens`" />
                     <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />

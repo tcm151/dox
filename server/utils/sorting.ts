@@ -1,10 +1,5 @@
+import type { Sortable } from "~/types"
 import { DateTime } from "luxon"
-import type { Voteable } from "~/types"
-
-export interface Sortable extends Voteable {
-    time: string
-    visits?: number
-}
 
 export function sortList(items: Sortable[], sortType: string) {
     if (!items) return null
@@ -42,10 +37,9 @@ function sortTop(first: Sortable, second: Sortable) {
 
 function sortHot(first: Sortable, second: Sortable) {
     const now = DateTime.now()
-    const daysSinceFirst = now.diff(DateTime.fromISO(first.time), "days").days
-    const daysSinceSecond = now.diff(DateTime.fromISO(second.time), "days").days
-    const firstAdjustedScore = first.votes.score * (first.visits ?? 1) / (daysSinceFirst * (first.visits ?? 1))
-    const secondAdjustedScore = second.votes.score * (second.visits ?? 1) / (daysSinceSecond * (second.visits ?? 1))
+    const firstDays = now.diff(DateTime.fromISO(first.time), "days").days
+    const secondDays = now.diff(DateTime.fromISO(second.time), "days").days
+    const firstAdjustedScore = first.votes.score * (first.visits ?? 1) / (firstDays * (first.visits ?? 1))
+    const secondAdjustedScore = second.votes.score * (second.visits ?? 1) / (secondDays * (second.visits ?? 1))
     return firstAdjustedScore < secondAdjustedScore ? 1 : -1
 }
-
