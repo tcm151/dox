@@ -37,8 +37,8 @@ function sortTop(first: Sortable, second: Sortable) {
 
 function sortHot(first: Sortable, second: Sortable) {
     const now = DateTime.now()
-    const firstDays = now.diff(DateTime.fromISO(first.time), "days").days
-    const secondDays = now.diff(DateTime.fromISO(second.time), "days").days
+    const firstDays = Math.max(1, now.diff(DateTime.fromISO(first.time), "days").days)
+    const secondDays = Math.max(1, now.diff(DateTime.fromISO(second.time), "days").days)
     const firstAdjustedScore = first.votes.score * (first.visits ?? 1) / (firstDays * (first.visits ?? 1))
     const secondAdjustedScore = second.votes.score * (second.visits ?? 1) / (secondDays * (second.visits ?? 1))
     return firstAdjustedScore < secondAdjustedScore ? 1 : -1

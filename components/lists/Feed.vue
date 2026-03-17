@@ -21,7 +21,7 @@ const emit = defineEmits<{
 
 const cache = useCache()
 
-let sortType = cache.get("feed.sortType", () => "new")
+let sortType = cache.get("feed.sort", () => "new")
 
 const spinRefresh = ref(false)
 watch(() => props.items.status.value, (status) => {

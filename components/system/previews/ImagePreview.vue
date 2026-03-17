@@ -9,7 +9,7 @@ const props = defineProps<{
 
 <template>
     <main class="thread">
-        <div class="main box column p-3" @click="navigateTo(`/thread/${extractId(image.id)}`)">
+        <div class="main box column p-3" @click="navigateTo(`/image/${extractId(image.id)}`)">
             <header class="row-wrap g-1 mb-2">
                 <Votes :target="image" />
                 <UserTag class="f-1" :user="(image.user as User)" />
