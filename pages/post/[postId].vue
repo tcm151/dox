@@ -179,7 +179,7 @@ function toggleOptions() {
                         <i class="fa-solid fa-eraser"></i>
                         {{ formatDate(post.timeEdited) }}
                     </Tag>
-                    <Tag v-else class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
+                    <DurationTag v-else :time="post.time" />
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}

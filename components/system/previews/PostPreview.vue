@@ -6,12 +6,10 @@ const props = defineProps<{
     pinned?: boolean
 }>()
 
-const settings = useSettings()
-
 </script>
 
 <template>
-    <div class="post" :class="{ 'animate': settings.user.hoverAnimations, 'pinned': pinned }">
+    <div class="post" :class="{'pinned': pinned }">
         <div class="reply-to row center-inline g-2" v-if="(post.replyTo as Post).id != null" @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ (post.replyTo as Post).title }}</p>
@@ -24,7 +22,7 @@ const settings = useSettings()
                         <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
                         <Tag class="f-1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
                         <UserTag class="f-1" :user="(post.user as User)" />
-                        <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(post.time)" />
+                        <DurationTag class="f-1" :time="post.time" />
                     </div>
                     <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />

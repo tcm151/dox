@@ -6,7 +6,6 @@ const props = defineProps<{
 }>()
 
 const session = getSession()
-const settings = useSettings()
 
 let following = computed(() => {
     return session.user?.topics.includes(props.topic.id)
@@ -28,7 +27,7 @@ async function unfollowTopic() {
 </script>
 
 <template>
-    <div class="box column p-4" :class="{ 'animate': settings.user.hoverAnimations }">
+    <div class="box column p-4">
         <header class="row center-inline space-between">
             <h1 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
                 {{ extractId(topic.id) }}

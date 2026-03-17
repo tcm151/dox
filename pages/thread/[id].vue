@@ -47,7 +47,7 @@ async function submitReply() {
                 <div class="row-wrap f-1 g-1">
                     <UserTag :user="(thread.user as User)" />
                     <!-- <Tag class="f-1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
-                    <Tag type="info" icon="fa-stopwatch" :label="formatDate(thread.time)" />
+                    <DurationTag :time="thread.time" />
                     <Tag type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
                     <Tag v-if="thread.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                     <Tag type="info" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" />

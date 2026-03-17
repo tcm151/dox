@@ -36,7 +36,7 @@ async function startBackup() {
             </header>
             <div class="column g-2">
                 <div class="fit row g-2" v-for="backup in backups">
-                    <Tag class="f-1" type="info" icon="fa-stopwatch" :label="formatDate(backup.time)" />
+                    <DurationTag class="f-1" :time="backup.time" />
                     <UserTag width="6rem" :user="backup.user" />
                     <Tag class="f-1" type="link" :label="backup.id" />
                 </div>
