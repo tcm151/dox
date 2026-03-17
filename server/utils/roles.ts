@@ -8,3 +8,12 @@ export function hasRole(user: User, role: Role | Role[]) {
         return user.roles.includes(role)
     }
 }
+
+export function requireRole(user: User, role: Role | Role[]) {
+    if (!hasRole(user, role)) {
+        throw createError({
+            statusCode: 403,
+            message: "You do not have permission to do this."
+        })
+    }
+}

@@ -2,10 +2,10 @@ import type { Post } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+
     const { id } = event.context.params!
     
     const { sql, parameters } = queryBuilder()
-
     sql.push('RETURN {')
     sql.push('IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {')
     sql.push('THROW "You are not allowed to do this.";')

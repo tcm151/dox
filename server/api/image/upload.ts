@@ -22,6 +22,14 @@ export default defineEventHandler(async (event) => {
         })
     }
 
+    // TODO: make this configurable by the admin
+    if (buffer.byteLength > 10_000_000) {
+        return createError({
+            statusCode: 400,
+            message: "File size exceeds the 10MB limit."
+        })
+    }
+
     const { sql, parameters } = queryBuilder()
     sql.push('RETURN {')
     

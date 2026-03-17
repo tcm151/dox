@@ -1,3 +1,9 @@
 export function extractId(id: string | undefined) {
-    return id?.split(':')[1] ?? "null"
+    if (!id || !id.includes(':')) {
+        throw createError({
+            statusCode: 401,
+            message: "Invalid ID provided."
+        })
+    }
+    return id.split(':')[1]
 }

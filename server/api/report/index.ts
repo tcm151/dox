@@ -1,4 +1,7 @@
 export default defineEventHandler(async (event) => {
+    await authenticateRequest(event)
+    requireRole(auth, ["admin", "moderator", "developer"])
+
     var { sql } = queryBuilder()
     sql.push('SELECT id, reporter.id, subject.id, time')
     sql.push('FROM report')

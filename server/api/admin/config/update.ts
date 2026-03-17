@@ -2,13 +2,12 @@ import type { AppSettings } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+    requireRole(auth, ["admin", "developer"])
+
     const { config } = await readBody<{ config: AppSettings }>(event)
 
     const { sql, parameters } = queryBuilder()
-    sql.push('IF $user.roles CONTAINS "admin" {')
-    sql.push('RETURN UPDATE $config.id CONTENT $config')
-    sql.push('}')
-    
+    sql.push('UPDATE $config.id CONTENT $config')
     parameters['user'] = auth
     parameters['config'] = config
     
