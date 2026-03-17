@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { Thread } from '~/types'
 
-const threads = await useFetch<Thread[]>("/api/thread")
-
 const hints = useHints()
 const cache = useCache()
 const session = getSession()
+
+const sortBy = cache.get<string>("feed.sort", () => "new")
+const threads = await useFetch<Thread[]>("/api/thread", {
+    query: {
+        sortBy: sortBy
+    }
+})
 
 const showEditor = cache.get("feed.threads.showEditor", () => false)
 function toggleEditor() {
@@ -121,7 +126,7 @@ function togglePreview() {
                 </button>
             </div>
         </header>
-        <Feed :items="threads" :sorting="true">
+        <Feed :items="threads" :sorting="true" @refresh="(type) => sortBy = type">
             <template #buttons>
                 <button class="dark px-5" @click="toggleEditor">
                     <i class="fa-solid fa-feather"></i>

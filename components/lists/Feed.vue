@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Sortable">
-import type { Sortable } from "~/utils/sorting"
+import type { Sortable } from "~/types"
 
 interface AsyncData<DataT, ErrorT> {
     data: Ref<DataT>
@@ -16,20 +16,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (event: 'refresh'): void
+    (event: 'refresh', sortBy: string): void
 }>()
 
 const cache = useCache()
 
 let sortType = cache.get("feed.sortType", () => "new")
-const sortedItems = computed(() => {
-    if (props.sorting) {
-        return sortList(props.items.data.value ?? [], sortType.value)
-    }
-    else {
-        return props.items.data.value ?? []
-    }
-})
 
 const spinRefresh = ref(false)
 watch(() => props.items.status.value, (status) => {
@@ -43,7 +35,7 @@ watch(() => props.items.status.value, (status) => {
 
 function sortFeed(type: string) {
     sortType.value = type
-    props.items.refresh()
+    emit("refresh", sortType.value)
 }
 </script>
 
@@ -70,7 +62,7 @@ function sortFeed(type: string) {
             </ClientOnly>
         </header>
         <ClientOnly>
-            <template v-for="item in sortedItems" :key="item.id">
+            <template v-for="item in props.items.data.value" :key="item.id">
                 <slot name="item" v-bind="(item as T)" />
             </template>
         </ClientOnly>

@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import type { Post } from '~/types'
 
-const pins = await useFetch<Post[]>("/api/post/pinned")
-const posts = await useFetch<Post[]>("/api/post")
+const cache = useCache()
+
+const sortBy = cache.get<string>("feed.sort", () => "new")
+const posts = await useFetch<Post[]>("/api/post", {
+    query: {
+        sortBy: sortBy
+    }
+})
 </script>
 
 <template>
     <section class="feed column g-2 p-4">
-        <template v-for="post in pins.data.value" :key="post.id">
-            <PostPreview :post="post" :pinned="true" />
-        </template>
-        <Feed :items="posts" :sorting="true">
+        <Feed :items="posts" :sorting="true" @refresh="(type) => sortBy = type">
             <template #item="post">
                 <PostPreview :post="post" />
             </template>

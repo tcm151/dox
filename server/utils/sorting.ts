@@ -1,10 +1,5 @@
+import type { Sortable } from "~/types"
 import { DateTime } from "luxon"
-import type { Voteable } from "~/types"
-
-export interface Sortable extends Voteable {
-    time: string
-    visits?: number
-}
 
 export function sortList(items: Sortable[], sortType: string) {
     if (!items) return null

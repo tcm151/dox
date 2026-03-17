@@ -28,6 +28,11 @@ export interface Voteable {
     }
 }
 
+export interface Sortable extends Voteable {
+    time: string
+    visits?: number
+}
+
 // REFACTOR split off account into its own type
 export interface Account {
     id: string
