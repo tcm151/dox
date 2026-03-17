@@ -26,7 +26,7 @@ export const useEvents = defineStore("events", () => {
     }
 
     function unsubscribe(event: Event) {
-        events.value = events.value.filter((e) => e === event)
+        events.value = events.value.filter((e) => e !== event)
     }
 
     function publish(trigger: Trigger, payload?: any) {

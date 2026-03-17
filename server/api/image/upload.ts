@@ -3,7 +3,7 @@ import type { Image } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
-    const baseUrl = getHeader(event, 'origin')
+    const baseUrl = getRuntimeConfig().public.baseUrl
 
     if (!data || !data[0]) {
         return createError({

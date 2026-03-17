@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    await authenticateRequest(event)
+    const auth = await authenticateRequest(event)
     requireRole(auth, ["admin", "moderator", "developer"])
 
     var { sql } = queryBuilder()

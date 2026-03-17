@@ -5,7 +5,7 @@ export const calculateTokens = (file: File | null) => {
         return 0
     }
     else {
-        return Math.round(file.size / 1_024)
+        return Math.round(file.size / 2_048)
     }
 }
 
@@ -28,14 +28,14 @@ export const uploadMedia = async <T extends Media>(files: FileList | null, media
         return
     }
     
-    // const maxSize = 8
-    // const megabytes = files![0].size / 1_048_576
+    const maxSize = 8
+    const megabytes = files![0].size / 1_048_576 // TODO: this should be configurable
 
-    // if (megabytes > maxSize) {
-    //     hints.addError(`${megabytes} MB`)
-    //     hints.addError(`File is too large, try making it smaller (< ${maxSize}).`)
-    //     return
-    // }
+    if (megabytes > maxSize) {
+        hints.addError(`${megabytes} MB`)
+        hints.addError(`File is too large, try making it smaller (< ${maxSize}).`)
+        return
+    }
 
     const result = await session.useApi<{ media: T, tokens: number }>(`/api/${mediaType}/upload`, packageFiles(files))
     if (result == null) {
