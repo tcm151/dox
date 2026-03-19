@@ -67,6 +67,9 @@ export default defineNuxtConfig({
                 },
             },
         },
+        optimizeDeps: {
+            include: ["marked", "luxon"],
+        }
     },
     runtimeConfig: {
         smtp: {
