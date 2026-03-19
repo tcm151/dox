@@ -5,9 +5,12 @@ definePageMeta({
         if (!import.meta.client) return
         
         const session = getSession()
-        if (to.path.startsWith("/admin") && (!session.isAuthenticated && !hasRole(session.user, "admin"))) {
-            return abortNavigation()
+        if (to.path.startsWith("/admin")) {
+            if (!session.isAuthenticated || !hasRole(session.user, "admin")) {
+                return abortNavigation()
+            }
         }
+        
         const cache = useCache()
         const lastTab = cache.get("admin.lastTab", () => "users")
         if (to.path === "/admin") {

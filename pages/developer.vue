@@ -2,21 +2,22 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (import.meta.client) {
-            const session = getSession()
-            if (to.path.startsWith("/developer") && (!session.isAuthenticated || hasRole(session.user, "developer"))) {
-                if (!ENV.isDevelopment()) {
-                    return abortNavigation()
-                }
+        if (!import.meta.client) return
+            
+        const session = getSession()
+        if (to.path.startsWith("/developer")) {
+            if (!session.isAuthenticated || !hasRole(session.user, "developer") || !ENV.isDevelopment()) {
+                return abortNavigation()
             }
-            const cache = useCache()
-            const lastTab = cache.get("developer.lastTab", () => "query")
-            if (to.path === "/developer") {
-                return navigateTo(`/developer/${lastTab.value}`)
-            }
-            else {
-                lastTab.value = to.path.split("/").at(-1)!
-            }
+        }
+
+        const cache = useCache()
+        const lastTab = cache.get("developer.lastTab", () => "query")
+        if (to.path === "/developer") {
+            return navigateTo(`/developer/${lastTab.value}`)
+        }
+        else {
+            lastTab.value = to.path.split("/").at(-1)!
         }
     }
 })

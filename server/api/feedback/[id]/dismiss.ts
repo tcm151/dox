@@ -1,7 +1,8 @@
 import type { Feedback } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    await authenticateRequest(event)
+    const auth = await authenticateRequest(event)
+    requireRole(auth, ["admin", "developer"])
 
     const { id } = event.context.params!
     

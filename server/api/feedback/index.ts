@@ -1,7 +1,9 @@
 import type { Feedback } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    await authenticateRequest(event)
+    const auth = await authenticateRequest(event)
+    requireRole(auth, ["admin", "developer"])
+    
     var { sql } = queryBuilder()
     sql.push('SELECT id, content, time, user.id, user.name, dismissed')
     sql.push('FROM feedback')
