@@ -86,3 +86,61 @@ export async function complexQuery(query: Query): Promise<unknown[][]> {
     // maybe do something before just returning things
     return responses
 }
+
+// TODO: planned migration to this class for better code readability and maintainability.
+// Will be used in all future database interactions.
+export class DatabaseQuery {
+    #sql: string[] = []
+    #parameters: Parameters = {}
+    #description: string = "Unable to execute query."
+
+    constructor(description?: string) {
+        if (description) {
+            this.#description = description
+        }
+    }
+
+    addSql(sql: string) {
+        this.#sql.push(sql)
+        return this
+    }
+
+    addParameter(key: string, value: any) {
+        this.#parameters[key] = value
+        return this
+    }
+
+    async execute<T>(): Promise<T[][]> {
+        try {
+            return await db.query(this.#sql.join("\n"), this.#parameters) as T[][]
+        }
+        catch (ex: any) {
+            if (ex.message.startsWith("An error occurred:")) {
+                const message = ex.message.split(":").at(1).trim()
+                throw createError({
+                    fatal: true,
+                    statusCode: 500,
+                    statusMessage: message,
+                })
+            }
+            else {
+                throw createError({
+                    fatal: true,
+                    statusCode: 500,
+                    statusMessage: `API Error: ${this.#description}.`,
+                    message: ex.message
+                })
+            }
+        }
+    }
+
+    async getOne<T>(): Promise<T> {
+        let responses = await this.execute<T>()
+        return responses[0]![0]!
+    }
+
+    async getAll<T>(): Promise<T[]> {
+        let response = await this.execute<T>()
+        return response[0]!
+    }
+}
