@@ -10,7 +10,7 @@ class RateLimiter {
 
     private clearExpired() {
         for (const ip of Object.keys(this.#buckets)) {
-            if (this.#buckets[ip].length === 0) {
+            if (this.#buckets[ip]?.length === 0) {
                 delete this.#buckets[ip]
             }
         }
@@ -32,7 +32,7 @@ class RateLimiter {
 
     retryAfter(ipAddress: string, path: string): number {
         const { ms } = this.#routes[path] ?? { ms: 0 }
-        const oldest = this.#buckets[ipAddress][0] ?? Date.now()
+        const oldest = this.#buckets[ipAddress]?.at(0) ?? Date.now()
         return Math.ceil((oldest + ms - Date.now()) / 1000)
     }
 
@@ -52,8 +52,8 @@ const limiter = new RateLimiter(10 * 60 * 1000, {
 }) 
 
 export default defineEventHandler((event) => {
-    const path = event.node.req.url.split("?").at(0) ?? ""
-    const ipAddress = getClientIP(event) ?? "unknown"
+    const path = event.path.split("?").at(0) ?? ""
+    const ipAddress = getRequestIP(event, { xForwardedFor: true }) ?? "unknown"
 
     if (limiter.limitExceeded(ipAddress, path)) {
         throw createError({

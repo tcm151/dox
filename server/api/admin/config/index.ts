@@ -1,7 +1,6 @@
 import type { AppSettings } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    await authenticateRequest(event)
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')
     sql.push('FROM appSettings')
