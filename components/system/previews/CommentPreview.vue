@@ -92,9 +92,9 @@ async function deleteComment(commentId: string) {
             </span>
             <Tag v-if="comment.edited" type="info">
                 <i class="fa-solid fa-stopwatch"></i>
-                {{ formatDate(post.time) }}
+                {{ formatDate(comment.time) }}
                 <i class="fa-solid fa-eraser"></i>
-                {{ formatDate(post.timeEdited) }}
+                {{ formatDate(comment.timeEdited) }}
             </Tag>
             <DurationTag v-else :time="comment.time" />
             <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />

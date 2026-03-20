@@ -194,7 +194,7 @@ DEFINE FIELD OVERWRITE time ON draft TYPE datetime DEFAULT time::now();
 DEFINE FIELD OVERWRITE replyTo ON draft TYPE option<record<post>>;
 
 DEFINE FIELD OVERWRITE topics ON draft TYPE array<record<topic>> DEFAULT [];
-DEFINE FIELD OVERWRITE images ON darft TYPE array<record<image>> DEFAULT [];
+DEFINE FIELD OVERWRITE images ON draft TYPE array<record<image>> DEFAULT [];
 
 
 -- ------------------------------

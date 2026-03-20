@@ -15,7 +15,7 @@ export const useVoting = () => {
         }
 
         for (let other of types.filter(t => t != type)) {
-            item.votes[other] = item.votes[type].filter(u => u !== session.user.id)
+            item.votes[other] = item.votes[other].filter(u => u !== session.user.id)
         }
 
         if (!item.votes[type].includes(session.user.id)) {
