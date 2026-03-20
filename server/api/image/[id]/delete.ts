@@ -8,11 +8,11 @@ export default defineEventHandler(async (event) => {
     
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')
-    sql.push('FROM $image')
+    sql.push('FROM image')
+    sql.push('WHERE id = <record>$image')
     sql.push('FETCH user')
     parameters['image'] = `image:${id}`
     const image = await queryOne<Image>({ sql, parameters })
-
 
     if ((image.user as User).id !== auth.id && !hasRole(auth, "admin")) {
         throw createError({
@@ -37,9 +37,11 @@ export default defineEventHandler(async (event) => {
     // TODO add event log for all token transactions
     var { sql, parameters } = queryBuilder()
     sql.push('BEGIN TRANSACTION;')
-    sql.push('UPDATE $user SET')
-    sql.push('tokens += $tokens;')
-    sql.push('DELETE $image;')
+    sql.push('UPDATE user SET')
+    sql.push('tokens += $tokens')
+    sql.push('WHERE id = <record>$user;')
+    sql.push('DELETE image')
+    sql.push('WHERE id = $image')
     sql.push('COMMIT TRANSACTION;')
     parameters['user'] = auth.id
     parameters['tokens'] = image.tokens
