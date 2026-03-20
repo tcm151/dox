@@ -4,20 +4,20 @@ import type { User } from "~/types"
 import { Trigger } from "~/services/events"
 
 
-export interface Session {
-    isAuthenticated: Ref<boolean>
-    tokens: Ref<{ access: string, refresh?: string | undefined; }>
-    user: Ref<User>
-    useApi: <T>(route: string, body?: any) => Promise<T | undefined>
-    authenticate: (userToken?: string) => Promise<void>
-    login: (id: string, password: string) => Promise<void>
-    logout: (clear: boolean) => void
-    refreshProfile(): Promise<void>
-    follow: (target: string) => Promise<boolean>
-    unfollow: (target: string) => Promise<boolean>
-}
+// export interface Session {
+//     isAuthenticated: Ref<boolean>
+//     tokens: Ref<{ access: string, refresh?: string | undefined; }>
+//     user: Ref<User>
+//     useApi: <T>(route: string, body?: any) => Promise<T | undefined>
+//     authenticate: (userToken?: string) => Promise<void>
+//     login: (id: string, password: string) => Promise<void>
+//     logout: (clear: boolean) => void
+//     refreshProfile(): Promise<void>
+//     follow: (target: string) => Promise<boolean>
+//     unfollow: (target: string) => Promise<boolean>
+// }
 
-export const getSession = defineStore("session", (): Session => {
+export const getSession = defineStore("session", () => {
     const events = useEvents()
 
     //> SESSION
@@ -126,47 +126,6 @@ export const getSession = defineStore("session", (): Session => {
         return navigateTo("/feed")
     }
 
-    //> FOLLOW/UNFOLLOW
-    async function follow(target: string) {
-        if (!isAuthenticated) {
-            events.publish(Trigger.addHint, {
-                message: "You must be logged into interact with others.",
-                type: "error",
-            })
-            return false
-        }
-        
-        if (target.startsWith("user")) {
-            await useApi(`/api/user/${extractId(target)}/follow`)
-            user.value.following.push(target)
-        }
-        if (target.startsWith("topic")) {
-            await useApi(`/api/topic/${extractId(target)}/follow`)
-            user.value.topics.push(target)
-        }
-        return true
-    }
-    
-    async function unfollow(target: string) {
-        if (!isAuthenticated) {
-            events.publish(Trigger.addHint, {
-                message: "You must be logged into interact with others.",
-                type: "error",
-            })
-            return false
-        }
-        
-        if (target.startsWith("user")) {
-            await useApi(`/api/user/${extractId(target)}/unfollow`)
-            user.value.following = user.value.following.filter(u => u !== target)
-        }
-        if (target.startsWith("topic")) {
-            await useApi(`/api/topic/${extractId(target)}/unfollow`)
-            user.value.topics = user.value.topics.filter(t => t !== target)
-        }
-        return true
-    }
-
     return {
         user: skipHydrate(user),
         tokens: skipHydrate(tokens),
@@ -176,7 +135,5 @@ export const getSession = defineStore("session", (): Session => {
         logout,
         refreshProfile,
         useApi,
-        follow,
-        unfollow,
     }
 })

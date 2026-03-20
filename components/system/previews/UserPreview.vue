@@ -10,13 +10,14 @@ const emit = defineEmits<{
 }>()
 
 const session = getSession()
+const connections = useFollowing()
 
 const loading = ref<boolean>(false)
 const following = computed(() => session.user?.following.includes(props.user.id))
 
 async function followUser() {
     loading.value = true
-    if (await session.follow(props.user.id)) {
+    if (await connections.follow(props.user.id)) {
         emit('refresh')
     }
     loading.value = false
@@ -24,7 +25,7 @@ async function followUser() {
 
 async function unfollowUser() {
     loading.value = true
-    if (await session.unfollow(props.user.id)) {
+    if (await connections.unfollow(props.user.id)) {
         emit('refresh')
     }
     loading.value = false

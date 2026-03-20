@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useFollowing } from '#imports';
 import type { Topic } from '~/types'
 
 const props = defineProps<{
@@ -6,6 +7,7 @@ const props = defineProps<{
 }>()
 
 const session = getSession()
+const connections = useFollowing()
 
 let following = computed(() => {
     return session.user?.topics.includes(props.topic.id)
@@ -15,13 +17,13 @@ const loading = ref<boolean>(false)
 
 async function followTopic() {
     loading.value = true
-    await session.follow(props.topic.id)
+    await connections.follow(props.topic.id)
     loading.value = false
 }
 
 async function unfollowTopic() {
     loading.value = true
-    await session.unfollow(props.topic.id)
+    await connections.unfollow(props.topic.id)
     loading.value = false
 }
 </script>
