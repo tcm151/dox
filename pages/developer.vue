@@ -6,7 +6,7 @@ definePageMeta({
             
         const session = getSession()
         if (to.path.startsWith("/developer")) {
-            if (!session.isAuthenticated || !hasRole(session.user, "developer") || !ENV.isDevelopment()) {
+            if (!ENV.isDevelopment() && (!session.isAuthenticated || !hasRole(session.user, "developer"))) {
                 return abortNavigation()
             }
         }
