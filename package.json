@@ -11,12 +11,11 @@
     },
     "devDependencies": {
         "@types/luxon": "^3.7.1",
-        "@types/node": "^20.12.11",
+        "@types/node": "^25.5.0",
         "@types/nodemailer": "^7.0.4",
         "@types/sanitize-html": "^2.16.0",
-        "@vueuse/core": "^14.1.0",
-        "@vueuse/nuxt": "^14.1.0",
-        "baseline-browser-mapping": "^2.10.9",
+        "@vueuse/core": "^14.2.1",
+        "@vueuse/nuxt": "^14.2.1",
         "nuxt": "^4.2.1"
     },
     "dependencies": {
@@ -24,12 +23,12 @@
         "bulma": "^1.0.4",
         "highlight.js": "^11.11.1",
         "html-entities": "^2.6.0",
-        "isomorphic-dompurify": "^2.33.0",
+        "isomorphic-dompurify": "^3.5.1",
         "luxon": "^3.7.2",
-        "marked": "^17.0.1",
-        "nodemailer": "^7.0.11",
+        "marked": "^17.0.5",
+        "nodemailer": "^8.0.3",
         "pinia": "^3.0.4",
-        "sass": "^1.94.2",
+        "sass": "^1.98.0",
         "sharp": "^0.34.5",
         "surrealdb": "^2.0.3"
     },
