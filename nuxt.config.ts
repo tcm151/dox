@@ -68,7 +68,13 @@ export default defineNuxtConfig({
             },
         },
         optimizeDeps: {
-            include: ["marked", "luxon"],
+            include: [
+                'marked',
+                'luxon',
+                'isomorphic-dompurify',
+                'html-entities',
+                'highlight.js/lib/common',
+            ],
         }
     },
     runtimeConfig: {
