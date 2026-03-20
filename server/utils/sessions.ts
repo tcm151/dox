@@ -51,7 +51,7 @@ class SessionManager {
 
     async invalidateToken(token: string, clear: boolean) {
         if (clear) {
-            this.#sessions = this.#sessions.filter(s => s.token == token);
+            this.#sessions = this.#sessions.filter(s => s.token != token);
             await new DatabaseQuery()
                 .addSql(`
                     UPDATE session SET
@@ -64,7 +64,7 @@ class SessionManager {
     }
 
     async invalidateUser(userId: string) {
-        this.#sessions = this.#sessions.filter(s => s.user.id == userId)
+        this.#sessions = this.#sessions.filter(s => s.user.id != userId)
         await new DatabaseQuery()
             .addSql(`
                 UPDATE session SET

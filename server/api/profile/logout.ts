@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
     try {
-        let query = getQuery<{ clear: boolean }>(event)
-        await invalidateSession(event, query.clear)
+        const { clear } = await readBody<{ clear: boolean }>(event)
+        await invalidateSession(event, clear)
     }
     catch (ex: any) {
         // failed to authenticate session to invalidate

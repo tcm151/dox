@@ -51,6 +51,7 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
                 .queryOne<User>()
 
             session = await sessionManager.add(token, user)
+            await returnConnection(userConnection)
         }
         return session.user
     }
@@ -83,8 +84,8 @@ export const authenticateLogin = async (event: H3Event) => {
             `)
             .queryOne<User>()
 
-        sessionManager.add(tokens.access, user)
-        returnConnection(userConnection)
+        await sessionManager.add(tokens.access, user)
+        await returnConnection(userConnection)
         return { tokens, user }
     }
     catch (ex: any) {
@@ -99,7 +100,7 @@ export const invalidateSession = async (event: H3Event, clear: boolean) => {
     try {
         const sessionManager = useSessions()
         const token = getHeader(event, 'Authorization') ?? ""
-        sessionManager.invalidateToken(token, clear)
+        await sessionManager.invalidateToken(token, clear)
     }
     catch (ex: any) {
         throw createError({
