@@ -30,7 +30,6 @@ definePageMeta({
                 { route: '/developer/schema', icon: 'fa-solid fa-table-columns', label: 'Schema' },
                 { route: '/developer/query', icon: 'fa-solid fa-terminal', label: 'Database' },
                 // { route: '/developer/grid', icon: 'fa-solid fa-table-list', label: 'Grid' },
-                { route: '/developer/backups', icon: 'fa-solid fa-warehouse', label: 'Backups' },
                 { route: '/developer/config', icon: 'fa-solid fa-gear', label: 'Config' },
 
             ]"
