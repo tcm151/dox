@@ -6,13 +6,13 @@ import { Trigger } from "~/services/events"
 
 export interface Session {
     isAuthenticated: Ref<boolean>
-    token: Ref<string>
+    tokens: Ref<{ access: string, refresh?: string | undefined; }>
     user: Ref<User>
-    useApi: <T>(route: string, body?: any) => Promise<T | null>
+    useApi: <T>(route: string, body?: any) => Promise<T | undefined>
     authenticate: (userToken?: string) => Promise<void>
     login: (id: string, password: string) => Promise<void>
     logout: (clear: boolean) => void
-    fetchProfile(): Promise<void>
+    refreshProfile(): Promise<void>
     follow: (target: string) => Promise<boolean>
     unfollow: (target: string) => Promise<boolean>
 }
@@ -22,7 +22,7 @@ export const getSession = defineStore("session", (): Session => {
 
     //> SESSION
     const isAuthenticated = useSessionStorage<boolean>("authenticated", false)
-    const token = useLocalStorage<string>("token", "")
+    const tokens = useLocalStorage<{ access: string, refresh?: string | undefined; }>("tokens", { access: "" })
     const user = useSessionStorage<User>("user", {
         id: 'user:temp',
         email: '',
@@ -45,17 +45,17 @@ export const getSession = defineStore("session", (): Session => {
     })
 
     //> API
-    async function useApi<T>(route: string, body?: any) {
+    async function useApi<T>(route: string, body?: any): Promise<T | undefined> {
         return await $fetch<T>(route, {
             method: "POST",
             headers: {
-                Authorization: token.value,
+                Authorization: tokens.value.access,
             },
             body: body,
-        })
+        }) as T
     }
 
-    async function fetchProfile(): Promise<void> {
+    async function refreshProfile(): Promise<void> {
         user.value = await useApi<User>('/api/profile')
         if (user.value == null) {
             throw createError({
@@ -67,41 +67,41 @@ export const getSession = defineStore("session", (): Session => {
 
     //> AUTH
     async function authenticate(existingToken?: string) {
-        token.value = await $fetch<string>("/api/profile/authenticate", {
+        user.value = await $fetch("/api/profile/authenticate", {
             headers: {
-                Authorization: existingToken ?? token.value,
+                Authorization: existingToken ?? tokens.value.access
             }
         })
-
-        await fetchProfile()
         isAuthenticated.value = true
         events.publish(Trigger.authenticatedUser, {
             user: user.value,
-            token: token.value,
+            token: tokens.value.access,
         })
     }
 
     async function login(id: string, password: string) {
-        token.value = await $fetch<string>("/api/profile/login", {
+        let result = await $fetch("/api/profile/login", {
             headers: {
                 Authorization: btoa(`${id}:${password}`),
             }
         })
-
-        await fetchProfile()
+        user.value = result.user
+        tokens.value = result.tokens
         isAuthenticated.value = true
         events.publish(Trigger.authenticatedUser, {
             user: user.value,
-            token: token.value,
+            token: tokens.value.access,
         })
     }
 
     async function logout(clear: boolean) {
-        await useApi<User>('/api/profile/logout')
+        await useApi<User>('/api/profile/logout', { clear })
         events.publish(Trigger.userLoggedOut, { user: user.value, clear: clear })
         isAuthenticated.value = false
         if (clear == true) {
-            token.value = ""
+            tokens.value = {
+                access: ""
+            }
             user.value = {
                 id: 'user:temp',
                 email: '',
@@ -169,12 +169,12 @@ export const getSession = defineStore("session", (): Session => {
 
     return {
         user: skipHydrate(user),
-        token: skipHydrate(token),
+        tokens: skipHydrate(tokens),
         isAuthenticated: skipHydrate(isAuthenticated),
         authenticate,
         login,
         logout,
-        fetchProfile,
+        refreshProfile,
         useApi,
         follow,
         unfollow,

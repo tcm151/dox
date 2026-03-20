@@ -1,5 +1,6 @@
-import Surreal from 'surrealdb.js'
+import { Surreal } from 'surrealdb'
 import { H3Event } from "h3"
+import { DatabaseQuery } from './database'
 import type { User } from '~/types'
 
 const connections: Surreal[]  = []
@@ -36,18 +37,22 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
     try {
         const sessionManager = useSessions()
         const token = getHeader(event, 'Authorization') ?? ""
-        const user = sessionManager.isAuthenticated(token)
-        if (user != undefined) {
-            return user;
+        let session = await sessionManager.authenticateToken(token)
+        if (!session) {
+            const userConnection = await openConnection()
+            await userConnection.authenticate(token)
+
+            let user = await new DatabaseQuery(userConnection)
+                .addSql(`
+                    SELECT *
+                    OMIT password
+                    FROM $auth
+                `)
+                .queryOne<User>()
+
+            session = await sessionManager.add(token, user)
         }
-        else {
-            const db = await openConnection()
-            await db.authenticate(token)
-            let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
-            sessionManager.add(token, user[0]![0]!)
-            returnConnection(db)
-            return user[0]![0]!
-        }
+        return session.user
     }
     catch (ex: any) {
         throw createError({
@@ -57,20 +62,30 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
     }
 }
 
-export const authenticateLogin = async (event: H3Event): Promise<string> => {
+export const authenticateLogin = async (event: H3Event) => {
     try {
         const sessionManager = useSessions()
         const header = atob(getHeader(event, 'Authorization') ?? "")
-        const db = await openConnection()
-        const token = await db.signin({
-            scope: "account",
-            password: header.split(":")[1],
-            id: header.split(":")[0],
+        const userConnection = await openConnection()
+        const tokens = await userConnection.signin({
+            access: "account",
+            variables: {
+                id: header.split(":")[0],
+                password: header.split(":")[1],
+            }
         })
-        let user = await db.query("SELECT * OMIT password FROM $auth;") as unknown as User[][]
-        sessionManager.add(token, user[0]![0]!)
-        returnConnection(db)
-        return token
+
+        let user = await new DatabaseQuery(userConnection)
+            .addSql(`
+                SELECT *
+                OMIT password
+                FROM $auth
+            `)
+            .queryOne<User>()
+
+        sessionManager.add(tokens.access, user)
+        returnConnection(userConnection)
+        return { tokens, user }
     }
     catch (ex: any) {
         throw createError({
@@ -80,12 +95,11 @@ export const authenticateLogin = async (event: H3Event): Promise<string> => {
     }
 }
 
-export const invalidateSession = async (event: H3Event) => {
+export const invalidateSession = async (event: H3Event, clear: boolean) => {
     try {
         const sessionManager = useSessions()
         const token = getHeader(event, 'Authorization') ?? ""
-        sessionManager.invalidate(token)
-        return token
+        sessionManager.invalidateToken(token, clear)
     }
     catch (ex: any) {
         throw createError({

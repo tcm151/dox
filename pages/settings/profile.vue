@@ -20,7 +20,7 @@ async function updateProfile() {
     }
 
     await session.useApi("/api/profile/update", session.user)
-    await session.fetchProfile()
+    await session.refreshProfile()
 }
 
 const events = useEvents()
@@ -74,7 +74,7 @@ async function resetPassword() {
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Update</span>
                 </button>
-                <button class="danger" @click="session.fetchProfile">
+                <button class="danger" @click="session.refreshProfile">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>

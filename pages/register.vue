@@ -34,7 +34,7 @@ async function register() {
 
     try {
         submitting.value = true
-        session.token = await $fetch<string>("/api/user/register", {
+        session.tokens = await $fetch("/api/user/register", {
             method: "POST",
             body: {
                 email: email.value,

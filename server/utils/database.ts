@@ -1,4 +1,4 @@
-import Surreal from 'surrealdb.js'
+import { Surreal } from 'surrealdb'
 
 const { surreal } = useRuntimeConfig()
 if (surreal.url == "" || !surreal.url.includes("/rpc")) {
@@ -8,17 +8,14 @@ if (surreal.url == "" || !surreal.url.includes("/rpc")) {
     })
 }
 
-const db = new Surreal();
+const serverInstance = new Surreal();
 (async () => {
-    return await db.connect(surreal.url, {
+    return await serverInstance.connect(surreal.url, {
         namespace: surreal.namespace,
         database: surreal.database,
-        auth: {
+        authentication: {
             username: surreal.username,
             password: surreal.password,
-        },
-        prepare: () => {
-            console.log(`Connected to ${surreal.namespace}:${surreal.database}`)
         }
     })
 })()
@@ -49,7 +46,7 @@ export function queryBuilder(): { sql: string[], parameters: Parameters } {
 
 async function handleQuery<T>(query: Query) {
     try {
-        return await db.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
+        return await serverInstance.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
     }
     catch (ex: any) {
         if (ex.message.startsWith("An error occurred:")) {
@@ -92,11 +89,11 @@ export async function complexQuery(query: Query): Promise<unknown[][]> {
 export class DatabaseQuery {
     #sql: string[] = []
     #parameters: Parameters = {}
-    #description: string = "Unable to execute query."
+    #connection: Surreal = serverInstance
 
-    constructor(description?: string) {
-        if (description) {
-            this.#description = description
+    constructor(connection?: Surreal) {
+        if (connection) {
+            this.#connection = connection
         }
     }
 
@@ -112,35 +109,45 @@ export class DatabaseQuery {
 
     async execute<T>(): Promise<T[][]> {
         try {
-            return await db.query(this.#sql.join("\n"), this.#parameters) as T[][]
+            return await this.#connection.query(this.#sql.join("\n"), this.#parameters) as T[][]
         }
         catch (ex: any) {
-            if (ex.message.startsWith("An error occurred:")) {
+            if (ex.message.startsWith("Surreal Error:")) {
                 const message = ex.message.split(":").at(1).trim()
                 throw createError({
-                    fatal: true,
                     statusCode: 500,
                     statusMessage: message,
                 })
             }
             else {
                 throw createError({
-                    fatal: true,
                     statusCode: 500,
-                    statusMessage: `API Error: ${this.#description}.`,
+                    statusMessage: `Server Error: Oops.`,
                     message: ex.message
                 })
             }
         }
     }
 
-    async getOne<T>(): Promise<T> {
+    async queryOne<T>(): Promise<T> {
         let responses = await this.execute<T>()
-        return responses[0]![0]!
+        if (!responses[0] || !responses[0][0]) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: "This query returns nothing."
+            })
+        }
+        return responses[0][0]
     }
 
-    async getAll<T>(): Promise<T[]> {
-        let response = await this.execute<T>()
-        return response[0]!
+    async queryAll<T>(): Promise<T[]> {
+        let responses = await this.execute<T>()
+        if (!responses[0]) {
+            throw createError({
+                status: 404,
+                statusText: "This query returns nothing."
+            })
+        }
+        return responses[0]
     }
 }

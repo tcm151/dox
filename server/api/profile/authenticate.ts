@@ -1,4 +1,3 @@
 export default defineEventHandler(async (event) => {
-    await authenticateRequest(event)
-    return getHeader(event, 'Authorization') ?? ""
+    return await authenticateRequest(event)
 })

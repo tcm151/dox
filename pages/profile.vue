@@ -11,7 +11,7 @@ definePageMeta({
             return navigateTo("/feed")
         }
         if (session.isAuthenticated) {
-            await session.fetchProfile()
+            await session.refreshProfile()
             return navigateTo(`/user/${extractId(session.user.id)}`)
         }
     }

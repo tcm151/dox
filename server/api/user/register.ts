@@ -1,4 +1,4 @@
-import Surreal from "surrealdb.js"
+import { Surreal } from "surrealdb"
 
 interface Register {
     email: string,
@@ -14,20 +14,22 @@ export default defineEventHandler(async (event) => {
     const db = new Surreal()
     await db.connect(surreal.url)
     
-    const token = await db.signup({
+    const tokens = await db.signup({
         namespace: surreal.namespace,
         database: surreal.database,
-        scope: "account",
-        email: email,
-        username: username,
-        password: password,
-        topics: ["Admin"],
+        access: "account",
+        variables: {
+            email: email,
+            username: username,
+            password: password,
+            topics: ["Admin"],
+        }
     })
 
     // REFACTOR use session to grab this information!
     const auth = await $fetch('/api/profile', {
         headers: {
-            Authorization: token,
+            Authorization: tokens.access,
         }
     })
 
@@ -54,5 +56,5 @@ export default defineEventHandler(async (event) => {
     }
 
     await db.close()
-    return token
+    return tokens
 })

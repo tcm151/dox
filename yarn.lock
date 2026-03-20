@@ -2466,6 +2466,11 @@
   resolved "https://registry.npmjs.org/@speed-highlight/core/-/core-1.2.15.tgz"
   integrity sha512-BMq1K3DsElxDWawkX6eLg9+CKJrTVGCBAWVuHXVUV2u0s2711qiChLSId6ikYPfxhdYocLNt3wWwSvDiTvFabw==
 
+"@surrealdb/cbor@2.0.0-alpha.4":
+  version "2.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@surrealdb/cbor/-/cbor-2.0.0-alpha.4.tgz#0f94b22d9d4af357b8038b0ce11b79840226338d"
+  integrity sha512-l/hNZ3ZCOJq8rzwx1y5ZV/8b2bYCWdhGqRVY33Pu50NAHyAW5qLsMn3ZBkZow77mAKwNCsbDsRGnyYEuU95mjw==
+
 "@tybys/wasm-util@^0.10.1":
   version "0.10.1"
   resolved "https://registry.npmjs.org/@tybys/wasm-util/-/wasm-util-0.10.1.tgz"
@@ -5843,14 +5848,13 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-surrealdb.js@^0.11.1:
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/surrealdb.js/-/surrealdb.js-0.11.1.tgz"
-  integrity sha512-VgIO8uym/+VR7pBvLDSZYXV51CKYIN8eUj9kM44rDLGg3lMlmhnQrFPgi1wD+OZ/c85cLwO2zicVvmA8C0MmIg==
+surrealdb@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/surrealdb/-/surrealdb-2.0.3.tgz#07621e84dd1b702422f056c2ebc86b05a8042645"
+  integrity sha512-60dXe7K+7M5EUr6VyIgd/SEUCKFXqc54JHUhCTG8IDlqp7pmuuQQWs2wpgulp2oSXpy+9jwKhgNR/mP3wrEgfw==
   dependencies:
-    unws "^0.2.3"
-    ws "^8.13.0"
-    zod "^3.22.4"
+    "@surrealdb/cbor" "2.0.0-alpha.4"
+    uuidv7 "^1.0.1"
 
 svgo@^4.0.1:
   version "4.0.1"
@@ -6193,11 +6197,6 @@ unwasm@^0.5.3:
     pathe "^2.0.3"
     pkg-types "^2.3.0"
 
-unws@^0.2.3:
-  version "0.2.4"
-  resolved "https://registry.npmjs.org/unws/-/unws-0.2.4.tgz"
-  integrity sha512-/N1ajiqrSp0A/26/LBg7r10fOcPtGXCqJRJ61sijUFoGZMr6ESWGYn7i0cwr7fR7eEECY5HsitqtjGHDZLAu2w==
-
 update-browserslist-db@^1.2.0:
   version "1.2.3"
   resolved "https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz"
@@ -6215,6 +6214,11 @@ util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
+
+uuidv7@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/uuidv7/-/uuidv7-1.1.0.tgz#6ef58df2dd7377083de1f70eec29cb66a0baf30c"
+  integrity sha512-2VNnOC0+XQlwogChUDzy6pe8GQEys9QFZBGOh54l6qVfwoCUwwRvk7rDTgaIsRgsF5GFa5oiNg8LqXE3jofBBg==
 
 vite-dev-rpc@^1.1.0:
   version "1.1.0"
@@ -6436,7 +6440,7 @@ wrap-ansi@^8.1.0:
     string-width "^5.0.1"
     strip-ansi "^7.0.1"
 
-ws@^8.13.0, ws@^8.18.3, ws@^8.19.0:
+ws@^8.18.3, ws@^8.19.0:
   version "8.19.0"
   resolved "https://registry.npmjs.org/ws/-/ws-8.19.0.tgz"
   integrity sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==
@@ -6523,8 +6527,3 @@ zip-stream@^6.0.1:
     archiver-utils "^5.0.0"
     compress-commons "^6.0.2"
     readable-stream "^4.0.0"
-
-zod@^3.22.4:
-  version "3.25.76"
-  resolved "https://registry.npmjs.org/zod/-/zod-3.25.76.tgz"
-  integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
