@@ -6,8 +6,8 @@ const hints = useHints()
 const session = getSession()
 
 const id = route.params.id?.toString()
-const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
 await useFetch(`/api/thread/${id}/visit`)
+const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
 
 const [showReplyBox, toggleReply] = useToggle(false)
 const reply = ref<string>("")

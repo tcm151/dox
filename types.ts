@@ -74,7 +74,7 @@ export interface Topic extends Voteable {
     firstUsed: string
 }
 
-export interface Post extends Voteable {
+export interface Post extends Sortable {
     id: string
     user: User | string
     title: string
@@ -83,7 +83,7 @@ export interface Post extends Voteable {
     replyTo?: Post | string
     topics: string[]
     comments: (Comment | string)[]
-    images: Image[]
+    images: (Image | string)[]
     archived: boolean
     edited: boolean
     timeEdited?: string
@@ -109,7 +109,7 @@ export interface Draft {
     images: Image[]
 }
 
-export interface Thread extends Voteable {
+export interface Thread extends Sortable {
     id: string
     user: User | string
     content: string
@@ -124,7 +124,7 @@ export interface Thread extends Voteable {
 }
 
 
-export interface Comment extends Voteable {
+export interface Comment extends Sortable {
     id: string
     user: User | string
     post: Post | string
@@ -136,7 +136,7 @@ export interface Comment extends Voteable {
     timeEdited?: string
 }
 
-export interface Media extends Voteable {
+export interface Media extends Sortable {
     id: string
     user: User | string
     type: string

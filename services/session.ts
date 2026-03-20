@@ -13,8 +13,6 @@ import { Trigger } from "~/services/events"
 //     login: (id: string, password: string) => Promise<void>
 //     logout: (clear: boolean) => void
 //     refreshProfile(): Promise<void>
-//     follow: (target: string) => Promise<boolean>
-//     unfollow: (target: string) => Promise<boolean>
 // }
 
 export const getSession = defineStore("session", () => {
@@ -66,10 +64,11 @@ export const getSession = defineStore("session", () => {
     }
 
     //> AUTH
-    async function authenticate(existingToken?: string) {
+    async function authenticate(existingToken?: string): Promise<void> {
+        let token = existingToken ?? tokens.value.access
         user.value = await $fetch("/api/profile/authenticate", {
             headers: {
-                Authorization: existingToken ?? tokens.value.access
+                Authorization: token
             }
         })
         isAuthenticated.value = true
@@ -79,7 +78,7 @@ export const getSession = defineStore("session", () => {
         })
     }
 
-    async function login(id: string, password: string) {
+    async function login(id: string, password: string): Promise<void> {
         let result = await $fetch("/api/profile/login", {
             headers: {
                 Authorization: btoa(`${id}:${password}`),

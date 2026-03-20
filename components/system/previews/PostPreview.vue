@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post, User } from '~/types'
+import type { Post, User, Image } from '~/types'
 
 const props = defineProps<{
     post: Post
@@ -36,7 +36,7 @@ const props = defineProps<{
                     {{ post.title }}
                 </h3>
             </div>
-            <img v-if="post.images[0]" :src="post.images[0].url">
+            <img v-if="post.images[0]" :src="(post.images[0] as Image).url">
         </div>
     </div>
 </template>
