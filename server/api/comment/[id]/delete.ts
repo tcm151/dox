@@ -13,9 +13,9 @@ export default defineEventHandler(async (event) => {
                 deleted = true
             }
         `)
-        .addRecordId("comment", `comment:${id}`)
+        .addRecord("comment", `comment:${id}`)
         .addParameter("content", "[deleted]")
-        .addRecordId("user", auth.id)
+        .addRecord("user", auth.id)
         .queryOne<Comment>()
 
     return comment.deleted

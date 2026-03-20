@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
             SELECT * FROM $passwordReset
             FETCH user
         `)
-        .addRecordId("passwordReset", `passwordReset:${body.resetId}`)
+        .addRecord("passwordReset", `passwordReset:${body.resetId}`)
         .queryOne<PasswordReset>()
 
     if (passwordReset.expired) {
@@ -55,6 +55,6 @@ export default defineEventHandler(async (event) => {
         `)
         .addParameter("email", body.email)
         .addParameter("password", body.password)
-        .addRecordId("passwordReset", `passwordReset:${body.resetId}`)
+        .addRecord("passwordReset", `passwordReset:${body.resetId}`)
         .execute()
 })

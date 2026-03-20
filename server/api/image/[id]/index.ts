@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
             FROM $image
             FETCH user
         `)
-        .addRecordId("image", `image:${id}`)
+        .addRecord("image", `image:${id}`)
         .queryOne<Image>()
 })

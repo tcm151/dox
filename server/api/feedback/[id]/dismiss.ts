@@ -11,6 +11,6 @@ export default defineEventHandler(async (event) => {
             UPDATE $feedback SET
             dismissed = true
         `)
-        .addRecordId("feedback", `feedback:${id}`)
+        .addRecord("feedback", `feedback:${id}`)
         .queryOne<Feedback>()
 })

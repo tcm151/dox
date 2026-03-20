@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
                 };
             };
         `)
-        .addRecordId('user', auth.id)
+        .addRecord('user', auth.id)
         .addParameter('tokens', tokens)
         .addParameter('type', type)
         .queryOne<Image>()

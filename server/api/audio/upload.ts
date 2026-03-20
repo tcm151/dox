@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
                 };
             };
         `)
-        .addRecordId('user', auth.id)
+        .addRecord('user', auth.id)
         .addParameter('type', type)
         .addParameter('tokens', tokens)
         .queryOne<Audio>()

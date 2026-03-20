@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
             FROM $image
             FETCH user
         `)
-        .addRecordId("image", `image:${id}`)
+        .addRecord("image", `image:${id}`)
         .queryOne<Image>()
 
     if ((image.user as User).id !== auth.id && !hasRole(auth, "admin")) {
@@ -46,8 +46,8 @@ export default defineEventHandler(async (event) => {
 
             COMMIT TRANSACTION;
         `)
-        .addRecordId("user", auth.id)
-        .addRecordId("image", image.id)
+        .addRecord("user", auth.id)
+        .addRecord("image", image.id)
         .addParameter("tokens", image.tokens)
         .execute()
     

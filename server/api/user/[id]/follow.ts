@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
                 RETURN true;
             };
         `)
-        .addRecordId("user", auth.id)
-        .addRecordId("follower", `user:${id}`)
+        .addRecord("user", auth.id)
+        .addRecord("follower", `user:${id}`)
         .queryAll<boolean>()
 })

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $thread SET
             visits += 1
         `)
-        .addRecordId("thread", `thread:${id}`)
+        .addRecord("thread", `thread:${id}`)
         .queryOne<Thread>()
 
     return thread.visits

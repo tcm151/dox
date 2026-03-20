@@ -7,6 +7,6 @@ export default defineEventHandler(async (event) => {
             FROM user
             GROUP ALL
         `)
-        .addRecordId("topic", `topic:${topic}`)
+        .addRecord("topic", `topic:${topic}`)
         .queryOne<{ count: number }>()
 })

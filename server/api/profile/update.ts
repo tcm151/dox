@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
             link = $link,
             description = $description
         `)
-        .addRecordId("user", auth.id)
+        .addRecord("user", auth.id)
         .addParameter("link", user.link)
         .addParameter("description", user.description)
         .queryOne<User>()

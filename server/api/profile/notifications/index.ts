@@ -11,6 +11,6 @@ export default defineEventHandler(async (event) => {
             AND viewed = false
             ORDER BY time DESC
         `)
-        .addRecordId("user", auth.id)
+        .addRecord("user", auth.id)
         .queryAll<Notification>()
 })

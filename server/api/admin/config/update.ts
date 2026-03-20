@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $settings
             CONTENT $content
         `)
-        .addRecordId('settings', settings.id)
+        .addRecord('settings', settings.id)
         .addParameter('conteent', settings)
         .queryOne<AppSettings>()
 })

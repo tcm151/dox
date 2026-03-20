@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $post SET
             visits += 1    
         `)
-        .addRecordId("post", `post:${id}`)
+        .addRecord("post", `post:${id}`)
         .queryOne<Post>()
 
     return post.visits

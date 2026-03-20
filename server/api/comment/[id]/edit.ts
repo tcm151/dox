@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
                 timeEdited = time::now()
             }
         `)
-        .addRecordId("comment", `comment:${id}`)
-        .addRecordId("user", auth.id)
+        .addRecord("comment", `comment:${id}`)
+        .addRecord("user", auth.id)
         .addParameter("content", content)
         .queryOne<Comment>()
 

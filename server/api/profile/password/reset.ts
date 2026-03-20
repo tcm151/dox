@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
                     used = false,
                     expired = <future> { time::now() > time + 15m }
                 `)
-                .addRecordId('user', user.id)
+                .addRecord('user', user.id)
                 .queryOne<PasswordReset>()
         
             const { public: { baseUrl } } = useRuntimeConfig()

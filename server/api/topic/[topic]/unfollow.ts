@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $user SET
             topics = array::difference(topics, [$topic])
         `)
-        .addRecordId("user", auth.id)
-        .addRecordId("topic", `topic:${topic}`)
+        .addRecord("user", auth.id)
+        .addRecord("topic", `topic:${topic}`)
         .queryOne()
 })

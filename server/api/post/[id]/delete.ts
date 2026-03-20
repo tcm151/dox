@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
                 DELETE $post;
             };
         `)
-        .addRecordId("post", `post:${id}`)
+        .addRecord("post", `post:${id}`)
         .addParameter("user", auth)
         .execute()
 

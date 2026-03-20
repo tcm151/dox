@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
             WHERE user = $user
             ORDER BY time DESC
         `)
-        .addRecordId('user', auth.id)
+        .addRecord('user', auth.id)
         .queryAll<Draft>()
 })

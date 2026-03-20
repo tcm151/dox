@@ -1,9 +1,10 @@
-import type { Post } from "~/types"
+import type { Post, Comment, Sortable } from "~/types"
 
 export default defineEventHandler(async (event) => {
+    let query = getQuery<{ sortBy: string }>(event)
     const { id } = event.context.params!
 
-    return await new DatabaseQuery()
+    const post = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, title, content, time,
             replyTo.id, replyTo.title, topics, votes, archived, edited, timeEdited, visits,
@@ -18,6 +19,9 @@ export default defineEventHandler(async (event) => {
             FROM $post
             FETCH user, replyTo, images
         `)
-        .addRecordId("post", `post:${id}`)
+        .addRecord("post", `post:${id}`)
         .queryOne<Post>()
+
+    post.comments = sortList(post.comments as Comment[], query.sortBy) as Comment[]
+    return post
 })

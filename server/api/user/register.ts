@@ -45,9 +45,9 @@ export default defineEventHandler(async (event) => {
                     RETURN "Referral completed successfully.";
                 };
             `)
-            .addRecordId("user", `user:${register.referral}`)
-            .addRecordId("recipient", `user:${register.referral}`)
-            .addRecordId("context", session.user.id)
+            .addRecord("user", `user:${register.referral}`)
+            .addRecord("recipient", `user:${register.referral}`)
+            .addRecord("context", session.user.id)
             .addParameter("message", [
                 `**${session.user.name}** used your referral`,
                 `> You gained 1024 free tokens. Don't forget to thank them!\n`,

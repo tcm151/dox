@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
             SELECT id, user.id, user.name, votes, type, tokens, time, url
             FROM $audio
         `)
-        .addRecordId("audio", `audio:${id}`)
+        .addRecord("audio", `audio:${id}`)
         .queryOne<Audio>()
 })

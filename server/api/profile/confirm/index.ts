@@ -20,6 +20,6 @@ export default defineEventHandler(async (event) => {
                 RETURN $confirmation.user.traits;
             };
         `)
-        .addRecordId('confirmation', id)
+        .addRecord('confirmation', id)
         .queryOne<boolean>()
 })

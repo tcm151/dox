@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
             SELECT *
             FROM $settings
         `)
-        .addRecordId("settings", `appSettings:${id}`)
+        .addRecord("settings", `appSettings:${id}`)
         .queryOne<AppSettings>()
 })

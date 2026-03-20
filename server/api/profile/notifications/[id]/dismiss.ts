@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
                 RETURN false;
             }
         `)
-        .addRecordId("notification", `notification:${id}`)
-        .addRecordId("user", auth.id)
+        .addRecord("notification", `notification:${id}`)
+        .addRecord("user", auth.id)
         .queryOne<Notification>()
 
     return notification.viewed

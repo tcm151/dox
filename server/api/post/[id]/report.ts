@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             reporter = $user,
             time = time::now()
         `)
-        .addRecordId("post", `post:${id}`)
-        .addRecordId("user", auth.id)
+        .addRecord("post", `post:${id}`)
+        .addRecord("user", auth.id)
         .queryOne<Post>()
 })

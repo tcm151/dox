@@ -17,8 +17,8 @@ export default defineEventHandler(async (event) => {
                 THROW "You are not the author of this post."
             }
         `)
-        .addRecordId("post", `post:${id}`)
-        .addRecordId("user", auth.id)
+        .addRecord("post", `post:${id}`)
+        .addRecord("user", auth.id)
         .addParameter("content", content)
         .queryOne<Post>()
 })

@@ -8,6 +8,6 @@ export default defineEventHandler(async (event) => {
             SELECT id, name, link, description, dateJoined, votes, followers, following, topics
             FROM $user
         `)
-        .addRecordId("user", `user:${id}`)
+        .addRecord("user", `user:${id}`)
         .queryOne<User>()
 })

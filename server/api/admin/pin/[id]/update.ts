@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $pin SET
             active = $active
         `)
-        .addRecordId("pin", `pin:${id}`)
+        .addRecord("pin", `pin:${id}`)
         .addParameter("active", active)
         .queryOne<Pin>()
 

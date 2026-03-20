@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             DELETE $draft;
             RETURN true;
         `)
-        .addRecordId("draft", `draft:${id}`)
+        .addRecord("draft", `draft:${id}`)
         .addParameter("user", auth)
         .queryAll<boolean>()
 })

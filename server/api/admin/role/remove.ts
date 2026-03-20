@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $user SET
             roles = array::difference(roles, [$role]);
         `)
-        .addRecordId('user', body.user)
+        .addRecord('user', body.user)
         .addParameter('role', body.role)
         .queryOne<User>()
 

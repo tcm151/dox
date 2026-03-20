@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             DELETE $pin
         `)
-        .addRecordId("pin", `pin:${id}`)
+        .addRecord("pin", `pin:${id}`)
         .queryOne<Pin>()
 
     return true

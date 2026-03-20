@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
             FROM $thread
             FETCH user, replyTo, images
         `)
-        .addRecordId("thread", `thread:${id}`)
+        .addRecord("thread", `thread:${id}`)
         .queryOne<Thread>()
 })

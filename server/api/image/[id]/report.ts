@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             reporter = $user,
             time = time::now()
         `)
-        .addRecordId("image", `image:${id}`)
-        .addRecordId("user", auth.id)
+        .addRecord("image", `image:${id}`)
+        .addRecord("user", auth.id)
         .queryOne<Image>()
 })

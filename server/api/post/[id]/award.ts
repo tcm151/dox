@@ -28,8 +28,8 @@ export default defineEventHandler(async (event) => {
                 RETURN SELECT * FROM $post;
             };
         `)
-        .addRecordId("post", `post:${id}`)
-        .addRecordId("awarder", auth.id)
+        .addRecord("post", `post:${id}`)
+        .addRecord("awarder", auth.id)
         .addParameter("message", `**${auth.name}** awarded your post\n> You gained 256 tokens. Don't forget to thank them!\n`)
         .queryOne<Post>()
 })

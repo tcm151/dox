@@ -13,10 +13,10 @@ export default defineEventHandler(async (event) => {
             replyTo = $replyTo,
             votes.positive = [$user]
         `)
-        .addRecordId("user", auth.id)
-        .addRecordId("post", comment.post)
+        .addRecord("user", auth.id)
+        .addRecord("post", comment.post)
         .addParameter("content", comment.content)
-        .addRecordId("replyTo", comment.replyTo)
+        .addRecord("replyTo", comment.replyTo)
         .queryOne<Comment>()
     
     await new DatabaseQuery()
@@ -26,8 +26,8 @@ export default defineEventHandler(async (event) => {
             context = $context,
             message = $message    
         `)
-        .addRecordId("recipient", comment.replyTo)
-        .addRecordId("context", comment.post)
+        .addRecord("recipient", comment.replyTo)
+        .addRecord("context", comment.post)
         .addParameter("message", `**${auth.name}** replied to you\n> ${comment.content}\n`)
         .execute()
 

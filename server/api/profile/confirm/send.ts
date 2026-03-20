@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             used = false,
             expired = <future> { time::now() > time + 15m }
         `)
-        .addRecordId('user', auth.id)
+        .addRecord('user', auth.id)
         .queryOne<Confirmation>()
 
     const { public: { baseUrl } } = useRuntimeConfig()

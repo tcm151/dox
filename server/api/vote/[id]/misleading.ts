@@ -11,8 +11,8 @@ export default defineEventHandler(async (event) => {
             votes.misleading = array::union(votes.misleading, [$user]),
             votes.negative -= $user
         `)
-        .addRecordId("item", id!)
-        .addRecordId("user", auth.id)
+        .addRecord("item", id!)
+        .addRecord("user", auth.id)
         .queryOne<Voteable>()
 
     return item.votes

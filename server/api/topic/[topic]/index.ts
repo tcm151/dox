@@ -9,6 +9,6 @@ export default defineEventHandler(async (event) => {
             FROM $topic
             FETCH posts, posts.images
         `)
-        .addRecordId("topic", `topic:${topic}`)
+        .addRecord("topic", `topic:${topic}`)
         .queryOne<Topic>()
 })

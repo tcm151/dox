@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
                 post = $post,
                 user = $user;
             `)
-            .addRecordId("post", `post:${id}`)
-            .addRecordId("user", auth.id)
+            .addRecord("post", `post:${id}`)
+            .addRecord("user", auth.id)
             .queryOne<Pin>()
 })

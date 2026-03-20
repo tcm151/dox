@@ -97,20 +97,33 @@ export class DatabaseQuery {
         }
     }
 
-    addSql(sql: string) {
-        this.#sql.push(sql)
-        return this
-    }
-
-    addRecordId(key: string, record: string) {
-        const [ table, id] = record.toString().split(":", 2)
+    private parseRecord(record: string) {
+        const [table, id] = record.toString().split(":", 2)
         if (!table || !id) {
             throw createError({
                 status: 400,
                 statusText: "Invalid record ID."
             })
         }
-        this.#parameters[key] = new RecordId(table, id)
+        return new RecordId(table, id)
+    }
+
+    addSql(sql: string) {
+        this.#sql.push(sql)
+        return this
+    }
+
+    addRecord(key: string, record: string) {
+        this.#parameters[key] = this.parseRecord(record)
+        return this
+    }
+
+    addRecords(key: string, records: string[]) {
+        let results: RecordId[] = []
+        for (let record of records) {
+            results.push(this.parseRecord(record))
+        }
+        this.#parameters[key] = results
         return this
     }
 

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
                 time = time::now();
             };
         `)
-        .addRecordId("draft", `draft:${id}`)
+        .addRecord("draft", `draft:${id}`)
         .addParameter("user", auth)
         .addParameter("title", draft.title)
         .addParameter("content", draft.content)

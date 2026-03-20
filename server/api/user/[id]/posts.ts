@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
             ORDER BY time DESC
             FETCH user, images
         `)
-        .addRecordId("user", `user:${id}`)
+        .addRecord("user", `user:${id}`)
         .queryAll<Post>()
 })

@@ -17,8 +17,8 @@ export default defineEventHandler(async (event) => {
             UPDATE $thread
             SET replies += $reply
         `)
-        .addRecordId('thread', `thread:${id}`)
-        .addRecordId('reply', thread.id)
+        .addRecord('thread', `thread:${id}`)
+        .addRecord('reply', thread.id)
         .queryOne<Thread>()
 
     return thread

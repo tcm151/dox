@@ -11,6 +11,6 @@ export default defineEventHandler(async (event) => {
             UPDATE $post SET
             archived = !archived
         `)
-        .addRecordId("post", `post:${id}`)
+        .addRecord("post", `post:${id}`)
         .queryOne<Post>()
 })

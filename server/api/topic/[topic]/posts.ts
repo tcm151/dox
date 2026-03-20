@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
             WHERE topics CONTAINS $topic
             FETCH user, replyTo, images
         `)
-        .addRecordId("topic", `topic:${topic}`)
+        .addRecord("topic", `topic:${topic}`)
         .queryAll<Post>()
 })
