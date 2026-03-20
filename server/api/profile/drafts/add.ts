@@ -3,13 +3,20 @@ import type { Draft } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const draft = await readBody(event)
-    draft.user = auth.id
 
     return await new DatabaseQuery()
         .addSql(`
-            CREATE draft
-            CONTENT $draft
+            CREATE draft SET
+            user = $user,
+            title = $title,
+            content = $content,
+            topics = $topics,
+            images = $images
         `)
-        .addParameter('draft', draft)
+        .addRecord('user', auth.id)
+        .addParameter('title', draft.title)
+        .addParameter('content', draft.content)
+        .addRecords('topics', draft.topics)
+        .addRecords('images', draft.images as string[])
         .queryOne<Draft>()
 })

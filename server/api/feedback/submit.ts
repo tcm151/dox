@@ -2,14 +2,16 @@ import type { Feedback } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const feedback = await readBody(event)
-    feedback.user = auth.id
+
+    const { content } = await readBody<{ content: string }>(event)
 
     return await new DatabaseQuery()
         .addSql(`
-            CREATE feedback
-            CONTENT $feedback
+            CREATE feedback SET
+            user = $user,
+            content = $content
         `)
-        .addParameter('feedback', feedback)
+        .addRecord('user', auth.id)
+        .addParameter('content', content)
         .queryOne<Feedback>()
 })

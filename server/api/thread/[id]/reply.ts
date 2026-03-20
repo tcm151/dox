@@ -3,15 +3,25 @@ import type { Thread } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     let thread = await readBody<Thread>(event)
-    thread.user = auth.id
-    thread.votes.positive = [auth.id]
+    const { id } = event.context.params!
 
     thread = await new DatabaseQuery()
-        .addSql('CREATE thread CONTENT $thread')
-        .addParameter('thread', thread)
+        .addSql(`
+            CREATE thread SET
+            user = $user,
+            content = $content,
+            replyTo = $replyTo,
+            topics = $topics,
+            images = $images,
+            votes.positive = [$user]
+        `)
+        .addRecord('user', auth.id)
+        .addParameter('content', thread.content)
+        .addRecord('replyTo', `thread:${id}`)
+        .addRecords('topics', thread.topics)
+        .addRecords('images', thread.images as string[])
         .queryOne<Thread>()
 
-    let { id } = event.context.params!
     await new DatabaseQuery()
         .addSql(`
             UPDATE $thread

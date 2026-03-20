@@ -4,8 +4,6 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     let post = await readBody<Post>(event)
 
-
-
     return await new DatabaseQuery()
         .addSql(`
             CREATE post SET
