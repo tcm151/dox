@@ -76,8 +76,7 @@ DEFINE TABLE OVERWRITE passwordReset SCHEMALESS;
 -- ------------------------------
 DEFINE TABLE OVERWRITE user SCHEMALESS
 PERMISSIONS
-    FOR select, update WHERE id = $auth.id
-    FOR create, delete WHERE roles CONTAINS "admin";
+    FOR select, create, update, delete WHERE id = $auth.id;
 
 DEFINE FIELD OVERWRITE email ON user TYPE string ASSERT string::is::email($value);
 DEFINE INDEX OVERWRITE email ON user FIELDS email UNIQUE;
@@ -195,7 +194,7 @@ DEFINE FIELD OVERWRITE time ON draft TYPE datetime DEFAULT time::now();
 DEFINE FIELD OVERWRITE replyTo ON draft TYPE option<record<post>>;
 
 DEFINE FIELD OVERWRITE topics ON draft TYPE array<record<topic>> DEFAULT [];
-DEFINE FIELD OVERWRITE images ON post TYPE array<record<image>> DEFAULT [];
+DEFINE FIELD OVERWRITE images ON darft TYPE array<record<image>> DEFAULT [];
 
 
 -- ------------------------------
@@ -213,7 +212,7 @@ DEFINE FIELD OVERWRITE time ON pin TYPE datetime DEFAULT time::now();
 -- ------------------------------
 DEFINE TABLE OVERWRITE thread SCHEMALESS;
 DEFINE FIELD OVERWRITE user ON thread TYPE record<user>;
-DEFINE FIELD OVERWRITE content ON thread TYPE string ASSERT $value = /.{4,512}/;;
+DEFINE FIELD OVERWRITE content ON thread TYPE string ASSERT $value = /.{4,512}/;
 DEFINE FIELD OVERWRITE time ON thread TYPE datetime DEFAULT time::now();
 DEFINE FIELD OVERWRITE replyTo ON thread TYPE option<record<thread>>;
 

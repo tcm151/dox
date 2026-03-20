@@ -8,7 +8,7 @@ interface Register {
 }
 
 export default defineEventHandler(async (event) => {
-    const { email, username, password, referral } = await readBody<Register>(event)
+    const register = await readBody<Register>(event)
     
     const { surreal } = useRuntimeConfig()
     const db = new Surreal()
@@ -19,35 +19,31 @@ export default defineEventHandler(async (event) => {
         database: surreal.database,
         access: "account",
         variables: {
-            email: email,
-            username: username,
-            password: password,
-            topics: ["Admin"],
-        }
-    })
+            email: register.email,
+            username: register.username,
+            password: register.password,
+        },
+    });
 
-    // REFACTOR use session to grab this information!
-    const auth = await $fetch('/api/profile', {
-        headers: {
-            Authorization: tokens.access,
-        }
-    })
+    const session = getSession()
+    session.tokens = tokens
+    await session.refreshProfile()
 
-    if (referral) {
+    if (register.referral) {
         const { sql, parameters } = queryBuilder()
         sql.push('RETURN {')
         sql.push('IF $user != NONE {')
-        parameters['user'] = `user:${referral}`
+        parameters['user'] = `user:${register.referral}`
         sql.push('UPDATE <record>$user SET tokens += 1024;')
         sql.push('};')
         sql.push('CREATE notification SET')
         sql.push('recipient = $user,')
         sql.push('context = $context,')
         sql.push('message = $message')
-        parameters['recipient'] = `user:${referral}`
-        parameters['context'] = auth.id
+        parameters['recipient'] = `user:${register.referral}`
+        parameters['context'] = session.user.id
         parameters['message'] = [
-            `**${auth.name}** used your referral`,
+            `**${session.user.name}** used your referral`,
             `> You gained 1024 free tokens. Don't forget to thank them!\n`,
         ].join('\n')
         sql.push('RETURN "Referral completed successfully.";')

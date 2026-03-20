@@ -1,4 +1,4 @@
-import { Surreal } from 'surrealdb'
+import { Surreal, RecordId, BoundQuery } from 'surrealdb'
 
 const { surreal } = useRuntimeConfig()
 if (surreal.url == "" || !surreal.url.includes("/rpc")) {
@@ -84,8 +84,8 @@ export async function complexQuery(query: Query): Promise<unknown[][]> {
     return responses
 }
 
-// TODO: planned migration to this class for better code readability and maintainability.
-// Will be used in all future database interactions.
+// TODO planned migration to this class for better readability and maintainability.
+// Should be used in all future database interactions.
 export class DatabaseQuery {
     #sql: string[] = []
     #parameters: Parameters = {}
@@ -102,6 +102,18 @@ export class DatabaseQuery {
         return this
     }
 
+    addRecordId(key: string, record: string) {
+        const [ table, id] = record.toString().split(":", 2)
+        if (!table || !id) {
+            throw createError({
+                status: 400,
+                statusText: "Invalid record ID."
+            })
+        }
+        this.#parameters[key] = new RecordId(table, id)
+        return this
+    }
+
     addParameter(key: string, value: any) {
         this.#parameters[key] = value
         return this
@@ -109,7 +121,8 @@ export class DatabaseQuery {
 
     async execute<T>(): Promise<T[][]> {
         try {
-            return await this.#connection.query(this.#sql.join("\n"), this.#parameters) as T[][]
+            let query = new BoundQuery<T[][]>(this.#sql.join("\n"), this.#parameters)
+            return await this.#connection.query(query)
         }
         catch (ex: any) {
             if (ex.message.startsWith("Surreal Error:")) {
@@ -120,6 +133,7 @@ export class DatabaseQuery {
                 })
             }
             else {
+                console.log(ex)
                 throw createError({
                     statusCode: 500,
                     statusMessage: `Server Error: Oops.`,
