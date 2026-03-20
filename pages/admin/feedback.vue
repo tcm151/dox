@@ -4,18 +4,21 @@ import type { Feedback, User } from '~/types'
 const cache = useCache()
 const session = getSession()
 
-const { data: feedback, refresh } = await useFetch<Feedback[]>("/api/feedback")
-const showDismissed = cache.get('admin.feedback.showDismissed', () => false)
+const { data: feedback, refresh } = await useFetch<Feedback[]>("/api/feedback", {
+    headers: {
+        Authorization: session.tokens.access,
+    },
+})
 
 const activeFeedback = computed(() => {
     return feedback.value?.filter(f => (showDismissed.value) ? f : !f.dismissed)
 })
 
+const showDismissed = cache.get('admin.feedback.showDismissed', () => false)
 async function dismissFeedback(feedback: Feedback) {
     await session.useApi<Feedback>(`/api/feedback/${extractId(feedback.id)}/dismiss`)
     await refresh()
 }
-
 </script>
 
 <template>

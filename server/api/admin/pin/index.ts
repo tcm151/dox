@@ -1,6 +1,9 @@
 import type { Pin } from "~/types"
 
 export default defineEventHandler(async (event) => {
+    const auth = await authenticateRequest(event)
+    requireRole(auth, "admin")
+
     return await new DatabaseQuery()
         .addSql(`
             SELECT id, active, time,

@@ -3,7 +3,11 @@ import type { Pin, Post, User } from '~/types'
 
 const session = getSession()
 
-const { data: pins, refresh } = await useFetch<Pin[]>("/api/admin/pin")
+const { data: pins, refresh } = await useFetch<Pin[]>("/api/admin/pin", {
+    headers: {
+        Authorization: session.tokens.access,
+    },
+})
 
 async function updatePin(pin: Pin) {
     await session.useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/update`, {
