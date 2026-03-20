@@ -6,11 +6,13 @@ export default defineEventHandler(async (event) => {
     
     const { id } = event.context.params!
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('CREATE pin SET')
-    sql.push('post = $post,')
-    sql.push('user = $user;')
-    parameters['post'] = `post:${id}`
-    parameters['user'] = auth.id
-    return await queryOne<Pin>({ sql, parameters })
+        return await new DatabaseQuery()
+            .addSql(`
+                CREATE pin SET
+                post = $post,
+                user = $user;
+            `)
+            .addRecordId("post", `post:${id}`)
+            .addRecordId("user", auth.id)
+            .queryOne<Pin>()
 })

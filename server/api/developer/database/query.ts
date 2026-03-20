@@ -10,5 +10,8 @@ export default defineEventHandler(async (event) => {
     }
     
     let { query } = await readBody<{ query: string }>(event)
-    return await complexQuery({ sql: [query] })
+    
+    return await new DatabaseQuery()
+        .addSql(query)
+        .execute()
 })

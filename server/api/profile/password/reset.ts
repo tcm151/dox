@@ -14,23 +14,27 @@ export default defineEventHandler(async (event) => {
     try {
         const { id } = await readBody(event)
 
-        var { sql, parameters } = queryBuilder()
-        sql.push('SELECT id, name, email')
-        sql.push('FROM user')
-        sql.push('WHERE name = $id')
-        sql.push('OR email = $id')
-        parameters['id'] = id
-        const user = await queryOne<User>({ sql, parameters})
+        const user = await new DatabaseQuery()
+            .addSql(`
+                SELECT id, name, email
+                FROM user
+                WHERE name = $id
+                OR email = $id
+            `)
+            .addParameter('id', id)
+            .queryOne<User>()
     
         if (user != undefined) {
-            var { sql, parameters } = queryBuilder()
-            sql.push('CREATE passwordReset SET')
-            sql.push('user = $user,')
-            sql.push('time = time::now(),')
-            sql.push('used = false,')
-            sql.push('expired = <future> { time::now() > time + 15m }')
-            parameters['user'] = user.id
-            const passwordReset = await queryOne<PasswordReset>({ sql, parameters })
+            const passwordReset = await new DatabaseQuery()
+                .addSql(`
+                    CREATE passwordReset SET
+                    user = $user,
+                    time = time::now(),
+                    used = false,
+                    expired = <future> { time::now() > time + 15m }
+                `)
+                .addRecordId('user', user.id)
+                .queryOne<PasswordReset>()
         
             const { public: { baseUrl } } = useRuntimeConfig()
             let template = await useStorage("assets:server").getItem("templates/reset-password.html") as string

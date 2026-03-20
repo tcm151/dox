@@ -5,10 +5,12 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, ["admin", "developer"])
 
     const { id } = event.context.params!
-    
-    let { sql, parameters } = queryBuilder()
-    sql.push('UPDATE <record>$feedback SET')
-    sql.push('dismissed = true')
-    parameters['feedback'] = `feedback:${id}`
-    return await queryOne<Feedback>({ sql, parameters })
+
+    return await new DatabaseQuery()
+        .addSql(`
+            UPDATE $feedback SET
+            dismissed = true
+        `)
+        .addRecordId("feedback", `feedback:${id}`)
+        .queryOne<Feedback>()
 })

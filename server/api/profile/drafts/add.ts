@@ -5,9 +5,11 @@ export default defineEventHandler(async (event) => {
     const draft = await readBody(event)
     draft.user = auth.id
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('CREATE draft')
-    sql.push('CONTENT $draft')
-    parameters['draft'] = draft
-    return await queryOne<Draft>({ sql, parameters })
+    return await new DatabaseQuery()
+        .addSql(`
+            CREATE draft
+            CONTENT $draft
+        `)
+        .addParameter('draft', draft)
+        .queryOne<Draft>()
 })

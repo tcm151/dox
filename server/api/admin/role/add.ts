@@ -4,13 +4,16 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, ["admin", "developer"])
     
-    let { user, role } = await readBody<{ user: string, role: string }>(event)
+    let body = await readBody<{ user: string, role: string }>(event)
 
-    const { sql, parameters } = queryBuilder()
-    sql.push('UPDATE <record>$user SET')
-    sql.push('roles = array::union(roles, [$role]);')
-    parameters['user'] = user
-    parameters['role'] = role
+    const user = await new DatabaseQuery()
+        .addSql(`
+            UPDATE $user SET
+            roles = array::union(roles, [$role]);
+        `)
+        .addRecordId('user', body.user)
+        .addParameter('role', body.role)
+        .queryOne<User>()
 
-    return await queryOne<User>({ sql, parameters })
+    return user.roles
 })

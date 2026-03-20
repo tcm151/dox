@@ -8,7 +8,6 @@ interface PasswordReset {
     expired: boolean
 }
 
-// REFACTOR to new query standards
 export default defineEventHandler(async (event) => {
     const body = await readBody<{
         resetId: string,
@@ -16,11 +15,13 @@ export default defineEventHandler(async (event) => {
         password: string
     }>(event)
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT * FROM <record>$passwordReset')
-    sql.push('FETCH user')
-    parameters['passwordReset'] = `passwordReset:${body.resetId}`
-    const passwordReset = await queryOne<PasswordReset>({ sql, parameters })
+    const passwordReset = await new DatabaseQuery()
+        .addSql(`
+            SELECT * FROM $passwordReset
+            FETCH user
+        `)
+        .addRecordId("passwordReset", `passwordReset:${body.resetId}`)
+        .queryOne<PasswordReset>()
 
     if (passwordReset.expired) {
         throw createError({
@@ -43,14 +44,17 @@ export default defineEventHandler(async (event) => {
         })   
     }
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE user SET')
-    sql.push('password = crypto::argon2::generate($password)')
-    sql.push('WHERE email = $email;')
-    parameters['email'] = body.email
-    parameters['password'] = body.password
-    sql.push('UPDATE <record>$passwordReset SET')
-    sql.push('used = true;')
-    parameters['passwordReset'] = `passwordReset:${body.resetId}`
-    return await complexQuery({ sql, parameters })
+    return await new DatabaseQuery()
+        .addSql(`
+            UPDATE user SET
+            password = crypto::argon2::generate($password)
+            WHERE email = $email;
+
+            UPDATE $passwordReset SET
+            used = true;
+        `)
+        .addParameter("email", body.email)
+        .addParameter("password", body.password)
+        .addRecordId("passwordReset", `passwordReset:${body.resetId}`)
+        .execute()
 })

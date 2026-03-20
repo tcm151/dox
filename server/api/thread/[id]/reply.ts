@@ -6,20 +6,20 @@ export default defineEventHandler(async (event) => {
     thread.user = auth.id
     thread.votes.positive = [auth.id]
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('CREATE thread')
-    sql.push('CONTENT $thread')
-    parameters['thread'] = thread
-    
-    thread = await queryOne<Thread>({ sql, parameters })
+    thread = await new DatabaseQuery()
+        .addSql('CREATE thread CONTENT $thread')
+        .addParameter('thread', thread)
+        .queryOne<Thread>()
 
     let { id } = event.context.params!
-    var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE <record>$thread')
-    sql.push('SET replies += $reply')
-    parameters['thread'] = `thread:${id}`
-    parameters['reply'] = thread.id
-    await queryOne<Thread>({ sql, parameters })
+    await new DatabaseQuery()
+        .addSql(`
+            UPDATE $thread
+            SET replies += $reply
+        `)
+        .addRecordId('thread', `thread:${id}`)
+        .addRecordId('reply', thread.id)
+        .queryOne<Thread>()
 
     return thread
 })

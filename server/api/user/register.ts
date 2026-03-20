@@ -30,25 +30,29 @@ export default defineEventHandler(async (event) => {
     await session.refreshProfile()
 
     if (register.referral) {
-        const { sql, parameters } = queryBuilder()
-        sql.push('RETURN {')
-        sql.push('IF $user != NONE {')
-        parameters['user'] = `user:${register.referral}`
-        sql.push('UPDATE <record>$user SET tokens += 1024;')
-        sql.push('};')
-        sql.push('CREATE notification SET')
-        sql.push('recipient = $user,')
-        sql.push('context = $context,')
-        sql.push('message = $message')
-        parameters['recipient'] = `user:${register.referral}`
-        parameters['context'] = session.user.id
-        parameters['message'] = [
-            `**${session.user.name}** used your referral`,
-            `> You gained 1024 free tokens. Don't forget to thank them!\n`,
-        ].join('\n')
-        sql.push('RETURN "Referral completed successfully.";')
-        sql.push('};')
-        await queryAll<string>({ sql, parameters })
+        await new DatabaseQuery()
+            .addSql(`
+                RETURN {
+                    IF $user != NONE {
+                        UPDATE $user SET tokens += 1024;
+                    };
+
+                    CREATE notification SET
+                    recipient = $recipient,
+                    context = $context,
+                    message = $message;
+                    
+                    RETURN "Referral completed successfully.";
+                };
+            `)
+            .addRecordId("user", `user:${register.referral}`)
+            .addRecordId("recipient", `user:${register.referral}`)
+            .addRecordId("context", session.user.id)
+            .addParameter("message", [
+                `**${session.user.name}** used your referral`,
+                `> You gained 1024 free tokens. Don't forget to thank them!\n`,
+            ].join('\n'))
+            .queryAll<string>()
     }
 
     await db.close()

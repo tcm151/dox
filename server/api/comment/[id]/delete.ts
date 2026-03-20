@@ -4,17 +4,19 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     
     const { id } = event.context.params!
-    const { sql, parameters } = queryBuilder()
-    
-    sql.push('IF <record>$comment.user = <record>$user {')
-    sql.push('RETURN UPDATE <record>$comment SET')
-    sql.push('content = $content,')
-    sql.push('deleted = true')
-    sql.push('}')
-    parameters['comment'] = `comment:${id}`
-    parameters['content'] = "[deleted]"
-    parameters['user'] = auth.id
-    
-    return await queryOne<Comment>({ sql, parameters })
 
+    const comment = await new DatabaseQuery()
+        .addSql(`
+            IF $comment.user = $user {
+                RETURN UPDATE $comment SET
+                content = $content,
+                deleted = true
+            }
+        `)
+        .addRecordId("comment", `comment:${id}`)
+        .addParameter("content", "[deleted]")
+        .addRecordId("user", auth.id)
+        .queryOne<Comment>()
+
+    return comment.deleted
 })

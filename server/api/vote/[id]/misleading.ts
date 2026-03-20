@@ -1,14 +1,19 @@
+import type { Voteable } from "~/types"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE <record>$item SET')
-    sql.push('votes.positive -= $user,')
-    sql.push('votes.misleading = array::union(votes.misleading, [$user]),')
-    sql.push('votes.negative -= $user')
-    parameters['item'] = id
-    parameters['user'] = auth.id
+    const item = await new DatabaseQuery()
+        .addSql(`
+            UPDATE $item SET
+            votes.positive -= $user,
+            votes.misleading = array::union(votes.misleading, [$user]),
+            votes.negative -= $user
+        `)
+        .addRecordId("item", id!)
+        .addRecordId("user", auth.id)
+        .queryOne<Voteable>()
 
-    return await queryOne({ sql, parameters })
+    return item.votes
 })

@@ -6,10 +6,11 @@ export default defineEventHandler(async (event) => {
     post.user = auth.id
     post.votes.positive = [auth.id]
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('CREATE post')
-    sql.push('CONTENT $post')
-    parameters['post'] = post
-    
-    return await queryOne<Post>({ sql, parameters })
+    return await new DatabaseQuery()
+        .addSql(`
+            CREATE post
+            CONTENT $post
+        `)
+        .addParameter('post', post)
+        .queryOne<Post>()
 })

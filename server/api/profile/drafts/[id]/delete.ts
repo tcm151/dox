@@ -1,18 +1,17 @@
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
-    
-    let { sql, parameters } = queryBuilder()
 
-    sql.push('IF $draft.user != $user.id {')
-    sql.push('THROW "You are not allowed to do this.";')
-    sql.push('};')
+    return await new DatabaseQuery()
+        .addSql(`
+            IF $draft.user != $user.id {
+                THROW "You are not allowed to do this.";
+            };
 
-    sql.push('DELETE <record>$draft;')
-    sql.push('RETURN true;')
-
-    parameters['draft'] = `draft:${id}`
-    parameters['user'] = auth
-
-    return await queryAll<boolean>({ sql, parameters })
+            DELETE $draft;
+            RETURN true;
+        `)
+        .addRecordId("draft", `draft:${id}`)
+        .addParameter("user", auth)
+        .queryAll<boolean>()
 })

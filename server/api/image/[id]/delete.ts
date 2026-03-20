@@ -5,13 +5,15 @@ import type { Image, User } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
-    
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT *')
-    sql.push('FROM <record>$image')
-    sql.push('FETCH user')
-    parameters['image'] = `image:${id}`
-    const image = await queryOne<Image>({ sql, parameters })
+
+    const image = await new DatabaseQuery()
+        .addSql(`
+            SELECT *
+            FROM $image
+            FETCH user
+        `)
+        .addRecordId("image", `image:${id}`)
+        .queryOne<Image>()
 
     if ((image.user as User).id !== auth.id && !hasRole(auth, "admin")) {
         throw createError({
@@ -33,17 +35,21 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    // TODO add event log for all token transactions
-    var { sql, parameters } = queryBuilder()
-    sql.push('BEGIN TRANSACTION;')
-    sql.push('UPDATE <record>$user SET')
-    sql.push('tokens += $tokens')
-    sql.push('DELETE <record>$image')
-    sql.push('COMMIT TRANSACTION;')
-    parameters['user'] = auth.id
-    parameters['tokens'] = image.tokens
-    parameters['image'] = image.id
-    await complexQuery({ sql, parameters })
+    await new DatabaseQuery()
+        .addSql(`
+            BEGIN TRANSACTION;
+
+            UPDATE $user SET
+            tokens += $tokens;
+
+            DELETE $image;
+
+            COMMIT TRANSACTION;
+        `)
+        .addRecordId("user", auth.id)
+        .addRecordId("image", image.id)
+        .addParameter("tokens", image.tokens)
+        .execute()
     
     return true
 })

@@ -1,28 +1,25 @@
 export default defineEventHandler(async (event) => {
     const { id } = await readBody<{ id: string }>(event)
 
-    let { sql, parameters } = queryBuilder()
+    return await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                IF $confirmation.expired {
+                    THROW "Confirmation period has expired, please try again and complete within 15 minutes."
+                };
 
-    sql.push('RETURN {')
-    
-    sql.push('IF $confirmation.expired {')
-    sql.push('THROW "Confirmation period has expired, please try again and complete within 15 minutes."')
-    sql.push('};')
+                IF $confirmation.used {
+                    THROW "This confirmation has already been used.";
+                };
 
-    sql.push('IF $confirmation.used {')
-    sql.push('THROW "This confirmation has already been used.";')
-    sql.push('};')
-
-    sql.push('UPDATE <record>$confirmation.user SET')
-    sql.push('traits = array::union(traits, ["confirmed"]);')
-    sql.push('UPDATE <record>$confirmation SET')
-    sql.push('used = true;')
-    
-    sql.push('RETURN $confirmation.user.traits;')
-
-    sql.push('};')
-
-    parameters['confirmation'] = id
-
-    return await queryOne<boolean>({ sql, parameters })
+                UPDATE $confirmation.user SET
+                traits = array::union(traits, ["confirmed"]);
+                UPDATE $confirmation SET
+                used = true;
+                
+                RETURN $confirmation.user.traits;
+            };
+        `)
+        .addRecordId('confirmation', id)
+        .queryOne<boolean>()
 })

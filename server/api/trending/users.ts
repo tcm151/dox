@@ -1,12 +1,14 @@
 export default defineEventHandler(async (event) => {
-    var { sql } = queryBuilder()
-    sql.push('SELECT *')
-    sql.push('FROM (')
-    sql.push('SELECT id, name, votes.score AS score')
-    sql.push('FROM user')
-    sql.push(')')
-    sql.push('WHERE score > 0')
-    sql.push('ORDER BY score DESC')
-    sql.push('LIMIT 5')
-    return await queryAll<{ id: string, name: string, score: number }>({ sql })
+    return await new DatabaseQuery()
+        .addSql(`
+            SELECT *
+            FROM (
+                SELECT id, name, votes.score AS score
+                FROM user
+            )
+            WHERE score > 0
+            ORDER BY score DESC
+            LIMIT 5
+        `)
+        .queryAll<{ id: string, name: string, score: number }>()
 })

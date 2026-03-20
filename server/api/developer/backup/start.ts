@@ -8,31 +8,32 @@ export default defineEventHandler(async (event) => {
             message: "You shall not pass!"
         })
     }
-    
-    const { surreal } = useRuntimeConfig()
-    const { sql, parameters } = queryBuilder()
 
-    sql.push('LET $environment = $session.db;')
-    sql.push('LET $comments = (SELECT * FROM comment);')
-    sql.push('LET $drafts = (SELECT * FROM draft);')
-    sql.push('LET $posts = (SELECT * FROM post);')
-    sql.push('LET $threads = (SELECT * FROM thread);')
-    sql.push('LET $topics = (SELECT * FROM topic);')
-    sql.push('LET $users = (SELECT * FROM user);')
-    
-    sql.push(`USE NS ${surreal.namespace} DB backup;`)
-    sql.push('INSERT INTO comment $comments;')
-    sql.push('INSERT INTO draft $drafts;')
-    sql.push('INSERT INTO post $posts;')
-    sql.push('INSERT INTO thread $threads;')
-    sql.push('INSERT INTO topic $topics;')
-    sql.push('INSERT INTO user $users;')
-    
-    sql.push('CREATE backup SET')
-    sql.push('environment = $environment,')
-    sql.push('time = time::now(),')
-    sql.push('user = $user.id')
-    parameters['user'] = auth
+    return await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                LET $environment = $session.db;
+                LET $comments = (SELECT * FROM comment);
+                LET $drafts = (SELECT * FROM draft);
+                LET $posts = (SELECT * FROM post);
+                LET $threads = (SELECT * FROM thread);
+                LET $topics = (SELECT * FROM topic);
+                LET $users = (SELECT * FROM user);
 
-    return await queryAll<Backup>({ sql, parameters })
+                USE NS ${useRuntimeConfig().surreal.namespace} DB backup;
+                INSERT INTO comment $comments;
+                INSERT INTO draft $drafts;
+                INSERT INTO post $posts;
+                INSERT INTO thread $threads;
+                INSERT INTO topic $topics;
+                INSERT INTO user $users;
+    
+                RETURN CREATE backup SET
+                environment = $environment,
+                time = time::now(),
+                user = $user.id
+            }
+        `)
+        .addParameter('user', auth)
+        .queryOne<Backup>()
 })

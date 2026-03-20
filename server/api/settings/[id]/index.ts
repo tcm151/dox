@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             SELECT *
-            FROM <record>$settings
+            FROM $settings
         `)
-        .addParameter("settings", `appSettings:${id}`)
+        .addRecordId("settings", `appSettings:${id}`)
         .queryOne<AppSettings>()
 })

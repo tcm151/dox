@@ -7,18 +7,18 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const { surreal } = useRuntimeConfig()
-    const { sql } = queryBuilder()
-
-    sql.push('LET $environment = $session.db;')
-    sql.push(`USE NS ${surreal.namespace} DB backup;`)
+    return await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                LET $environment = $session.db;
+                USE NS ${useRuntimeConfig().surreal.namespace} DB backup;
     
-    sql.push('SELECT id, time, user.id, user.name')
-    sql.push('FROM backup')
-    sql.push('WHERE environment = $environment')
-    sql.push('ORDER BY time DESC')
-    sql.push('FETCH user;')
-
-    const [, , backups] = await complexQuery({ sql })
-    return backups
+                RETURN SELECT id, time, user.id, user.name
+                FROM backup
+                WHERE environment = $environment
+                ORDER BY time DESC
+                FETCH user;
+            }
+        `)
+        .queryOne<any>()
 })

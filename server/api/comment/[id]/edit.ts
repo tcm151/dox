@@ -4,20 +4,20 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { content } = await readBody<{ content: string }>(event)
     const { id } = event.context.params!
-    
-    const { sql, parameters } = queryBuilder()
-    
-    sql.push('IF <record>$comment.user = <record>$user {')
-    sql.push('RETURN UPDATE <record>$comment SET')
-    sql.push('content = $content,')
-    sql.push('edited = true,')
-    sql.push('timeEdited = time::now()')
-    sql.push('}')
-    
-    parameters['comment'] = `comment:${id}`
-    parameters['content'] = content
-    parameters['user'] = auth.id
-    
-    return await queryOne<Comment>({ sql, parameters })
 
+    const comment = await new DatabaseQuery()
+        .addSql(`
+            IF $comment.user = $user {
+                RETURN UPDATE $comment SET
+                content = $content,
+                edited = true,
+                timeEdited = time::now()
+            }
+        `)
+        .addRecordId("comment", `comment:${id}`)
+        .addRecordId("user", auth.id)
+        .addParameter("content", content)
+        .queryOne<Comment>()
+
+    return comment.timeEdited
 })

@@ -3,7 +3,6 @@ import type { Audio } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
-    const baseUrl = useRuntimeConfig().public.baseUrl
 
     if (!data || !data[0]) {
         return createError({
@@ -30,26 +29,27 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const { sql, parameters } = queryBuilder()
-    sql.push('RETURN {')
-    
-    // TODO add event log for all token transactions
-    sql.push('UPDATE <record>$user SET')
-    sql.push('tokens -= $tokens;')
-    parameters['user'] = auth.id
+    const audio = await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                UPDATE $user SET
+                tokens -= $tokens;
 
-    sql.push('RETURN CREATE audio SET')
-    sql.push('user = $user,')
-    sql.push('type = $type,')
-    sql.push('tokens = $tokens,')
-    sql.push('time = time::now(),')
-    sql.push(`url = <future> { string::concat("${baseUrl}/cdn/audio/", meta::id(id)) };`)
-    parameters['type'] = type
-    parameters['tokens'] = tokens
-
-    sql.push('};')
-
-    const audio = await queryOne<Audio>({ sql, parameters })
+                RETURN CREATE audio SET
+                user = $user,
+                type = $type,
+                tokens = $tokens,
+                time = time::now(),
+                url = <future> {
+                    string::concat("${useRuntimeConfig().public.baseUrl}/cdn/audio/", record::id(id))
+                };
+            };
+        `)
+        .addRecordId('user', auth.id)
+        .addParameter('type', type)
+        .addParameter('tokens', tokens)
+        .queryOne<Audio>()
+        
     await writeMedia(audio, buffer, "audio")
     return { audio, tokens }
 })

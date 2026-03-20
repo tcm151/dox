@@ -6,11 +6,15 @@ export default defineEventHandler(async (event) => {
 
     const { id } = event.context.params!
     const { active } = await readBody<{ active: boolean }>(event)
-    
-    const { sql, parameters } = queryBuilder()
-    sql.push('UPDATE <record>$pin SET')
-    sql.push('active = $active')
-    parameters['pin'] = `pin:${id}`
-    parameters['active'] = active
-    return await queryOne<Pin>({ sql, parameters })
+
+    const pin =  await new DatabaseQuery()
+        .addSql(`
+            UPDATE $pin SET
+            active = $active
+        `)
+        .addRecordId("pin", `pin:${id}`)
+        .addParameter("active", active)
+        .queryOne<Pin>()
+
+    return pin.active
 })

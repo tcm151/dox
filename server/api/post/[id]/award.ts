@@ -4,37 +4,32 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
-    const { sql, parameters } = queryBuilder()
+    return await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                IF $post.user = $awarder {
+                    THROW "You cannot award your own posts...";
+                };
+                
+                UPDATE $post SET
+                votes.awards = array::union(votes.awards, [$awarder]);
+                
+                UPDATE $awarder SET
+                tokens -= 256;
+                
+                UPDATE $post.user SET
+                tokens += 256;
 
-    sql.push('RETURN {')
-    
-    sql.push('IF $post.user = $awarder {')
-    sql.push('THROW "You cannot award your own posts...";')
-    sql.push('};')
-    
-    sql.push('UPDATE <record>$post SET')
-    sql.push('votes.awards = array::union(votes.awards, [$awarder]);')
-    parameters['post'] = `post:${id}`
-    
-    // TODO add event log for all token transactions
-    sql.push('UPDATE <record>$awarder SET')
-    sql.push('tokens -= 256;')
-    parameters['awarder'] = auth.id
-    
-    sql.push('UPDATE <record>$post.user SET')
-    sql.push('tokens += 256;')
-
-    sql.push('CREATE notification SET')
-    sql.push('recipient = $post.user,')
-    sql.push('context = $post.id,')
-    sql.push('message = $message;')
-    parameters['message'] = [
-        `**${auth.name}** awarded your post`,
-        `> You gained 256 tokens. Don't forget to thank them!\n`,
-    ].join('\n')
-    
-    sql.push('RETURN SELECT * FROM <record>$post;')
-    sql.push('};')
-
-    return await queryOne<Post>({ sql, parameters })
+                CREATE notification SET
+                recipient = $post.user,
+                context = $post.id,
+                message = $message;
+                
+                RETURN SELECT * FROM $post;
+            };
+        `)
+        .addRecordId("post", `post:${id}`)
+        .addRecordId("awarder", auth.id)
+        .addParameter("message", `**${auth.name}** awarded your post\n> You gained 256 tokens. Don't forget to thank them!\n`)
+        .queryOne<Post>()
 })

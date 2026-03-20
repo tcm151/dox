@@ -2,14 +2,15 @@ import type { Notification } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT id, recipient, context, message, time, viewed')
-    sql.push('FROM notification')
-    sql.push('WHERE recipient = <record>$user')
-    sql.push('AND viewed = false')
-    sql.push('ORDER BY time DESC')
-    parameters['user'] = auth.id
-    
-    return await queryAll<Notification>({ sql, parameters })
+
+    return await new DatabaseQuery()
+        .addSql(`
+            SELECT id, recipient, context, message, time, viewed
+            FROM notification
+            WHERE recipient = $user
+            AND viewed = false
+            ORDER BY time DESC
+        `)
+        .addRecordId("user", auth.id)
+        .queryAll<Notification>()
 })

@@ -3,14 +3,16 @@ import type { User, Confirmation } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
-    const { sql, parameters } = queryBuilder()
-    sql.push('CREATE confirmation SET')
-    sql.push('user = $user,')
-    sql.push('time = time::now(),')
-    sql.push('used = false,')
-    sql.push('expired = <future> { time::now() > time + 15m }')
-    parameters['user'] = auth.id
-    const confirmation = await queryOne<Confirmation>({ sql, parameters })
+    const confirmation = await new DatabaseQuery()
+        .addSql(`
+            CREATE confirmation SET
+            user = $user,
+            time = time::now(),
+            used = false,
+            expired = <future> { time::now() > time + 15m }
+        `)
+        .addRecordId('user', auth.id)
+        .queryOne<Confirmation>()
 
     const { public: { baseUrl } } = useRuntimeConfig()
     let template = await useStorage("assets:server").getItem("templates/confirm-account.html") as string

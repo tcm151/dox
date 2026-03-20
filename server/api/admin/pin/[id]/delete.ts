@@ -5,9 +5,13 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, ["admin", "developer"])
     
     const { id } = event.context.params!
-    
-    const { sql, parameters } = queryBuilder()
-    sql.push('DELETE <record>$pin')
-    parameters['pin'] = `pin:${id}`
-    return await queryOne<Pin>({ sql, parameters })
+
+    await new DatabaseQuery()
+        .addSql(`
+            DELETE $pin
+        `)
+        .addRecordId("pin", `pin:${id}`)
+        .queryOne<Pin>()
+
+    return true
 })

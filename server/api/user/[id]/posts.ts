@@ -2,13 +2,16 @@ import type { Post } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT id, user.id, user.name, title, time, replyTo.id, replyTo.title,')
-    sql.push('topics, comments, votes, archived, images, visits')
-    sql.push('FROM post')
-    sql.push('WHERE user = <record>$user')
-    sql.push('ORDER BY time DESC')
-    sql.push('FETCH user, images')
-    parameters['user'] = `user:${id}`
-    return await queryAll<Post>({ sql, parameters })
+
+    return await new DatabaseQuery()
+        .addSql(`
+            SELECT id, user.id, user.name, title, time, replyTo.id, replyTo.title,
+            topics, comments, votes, archived, images, visits
+            FROM post
+            WHERE user = $user
+            ORDER BY time DESC
+            FETCH user, images
+        `)
+        .addRecordId("user", `user:${id}`)
+        .queryAll<Post>()
 })

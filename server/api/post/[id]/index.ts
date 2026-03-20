@@ -2,21 +2,22 @@ import type { Post } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
-    
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT id, user.id, user.name, title, content, time,')
-    sql.push('replyTo.id, replyTo.title, topics, votes, archived, edited, timeEdited, visits,')
-    sql.push('images,')
-    sql.push('(')
-    sql.push('SELECT id, time, user.id, user.name, post.id,')
-    sql.push('replyTo, content, votes, edited, deleted, timeEdited')
-    sql.push('FROM (<record>$post).comments')
-    sql.push('ORDER BY time DESC')
-    sql.push('FETCH user, post')
-    sql.push(') AS comments')
-    sql.push('FROM <record>$post')
-    sql.push('FETCH user, replyTo, images')
-    parameters['post'] = `post:${id}`
-    
-    return await queryOne<Post>({ sql, parameters })
+
+    return await new DatabaseQuery()
+        .addSql(`
+            SELECT id, user.id, user.name, title, content, time,
+            replyTo.id, replyTo.title, topics, votes, archived, edited, timeEdited, visits,
+            images,
+            (
+                SELECT id, time, user.id, user.name, post.id,
+                replyTo, content, votes, edited, deleted, timeEdited
+                FROM ($post).comments
+                ORDER BY time DESC
+                FETCH user, post
+            ) AS comments
+            FROM $post
+            FETCH user, replyTo, images
+        `)
+        .addRecordId("post", `post:${id}`)
+        .queryOne<Post>()
 })

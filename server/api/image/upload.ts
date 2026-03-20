@@ -30,26 +30,27 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const { sql, parameters } = queryBuilder()
-    sql.push('RETURN {')
-    
-    // TODO add event log for all token transactions
-    sql.push('UPDATE <record>$user SET')
-    sql.push('tokens -= $tokens;')
-    parameters['user'] = auth.id
-    parameters['tokens'] = tokens
+    const image = await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                UPDATE $user SET
+                tokens -= $tokens;
 
-    sql.push('RETURN CREATE image SET')
-    sql.push('user = $user,')
-    sql.push('type = $type,')
-    sql.push('tokens = $tokens,')
-    sql.push('time = time::now(),')
-    sql.push(`url = <future> { string::concat("${baseUrl}/cdn/image/", meta::id(id)) };`)
-    parameters['type'] = type
-
-    sql.push('};')
-
-    const image = await queryOne<Image>({ sql, parameters })
+                RETURN CREATE image SET
+                user = $user,
+                type = $type,
+                tokens = $tokens,
+                time = time::now(),
+                url = <future> {
+                    string::concat("${baseUrl}/cdn/image/", record::id(id))
+                };
+            };
+        `)
+        .addRecordId('user', auth.id)
+        .addParameter('tokens', tokens)
+        .addParameter('type', type)
+        .queryOne<Image>()
+        
     await writeMedia(image, buffer, "image")
     return { image, tokens }
 })

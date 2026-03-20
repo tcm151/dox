@@ -6,10 +6,11 @@ export default defineEventHandler(async (event) => {
     thread.user = auth.id
     thread.votes.positive = [auth.id]
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('CREATE thread')
-    sql.push('CONTENT $thread')
-    parameters['thread'] = thread
-    
-    return await queryOne<Thread>({ sql, parameters })
+    return await new DatabaseQuery()
+        .addSql(`
+            CREATE thread
+            CONTENT $thread
+        `)
+        .addParameter('thread', thread)
+        .queryOne<Thread>()
 })

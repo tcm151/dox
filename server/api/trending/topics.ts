@@ -1,16 +1,16 @@
 export default defineEventHandler(async (event) => {
-    var { sql } = queryBuilder()
-    sql.push('SELECT count(), topic')
-    
-    sql.push('FROM (')
-    sql.push('SELECT id, topics AS topic')
-    sql.push('FROM post')
-    sql.push('WHERE time > (time::now() - 26w)')
-    sql.push('SPLIT topic')
-    sql.push(')')
-    
-    sql.push('GROUP BY topic')
-    sql.push('ORDER BY count DESC')
-    sql.push('LIMIT 5')
-    return await queryAll<{ count: number, topic: string }>({ sql })
+    return await new DatabaseQuery()
+        .addSql(`
+            SELECT count(), topic
+            FROM (
+                SELECT id, topics AS topic
+                FROM post
+                WHERE time > (time::now() - 26w)
+                SPLIT topic
+            )
+            GROUP BY topic
+            ORDER BY count DESC
+            LIMIT 5
+        `)
+        .queryAll<{ count: number, topic: string }>()
 })

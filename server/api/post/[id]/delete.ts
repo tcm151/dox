@@ -4,33 +4,31 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
     const { id } = event.context.params!
-    
-    const { sql, parameters } = queryBuilder()
-    sql.push('RETURN {')
-    sql.push('IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {')
-    sql.push('THROW "You are not allowed to do this.";')
-    sql.push('};')
 
-    sql.push('FOR $topic IN $post.topics {')
-    sql.push('UPDATE <record>$topic')
-    sql.push('SET posts -= $post;')
-    sql.push('};')
-    
-    // TODO add event log for all token transactions
-    sql.push('FOR $image IN $post.images {')
-    sql.push('UPDATE <record>$post.user SET')
-    sql.push('tokens += $image.tokens;')
-    sql.push('DELETE <record>$image;')
-    sql.push('};')
-    
-    sql.push('DELETE <record>$post;')
-    sql.push('};')
+    return await new DatabaseQuery()
+        .addSql(`
+            RETURN {
+                IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {
+                    THROW "You are not allowed to do this.";
+                };
 
-    parameters['post'] = `post:${id}`
-    parameters['user'] = auth
+                FOR $topic IN $post.topics {
+                    UPDATE $topic
+                    SET posts -= $post;
+                };
+                
+                FOR $image IN $post.images {
+                    UPDATE $post.user SET
+                    tokens += $image.tokens;
+                    DELETE $image;
+                };
+                
+                DELETE $post;
+            };
+        `)
+        .addRecordId("post", `post:${id}`)
+        .addParameter("user", auth)
+        .execute()
 
-    return await queryAll<string>({ 
-        label: "Deleting a post",
-        sql, parameters
-     })
+    return true
 })

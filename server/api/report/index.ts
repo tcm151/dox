@@ -2,11 +2,13 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, ["admin", "moderator", "developer"])
 
-    var { sql } = queryBuilder()
-    sql.push('SELECT id, reporter.id, subject.id, time')
-    sql.push('FROM report')
-    sql.push('WHERE reporter.id AND subject.id')
-    sql.push('ORDER BY time DESC')
-    sql.push('FETCH reporter, subject')
-    return await queryAll<{ subject: string, reporter: string, time?: string }>({ sql })
+    return await new DatabaseQuery()
+        .addSql(`
+            SELECT id, reporter.id, subject.id, time
+            FROM report
+            WHERE reporter.id AND subject.id
+            ORDER BY time DESC
+            FETCH reporter, subject
+        `)
+        .queryAll<{ subject: string, reporter: string, time?: string }>()
 })
