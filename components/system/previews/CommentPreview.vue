@@ -90,8 +90,13 @@ async function deleteComment(commentId: string) {
                 <i class="fa-solid fa-user"></i>
                 {{ `${(comment.user as User).name}` }}
             </span>
-            <DurationTag :time="comment.time" />
-            <Tag :hidden="!comment.timeEdited" type="danger" icon="fa-eraser" :label="formatDate(comment.timeEdited)" />
+            <Tag v-if="comment.edited" type="info">
+                <i class="fa-solid fa-stopwatch"></i>
+                {{ formatDate(post.time) }}
+                <i class="fa-solid fa-eraser"></i>
+                {{ formatDate(post.timeEdited) }}
+            </Tag>
+            <DurationTag v-else :time="comment.time" />
             <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
             <ClientOnly>
                 <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">

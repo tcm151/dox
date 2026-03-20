@@ -4,10 +4,16 @@ import CommentSection from "./components/CommentSection.vue"
 import type { Post, Comment, User } from '~/types'
 
 const route = useRoute()
-const postId = route.params.postId?.toString()
+const cache = useCache()
+const id = route.params.postId?.toString()
 
-await useFetch(`/api/post/${postId}/visit`)
-const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${postId}`)
+await useFetch(`/api/post/${id}/visit`)
+const sortType = cache.get<string>("comments.sort", () => "new")
+const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${id}`, {
+    query: {
+        sortBy: sortType
+    }
+})
 
 useSeoMeta({
     ogType: "article",
@@ -41,7 +47,7 @@ async function updatePost(changedPost: Post | null) {
 
     try {
         submitting.value = true
-        await session.useApi(`/api/post/${postId}/edit`, { content: post.value?.content })
+        await session.useApi(`/api/post/${id}/edit`, { content: post.value?.content })
         post.value!.edited = true
         toggleEditPost()
     }
@@ -58,7 +64,7 @@ async function deletePost() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your post?',
         accept: async () => {
-            await session.useApi(`/api/post/${postId}/delete`)
+            await session.useApi(`/api/post/${id}/delete`)
             hints.addSuccess("Successfully deleted post.")
             return navigateTo("/feed")
         },
@@ -118,7 +124,7 @@ async function awardPost() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this post? It will cost 256 tokens.',
         accept: async () => {
-            await session.useApi(`/api/post/${postId}/award`)
+            await session.useApi(`/api/post/${id}/award`)
             hints.addSuccess("Successfully awarded post.")
             await refresh()
         },
@@ -134,18 +140,18 @@ function writePostReply() {
 }
 
 async function reportPost() {
-    await session.useApi(`/api/post/${postId}/report`)
+    await session.useApi(`/api/post/${id}/report`)
     hints.addError("This post has been reported to the development team.")
 }
 
 async function archivePost() {
-    await session.useApi(`/api/post/${postId}/archive`)
+    await session.useApi(`/api/post/${id}/archive`)
     hints.addSuccess("This post has been archived.")
     await refresh()
 }
 
 async function pinPost() {
-    await session.useApi(`/api/post/${postId}/pin`)
+    await session.useApi(`/api/post/${id}/pin`)
     hints.addSuccess("This post has been pinned.")
 }
 
@@ -254,7 +260,12 @@ function toggleOptions() {
                 
             </section>
         </div>
-        <CommentSection :post="post" :loading="status" @refresh="refresh" />
+        <CommentSection
+            :post="post"
+            :sort-type="sortType"
+            :loading="status"
+            @refresh="(type) => sortType = type"
+        />
     </article>
 </template>
 

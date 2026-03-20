@@ -3,20 +3,13 @@ import type { Post, Comment } from '~/types'
 
 const props = defineProps<{
     post: Post
+    sortType: string
     loading: string
 }>()
 
 const emit = defineEmits<{
-    (event: 'refresh'): void
+    (event: 'refresh', sortBy: string): void
 }>()
-
-const cache = useCache()
-
-const sortType = cache.get("comments.sortType", () => "new")
-function sort(type: string) {
-    sortType.value = type
-    sortList(props.post.comments as Comment[], sortType.value)
-}
 
 const spinRefresh = ref(false)
 watch(() => props.loading, (status) => {
@@ -33,18 +26,18 @@ watch(() => props.loading, (status) => {
 <template>
     <section class="comments p-5" v-if="post && post.comments.length > 0">
         <header class="sorting row g-1 mb-3">
-            <button class="refresh dark" @click="emit('refresh')">
+            <button class="refresh dark" @click="emit('refresh', sortType)">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
-            <button class="fill" @click="sort('new')" :class="{ selected: sortType === 'new' }">
+            <button class="fill" @click="emit('refresh', 'new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
                 <span>New</span>
             </button>
-            <button class="fill" @click="sort('hot')" :class="{ selected: sortType === 'hot' }">
+            <button class="fill" @click="emit('refresh', 'hot')" :class="{ selected: sortType === 'hot' }">
                 <i class="fa-solid fa-fire"></i>
                 <span>Hot</span>
             </button>
-            <button class="fill" @click="sort('top')" :class="{ selected: sortType === 'top' }">
+            <button class="fill" @click="emit('refresh', 'top')" :class="{ selected: sortType === 'top' }">
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Top</span>
             </button>
@@ -55,7 +48,7 @@ watch(() => props.loading, (status) => {
             :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)"
         >
             <template #item="{ item: comment }">
-                <CommentPreview :comment="comment" :post="post" @refresh="emit('refresh')" />
+                <CommentPreview :comment="comment" :post="post" @refresh="emit('refresh', sortType)" />
             </template>
         </Tree>
     </section>
