@@ -16,7 +16,6 @@
         "@types/sanitize-html": "^2.16.0",
         "@vueuse/core": "^14.1.0",
         "@vueuse/nuxt": "^14.1.0",
-        "baseline-browser-mapping": "^2.10.9",
         "nuxt": "^4.2.1"
     },
     "dependencies": {
