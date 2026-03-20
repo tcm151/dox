@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, recipient, context, message, time, viewed')
     sql.push('FROM notification')
-    sql.push('WHERE recipient = $user')
+    sql.push('WHERE recipient = <record>$user')
     sql.push('AND viewed = false')
     sql.push('ORDER BY time DESC')
     parameters['user'] = auth.id

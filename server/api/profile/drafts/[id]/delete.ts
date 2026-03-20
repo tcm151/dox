@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     sql.push('THROW "You are not allowed to do this.";')
     sql.push('};')
 
-    sql.push('DELETE $draft;')
+    sql.push('DELETE <record>$draft;')
     sql.push('RETURN true;')
 
     parameters['draft'] = `draft:${id}`

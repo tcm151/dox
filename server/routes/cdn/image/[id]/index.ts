@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')
-    sql.push('FROM $image')
+    sql.push('FROM <record>$image')
     sql.push('FETCH user')
     parameters['image'] = `image:${id}`
     const image = await queryOne<Image>({ sql, parameters })

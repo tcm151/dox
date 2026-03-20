@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     sql.push('RETURN {')
     
     // TODO add event log for all token transactions
-    sql.push('UPDATE $user SET')
+    sql.push('UPDATE <record>$user SET')
     sql.push('tokens -= $tokens;')
     parameters['user'] = auth.id
 

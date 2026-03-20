@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
     let { id } = event.context.params!
     var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE $thread')
+    sql.push('UPDATE <record>$thread')
     sql.push('SET replies += $reply')
     parameters['thread'] = `thread:${id}`
     parameters['reply'] = thread.id

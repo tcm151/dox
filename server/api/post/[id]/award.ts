@@ -12,16 +12,16 @@ export default defineEventHandler(async (event) => {
     sql.push('THROW "You cannot award your own posts...";')
     sql.push('};')
     
-    sql.push('UPDATE $post SET')
+    sql.push('UPDATE <record>$post SET')
     sql.push('votes.awards = array::union(votes.awards, [$awarder]);')
     parameters['post'] = `post:${id}`
     
     // TODO add event log for all token transactions
-    sql.push('UPDATE $awarder SET')
+    sql.push('UPDATE <record>$awarder SET')
     sql.push('tokens -= 256;')
     parameters['awarder'] = auth.id
     
-    sql.push('UPDATE $post.user SET')
+    sql.push('UPDATE <record>$post.user SET')
     sql.push('tokens += 256;')
 
     sql.push('CREATE notification SET')
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         `> You gained 256 tokens. Don't forget to thank them!\n`,
     ].join('\n')
     
-    sql.push('RETURN SELECT * FROM $post;')
+    sql.push('RETURN SELECT * FROM <record>$post;')
     sql.push('};')
 
     return await queryOne<Post>({ sql, parameters })

@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const user = await readBody<User>(event)
     
     var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE $user SET')
+    sql.push('UPDATE <record>$user SET')
     sql.push('link = $link,')
     sql.push('description = $description')
     

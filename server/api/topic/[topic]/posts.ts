@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     sql.push('replyTo.id, replyTo.title, topics, comments, votes,')
     sql.push('archived, images, visits')
     sql.push('FROM post')
-    sql.push('WHERE topics CONTAINS $topic')
+    sql.push('WHERE topics CONTAINS <record>$topic')
     sql.push('FETCH user, replyTo, images')
     parameters['topic'] = `topic:${topic}`
     return await queryAll<Post>({ sql, parameters })

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
     sql.push('IF $user != NONE {')
     parameters['user'] = `user:${referral}`
-    sql.push('UPDATE $user SET tokens += 1024;')
+    sql.push('UPDATE <record>$user SET tokens += 1024;')
     sql.push('};')
     
     sql.push('CREATE notification SET')

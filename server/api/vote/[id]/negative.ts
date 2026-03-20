@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
     var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE $item SET')
+    sql.push('UPDATE <record>$item SET')
     sql.push('votes.positive -= $user,')
     sql.push('votes.misleading -= $user,')
     sql.push('votes.negative = array::union(votes.negative, [$user])')

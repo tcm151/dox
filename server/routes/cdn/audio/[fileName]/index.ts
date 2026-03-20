@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')
-    sql.push('FROM $audio')
+    sql.push('FROM <record>$audio')
     sql.push('FETCH user')
     parameters['audio'] = `audio:${id}`
     const audio = await queryOne<Audio>({ sql, parameters })

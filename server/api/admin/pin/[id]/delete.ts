@@ -7,8 +7,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     
     const { sql, parameters } = queryBuilder()
-    sql.push('DELETE pin')
-    sql.push('WHERE id = <record>$pin')
+    sql.push('DELETE <record>$pin')
     parameters['pin'] = `pin:${id}`
     return await queryOne<Pin>({ sql, parameters })
 })

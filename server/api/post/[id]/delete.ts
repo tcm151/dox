@@ -12,18 +12,18 @@ export default defineEventHandler(async (event) => {
     sql.push('};')
 
     sql.push('FOR $topic IN $post.topics {')
-    sql.push('UPDATE $topic')
+    sql.push('UPDATE <record>$topic')
     sql.push('SET posts -= $post;')
     sql.push('};')
     
     // TODO add event log for all token transactions
     sql.push('FOR $image IN $post.images {')
-    sql.push('UPDATE $post.user SET')
+    sql.push('UPDATE <record>$post.user SET')
     sql.push('tokens += $image.tokens;')
-    sql.push('DELETE $image;')
+    sql.push('DELETE <record>$image;')
     sql.push('};')
     
-    sql.push('DELETE $post;')
+    sql.push('DELETE <record>$post;')
     sql.push('};')
 
     parameters['post'] = `post:${id}`

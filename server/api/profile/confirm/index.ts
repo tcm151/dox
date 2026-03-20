@@ -13,9 +13,9 @@ export default defineEventHandler(async (event) => {
     sql.push('THROW "This confirmation has already been used.";')
     sql.push('};')
 
-    sql.push('UPDATE $confirmation.user SET')
+    sql.push('UPDATE <record>$confirmation.user SET')
     sql.push('traits = array::union(traits, ["confirmed"]);')
-    sql.push('UPDATE $confirmation SET')
+    sql.push('UPDATE <record>$confirmation SET')
     sql.push('used = true;')
     
     sql.push('RETURN $confirmation.user.traits;')

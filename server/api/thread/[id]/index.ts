@@ -11,11 +11,11 @@ export default defineEventHandler(async (event) => {
     sql.push('SELECT id, user.id, user.name, content, time, edited, timeEdited,')
     sql.push('replyTo.id, replyTo.content, topics, replies, votes,  visits,')
     sql.push('images')
-    sql.push('FROM $thread.replies')
+    sql.push('FROM (<record>$thread).replies')
     sql.push('ORDER BY time DESC')
     sql.push('FETCH user, thread')
     sql.push(') AS replies')
-    sql.push('FROM $thread')
+    sql.push('FROM <record>$thread')
     sql.push('FETCH user, replyTo, images')
     parameters['thread'] = `thread:${id}`
     

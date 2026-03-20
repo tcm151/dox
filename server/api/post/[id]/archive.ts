@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     
     var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE $post SET')
+    sql.push('UPDATE <record>$post SET')
     sql.push('archived = !archived')
     parameters['post'] = `post:${id}`
     parameters['user'] = auth.id

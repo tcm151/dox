@@ -5,8 +5,7 @@ export default defineEventHandler(async (event) => {
 
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT id, user.id, user.name, votes, type, tokens, time, url')
-    sql.push('FROM image')
-    sql.push('WHERE id = $image')
+    sql.push('FROM <record>$image')
     sql.push('FETCH user')
     parameters['image'] = `image:${id}`
 

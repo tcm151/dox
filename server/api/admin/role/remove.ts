@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     let { user, role } = await readBody<{ user: string, role: string }>(event)
 
     const { sql, parameters } = queryBuilder()
-    sql.push('UPDATE $user SET')
+    sql.push('UPDATE <record>$user SET')
     sql.push('roles = array::difference(roles, [$role]);')
     parameters['user'] = user
     parameters['role'] = role

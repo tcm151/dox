@@ -6,10 +6,10 @@ export default defineEventHandler(async (event) => {
 
     sql.push('RETURN {')
 
-    sql.push('UPDATE $user SET')
+    sql.push('UPDATE <record>$user SET')
     sql.push('following = array::difference(following, [$follower]);')
 
-    sql.push('UPDATE $follower SET')
+    sql.push('UPDATE <record>$follower SET')
     sql.push('followers = array::difference(followers, [$user]);')
     
     sql.push('RETURN true;')

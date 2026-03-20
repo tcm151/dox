@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     }>(event)
 
     var { sql, parameters } = queryBuilder()
-    sql.push('SELECT * FROM $passwordReset')
+    sql.push('SELECT * FROM <record>$passwordReset')
     sql.push('FETCH user')
     parameters['passwordReset'] = `passwordReset:${body.resetId}`
     const passwordReset = await queryOne<PasswordReset>({ sql, parameters })
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
     sql.push('WHERE email = $email;')
     parameters['email'] = body.email
     parameters['password'] = body.password
-    sql.push('UPDATE $passwordReset SET')
+    sql.push('UPDATE <record>$passwordReset SET')
     sql.push('used = true;')
     parameters['passwordReset'] = `passwordReset:${body.resetId}`
     return await complexQuery({ sql, parameters })

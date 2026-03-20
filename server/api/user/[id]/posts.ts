@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     sql.push('SELECT id, user.id, user.name, title, time, replyTo.id, replyTo.title,')
     sql.push('topics, comments, votes, archived, images, visits')
     sql.push('FROM post')
-    sql.push('WHERE user = $user')
+    sql.push('WHERE user = <record>$user')
     sql.push('ORDER BY time DESC')
     sql.push('FETCH user, images')
     parameters['user'] = `user:${id}`

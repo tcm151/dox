@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!
 
     var { sql, parameters } = queryBuilder()
-    sql.push('UPDATE $user SET')
+    sql.push('UPDATE <record>$user SET')
     sql.push('topics = array::union(topics, [$topic])')
     parameters['user'] = auth.id
     parameters['topic'] = `topic:${topic}`

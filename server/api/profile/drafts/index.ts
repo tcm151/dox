@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     var { sql, parameters } = queryBuilder()
     sql.push('SELECT *')
     sql.push('FROM draft')
-    sql.push('WHERE user = $user')
+    sql.push('WHERE user = <record>$user')
     sql.push('ORDER BY time DESC')
     parameters['user'] = auth.id
     return await queryAll<Draft>({ sql, parameters })
