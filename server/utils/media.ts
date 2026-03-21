@@ -44,7 +44,7 @@ type MediaType = "image" | "audio"
 
 export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaType) {
     try {
-        fs.writeFileSync(`./media/${mediaType}/${extractId(media.id)}.${media.type}`, buffer, {
+        fs.writeFileSync(`./media/${mediaType}/${media.id.toString().split(":").at(1)}.${media.type}`, buffer, {
             flag: "w+"
         })
     }

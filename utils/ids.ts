@@ -1,3 +1,3 @@
-export function extractId(id: string | undefined) {
-    return id?.split(':')[1] ?? "null"
+export function extractId(id: string) {
+    return id.toString().split(":").at(1)
 }

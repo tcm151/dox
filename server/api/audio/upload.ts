@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // TODO: make this configurable by the admin
+    // TODO make this configurable by the admin
     if (data[0].data.byteLength > 100_000_000) {
         return createError({
             statusCode: 400,
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
                 type = $type,
                 tokens = $tokens,
                 time = time::now(),
-                origin = $origin
+                origin = $origin;
             };
         `)
         .addRecord('user', auth.id)

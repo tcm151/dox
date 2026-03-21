@@ -3,7 +3,6 @@ import type { Image } from "~/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
-    const baseUrl = useRuntimeConfig().public.baseUrl
 
     if (!data || !data[0]) {
         return createError({
@@ -39,8 +38,8 @@ export default defineEventHandler(async (event) => {
                 RETURN CREATE image SET
                 user = $user,
                 type = $type,
-                tokens = $tokens
-                origin = $origin
+                tokens = $tokens,
+                origin = $origin;
             };
         `)
         .addRecord('user', auth.id)
@@ -48,7 +47,7 @@ export default defineEventHandler(async (event) => {
         .addParameter('type', type)
         .addParameter("origin", useRuntimeConfig().public.baseUrl)
         .queryOne<Image>()
-        
+
     await writeMedia(image, buffer, "image")
     return { image, tokens }
 })
