@@ -2,44 +2,46 @@ import { Surreal, createRemoteEngines, RecordId, BoundQuery } from 'surrealdb'
 import { createNodeEngines } from '@surrealdb/node';
 
 const config = useRuntimeConfig()
-// if (config.surreal.url == "" || !config.surreal.url.includes("/rpc")) {
-//     throw createError({
-//         statusCode: 500,
-//         statusMessage: `Database URL was [${config.surreal.url ?? "empty"}]. Check environment variables.`
-//     })
-// }
-
 export let SurrealInstance: Surreal
 
 (async () => {
     if (config.surreal.type == "remote") {
+        if (config.surreal.url == "" || !config.surreal.url.includes("/rpc")) {
+            throw createError({
+                statusCode: 500,
+                statusMessage: `Database URL was [${config.surreal.url ?? "empty"}]. Check environment variables.`
+            })
+        }
         SurrealInstance = new Surreal();
-        openConnection(SurrealInstance)
+        console.log("Connecting to remote instance...")
+        await SurrealInstance.connect(config.surreal.url, {
+            namespace: config.surreal.namespace,
+            database: config.surreal.database,
+            authentication: {
+                username: config.surreal.username,
+                password: config.surreal.password,
+            }
+        })
+        await SurrealInstance.ready
+        console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
     }
     else if (config.surreal.type == "embedded") {
+        console.log("Starting embedded instance...")
         SurrealInstance = new Surreal({
             engines: {
                 ...createRemoteEngines(),
                 ...createNodeEngines(),
             },
         });
-        openConnection(SurrealInstance)
+        console.log("Connecting to embedded instance...")
+        await SurrealInstance.connect(config.surreal.url, {
+            namespace: config.surreal.namespace,
+            database: config.surreal.database,
+        })
+        await SurrealInstance.ready
+        console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
     }
 })()
-
-async function openConnection(instance: Surreal) {
-    await instance.connect(config.surreal.url, {
-        namespace: config.surreal.namespace,
-        database: config.surreal.database,
-        authentication: {
-            username: config.surreal.username,
-            password: config.surreal.password,
-        }
-    })
-
-    await instance.ready
-    console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url                                                                                    }`)
-}
 
 export class DatabaseQuery {
     #sql: string[] = []
