@@ -39,7 +39,7 @@ events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: User, clear: b
 })
 
 const waiting = ref<string>("")
-async function switchProfile(profile: Profile) {
+async function useLogin(profile: Profile) {
     try {
         waiting.value = profile.id
         await session.authenticate(profile.token)
@@ -55,7 +55,11 @@ async function switchProfile(profile: Profile) {
     }
 }
 
-function newProfile() {
+function removeLogin(profile: Profile) {
+    accounts.value = accounts.value.filter(a => a.id != profile.id)
+}
+
+function newLogin() {
     events.publish(Trigger.toggleUserManager)
     events.publish(Trigger.toggleLogin)
 }
@@ -70,17 +74,16 @@ function newProfile() {
     >
         <main class="column g-2">
             <div class="row g-2" v-for="user in otherAccounts">
-                <button class="info f-1">
-                    <i class="fa-solid fa-user"></i>
+                <ButtonSpinner class="info f-1" :loading="waiting == user.id" @click="useLogin(user)">
                     <span>{{ user.name }}</span>
-                </button>
-                <ButtonSpinner class="link" :loading="waiting == user.id" @click="switchProfile(user)">
-                    <i class="fa-solid fa-right-from-bracket"></i>
                 </ButtonSpinner>
+                <Button class="link" @click="removeLogin(user)">
+                    <i class="fa-solid fa-trash"></i>
+                </Button>
             </div>
-            <button class="link" @click="newProfile">
+            <button class="link" @click="newLogin">
                 <i class="fa-solid fa-plus"></i>
-                <span>New Profile</span>
+                <span>New Login</span>
             </button>
         </main>
     </Window>
