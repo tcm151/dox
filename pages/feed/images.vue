@@ -49,19 +49,19 @@ function viewImage(image: Image) {
 
 <template>
     <article class="column g-4 p-4">
-        <ClientOnly>
-            <header class="tools box row center-inline g-2 p-4">
-                <button class="success" @click="refresh()">
-                    <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
-                    <span>Refresh</span>
-                </button>
+        <header class="tools box row center-inline g-2 p-4">
+            <button class="success" @click="refresh()">
+                <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
+                <span>Refresh</span>
+            </button>
+            <ClientOnly>
                 <button class="link fill" @click="selectImages()"  v-if="hasTrait(session.user, 'confirmed')">
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
                 <MediaUploader :visible="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
-            </header>
-        </ClientOnly>
+            </ClientOnly>
+        </header>
         <section class="all-images fill row-wrap g-2">
             <div class="image fill" v-for="image in images" @click="viewImage(image)">
                 <img :src="image.url">

@@ -45,19 +45,19 @@ function viewAudio(audio: Audio) {
 
 <template>
     <article class="column g-4 p-4">
-        <ClientOnly>
-            <header class="tools box row center-inline g-2 p-4">
-                <button class="success" @click="refresh()">
-                    <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
-                    <span>Refresh</span>
-                </button>
-                <button class="link fill" @click="selectAudio()"  v-if="hasTrait(session.user, 'confirmed')">
+        <header class="tools box row center-inline g-2 p-4">
+            <button class="success" @click="refresh()">
+                <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
+                <span>Refresh</span>
+            </button>
+            <ClientOnly>
+                <button v-if="hasTrait(session.user, 'confirmed')" class="link fill" @click="selectAudio()">
                     <i class="fa-solid fa-microphone"></i>
                     <span>Upload</span>
                 </button>
                 <MediaUploader :visible="confirmUpload" :loading="uploading" :media="files" @accept="beginUpload" @close="reset" />
-            </header>
-        </ClientOnly>
+            </ClientOnly>
+        </header>
         <section class="column g-2">
             <div class="audio" v-for="a in audio">
                 <audio controls :src="a.url" />

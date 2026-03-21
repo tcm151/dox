@@ -38,13 +38,13 @@ async function reportImage() {
     <article class="p-4">
         <section class="box p-4" v-if="image">
             <header class="row-wrap g-1 mb-2">
+                <Votes :target="image" />
+                <UserTag class="f-1" :user="(image.user as User)" />
+                <DurationTag :time="image.time" />
+                <Tag type="info" icon="fa-image" :label="image.type" />
+                <Tag type="warning" icon="fa-cube" :label="`${image.tokens} tokens`" />
+                <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
                 <ClientOnly>
-                    <Votes :target="image" />
-                    <UserTag class="f-1" :user="(image.user as User)" />
-                    <DurationTag :time="image.time" />
-                    <Tag type="info" icon="fa-image" :label="image.type" />
-                    <Tag type="warning" icon="fa-cube" :label="`${image.tokens} tokens`" />
-                    <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
                     <Tag
                         v-if="session.user.id == (image.user as User).id || hasRole(session.user, 'admin')"
                         type="danger"

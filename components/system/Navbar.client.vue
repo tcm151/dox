@@ -34,61 +34,57 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
                 <i class="fa-solid fa-box-archive"></i>
                 <span>{{ site.titleShort.toUpperCase() }}</span>
             </NuxtLink>
-            <ClientOnly>
-                <NuxtLink to="/feed" title="Feed">
-                    <i class="fa-solid fa-signs-post"></i>
-                    <span>Feeds</span>
-                </NuxtLink>
-                <NuxtLink to="/admin" v-if="showAdmin" title="Admin">
-                    <i class="fa-solid fa-shield"></i>
-                    <span>Admin</span>
-                </NuxtLink>
-                <NuxtLink to="/developer" v-if="showDeveloper" title="Developer">
-                    <i class="fa-solid fa-code"></i>
-                    <span>Developer</span>
-                </NuxtLink>
-                <NuxtLink to="/store" v-if="showStore" title="Store">
-                    <i class="fa-solid fa-coins"></i>
-                </NuxtLink>
-                <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
-                    <i class="fa-solid fa-keyboard"></i>
-                </NuxtLink>
-                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
-                    <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
-                </Window>
-            </ClientOnly>
+            <NuxtLink to="/feed" title="Feed">
+                <i class="fa-solid fa-signs-post"></i>
+                <span>Feeds</span>
+            </NuxtLink>
+            <NuxtLink to="/admin" v-if="showAdmin" title="Admin">
+                <i class="fa-solid fa-shield"></i>
+                <span>Admin</span>
+            </NuxtLink>
+            <NuxtLink to="/developer" v-if="showDeveloper" title="Developer">
+                <i class="fa-solid fa-code"></i>
+                <span>Developer</span>
+            </NuxtLink>
+            <NuxtLink to="/store" v-if="showStore" title="Store">
+                <i class="fa-solid fa-coins"></i>
+            </NuxtLink>
+            <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
+                <i class="fa-solid fa-keyboard"></i>
+            </NuxtLink>
+            <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
+                <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
+            </Window>
         </section>
-        <ClientOnly>
-            <Transition name="slide">
-                <section class="right row authenticated" v-if="session.isAuthenticated">
-                    <NuxtLink to="/editor">
-                        <i class="fa-solid fa-feather-pointed"></i>
-                        <span>Submit</span>
-                    </NuxtLink>
-                    <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
-                        <i class="fa-solid fa-inbox"></i>
-                        <span>Inbox</span>
-                    </NuxtLink>
-                    <NuxtLink to="/profile" @contextmenu.prevent="toggleUserManager">
-                        <i class="fa-solid fa-user"></i>
-                        <span>{{ session.user?.name }}</span>
-                    </NuxtLink>
-                    <NuxtLink @click="session.logout(true)" @contextmenu.prevent="session.logout(false)" title="Logout">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </NuxtLink>
-                </section>
-                <section class="right row anonymous" v-else>
-                    <NuxtLink @click="login">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Login</span>
-                    </NuxtLink>
-                    <NuxtLink to="/register">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Register</span>
-                    </NuxtLink>
-                </section>
-            </Transition>
-        </ClientOnly>
+        <Transition name="slide">
+            <section class="right row authenticated" v-if="session.isAuthenticated">
+                <NuxtLink to="/editor">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>Submit</span>
+                </NuxtLink>
+                <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>Inbox</span>
+                </NuxtLink>
+                <NuxtLink to="/profile" @contextmenu.prevent="toggleUserManager">
+                    <i class="fa-solid fa-user"></i>
+                    <span>{{ session.user?.name }}</span>
+                </NuxtLink>
+                <NuxtLink @click="session.logout(true)" @contextmenu.prevent="session.logout(false)" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </NuxtLink>
+            </section>
+            <section class="right row anonymous" v-else>
+                <NuxtLink @click="login">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Login</span>
+                </NuxtLink>
+                <NuxtLink to="/register">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Register</span>
+                </NuxtLink>
+            </section>
+        </Transition>
     </nav>
 </template>
 

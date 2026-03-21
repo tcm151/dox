@@ -29,9 +29,7 @@ const tabs = ref<any[]>([
 
 <template>
     <article class="feed column center-inline">
-        <ClientOnly>
-            <PagedTabstrip :tabs="tabs" />
-        </ClientOnly>
+        <PagedTabstrip :tabs="tabs" />
         <section class="page column center-inline">
             <NuxtPage :key="route.path" />
         </section>

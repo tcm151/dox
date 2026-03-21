@@ -69,44 +69,42 @@ function copyLink() {
                 <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
             </header>
             <Markdown class="content" :content="thread.content" />
-            <ClientOnly>
-                <footer>
-                    <div class="fill row-wrap g-1" v-if="!showReplyBox">
-                        <button class="fill" @click="toggleReply()">
-                            <i class="fa-solid fa-reply-all"></i>
-                            <span>Reply</span>
-                        </button>
-                        <button class="fill">
-                            <i class="fa-solid fa-quote-left"></i>
-                            <span>Quote</span>
-                        </button>
-                        <button class="fill" @click="copyLink">
-                            <i class="fa-solid fa-copy"></i>
-                            <span>Share</span>
-                        </button>
-                        <button class="fill" @click="submitReport(thread.id)">
-                            <i class="fa-solid fa-flag"></i>
-                            <span>Report</span>
-                        </button>
-                        <button>
-                            <i class="fa-solid fa-ellipsis"></i>
+            <footer>
+                <div class="fill row-wrap g-1" v-if="!showReplyBox">
+                    <button class="fill" @click="toggleReply()">
+                        <i class="fa-solid fa-reply-all"></i>
+                        <span>Reply</span>
+                    </button>
+                    <button class="fill">
+                        <i class="fa-solid fa-quote-left"></i>
+                        <span>Quote</span>
+                    </button>
+                    <button class="fill" @click="copyLink">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>Share</span>
+                    </button>
+                    <button class="fill" @click="submitReport(thread.id)">
+                        <i class="fa-solid fa-flag"></i>
+                        <span>Report</span>
+                    </button>
+                    <button>
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                </div>
+                <div class="field" v-else-if="showReplyBox">
+                    <textarea rows="5" v-model="reply"></textarea>
+                    <div class="row g-2 mt-2">
+                        <ButtonSpinner class="success fill" :loading="submitting" @click="submitReply">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Submit</span>
+                        </ButtonSpinner>
+                        <button class="danger" @click="toggleReply()">
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
                         </button>
                     </div>
-                    <div class="field" v-else-if="showReplyBox">
-                        <textarea rows="5" v-model="reply"></textarea>
-                        <div class="row g-2 mt-2">
-                            <ButtonSpinner class="success fill" :loading="submitting" @click="submitReply">
-                                <i class="fa-solid fa-message"></i>
-                                <span>Submit</span>
-                            </ButtonSpinner>
-                            <button class="danger" @click="toggleReply()">
-                                <i class="fa-solid fa-ban"></i>
-                                <span>Cancel</span>
-                            </button>
-                        </div>
-                    </div>
-                </footer>
-            </ClientOnly>
+                </div>
+            </footer>
         </section>
         <section class="column g-2 mt-2">
             <template v-for="reply in thread.replies">

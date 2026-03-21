@@ -194,24 +194,26 @@ function toggleOptions() {
                     class="content my-4"
                     :content="post.content" 
                 />
-                <div v-if="editingPost && (post.user as User).id === session.user.id" class="field my-4">
-                    <textarea rows="10" v-model="post.content" />
-                </div>
                 <ClientOnly>
-                    <footer class="column g-2">
-                        <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
-                            <button class="comment" @click="toggleCommentBox">
-                                <i class="fa-solid fa-message"></i>
-                                <span>Comment</span>
-                            </button>
-                            <button class="reply" @click="writePostReply">
-                                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                                <span>Reply</span>
-                            </button>
-                            <button class="share" @click="copyLink">
-                                <i class="fa-solid fa-copy"></i>
-                                <span>Share</span>
-                            </button>
+                    <div v-if="editingPost && (post.user as User).id === session.user.id" class="field my-4">
+                        <textarea rows="10" v-model="post.content" />
+                    </div>
+                </ClientOnly>
+                <footer class="column g-2">
+                    <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
+                        <button class="comment" @click="toggleCommentBox">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="reply" @click="writePostReply">
+                            <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                            <span>Reply</span>
+                        </button>
+                        <button class="share" @click="copyLink">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Share</span>
+                        </button>
+                        <ClientOnly>
                             <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
@@ -226,38 +228,37 @@ function toggleOptions() {
                                 @pin="pinPost"
                                 @close="showOptions = false"
                             />
-                        </div>
-                        <div class="row g-1" v-else-if="editingPost">
-                            <ButtonSpinner class="success fill" :loading="submitting" @click="updatePost(post)">
-                                <i class="fa-solid fa-folder-open"></i>
-                                <span>Save</span>
+                        </ClientOnly>
+                    </div>
+                    <div class="row g-1" v-else-if="editingPost">
+                        <ButtonSpinner class="success fill" :loading="submitting" @click="updatePost(post)">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>Save</span>
+                        </ButtonSpinner>
+                        <!-- <button class="info fill" @click="togglePreview">
+                            <i class="fa-solid fa-eye" v-if="!showPreview"></i>
+                            <i class="fa-solid fa-eye-slash" v-else></i>
+                            <span>Preview</span>
+                        </button> -->
+                        <button class="danger" @click="toggleEditPost()">
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                    <div class="field" v-else-if="showCommentBox">
+                        <textarea rows="5" v-model="comment"></textarea>
+                        <div class="row g-2 mt-2">
+                            <ButtonSpinner class="success fill" :loading="submitting" @click="submitComment(post, comment)">
+                                <i class="fa-solid fa-message"></i>
+                                <span>Submit</span>
                             </ButtonSpinner>
-                            <!-- <button class="info fill" @click="togglePreview">
-                                <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                                <i class="fa-solid fa-eye-slash" v-else></i>
-                                <span>Preview</span>
-                            </button> -->
-                            <button class="danger" @click="toggleEditPost()">
+                            <button class="danger" @click="toggleCommentBox">
                                 <i class="fa-solid fa-ban"></i>
                                 <span>Cancel</span>
                             </button>
                         </div>
-                        <div class="field" v-else-if="showCommentBox">
-                            <textarea rows="5" v-model="comment"></textarea>
-                            <div class="row g-2 mt-2">
-                                <ButtonSpinner class="success fill" :loading="submitting" @click="submitComment(post, comment)">
-                                    <i class="fa-solid fa-message"></i>
-                                    <span>Submit</span>
-                                </ButtonSpinner>
-                                <button class="danger" @click="toggleCommentBox">
-                                    <i class="fa-solid fa-ban"></i>
-                                    <span>Cancel</span>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </ClientOnly>
-                
+                    </div>
+                </footer>
             </section>
         </div>
         <CommentSection
@@ -319,7 +320,6 @@ div.interactions {
             }
         }
     }
-
 }
 
 header.tags {
