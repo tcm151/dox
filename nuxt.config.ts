@@ -76,6 +76,13 @@ export default defineNuxtConfig({
                 'html-entities',
                 'highlight.js/lib/common',
             ],
+        },
+        server: {
+            watch: {
+                ignored: [
+                    '~/server/utils.database.ts',
+                ]
+            }
         }
     },
     runtimeConfig: {
