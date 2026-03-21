@@ -1,95 +1,50 @@
-import { Surreal, RecordId, BoundQuery } from 'surrealdb'
+import { Surreal, createRemoteEngines, RecordId, BoundQuery } from 'surrealdb'
+import { createNodeEngines } from '@surrealdb/node';
 
-const { surreal } = useRuntimeConfig()
-if (surreal.url == "" || !surreal.url.includes("/rpc")) {
-    throw createError({
-        statusCode: 500,
-        statusMessage: `Database URL was [${surreal.url ?? "empty"}]. Check environment variables.`
-    })
-}
+const config = useRuntimeConfig()
+// if (config.surreal.url == "" || !config.surreal.url.includes("/rpc")) {
+//     throw createError({
+//         statusCode: 500,
+//         statusMessage: `Database URL was [${config.surreal.url ?? "empty"}]. Check environment variables.`
+//     })
+// }
 
-const serverInstance = new Surreal();
+export let SurrealInstance: Surreal
+
 (async () => {
-    return await serverInstance.connect(surreal.url, {
-        namespace: surreal.namespace,
-        database: surreal.database,
-        authentication: {
-            username: surreal.username,
-            password: surreal.password,
-        }
-    })
+    if (config.surreal.type == "remote") {
+        SurrealInstance = new Surreal();
+        openConnection(SurrealInstance)
+    }
+    else if (config.surreal.type == "embedded") {
+        SurrealInstance = new Surreal({
+            engines: {
+                ...createRemoteEngines(),
+                ...createNodeEngines(),
+            },
+        });
+        openConnection(SurrealInstance)
+    }
 })()
 
-interface Parameters {
-    [key: string]: any
-}
-
-export interface DatabaseResponse<T> {
-    status: string
-    detail?: string
-    time: string
-    result: T[]
-}
-
-interface Query {
-    sql: string[]
-    parameters?: Parameters
-    label?: string
-}
-
-export function queryBuilder(): { sql: string[], parameters: Parameters } {
-    return {
-        sql: [],
-        parameters: {},
-    }
-}
-
-async function handleQuery<T>(query: Query) {
-    try {
-        return await serverInstance.query(query.sql.join("\n"), query.parameters ?? {}) as T[][]
-    }
-    catch (ex: any) {
-        if (ex.message.startsWith("An error occurred:")) {
-            const message = ex.message.split(":").at(1).trim()
-            throw createError({
-                fatal: true,
-                statusCode: 500,
-                statusMessage: message,
-            })
+async function openConnection(instance: Surreal) {
+    await instance.connect(config.surreal.url, {
+        namespace: config.surreal.namespace,
+        database: config.surreal.database,
+        authentication: {
+            username: config.surreal.username,
+            password: config.surreal.password,
         }
-        else {
-            throw createError({
-                fatal: true,
-                statusCode: 500,
-                statusMessage: `API Error: ${query.label ?? "Unable to execute query."}`,
-                message: ex.message
-            })
-        }
-    }
+    })
+
+    await instance.ready
+    console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url                                                                                    }`)
 }
 
-export async function queryOne<T>(query: Query): Promise<T> {
-    let responses = await handleQuery<T>(query)
-    return responses[0]![0]!
-}
-
-export async function queryAll<T>(query: Query): Promise<T[]> {
-    let response = await handleQuery<T>(query) 
-    return response[0]!
-}
-
-export async function complexQuery(query: Query): Promise<unknown[][]> {
-    const responses = await handleQuery(query)
-    // maybe do something before just returning things
-    return responses
-}
-
-// TODO planned migration to this class for better readability and maintainability.
-// Should be used in all future database interactions.
 export class DatabaseQuery {
     #sql: string[] = []
-    #parameters: Parameters = {}
-    #connection: Surreal = serverInstance
+    #parameters: { [key: string]: any } = { }
+    #connection: Surreal = SurrealInstance
 
     constructor(connection?: Surreal) {
         if (connection) {

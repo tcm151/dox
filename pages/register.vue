@@ -34,7 +34,7 @@ async function register() {
 
     try {
         submitting.value = true
-        session.tokens = await $fetch("/api/user/register", {
+        const result = await $fetch("/api/user/register", {
             method: "POST",
             body: {
                 email: email.value,
@@ -43,7 +43,8 @@ async function register() {
                 referral: referrer
             },
         })
-    
+
+        session.tokens = { access: result }
         await session.authenticate()
         hints.addSuccess('Created account successfully!')
         navigateTo('/profile')

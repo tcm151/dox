@@ -60,6 +60,7 @@ export default defineNuxtConfig({
         css: {
             preprocessorOptions: {
                 scss: {
+                    quietDeps: true,
                     additionalData: [
                         '@use "~/assets/scss/colors" as *;',
                         '@use "~/assets/scss/mixins" as *;',
@@ -86,6 +87,7 @@ export default defineNuxtConfig({
             title: process.env.SMTP_SENDER_TITLE,
         },
         surreal: {
+            type: process.env.SURREAL_TYPE,
             url: process.env.SURREAL_URL,
             username: process.env.SURREAL_USERNAME,
             password: process.env.SURREAL_PASSWORD,

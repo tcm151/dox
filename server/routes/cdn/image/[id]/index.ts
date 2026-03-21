@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
                 FROM $image
                 FETCH user
             `)
-            .addRecord("audio" ,`audio:${id}`)
+            .addRecord("image" ,`image:${id}`)
             .queryOne<Image>()
 
         return fs.readFileSync(`./media/image/${id}.${image.type}`)

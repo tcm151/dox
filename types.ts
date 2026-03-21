@@ -18,13 +18,13 @@ export interface AppSettings {
 
 export interface Voteable {
     id: string
+    score: number
     votes: {
         positive: string[]
         misleading: string[]
         negative: string[]
         awards: string[]
         saves: string[]
-        score: number
     }
 }
 
