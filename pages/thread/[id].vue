@@ -47,6 +47,12 @@ function copyLink() {
 
 <template>
     <article class="column p-4" v-if="thread">
+        <!-- <header class="row mb-4">
+            <button class="dark" @click="useRouter().back()">
+                <i class="fa-solid fa-arrow-left"></i>
+                Go Back
+            </button>
+        </header> -->
         <section v-if="thread.replyTo" class="mb-2">
             <ThreadReply :thread="thread.replyTo" />
         </section>

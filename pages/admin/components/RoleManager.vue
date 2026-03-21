@@ -25,24 +25,6 @@ async function toggleRole(role: Role) {
         hints.addWarning(`User removed from ${role} role.`)
     }
 }
-
-// async function toggleAdmin() {
-//     if (!hasRole(props.user!, "admin")) {
-//         await session.useApi<User>("/api/admin/role/add", {
-//             user: props.user?.id,
-//             role: "admin"
-//         })
-//         hints.addSuccess("User given admin role.")
-//     }
-//     else {
-//         await session.useApi<User>("/api/admin/role/remove", {
-//             user: props.user?.id,
-//             role: "admin"
-//         })
-//         hints.addWarning("User removed from admin role.")
-//     }
-// }
-
 </script>
 
 <template>

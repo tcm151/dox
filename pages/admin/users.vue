@@ -56,7 +56,7 @@ function toggleRoleManager(user?: User) {
                 <!-- <Tag v-if="hasRole(user, 'admin')" type="link" icon="fa-shield" />
                 <Tag v-if="hasRole(user, 'developer')" type="link" icon="fa-code" /> -->
                 <UserTag class="f-1" :user="user" />
-                <DurationTag :time="user.dateJoined" />
+                <DurationTag width="5rem" :time="user.dateJoined" />
                 <Tag type="info" icon="fa-ellipsis" @click="toggleRoleManager(user)" />
             </div>
         </section>

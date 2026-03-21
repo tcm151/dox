@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, reporter.id, subject.id, time
+            SELECT id, reporter.id, reporter.name, subject.id, time
             FROM report
             ORDER BY time DESC
             FETCH reporter, subject

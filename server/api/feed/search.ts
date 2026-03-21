@@ -19,9 +19,9 @@ export default defineEventHandler(async (event) => {
                 );
 
                 LET $threads = (
-                    SELECT id, user.id, user.name, content, time, edited, timeEdited,
-                        replyTo.id, replyTo.title, topics, votes,
-                        images, visits,
+                    SELECT id, user.id, user.name, content, time,
+                        topics, replies, votes, score,
+                        edited, timeEdited, visits, images,
                         search::score(1) AS search.score
                     FROM thread
                     WHERE content @1@ $text
