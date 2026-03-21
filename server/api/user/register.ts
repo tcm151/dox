@@ -1,4 +1,4 @@
-import { Surreal } from "surrealdb"
+import type { User } from "~/types"
 
 interface Register {
     email: string,
@@ -10,24 +10,21 @@ interface Register {
 export default defineEventHandler(async (event) => {
     const register = await readBody<Register>(event)
     
-    const { surreal } = useRuntimeConfig()
-    const db = new Surreal()
-    await db.connect(surreal.url)
+    const user = await new DatabaseQuery(SurrealInstance)
+        .addSql(`
+            CREATE user SET
+            email = $email,
+            name = $username,
+            password = crypto::argon2::generate($password),
+            dateJoined = time::now()
+        `)
+        .addParameter("email", register.email)
+        .addParameter("username", register.username)
+        .addParameter("password", register.password)
+        .queryOne<User>()
     
-    const tokens = await db.signup({
-        namespace: surreal.namespace,
-        database: surreal.database,
-        access: "account",
-        variables: {
-            email: register.email,
-            username: register.username,
-            password: register.password,
-        },
-    });
-
-    const session = getSession()
-    session.tokens = tokens
-    await session.refreshProfile()
+    const sessionManager = useSessions()
+    const session = await sessionManager.add(user)
 
     if (register.referral) {
         await new DatabaseQuery()
@@ -55,6 +52,5 @@ export default defineEventHandler(async (event) => {
             .queryAll<string>()
     }
 
-    await db.close()
-    return tokens
+    return session.id
 })

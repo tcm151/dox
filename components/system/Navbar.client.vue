@@ -21,7 +21,7 @@ function toggleUserManager() {
     events.publish(Trigger.toggleUserManager)
 }
 
-const showAdmin = computed(() => session.isAuthenticated && hasRole(session.user, 'admin'))
+const showAdmin = computed(() => ENV.isDevelopment() || (session.isAuthenticated && hasRole(session.user, "admin")))
 const showDeveloper = computed(() => (session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment())
 const showStore = computed(() => session.isAuthenticated && config.app.navbar.showStore)
 const showFeedback = computed(() => session.isAuthenticated && config.app.navbar.showFeedback)

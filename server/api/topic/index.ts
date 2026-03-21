@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM topic
-            ORDER BY votes.score DESC
+            ORDER BY score DESC
         `)
         .queryAll<Topic>()
 })

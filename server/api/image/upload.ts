@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // TODO: make this configurable by the admin
+    // TODO make this configurable by the admin
     if (buffer.byteLength > 10_000_000) {
         return createError({
             statusCode: 400,
@@ -39,16 +39,14 @@ export default defineEventHandler(async (event) => {
                 RETURN CREATE image SET
                 user = $user,
                 type = $type,
-                tokens = $tokens,
-                time = time::now(),
-                url = <future> {
-                    string::concat("${baseUrl}/cdn/image/", record::id(id))
-                };
+                tokens = $tokens
+                origin = $origin
             };
         `)
         .addRecord('user', auth.id)
         .addParameter('tokens', tokens)
         .addParameter('type', type)
+        .addParameter("origin", useRuntimeConfig().public.baseUrl)
         .queryOne<Image>()
         
     await writeMedia(image, buffer, "image")

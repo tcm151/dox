@@ -1645,6 +1645,11 @@
   resolved "https://registry.yarnpkg.com/@surrealdb/cbor/-/cbor-2.0.0-alpha.4.tgz#0f94b22d9d4af357b8038b0ce11b79840226338d"
   integrity sha512-l/hNZ3ZCOJq8rzwx1y5ZV/8b2bYCWdhGqRVY33Pu50NAHyAW5qLsMn3ZBkZow77mAKwNCsbDsRGnyYEuU95mjw==
 
+"@surrealdb/node@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@surrealdb/node/-/node-3.0.3.tgz#0bf7ee7f0382dd9e6dfd7f8a0cfa15ace39f6e68"
+  integrity sha512-A8g/dktGBz1eZs5lWFKAsx22A376v7g+o7jkdvsmlxj/uta9t4sUPkTIFjcG4JjJW8dzwt8JTiMl8+FuFuiRnw==
+
 "@tybys/wasm-util@^0.10.1":
   version "0.10.1"
   resolved "https://registry.yarnpkg.com/@tybys/wasm-util/-/wasm-util-0.10.1.tgz#ecddd3205cf1e2d5274649ff0eedd2991ed7f414"

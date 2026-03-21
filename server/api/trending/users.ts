@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM (
-                SELECT id, name, votes.score AS score
+                SELECT id, name, score
                 FROM user
             )
             WHERE score > 0

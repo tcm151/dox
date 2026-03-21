@@ -40,14 +40,13 @@ export default defineEventHandler(async (event) => {
                 type = $type,
                 tokens = $tokens,
                 time = time::now(),
-                url = <future> {
-                    string::concat("${useRuntimeConfig().public.baseUrl}/cdn/audio/", record::id(id))
-                };
+                origin = $origin
             };
         `)
         .addRecord('user', auth.id)
         .addParameter('type', type)
         .addParameter('tokens', tokens)
+        .addParameter("origin", useRuntimeConfig().public.baseUrl)
         .queryOne<Audio>()
         
     await writeMedia(audio, buffer, "audio")

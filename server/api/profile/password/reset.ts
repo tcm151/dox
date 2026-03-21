@@ -28,10 +28,7 @@ export default defineEventHandler(async (event) => {
             const passwordReset = await new DatabaseQuery()
                 .addSql(`
                     CREATE passwordReset SET
-                    user = $user,
-                    time = time::now(),
-                    used = false,
-                    expired = <future> { time::now() > time + 15m }
+                    user = $user
                 `)
                 .addRecord('user', user.id)
                 .queryOne<PasswordReset>()
