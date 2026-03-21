@@ -172,3 +172,11 @@ REMOVE FIELD IF EXISTS votes.score
 ON TABLE comment;
 UPDATE comment SET
     votes.score = NONE;
+
+-- 2026-03-21
+UPDATE image SET
+    visits = 1
+WHERE visits = NONE;
+UPDATE topic SET
+    visits = 1
+WHERE visits = NONE;

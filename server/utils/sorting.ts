@@ -25,13 +25,11 @@ function sortNew(first: Sortable, second: Sortable) {
 }
 
 function sortTop(first: Sortable, second: Sortable) {
-    const firstRanking = first.score * (first.visits ?? 1)
-    const secondRanking = second.score * (second.visits ?? 1)
-    if (firstRanking === secondRanking) {
+    if (first.score === second.score) {
         return sortNew(first, second)
     }
     else {
-        return firstRanking < secondRanking ? 1 : -1
+        return first.score < second.score ? 1 : -1
     }
 }
 
@@ -39,7 +37,7 @@ function sortHot(first: Sortable, second: Sortable) {
     const now = DateTime.now()
     const firstDays = Math.max(1, now.diff(DateTime.fromISO(first.time), "days").days)
     const secondDays = Math.max(1, now.diff(DateTime.fromISO(second.time), "days").days)
-    const firstAdjustedScore = first.score * (first.visits ?? 1) / (firstDays * (first.visits ?? 1))
-    const secondAdjustedScore = second.score * (second.visits ?? 1) / (secondDays * (second.visits ?? 1))
+    const firstAdjustedScore = first.score / (firstDays * (first.visits ?? 1))
+    const secondAdjustedScore = second.score / (secondDays * (second.visits ?? 1))
     return firstAdjustedScore < secondAdjustedScore ? 1 : -1
 }

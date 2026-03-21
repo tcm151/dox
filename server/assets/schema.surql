@@ -113,7 +113,7 @@ DEFINE FIELD OVERWRITE votes.misleading ON user TYPE array<record<user>> DEFAULT
 DEFINE FIELD OVERWRITE votes.negative ON user TYPE array<record<user>> DEFAULT ALWAYS [];
 
 DEFINE FIELD OVERWRITE score ON user COMPUTED
-    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative);
+    (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative));
 
 -- ------------------------------
 -- TABLE: session
@@ -131,6 +131,7 @@ DEFINE FIELD OVERWRITE time ON session TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE TABLE OVERWRITE topic SCHEMALESS;
 DEFINE FIELD OVERWRITE posts ON topic TYPE array<record<post>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE threads ON topic TYPE array<record<thread>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE visits ON topic TYPE number DEFAULT ALWAYS 1;
 
 DEFINE FIELD OVERWRITE votes ON topic TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD OVERWRITE votes.positive ON topic TYPE array<record<user>> DEFAULT ALWAYS [];
@@ -138,7 +139,7 @@ DEFINE FIELD OVERWRITE votes.misleading ON topic TYPE array<record<user>> DEFAUL
 DEFINE FIELD OVERWRITE votes.negative ON topic TYPE array<record<user>> DEFAULT ALWAYS [];
 
 DEFINE FIELD OVERWRITE score ON topic COMPUTED
-    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative);
+    (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
 
 DEFINE FIELD OVERWRITE followers ON topic COMPUTED
     SELECT VALUE id FROM user WHERE topics CONTAINS $parent.id;
@@ -181,7 +182,7 @@ DEFINE FIELD OVERWRITE votes.awards ON post TYPE array<record<user>> DEFAULT ALW
 DEFINE FIELD OVERWRITE votes.saves ON post TYPE array<record<user>> DEFAULT ALWAYS [];
 
 DEFINE FIELD OVERWRITE score ON post COMPUTED
-    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative);
+    (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
 
 DEFINE EVENT OVERWRITE updateTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
@@ -241,7 +242,7 @@ DEFINE FIELD OVERWRITE votes.saves ON thread TYPE array<record<user>> DEFAULT AL
 
 
 DEFINE FIELD OVERWRITE score ON thread COMPUTED
-    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative);
+    (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
 
 DEFINE EVENT OVERWRITE updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
@@ -270,7 +271,7 @@ DEFINE FIELD OVERWRITE votes.misleading ON comment TYPE array<record<user>> DEFA
 DEFINE FIELD OVERWRITE votes.negative ON comment TYPE array<record<user>> DEFAULT ALWAYS [];
 
 DEFINE FIELD OVERWRITE score ON comment COMPUTED
-    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative);
+    (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative));
 
 DEFINE EVENT OVERWRITE updatePost ON comment WHEN $event = 'CREATE' THEN {
     LET $post = (SELECT VALUE post FROM $after);
@@ -286,6 +287,7 @@ DEFINE FIELD OVERWRITE user ON image TYPE record<user>;
 DEFINE FIELD OVERWRITE type ON image TYPE string;
 DEFINE FIELD OVERWRITE tokens ON image TYPE number;
 DEFINE FIELD OVERWRITE time ON image TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE visits ON image TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD OVERWRITE url ON image TYPE any;
 
 DEFINE FIELD OVERWRITE votes ON image TYPE object DEFAULT ALWAYS {};
@@ -297,7 +299,7 @@ DEFINE FIELD OVERWRITE url ON image COMPUTED
     string::concat(origin, "/cdn/image/", record::id(id));
 
 DEFINE FIELD OVERWRITE score ON image COMPUTED
-    array::len(votes.positive) - (<float> array::len(votes.misleading) / 2) - array::len(votes.negative);
+    (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
 
 
 -- ------------------------------
