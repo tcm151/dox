@@ -16,6 +16,6 @@ export default defineEventHandler(async (event) => {
         .addRecord('user', auth.id)
         .addParameter('content', thread.content)
         .addRecords('topics', thread.topics)
-        .addRecords('images', thread.images as string[])
+        .addRecords('images', thread.images ?? [])
         .queryOne<Thread>()
 })
