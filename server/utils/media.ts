@@ -60,8 +60,10 @@ export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaT
 
 // TODO add support for refund if failed
 async function removeMediaFromDatabase(media: Media) {
-    var { sql, parameters } = queryBuilder()
-    sql.push('DELETE <record>$media')
-    parameters['media'] = media.id
-    await queryOne({ sql, parameters })
+    return await new DatabaseQuery()
+        .addSql(`
+            DELETE $media
+        `)
+        .addRecord("media", media.id)
+        .queryOne<Media>()
 }

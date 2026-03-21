@@ -6,14 +6,17 @@ export default defineEventHandler(async (event) => {
     const { fileName } = event.context.params!
     const id = fileName?.split('.').at(0)
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT *')
-    sql.push('FROM <record>$audio')
-    sql.push('FETCH user')
-    parameters['audio'] = `audio:${id}`
-    const audio = await queryOne<Audio>({ sql, parameters })
-    
     try {
+        const audio = await new DatabaseQuery()
+            .addSql(`
+                SELECT *
+                OMIT user.password
+                FROM $audio
+                FETCH user
+            `)
+            .addRecord("audio" ,`audio:${id}`)
+            .queryOne<Audio>()
+
         return fs.readFileSync(`./media/audio/${id}.${audio.type}`)
     }
     catch (error: any) {

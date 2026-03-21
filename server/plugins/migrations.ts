@@ -1,8 +1,18 @@
 export default defineNitroPlugin(async () => {
     try {
-        let schema = Buffer.from(await useStorage("assets:server").getItem<string>("schema.surql") ?? "").toString()
-        let migrations = Buffer.from(await useStorage("assets:server").getItem<string>("migrations.surql") ?? "").toString()
-        await complexQuery({ sql: [migrations, schema] })
+        await new DatabaseQuery()
+            .addSql(
+                Buffer.from(await useStorage("assets:server")
+                    .getItem<string>("schema.surql") ?? "")
+                    .toString()
+            )
+            .addSql(
+                Buffer.from(await useStorage("assets:server")
+                    .getItem<string>("migrations.surql") ?? "")
+                    .toString()
+            )
+            .execute()
+            
         console.log("Database migrations completed successfully")
     }
     catch (ex: any) {

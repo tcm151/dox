@@ -5,14 +5,17 @@ import type { Image } from "~/types"
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    var { sql, parameters } = queryBuilder()
-    sql.push('SELECT *')
-    sql.push('FROM <record>$image')
-    sql.push('FETCH user')
-    parameters['image'] = `image:${id}`
-    const image = await queryOne<Image>({ sql, parameters })
-    
     try {
+        const image = await new DatabaseQuery()
+            .addSql(`
+                SELECT *
+                OMIT user.password
+                FROM $image
+                FETCH user
+            `)
+            .addRecord("audio" ,`audio:${id}`)
+            .queryOne<Image>()
+
         return fs.readFileSync(`./media/image/${id}.${image.type}`)
     }
     catch (error: any) {
