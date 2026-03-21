@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const posts = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
-            replyTo.id, replyTo.title, topics, comments, votes,
+            replyTo.id, replyTo.title, topics, comments, votes, score,
             archived, images, visits
             FROM post
             WHERE archived != true
