@@ -5,13 +5,15 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, ["admin", "developer"])
 
     const { config: settings } = await readBody<{ config: AppSettings }>(event)
+    const id = settings.id
+    delete settings.id
 
     return await new DatabaseQuery()
         .addSql(`
-            UPDATE $settings
-            CONTENT $content
+            UPDATE $id
+            CONTENT $settings
         `)
-        .addRecord('settings', settings.id)
-        .addParameter('content', settings)
+        .addRecord('id', id)
+        .addParameter('settings', settings)
         .queryOne<AppSettings>()
 })

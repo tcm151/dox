@@ -44,11 +44,13 @@ type MediaType = "image" | "audio"
 
 export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaType) {
     try {
+        // TODO create the folder if it doesn't exist
         fs.writeFileSync(`./media/${mediaType}/${media.id.toString().split(":").at(1)}.${media.type}`, buffer, {
             flag: "w+"
         })
     }
     catch (error: any) {
+        console.log(error)
         removeMediaFromDatabase(media)
         throw createError({
             statusCode: 500,
@@ -60,10 +62,10 @@ export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaT
 
 // TODO add support for refund if failed
 async function removeMediaFromDatabase(media: Media) {
-    return await new DatabaseQuery()
+    await new DatabaseQuery()
         .addSql(`
             DELETE $media
         `)
         .addRecord("media", media.id)
-        .queryOne<Media>()
+        .execute()
 }

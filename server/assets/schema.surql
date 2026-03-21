@@ -103,7 +103,7 @@ DEFINE FIELD OVERWRITE followers ON user TYPE array<record<user>> DEFAULT ALWAYS
 DEFINE FIELD OVERWRITE following ON user TYPE array<record<user>> DEFAULT ALWAYS [];
 
 DEFINE FIELD OVERWRITE dateJoined ON user TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE tokens ON user TYPE int DEFAULT ALWAYS 0 ASSERT $value >= 0 AND $value <= 65536;
+DEFINE FIELD OVERWRITE tokens ON user TYPE int DEFAULT ALWAYS 5000 ASSERT $value >= 0 AND $value <= 65536;
 DEFINE FIELD OVERWRITE roles ON user TYPE array<string> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE traits ON user TYPE array<string> DEFAULT ALWAYS [];
 
