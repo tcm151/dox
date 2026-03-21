@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
             replyTo.id, replyTo.title, topics, replies, votes, score,
             edited, timeEdited, visits, images
             FROM thread
+            WHERE replyTo = NONE
             ORDER BY time DESC
             FETCH user, replyTo, images
         `)

@@ -11,15 +11,11 @@ export default defineEventHandler(async (event) => {
             user = $user,
             content = $content,
             replyTo = $replyTo,
-            topics = $topics,
-            images = $images,
             votes.positive = [$user]
         `)
         .addRecord('user', auth.id)
-        .addParameter('content', thread.content)
         .addRecord('replyTo', `thread:${id}`)
-        .addRecords('topics', thread.topics)
-        .addRecords('images', thread.images as string[])
+        .addParameter('content', thread.content)
         .queryOne<Thread>()
 
     await new DatabaseQuery()

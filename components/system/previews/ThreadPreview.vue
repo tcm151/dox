@@ -15,11 +15,10 @@ const props = defineProps<{
                 <Votes :target="thread" />
                 <div class="row-wrap f-1 g-1">
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits" />
-                    <!-- <Tag class="f-1" type="info" icon="fa-message" :label="thread.comments.length.toString()" /> -->
+                    <Tag class="f-1" type="info" icon="fa-message" :label="thread.replies.length.toString()" />
                     <UserTag class="f-1" :user="(thread.user as User)" />
                     <DurationTag class="f-1" :time="thread.time" />
                     <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
-                    <!-- <Tag type="info" icon="fa-ellipsis" @click.stop="hints.addWarning('We are still working on this...')" /> -->
                 </div>
                 <div v-if="thread.topics.length > 0" class="row-wrap f-1 g-1">
                     <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
