@@ -148,7 +148,7 @@ DEFINE FIELD OVERWRITE firstUsed ON topic COMPUTED
     time::min(array::union(posts.time, threads.time));
 
 DEFINE EVENT OVERWRITE removeBlank ON topic WHEN $event = 'UPDATE' THEN {
-    IF array::len($after.posts) = 0 {
+    IF array::len($after.posts) = 0 AND array::len($after.threads) = 0 {
         DELETE $after.id;
     };
 };
@@ -186,8 +186,12 @@ DEFINE FIELD OVERWRITE score ON post COMPUTED
 
 DEFINE EVENT OVERWRITE updateTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
-        UPDATE $topic SET
-        posts += $after.id;
+        IF !record::exists($topic) {
+            CREATE $topic SET threads = [$after.id];
+        }
+        ELSE {
+            UPDATE $topic SET threads += $after.id;
+        }
     };
 };
 
@@ -245,12 +249,12 @@ DEFINE FIELD OVERWRITE score ON thread COMPUTED
 
 DEFINE EVENT OVERWRITE updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
-IF !record::exists($topic) {
+        IF !record::exists($topic) {
             CREATE $topic SET threads = [$after.id];
         }
         ELSE {
             UPDATE $topic SET threads += $after.id;
-}
+        }
     };
 };
 
@@ -286,8 +290,7 @@ DEFINE FIELD OVERWRITE score ON comment COMPUTED
     (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative));
 
 DEFINE EVENT OVERWRITE updatePost ON comment WHEN $event = 'CREATE' THEN {
-    LET $post = (SELECT VALUE post FROM $after);
-    UPDATE $post SET comments += $after.id;
+    UPDATE $after.post SET comments += $after.id;
 };
 
 

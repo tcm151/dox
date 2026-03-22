@@ -7,7 +7,6 @@ interface Session {
     invalidated: boolean
 }
 class SessionManager {
-    // #sessions: Session[] = []
 
     async add(user: User): Promise<Session> {
         let session = await new DatabaseQuery()
@@ -19,7 +18,6 @@ class SessionManager {
             .queryOne<Session>()
 
         session.user = user
-        // this.#sessions.push(session)
 
         // TODO delete old sessions
 
@@ -27,42 +25,31 @@ class SessionManager {
     }
 
     async authenticateToken(id: string): Promise<Session | undefined> {
-        // if (this.#sessions.some(s => s.id == id)) {
-        //     return Promise.resolve(this.#sessions.find(s => s.id == id))
-        // }
-        // try {
-            return await new DatabaseQuery()
-                .addSql(`
-                    SELECT *
-                    OMIT user.password
-                    FROM $id
-                    WHERE invalidated = false
-                    FETCH user
-                `)
-                .addRecord("id", id)
-                .queryOne<Session>()
-        // }
-        // catch (error: any) {
-        //     return Promise.resolve(undefined)
-        // }
+        return await new DatabaseQuery()
+            .addSql(`
+                SELECT *
+                OMIT user.password
+                FROM $id
+                WHERE invalidated = false
+                FETCH user
+            `)
+            .addRecord("id", id)
+            .queryOne<Session>()
     }
 
     async invalidateToken(id: string, clear: boolean) {
         if (clear) {
-            // this.#sessions = this.#sessions.filter(s => s.id != id);
             await new DatabaseQuery()
                 .addSql(`
-                    UPDATE session SET
+                    UPDATE $session SET
                         invalidated = true
-                    WHERE token = $jwt
                 `)
-                .addParameter("jwt", id)
+                .addParameter("session", id)
                 .execute()
         }
     }
 
     async invalidateUser(userId: string) {
-        // this.#sessions = this.#sessions.filter(s => s.user.id != userId)
         await new DatabaseQuery()
             .addSql(`
                 UPDATE session SET

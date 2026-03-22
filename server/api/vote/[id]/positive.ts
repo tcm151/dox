@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
             votes.negative -= $user;
             // visits += 1;
         `)
-        .addRecord("item", id!)
+        .addRecord("item", id)
         .addRecord("user", auth.id)
         .queryOne<Voteable>()
 

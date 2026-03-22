@@ -1,7 +1,6 @@
-import type { Ref } from "vue"
 import { skipHydrate } from "pinia"
-import type { User } from "~/types"
 import { Trigger } from "~/services/events"
+import type { User } from "~/types"
 
 
 // export interface Session {
@@ -31,13 +30,13 @@ export const getSession = defineStore("session", () => {
             negative: [],
             awards: [],
             saves: [],
-            score: 0
         },
         topics: [],
         following: [],
         followers: [],
         dateJoined: '',
         tokens: 0,
+        score: 0,
         roles: [],
         traits: []
     })
@@ -71,6 +70,7 @@ export const getSession = defineStore("session", () => {
                 Authorization: token
             }
         })
+        tokens.value = { access: token }
         isAuthenticated.value = true
         events.publish(Trigger.authenticatedUser, {
             user: user.value,
@@ -111,12 +111,12 @@ export const getSession = defineStore("session", () => {
                     negative: [],
                     awards: [],
                     saves: [],
-                    score: 0
                 },
                 topics: [],
                 following: [],
                 followers: [],
                 dateJoined: '',
+                score: 0,
                 tokens: 0,
                 roles: [],
                 traits: [],

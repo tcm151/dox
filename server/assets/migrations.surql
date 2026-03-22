@@ -139,7 +139,7 @@ UPDATE topic SET
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE post;
 UPDATE post SET 
-    otes.score = NONE;
+    votes.score = NONE;
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE thread;
 UPDATE thread SET
@@ -149,7 +149,7 @@ ON TABLE comment;
 UPDATE comment SET
     votes.score = NONE;
 
--- 2026-03-21
+-- 2026-03-21 visits should always exist
 UPDATE image SET
     visits = 1
 WHERE visits = NONE;

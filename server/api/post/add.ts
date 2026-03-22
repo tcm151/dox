@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
             user = $user,
             title = $title,
             content = $content,
-            // replyTo = $replyTo,
             topics = $topics,
             images = $images,
             votes.positive = [$user]
@@ -19,8 +18,7 @@ export default defineEventHandler(async (event) => {
         .addRecord("user", auth.id)
         .addParameter("title", post.title)
         .addParameter("content", post.content)
-        // .addRecord("replyTo", post.replyTo)
         .addRecords("topics", post.topics)
-        .addRecords("images", post.images ?? [])
+        .addRecords("images", (post.images as string[]) ?? [])
         .queryOne<Post>()
 })

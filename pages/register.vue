@@ -36,16 +36,15 @@ async function register() {
         submitting.value = true
         const result = await $fetch("/api/user/register", {
             method: "POST",
+            headers: {
+                Authorization: btoa(`${email.value}:${username.value}:${password.value}`),
+            },
             body: {
-                email: email.value,
-                username: username.value,
-                password: password.value,
                 referral: referrer
             },
         })
 
-        session.tokens = { access: result }
-        await session.authenticate()
+        await session.authenticate(result)
         hints.addSuccess('Created account successfully!')
         navigateTo('/profile')
     }

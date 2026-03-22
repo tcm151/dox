@@ -77,9 +77,9 @@ function newLogin() {
                 <ButtonSpinner class="info f-1" :loading="waiting == user.id" @click="useLogin(user)">
                     <span>{{ user.name }}</span>
                 </ButtonSpinner>
-                <Button class="link" @click="removeLogin(user)">
+                <button class="link" @click="removeLogin(user)">
                     <i class="fa-solid fa-trash"></i>
-                </Button>
+                </button>
             </div>
             <button class="link" @click="newLogin">
                 <i class="fa-solid fa-plus"></i>

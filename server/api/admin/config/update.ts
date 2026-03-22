@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, ["admin", "developer"])
 
-    const { config: settings } = await readBody<{ config: AppSettings }>(event)
+    const { config: settings } = await readBody<{ config: any }>(event)
     const id = settings.id
     delete settings.id
 

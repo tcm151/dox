@@ -1,14 +1,13 @@
 import type { User } from "~/types"
 
 interface Register {
-    email: string,
     username: string,
-    password: string,
     referral?: string
 }
 
 export default defineEventHandler(async (event) => {
     const register = await readBody<Register>(event)
+    const header = atob(getHeader(event, 'Authorization') ?? "")
     
     const user = await new DatabaseQuery(SurrealInstance)
         .addSql(`
@@ -18,9 +17,9 @@ export default defineEventHandler(async (event) => {
             password = crypto::argon2::generate($password),
             dateJoined = time::now()
         `)
-        .addParameter("email", register.email)
-        .addParameter("username", register.username)
-        .addParameter("password", register.password)
+        .addParameter("email", header.split(":")[0])
+        .addParameter("username", header.split(":")[1])
+        .addParameter("password", header.split(":")[2])
         .queryOne<User>()
     
     const sessionManager = useSessions()
