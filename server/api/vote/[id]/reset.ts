@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
             UPDATE $item SET
             votes.positive -= $user,
             votes.misleading -= $user,
-            votes.negative -= $user
+            votes.negative -= $user;
+            // visits += 1;
         `)
         .addRecord("item", id!)
         .addRecord("user", auth.id)
