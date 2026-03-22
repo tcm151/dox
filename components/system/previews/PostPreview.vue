@@ -19,9 +19,9 @@ const props = defineProps<{
                 <div class="row-wrap g-1">
                     <Votes :target="post" />
                     <div class="f-1 row-wrap g-1">
+                        <UserTag class="f-1" :user="(post.user as User)" />
                         <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
                         <Tag class="f-1" type="info" icon="fa-message" :label="post.comments.length.toString()" />
-                        <UserTag class="f-1" :user="(post.user as User)" />
                         <DurationTag class="f-1" :time="post.time" />
                     </div>
                     <Tag v-if="pinned" type="link" icon="fa-thumbtack" />

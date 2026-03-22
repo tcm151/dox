@@ -36,8 +36,8 @@ async function dismissFeedback(feedback: Feedback) {
             <div class="box p-3" v-for="item in activeFeedback">
                 <p>{{ item.content }}</p>
                 <div class="tags row g-1 pt-1">
-                    <DurationTag :time="item.time" />
                     <UserTag :user="(item.user as User)" />
+                    <DurationTag :time="item.time" />
                     <Tag v-if="!item.dismissed" type="danger" label="Dismiss" @click="dismissFeedback(item)" />
                 </div>
             </div>

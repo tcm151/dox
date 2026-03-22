@@ -14,9 +14,9 @@ const props = defineProps<{
             <div class="row-wrap g-1">
                 <Votes :target="thread" />
                 <div class="row-wrap f-1 g-1">
+                    <UserTag class="f-1" :user="(thread.user as User)" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits" />
                     <Tag class="f-1" type="info" icon="fa-message" :label="thread.replies.length.toString()" />
-                    <UserTag class="f-1" :user="(thread.user as User)" />
                     <DurationTag class="f-1" :time="thread.time" />
                     <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                 </div>
