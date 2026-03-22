@@ -10,11 +10,17 @@ const id = route.params.id?.toString()
 await useFetch(`/api/thread/${id}/visit`)
 const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
 
-const [showReplyBox, toggleReply] = useToggle(false)
-const reply = ref<string>("")
+const showReplyBox = ref<boolean>(false)
+const replyText = ref<string>("")
+
+const quoting = ref<boolean>(false)
+function quoteThread() {
+    showReplyBox.value = true
+    quoting.value = true
+}
 
 const submitting = ref<boolean>(false)
-async function submitReply() {
+async function submitThread() {
     if (!session.isAuthenticated) {
         hints.addError("You must be logged in to interact with others.")
         return
@@ -23,7 +29,8 @@ async function submitReply() {
     submitting.value = true
     await session.useApi<Thread>(`/api/thread/${id}/reply`, {
         user: session.user.id,
-        content: reply.value,
+        content: replyText.value,
+        quoting: quoting.value,
         votes: {
             positive: [session.user.id],
             misleading: [],
@@ -32,8 +39,8 @@ async function submitReply() {
     })
     submitting.value = false
 
-    reply.value = ""
-    toggleReply()
+    replyText.value = ""
+    showReplyBox.value = false
     refresh()
 }
 
@@ -60,9 +67,9 @@ function copyLink() {
             <header class="row-wrap g-1">
                 <Votes :target="thread" />
                 <div class="row-wrap f-1 g-1">
+                    <UserTag class="f-1" :user="(thread.user as User)" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
                     <Tag class="f-1" type="info" icon="fa-message" :label="thread.replies.length.toString()" />
-                    <UserTag class="f-1" :user="(thread.user as User)" />
                     <DurationTag class="f-1" :time="thread.time" />
                     <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                 </div>
@@ -71,11 +78,11 @@ function copyLink() {
             <Markdown class="content" :content="thread.content" />
             <footer>
                 <div class="fill row-wrap g-1" v-if="!showReplyBox">
-                    <button class="fill" @click="toggleReply()">
-                        <i class="fa-solid fa-reply-all"></i>
+                    <button class="fill" @click="showReplyBox = true">
+                        <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                         <span>Reply</span>
                     </button>
-                    <button class="fill">
+                    <button class="fill" @click="quoteThread()">
                         <i class="fa-solid fa-quote-left"></i>
                         <span>Quote</span>
                     </button>
@@ -92,13 +99,13 @@ function copyLink() {
                     </button>
                 </div>
                 <div class="field" v-else-if="showReplyBox">
-                    <textarea rows="5" v-model="reply"></textarea>
+                    <textarea rows="5" v-model="replyText"></textarea>
                     <div class="row g-2 mt-2">
-                        <ButtonSpinner class="success fill" :loading="submitting" @click="submitReply">
+                        <ButtonSpinner class="success fill" :loading="submitting" @click="submitThread">
                             <i class="fa-solid fa-message"></i>
                             <span>Submit</span>
                         </ButtonSpinner>
-                        <button class="danger" @click="toggleReply()">
+                        <button class="danger" @click="showReplyBox = false">
                             <i class="fa-solid fa-ban"></i>
                             <span>Cancel</span>
                         </button>
@@ -107,8 +114,9 @@ function copyLink() {
             </footer>
         </section>
         <section class="column g-2 mt-2">
+
             <template v-for="reply in thread.replies">
-                <ThreadReply :thread="reply" />
+                <ThreadReply :thread="reply" :chain="true" />
             </template>
         </section>
     </article>

@@ -3,7 +3,7 @@ import type { Thread } from "~/types"
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    return await new DatabaseQuery()
+    let thread = await new DatabaseQuery()
         .addSql(`
             SELECT *
             FROM $thread
@@ -11,4 +11,35 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("thread", `thread:${id}`)
         .queryOne<Thread>()
+
+    for (let reply of thread.replies) {
+
+        reply.chain = []
+        let current = reply.id
+
+        for (let i = 0; i < 10; i++) {
+            try {
+                const next = await new DatabaseQuery()
+                    .addSql(`
+                        SELECT *
+                        FROM thread
+                        WHERE replyTo = $thread
+                        ORDER BY score DESC
+                        LIMIT 1
+                        FETCH user
+                    `)
+                    .addRecord("thread", current)
+                    .queryOne<Thread>()
+        
+                reply.chain.push(next)
+                current = next.id
+            }
+            catch (error: any) {
+                break
+            }
+        }
+    }
+
+    thread.replies = sortList(thread.replies, "top")
+    return thread
 })

@@ -2,8 +2,9 @@ import type { Thread } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    let thread = await readBody<Thread>(event)
+    
     const { id } = event.context.params!
+    let thread = await readBody<Thread>(event)
 
     thread = await new DatabaseQuery()
         .addSql(`
