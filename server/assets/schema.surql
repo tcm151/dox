@@ -240,14 +240,26 @@ DEFINE FIELD OVERWRITE votes.negative ON thread TYPE array<record<user>> DEFAULT
 DEFINE FIELD OVERWRITE votes.awards ON thread TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.saves ON thread TYPE array<record<user>> DEFAULT ALWAYS [];
 
-
 DEFINE FIELD OVERWRITE score ON thread COMPUTED
     (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
 
 DEFINE EVENT OVERWRITE updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
-        UPDATE $topic SET
-        threads += $after.id;
+IF !record::exists($topic) {
+            CREATE $topic SET threads = [$after.id];
+        }
+        ELSE {
+            UPDATE $topic SET threads += $after.id;
+}
+    };
+};
+
+DEFINE EVENT OVERWRITE updateReplyTo ON thread WHEN $event = 'CREATE' THEN {
+    IF $after.replyTo != NONE {
+        UPDATE $after.replyTo SET replies += $after.id;
+    };
+    IF $after.quote != NONE {
+        UPDATE $after.quote SET quotes += $after.id;
     };
 };
 

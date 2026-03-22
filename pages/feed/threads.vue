@@ -42,9 +42,11 @@ let newThread = ref<Thread>({
         negative: [],
         awards: [],
         saves: [],
-        score: 0,
     },
+    score: 0,
     visits: 0,
+    edited: false,
+    deleted: false,
 })
 
 const submitting = ref<boolean>(false)
@@ -81,9 +83,11 @@ function clearEditor() {
                 negative: [],
                 awards: [],
                 saves: [],
-                score: 0,
             },
+            score: 0,
             visits: 0,
+            edited: false,
+            deleted: false,
         }
 }
 

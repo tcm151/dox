@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ThreadReply from './components/ThreadReply'
+import ThreadReply from './components/ThreadReply.vue'
 import type { Thread, User } from '~/types'
 
 const route = useRoute()
@@ -27,10 +27,10 @@ async function submitThread() {
     }
     
     submitting.value = true
-    await session.useApi<Thread>(`/api/thread/${id}/reply`, {
+    const action = (quoting.value) ? "quote" : "reply"
+    await session.useApi<Thread>(`/api/thread/${id}/${action}`, {
         user: session.user.id,
         content: replyText.value,
-        quoting: quoting.value,
         votes: {
             positive: [session.user.id],
             misleading: [],
@@ -50,18 +50,23 @@ function copyLink() {
     hints.addSuccess("Copied post URL")
 }
 
+function goBack() {
+    const lastTab = useCache().get<string>("feed.lastTab", () => "home")
+    return navigateTo(`/feed/${lastTab.value}`)
+}
+
 </script>
 
 <template>
     <article class="column p-4" v-if="thread">
-        <!-- <header class="row mb-4">
-            <button class="dark" @click="useRouter().back()">
+        <header class="row mb-4">
+            <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
-                Go Back
+                Back to Feed
             </button>
-        </header> -->
+        </header>
         <section v-if="thread.replyTo" class="mb-2">
-            <ThreadReply :thread="thread.replyTo" />
+            <ThreadReply :thread="(thread.replyTo as Thread)" />
         </section>
         <section class="main box column p-4">
             <header class="row-wrap g-1">
@@ -76,21 +81,36 @@ function copyLink() {
                 <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
             </header>
             <Markdown class="content" :content="thread.content" />
+            <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
+                <div class="row-wrap g-1">
+                    <Votes :target="thread.quote" />
+                    <div class="row-wrap f-1 g-1">
+                        <UserTag :user="(thread.quote.user as User)" />
+                        <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
+                        <Tag type="info" icon="fa-message" :label="thread.quote.replies.length.toString()" />
+                        <DurationTag :time="thread.quote.time" />
+                    </div>
+                    <div v-if="thread.quote.topics.length > 0" class="row-wrap f-1 g-1">
+                        <TopicTag class="f-10" v-for="topic in thread.quote.topics" :topic="topic" />
+                    </div>
+                </div>
+                <Markdown class="content preview" :content="thread.quote.content" />
+            </aside>
             <footer>
-                <div class="fill row-wrap g-1" v-if="!showReplyBox">
-                    <button class="fill" @click="showReplyBox = true">
+                <div class="f-1 row-wrap g-1" v-if="!showReplyBox">
+                    <button class="f-1" @click="showReplyBox = true">
                         <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                         <span>Reply</span>
                     </button>
-                    <button class="fill" @click="quoteThread()">
+                    <button class="f-1" @click="quoteThread()">
                         <i class="fa-solid fa-quote-left"></i>
                         <span>Quote</span>
                     </button>
-                    <button class="fill" @click="copyLink">
+                    <button class="f-1" @click="copyLink">
                         <i class="fa-solid fa-copy"></i>
                         <span>Share</span>
                     </button>
-                    <button class="fill" @click="submitReport(thread.id)">
+                    <button class="f-1" @click="submitReport(thread.id)">
                         <i class="fa-solid fa-flag"></i>
                         <span>Report</span>
                     </button>
@@ -101,7 +121,7 @@ function copyLink() {
                 <div class="field" v-else-if="showReplyBox">
                     <textarea rows="5" v-model="replyText"></textarea>
                     <div class="row g-2 mt-2">
-                        <ButtonSpinner class="success fill" :loading="submitting" @click="submitThread">
+                        <ButtonSpinner class="success f-1" :loading="submitting" @click="submitThread">
                             <i class="fa-solid fa-message"></i>
                             <span>Submit</span>
                         </ButtonSpinner>
@@ -129,5 +149,10 @@ article {
 
 section.reply-to:hover {
     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
+}
+
+aside.quote {
+    border: 1px solid $white-2;
+    border-radius: 0.5rem;
 }
 </style>

@@ -28,12 +28,12 @@ export default defineEventHandler(async (event) => {
     let threads = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, content, time,
-            replyTo.id, replyTo.title, topics, replies, votes, score,
-            edited, timeEdited, visits, images
+                topics, quote, replies, votes, score,
+                edited, timeEdited, visits, images
             FROM thread
             WHERE replyTo = NONE
             ORDER BY time DESC
-            FETCH user, replyTo, images
+            FETCH user, quote, quote.user, images
         `)
         .queryAll<Thread>()
 

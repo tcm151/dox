@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM $thread
-            FETCH user, replyTo, replyTo.user, images, replies, replies.user
+            FETCH user, replyTo, replyTo.user, quote, quote.user, images, replies, replies.user
         `)
         .addRecord("thread", `thread:${id}`)
         .queryOne<Thread>()
@@ -40,6 +40,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    thread.replies = sortList(thread.replies, "top")
+    thread.replies = sortList(thread.replies, "top") as Thread[]
     return thread
 })

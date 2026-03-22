@@ -9,8 +9,7 @@ const props = defineProps<{
 
 <template>
     <div class="thread">
-        <div class="main box column px-3 pb-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
-            <Markdown class="content preview" :content="thread.content" />
+        <div class="main box column px-3 pt-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
             <div class="row-wrap g-1">
                 <Votes :target="thread" />
                 <div class="row-wrap f-1 g-1">
@@ -24,6 +23,22 @@ const props = defineProps<{
                     <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
                 </div>
             </div>
+            <Markdown class="content preview" :content="thread.content" />
+            <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
+                <div class="row-wrap g-1">
+                    <Votes :target="thread.quote" />
+                    <div class="row-wrap g-1">
+                        <UserTag :user="(thread.quote.user as User)" />
+                        <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
+                        <Tag type="info" icon="fa-message" :label="thread.quote.replies.length.toString()" />
+                        <DurationTag :time="thread.quote.time" />
+                    </div>
+                    <div v-if="thread.quote.topics.length > 0" class="row-wrap f-1 g-1">
+                        <TopicTag class="f-10" v-for="topic in thread.quote.topics" :topic="topic" />
+                    </div>
+                </div>
+                <Markdown class="content preview" :content="thread.quote.content" />
+            </aside>
         </div>
     </div>
 </template>
@@ -46,5 +61,10 @@ const props = defineProps<{
 
 .thread.animate:hover {
     transform: scale(102%, 105%);
+}
+
+aside.quote {
+    border: 1px solid $white-2;
+    border-radius: 0.5rem;
 }
 </style>
