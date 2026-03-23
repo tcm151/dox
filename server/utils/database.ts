@@ -66,7 +66,8 @@ export class DatabaseQuery {
     }
 
     addSql(sql: string) {
-        this.#sql.push(sql)
+        const trimmed = sql.split("\n").map(line => line.trim()).join("\n")
+        this.#sql.push(trimmed)
         return this
     }
 
@@ -91,6 +92,7 @@ export class DatabaseQuery {
 
     async execute<T>(): Promise<T[][]> {
         try {
+            await this.#connection.ready
             let query = new BoundQuery<T[][]>(this.#sql.join("\n"), this.#parameters)
             return await this.#connection.query(query)
         }
@@ -100,6 +102,10 @@ export class DatabaseQuery {
                 throw createError({
                     statusCode: 500,
                     statusMessage: message,
+                    data: {
+                        sql: this.#sql.join("\n"),
+                        parameters: this.#parameters,
+                    }
                 })
             }
             else {
@@ -107,7 +113,11 @@ export class DatabaseQuery {
                 throw createError({
                     statusCode: 500,
                     statusMessage: `Server Error: Oops.`,
-                    message: ex.message
+                    message: ex.message,
+                    data: {
+                        sql: this.#sql.join("\n"),
+                        parameters: this.#parameters,
+                    }
                 })
             }
         }
@@ -117,8 +127,8 @@ export class DatabaseQuery {
         let responses = await this.execute<T>()
         if (!responses[0] || !responses[0][0]) {
             throw createError({
-                statusCode: 404,
-                statusMessage: "This query returns nothing."
+                status: 404,
+                statusText: "This queryOne returns nothing.",
             })
         }
         return responses[0][0]
@@ -129,7 +139,7 @@ export class DatabaseQuery {
         if (!responses[0]) {
             throw createError({
                 status: 404,
-                statusText: "This query returns nothing."
+                statusText: "This queryAll returns nothing.",
             })
         }
         return responses[0]
