@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import sharp from "sharp"
 import type { MultiPartData } from "h3"
-import type { Media } from "~/types"
+import type { User, Media } from "~/types"
 
 // REFACTOR implement server-side token calculations
 export async function processMedia(media: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
@@ -42,30 +42,42 @@ export async function processMedia(media: MultiPartData): Promise<{ buffer: Buff
 
 type MediaType = "image" | "audio"
 
-export async function writeMedia(media: Media, buffer: Buffer, mediaType: MediaType) {
+export async function writeMedia(user: User, media: Media, buffer: Buffer, mediaType: MediaType) {
     try {
-        // TODO create the folder if it doesn't exist
-        fs.writeFileSync(`./media/${mediaType}/${media.id.toString().split(":").at(1)}.${media.type}`, buffer, {
+        const basePath = (ENV.isDevelopment())
+            ? `./media/${mediaType}`
+            : `./.production/media/${mediaType}`
+
+        if (!fs.existsSync(basePath)) {
+            fs.mkdirSync(basePath, { recursive: true })
+        }
+        fs.writeFileSync(`${basePath}/${extractId(media.id)}.${media.type}`, buffer, {
             flag: "w+"
-        })
+        })  
+
     }
     catch (error: any) {
         console.log(error)
-        removeMediaFromDatabase(media)
+
+        await new DatabaseQuery()
+            .addSql(`
+                RETURN {
+                    IF $media.user != $user AND $user.roles CONTAINSNOT "admin" {
+                        THROW "You are not allowed to do this.";
+                    };
+                    UPDATE $user SET
+                        tokens += $media.tokens;
+                    DELETE $media;
+                };
+            `)
+            .addRecord("media", media.id)
+            .addRecord("user", user.id)
+            .execute()
+
         throw createError({
             statusCode: 500,
             statusMessage: 'Unable to save file on server.',
             message: error.message,
         })
     }
-}
-
-// TODO add support for refund if failed
-async function removeMediaFromDatabase(media: Media) {
-    await new DatabaseQuery()
-        .addSql(`
-            DELETE $media
-        `)
-        .addRecord("media", media.id)
-        .execute()
 }
