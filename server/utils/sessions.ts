@@ -12,7 +12,7 @@ class SessionManager {
         let session = await new DatabaseQuery()
             .addSql(`
                 CREATE session SET
-                    user = $user
+                    user = $user;
             `)
             .addParameter("user", user.id)
             .queryOne<Session>()
@@ -23,12 +23,28 @@ class SessionManager {
             .addSql(`
                 DELETE session
                 WHERE user = $user
-                AND invalidated = true
+                AND (invalidated = true OR time::now()-time > 14d);
             `)
             .addRecord("user", session.user.id)
             .execute()
 
         return session
+    }
+
+    async authenticateLogin(id: string, password: string) {
+        const user = await new DatabaseQuery()
+            .addSql(`
+                SELECT *
+                OMIT password
+                FROM user
+                WHERE (email = $id OR name = $id)
+                AND crypto::argon2::compare(password, $password);
+            `)
+            .addParameter("id", id)
+            .addParameter("password", password)
+            .queryOne<User>()
+
+        return await this.add(user);
     }
 
     async authenticateToken(id: string) {
@@ -38,7 +54,7 @@ class SessionManager {
                 OMIT user.password
                 FROM $id
                 WHERE invalidated = false
-                FETCH user
+                FETCH user;
             `)
             .addRecord("id", id)
             .queryOne<Session>()
@@ -49,7 +65,7 @@ class SessionManager {
             await new DatabaseQuery()
                 .addSql(`
                     UPDATE $id SET
-                        invalidated = true
+                        invalidated = true;
                 `)
                 .addRecord("id", id)
                 .execute()
@@ -61,7 +77,7 @@ class SessionManager {
             .addSql(`
                 UPDATE session SET
                     invalidated = true
-                WHERE user = $user
+                WHERE user = $user;
             `)
             .addRecord("user", userId)
             .execute()
