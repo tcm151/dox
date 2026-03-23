@@ -56,9 +56,6 @@ function goBack() {
     return navigateTo(`/feed/${lastTab.value}`)
 }
 
-const showPrevious = computed(() => {
-    return router.getRoutes().at(0)
-})
 function previous() {
     router.back()
 }
@@ -66,7 +63,7 @@ function previous() {
 
 <template>
     <article class="column p-4" v-if="thread">
-        <header class="row g-2 mb-4">
+        <header class="row g-2 mb-2">
             <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
                 Return
@@ -74,9 +71,6 @@ function previous() {
             <button class="dark" @click="previous">
                 <i class="fa-solid fa-arrow-up"></i>
                 Previous
-            </button>
-            <button>
-                {{ showPrevious }}
             </button>
         </header>
         <section v-if="thread.replyTo" class="mb-2">

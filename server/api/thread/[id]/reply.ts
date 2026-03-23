@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     let thread = await readBody<Thread>(event)
 
-    return await new DatabaseQuery()
+    const reply = await new DatabaseQuery()
         .addSql(`
             CREATE thread SET
             user = $user,
@@ -18,4 +18,18 @@ export default defineEventHandler(async (event) => {
         .addRecord('replyTo', `thread:${id}`)
         .addParameter('content', thread.content)
         .queryOne<Thread>()
+
+    await new DatabaseQuery()
+        .addSql(`
+            CREATE notification SET
+            recipient = $thread.user,
+            context = $context,
+            message = $message    
+        `)
+        .addRecord("thread", `thread:${id}`)
+        .addRecord("context", reply.id)
+        .addParameter("message", `**${auth.name}** replied to you\n> ${reply.content}\n`)
+        .execute()
+
+    return reply
 })
