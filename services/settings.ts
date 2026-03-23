@@ -32,6 +32,13 @@ export const useSettings = defineStore("user.settings", () => {
         voting: {
             showMisleading: false,
             showNegative: true,
+        },
+        media: {
+            uploads: {
+                enabled: true,
+                imageMaxSize: 10,
+                audioMaxSize: 100,
+            }
         }
     })
 

@@ -4,6 +4,15 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
 
+    const settings = await useSettings()
+
+    if (!settings.media.uploads.enabled) {
+        return createError({
+            statusCode: 503,
+            message: "Media uploads are currently disabled."
+         })
+    }
+
     if (!data || !data[0]) {
         return createError({
             statusCode: 400,
@@ -11,11 +20,11 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // TODO make this configurable by the admin
-    if (data[0].data.byteLength > 100_000_000) {
+    const fileSize = data[0].data.byteLength / 1_048_576
+    if (fileSize > settings.media.uploads.audioMaxSize) {
         return createError({
             statusCode: 400,
-            message: "File size exceeds the 100MB limit."
+            message: `File size exceeds the ${settings.media.uploads.audioMaxSize}MB limit.`
         })
     }
 

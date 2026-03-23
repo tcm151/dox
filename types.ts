@@ -17,6 +17,13 @@ export interface AppSettings {
         showMisleading: boolean
         showNegative: boolean
     }
+    media: {
+        uploads: {
+            enabled: boolean
+            imageMaxSize: number
+            audioMaxSize: number
+        }
+    }
 }
 
 export interface Voteable {

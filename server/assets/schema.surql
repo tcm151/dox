@@ -59,6 +59,13 @@ IF !record::exists(appSettings:default) {
         voting: {
             showMisleading: true,
             showNegative: true,
+        },
+        media: {
+            uploads: {
+                enabled: true,
+                imageMaxSize: 10,
+                audioMaxSize: 100,
+            }
         }
     };
 };

@@ -155,3 +155,14 @@ WHERE token != NONE;
 UPDATE appSettings SET
     email.support = ""
 WHERE email.support = NONE;
+
+-- 2026-03-23: add media upload settings
+UPDATE appSettings SET
+    media.uploads.enabled = true
+WHERE media.uploads.enabled = NONE;
+UPDATE appSettings SET
+    media.uploads.imageMaxSize = 10
+WHERE media.uploads.imageMaxSize = NONE;
+UPDATE appSettings SET
+    media.uploads.audioMaxSize = 100
+WHERE media.uploads.audioMaxSize = NONE;

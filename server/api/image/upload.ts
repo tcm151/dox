@@ -4,10 +4,27 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
 
+    const settings = await useSettings()
+
+    if (!settings.media.uploads.enabled) {
+        return createError({
+            statusCode: 503,
+            message: "Media uploads are currently disabled."
+         })
+    }
+
     if (!data || !data[0]) {
         return createError({
             statusCode: 400,
             message: "You did pass any files to be uploaded."
+        })
+    }
+
+    const fileSize = data[0].data.byteLength / 1_048_576
+    if (fileSize > settings.media.uploads.imageMaxSize) {
+        return createError({
+            statusCode: 400,
+            message: `File size exceeds the ${settings.media.uploads.imageMaxSize}MB limit.`
         })
     }
 
@@ -18,14 +35,6 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 401,
             message: "You do not have enough tokens to upload this image."
-        })
-    }
-
-    // TODO make this configurable by the admin
-    if (buffer.byteLength > 10_000_000) {
-        return createError({
-            statusCode: 400,
-            message: "File size exceeds the 10MB limit."
         })
     }
 

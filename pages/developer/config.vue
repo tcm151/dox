@@ -75,6 +75,33 @@ watch(settings.app, async (updatedConfig) => {
                 <Toggle v-model:enabled="settings.app.voting.showNegative" />
             </div>
         </section>
+        <section>
+            <header>
+                <h2>Media</h2>
+            </header>
+            <div class="field row center py-2">
+                <label class="f-1">Allow Uploads</label>
+                <Toggle v-model:enabled="settings.app.media.uploads.enabled" />
+            </div>
+            <div class="field row center py-2">
+                <label class="f-1">Image Limit (MB)</label>
+                <input
+                    type="number"
+                    min="1" step="1"
+                    :disabled="!settings.app.media.uploads.enabled"
+                    v-model.number="settings.app.media.uploads.imageMaxSize"
+                >
+            </div>
+            <div class="field row center py-2">
+                <label class="f-1">Audio Limit (MB)</label>
+                <input
+                    type="number"
+                    min="1" step="1"
+                    :disabled="!settings.app.media.uploads.enabled"
+                    v-model.number="settings.app.media.uploads.audioMaxSize"
+                >
+            </div>
+        </section>
     </article>
 </template>
 
