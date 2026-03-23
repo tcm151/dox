@@ -1,5 +1,3 @@
-import type { Post } from "~/types"
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
@@ -11,24 +9,26 @@ export default defineEventHandler(async (event) => {
                 IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {
                     THROW "You are not allowed to do this.";
                 };
-
                 FOR $topic IN $post.topics {
-                    UPDATE $topic
-                    SET posts -= $post;
+                    UPDATE $topic SET
+                        posts -= $post;
                 };
-                
                 FOR $image IN $post.images {
                     UPDATE $post.user SET
-                    tokens += $image.tokens;
+                        tokens += $image.tokens;
                     DELETE $image;
                 };
-                
-                DELETE $post;
+                IF array::len($post.comments) > 0 {
+                    UPDATE $post SET
+                        content = "[deleted]",
+                        deleted = true;
+                }
+                ELSE {
+                    DELETE $post;
+                };
             };
         `)
         .addRecord("post", `post:${id}`)
         .addParameter("user", auth)
         .execute()
-
-    return true
 })

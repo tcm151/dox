@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import type { Image, User } from "~/types"
+import type { Image } from "~/types"
 
 
 export default defineEventHandler(async (event) => {
@@ -15,41 +15,38 @@ export default defineEventHandler(async (event) => {
         .addRecord("image", `image:${id}`)
         .queryOne<Image>()
 
-    if ((image.user as User).id !== auth.id && !hasRole(auth, "admin")) {
+    try {
+        const path = (ENV.isDevelopment())
+            ? `./media/images/${id}.${image.type}`
+            : `./.production/media/images/${id}.${image.type}`
+
+        if (fs.existsSync(path)) {
+            fs.rmSync(path)
+        }
+
+        await new DatabaseQuery()
+            .addSql(`
+                RETURN {
+                    IF $thread.user != $user AND $user.roles CONTAINSNOT "admin" {
+                        THROW "You are not allowed to do this.";
+                    };
+                    UPDATE $user SET
+                        tokens += $tokens;
+                    DELETE $image;
+                };
+            `)
+            .addRecord("user", auth.id)
+            .addRecord("image", image.id)
+            .addParameter("tokens", image.tokens)
+            .execute()
+
+        return true
+    }
+    catch (error: any) {
+        console.log(error)
         throw createError({
-            statusCode: 401,
-            message: "You are not allowed to delete this." 
-        })
+            status: 500,
+            statusText: error.message,
+        })      
     }
-
-    if (ENV.isDevelopment()) {
-        const devPath = `./media/images/${id}.${image.type}`
-        if (fs.existsSync(devPath)) {
-            fs.rmSync(devPath)
-        }
-    }
-    else {
-        const prodPath = `./.production/media/images/${id}.${image.type}`
-        if (fs.existsSync(prodPath)) {
-            fs.rmSync(prodPath)
-        }
-    }
-
-    await new DatabaseQuery()
-        .addSql(`
-            BEGIN TRANSACTION;
-
-            UPDATE $user SET
-            tokens += $tokens;
-
-            DELETE $image;
-
-            COMMIT TRANSACTION;
-        `)
-        .addRecord("user", auth.id)
-        .addRecord("image", image.id)
-        .addParameter("tokens", image.tokens)
-        .execute()
-    
-    return true
 })

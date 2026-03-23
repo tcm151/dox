@@ -1,22 +1,34 @@
-import type { Comment } from "~/types"
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     
     const { id } = event.context.params!
 
-    const comment = await new DatabaseQuery()
+    await new DatabaseQuery()
         .addSql(`
-            IF $comment.user = $user {
-                RETURN UPDATE $comment SET
-                content = $content,
-                deleted = true
+            RETURN {
+                IF $comment.user != $user AND $user.roles CONTAINSNOT "admin" {
+                    THROW "You are not allowed to do this.";
+                };
+                LET $replies = (
+                    SELECT VALUE id
+                    FROM comment
+                    WHERE replyTo = $comment
+                );
+                IF array::len($replies) > 0 {
+                    UPDATE $comment SET
+                        content = "[deleted]",
+                        deleted = true;
+                }
+                ELSE {
+                    UPDATE $comment.post SET
+                        comments -= $comment;
+                    DELETE $comment;
+                };
             }
         `)
         .addRecord("comment", `comment:${id}`)
-        .addParameter("content", "[deleted]")
         .addRecord("user", auth.id)
-        .queryOne<Comment>()
+        .execute()
 
-    return comment.deleted
+    return true
 })
