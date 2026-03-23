@@ -4,6 +4,7 @@ import type { Thread, User } from '~/types'
 
 const route = useRoute()
 const hints = useHints()
+const router = useRouter()
 const session = getSession()
 
 const id = route.params.id?.toString()
@@ -55,14 +56,27 @@ function goBack() {
     return navigateTo(`/feed/${lastTab.value}`)
 }
 
+const showPrevious = computed(() => {
+    return router.getRoutes().at(0)
+})
+function previous() {
+    router.back()
+}
 </script>
 
 <template>
     <article class="column p-4" v-if="thread">
-        <header class="row mb-4">
+        <header class="row g-2 mb-4">
             <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
-                Back to Feed
+                Return
+            </button>
+            <button class="dark" @click="previous">
+                <i class="fa-solid fa-arrow-up"></i>
+                Previous
+            </button>
+            <button>
+                {{ showPrevious }}
             </button>
         </header>
         <section v-if="thread.replyTo" class="mb-2">
@@ -84,15 +98,14 @@ function goBack() {
             <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
                 <div class="row-wrap g-1">
                     <Votes :target="thread.quote" />
-                    <div class="row-wrap f-1 g-1">
-                        <UserTag :user="(thread.quote.user as User)" />
-                        <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
-                        <Tag type="info" icon="fa-message" :label="thread.quote.replies.length.toString()" />
-                        <DurationTag :time="thread.quote.time" />
+                    <UserTag :user="(thread.quote.user as User)" />
+                    <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
+                    <Tag type="info" icon="fa-message" :label="thread.quote.replies.length.toString()" />
+                    <DurationTag :time="thread.quote.time" />
+                    <div v-if="thread.quote.topics.length > 0" class="row-wrap g-1">
+                        <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
                     </div>
-                    <div v-if="thread.quote.topics.length > 0" class="row-wrap f-1 g-1">
-                        <TopicTag class="f-10" v-for="topic in thread.quote.topics" :topic="topic" />
-                    </div>
+                    <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
                 </div>
                 <Markdown class="content preview" :content="thread.quote.content" />
             </aside>
