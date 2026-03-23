@@ -99,11 +99,6 @@ export default defineNuxtConfig({
                 title: process.env.SITE_TITLE,
                 titleShort: process.env.SITE_TITLE_SHORT,
             },
-            surreal: {
-                url: process.env.SURREAL_URL,
-                namespace: process.env.SURREAL_NAMESPACE,
-                database: process.env.SURREAL_DATABASE,
-            },
         },
     },
 })

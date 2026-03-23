@@ -2,7 +2,7 @@ import type { AppSettings } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    requireRole(auth, ["admin", "developer"])
+    requireRole(auth, "admin")
 
     const { config: settings } = await readBody<{ config: any }>(event)
     const id = settings.id
