@@ -77,13 +77,6 @@ export default defineNuxtConfig({
                 'highlight.js/lib/common',
             ],
         },
-        server: {
-            watch: {
-                ignored: [
-                    '~/server/utils.database.ts',
-                ]
-            }
-        }
     },
     runtimeConfig: {
         smtp: {
