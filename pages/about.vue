@@ -15,12 +15,13 @@ OpenForum is a self-hosted, modern forum platform for people who want an alterna
 
 ## What You Get
 
-- **Forum + feeds** with posts, threads, topics, and search.
-- **Profiles and authentication** with account/session flows.
-- **Media support** for images and audio.
-- **Voting, reporting, and moderation tools** for healthy public spaces.
-- **Admin and developer areas** for configuration and operational tasks.
-- **Self-host friendly architecture** with Nuxt + SurrealDB.
+- **Forum + feeds** with posts, threads, topics, discover views, and search.
+- **Richer thread conversations** with replies, quoting, editing, and thread chains.
+- **Profiles and authentication** with multi-login session flows and account switching.
+- **Media support** for image and audio uploads, browsing, and detail pages.
+- **Voting, reporting, and moderation tools** for healthy public communities.
+- **Admin and developer areas** for role management, reports, feedback, configuration, and database operations.
+- **Self-host friendly architecture** powered by Nuxt and SurrealDB 3, with support for local embedded setups or remote database deployments.
 
 ## Who It's For
 

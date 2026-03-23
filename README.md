@@ -13,12 +13,13 @@ OpenForum is a self-hosted, modern forum platform for people who want an alterna
 
 ## What You Get
 
-- **Forum + feeds** with posts, threads, topics, and search.
-- **Profiles and authentication** with account/session flows.
-- **Media support** for images and audio.
-- **Voting, reporting, and moderation tools** for healthy public spaces.
-- **Admin and developer areas** for configuration and operational tasks.
-- **Self-host friendly architecture** with Nuxt + SurrealDB.
+- **Forum + feeds** with posts, threads, topics, discover views, and search.
+- **Richer thread conversations** with replies, quoting, editing, and thread chains.
+- **Profiles and authentication** with multi-login session flows and account switching.
+- **Media support** for image and audio uploads, browsing, and detail pages.
+- **Voting, reporting, and moderation tools** for healthy public communities.
+- **Admin and developer areas** for role management, reports, feedback, configuration, and database operations.
+- **Self-host friendly architecture** powered by Nuxt and SurrealDB 3, with support for local embedded setups or remote database deployments.
 
 ## Who It’s For
 
@@ -31,9 +32,27 @@ OpenForum is a self-hosted, modern forum platform for people who want an alterna
 
 If you want to run or contribute locally, follow the [Contribution Guide](./docs/ContributionGuide.md).
 
+## Deployment Types
+
+### Remote SurrealDB
+
+- Best for: dedicated database hosts, shared infrastructure, or multi-service deployments.
+- App connects over RPC with configured credentials.
+- Configure: set `SURREAL_TYPE=remote` and `SURREAL_URL=http://<host>:<port>/rpc`.
+
+### Embedded SurrealDB
+
+- Best for: single-node self-hosting and simpler local deployments.
+- App starts SurrealDB via embedded engines inside the server process.
+- Configure: set `SURREAL_TYPE=embedded` and `SURREAL_URL=rocksdb://<path-to-db-file>`.
+
 ## Project Status
 
 OpenForum is an active passion project, originally built for personal publishing and community discussion. If this direction resonates with you, star the repository and open issues with feedback or ideas.
+
+## License
+
+OpenForum is released under the MIT License. See [LICENSE](./LICENSE).
 
 ## Philosophy
 

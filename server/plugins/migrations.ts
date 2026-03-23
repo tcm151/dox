@@ -13,7 +13,7 @@ export default defineNitroPlugin(async () => {
             )
             .execute()
             
-        console.log("Database migrations completed successfully")
+        console.log("Database migrations completed successfully.")
     }
     catch (error: any) {
         throw createError({
