@@ -20,7 +20,7 @@ export const authenticateLogin = async (event: H3Event) => {
         const sessionManager = useSessions()
         const header = atob(getHeader(event, 'Authorization') ?? "")
 
-        const user = await new DatabaseQuery(SurrealInstance)
+        const user = await new DatabaseQuery()
             .addSql(`
                 SELECT *
                 OMIT password

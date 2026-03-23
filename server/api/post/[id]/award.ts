@@ -4,6 +4,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
+    // TODO need to check that the user has enough tokens
     return await new DatabaseQuery()
         .addSql(`
             RETURN {

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const register = await readBody<Register>(event)
     const header = atob(getHeader(event, 'Authorization') ?? "")
     
-    const user = await new DatabaseQuery(SurrealInstance)
+    const user = await new DatabaseQuery()
         .addSql(`
             CREATE user SET
             email = $email,
