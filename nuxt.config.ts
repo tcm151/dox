@@ -28,7 +28,6 @@ export default defineNuxtConfig({
             ],
             meta: [
                 { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" },
-                { name: "google-adsense-account", content: "ca-pub-3080690900599338" },
             ],
         },
     },
