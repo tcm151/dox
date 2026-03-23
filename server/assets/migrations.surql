@@ -150,3 +150,8 @@ ON TABLE session;
 UPDATE session SET
     token = NONE
 WHERE token != NONE;
+
+-- 2026-03-23: add support email to settings
+UPDATE appSettings SET
+    email.support = ""
+WHERE email.support = NONE;

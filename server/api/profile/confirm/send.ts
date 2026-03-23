@@ -1,7 +1,15 @@
-import type { User, Confirmation } from "~/types"
+import type { Confirmation, AppSettings } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+
+    // TODO pull into server utility 
+    const appSettings = await new DatabaseQuery()
+        .addSql(`
+            SELECT *
+            FROM appSettings:default
+        `)
+        .queryOne<AppSettings>()
 
     const confirmation = await new DatabaseQuery()
         .addSql(`
@@ -17,6 +25,7 @@ export default defineEventHandler(async (event) => {
     template = template.replace('{{user.name}}', auth.name)
     template = template.replace('{{confirmLink}}', `${baseUrl}/profile?confirmation=${confirmation.id}`)
     template = template.replace('{{reportLink}}', `${baseUrl}/profile?report=${confirmation.id}`)
+    template = template.replace('{{supportEmail}}', appSettings.email.support ?? "support@example.com")
 
     const email = useEmail()
     return await email.sendMessage({

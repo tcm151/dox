@@ -21,6 +21,15 @@ watch(settings.app, async (updatedConfig) => {
     <article class="box form column g-4 p-5 m-4">
         <section>
             <header>
+                <h2>Email</h2>
+            </header>
+            <div class="field row center py-2">
+                <label class="f-1">Support</label>
+                <input type="email" v-model="settings.app.email.support">
+            </div>
+        </section>
+        <section>
+            <header>
                 <h2>Navbar</h2>
             </header>
             <div class="field row center py-2">

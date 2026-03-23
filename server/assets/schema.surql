@@ -41,8 +41,11 @@ DURATION FOR TOKEN 1h, FOR SESSION 14d
 -- TABLE: appSettings
 -- ------------------------------
 DEFINE TABLE OVERWRITE appSettings SCHEMALESS;
-IF !(SELECT * FROM appSettings) {
+IF !record::exists(appSettings:default) {
     CREATE appSettings:default CONTENT {
+        email: {
+            support: "",
+        },
         navbar: {
             showStore: false,
             showFeedback: true,

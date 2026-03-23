@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+const settings = useSettings()
 </script>
 
 <template>
@@ -7,8 +7,11 @@
         <section class="box p-5">
             <h1>Contact</h1>
             <ul class="content">
-                <li><a href="mailto:support@tcmdev.ca">support@tcmdev.ca</a></li>
-                <li><a href="mailto:inquiries@tcmdev.ca">inquiries@tcmdev.ca</a></li>
+                <li>
+                    <a :href="`mailto:${settings.app.email.support}`">
+                        {{ settings.app.email.support }}
+                    </a>
+                </li>
             </ul>
         </section>
         <section class="box p-5">

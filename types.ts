@@ -1,5 +1,8 @@
 export interface AppSettings {
     id: string
+    email: {
+        support: string,
+    },
     navbar: {
         showStore: boolean,
         showFeedback: boolean,
