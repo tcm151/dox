@@ -55,9 +55,6 @@ UPDATE user SET
 WHERE moderator = true;
 
 -- 2024-06-17: change url of images
--- UPDATE image SET
---     url = string::replace(url, /\/image\/([\w\d]+)$/, "/cdn/image/$1")
--- WHERE !string::matches(url, /\/cdn\/image\/([\w\d]+)/);
 UPDATE image SET
     votes.positive = [],
     votes.misleading = [],
@@ -130,29 +127,26 @@ ON TABLE session;
 -- 2026-03-20 remove score from votes
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE user;
-UPDATE user SET
-    votes.score = NONE;
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE topic;
-UPDATE topic SET
-    votes.score = NONE;
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE post;
-UPDATE post SET 
-    votes.score = NONE;
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE thread;
-UPDATE thread SET
-    votes.score = NONE;
 REMOVE FIELD IF EXISTS votes.score
 ON TABLE comment;
-UPDATE comment SET
-    votes.score = NONE;
+UPDATE user, topic, post, thread, comment SET
+    votes.score = NONE
+WHERE votes.score != NONE;
 
 -- 2026-03-21 visits should always exist
-UPDATE image SET
+UPDATE image, topic SET
     visits = 1
 WHERE visits = NONE;
-UPDATE topic SET
-    visits = 1
-WHERE visits = NONE;
+
+-- 2026-03-22
+REMOVE FIELD IF EXISTS token
+ON TABLE session;
+UPDATE session SET
+    token = NONE
+WHERE token != NONE;

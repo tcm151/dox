@@ -1,29 +1,22 @@
-import type { Post, Image, Thread } from "~/types"
+import type { Post } from "~/types"
 
 export default defineEventHandler(async (event) => {
-    let query = getQuery<{ sortBy: string, page: number, pageSize: number }>(event)
-    
+    const { topic } = event.context.params!
+    let query = getQuery<{ sortBy: string }>(event)
+
     let posts = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
                 replyTo.id, replyTo.title, topics, comments, votes, score,
                 archived, images, visits
             FROM post
-            WHERE archived != true
+            WHERE topics CONTAINS $topic
+            AND archived != true
             ORDER BY time DESC
             FETCH user, replyTo, images
         `)
+        .addRecord("topic", `topic:${topic}`)
         .queryAll<Post>()
-
-    let images = await new DatabaseQuery()
-        .addSql(`
-            SELECT id, user.id, user.name, votes, score, type, tokens, time, url
-            FROM image
-            WHERE public = true
-            ORDER BY time DESC
-            FETCH user
-        `)
-        .queryAll<Image>()
 
     let threads = await new DatabaseQuery()
         .addSql(`
@@ -31,11 +24,13 @@ export default defineEventHandler(async (event) => {
                 topics, quote, replies, votes, score,
                 edited, timeEdited, visits, images
             FROM thread
-            WHERE replyTo = NONE
+            WHERE topics CONTAINS $topic
+            AND replyTo = NONE
             ORDER BY time DESC
             FETCH user, quote, quote.user, images
         `)
-        .queryAll<Thread>()
+        .addRecord("topic", `topic:${topic}`)
+        .queryAll<Post>()
 
-    return sortList([...posts, ...images, ...threads], query.sortBy)
+    return sortList([...posts, ...threads], query.sortBy)
 })

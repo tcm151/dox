@@ -83,7 +83,6 @@ main.page {
     overflow-y: auto;
 
     > article, > section {
-        // box-sizing: border-box;
         flex: 1 1;
     }
 }

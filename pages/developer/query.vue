@@ -75,7 +75,7 @@ async function submitQuery() {
         history.value.unshift(query.value)
         results.value = response ?? []
         if (results.value.length > 0) {
-            selectedResult.value = 0
+            selectedResult.value = results.value.length-1
         }
         tab.value = 'Results'
     }

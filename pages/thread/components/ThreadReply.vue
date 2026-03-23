@@ -6,10 +6,6 @@ const props = defineProps<{
     chain?: boolean
 }>()
 
-function replyTo(thread: Thread) {
-    navigateTo(`/thread/${extractId(thread.id)}`)
-}
-
 </script>
 
 <template>
@@ -25,7 +21,7 @@ function replyTo(thread: Thread) {
                         <Tag type="info" icon="fa-message" :label="thread.replies.length.toString()" />
                         <DurationTag :time="thread.time" />
                         <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
-                        <Tag v-if="!thread.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="replyTo(thread)" />
+                        <Tag v-if="!thread.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                     </div>
                 </div>
                 <Markdown class="content preview" :content="thread.content" />
@@ -40,7 +36,7 @@ function replyTo(thread: Thread) {
                             <Tag type="info" icon="fa-message" :label="reply.replies.length.toString()" />
                             <DurationTag :time="reply.time" />
                             <Tag v-if="reply.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(reply.timeEdited)" />
-                            <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="replyTo(reply)" />
+                            <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                         </div>
                     </div>
                     <Markdown class="content preview" :content="reply.content" />

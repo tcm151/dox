@@ -46,22 +46,26 @@ function sortFeed(type: string) {
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <slot name="buttons" />
-            <button @click="sortFeed('new')" :class="{ selected: sortType === 'new' }">
-                <i class="fa-solid fa-egg"></i>
-                <span>New</span>
-            </button>
-            <button @click="sortFeed('hot')" :class="{ selected: sortType === 'hot' }">
-                <i class="fa-solid fa-fire"></i>
-                <span>Hot</span>
-            </button>
-            <button @click="sortFeed('top')" :class="{ selected: sortType === 'top' }">
-                <i class="fa-solid fa-ranking-star"></i>
-                <span>Top</span>
-            </button>
+            <ClientOnly>
+                <button @click="sortFeed('new')" :class="{ selected: sortType === 'new' }">
+                    <i class="fa-solid fa-egg"></i>
+                    <span>New</span>
+                </button>
+                <button @click="sortFeed('hot')" :class="{ selected: sortType === 'hot' }">
+                    <i class="fa-solid fa-fire"></i>
+                    <span>Hot</span>
+                </button>
+                <button @click="sortFeed('top')" :class="{ selected: sortType === 'top' }">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Top</span>
+                </button>
+            </ClientOnly>
         </header>
-        <template v-for="item in props.items.data.value" :key="item.id">
-            <slot name="item" v-bind="(item as T)" />
-        </template>
+        <ClientOnly>
+            <template v-for="item in props.items.data.value" :key="item.id">
+                <slot name="item" v-bind="(item as T)" />
+            </template>
+        </ClientOnly>
     </section>
 </template>
 

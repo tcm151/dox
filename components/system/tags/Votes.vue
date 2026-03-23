@@ -38,7 +38,7 @@ const voteable = computed(() => {
 
 <style scoped lang="scss">
 span:is(.positive, .misleading, .negative) {
-    width: 0.5rem;
+    width: 2rem;
     user-select: none;
 }
 </style>

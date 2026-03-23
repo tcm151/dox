@@ -64,7 +64,7 @@ async function unfollowUser() {
         </section>
         <section class="row-wrap g-1">
             <Votes :target="user" />
-            <!-- TODO add popups to view these in more detail -->
+            <!-- TODO add pages to view these in more detail -->
             <Tag class="f-1" type="link">
                 <strong>{{ user.topics.length }}</strong> topics
             </Tag>

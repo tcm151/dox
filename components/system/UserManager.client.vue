@@ -12,7 +12,7 @@ defineProps<{
 interface Profile {
     id: string
     name: string
-    token: string
+    session: string
 }
 
 const accounts = useLocalStorage<Profile[]>("profiles", [])
@@ -27,7 +27,7 @@ events.subscribe(Trigger.authenticatedUser, ({ user, token }: { user: User, toke
     accounts.value.unshift({
         id: user.id,
         name: user.name,
-        token: token,
+        session: token,
     })
     
 })
@@ -42,7 +42,7 @@ const waiting = ref<string>("")
 async function useLogin(profile: Profile) {
     try {
         waiting.value = profile.id
-        await session.authenticate(profile.token)
+        await session.authenticate(profile.session)
         events.publish(Trigger.toggleUserManager)
         hints.addSuccess(`Logged into profile: ${session.user.name}`)
     }

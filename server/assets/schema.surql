@@ -120,9 +120,8 @@ DEFINE FIELD OVERWRITE score ON user COMPUTED
 -- ------------------------------
 DEFINE TABLE OVERWRITE session SCHEMALESS;
 DEFINE FIELD OVERWRITE user ON session TYPE record<user>;
-DEFINE FIELD OVERWRITE token ON session TYPE string;
-DEFINE FIELD OVERWRITE invalidated ON session TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD OVERWRITE time ON session TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE invalidated ON session TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
@@ -322,7 +321,7 @@ DEFINE FIELD OVERWRITE score ON image COMPUTED
 -- ------------------------------
 DEFINE TABLE OVERWRITE notification SCHEMALESS;
 DEFINE FIELD OVERWRITE recipient ON notification TYPE record<user>;
-DEFINE FIELD OVERWRITE context ON notification TYPE record<post | comment | user>;
+DEFINE FIELD OVERWRITE context ON notification TYPE record<post|comment|user|thread>;
 DEFINE FIELD OVERWRITE message ON notification TYPE string;
 DEFINE FIELD OVERWRITE time ON notification TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD OVERWRITE viewed ON notification TYPE bool DEFAULT ALWAYS false;

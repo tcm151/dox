@@ -3,15 +3,14 @@ import type { Sortable, Post } from '~/types'
 
 const cache = useCache()
 
+const pins = await useFetch<Post[]>("/api/post/pinned")
+
 const sortBy = cache.get<string>("feed.sort", () => "new")
 const discover = await useFetch<Sortable[]>("/api/feed/discover", {
     query: {
         sortBy: sortBy
     }
 })
-
-const pins = await useFetch<Post[]>("/api/post/pinned")
-
 </script>
 
 <template>
