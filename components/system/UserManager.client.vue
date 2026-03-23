@@ -78,7 +78,7 @@ function newLogin() {
                     <span>{{ user.name }}</span>
                 </ButtonSpinner>
                 <button class="link" @click="removeLogin(user)">
-                    <i class="fa-solid fa-trash"></i>
+                    <i class="fa-solid fa-trash-can"></i>
                 </button>
             </div>
             <button class="link" @click="newLogin">

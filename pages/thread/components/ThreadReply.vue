@@ -21,7 +21,7 @@ const props = defineProps<{
                         <Tag type="info" icon="fa-message" :label="thread.replies.length.toString()" />
                         <DurationTag :time="thread.time" />
                         <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
-                        <Tag v-if="!thread.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
+                        <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                     </div>
                 </div>
                 <Markdown class="content preview" :content="thread.content" />

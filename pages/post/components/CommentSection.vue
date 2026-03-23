@@ -48,7 +48,7 @@ watch(() => props.loading, (status) => {
             :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)"
         >
             <template #item="{ item: comment }">
-                <CommentPreview :comment="comment" :post="post" @refresh="emit('refresh', sortType)" />
+                <CommentPreview :comment="comment" @refresh="emit('refresh', sortType)" />
             </template>
         </Tree>
     </section>

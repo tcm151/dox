@@ -44,7 +44,7 @@ async function deleteDraft(draft: Draft) {
                     <Tag type="link" class="f-1" v-for="topic in draft.topics" :label="extractId(topic)" />
                     <DurationTag :time="draft.time" />
                     <Tag class="info" icon="fa-pen" label="Edit" @click="emit('view', draft)" />
-                    <Tag class="danger" icon="fa-trash" @click="deleteDraft(draft)">
+                    <Tag class="danger" icon="fa-trash-can" @click="deleteDraft(draft)">
                     </Tag>
                 </div>
             </div>

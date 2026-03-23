@@ -8,12 +8,19 @@ const cache = useCache()
 const id = route.params.postId?.toString()
 
 await useFetch(`/api/post/${id}/visit`)
-const sortType = cache.get<string>("comments.sort", () => "new")
+const sortBy = cache.get<string>("comments.sort", () => "new")
 const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${id}`, {
     query: {
-        sortBy: sortType
+        sortBy: sortBy
     }
 })
+
+async function refreshPost(sortType: string) {
+    if (sortType == sortBy.value) {
+        await refresh()
+    }
+    sortBy.value = sortType
+}
 
 useSeoMeta({
     ogType: "article",
@@ -136,7 +143,7 @@ function writePostReply() {
         hints.addError("You must be logged in to interact with others.")
         return
     }
-    return navigateTo(`/editor?replyTo=${extractId(post.value?.id)}`)
+    return navigateTo(`/editor?replyTo=${extractId(post.value!.id)}`)
 }
 
 async function reportPost() {
@@ -263,9 +270,9 @@ function toggleOptions() {
         </div>
         <CommentSection
             :post="post"
-            :sort-type="sortType"
+            :sort-type="sortBy"
             :loading="status"
-            @refresh="(type) => sortType = type"
+            @refresh="refreshPost"
         />
     </article>
 </template>

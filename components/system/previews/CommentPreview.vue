@@ -5,7 +5,6 @@ const hints = useHints()
 const session = getSession()
 
 const props = defineProps<{
-    post: Post
     comment: Comment
 }>()
 
@@ -50,7 +49,7 @@ async function submitComment(replyId: Post | Comment, content: string) {
         await session.useApi<Comment>("/api/comment/add", {
             time: new Date(),
             user: session.user?.id,
-            post: props.post.id,
+            post: props.comment.post,
             replyTo: replyId.id,
             content: content,
             votes: {
@@ -86,7 +85,6 @@ async function deleteComment(commentId: string) {
             <Votes :target="comment" />
             <!-- TODO create AuthorTag -->
             <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user as string)}`)">
-                <!-- <i class="fa-solid fa-feather-pointed" v-if="comment.user === (post.user as User).id"></i>     -->
                 <i class="fa-solid fa-user"></i>
                 {{ `${(comment.user as User).name}` }}
             </span>
@@ -101,7 +99,7 @@ async function deleteComment(commentId: string) {
             <ClientOnly>
                 <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">
                     <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
-                    <Tag type="link" icon="fa-trash" title="Delete" @click="deleteComment(comment.id)" />
+                    <Tag type="link" icon="fa-trash-can" title="Delete" @click="deleteComment(comment.id)" />
                 </template>
             </ClientOnly>
         </header>
