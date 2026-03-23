@@ -1,4 +1,4 @@
-import { Surreal, createRemoteEngines, RecordId, BoundQuery } from 'surrealdb'
+import { createRemoteEngines, Surreal, RecordId } from 'surrealdb'
 import { createNodeEngines } from '@surrealdb/node';
 
 const config = useRuntimeConfig()
@@ -102,31 +102,21 @@ export class DatabaseQuery {
         try {
             const connection = this.#connection ?? await initializeDatabase()
             await connection.ready
-            let query = new BoundQuery<T[][]>(this.#sql.join("\n"), this.#parameters)
-            return await connection.query(query)
+            return await connection.query(this.#sql.join("\n"), this.#parameters).collect()
         }
-        catch (ex: any) {
-            if (ex.message.startsWith("Surreal Error:")) {
-                const message = ex.message.split(":").at(1).trim()
+        catch (error: any) {
+            if (error.message.startsWith("Surreal Error:")) {
+                const message = error.message.split(":").at(1).trim()
                 throw createError({
                     statusCode: 500,
                     statusMessage: message,
-                    data: {
-                        sql: this.#sql.join("\n"),
-                        parameters: this.#parameters,
-                    }
                 })
             }
             else {
-                console.log(ex)
                 throw createError({
                     statusCode: 500,
                     statusMessage: `Server Error: Oops.`,
-                    message: ex.message,
-                    data: {
-                        sql: this.#sql.join("\n"),
-                        parameters: this.#parameters,
-                    }
+                    message: error.message,
                 })
             }
         }
