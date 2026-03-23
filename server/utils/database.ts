@@ -2,9 +2,12 @@ import { Surreal, createRemoteEngines, RecordId, BoundQuery } from 'surrealdb'
 import { createNodeEngines } from '@surrealdb/node';
 
 const config = useRuntimeConfig()
-export let SurrealInstance: Surreal
+let SurrealInstance: Surreal | undefined
 
-(async () => {
+async function initializeDatabase() {
+    if (SurrealInstance && SurrealInstance.status != "disconnected") {
+        return Promise.resolve(SurrealInstance)
+    }
     if (config.surreal.type == "remote") {
         if (config.surreal.url == "" || !config.surreal.url.includes("/rpc")) {
             throw createError({
@@ -24,6 +27,7 @@ export let SurrealInstance: Surreal
         })
         await SurrealInstance.ready
         console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
+        return SurrealInstance
     }
     else if (config.surreal.type == "embedded") {
         console.log("Starting embedded instance...")
@@ -40,18 +44,22 @@ export let SurrealInstance: Surreal
         })
         await SurrealInstance.ready
         console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
+        return SurrealInstance
     }
-})()
-
+    else {
+        throw createError({
+            status: 500,
+            statusText: `Database type was [${config.surreal.type ?? "empty"}].`
+        })
+    }
+}
 export class DatabaseQuery {
     #sql: string[] = []
-    #parameters: { [key: string]: any } = { }
-    #connection: Surreal = SurrealInstance
+    #parameters: Record<string, any> = { }
+    #connection: Surreal | undefined
 
     constructor(connection?: Surreal) {
-        if (connection) {
-            this.#connection = connection
-        }
+        this.#connection = connection ?? SurrealInstance
     }
 
     private parseRecord(record: string) {
@@ -92,9 +100,10 @@ export class DatabaseQuery {
 
     async execute<T>(): Promise<T[][]> {
         try {
-            await this.#connection.ready
+            const connection = this.#connection ?? await initializeDatabase()
+            await connection.ready
             let query = new BoundQuery<T[][]>(this.#sql.join("\n"), this.#parameters)
-            return await this.#connection.query(query)
+            return await connection.query(query)
         }
         catch (ex: any) {
             if (ex.message.startsWith("Surreal Error:")) {
