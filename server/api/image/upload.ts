@@ -48,6 +48,6 @@ export default defineEventHandler(async (event) => {
         .addParameter("origin", useRuntimeConfig().public.baseUrl)
         .queryOne<Image>()
 
-    await writeMedia(image, buffer, "image")
+    await writeMedia(auth, image, buffer, "image")
     return { image, tokens }
 })

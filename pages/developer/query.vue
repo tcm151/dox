@@ -79,8 +79,8 @@ async function submitQuery() {
         }
         tab.value = 'Results'
     }
-    catch (ex: any) {
-        hints.addError(ex.message)
+    catch (error: any) {
+        hints.addError(error.message)
     }
     finally {
         loading.value = false

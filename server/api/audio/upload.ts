@@ -49,6 +49,6 @@ export default defineEventHandler(async (event) => {
         .addParameter("origin", useRuntimeConfig().public.baseUrl)
         .queryOne<Audio>()
         
-    await writeMedia(audio, buffer, "audio")
+    await writeMedia(auth, audio, buffer, "audio")
     return { audio, tokens }
 })

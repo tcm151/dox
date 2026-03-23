@@ -46,7 +46,7 @@ async function useLogin(profile: Profile) {
         events.publish(Trigger.toggleUserManager)
         hints.addSuccess(`Logged into profile: ${session.user.name}`)
     }
-    catch (ex: any) {
+    catch (error: any) {
         events.publish(Trigger.toggleUserManager)
         events.publish(Trigger.toggleLogin, profile.name)
     }

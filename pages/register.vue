@@ -48,7 +48,7 @@ async function register() {
         hints.addSuccess('Created account successfully!')
         navigateTo('/profile')
     }
-    catch (ex: any) {
+    catch (error: any) {
         hints.addError("Failed to register your account.")
     }
     finally {

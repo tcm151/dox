@@ -15,11 +15,11 @@ export default defineNitroPlugin(async () => {
             
         console.log("Database migrations completed successfully")
     }
-    catch (ex: any) {
+    catch (error: any) {
         throw createError({
             statusCode: 500,
             statusText: "Failed to apply database migrations on application startup.",
-            message: ex.message
+            message: error.message
         })
     }
 })
