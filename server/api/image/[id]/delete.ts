@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
         await new DatabaseQuery()
             .addSql(`
                 RETURN {
-                    IF $thread.user != $user AND $user.roles CONTAINSNOT "admin" {
+                    IF $image.user != $user AND $user.roles CONTAINSNOT "admin" {
                         THROW "You are not allowed to do this.";
                     };
                     UPDATE $user SET

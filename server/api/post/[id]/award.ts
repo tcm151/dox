@@ -10,6 +10,9 @@ export default defineEventHandler(async (event) => {
                 IF $post.user = $awarder {
                     THROW "You cannot award your own posts...";
                 };
+                IF $post.votes.awards CONTAINS $awarder {
+                    THROW "You have already awarded this post.";
+                };
                 
                 UPDATE $post SET
                 votes.awards = array::union(votes.awards, [$awarder]);
@@ -24,8 +27,9 @@ export default defineEventHandler(async (event) => {
                 recipient = $post.user,
                 context = $post.id,
                 message = $message;
-                
-                RETURN SELECT * FROM $post;
+
+                RETURN SELECT *
+                FROM $post;
             };
         `)
         .addRecord("post", `post:${id}`)

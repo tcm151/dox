@@ -8,7 +8,7 @@ interface Session {
 }
 class SessionManager {
 
-    async add(user: User): Promise<Session> {
+    async add(user: User) {
         let session = await new DatabaseQuery()
             .addSql(`
                 CREATE session SET
@@ -19,12 +19,19 @@ class SessionManager {
 
         session.user = user
 
-        // TODO delete old sessions
+        await new DatabaseQuery()
+            .addSql(`
+                DELETE session
+                WHERE user = $user
+                AND invalidated = true
+            `)
+            .addRecord("user", session.user.id)
+            .execute()
 
         return session
     }
 
-    async authenticateToken(id: string): Promise<Session | undefined> {
+    async authenticateToken(id: string) {
         return await new DatabaseQuery()
             .addSql(`
                 SELECT *
@@ -44,7 +51,7 @@ class SessionManager {
                     UPDATE $session SET
                         invalidated = true
                 `)
-                .addParameter("session", id)
+                .addRecord("session", id)
                 .execute()
         }
     }
@@ -56,7 +63,7 @@ class SessionManager {
                     invalidated = true
                 WHERE user = $user
             `)
-            .addParameter("user", userId)
+            .addRecord("user", userId)
             .execute()
     }
 }
