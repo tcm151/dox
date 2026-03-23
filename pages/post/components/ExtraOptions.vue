@@ -34,7 +34,7 @@ function emitAndClose(event: string) {
         @close="emit('close')"
     >
         <section class="column g-2">
-            <button v-if="(post.user as User).id === session.user.id" @click="emitAndClose('edit')">
+            <button v-if="post.user.id === session.user.id" @click="emitAndClose('edit')">
                 <i class="fa-solid fa-eraser"></i>
                 <span>Edit</span>
             </button>
@@ -55,7 +55,7 @@ function emitAndClose(event: string) {
                 <span v-if="!post.archived">Archive</span>
                 <span v-else>Unarchive</span>
             </button>
-            <button v-if="(post.user as User).id === session.user.id" @click="emitAndClose('delete')">
+            <button v-if="post.user.id === session.user.id" @click="emitAndClose('delete')">
                 <i class="fa-solid fa-trash-can"></i>
                 <span>Delete</span>
             </button>

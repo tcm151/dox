@@ -32,12 +32,7 @@ const loading = computed(() => posts.status.value.toString() == "pending")
         </header>
         <Feed :items="posts">
             <template #item="item">
-                <template v-if="item.id.startsWith('post')">
-                    <PostPreview :post="(item as Post)" />
-                </template>
-                <template v-if="item.id.startsWith('thread')">
-                    <ThreadPreview :thread="(item as Thread)" />
-                </template>
+                <MultiPreview :item="item" />
             </template>
         </Feed>
     </section>

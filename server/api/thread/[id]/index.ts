@@ -40,6 +40,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    thread.replies = sortList(thread.replies, "top") as Thread[]
+    thread.replies = sortList(thread.replies as Thread[], "top") as (Thread & string)[]
     return thread
 })

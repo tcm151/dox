@@ -56,6 +56,7 @@ async function resetPassword() {
                     <label>Email</label>
                     <input disabled type="text" v-model="session.user.email"/>
                 </div>
+                <!-- TODO support changing usernames -->
                 <div class="field">
                     <label>Username</label>
                     <input disabled type="text" v-model="session.user.name"/>

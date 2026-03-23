@@ -20,7 +20,7 @@ async function deleteImage() {
     }
 
     await session.useApi(`/api/image/${extractId(image.value.id)}/delete`)
-    hints.addSuccess(`${(image.value.user as User).name} has been refunded ${image.value.tokens} tokens.`)
+    hints.addSuccess(`${image.value.user.name} has been refunded ${image.value.tokens} tokens.`)
 }
 
 async function reportImage() {
@@ -39,14 +39,14 @@ async function reportImage() {
         <section class="box p-4" v-if="image">
             <header class="row-wrap g-1 mb-2">
                 <Votes :target="image" />
-                <UserTag class="f-1" :user="(image.user as User)" />
+                <UserTag class="f-1" :user="image.user" />
                 <DurationTag :time="image.time" />
                 <Tag type="info" icon="fa-image" :label="image.type" />
                 <Tag type="warning" icon="fa-cube" :label="`${image.tokens} tokens`" />
                 <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
                 <ClientOnly>
                     <Tag
-                        v-if="session.user.id == (image.user as User).id || hasRole(session.user, 'admin')"
+                        v-if="session.user.id == image.user.id || hasRole(session.user, 'admin')"
                         type="danger"
                         icon="fa-trash-can"
                         label="Delete"

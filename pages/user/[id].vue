@@ -2,7 +2,7 @@
 import type { User, Sortable } from '~~/types'
 
 const route = useRoute()
-const userId = route.params.userId as string
+const userId = route.params.id?.toString()
 const user = await useFetch<User>(`/api/user/${userId}`)
 
     

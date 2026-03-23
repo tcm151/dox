@@ -117,7 +117,7 @@ export interface Thread extends Sortable {
     replyTo?: Thread & string
     quote?: Thread & string
     topics: string[]
-    replies: Thread[]
+    replies: (Thread & string)[]
     chain?: Thread[]
     images: (Image & string)[]
     edited: boolean

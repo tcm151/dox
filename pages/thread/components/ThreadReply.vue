@@ -16,11 +16,10 @@ const props = defineProps<{
                 <div class="row-wrap g-1">
                     <Votes :target="thread" />
                     <div class="row-wrap f-1 g-1">
-                        <UserTag :user="(thread.user as User)" />
+                        <UserTag :user="thread.user" />
                         <Tag type="info" icon="fa-chart-simple" :label="thread.visits" />
-                        <Tag type="info" icon="fa-message" :label="thread.replies.length.toString()" />
+                        <Tag type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
                         <DurationTag :time="thread.time" />
-                        <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                         <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                     </div>
                 </div>
@@ -31,12 +30,12 @@ const props = defineProps<{
                     <div class="row-wrap g-1">
                         <Votes :target="reply" />
                         <div class="row-wrap f-1 g-1">
-                            <UserTag :user="(reply.user as User)" />
+                            <UserTag :user="reply.user" />
                             <Tag type="info" icon="fa-chart-simple" :label="reply.visits" />
-                            <Tag type="info" icon="fa-message" :label="reply.replies.length.toString()" />
+                            <Tag type="info" icon="fa-comment" :label="reply.replies.length.toString()" />
                             <DurationTag :time="reply.time" />
                             <Tag v-if="reply.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(reply.timeEdited)" />
-                            <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
+                            <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(reply.id)}`)" />
                         </div>
                     </div>
                     <Markdown class="content preview" :content="reply.content" />

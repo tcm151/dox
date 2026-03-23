@@ -84,9 +84,9 @@ async function deleteComment(commentId: string) {
         <header class="row-fit g-1">
             <Votes :target="comment" />
             <!-- TODO create AuthorTag -->
-            <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user as string)}`)">
+            <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                 <i class="fa-solid fa-user"></i>
-                {{ `${(comment.user as User).name}` }}
+                {{ `${comment.user.name}` }}
             </span>
             <Tag v-if="comment.edited" type="info">
                 <i class="fa-solid fa-stopwatch"></i>
@@ -97,7 +97,7 @@ async function deleteComment(commentId: string) {
             <DurationTag v-else :time="comment.time" />
             <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
             <ClientOnly>
-                <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">
+                <template v-if="!comment.deleted && comment.user.id === session.user.id">
                     <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
                     <Tag type="link" icon="fa-trash-can" title="Delete" @click="deleteComment(comment.id)" />
                 </template>
@@ -107,7 +107,7 @@ async function deleteComment(commentId: string) {
         <div class="comment-reply field px-3 pb-3" v-if="replyTo">
             <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
             <div class="row-fit g-1 pt-2">
-                <Tag type="success" icon="fa-message" label="Submit" @click="submitComment(comment, replyText)" />
+                <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
             </div>
         </div>

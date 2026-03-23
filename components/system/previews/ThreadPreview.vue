@@ -13,9 +13,9 @@ const props = defineProps<{
             <div class="row-wrap g-1">
                 <Votes :target="thread" />
                 <div class="row-wrap f-1 g-1">
-                    <UserTag class="f-1" :user="(thread.user as User)" />
+                    <UserTag class="f-1" :user="thread.user" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits" />
-                    <Tag class="f-1" type="info" icon="fa-message" :label="thread.replies.length.toString()" />
+                    <Tag class="f-1" type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
                     <DurationTag class="f-1" :time="thread.time" />
                     <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                 </div>
@@ -28,9 +28,9 @@ const props = defineProps<{
                 <div class="row-wrap g-1">
                     <Votes :target="thread.quote" />
                     <div class="row-wrap g-1">
-                        <UserTag :user="(thread.quote.user as User)" />
+                        <UserTag :user="thread.quote.user" />
                         <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
-                        <Tag type="info" icon="fa-message" :label="thread.quote.replies.length.toString()" />
+                        <Tag type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
                         <DurationTag :time="thread.quote.time" />
                     </div>
                     <div v-if="thread.quote.topics.length > 0" class="row-wrap f-1 g-1">

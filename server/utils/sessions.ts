@@ -48,10 +48,10 @@ class SessionManager {
         if (clear) {
             await new DatabaseQuery()
                 .addSql(`
-                    UPDATE $session SET
+                    UPDATE $id SET
                         invalidated = true
                 `)
-                .addRecord("session", id)
+                .addRecord("id", id)
                 .execute()
         }
     }

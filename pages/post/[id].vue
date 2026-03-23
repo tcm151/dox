@@ -5,8 +5,11 @@ import type { Post, Comment, User } from '~/types'
 
 const route = useRoute()
 const cache = useCache()
-const id = route.params.postId?.toString()
+const hints = useHints()
+const events = useEvents()
+const session = getSession()
 
+const id = route.params.id?.toString()
 await useFetch(`/api/post/${id}/visit`)
 const sortBy = cache.get<string>("comments.sort", () => "new")
 const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${id}`, {
@@ -26,15 +29,12 @@ useSeoMeta({
     ogType: "article",
     title: () => post.value?.title,
     ogTitle: () => post.value?.title,
-    author: () => post.value ? (post.value.user as User).name : 'unknown',
+    author: () => post.value ? post.value.user.name : 'unknown',
     description: () => post.value?.content.slice(0, 256),
     ogDescription: () => post.value?.content.slice(0, 256),
     ogImage: () => post.value?.images?.[0]?.url ?? '',
 })
 
-const hints = useHints()
-const events = useEvents()
-const session = getSession()
 
 let editingPost = ref(false)
 function toggleEditPost() {
@@ -118,7 +118,7 @@ function copyLink() {
 }
 
 async function awardPost() {
-    if ((post.value?.user as User).id == session.user.id) {
+    if (post.value?.user.id == session.user.id) {
         hints.addError("You can't award your own posts.")
         return
     }
@@ -172,27 +172,28 @@ function toggleOptions() {
     <article class="column g-2 p-4" v-if="post">
         <div class="container column">
             <aside 
-                v-if="(post.replyTo as Post).id != null"
+                v-if="post.replyTo"
                 class="reply-to row center-inline g-2"
-                @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)"
+                @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)"
             >
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p>{{ (post.replyTo as Post).title }}</p>
+                <p>{{ post.replyTo.title }}</p>
             </aside>
             <section class="post p-5">
                 <header class="tags row-wrap g-1">
                     <Votes :target="post" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
-                    <UserTag class="f-1" :user="(post.user as User)" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
-                    <Tag v-if="post.edited" class="f-1" type="info">
+                    <UserTag class="f-1" :user="post.user" />
+                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
+                    <Tag class="f-1" type="info">
                         <i class="fa-solid fa-stopwatch"></i>
                         {{ formatDate(post.time) }}
-                        <i class="fa-solid fa-eraser"></i>
-                        {{ formatDate(post.timeEdited) }}
+                        <template v-if="post.edited">
+                            <i class="fa-solid fa-eraser"></i>
+                            {{ formatDate(post.timeEdited) }}
+                        </template>
                     </Tag>
-                    <DurationTag v-else :time="post.time" />
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}
@@ -202,14 +203,14 @@ function toggleOptions() {
                     :content="post.content" 
                 />
                 <ClientOnly>
-                    <div v-if="editingPost && (post.user as User).id === session.user.id" class="field my-4">
+                    <div v-if="editingPost && post.user.id === session.user.id" class="field my-4">
                         <textarea rows="10" v-model="post.content" />
                     </div>
                 </ClientOnly>
                 <footer class="column g-2">
                     <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
                         <button class="comment" @click="toggleCommentBox">
-                            <i class="fa-solid fa-message"></i>
+                            <i class="fa-solid fa-comment"></i>
                             <span>Comment</span>
                         </button>
                         <button class="reply" @click="writePostReply">
@@ -256,7 +257,7 @@ function toggleOptions() {
                         <textarea rows="5" v-model="comment"></textarea>
                         <div class="row g-2 mt-2">
                             <ButtonSpinner class="success fill" :loading="submitting" @click="submitComment(post, comment)">
-                                <i class="fa-solid fa-message"></i>
+                                <i class="fa-solid fa-comment"></i>
                                 <span>Submit</span>
                             </ButtonSpinner>
                             <button class="danger" @click="toggleCommentBox">

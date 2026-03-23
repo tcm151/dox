@@ -18,7 +18,7 @@ function toggleShowMessages() {
         <TransitionGroup name="messages">
             <section class="chat row center-inline px-3 py-2" v-if="showMessages" v-for="index in 3">
                 <div class="row center-inline g-2">
-                    <i class="fa-solid fa-message"></i>
+                    <i class="fa-solid fa-comment"></i>
                     <span>User</span>
                 </div>
                 <i class="fa-solid fa-xmark"></i>
