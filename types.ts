@@ -60,7 +60,7 @@ export type Trait = "confirmed" | "verified"
 
 export interface Confirmation {
     id: string
-    user: User | string
+    user: User & string
     time: string
     used: boolean
     expired: boolean
@@ -70,20 +70,20 @@ export interface Topic extends Voteable {
     id: string
     posts: Post[]
     threads: Thread[]
-    followers: (User | string)[]
+    followers: (User & string)[]
     firstUsed: string
 }
 
 export interface Post extends Sortable {
     id: string
-    user: User | string
+    user: User & string
     title: string
     content: string
     time: string
-    replyTo?: Post | string
+    replyTo?: Post & string
     topics: string[]
-    comments: (Comment | string)[]
-    images: (Image | string)[]
+    comments: (Comment & string)[]
+    images: (Image & string)[]
     archived: boolean
     edited: boolean
     timeEdited?: string
@@ -92,34 +92,34 @@ export interface Post extends Sortable {
 
 export interface Pin {
     id: string
-    post: Post | string
-    user: User | string
+    post: Post & string
+    user: User & string
     active: boolean
     time: string
 }
 
 export interface Draft {
     id: string
-    user: User | string
+    user: User & string
     title: string
     content: string
     time: string
-    replyTo?: Post | string
+    replyTo?: Post & string
     topics: string[]
     images: Image[]
 }
 
 export interface Thread extends Sortable {
     id: string
-    user: User | string
+    user: User & string
     content: string
     time: string
-    replyTo?: Thread | string
+    replyTo?: Thread & string
     quote?: Thread & string
     topics: string[]
     replies: Thread[]
     chain?: Thread[]
-    images: (Image | string)[]
+    images: (Image & string)[]
     edited: boolean
     deleted: boolean
     timeEdited?: string
@@ -129,11 +129,11 @@ export interface Thread extends Sortable {
 
 export interface Comment extends Sortable {
     id: string
-    user: User | string
-    post: Post | string
+    user: User & string
+    post: Post & string
     content: string
     time: string
-    replyTo: Post | Comment | string
+    replyTo: Post | Comment & string
     edited: boolean
     deleted: boolean
     timeEdited?: string
@@ -141,7 +141,7 @@ export interface Comment extends Sortable {
 
 export interface Media extends Sortable {
     id: string
-    user: User | string
+    user: User & string
     type: string
     name: string
     tokens: number
@@ -154,8 +154,8 @@ export interface Audio extends Media { }
 
 export interface Notification {
     id: string
-    recipient: User | string
-    context: Post | Comment | string
+    recipient: User & string
+    context: Post | Comment & string
     message: string
     time: string
     viewed: boolean
@@ -163,7 +163,7 @@ export interface Notification {
 
 export interface Feedback {
     id: string
-    user: User | string
+    user: User & string
     time: string
     content: string
     dismissed: boolean
@@ -171,13 +171,13 @@ export interface Feedback {
 
 export interface Report {
     id: string
-    reporter: User | string
-    subject: Voteable | string
+    reporter: User & string
+    subject: Voteable & string
     time: string
 }
 
 export interface Backup {
     environment: string
-    user: User | string
+    user: User & string
     date: string
 }
