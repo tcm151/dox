@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import ThreadReply from './components/ThreadReply.vue'
+import ExtraOptions from './components/ExtraOptions.vue'
 import type { Thread, User } from '~/types'
 
 const route = useRoute()
 const hints = useHints()
 const router = useRouter()
+const events = useEvents()
 const session = getSession()
 
 const id = route.params.id?.toString()
@@ -48,7 +50,7 @@ async function submitThread() {
 function copyLink() {
     const postLink = window.location.href
     navigator.clipboard.writeText(postLink)
-    hints.addSuccess("Copied post URL")
+    hints.addSuccess("Copied thread URL")
 }
 
 function goBack() {
@@ -56,8 +58,57 @@ function goBack() {
     return navigateTo(`/feed/${lastTab.value}`)
 }
 
-function previous() {
-    router.back()
+// function previous() {
+//     router.back()
+// }
+
+async function deleteThread() {
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete your thread?',
+        accept: async () => {
+            await session.useApi(`/api/thread/${id}/delete`)
+            hints.addSuccess("Successfully deleted thread.")
+            return navigateTo("/feed")
+        },
+    })
+}
+
+async function awardThread() {
+    if ((thread.value?.user as User).id == session.user.id) {
+        hints.addError("You can't award your own threads.")
+        return
+    }
+    if (thread.value?.votes.awards?.includes(session.user.id)) {
+        hints.addWarning('You have already awarded this thread.')
+        return
+    }
+
+    events.publish(Trigger.showPopup, {
+        title: 'Confirm Award',
+        message: 'Are you sure you want to award this thread? It will cost 256 tokens.',
+        accept: async () => {
+            await session.useApi(`/api/thread/${id}/award`)
+            hints.addSuccess("Successfully awarded thread.")
+            await refresh()
+        },
+    })
+}
+
+async function archiveThread() {
+    await session.useApi(`/api/thread/${id}/archive`)
+    hints.addSuccess("This thread has been archived.")
+    await refresh()
+}
+
+async function pinThread() {
+    await session.useApi(`/api/thread/${id}/pin`)
+    hints.addSuccess("This thread has been pinned.")
+}
+
+const showOptions = ref<boolean>(false)
+function toggleOptions() {
+    showOptions.value = !showOptions.value
 }
 </script>
 
@@ -66,17 +117,17 @@ function previous() {
         <header class="row g-2 mb-2">
             <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
-                Return
+                Back to Feed
             </button>
-            <button class="dark" @click="previous">
+            <!-- <button class="dark" @click="previous">
                 <i class="fa-solid fa-arrow-up"></i>
                 Previous
-            </button>
+            </button> -->
         </header>
         <section v-if="thread.replyTo" class="mb-2">
             <ThreadReply :thread="(thread.replyTo as Thread)" />
         </section>
-        <section class="main box column p-4">
+        <section class="main box column px-4 pt-4">
             <header class="row-wrap g-1">
                 <Votes :target="thread" />
                 <div class="row-wrap f-1 g-1">
@@ -104,7 +155,7 @@ function previous() {
                 <Markdown class="content preview" :content="thread.quote.content" />
             </aside>
             <footer>
-                <div class="f-1 row-wrap g-1" v-if="!showReplyBox">
+                <div class="f-1 row-wrap g-1 mb-4" v-if="!showReplyBox && !thread.deleted">
                     <button class="f-1" @click="showReplyBox = true">
                         <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                         <span>Reply</span>
@@ -117,13 +168,22 @@ function previous() {
                         <i class="fa-solid fa-copy"></i>
                         <span>Share</span>
                     </button>
-                    <button class="f-1" @click="submitReport(thread.id)">
-                        <i class="fa-solid fa-flag"></i>
-                        <span>Report</span>
-                    </button>
-                    <button>
-                        <i class="fa-solid fa-ellipsis"></i>
-                    </button>
+                    <ClientOnly>
+                        <button v-if="session.isAuthenticated" @click="toggleOptions">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                        <ExtraOptions 
+                            :thread="thread"
+                            :visible="showOptions"
+                            @edit=""
+                            @award="awardThread"
+                            @report="submitReport(thread.id)"
+                            @delete="deleteThread"
+                            @archive="archiveThread"
+                            @pin="pinThread"
+                            @close="showOptions = false"
+                        />
+                    </ClientOnly>
                 </div>
                 <div class="field" v-else-if="showReplyBox">
                     <textarea rows="5" v-model="replyText"></textarea>
