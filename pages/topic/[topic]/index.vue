@@ -12,7 +12,6 @@ const feed = await useFetch<Sortable[]>(`/api/topic/${topicId}/feed`, {
         sortBy: sortBy
     }
 })
-
 </script>
 
 <template>

@@ -26,6 +26,10 @@ async function unfollowTopic() {
     await connections.unfollow(props.topic.id)
     loading.value = false
 }
+
+// TODO allow requesting for moderation of specific topics by approved users
+// TODO allow admins to create predefined topics, which are the only ones that can be used
+// TODO when adding topics in the editor, show preview of available/popular matching topics
 </script>
 
 <template>

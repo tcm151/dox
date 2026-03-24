@@ -42,14 +42,23 @@ export const getSession = defineStore("session", () => {
     })
 
     //> API
-    async function useApi<T>(route: string, body?: any): Promise<T | undefined> {
-        return await $fetch<T>(route, {
-            method: "POST",
-            headers: {
-                Authorization: tokens.value.access,
-            },
-            body: body,
-        }) as T
+    async function useApi<T>(route: string, body?: any): Promise<T> {
+        try {
+            return await $fetch<T>(route, {
+                method: "POST",
+                headers: {
+                    Authorization: tokens.value.access,
+                },
+                body: body,
+            })
+        }
+        catch (error: any) {
+            throw createError({
+                status: 500,
+                statusText: "Failed to make request to API.",
+                message: error.message
+            })
+        }
     }
 
     async function refreshProfile(): Promise<void> {
