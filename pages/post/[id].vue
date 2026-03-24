@@ -171,11 +171,7 @@ function toggleOptions() {
 <template>
     <article class="column g-2 p-4" v-if="post">
         <div class="container column">
-            <aside 
-                v-if="post.replyTo"
-                class="reply-to row center-inline g-2"
-                @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)"
-            >
+            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row center-inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ post.replyTo.title }}</p>
             </aside>

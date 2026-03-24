@@ -10,7 +10,7 @@ const props = defineProps<{
 
 <template>
     <div class="post" :class="{'pinned': pinned }">
-        <div class="reply-to row center-inline g-2" v-if="post.replyTo" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
+        <div v-if="post.replyTo && post.replyTo.id" class="reply-to row center-inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p>{{ post.replyTo.title }}</p>
         </div>
