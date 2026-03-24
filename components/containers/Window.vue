@@ -32,7 +32,7 @@ function resizePopup() {
             <header class="title-bar row g-4">
                 <div class="left row center-inline g-2 px-3 py-2">
                     <i :class="icon" v-if="icon"></i>
-                    <h2 class="title" v-if="title">{{ title }}</h2>
+                    <h1 class="title" v-if="title">{{ title }}</h1>
                 </div>
                 <button class="close px-3" @click="emit('close')">
                     <i class="fa-solid fa-xmark"></i>

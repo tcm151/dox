@@ -46,14 +46,3 @@ async function submitFeedback() {
         </div>
     </div>
 </template>
-
-<style scoped lang="scss">
-h1 {
-    font-size: 1.5rem;
-}
-
-textarea::placeholder {
-    color: $white-2;
-    font-style: italic;
-}
-</style>

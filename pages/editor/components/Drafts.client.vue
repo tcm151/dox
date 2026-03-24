@@ -53,7 +53,7 @@ async function deleteDraft(draft: Draft) {
             <p>You have no drafts...</p>
         </section>
         <section class="grid center" v-else>
-            <Spinner fontSize="2rem" :showText="false" /> 
+            <Spinner :showText="false" /> 
         </section>
     </Window>
 </template>

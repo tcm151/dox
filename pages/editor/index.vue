@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Drafts from "./components/Drafts.client.vue"
 import { DateTime } from 'luxon'
-import type { Post, Draft, Image } from '~/types'
+import Drafts from "./components/Drafts.client.vue"
+import type { User, Post, Draft, Image } from '~/types'
 
 definePageMeta({
     layout: 'simple',
@@ -16,13 +16,13 @@ definePageMeta({
 })
 
 const hints = useHints()
-const valid = useValidation()
 const session = getSession()
+const valid = useValidation()
 
 let draft = ref<Draft>({
     id: '',
     time: '',
-    user: session.user,
+    user: session.user as User & string,
     title: '',
     content: '',
     topics: [],
@@ -30,19 +30,16 @@ let draft = ref<Draft>({
 })
 
 const route = useRoute()
-const replyTo = computedAsync<Post | null>(async () => {
+const replyTo = computedAsync<Post | undefined>(async () => {
     if (route.query['replyTo'] || draft.value.replyTo) {
         const post = await $fetch<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
-        draft.value.replyTo = post.id
+        draft.value.replyTo = post.id as Post & string
         return post
     }
-    return null
 })
 
 let newTopic = ref("")
 let titleFocused = ref(false)
-let topicsFocused = ref(false)
-
 
 function validTitle() {
     return (draft.value.title == '') ? true : valid.title.test(draft.value.title)
@@ -99,6 +96,10 @@ let uploading = ref<boolean>(false)
 
 
 async function beginUpload() {
+    if (!files.value) {
+        hints.addWarning("Please select an image.")
+        return
+    }
     confirmUpload.value = false
     uploading.value = true
     const image = await uploadMedia<Image>(files.value, "image")
@@ -230,22 +231,6 @@ async function saveDraft() {
                             <textarea class="fill" v-model="draft.content" type="text" rows="12" />
                         </div>
                         <TopicField v-model:input="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
-                        <!-- <div class="field topic-input">
-                            <div class="row center-inline g-2 mb-2">
-                                <label class="mb-0">Topics</label>
-                                <TopicTag v-for="topic in draft.topics" :topic="topic" @contextmenu.prevent="removeTopic(topic)" />
-                            </div>
-                            <input
-                                type="text"
-                                v-model="newTopic"
-                                spellcheck="false"
-                                placeholder="press enter to add . . ."
-                                @keyup.enter="addTopic"
-                                @focus="topicsFocused = true"
-                                @blur="topicsFocused = false"
-                                :class="{ 'invalid': topicsFocused && !validTopic() }"
-                            />
-                        </div> -->
                         <div class="field uploaded-images" v-if="uploadedImages.length > 0">
                             <label>Images</label>
                             <div class="row g-2">
@@ -389,7 +374,7 @@ div.uploaded-images {
         top: 50%;
         left: 50%;
         position: absolute;
-        font-size: 4.5rem;
+        font-size: 5rem;
         font-weight: 900;
         opacity: 0.05;
         color: $purple;

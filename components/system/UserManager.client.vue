@@ -68,9 +68,10 @@ function newLogin() {
 
 <template>
     <Window
+        title="Profiles"
+        icon="fa-solid fa-user"
         width="20rem"
         :visible="visible"
-        title="Profiles"
     >
         <main class="column g-2">
             <div class="row g-2" v-for="user in otherAccounts">

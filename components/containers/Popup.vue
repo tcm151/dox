@@ -32,7 +32,7 @@ function resizePopup() {
 <template>
     <aside class="background column center" v-if="props.visible">
         <main class="window p-5" :style="{ width, maxWidth, maxHeight }">
-            <header class="" v-if="title">
+            <header v-if="title">
                 <h1>{{ title }}</h1>
             </header>
             <div class="column py-4">

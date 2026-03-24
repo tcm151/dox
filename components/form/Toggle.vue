@@ -31,6 +31,7 @@ const emit = defineEmits<{
 
 div.row {
     align-items: center;
+    margin-block: 2px;
 }
 
 label.toggle {

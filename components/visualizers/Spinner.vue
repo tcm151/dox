@@ -1,10 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-    fontSize?: string
     showText?: boolean
 }>()
-
-let size = props.fontSize ?? "1rem"
 </script>
 
 <template>
@@ -24,7 +21,6 @@ let size = props.fontSize ?? "1rem"
 span {
     i.fa-spinner {
         color: inherit;
-        font-size: v-bind('size');
         animation: spin 1s linear infinite;
     }
 }
