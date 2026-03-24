@@ -40,7 +40,7 @@ async function deletePin(pin: Pin) {
             </div>
         </section>
         <section class="box p-3" v-else>
-            <p>There are currently no pins...</p>
+            <p>There are currently no pins.</p>
         </section>
     </article>
 </template>

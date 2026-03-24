@@ -2,11 +2,11 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (!import.meta.client) return
+        if (!ENV.isClient()) return
         
         const session = getSession()
         if (to.path.startsWith("/admin")) {
-            if (!ENV.isDevelopment() && (!session.isAuthenticated || !hasRole(session.user, "admin"))) {
+            if (!session.isAuthenticated || !hasRole(session.user, "admin")) {
                 return abortNavigation()
             }
         }
@@ -29,6 +29,8 @@ const tabs = [
     { route: '/admin/users', icon: 'fa-solid fa-user', label: 'Users' },
     { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
     { route: '/admin/feedback', icon: 'fa-solid fa-comment', label: 'Feedback' },
+    { route: '/admin/config', icon: 'fa-solid fa-gear', label: 'Config' },
+
 ]
 </script>
 

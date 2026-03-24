@@ -62,8 +62,15 @@ function sortFeed(type: string) {
             </ClientOnly>
         </header>
         <ClientOnly>
-            <template v-for="item in props.items.data.value" :key="item.id">
-                <slot name="item" v-bind="(item as T)" />
+            <template v-if="props.items.data.value && props.items.data.value.length > 0">
+                <template v-for="item in props.items.data.value" :key="item.id">
+                    <slot name="item" v-bind="(item as T)" />
+                </template>
+            </template>
+            <template v-else>
+                <div class="column center box p-4">
+                    There is nothing here currently.
+                </div>
             </template>
         </ClientOnly>
     </section>

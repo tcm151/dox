@@ -43,7 +43,7 @@ async function dismissFeedback(feedback: Feedback) {
             </div>
         </section>
         <section class="empty box p-3" v-else>
-            <p>There is currently no feedback...</p>
+            <p>There is currently no feedback.</p>
         </section>
     </article>
 </template>

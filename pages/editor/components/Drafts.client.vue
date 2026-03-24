@@ -50,7 +50,7 @@ async function deleteDraft(draft: Draft) {
             </div>
         </section>
         <section class="grid center" v-else-if="!loading">
-            <p>You have no drafts...</p>
+            <p>You have no drafts.</p>
         </section>
         <section class="grid center" v-else>
             <Spinner :showText="false" /> 
