@@ -103,9 +103,9 @@ DEFINE FIELD OVERWRITE expired ON passwordReset
 -- TABLE: user
 -- ------------------------------
 DEFINE TABLE OVERWRITE user SCHEMALESS
-PERMISSIONS
-    FOR select, create, update, delete WHERE id = $auth.id;
-
+    PERMISSIONS
+        FOR select, create, update, delete
+            WHERE id = $auth.id;
 DEFINE FIELD OVERWRITE email ON user
     TYPE string ASSERT string::is_email($value);
 DEFINE INDEX OVERWRITE email ON user
@@ -132,8 +132,8 @@ DEFINE FIELD OVERWRITE roles ON user
     TYPE array<string> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE traits ON user
     TYPE array<string> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes ON user
-    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD OVERWRITE visits ON user
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD OVERWRITE votes.positive ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.misleading ON user
@@ -141,7 +141,7 @@ DEFINE FIELD OVERWRITE votes.misleading ON user
 DEFINE FIELD OVERWRITE votes.negative ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE score ON user
-    COMPUTED (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative));
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len());
 
 
 -- ------------------------------
@@ -166,8 +166,6 @@ DEFINE FIELD OVERWRITE threads ON topic
     TYPE array<record<thread>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE visits ON topic
     TYPE number DEFAULT ALWAYS 1;
-DEFINE FIELD OVERWRITE votes ON topic
-    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD OVERWRITE votes.positive ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.misleading ON topic
@@ -175,7 +173,7 @@ DEFINE FIELD OVERWRITE votes.misleading ON topic
 DEFINE FIELD OVERWRITE votes.negative ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE score ON topic
-    COMPUTED (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 DEFINE FIELD OVERWRITE followers ON topic
     COMPUTED SELECT VALUE id FROM user WHERE topics CONTAINS $parent.id;
 DEFINE FIELD OVERWRITE firstUsed ON topic
@@ -217,8 +215,6 @@ DEFINE FIELD OVERWRITE timeEdited ON post
     TYPE option<datetime>;
 DEFINE FIELD OVERWRITE visits ON post
     TYPE number DEFAULT ALWAYS 1;
-DEFINE FIELD OVERWRITE votes ON post
-    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD OVERWRITE votes.positive ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.misleading ON post
@@ -230,7 +226,7 @@ DEFINE FIELD OVERWRITE votes.awards ON post
 DEFINE FIELD OVERWRITE votes.saves ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE score ON post
-    COMPUTED (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 DEFINE EVENT OVERWRITE updateTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
@@ -301,8 +297,6 @@ DEFINE FIELD OVERWRITE timeEdited ON thread
     TYPE option<datetime>;
 DEFINE FIELD OVERWRITE visits ON thread
     TYPE number DEFAULT ALWAYS 1;
-DEFINE FIELD OVERWRITE votes ON thread
-    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD OVERWRITE votes.positive ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.misleading ON thread
@@ -314,7 +308,7 @@ DEFINE FIELD OVERWRITE votes.awards ON thread
 DEFINE FIELD OVERWRITE votes.saves ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE score ON thread
-    COMPUTED (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 DEFINE EVENT OVERWRITE updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
@@ -355,8 +349,6 @@ DEFINE FIELD OVERWRITE deleted ON comment
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD OVERWRITE timeEdited ON comment
     TYPE option<datetime>;
-DEFINE FIELD OVERWRITE votes ON comment
-    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD OVERWRITE votes.positive ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.misleading ON comment
@@ -364,7 +356,7 @@ DEFINE FIELD OVERWRITE votes.misleading ON comment
 DEFINE FIELD OVERWRITE votes.negative ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE score ON comment
-    COMPUTED (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative));
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len());
 DEFINE EVENT OVERWRITE updatePost ON comment WHEN $event = 'CREATE' THEN {
     UPDATE $after.post SET comments += $after.id;
 };
@@ -386,8 +378,6 @@ DEFINE FIELD OVERWRITE visits ON image
     TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD OVERWRITE url ON image
     TYPE any;
-DEFINE FIELD OVERWRITE votes ON image
-    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD OVERWRITE votes.positive ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE votes.misleading ON image
@@ -397,7 +387,7 @@ DEFINE FIELD OVERWRITE votes.negative ON image
 DEFINE FIELD OVERWRITE url ON image
     COMPUTED string::concat(origin, "/cdn/image/", record::id(id));
 DEFINE FIELD OVERWRITE score ON image
-    COMPUTED (array::len(votes.positive) - (<float>array::len(votes.misleading)/2) - array::len(votes.negative)) * visits;
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 
 
 -- ------------------------------
