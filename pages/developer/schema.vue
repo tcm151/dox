@@ -35,11 +35,7 @@ async function refreshSchema() {
                     <span>Refresh Schema</span>
                 </button>
             </header>
-            <Codeblock v-if="schema"
-                :wrap="true"
-                language="sql"
-                :code="schema"
-            />
+            <Codeblock v-if="schema" language="sql" :code="schema" />
         </section>
     </article>
 </template>
