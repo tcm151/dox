@@ -8,28 +8,28 @@ async function initializeDatabase() {
     if (SurrealInstance && SurrealInstance.status != "disconnected") {
         return Promise.resolve(SurrealInstance)
     }
-    if (config.surreal.type == "remote") {
-        if (config.surreal.url == "" || !config.surreal.url.includes("/rpc")) {
+    if (config.surreal.info.type == "remote") {
+        if (config.surreal.info.url == "" || !config.surreal.info.url.includes("/rpc")) {
             throw createError({
                 statusCode: 500,
-                statusMessage: `Database URL was [${config.surreal.url ?? "empty"}]. Check environment variables.`
+                statusMessage: `Database URL was [${config.surreal.info.url ?? "empty"}]. Check environment variables.`
             })
         }
         SurrealInstance = new Surreal();
         console.log("Connecting to remote instance...")
-        await SurrealInstance.connect(config.surreal.url, {
-            namespace: config.surreal.namespace,
-            database: config.surreal.database,
+        await SurrealInstance.connect(config.surreal.info.url, {
+            namespace: config.surreal.info.namespace,
+            database: config.surreal.info.database,
             authentication: {
-                username: config.surreal.username,
-                password: config.surreal.password,
+                username: config.surreal.info.username,
+                password: config.surreal.info.password,
             }
         })
         await SurrealInstance.ready
-        console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
+        console.log(`Connected to ${config.surreal.info.namespace}:${config.surreal.info.database} @ ${config.surreal.info.url}`)
         return SurrealInstance
     }
-    else if (config.surreal.type == "embedded") {
+    else if (config.surreal.info.type == "embedded") {
         console.log("Starting embedded instance...")
         SurrealInstance = new Surreal({
             engines: {
@@ -38,18 +38,18 @@ async function initializeDatabase() {
             },
         });
         console.log("Connecting to embedded instance...")
-        await SurrealInstance.connect(config.surreal.url, {
-            namespace: config.surreal.namespace,
-            database: config.surreal.database,
+        await SurrealInstance.connect(config.surreal.info.url, {
+            namespace: config.surreal.info.namespace,
+            database: config.surreal.info.database,
         })
         await SurrealInstance.ready
-        console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
+        console.log(`Connected to ${config.surreal.info.namespace}:${config.surreal.info.database} @ ${config.surreal.info.url}`)
         return SurrealInstance
     }
     else {
         throw createError({
             status: 500,
-            statusText: `Database type was [${config.surreal.type ?? "empty"}].`
+            statusText: `Database type was [${config.surreal.info.type ?? "empty"}].`
         })
     }
 }

@@ -86,12 +86,19 @@ export default defineNuxtConfig({
             title: process.env.SMTP_SENDER_TITLE,
         },
         surreal: {
-            type: process.env.SURREAL_TYPE,
-            url: process.env.SURREAL_URL,
-            username: process.env.SURREAL_USERNAME,
-            password: process.env.SURREAL_PASSWORD,
-            namespace: process.env.SURREAL_NAMESPACE,
-            database: process.env.SURREAL_DATABASE,
+            info: {
+                type: process.env.SURREAL_TYPE,
+                url: process.env.SURREAL_URL,
+                username: process.env.SURREAL_USERNAME,
+                password: process.env.SURREAL_PASSWORD,
+                namespace: process.env.SURREAL_NAMESPACE,
+                database: process.env.SURREAL_DATABASE,
+            },
+            admin: {
+                email: process.env.DEFAULT_USER_EMAIL,
+                name: process.env.DEFAULT_USER_NAME,
+                password: process.env.DEFAULT_USER_PASSWORD,
+            }
         },
         public: {
             baseUrl: process.env.BASE_URL,

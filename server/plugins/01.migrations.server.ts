@@ -1,5 +1,7 @@
 export default defineNitroPlugin(async () => {
     try {
+        const config = useRuntimeConfig()
+
         await new DatabaseQuery()
             .addSql(
                 Buffer.from(await useStorage("assets:server")
@@ -11,6 +13,22 @@ export default defineNitroPlugin(async () => {
                     .getItem<string>("migrations.surql") ?? "")
                     .toString()
             )
+            .execute()
+
+        await new DatabaseQuery()
+            .addSql(`
+                IF (SELECT VALUE id FROM user).len() = 0 {
+                    CREATE user SET
+                        email = $email,
+                        name = $name,
+                        password = crypto::argon2::generate($password),
+                        roles = ["admin", "developer"],
+                        traits = ["confirmed", "verified"];
+                };
+            `)
+            .addParameter("email", config.surreal.admin.email)
+            .addParameter("name", config.surreal.admin.name)
+            .addParameter("password", config.surreal.admin.password)
             .execute()
             
         console.log("Database migrations completed successfully.")

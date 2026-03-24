@@ -7,29 +7,6 @@ DEFINE FUNCTION OVERWRITE fn::days_since($time: datetime) {
 
 
 -- ------------------------------
--- SCOPES
--- ------------------------------
--- WARN: invalidates current session token, only uncomment if necessary
-DEFINE ACCESS OVERWRITE account ON DATABASE TYPE RECORD
-SIGNUP (
-    CREATE user SET
-    email = $email,
-    name = $username,
-    password = crypto::argon2::generate($password),
-    dateJoined = time::now()
-)
-SIGNIN (
-    SELECT *
-    OMIT password
-    FROM user
-    WHERE (email = $id OR name = $id)
-    AND crypto::argon2::compare(password, $password)
-)
-DURATION FOR TOKEN 1h, FOR SESSION 14d
-;
-
-
--- ------------------------------
 -- ANALYZERS
 -- ------------------------------
 -- DEFINE ANALYZER OVERWRITE relevanceSearch
