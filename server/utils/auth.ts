@@ -39,6 +39,7 @@ export const invalidateSession = async (event: H3Event, clear: boolean) => {
         await sessionManager.invalidateToken(token, clear)
     }
     catch (error: any) {
+        console.log(error)
         throw createError({
             statusCode: 400,
             statusMessage: "You aren't allowed invalidate this session.",

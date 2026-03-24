@@ -65,7 +65,7 @@ export const getSession = defineStore("session", () => {
     //> AUTH
     async function authenticate(existingToken?: string): Promise<void> {
         let token = existingToken ?? tokens.value.access
-        user.value = await $fetch("/api/profile/authenticate", {
+        user.value = await $fetch<User>("/api/profile/authenticate", {
             headers: {
                 Authorization: token
             }

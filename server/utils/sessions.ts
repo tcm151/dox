@@ -52,8 +52,9 @@ class SessionManager {
             .addSql(`
                 SELECT *
                 OMIT user.password
-                FROM $id
-                WHERE invalidated = false
+                FROM session
+                WHERE id = $id
+                AND invalidated = false
                 FETCH user;
             `)
             .addRecord("id", id)
@@ -64,8 +65,9 @@ class SessionManager {
         if (clear) {
             await new DatabaseQuery()
                 .addSql(`
-                    UPDATE $id SET
-                        invalidated = true;
+                    UPDATE session SET
+                        invalidated = true
+                    WHERE id = $id;
                 `)
                 .addRecord("id", id)
                 .execute()
