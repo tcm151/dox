@@ -157,7 +157,10 @@ async function submit() {
         })
         
         uploadedImages.value = []
-        navigateTo(`/post/${extractId(post!.id)}`)
+        navigateTo(`/post/${extractId(post.id)}`)
+    }
+    catch (error: any) {
+        hints.addError("Failed to submit post.")
     }
     finally {
         submitting.value = false

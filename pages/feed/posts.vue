@@ -14,6 +14,12 @@ const posts = await useFetch<Post[]>("/api/post", {
 <template>
     <section class="feed column g-2 p-4">
         <Feed :items="posts" :sorting="true" @refresh="(type) => sortBy = type">
+            <template #buttons>
+                <button class="dark px-5" @click="navigateTo('/editor/posts')">
+                    <i class="fa-solid fa-feather"></i>
+                    <span>Submit</span>
+                </button>
+            </template>
             <template #item="post">
                 <PostPreview :post="post" />
             </template>

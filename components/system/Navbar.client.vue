@@ -21,8 +21,8 @@ function toggleUserManager() {
     events.publish(Trigger.toggleUserManager)
 }
 
-const showAdmin = computed(() => ENV.isDevelopment() || (session.isAuthenticated && hasRole(session.user, "admin")))
-const showDeveloper = computed(() => (session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment())
+const showAdmin = computed(() => session.isAuthenticated && hasRole(session.user, "admin"))
+const showDeveloper = computed(() => session.isAuthenticated && hasRole(session.user, 'developer'))
 const showStore = computed(() => session.isAuthenticated && config.app.navbar.showStore)
 const showFeedback = computed(() => session.isAuthenticated && config.app.navbar.showFeedback)
 </script>
@@ -49,18 +49,15 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
             <NuxtLink to="/store" v-if="showStore" title="Store">
                 <i class="fa-solid fa-coins"></i>
             </NuxtLink>
-            <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
-                <i class="fa-solid fa-keyboard"></i>
-            </NuxtLink>
-            <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
-                <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
-            </Window>
         </section>
         <Transition name="slide">
             <section class="right row authenticated" v-if="session.isAuthenticated">
-                <NuxtLink to="/editor">
-                    <i class="fa-solid fa-feather-pointed"></i>
-                    <span>Submit</span>
+                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
+                    <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
+                </Window>
+                <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <span>Feedback</span>
                 </NuxtLink>
                 <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
                     <i class="fa-solid fa-inbox"></i>
