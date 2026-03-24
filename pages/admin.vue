@@ -22,6 +22,8 @@ definePageMeta({
     }
 })
 
+const route = useRoute()
+
 const tabs = [
     { route: '/admin/pins', icon: 'fa-solid fa-thumbtack', label: 'Pins' },
     { route: '/admin/users', icon: 'fa-solid fa-user', label: 'Users' },
@@ -31,22 +33,25 @@ const tabs = [
 </script>
 
 <template>
-    <article class="column center-inline">
-        <PagedTabstrip :tabs="tabs" />
+    <article class="admin column center-inline">
+        <ClientOnly>
+            <PagedTabstrip :tabs="tabs" />
+        </ClientOnly>
         <section class="page column center-inline">
-            <NuxtPage />
+            <NuxtPage :key="route.path" />
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article {
-    width: 100%;
+article.admin {
+    width: stretch;
     overflow-y: hidden;
 }
 
 section.page {
-    width: 100%;
+    width: stretch;
+    height: stretch;
     overflow-y: auto;
 }
 </style>
