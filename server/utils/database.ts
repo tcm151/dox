@@ -4,6 +4,10 @@ import { createNodeEngines } from '@surrealdb/node';
 const config = useRuntimeConfig()
 let SurrealInstance: Surreal | undefined
 
+export async function shutdownDatabase() {
+    return await SurrealInstance?.close()
+}
+
 async function initializeDatabase() {
     if (SurrealInstance && SurrealInstance.status != "disconnected") {
         return Promise.resolve(SurrealInstance)
