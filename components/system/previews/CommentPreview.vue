@@ -87,7 +87,7 @@ async function deleteComment(commentId: string) {
 
 <template>
     <main v-if="comment" class="comment" :id="comment.id">
-        <header class="row-fit g-1">
+        <header class="row g-1">
             <Votes :target="comment" />
             <!-- TODO create AuthorTag -->
             <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
@@ -112,14 +112,14 @@ async function deleteComment(commentId: string) {
         <Markdown class="body p-3" v-if="!editComment" :content="comment.content" />
         <div class="comment-reply field px-3 pb-3" v-if="replyTo">
             <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
-            <div class="row-fit g-1 pt-2">
+            <div class="row g-1 pt-2">
                 <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
             </div>
         </div>
         <div class="comment-edit field px-3 pb-3 mt-2" v-if="editComment">
             <textarea rows="5" v-model="comment.content"></textarea>
-            <div class="row-fit g-1 pt-2">
+            <div class="row g-1 pt-2">
                 <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="editComment = false" />
             </div>
@@ -129,7 +129,7 @@ async function deleteComment(commentId: string) {
 
 <style lang="scss">
 main.comment {
-    header.row-fit {
+    header.row {
         @media screen and (max-width: 600px) {
             flex-wrap: wrap;
         }

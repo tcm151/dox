@@ -35,11 +35,11 @@ const tabs = [
 </script>
 
 <template>
-    <article class="admin column center-inline">
+    <article class="admin column inline">
         <ClientOnly>
             <PagedTabstrip :tabs="tabs" />
         </ClientOnly>
-        <section class="page column center-inline">
+        <section class="page column inline">
             <NuxtPage :key="route.path" />
         </section>
     </article>

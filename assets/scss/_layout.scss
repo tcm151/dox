@@ -1,23 +1,8 @@
 @use "mixins" as *;
 
-.fill {
-    flex-grow: 1;
-}
-
-.shrink {
-    flex-shrink: 1;
-}
-
 .row {
-    @include flex-h;
-}
-
-.row.center-inline {
-    align-items: center;
-}
-
-.row.center-block {
-    justify-content: center;
+    display: flex;
+    flex-flow: row nowrap;
 }
 
 .row.center {
@@ -25,25 +10,22 @@
     justify-content: center;
 }
 
-.row-wrap {
-    @include flex-hw;
-    white-space: nowrap;
-}
-
-.row-fit {
-    @include flex-h;
-}
-
-.column {
-    @include flex-v;
-}
-
-.column.center-inline {
+.row.inline {
     align-items: center;
 }
 
-.column.center-block {
+.row.block {
     justify-content: center;
+}
+
+.row.wrap {
+    flex-flow: row wrap;
+    white-space: nowrap;
+}
+
+.column {
+    display: flex;
+    flex-flow: column nowrap;
 }
 
 .column.center {
@@ -51,12 +33,28 @@
     justify-content: center;
 }
 
-.space-between {
+.column.inline {
+    align-items: center;
+}
+
+.column.block {
+    justify-content: center;
+}
+
+.row.between, .column.between {
     justify-content: space-between;
 }
 
-.space-around {
+.row.around, .column.around {
     justify-content: space-around;
+}
+
+.row.inline.stretch, .column.inline.stretch {
+    align-items: stretch;
+}
+
+.row.end, .column.end {
+    justify-content: flex-end;
 }
 
 .grid {
@@ -66,22 +64,6 @@
 .grid.center {
     place-content: center;
 }
-
-.column-wrap {
-    @include flex-vw;
-}
-
-.column-fill {
-    @include flex-v;
-}
-
-.g-0 { gap: 0 !important }
-.g-1 { gap: 0.25rem !important }
-.g-2 { gap: 0.5rem !important }
-.g-3 { gap: 0.75rem !important }
-.g-4 { gap: 1rem !important }
-.g-5 { gap: 1.5rem !important }
-.g-6 { gap: 3rem !important }
 
 .f-0 { flex-grow: 0; }
 .f-1 { flex-grow: 1; }
@@ -93,10 +75,7 @@
 .f-7 { flex-grow: 7; }
 .f-8 { flex-grow: 8; }
 .f-9 { flex-grow: 9; }
-.f-10 { flex-grow: 10; }
-
-.s-0 { flex-grow: 0; }
-.s-1 { flex-grow: 1; }
+.f-max { flex-grow: 100; }
 
 .b-0 { flex-basis: 0; }
-.b-1 { flex-basis: auto; }
+.b-auto { flex-basis: auto; }

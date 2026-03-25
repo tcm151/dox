@@ -29,15 +29,15 @@ watch(() => props.loading, (status) => {
             <button class="refresh dark" @click="emit('refresh', sortType)">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
-            <button class="fill" @click="emit('refresh', 'new')" :class="{ selected: sortType === 'new' }">
+            <button class="f-1" @click="emit('refresh', 'new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
                 <span>New</span>
             </button>
-            <button class="fill" @click="emit('refresh', 'hot')" :class="{ selected: sortType === 'hot' }">
+            <button class="f-1" @click="emit('refresh', 'hot')" :class="{ selected: sortType === 'hot' }">
                 <i class="fa-solid fa-fire"></i>
                 <span>Hot</span>
             </button>
-            <button class="fill" @click="emit('refresh', 'top')" :class="{ selected: sortType === 'top' }">
+            <button class="f-1" @click="emit('refresh', 'top')" :class="{ selected: sortType === 'top' }">
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Top</span>
             </button>

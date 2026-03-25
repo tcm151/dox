@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <main class="page column center-inline">
+    <main class="page column inline">
         <slot />
     </main>
 </template>

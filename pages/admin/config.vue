@@ -27,16 +27,6 @@ async function saveSettings() {
 <template>
     <article class="config box column g-4 p-5 m-4">
         <section>
-            <ButtonSpinner class="success" :loading="loading" @click="saveSettings">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>Save</span>
-            </ButtonSpinner>
-            <button class="dark" @click="settings.refresh()">
-                <i class="fa-solid fa-rotate"></i>
-                <span>Reset</span>
-            </button>
-        </section>
-        <section>
             <header>
                 <h2>Email</h2>
             </header>
@@ -118,6 +108,16 @@ async function saveSettings() {
                     v-model.number="settings.app.media.uploads.imageMaxSize"
                 >
             </div>
+        </section>
+        <section class="row inline end g-2 mt-4">
+            <button class="dark" @click="settings.refresh()">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Reset</span>
+            </button>
+            <ButtonSpinner class="success f-1" :loading="loading" @click="saveSettings">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save</span>
+            </ButtonSpinner>
         </section>
     </article>
 </template>

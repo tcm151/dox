@@ -178,12 +178,12 @@ function toggleOptions() {
 <template>
     <article class="column g-2 p-4" v-if="post">
         <div class="container column">
-            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row center-inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
+            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ post.replyTo.title }}</p>
             </aside>
             <section class="post p-5">
-                <header class="tags row-wrap g-1">
+                <header class="tags row wrap g-1">
                     <Votes :target="post" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
@@ -211,7 +211,7 @@ function toggleOptions() {
                     </div>
                 </ClientOnly>
                 <footer class="column g-2">
-                    <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
+                    <div class="interactions row wrap g-1" v-if="!showCommentBox && !editingPost">
                         <button class="comment" @click="toggleCommentBox">
                             <i class="fa-solid fa-comment"></i>
                             <span>Comment</span>
@@ -242,11 +242,11 @@ function toggleOptions() {
                         </ClientOnly>
                     </div>
                     <div class="row g-1" v-else-if="editingPost">
-                        <ButtonSpinner class="success fill" :loading="submitting" @click="updatePost(post)">
+                        <ButtonSpinner class="success f-1" :loading="submitting" @click="updatePost(post)">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Save</span>
                         </ButtonSpinner>
-                        <!-- <button class="info fill" @click="togglePreview">
+                        <!-- <button class="info f-1" @click="togglePreview">
                             <i class="fa-solid fa-eye" v-if="!showPreview"></i>
                             <i class="fa-solid fa-eye-slash" v-else></i>
                             <span>Preview</span>
@@ -259,7 +259,7 @@ function toggleOptions() {
                     <div class="field" v-else-if="showCommentBox">
                         <textarea rows="5" v-model="comment"></textarea>
                         <div class="row g-2 mt-2">
-                            <ButtonSpinner class="success fill" :loading="submitting" @click="submitComment(post, comment)">
+                            <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(post, comment)">
                                 <i class="fa-solid fa-comment"></i>
                                 <span>Submit</span>
                             </ButtonSpinner>

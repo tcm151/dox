@@ -8,7 +8,7 @@ let complain = ref(false)
 
 <template>
     <article class="error">
-        <section class="details column center-inline p-6">
+        <section class="details box column inline p-6">
             <div class="column g-2 mb-5">
                 <h1>ERR: {{ error.statusCode }}</h1>
                 <p>{{ error.message }}</p>
@@ -43,8 +43,6 @@ article.error {
     
     section.details {
         @include fit-width(25rem, 1rem);
-        border-radius: 0.25rem;
-        background-color: $white-0;
         
         div {
             text-align: center;

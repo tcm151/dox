@@ -41,13 +41,13 @@ function viewAudio(audio: Audio) {
 
 <template>
     <article class="column g-4 p-4">
-        <header class="tools box row center-inline g-2 p-4">
+        <header class="tools box row inline g-2 p-4">
             <button class="success" @click="refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 <span>Refresh</span>
             </button>
             <ClientOnly>
-                <button v-if="hasTrait(session.user, 'confirmed')" class="link fill" @click="selectAudio()">
+                <button v-if="hasTrait(session.user, 'confirmed')" class="link f-1" @click="selectAudio()">
                     <i class="fa-solid fa-microphone"></i>
                     <span>Upload</span>
                 </button>

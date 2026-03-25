@@ -38,7 +38,7 @@ async function deleteDraft(draft: Draft) {
         <section class="drafts column g-3" v-if="!loading && userDrafts">
             <div v-for="draft in userDrafts" :key="draft.id">
                 <h3 class="title mx-1 mb-1">{{ draft.title }}</h3>
-                <div class="row-wrap g-1">
+                <div class="row wrap g-1">
                     <Tag type="link" class="f-1" v-for="topic in draft.topics" :label="extractId(topic)" />
                     <DurationTag :time="draft.time" />
                     <Tag class="info" icon="fa-pen" label="Edit" @click="emit('view', draft)" />

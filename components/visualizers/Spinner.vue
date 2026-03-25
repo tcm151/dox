@@ -5,7 +5,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span class="column center-inline g-4">
+    <span class="column inline g-4">
         <i class="fa-solid fa-spinner"></i>
         <p v-if="showText">Loading . . .</p>
     </span>

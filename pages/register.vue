@@ -121,10 +121,10 @@ function differentPasswords() {
                     />
                 </div>
                 <div class="row g-2 mt-4">
-                    <button class="success fill" @click="register">
+                    <button class="success f-1" @click="register">
                         Register
                     </button>
-                    <button class="danger fill" @click="navigateTo('/feed')">
+                    <button class="danger f-1" @click="navigateTo('/feed')">
                         Cancel
                     </button>
                 </div>

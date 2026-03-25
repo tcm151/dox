@@ -207,23 +207,23 @@ async function saveDraft() {
 
 <template>
     <article class="editor column p-4">
-        <div class="container column fill">
+        <div class="container column f-1">
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
             <MediaUploader :visible="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
-            <div class="reply-to row center-inline g-2" v-if="replyTo">
+            <div class="reply-to row inline g-2" v-if="replyTo">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ replyTo?.title }}</p>
             </div>
             <section class="editor column p-5">
-                <div class="column fill" v-show="!showPreview">
-                    <header class="row center-inline mb-4">
+                <div class="column f-1" v-show="!showPreview">
+                    <header class="row inline between mb-4">
                         <h1>New Post</h1>
                         <button @click="showDrafts = true">
                             <i class="fa-solid fa-compass-drafting"></i>
                             <span>Drafts</span>
                         </button>
                     </header>
-                    <form class="form fill column g-2">
+                    <form class="form f-1 column g-2">
                         <div class="field">
                             <label>Title</label>
                             <input
@@ -234,9 +234,9 @@ async function saveDraft() {
                                 :class="{ 'invalid': titleFocused && !validTitle() }"
                             />
                         </div>
-                        <div class="field fill">
+                        <div class="field f-1">
                             <label>Content</label>
-                            <textarea class="fill" v-model="draft.content" type="text" rows="12" />
+                            <textarea class="f-1" v-model="draft.content" type="text" rows="12" />
                         </div>
                         <TopicField v-model:input="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
                         <div class="field uploaded-images" v-if="uploadedImages.length > 0">
@@ -252,12 +252,12 @@ async function saveDraft() {
                         </div>
                     </form>
                 </div>
-                <div class="preview fill" v-show="showPreview">
+                <div class="preview f-1" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>
                     <Markdown class="content" :content="draft.content" />
                     <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
                 </div>
-                <section class="row-wrap g-2 mt-5">
+                <section class="row wrap g-2 mt-5">
                     <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                         <i class="fa-solid fa-share"></i>
                         <span>Submit</span>
@@ -279,7 +279,7 @@ async function saveDraft() {
                         <i class="fa-solid fa-eye-slash" v-else></i>
                         <span>Preview</span>
                     </button>
-                    <!-- <button class="danger fill" @click="navigateTo('/')">Cancel</button> -->
+                    <!-- <button class="danger f-1" @click="navigateTo('/')">Cancel</button> -->
                 </section>
             </section>
         </div>
@@ -318,10 +318,6 @@ div.reply-to {
 }
 
 section.editor {
-    header {
-        justify-content: space-between;
-    }
-
     .topic-input {
 
         .row {

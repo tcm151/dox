@@ -22,7 +22,7 @@ async function deletePin(pin: Pin) {
     <article class="p-4">
         <section class="column g-4" v-if="pins!.length > 0">
             <div class="box" v-for="pin in pins" :key="pin.id">
-                <PostPreview :post="pin.post"  />
+                <MultiPreview :item="pin.item" />
                 <header class="row g-1 p-3">
                     <UserTag :user="pin.user" />
                     <DurationTag :time="pin.time" />

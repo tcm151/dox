@@ -29,8 +29,8 @@ function resizePopup() {
 <template>
     <aside class="background column center" v-if="props.visible">
         <main class="window box column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
-            <header class="title-bar row g-4">
-                <div class="left row center-inline g-2 px-3 py-2">
+            <header class="title-bar row inline between stretch g-4">
+                <div class="left row inline g-2 px-3 py-2">
                     <i :class="icon" v-if="icon"></i>
                     <h1 class="title" v-if="title">{{ title }}</h1>
                 </div>
@@ -75,8 +75,6 @@ main.window {
 }
 
 header.title-bar {
-    align-items: stretch;
-    justify-content: space-between;
     color: $white-0;
     background-color: $black-0;
     border-top-left-radius: 0.5rem;

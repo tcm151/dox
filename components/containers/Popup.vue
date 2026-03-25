@@ -38,7 +38,7 @@ function resizePopup() {
             <div class="column py-4">
                 <slot />
             </div>
-            <div class="row-wrap g-2">
+            <div class="row wrap g-2">
                 <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="emit('accept')">
                     {{ acceptLabel ?? "Yes" }}
                 </ButtonSpinner>

@@ -33,7 +33,7 @@ async function unfollowTopic() {
 
 <template>
     <div class="box column p-4">
-        <header class="row center-inline space-between">
+        <header class="row inline between">
             <h1 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
                 {{ extractId(topic.id) }}
             </h1>
@@ -48,7 +48,7 @@ async function unfollowTopic() {
                 </div>
             </ClientOnly>
         </header>
-        <footer class="row-wrap g-1 mt-2">
+        <footer class="row wrap g-1 mt-2">
             <Votes :target="topic" />
             <Tag class="f-1 b-0" type="link">
                 <strong>{{ topic.posts.length }}</strong> posts

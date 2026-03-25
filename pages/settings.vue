@@ -19,7 +19,7 @@ definePageMeta({
 </script>
 
 <template>
-    <article class="column center-inline">
+    <article class="column inline">
         <PagedTabstrip
             :tabs="[
                 { route: '/settings/profile', icon: 'fa-solid fa-address-card', label: 'Profile' },
@@ -27,7 +27,7 @@ definePageMeta({
                 { route: '/settings/preferences', icon: 'fa-solid fa-sliders', label: 'Preferences' },
             ]"
         />
-        <section class="page column center-inline">
+        <section class="page column inline">
             <NuxtPage />
         </section>
     </article>

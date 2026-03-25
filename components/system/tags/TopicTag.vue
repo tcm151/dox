@@ -12,8 +12,8 @@ function viewTopic(topic: string) {
 
 <template>
     <Tag
-        :fill="10"
         type="topic"
+        class="f-max"
         :label="extractId(topic)"
         @click.stop="viewTopic(topic)"
     />

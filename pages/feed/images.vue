@@ -53,21 +53,21 @@ function viewImage(image: Image) {
 
 <template>
     <article class="column g-4 p-4">
-        <header class="tools box row center-inline g-2 p-4">
+        <header class="tools box row inline g-2 p-4">
             <button class="success" @click="refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 <span>Refresh</span>
             </button>
             <ClientOnly>
-                <button class="link fill" @click="selectImages()"  v-if="hasTrait(session.user, 'confirmed')">
+                <button class="link f-1" @click="selectImages()"  v-if="hasTrait(session.user, 'confirmed')">
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
                 <MediaUploader :visible="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
             </ClientOnly>
         </header>
-        <section class="all-images fill row-wrap g-2">
-            <div class="image fill" v-for="image in images" @click="viewImage(image)">
+        <section class="all-images f-1 row wrap g-2">
+            <div class="image f-1" v-for="image in images" @click="viewImage(image)">
                 <img :src="image.url">
             </div>
             <div style="flex: 25 0" />

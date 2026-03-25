@@ -14,10 +14,10 @@ function toggleShowMessages() {
             <i class="fa-solid fa-circle-chevron-up" v-if="!showMessages" @click="toggleShowMessages"></i>
             <i class="fa-solid fa-circle-chevron-down" v-else @click="toggleShowMessages"></i>
         </section>
-        <div class="fill" />
+        <div class="f-1" />
         <TransitionGroup name="messages">
-            <section class="chat row center-inline px-3 py-2" v-if="showMessages" v-for="index in 3">
-                <div class="row center-inline g-2">
+            <section class="chat row inline between px-3 py-2" v-if="showMessages" v-for="index in 3">
+                <div class="row inline g-2">
                     <i class="fa-solid fa-comment"></i>
                     <span>User</span>
                 </div>
@@ -76,7 +76,6 @@ section.toggle {
 
 section.chat {
     width: 200px;
-    justify-content: space-between;
     color: $white-0;
     border-radius: 0.25rem 0.25rem 0 0;
     background-color: $black-0;

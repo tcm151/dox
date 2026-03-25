@@ -55,13 +55,13 @@ const resultPreviews = computed(() => {
 <template>
     <article class="row g-2 m-4">
         <div class="left box column g-2 p-4">
-            <section class="editor fill column g-2">
+            <section class="editor f-1 column g-2">
                 <header class="row g-2">
                     <button class="danger" @click="query = ''">
                         <i class="fa-solid fa-eraser"></i>
                         <span>Clear</span>
                     </button>
-                    <ButtonSpinner class="success fill" :loading="loading" @click="submitQuery">
+                    <ButtonSpinner class="success f-1" :loading="loading" @click="submitQuery">
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>Submit</span>
                     </ButtonSpinner>
@@ -71,7 +71,7 @@ const resultPreviews = computed(() => {
                     </button>
                 </header>
                 <div class="field f-1">
-                    <textarea rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
+                    <textarea class="f-1" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
                 </div>
             </section>
         </div>

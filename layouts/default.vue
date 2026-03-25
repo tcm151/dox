@@ -2,9 +2,9 @@
 </script>
 
 <template>
-    <main class="page column center-inline">
+    <main class="page column inline">
         <slot />
-        <footer class="row center-inline px-5 m-5">
+        <footer class="row inline between px-6 m-5">
                 <div class="links column g-1">
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
@@ -16,8 +16,7 @@
 
 <style scoped lang="scss">
 footer.row {
-    @include fit-width (800px, 1rem);
-    justify-content: space-between;
+    @include fit-width (60rem, 1rem);
     order: 9999;
 
     .links {

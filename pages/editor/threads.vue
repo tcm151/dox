@@ -86,7 +86,7 @@ function togglePreview() {
         <header class="box column g-2 p-4" v-if="showEditor">
             <div class="field">
                 <label>Content</label>
-                <textarea class="fill" type="text" rows="4" v-model="newThread.content" />
+                <textarea class="f-1" type="text" rows="4" v-model="newThread.content" />
             </div>
             <TopicField v-model:input="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             <div class="row g-2 mt-2">

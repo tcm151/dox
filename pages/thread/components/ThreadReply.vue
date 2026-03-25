@@ -13,9 +13,9 @@ const props = defineProps<{
         <aside class="indent-line ml-4 my-4" />
         <div class="main column f-1 px-4 pt-4">
             <section>
-                <div class="row-wrap g-1">
+                <div class="row wrap g-1">
                     <Votes :target="thread" />
-                    <div class="row-wrap f-1 g-1">
+                    <div class="row wrap f-1 g-1">
                         <UserTag :user="thread.user" />
                         <Tag type="info" icon="fa-chart-simple" :label="thread.visits" />
                         <Tag type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
@@ -27,9 +27,9 @@ const props = defineProps<{
             </section>
             <template v-if="thread.chain">
                 <section v-for="reply in thread.chain">
-                    <div class="row-wrap g-1">
+                    <div class="row wrap g-1">
                         <Votes :target="reply" />
-                        <div class="row-wrap f-1 g-1">
+                        <div class="row wrap f-1 g-1">
                             <UserTag :user="reply.user" />
                             <Tag type="info" icon="fa-chart-simple" :label="reply.visits" />
                             <Tag type="info" icon="fa-comment" :label="reply.replies.length.toString()" />
@@ -48,10 +48,6 @@ const props = defineProps<{
 <style scoped lang="scss">
 
 .thread {
-    // border-radius: 0.25rem;
-    // background-color: $white-3;
-    // transition: transform 128ms;
-
     .indent-line {
         border-radius: 0.25rem;
         background-color: $white-1;

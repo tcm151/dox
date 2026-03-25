@@ -21,7 +21,7 @@ function toggleChildren(id: string) {
         <template v-for="item in children" :key="item.id">
             <div class="outside row" :class="{ 'collapsed': hiddenChildren.includes(item.id) }">
                 <aside class="indent-line mb-1 mr-4" @click="toggleChildren(item.id)" />
-                <div class="item fill">
+                <div class="item f-1">
                     <slot name="item" :item="item" />
                     <Tree class="ml-2" v-if="!hiddenChildren.includes(item.id)" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
                         <template v-for="(_, slot) in $slots" v-slot:[slot]="scope">

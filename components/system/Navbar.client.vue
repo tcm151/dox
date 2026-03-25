@@ -28,7 +28,7 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
 </script>
 
 <template>
-    <nav class="navbar row">
+    <nav class="navbar row inline between">
         <section class="left row">
             <NuxtLink class="title" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
@@ -87,8 +87,6 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
 
 <style scoped lang="scss">
 nav {
-    align-items: stretch;
-    justify-content: space-between;
     color: $white-1;
     background-color: $black-0;
 }

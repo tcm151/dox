@@ -10,31 +10,31 @@ const props = defineProps<{
 <template>
     <div class="thread">
         <div class="main box column px-3 pt-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
-            <div class="row-wrap g-1">
+            <div class="row wrap g-1">
                 <Votes :target="thread" />
-                <div class="row-wrap f-1 g-1">
+                <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="thread.user" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits" />
                     <Tag class="f-1" type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
                     <DurationTag class="f-1" :time="thread.time" />
                     <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                 </div>
-                <div v-if="thread.topics.length > 0" class="row-wrap f-1 g-1">
-                    <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
+                <div v-if="thread.topics.length > 0" class="row wrap f-1 g-1">
+                    <TopicTag v-for="topic in thread.topics" :topic="topic" />
                 </div>
             </div>
             <Markdown class="content preview" :content="thread.content" />
             <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
-                <div class="row-wrap g-1">
+                <div class="row wrap g-1">
                     <Votes :target="thread.quote" />
-                    <div class="row-wrap g-1">
+                    <div class="row wrap g-1">
                         <UserTag :user="thread.quote.user" />
                         <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
                         <Tag type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
                         <DurationTag :time="thread.quote.time" />
                     </div>
-                    <div v-if="thread.quote.topics.length > 0" class="row-wrap f-1 g-1">
-                        <TopicTag class="f-10" v-for="topic in thread.quote.topics" :topic="topic" />
+                    <div v-if="thread.quote.topics.length > 0" class="row wrap f-1 g-1">
+                        <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
                     </div>
                 </div>
                 <Markdown class="content preview" :content="thread.quote.content" />

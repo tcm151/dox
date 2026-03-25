@@ -7,12 +7,7 @@ const { data: schema, refresh } = await useDatasource<string>("/api/developer/da
 
 async function syncDatabase() {
     await useApi("/api/developer/database/sync")
-    hints.addSuccess("Database synced. Logging Out...")
-    
-    setTimeout(() => {
-        session.logout(true)
-        events.publish(Trigger.toggleLogin)
-    }, 2500)
+    hints.addSuccess("Database synced.")
 }
 </script>
 
@@ -20,11 +15,11 @@ async function syncDatabase() {
     <article class="p-4">
         <section class="box column g-2 p-4">
             <header class="row g-2">
-                <button class="danger fill" @click="syncDatabase">
+                <button class="danger f-1" @click="syncDatabase">
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Sync Database</span>
                 </button>
-                <button class="link fill" @click="refresh()">
+                <button class="link f-1" @click="refresh()">
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Refresh Schema</span>
                 </button>

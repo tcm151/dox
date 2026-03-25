@@ -164,9 +164,9 @@ function toggleOptions() {
             <ThreadReply :thread="thread.replyTo" />
         </section>
         <section class="main box column px-4 pt-4">
-            <header class="row-wrap g-1">
+            <header class="row wrap g-1">
                 <Votes :target="thread" />
-                <div class="row-wrap f-1 g-1">
+                <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="thread.user" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
                     <Tag class="f-1" type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
@@ -179,18 +179,18 @@ function toggleOptions() {
                         </template>
                     </Tag>
                 </div>
-                <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
+                <TopicTag v-for="topic in thread.topics" :topic="topic" />
             </header>
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
                 <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
-                    <div class="row-wrap g-1">
+                    <div class="row wrap g-1">
                         <Votes :target="thread.quote" />
                         <UserTag :user="thread.quote.user" />
                         <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
                         <Tag type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
                         <DurationTag :time="thread.quote.time" />
-                        <div v-if="thread.quote.topics.length > 0" class="row-wrap g-1">
+                        <div v-if="thread.quote.topics.length > 0" class="row wrap g-1">
                             <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
                         </div>
                         <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
@@ -204,7 +204,7 @@ function toggleOptions() {
                 </div>
             </ClientOnly>
             <footer>
-                <div v-if="!thread.deleted && !editingThread && !showReplyBox" class="f-1 row-wrap g-1 mb-4">
+                <div v-if="!thread.deleted && !editingThread && !showReplyBox" class="f-1 row wrap g-1 mb-4">
                     <button class="f-1" @click="showReplyBox = true">
                         <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                         <span>Reply</span>
@@ -234,12 +234,12 @@ function toggleOptions() {
                         />
                     </ClientOnly>
                 </div>
-                <div v-else-if="editingThread" class="row-wrap f-1 g-1 mb-4">
-                    <ButtonSpinner class="success fill" :loading="submitting" @click="updateThread">
+                <div v-else-if="editingThread" class="row wrap f-1 g-1 mb-4">
+                    <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
                     </ButtonSpinner>
-                    <!-- <button class="info fill" @click="togglePreview">
+                    <!-- <button class="info f-1" @click="togglePreview">
                         <i class="fa-solid fa-eye" v-if="!showPreview"></i>
                         <i class="fa-solid fa-eye-slash" v-else></i>
                         <span>Preview</span>
