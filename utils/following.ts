@@ -7,8 +7,8 @@ export const useFollowing = () => {
     async function follow(target: string): Promise<boolean> {
         if (!session.isAuthenticated) {
             events.publish(Trigger.addHint, {
-                message: "You must be logged into interact with others.",
                 type: "error",
+                message: "You must be logged into interact with others.",
             })
             return false
         }
@@ -27,8 +27,8 @@ export const useFollowing = () => {
     async function unfollow(target: string): Promise<boolean> {
         if (!session.isAuthenticated) {
             events.publish(Trigger.addHint, {
-                message: "You must be logged into interact with others.",
                 type: "error",
+                message: "You must be logged into interact with others.",
             })
             return false
         }

@@ -40,8 +40,8 @@ export const getSession = defineStore("session", () => {
         }
         catch (error: any) {
             throw createError({
-                statusCode: 401,
-                message: "You don't exist."
+                status: 401,
+                statusText: "You don't exist."
             })
         }
     }

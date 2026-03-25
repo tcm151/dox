@@ -2,8 +2,8 @@ interface Error {
     cause?: string
     name?: string
     url: string
-    statusCode: number
-    statusMessage: string
+    status: number
+    statusText: string
     message: string
     stack: string
     data?: any

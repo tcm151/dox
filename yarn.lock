@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"22@^0.0.0":
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/22/-/22-0.0.0.tgz#384b9aafe2df5d70386445d94153713c56d12ffc"
-  integrity sha512-MdBPNDaCFY4fZVpp14n3Mt4isZ2yS1DrIiOig/iMLljr4zDa0g/583xf/lFXNPwhxCfGKYvyWJSrYyS8jNk2mQ==
-
 "@asamuzakjp/css-color@^5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@asamuzakjp/css-color/-/css-color-5.0.1.tgz#3b9462a9b52f3c6680a0945a3d0851881017550f"

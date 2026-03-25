@@ -20,8 +20,9 @@ export default defineEventHandler(async (event) => {
     }
     catch (error: any) {
         throw createError({
-            statusCode: 500,
-            message: `Unable to find image:${id}...\n${error.message}`
+            status: 500,
+            statusText: `Unable to find image:${id}.`,
+            message: error.message,
         })
     }
 })

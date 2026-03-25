@@ -12,8 +12,8 @@ export function hasRole(user: User, role: Role | Role[]) {
 export function requireRole(user: User, role: Role | Role[]) {
     if (!hasRole(user, role)) {
         throw createError({
-            statusCode: 403,
-            message: "You do not have permission to do this."
+            status: 403,
+            statusText: "You do not have permission to do this."
         })
     }
 }

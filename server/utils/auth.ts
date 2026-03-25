@@ -10,8 +10,8 @@ export const authenticateLogin = async (event: H3Event) => {
     }
     catch (error: any) {
         throw createError({
-            statusCode: 401,
-            statusMessage: "Failed to authenticate login.",
+            status: 401,
+            statusText: "Failed to authenticate login.",
         })
     }
 }
@@ -41,8 +41,8 @@ export const invalidateSession = async (event: H3Event, clear: boolean) => {
     catch (error: any) {
         console.log(error)
         throw createError({
-            statusCode: 400,
-            statusMessage: "You aren't allowed invalidate this session.",
+            status: 400,
+            statusText: "You aren't allowed invalidate this session.",
         })
     }
 }

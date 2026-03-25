@@ -15,16 +15,6 @@ export default defineEventHandler(async (event) => {
         `)
         .queryAll<Post>()
 
-    let images = await new DatabaseQuery()
-        .addSql(`
-            SELECT id, user.id, user.name, votes, score, type, tokens, time, url
-            FROM image
-            WHERE public = true
-            ORDER BY time DESC
-            FETCH user
-        `)
-        .queryAll<Image>()
-
     let threads = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, content, time,
@@ -36,6 +26,16 @@ export default defineEventHandler(async (event) => {
             FETCH user, quote, quote.user, images
         `)
         .queryAll<Thread>()
+
+    let images = await new DatabaseQuery()
+        .addSql(`
+            SELECT id, user.id, user.name, votes, score, type, tokens, time, url
+            FROM image
+            WHERE public = true
+            ORDER BY time DESC
+            FETCH user
+        `)
+        .queryAll<Image>()
 
     return sortList([...posts, ...images, ...threads], query.sortBy)
 })

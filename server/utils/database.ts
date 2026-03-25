@@ -15,8 +15,8 @@ async function initializeDatabase() {
     if (config.surreal.info.type == "remote") {
         if (config.surreal.info.url == "" || !config.surreal.info.url.includes("/rpc")) {
             throw createError({
-                statusCode: 500,
-                statusMessage: `Database URL was [${config.surreal.info.url ?? "empty"}]. Check environment variables.`
+                status: 500,
+                statusText: `Database URL was [${config.surreal.info.url ?? "empty"}]. Check environment variables.`
             })
         }
         SurrealInstance = new Surreal();
@@ -112,14 +112,15 @@ export class DatabaseQuery {
             if (error.message.startsWith("Surreal Error:")) {
                 const message = error.message.split(":").at(1).trim()
                 throw createError({
-                    statusCode: 500,
-                    statusMessage: message,
+                    status: 500,
+                    statusText: message,
                 })
             }
             else {
+                console.log(error.message)
                 throw createError({
-                    statusCode: 500,
-                    statusMessage: `Server Error: Oops.`,
+                    status: 500,
+                    statusText: `Server Error: Unable to execute query.`,
                     message: error.message,
                 })
             }

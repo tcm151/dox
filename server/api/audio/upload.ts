@@ -8,23 +8,23 @@ export default defineEventHandler(async (event) => {
 
     if (!settings.media.uploads.enabled) {
         return createError({
-            statusCode: 503,
-            message: "Media uploads are currently disabled."
+            status: 503,
+            statusText: "Media uploads are currently disabled."
          })
     }
 
     if (!data || !data[0]) {
         return createError({
-            statusCode: 400,
-            message: "You did pass any files to be uploaded."
+            status: 400,
+            statusText: "You did pass any files to be uploaded."
         })
     }
 
     const fileSize = data[0].data.byteLength / 1_048_576
     if (fileSize > settings.media.uploads.audioMaxSize) {
         return createError({
-            statusCode: 400,
-            message: `File size exceeds the ${settings.media.uploads.audioMaxSize}MB limit.`
+            status: 400,
+            statusText: `File size exceeds the ${settings.media.uploads.audioMaxSize}MB limit.`
         })
     }
 
@@ -33,8 +33,8 @@ export default defineEventHandler(async (event) => {
     
     if (auth.tokens < tokens) {
         throw createError({
-            statusCode: 401,
-            message: "You do not have enough tokens to upload this audio."
+            status: 401,
+            statusText: "You do not have enough tokens to upload this audio."
         })
     }
 

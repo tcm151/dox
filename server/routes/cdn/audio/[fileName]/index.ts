@@ -21,8 +21,9 @@ export default defineEventHandler(async (event) => {
     }
     catch (error: any) {
         throw createError({
-            statusCode: 500,
-            message: `Unable to find audio:${id}...\n${error.message}`
+            status: 500,
+            statusText: `Unable to find audio:${id}.`,
+            message: error.message,
         })
     }
 })

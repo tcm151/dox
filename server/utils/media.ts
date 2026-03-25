@@ -34,8 +34,8 @@ export async function processMedia(media: MultiPartData): Promise<{ buffer: Buff
         }
         default:
             throw createError({
-                statusCode: 400,
-                statusMessage: "Unsupported media type."
+                status: 400,
+                statusText: "Unsupported media type."
             })
     }
 }
@@ -75,8 +75,8 @@ export async function writeMedia(user: User, media: Media, buffer: Buffer, media
             .execute()
 
         throw createError({
-            statusCode: 500,
-            statusMessage: 'Unable to save file on server.',
+            status: 500,
+            statusText: 'Unable to save file on server.',
             message: error.message,
         })
     }
