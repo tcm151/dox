@@ -16,7 +16,7 @@ const loading = computed(() => feed.status.value.toString() == "pending")
 </script>
 
 <template>
-    <section class="feed column g-2 p-4">
+    <section class="feed column g-2 p-4 fit-large">
         <header class="box column g-2 p-2">
             <div class="field row g-2">
                 <ButtonSpinner class="link" :loading="loading" @click="feed.refresh()">
@@ -42,6 +42,5 @@ const loading = computed(() => feed.status.value.toString() == "pending")
 
 <style scoped lang="scss">
 section.feed {
-    @include fit-width(60rem, 1rem);
 }
 </style>

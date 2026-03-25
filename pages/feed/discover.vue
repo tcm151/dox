@@ -14,7 +14,7 @@ const discover = useDatasource<Sortable[]>("/api/feed/discover", {
 </script>
 
 <template>
-    <section class="feed column g-2 p-4">
+    <section class="feed column g-2 p-4 fit-large">
         <template v-for="pin in pins.data.value" :key="pin.id">
             <MultiPreview :item="pin.item" />
         </template>
@@ -28,6 +28,5 @@ const discover = useDatasource<Sortable[]>("/api/feed/discover", {
 
 <style scoped lang="scss">
 section.feed {
-    @include fit-width(60rem, 1rem);
 }
 </style>

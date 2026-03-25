@@ -7,7 +7,7 @@ let complain = ref(false)
 </script>
 
 <template>
-    <article class="error">
+    <article class="error fit-small">
         <section class="details box column inline p-6">
             <div class="column g-2 mb-5">
                 <h1>ERR: {{ error.statusCode }}</h1>
@@ -42,7 +42,6 @@ article.error {
 
     
     section.details {
-        @include fit-width(25rem, 1rem);
         
         div {
             text-align: center;

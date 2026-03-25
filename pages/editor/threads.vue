@@ -82,7 +82,7 @@ function togglePreview() {
 </script>
 
 <template>
-    <article class="editor column p-4">
+    <article class="editor column p-4 fit-large">
         <header class="box column g-2 p-4" v-if="showEditor">
             <div class="field">
                 <label>Content</label>
@@ -113,7 +113,4 @@ function togglePreview() {
 </template>
 
 <style scoped lang="scss">
-article.editor {
-    @include fit-width (60rem, 1rem);
-}
 </style>

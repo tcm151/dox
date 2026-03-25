@@ -40,7 +40,7 @@ async function resetPassword() {
 </script>
 
 <template>
-    <article class="column g-4 p-4">
+    <article class="column g-4 p-4 fit-medium">
         <section class="box column g-4 p-5">
             <div class="column g-2">
                 <button class="f-1 danger" @click="sendConfirmation" v-if="!hasTrait(session.user, 'confirmed')">
@@ -88,7 +88,6 @@ async function resetPassword() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(40rem, 1rem);
 }
 
 textarea {
@@ -99,10 +98,6 @@ div.profile-picture {
     img {
         border-radius: 0.5rem;
     }
-}
-
-input.invalid, textarea.invalid {
-    outline: 1px solid $red !important;
 }
 
 input[disabled] {

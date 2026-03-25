@@ -5,7 +5,7 @@ const { data: topics } = await useDatasource<Topic[]>("/api/topic")
 </script>
 
 <template>
-    <article class="column g-2 p-4">
+    <article class="column g-2 p-4 fit-large">
         <template v-if="topics && topics.length > 0">
             <template v-for="topic in topics" :key="topic.id">
                 <TopicPreview :topic="topic" />
@@ -21,6 +21,5 @@ const { data: topics } = await useDatasource<Topic[]>("/api/topic")
 
 <style scoped lang="scss">
 article {
-    @include fit-width(60rem, 1rem);
 }
 </style>

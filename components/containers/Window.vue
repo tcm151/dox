@@ -48,16 +48,6 @@ function resizePopup() {
 
 <style scoped lang="scss">
 
-@keyframes blur {
-    from { backdrop-filter: none }
-    to { backdrop-filter: blur(0.5rem) }
-}
-
-@keyframes fade-in {
-    from { opacity: 0% }
-    to { opacity: 100% }
-}
-
 aside.background {
     top: 0;
     left: 0;

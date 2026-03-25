@@ -53,7 +53,7 @@ const resultPreviews = computed(() => {
 </script>
 
 <template>
-    <article class="row g-2 m-4">
+    <article class="row g-2 m-4 fit-full">
         <div class="left box column g-2 p-4">
             <section class="editor f-1 column g-2">
                 <header class="row g-2">
@@ -125,11 +125,10 @@ input[type=search]::-webkit-search-cancel-button:hover {
 }
 
 article {
-    @include fit-width (2000px, 1rem);
     height: stretch;
     overflow: hidden;
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         @include flex-v;
     }
 
@@ -140,7 +139,7 @@ article {
     div.left { flex: 4 1 }
     div.right { flex: 6 1 }
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         div.left { flex: 1 1 }
         div.right { flex: 10 1 }
     }
@@ -152,7 +151,7 @@ section.editor {
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
         
-        @media only screen and (max-width: 1000px) {
+        @media (max-width: $bp-desktop) {
             flex: none;
             resize: vertical;
         }

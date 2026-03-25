@@ -60,7 +60,7 @@ function differentPasswords() {
 </script>
 
 <template>
-    <article class="column g-4 p-6">
+    <article class="column g-4 p-6 fit-small">
         <section class="box form column g-4 p-5">
             <h2>Reset Password</h2>
             <div class="field mt-2">
@@ -91,12 +91,5 @@ function differentPasswords() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(30rem, 1rem);
-}
-
-.field {
-    input.invalid {
-        outline: 1px solid $red !important;
-    }
 }
 </style>

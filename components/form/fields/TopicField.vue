@@ -47,8 +47,4 @@ div.row {
         line-height: 1.5rem;
     }
 }
-
-input.invalid {
-    outline: 1px solid $red !important;
-}
 </style>

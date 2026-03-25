@@ -50,10 +50,6 @@ article.notifications {
     max-width: 800px;
 }
 
-section.empty {
-    text-align: center;
-}
-
 .notifications-move, .notifications-enter-active, .notifications-leave-active {
     transition: all 256ms ease;
 }
@@ -62,8 +58,4 @@ section.empty {
 .notifications-leave-to {
     opacity: 0;
 }
-
-// .notifications-leave-active {
-//     position: absolute;
-// }
 </style>

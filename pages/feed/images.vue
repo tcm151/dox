@@ -52,7 +52,7 @@ function viewImage(image: Image) {
 </script>
 
 <template>
-    <article class="column g-4 p-4">
+    <article class="column g-4 p-4 fit-huge">
         <header class="tools box row inline g-2 p-4">
             <button class="success" @click="refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
@@ -77,15 +77,6 @@ function viewImage(image: Image) {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(75rem, 1rem);
-}
-
-header.tools {
-    button.success {
-        i.spin {
-            animation: spin 512ms linear infinite;
-        }
-    }
 }
 
 section.all-images {
@@ -107,12 +98,12 @@ section.all-images {
             max-width: 100%;
             object-fit: cover;
 
-            @media only screen and (max-width: 800px) {
+            @media (max-width: $bp-laptop) {
                 min-height: 50px;
                 max-height: 100px;
             }
 
-            @media only screen and (max-width: 600px) {
+            @media (max-width: $bp-tablet) {
                 min-height: 40px;
                 max-height: 80px;
             }
@@ -137,10 +128,5 @@ section.popup-image {
             border-radius: 0.25rem;
         }
     }
-}
-    
-
-input[type=file]::file-selector-button {
-    display: none;
 }
 </style>

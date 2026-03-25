@@ -130,7 +130,7 @@ async function deleteComment(commentId: string) {
 <style lang="scss">
 main.comment {
     header.row {
-        @media screen and (max-width: 600px) {
+        @media (max-width: $bp-tablet) {
             flex-wrap: wrap;
         }
     }
