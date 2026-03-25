@@ -240,8 +240,8 @@ DEFINE FIELD OVERWRITE images ON draft
 -- TABLE: pin
 -- ------------------------------
 DEFINE TABLE OVERWRITE pin SCHEMALESS;
-DEFINE FIELD OVERWRITE post ON pin
-    TYPE record<post>;
+DEFINE FIELD OVERWRITE item ON pin
+    TYPE record<post|thread>;
 DEFINE FIELD OVERWRITE user ON pin
     TYPE record<user>;
 DEFINE FIELD OVERWRITE active ON pin

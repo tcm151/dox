@@ -102,8 +102,8 @@ export interface Post extends Sortable {
 
 export interface Pin {
     id: string
-    post: Post & string
-    user: User & string
+    item: Post | Thread
+    user: User
     active: boolean
     time: string
 }

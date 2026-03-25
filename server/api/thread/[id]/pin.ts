@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
         return await new DatabaseQuery()
             .addSql(`
                 CREATE pin SET
-                    thread = $thread,
+                    item = $thread,
                     user = $user;
             `)
             .addRecord("thread", `thread:${id}`)

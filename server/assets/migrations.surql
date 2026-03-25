@@ -166,3 +166,11 @@ WHERE media.uploads.imageMaxSize = NONE;
 UPDATE appSettings SET
     media.uploads.audioMaxSize = 100
 WHERE media.uploads.audioMaxSize = NONE;
+
+-- 2026-03-25
+REMOVE FIELD IF EXISTS post
+ON TABLE pin;
+UPDATE pin SET
+    item = post,
+    post = NONE
+WHERE item = NONE;
