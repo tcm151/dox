@@ -3,23 +3,39 @@
 const hints = useHints()
 const settings = useSettings()
 
-watch(settings.app, async (config) => {
+const loading = ref<boolean>(false)
+async function saveSettings() {
     try {
-        await useApi(`/api/admin/config/${config.id}/update`, {
+        loading.value = true
+        await useApi(`/api/admin/config/${settings.app.id}/update`, {
             body: {
-                config: config
+                config: settings.app
             }
         })
+        hints.addSuccess("Settings saved successfully.")
     }
     catch (error: any) {
         hints.addError(error.message)
     }
-})
+    finally {
+        loading.value = false
+    }
+}
 </script>
 
 
 <template>
     <article class="config box column g-4 p-5 m-4">
+        <section>
+            <ButtonSpinner class="success" :loading="loading" @click="saveSettings">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save</span>
+            </ButtonSpinner>
+            <button class="dark" @click="settings.refresh()">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Reset</span>
+            </button>
+        </section>
         <section>
             <header>
                 <h2>Email</h2>

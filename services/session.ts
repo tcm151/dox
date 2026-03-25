@@ -49,7 +49,7 @@ export const getSession = defineStore("session", () => {
     //> AUTH
     async function authenticate(existingToken?: string): Promise<void> {
         let token = existingToken ?? tokens.value.access
-        user.value = await $fetch<User>("/api/profile/authenticate", {
+        user.value = await useApi<User>("/api/profile/authenticate", {
             headers: {
                 Authorization: token
             }
@@ -63,7 +63,7 @@ export const getSession = defineStore("session", () => {
     }
 
     async function login(id: string, password: string): Promise<void> {
-        let result = await $fetch("/api/profile/login", {
+        let result = await useApi("/api/profile/login", {
             headers: {
                 Authorization: btoa(`${id}:${password}`),
             }

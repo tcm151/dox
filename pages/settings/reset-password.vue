@@ -31,8 +31,7 @@ async function resetPassword() {
         return
     }
 
-    await $fetch("/api/profile/password/confirm", {
-        method: "POST",
+    await useApi("/api/profile/password/confirm", {
         body: {
             resetId: resetId,
             email: email.value,

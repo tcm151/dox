@@ -42,9 +42,11 @@ export const useSettings = defineStore("user.settings", () => {
         }
     })
 
-    async function fetch() {
-        app.value = await $fetch<AppSettings>("/api/settings/default")
+    async function refresh() {
+        app.value = await useApi<AppSettings>("/api/settings/default", {
+            method: "GET"
+        })
     }
 
-    return { user: skipHydrate(user), app, fetch }
+    return { user: skipHydrate(user), app, refresh }
 })

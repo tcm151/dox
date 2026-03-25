@@ -5,20 +5,12 @@ const config = useRuntimeConfig()
 const events = useEvents()
 const settings = useSettings()
 
-useNuxtApp().hook("page:finish", () => {
-    events.publish(Trigger.pageFinishedLoading)
-})
-
-onMounted(() => {
-    events.publish(Trigger.clientStarted)
-})
-
 useSeoMeta({
     robots: { index: true },
     ogSiteName: config.public.site.title,
 })
 
-await callOnce("app.settings", () => settings.fetch())
+await callOnce("app.settings", () => settings.refresh())
 
 let showLogin = ref(false)
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
@@ -31,6 +23,7 @@ const popupTitle = ref<string>("")
 const popupMessage = ref<string>("")
 const handlingPopup = ref(false)
 const popupOnAccept = ref<($event?: undefined) => any>(() => {})
+
 events.subscribe(Trigger.showPopup, (payload: any) => {
     popupTitle.value = payload.title
     popupMessage.value = payload.message

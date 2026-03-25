@@ -41,6 +41,10 @@ SURREAL_DATABASE= # the database you'd like to use. Ex: development
 SURREAL_USERNAME= # your SurrealDB root username, when SURREAL_TYPE=remote
 SURREAL_PASSWORD= # your SurrealDB root password, when SURREAL_TYPE=remote
 
+DEFAULT_USER_EMAIL= # the email of the default user created on startup
+DEFAULT_USER_NAME= # the name of the default user created on startup
+DEFAULT_USER_PASSWORD= # the password of the default user created on startup
+
 # OPTIONAL, only supply if needing to send emails
 # You can use your personal gmail account as an SMTP server
 # https://support.google.com/a/answer/176600?
@@ -79,7 +83,7 @@ Database migrations completed successfully.
 
 ## 6. Sync Database Schema
 
-Schema and migrations are applied automatically on application startup by [server/plugins/migrations.ts](../server/plugins/migrations.ts), which executes both [server/assets/schema.surql](../server/assets/schema.surql) and [server/assets/migrations.surql](../server/assets/migrations.surql).
+Schema and migrations are applied automatically on application startup by [server/plugins/01.migrations.server.ts](../server/plugins/01.migrations.server.ts), which executes both [server/assets/schema.surql](../server/assets/schema.surql) and [server/assets/migrations.surql](../server/assets/migrations.surql).
 
 If startup succeeds, you do not need to run manual `surreal import` commands.
 

@@ -56,8 +56,7 @@ async function useLogin(profile: Profile) {
 
 async function removeLogin(profile: Profile) {
     try {
-        await $fetch("/api/profile/logout", {
-            method: "POST",
+        await useApi("/api/profile/logout", {
             headers: {
                 Authorization: profile.token
             },

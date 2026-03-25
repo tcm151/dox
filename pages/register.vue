@@ -34,8 +34,7 @@ async function register() {
 
     try {
         submitting.value = true
-        const result = await $fetch("/api/user/register", {
-            method: "POST",
+        const result = await useApi("/api/user/register", {
             headers: {
                 Authorization: btoa(`${email.value}:${username.value}:${password.value}`),
             },
