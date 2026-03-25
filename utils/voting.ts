@@ -8,7 +8,7 @@ export const useVoting = () => {
     const session = getSession()
     const types: Vote[] = ["positive", "misleading", "negative"]
 
-    async function updateVote(item: Voteable, type: Vote) {
+    async function submit(type: Vote, item: Voteable) {
         if (!session.isAuthenticated) {
             hints.addError("You must be logged in to interact with others.")
             return
@@ -20,27 +20,28 @@ export const useVoting = () => {
 
         if (!item.votes[type].includes(session.user.id)) {
             item.votes[type].push(session.user.id)
-            await session.useApi(`/api/vote/${item.id}/${type}`)
+            await useApi(`/api/vote/${item.id}/${type}`)
         }
         else {
             item.votes[type] = item.votes[type].filter(u => u !== session.user.id)
-            await session.useApi(`/api/vote/${item.id}/reset`)
+            await useApi(`/api/vote/${item.id}/reset`)
         }
     }
 
     async function positive(item: Voteable) {
-        updateVote(item, "positive")
+        await submit("positive", item)
     }
 
     async function misleading(item: Voteable) {
-        updateVote(item, "misleading")
+        await submit("misleading", item)
     }
     
     async function negative(item: Voteable) {
-        updateVote(item, "negative")
+        await submit("negative", item)
     }
 
     return {
+        submit,
         positive,
         misleading,
         negative

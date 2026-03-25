@@ -46,18 +46,20 @@ const submitting = ref<boolean>(false)
 async function submit() {
     try {
         submitting.value = true
-        const thread = await session.useApi<Thread>("/api/thread/add", {
-            user: session.user.id,
-            content: newThread.value.content,
-            topics: newThread.value.topics,
-            votes: {
-                positive: [session.user.id],
-                misleading: [],
-                negative: [],
-            },
+        const thread = await useApi<Thread>("/api/thread/add", {
+            body: {
+                user: session.user.id,
+                content: newThread.value.content,
+                topics: newThread.value.topics,
+                votes: {
+                    positive: [session.user.id],
+                    misleading: [],
+                    negative: [],
+                },
+            }
         })
 
-        return navigateTo(`/thread/${extractId(thread.id)}`)
+        return navigateTo(`/thread/${extractId(thread.data.value!.id)}`)
     }
     catch (error: any) {
         hints.addError("Failed to submit thread.")

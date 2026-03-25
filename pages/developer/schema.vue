@@ -1,24 +1,18 @@
 <script setup lang="ts">
-
 const hints = useHints()
-const cache = useCache()
 const events = useEvents()
 const session = getSession()
 
+const { data: schema, refresh } = await useDatasource<string>("/api/developer/database/schema")
+
 async function syncDatabase() {
-    await session.useApi("/api/developer/database/sync")
+    await useApi("/api/developer/database/sync")
     hints.addSuccess("Database synced. Logging Out...")
     
     setTimeout(() => {
         session.logout(true)
         events.publish(Trigger.toggleLogin)
     }, 2500)
-}
-
-const schema = cache.get<string>("developer.schema.sql", () => "")
-async function refreshSchema() {
-    schema.value = await session.useApi<string>("/api/developer/database/schema") ?? ""
-    hints.addSuccess("Downloaded current database schema.")
 }
 </script>
 
@@ -30,7 +24,7 @@ async function refreshSchema() {
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Sync Database</span>
                 </button>
-                <button class="link fill" @click="refreshSchema">
+                <button class="link fill" @click="refresh()">
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Refresh Schema</span>
                 </button>

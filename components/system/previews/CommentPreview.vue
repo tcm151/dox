@@ -31,7 +31,11 @@ function cancelComment() {
 
 async function updateComment(comment: Comment) {
     try {
-        await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
+        await useApi(`/api/comment/${extractId(comment.id)}/edit`, {
+            body: {
+                content: comment.content
+            }
+        })
         editComment.value = false
         emit("refresh")
     }
@@ -46,17 +50,19 @@ async function submitComment(replyId: Post | Comment, content: string) {
         return
     }
     try {
-        await session.useApi<Comment>("/api/comment/add", {
-            time: new Date(),
-            user: session.user?.id,
-            post: props.comment.post,
-            replyTo: replyId.id,
-            content: content,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
+        await useApi<Comment>("/api/comment/add", {
+            body: {
+                time: new Date(),
+                user: session.user.id,
+                post: props.comment.post,
+                replyTo: replyId.id,
+                content: content,
+                votes: {
+                    positive: [session.user.id],
+                    misleading: [],
+                    negative: [],
+                },
+            }
         })
         replyTo.value = false
         replyText.value = ""
@@ -69,7 +75,7 @@ async function submitComment(replyId: Post | Comment, content: string) {
 
 async function deleteComment(commentId: string) {
     try {
-        await session.useApi(`/api/comment/${extractId(commentId)}/delete`)
+        await useApi(`/api/comment/${extractId(commentId)}/delete`)
         emit("refresh")
     }
     catch (error: any) {

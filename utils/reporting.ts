@@ -10,6 +10,10 @@ export async function submitReport(subject: string) {
         })
     }
     
-    await session.useApi("/api/report/send", { subject })
+    await useApi("/api/report/send", {
+        body: {
+            subject: subject
+        }
+    })
     hints.addError("Thank you for reporting this to the development team.")
 }

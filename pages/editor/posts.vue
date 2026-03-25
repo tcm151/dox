@@ -116,7 +116,7 @@ function cancelUpload() {
 }
 
 async function deleteImage(image: Image) {
-    await session.useApi(`/api/image/${extractId(image.id)}/delete`)
+    await useApi(`/api/image/${extractId(image.id)}/delete`)
     uploadedImages.value = uploadedImages.value.filter(i => i !== image)
     hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
 }
@@ -140,20 +140,22 @@ async function submit() {
     
     try {
         submitting.value = true
-        const post = await session.useApi<Post>("/api/post/add", {
-            user: session.user!.id,
-            title: draft.value.title,
-            content: draft.value.content,
-            time: DateTime.now(),
-            replyTo: draft.value.replyTo,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
-            topics: draft.value.topics,
-            comments: [],
-            images: uploadedImages.value.map(i => i.id)
+        const post = await useApi<Post>("/api/post/add", {
+            body: {
+                user: session.user!.id,
+                title: draft.value.title,
+                content: draft.value.content,
+                time: DateTime.now(),
+                replyTo: draft.value.replyTo,
+                votes: {
+                    positive: [session.user!.id],
+                    misleading: [],
+                    negative: [],
+                },
+                topics: draft.value.topics,
+                comments: [],
+                images: uploadedImages.value.map(i => i.id)
+            }
         })
         
         uploadedImages.value = []
@@ -175,26 +177,30 @@ async function saveDraft() {
     }
 
     if (draft.value.id !== '') {
-        await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
-            title: draft.value.title,
-            content: draft.value.content,
-            replyTo: draft.value.replyTo,
-            topics: draft.value.topics,
-            images: uploadedImages.value.map(i => i.id)
+        await useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
+            body: {
+                title: draft.value.title,
+                content: draft.value.content,
+                replyTo: draft.value.replyTo,
+                topics: draft.value.topics,
+                images: uploadedImages.value.map(i => i.id)
+            }
         })
         hints.addSuccess("Draft updated.")
     }
     else {
-        const response = await session.useApi<Draft>("/api/profile/drafts/add", {
-            user: session.user!.id,
-            title: draft.value.title,
-            content: draft.value.content,
-            time: new Date(),
-            replyTo: draft.value.replyTo,
-            topics: draft.value.topics,
-            images: uploadedImages.value.map(i => i.id)
+        const response = await useApi<Draft>("/api/profile/drafts/add", {
+            body: {
+                user: session.user!.id,
+                title: draft.value.title,
+                content: draft.value.content,
+                time: new Date(),
+                replyTo: draft.value.replyTo,
+                topics: draft.value.topics,
+                images: uploadedImages.value.map(i => i.id)
+            }
         })
-        draft.value.id = response!.id
+        draft.value.id = response.id
         hints.addSuccess("Draft saved.")
     }
 }

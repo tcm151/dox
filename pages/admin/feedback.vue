@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import type { Feedback, User } from '~/types'
+import type { Feedback } from '~/types'
 
 const cache = useCache()
-const session = getSession()
 
-const { data: feedback, refresh } = await useFetch<Feedback[]>("/api/feedback", {
-    headers: {
-        Authorization: session.tokens.access,
-    },
-})
+const { data: feedback, refresh } = await useDatasource<Feedback[]>("/api/feedback")
 
 const activeFeedback = computed(() => {
     return feedback.value?.filter(f => (showDismissed.value) ? f : !f.dismissed)
@@ -16,7 +11,7 @@ const activeFeedback = computed(() => {
 
 const showDismissed = cache.get('admin.feedback.showDismissed', () => false)
 async function dismissFeedback(feedback: Feedback) {
-    await session.useApi<Feedback>(`/api/feedback/${extractId(feedback.id)}/dismiss`)
+    await useApi<Feedback>(`/api/feedback/${extractId(feedback.id)}/dismiss`)
     await refresh()
 }
 </script>

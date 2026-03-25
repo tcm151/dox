@@ -6,7 +6,11 @@ const settings = useSettings()
 
 watch(settings.app, async (updatedConfig) => {
     try {
-        await session.useApi("/api/admin/config/update", { config: updatedConfig })
+        await useApi("/api/admin/config/update", {
+            body: {
+                config: updatedConfig
+            }
+        })
     }
     catch (error: any) {
         hints.addError(error.message)

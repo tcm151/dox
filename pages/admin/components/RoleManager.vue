@@ -11,16 +11,20 @@ const props = defineProps<{
 
 async function toggleRole(role: Role) {
     if (!hasRole(props.user!, role)) {
-        await session.useApi<User>("/api/admin/role/add", {
-            user: props.user?.id,
-            role: role
+        await useApi<User>("/api/admin/role/add", {
+            body: {
+                user: props.user?.id,
+                role: role
+            }
         })
         hints.addSuccess(`User given ${role} role.`)
     }
     else {
-        await session.useApi<User>("/api/admin/role/remove", {
-            user: props.user?.id,
-            role: role
+        await useApi<User>("/api/admin/role/remove", {
+            body: {
+                user: props.user?.id,
+                role: role
+            }
         })
         hints.addWarning(`User removed from ${role} role.`)
     }

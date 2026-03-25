@@ -2,24 +2,17 @@ import { skipHydrate } from "pinia"
 import { Trigger } from "~/services/events"
 import type { User } from "~/types"
 
-
-// export interface Session {
-//     isAuthenticated: Ref<boolean>
-//     tokens: Ref<{ access: string, refresh?: string | undefined; }>
-//     user: Ref<User>
-//     useApi: <T>(route: string, body?: any) => Promise<T | undefined>
-//     authenticate: (userToken?: string) => Promise<void>
-//     login: (id: string, password: string) => Promise<void>
-//     logout: (clear: boolean) => void
-//     refreshProfile(): Promise<void>
-// }
+interface Tokens {
+    access: string
+    refresh?: string | undefined
+}
 
 export const getSession = defineStore("session", () => {
     const events = useEvents()
 
     //> SESSION
     const isAuthenticated = useSessionStorage<boolean>("authenticated", false)
-    const tokens = useLocalStorage<{ access: string, refresh?: string | undefined; }>("tokens", { access: "" })
+    const tokens = useLocalStorage<Tokens>("tokens", { access: "" })
     const user = useSessionStorage<User>("user", {
         id: 'user:temp',
         email: '',
@@ -41,32 +34,14 @@ export const getSession = defineStore("session", () => {
         traits: []
     })
 
-    //> API
-    async function useApi<T>(route: string, body?: any): Promise<T> {
+    async function refreshProfile(): Promise<void> {
         try {
-            return await $fetch<T>(route, {
-                method: "POST",
-                headers: {
-                    Authorization: tokens.value.access,
-                },
-                body: body,
-            })
+            user.value =  await useApi<User>('/api/profile')
         }
         catch (error: any) {
             throw createError({
-                status: 500,
-                statusText: "Failed to make request to API.",
-                message: error.message
-            })
-        }
-    }
-
-    async function refreshProfile(): Promise<void> {
-        user.value = await useApi<User>('/api/profile')
-        if (user.value == null) {
-            throw createError({
                 statusCode: 401,
-                message: "You don't exist pal."
+                message: "You don't exist."
             })
         }
     }
@@ -103,7 +78,11 @@ export const getSession = defineStore("session", () => {
     }
 
     async function logout(clear: boolean) {
-        await useApi<User>('/api/profile/logout', { clear })
+        await useApi('/api/profile/logout', {
+            body: {
+                clear: clear
+            }
+        })
         events.publish(Trigger.userLoggedOut, { user: user.value, clear: clear })
         isAuthenticated.value = false
         if (clear == true) {
@@ -138,10 +117,9 @@ export const getSession = defineStore("session", () => {
         user: skipHydrate(user),
         tokens: skipHydrate(tokens),
         isAuthenticated: skipHydrate(isAuthenticated),
+        refreshProfile,
         authenticate,
         login,
         logout,
-        refreshProfile,
-        useApi,
     }
 })

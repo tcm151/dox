@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Image, User } from "~/types"
+import type { Image } from "~/types"
 
 const hints = useHints()
 const session = getSession()
 
-const { data: images, status, refresh } = await useFetch<Image[]>("/api/image")
+const { data: images, status, refresh } = await useDatasource<Image[]>("/api/image")
 
 const spinRefresh = ref(false)
 watch(status, (status) => {
@@ -30,9 +30,13 @@ const showImageUploader = computed(() => {
 
 let uploading = ref<boolean>(false)
 async function beginUpload() {
+    if (!files.value) {
+        hints.addWarning("You must select an image.")
+        return
+    }
     try {
         uploading.value = true
-        const image = await uploadMedia<Image>(files.value, "image")
+        await uploadMedia<Image>(files.value, "image")
         uploading.value = false
         await refresh()
         reset()

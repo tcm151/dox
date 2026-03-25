@@ -4,20 +4,23 @@ import type { Pin, Post, User } from '~/types'
 const session = getSession()
 
 const { data: pins, refresh } = await useFetch<Pin[]>("/api/admin/pin", {
+    deep: true,
     headers: {
         Authorization: session.tokens.access,
     },
 })
 
 async function updatePin(pin: Pin) {
-    await session.useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/update`, {
-        active: !pin.active
+    await useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/update`, {
+        body: {
+            active: !pin.active
+        }
     })
     await refresh()
 }
 
 async function deletePin(pin: Pin) {
-    await session.useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/delete`)
+    await useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/delete`)
     await refresh()
 }
 </script>

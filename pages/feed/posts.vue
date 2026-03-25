@@ -4,7 +4,7 @@ import type { Post } from '~/types'
 const cache = useCache()
 
 const sortBy = cache.get<string>("feed.sort", () => "new")
-const posts = await useFetch<Post[]>("/api/post", {
+const posts = useDatasource<Post[]>("/api/post", {
     query: {
         sortBy: sortBy
     }

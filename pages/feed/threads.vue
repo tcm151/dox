@@ -4,7 +4,7 @@ import type { Thread } from '~/types'
 const cache = useCache()
 
 const sortBy = cache.get<string>("feed.sort", () => "new")
-const threads = await useFetch<Thread[]>("/api/thread", {
+const threads = useDatasource<Thread[]>("/api/thread", {
     query: {
         sortBy: sortBy
     }

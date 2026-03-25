@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ExtraOptions from "./components/ExtraOptions.vue"
 import CommentSection from "./components/CommentSection.vue"
-import type { Post, Comment, User } from '~/types'
+import type { Post, Comment } from '~/types'
 
 const route = useRoute()
 const cache = useCache()
@@ -10,9 +10,10 @@ const events = useEvents()
 const session = getSession()
 
 const id = route.params.id?.toString()
-await useFetch(`/api/post/${id}/visit`)
+await useApi(`/api/post/${id}/visit`)
+
 const sortBy = cache.get<string>("comments.sort", () => "new")
-const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${id}`, {
+const { data: post, status, refresh } = await useDatasource<Post>(`/api/post/${id}`, {
     query: {
         sortBy: sortBy
     }
@@ -54,7 +55,11 @@ async function updatePost(changedPost: Post | null) {
 
     try {
         submitting.value = true
-        await session.useApi(`/api/post/${id}/edit`, { content: post.value?.content })
+        await useApi(`/api/post/${id}/edit`, {
+            body: {
+                content: post.value?.content
+            }
+        })
         post.value!.edited = true
         toggleEditPost()
     }
@@ -71,7 +76,7 @@ async function deletePost() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your post?',
         accept: async () => {
-            await session.useApi(`/api/post/${id}/delete`)
+            await useApi(`/api/post/${id}/delete`)
             hints.addSuccess("Successfully deleted post.")
             return navigateTo("/feed")
         },
@@ -92,17 +97,19 @@ async function submitComment(replyTo: Post | Comment, content: string) {
     }
 
     submitting.value = true
-    await session.useApi<Comment>("/api/comment/add", {
-        time: new Date(),
-        user: session.user?.id,
-        post: post.value?.id,
-        replyTo: replyTo.id,
-        content: content,
-        votes: {
-            positive: [session.user!.id],
-            misleading: [],
-            negative: [],
-        },
+    await useApi<Comment>("/api/comment/add", {
+        body: {
+            time: new Date(),
+            user: session.user?.id,
+            post: post.value?.id,
+            replyTo: replyTo.id,
+            content: content,
+            votes: {
+                positive: [session.user!.id],
+                misleading: [],
+                negative: [],
+            },
+        }
     })
     submitting.value = false
 
@@ -131,7 +138,7 @@ async function awardPost() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this post? It will cost 256 tokens.',
         accept: async () => {
-            await session.useApi(`/api/post/${id}/award`)
+            await useApi(`/api/post/${id}/award`)
             hints.addSuccess("Successfully awarded post.")
             await refresh()
         },
@@ -147,18 +154,18 @@ function writePostReply() {
 }
 
 async function reportPost() {
-    await session.useApi(`/api/post/${id}/report`)
+    await useApi(`/api/post/${id}/report`)
     hints.addError("This post has been reported to the development team.")
 }
 
 async function archivePost() {
-    await session.useApi(`/api/post/${id}/archive`)
+    await useApi(`/api/post/${id}/archive`)
     hints.addSuccess("This post has been archived.")
     await refresh()
 }
 
 async function pinPost() {
-    await session.useApi(`/api/post/${id}/pin`)
+    await useApi(`/api/post/${id}/pin`)
     hints.addSuccess("This post has been pinned.")
 }
 

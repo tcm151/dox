@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Topic } from '~/types'
 
-const { data: topics } = await useFetch<Topic[]>("/api/topic")
+const { data: topics } = await useDatasource<Topic[]>("/api/topic")
 </script>
 
 <template>

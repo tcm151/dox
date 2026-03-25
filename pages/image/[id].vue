@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Image, User } from "~/types"
+import type { Image } from "~/types"
 
 definePageMeta({
     layout: 'middle'
@@ -11,7 +11,7 @@ const session = getSession()
 const route = useRoute()
 const id = route.params.id?.toString()
 
-const { data: image } = await useFetch<Image>(`/api/image/${id}`)
+const { data: image } = await useDatasource<Image>(`/api/image/${id}`)
 
 async function deleteImage() {
     if (!image.value) {
@@ -19,7 +19,7 @@ async function deleteImage() {
         return
     }
 
-    await session.useApi(`/api/image/${extractId(image.value.id)}/delete`)
+    await useApi(`/api/image/${extractId(image.value.id)}/delete`)
     hints.addSuccess(`${image.value.user.name} has been refunded ${image.value.tokens} tokens.`)
 }
 
@@ -29,7 +29,7 @@ async function reportImage() {
         return
     }
 
-    await session.useApi(`/api/image/${extractId(image.value.id)}/report`)
+    await useApi(`/api/image/${extractId(image.value.id)}/report`)
     hints.addWarning("This image has been reported to the development team.")
 }
 </script>

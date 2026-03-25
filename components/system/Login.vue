@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const props = defineProps<{ visible: boolean }>()
-
-const session = getSession()
-const events = useEvents()
 const hints = useHints()
+const events = useEvents()
+const session = getSession()
+
+const props = defineProps<{ visible: boolean }>()
 
 const username = ref("")
 const password = ref("")
@@ -44,13 +44,14 @@ async function attemptLogin() {
 
 const wrongAttempts = ref(0)
 function forgetPassword() {
-    const possibleUsername = username.value
     events.publish(Trigger.showPopup, {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            await session.useApi(`/api/profile/password/reset`, {
-                id: possibleUsername
+            await useApi(`/api/profile/password/reset`, {
+                body: {
+                    id: username.value
+                }
             })
             hints.addSuccess("Password reset link sent to your email.")
         },

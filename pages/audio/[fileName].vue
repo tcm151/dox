@@ -9,7 +9,7 @@ const route = useRoute()
 const fileName = route.params.fileName?.toString()
 const id = computed(() => fileName?.split('.').at(0))
 
-const { data: audio } = await useFetch<Audio>(`/api/audio/${id.value}`)
+const { data: audio } = await useDatasource<Audio>(`/api/audio/${id.value}`)
 </script>
 
 <template v-if="id && audio">

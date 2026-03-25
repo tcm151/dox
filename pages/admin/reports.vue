@@ -4,6 +4,7 @@ import type { User, Report, Voteable } from '~/types'
 const session = getSession()
 
 const { data: reports } = await useFetch<Report[]>("/api/report", {
+    deep: true,
     headers: {
         Authorization: session.tokens.access,
     },

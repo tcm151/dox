@@ -1,17 +1,10 @@
 <script setup lang="ts" generic="T extends Sortable">
+import type { FetchError } from "ofetch"
+import type { AsyncData } from "#app";
 import type { Sortable } from "~/types"
 
-interface AsyncData<DataT, ErrorT> {
-    data: Ref<DataT>
-    refresh: (opts?: any) => Promise<void>
-    execute: (opts?: any) => Promise<void>
-    clear: () => void
-    error: Ref<ErrorT | undefined>
-    status: Ref<'idle' | 'pending' | 'success' | 'error'>
-}
-
 const props = defineProps<{
-    items: AsyncData<T[] | undefined, any>
+    items: AsyncData<T[] | undefined, FetchError<any> | undefined>
     sorting?: boolean
 }>()
 
@@ -42,7 +35,7 @@ function sortFeed(type: string) {
 <template>
     <section class="column g-2" v-if="items">
         <header class="sorting row center g-2" v-if="props.sorting">
-            <button class="refresh dark" @click="items.refresh">
+            <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <slot name="buttons" />

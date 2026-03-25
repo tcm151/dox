@@ -14,11 +14,11 @@ export const useFollowing = () => {
         }
         
         if (target.startsWith("user")) {
-            await session.useApi(`/api/user/${extractId(target)}/follow`)
+            await useApi(`/api/user/${extractId(target)}/follow`)
             session.user.following.push(target)
         }
         if (target.startsWith("topic")) {
-            await session.useApi(`/api/topic/${extractId(target)}/follow`)
+            await useApi(`/api/topic/${extractId(target)}/follow`)
             session.user.topics.push(target)
         }
         return true
@@ -34,11 +34,11 @@ export const useFollowing = () => {
         }
         
         if (target.startsWith("user")) {
-            await session.useApi(`/api/user/${extractId(target)}/unfollow`)
+            await useApi(`/api/user/${extractId(target)}/unfollow`)
             session.user.following = session.user.following.filter(u => u !== target)
         }
         if (target.startsWith("topic")) {
-            await session.useApi(`/api/topic/${extractId(target)}/unfollow`)
+            await useApi(`/api/topic/${extractId(target)}/unfollow`)
             session.user.topics = session.user.topics.filter(t => t !== target)
         }
         return true

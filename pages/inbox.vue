@@ -12,22 +12,15 @@ definePageMeta({
     }
 })
 
-const session = getSession()
-let notifications = ref<Notification[] | null>(null)
-
-onMounted(async () => {
-    if (import.meta.client) {
-        notifications.value = await session.useApi<Notification[]>("/api/profile/notifications")
-    }
-})
+const { data: notifications } = await useDatasource<Notification[]>("/api/profile/notifications")
 
 function viewContext(notification: Notification) {
     navigateTo(`/${(notification.context as string).replace(':', '/')}`)
 }
 
 async function dismiss(notification: Notification) {
-    notifications.value = notifications.value!.filter(n => n.id !== notification.id)
-    await session.useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`, notification)
+    notifications.value = notifications.value?.filter(n => n.id !== notification.id)
+    await useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`)
 }
 </script>
 

@@ -48,9 +48,11 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
     }
 
     try {
-        const upload = await session.useApi<{ media: T, tokens: number }>(`/api/${mediaType}/upload`, packageFiles(files))
-        hints.addSuccess(`Uploaded file "${files[0].name}" [${upload.tokens} tokens]`)
-        return upload.media
+        const result = await useApi<{ media: T, tokens: number }>(`/api/${mediaType}/upload`, {
+            body: packageFiles(files)
+        })
+        hints.addSuccess(`Uploaded file "${files[0].name}" [${result.tokens} tokens]`)
+        return result.media
     }
     catch (error: any) {
         hints.addError(`Failed to upload file "${files[0].name}"`)

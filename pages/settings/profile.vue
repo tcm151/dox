@@ -7,7 +7,7 @@ function validDescription() {
 }
 
 async function sendConfirmation() {
-    await session.useApi("/api/profile/confirm/send")
+    await useApi("/api/profile/confirm/send")
     hints.addSuccess("Confirmation sent!")
     await new Promise(resolve => setTimeout(resolve, 1024))
     hints.addError("Expires in 15 minutes...")
@@ -19,7 +19,9 @@ async function updateProfile() {
         return
     }
 
-    await session.useApi("/api/profile/update", session.user)
+    await useApi("/api/profile/update", {
+        body: session.user
+    })
     await session.refreshProfile()
 }
 
@@ -30,7 +32,7 @@ async function resetPassword() {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            await session.useApi(`/api/profile/password/reset`)
+            await useApi(`/api/profile/password/reset`)
             hints.addSuccess("Password reset link sent to your email.")
         },
     })

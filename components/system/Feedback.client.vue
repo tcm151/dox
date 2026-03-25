@@ -21,10 +21,12 @@ async function submitFeedback() {
     }
     
     submitting.value = true
-    await session.useApi("/api/feedback/submit", {
-        user: session.user!.id,
+    await useApi("/api/feedback/submit", {
+        body: {
+            user: session.user.id,
             content: feedback.value,
             time: new Date(),
+        }
     })
     submitting.value = false
 

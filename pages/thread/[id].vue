@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ThreadReply from './components/ThreadReply.vue'
 import ExtraOptions from './components/ExtraOptions.vue'
-import type { Thread, User } from '~/types'
+import type { Thread } from '~/types'
 
 const route = useRoute()
 const hints = useHints()
@@ -9,8 +9,9 @@ const events = useEvents()
 const session = getSession()
 
 const id = route.params.id?.toString()
-await useFetch(`/api/thread/${id}/visit`)
-const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
+await useApi(`/api/thread/${id}/visit`)
+
+const { data: thread, refresh } = await useDatasource<Thread>(`/api/thread/${id}`)
 
 let editingThread = ref(false)
 function toggleEditThread() {
@@ -29,7 +30,11 @@ async function updateThread() {
     }
     try {
         submitting.value = true
-        await session.useApi(`/api/thread/${id}/edit`, { content: thread.value.content })
+        await useApi(`/api/thread/${id}/edit`, {
+            body: {
+                content: thread.value.content
+            }
+        })
         thread.value.edited = true
         toggleEditThread()
         await refresh()
@@ -60,14 +65,16 @@ async function submitThread() {
     
     submitting.value = true
     const action = (quoting.value) ? "quote" : "reply"
-    await session.useApi<Thread>(`/api/thread/${id}/${action}`, {
-        user: session.user.id,
-        content: replyText.value,
-        votes: {
-            positive: [session.user.id],
-            misleading: [],
-            negative: [],
-        },
+    await useApi<Thread>(`/api/thread/${id}/${action}`, {
+        body: {
+            user: session.user.id,
+            content: replyText.value,
+            votes: {
+                positive: [session.user.id],
+                misleading: [],
+                negative: [],
+            },
+        }
     })
     submitting.value = false
 
@@ -96,7 +103,7 @@ async function deleteThread() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your thread?',
         accept: async () => {
-            await session.useApi(`/api/thread/${id}/delete`)
+            await useApi(`/api/thread/${id}/delete`)
             hints.addSuccess("Successfully deleted thread.")
             return navigateTo("/feed")
         },
@@ -117,7 +124,7 @@ async function awardThread() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this thread? It will cost 256 tokens.',
         accept: async () => {
-            await session.useApi(`/api/thread/${id}/award`)
+            await useApi(`/api/thread/${id}/award`)
             hints.addSuccess("Successfully awarded thread.")
             await refresh()
         },
@@ -125,13 +132,13 @@ async function awardThread() {
 }
 
 async function archiveThread() {
-    await session.useApi(`/api/thread/${id}/archive`)
+    await useApi(`/api/thread/${id}/archive`)
     hints.addSuccess("This thread has been archived.")
     await refresh()
 }
 
 async function pinThread() {
-    await session.useApi(`/api/thread/${id}/pin`)
+    await useApi(`/api/thread/${id}/pin`)
     hints.addSuccess("This thread has been pinned.")
 }
 

@@ -3,7 +3,7 @@ import type { Audio } from "~/types"
 
 const session = getSession()
 
-const { data: audio, status, refresh } = await useFetch<Audio[]>("/api/audio")
+const { data: audio, status, refresh } = await useDatasource<Audio[]>("/api/audio")
 
 const spinRefresh = ref(false)
 watch(status, (status) => {
@@ -13,10 +13,6 @@ watch(status, (status) => {
     else {
         setTimeout(() => spinRefresh.value = false, 512)
     }
-})
-
-onMounted(async () => {
-    await refresh()
 })
 
 const { files, open: selectAudio, reset } = useFileDialog({

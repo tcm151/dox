@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const cache = useCache()
 const hints = useHints()
-const session = getSession()
-
 
 const tab = cache.get<string>("query.tab", () => "History")
 const query = cache.get<string>("query.sql", () => "")
@@ -19,13 +17,14 @@ const loading = ref<boolean>(false)
 async function submitQuery() {
     try {
         loading.value = true
-        const response = await session.useApi<any[]>("/api/developer/database/query", {
-            query: query.value
+        results.value = await useApi<any[]>("/api/developer/database/query", {
+            body: {
+                query: query.value
+            }
         })
         
         history.value = history.value.filter(q => q !== query.value)
         history.value.unshift(query.value)
-        results.value = response ?? []
         if (results.value.length > 0) {
             selectedResult.value = results.value.length-1
         }
