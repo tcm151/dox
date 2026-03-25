@@ -1,4 +1,4 @@
-import { AppSettings } from "~/types"
+import type { AppSettings } from "~/types"
 
 export async function useSettings(id: string = "default") {
     return await new DatabaseQuery()

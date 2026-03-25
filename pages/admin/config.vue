@@ -1,14 +1,13 @@
 <script setup lang="ts">
 
 const hints = useHints()
-const session = getSession()
 const settings = useSettings()
 
-watch(settings.app, async (updatedConfig) => {
+watch(settings.app, async (config) => {
     try {
-        await useApi("/api/admin/config/update", {
+        await useApi(`/api/admin/config/${config.id}/update`, {
             body: {
-                config: updatedConfig
+                config: config
             }
         })
     }
@@ -16,8 +15,6 @@ watch(settings.app, async (updatedConfig) => {
         hints.addError(error.message)
     }
 })
-
-
 </script>
 
 

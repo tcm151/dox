@@ -1,5 +1,4 @@
 import type { User } from "~/types";
-import { DatabaseQuery } from "./database"
 
 interface Session {
     id: string

@@ -3,7 +3,7 @@ import type { Notification } from '~/types'
 
 definePageMeta({
     middleware: (to, from) => {
-        if (import.meta.client) {
+        if (ENV.isClient()) {
             const session = getSession()
             if (to.path.startsWith("/inbox") && !session.isAuthenticated) {
                 return abortNavigation()

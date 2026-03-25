@@ -7,8 +7,8 @@ const route = useRoute()
 const referrer = route.query['referral']
 
 const hints = useHints()
-const session = getSession()
 const valid = useValidation()
+const session = getSession()
 
 const email = ref("")
 const username = ref("")

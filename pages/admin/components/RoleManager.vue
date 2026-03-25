@@ -2,7 +2,6 @@
 import type { Role, User } from '~/types'
 
 const hints = useHints()
-const session = getSession()
 
 const props = defineProps<{
     visible: boolean

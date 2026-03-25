@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { DateTime } from 'luxon'
 import Drafts from "./components/Drafts.client.vue"
 import type { User, Post, Draft, Image } from '~/types'
 
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (import.meta.client) {
+        if (ENV.isClient()) {
             const session = getSession()
             if (to.path.startsWith("/editor") && !session.isAuthenticated) {
                 return abortNavigation()
@@ -145,7 +144,7 @@ async function submit() {
                 user: session.user!.id,
                 title: draft.value.title,
                 content: draft.value.content,
-                time: DateTime.now(),
+                time: new Date(),
                 replyTo: draft.value.replyTo,
                 votes: {
                     positive: [session.user!.id],

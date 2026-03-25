@@ -2,7 +2,7 @@
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (import.meta.client) {
+        if (ENV.isClient()) {
             const session = getSession()
             if (to.path.includes("/reset-password")) {
                 return

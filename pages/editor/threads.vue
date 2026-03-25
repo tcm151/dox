@@ -59,7 +59,7 @@ async function submit() {
             }
         })
 
-        return navigateTo(`/thread/${extractId(thread.data.value!.id)}`)
+        return navigateTo(`/thread/${extractId(thread.id)}`)
     }
     catch (error: any) {
         hints.addError("Failed to submit thread.")

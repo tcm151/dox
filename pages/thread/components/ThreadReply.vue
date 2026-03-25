@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Thread, User } from '~/types'
+import type { Thread } from '~/types'
 
 const props = defineProps<{
     thread: Thread

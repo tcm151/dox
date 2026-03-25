@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import type { Pin, Post, User } from '~/types'
+import type { Pin } from '~/types'
 
-const session = getSession()
-
-const { data: pins, refresh } = await useFetch<Pin[]>("/api/admin/pin", {
-    deep: true,
-    headers: {
-        Authorization: session.tokens.access,
-    },
-})
+const { data: pins, refresh } = await useDatasource<Pin[]>("/api/admin/pin")
 
 async function updatePin(pin: Pin) {
     await useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/update`, {

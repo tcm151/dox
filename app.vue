@@ -49,7 +49,7 @@ async function popupAccept() {
     }
 }
 
-if (import.meta.client) {
+if (ENV.isClient()) {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Comment, Post, User } from '~/types';
+import type { Comment, Post } from '~/types';
 
 const hints = useHints()
 const session = getSession()

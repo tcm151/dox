@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Image, User } from '~/types'
+import type { Image } from '~/types'
 
 const props = defineProps<{
     image: Image

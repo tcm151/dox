@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 const events = useEvents()
-const session = getSession()
 const config = useSettings()
+const session = getSession()
 
 const { public: { site } } = useRuntimeConfig()
 

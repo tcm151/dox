@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post, User, Image } from '~/types'
+import type { Post, Image } from '~/types'
 
 const props = defineProps<{
     post: Post

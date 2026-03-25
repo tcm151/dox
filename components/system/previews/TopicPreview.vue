@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useFollowing } from '#imports';
 import type { Topic } from '~/types'
 
 const props = defineProps<{

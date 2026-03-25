@@ -21,7 +21,6 @@ type MediaType = "image" | "audio"
 
 export const uploadMedia = async <T extends Media>(files: FileList, mediaType: MediaType) => {
     const hints = useHints()
-    const session = getSession()
     const settings = useSettings()
 
     if (!files || !files[0]) {

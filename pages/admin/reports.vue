@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import type { User, Report, Voteable } from '~/types'
+import type { Report, Voteable } from '~/types'
 
-const session = getSession()
-
-const { data: reports } = await useFetch<Report[]>("/api/report", {
-    deep: true,
-    headers: {
-        Authorization: session.tokens.access,
-    },
-})
+const { data: reports } = await useDatasource<Report[]>("/api/report")
 
 function viewSubject(report: Report) {
     navigateTo(`/${(report.subject as Voteable).id.replace(':', '/')}`)
