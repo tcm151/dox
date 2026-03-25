@@ -40,9 +40,9 @@ async function unfollowUser() {
                 <img src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
             <div class="name-follow row inline between f-1 g-4">
-                <div class="column text-truncate">
+                <div class="column">
                     <h1>{{ user.name }}</h1>
-                    <a class="text-truncate" :href="user.link" v-if="user.link">
+                    <a :href="user.link" v-if="user.link">
                         {{ user.link }}
                     </a>
                 </div>
@@ -88,12 +88,22 @@ async function unfollowUser() {
 .name-follow {
     overflow-x: hidden;
 
+    div.column {
+        overflow-x: hidden;
+
+        a {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
     h1 {
         font-size: 1.5rem;
     }
 
     a {
         color: $purple;
+        cursor: pointer;
         font-weight: 600;
     }
 
@@ -103,7 +113,7 @@ async function unfollowUser() {
 }
 
 div.buttons {
-    @media (max-width: $bp-tablet) {
+    @media only screen and (max-width: 600px) {
         span {
             display: none;
         }

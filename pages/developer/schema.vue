@@ -12,7 +12,7 @@ async function syncDatabase() {
 </script>
 
 <template>
-    <article class="p-4 fit-large">
+    <article class="p-4">
         <section class="box column g-2 p-4">
             <header class="row g-2">
                 <button class="danger f-1" @click="syncDatabase">
@@ -31,5 +31,6 @@ async function syncDatabase() {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(60rem, 1rem);
 }
 </style>

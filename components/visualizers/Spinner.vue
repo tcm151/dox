@@ -12,6 +12,12 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
+
+@keyframes spin {
+    from { transform: rotateZ(0deg) }
+    to { transform: rotateZ(360deg) }
+}
+
 span {
     i.fa-spinner {
         color: inherit;

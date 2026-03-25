@@ -40,7 +40,7 @@ function viewAudio(audio: Audio) {
 </script>
 
 <template>
-    <article class="column g-4 p-4 fit-huge">
+    <article class="column g-4 p-4">
         <header class="tools box row inline g-2 p-4">
             <button class="success" @click="refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
@@ -65,5 +65,18 @@ function viewAudio(audio: Audio) {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(75rem, 1rem);
+}
+
+header.tools {
+    button.success {
+        i.spin {
+            animation: spin 512ms linear infinite;
+        }
+    }
+}
+
+input[type=file]::file-selector-button {
+    display: none;
 }
 </style>

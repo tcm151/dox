@@ -6,7 +6,7 @@ const settings = useSettings()
 
 
 <template>
-    <article class="column g-4 p-4 fit-medium">
+    <article class="column g-4 p-4">
         <section class="box form g-1 p-5">
             <div class="field row center py-2">
                 <label class="f-1">enable animations</label>
@@ -26,6 +26,7 @@ const settings = useSettings()
 
 <style scoped lang="scss">
 article {
+    @include fit-width(40rem, 1rem);
 }
 
 section.form {

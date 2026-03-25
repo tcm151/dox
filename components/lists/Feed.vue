@@ -75,10 +75,16 @@ header.sorting {
     button:not(.refresh), :slotted(button) {
         flex: 1 1;
         
-        @media (max-width: $bp-compact) {
+        @media only screen and (max-width: 400px) {
             span {
                 display: none;
             }    
+        }
+    }
+
+    button.refresh {
+        i.spin {
+            animation: spin 512ms linear infinite;
         }
     }
 

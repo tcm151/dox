@@ -37,15 +37,6 @@ $purple-light: color.scale($purple, $lightness: 70%);
 $purple-dark: color.scale($purple, $lightness: -75%);
 
 
-//> BREAKPOINTS
-$bp-compact: 400px;
-$bp-mobile: 425px;
-$bp-mobile-wide: 500px;
-$bp-tablet: 600px;
-$bp-laptop: 800px;
-$bp-desktop: 1000px;
-
-
 //> OVERRIDES
 $primary: $black-0;
 $link:    $blue;

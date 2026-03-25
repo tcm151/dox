@@ -149,7 +149,7 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article class="column p-4 fit-large" v-if="thread">
+    <article class="column p-4" v-if="thread">
         <header class="row g-2 mb-2">
             <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -183,7 +183,7 @@ function toggleOptions() {
             </header>
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
-                <aside v-if="thread.quote" class="quote br-medium mb-3 px-3 pt-3">
+                <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
                     <div class="row wrap g-1">
                         <Votes :target="thread.quote" />
                         <UserTag :user="thread.quote.user" />
@@ -275,6 +275,7 @@ function toggleOptions() {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(60rem, 1rem);
 }
 
 section.reply-to:hover {
@@ -283,5 +284,6 @@ section.reply-to:hover {
 
 aside.quote {
     border: 1px solid $white-2;
+    border-radius: 0.5rem;
 }
 </style>

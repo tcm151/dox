@@ -31,7 +31,7 @@ function toggleRoleManager(user?: User) {
 </script>
     
 <template>
-    <article class="column g-2 p-4 fit-large">
+    <article class="column g-2 p-4">
         <header class="row g-2">
             <button class="link f-1" @click="refresh()">
                 <i class="fa-solid fa-rotate"></i>
@@ -70,5 +70,6 @@ function toggleRoleManager(user?: User) {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(60rem, 1rem);
 }
 </style>

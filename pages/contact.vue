@@ -3,7 +3,7 @@ const settings = useSettings()
 </script>
 
 <template>
-    <article class="column m-4 fit-medium">
+    <article class="column m-4">
         <section class="box column g-4 p-5">
             <div>
                 <h1>Contact</h1>
@@ -28,6 +28,10 @@ const settings = useSettings()
 </template>
 
 <style scoped lang="scss">
+article.column {
+    @include fit-width (40rem, 1rem);
+}
+
 ul {
     margin-left: -1rem;
 }

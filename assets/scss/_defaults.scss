@@ -7,7 +7,6 @@ html {
     font-size: 12pt;
     font-weight: 500;
     font-family: "Montserrat", sans-serif;
-    text-size-adjust: 100%;
     background-color: $white-1;
     color: $black-0;
 }
@@ -55,15 +54,6 @@ button.inverted:hover {
     background-color: $white-2;
 }
 
-button:disabled, input:disabled, textarea:disabled, select:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-input[type=file]::file-selector-button {
-    display: none;
-}
-
 .form {
     @include flex-v (0.75rem);
 }
@@ -103,26 +93,15 @@ input[type=file]::file-selector-button {
     }
 
     input:hover, input:focus, input:focus-visible,
-    textarea:hover, textarea:focus, textarea:focus-visible,
+    textarea:hover, textarea:focus, textarea:focus-visible
     select:hover, select:focus, select:focus-visible {
         outline: 1px solid $blue;
     }
 
     input::placeholder {
-        color: $white-3;
+        color: #CCC;
         font-style: italic;
     }
-}
-
-input.invalid, textarea.invalid, select.invalid {
-    outline: 1px solid $red !important;
-    border-color: $red !important;
-}
-
-a:focus-visible, button:focus-visible, input:focus-visible,
-textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid $blue;
-    outline-offset: 2px;
 }
 
 code {
@@ -143,7 +122,6 @@ blockquote {
 }
 
 a, a:hover, a:active, a:visited {
-    cursor: pointer;
     color: inherit;
     text-decoration: none;
 }
@@ -345,14 +323,5 @@ pre {
     
     >:last-child {
         margin-bottom: 0.75rem;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
     }
 }

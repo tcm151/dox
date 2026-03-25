@@ -53,7 +53,7 @@ const resultPreviews = computed(() => {
 </script>
 
 <template>
-    <article class="row g-2 m-4 fit-full">
+    <article class="row g-2 m-4">
         <div class="left box column g-2 p-4">
             <section class="editor f-1 column g-2">
                 <header class="row g-2">
@@ -71,7 +71,7 @@ const resultPreviews = computed(() => {
                     </button>
                 </header>
                 <div class="field f-1">
-                    <textarea class="f-1" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
+                    <textarea class="f-1" rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
                 </div>
             </section>
         </div>
@@ -125,10 +125,11 @@ input[type=search]::-webkit-search-cancel-button:hover {
 }
 
 article {
+    @include fit-width (2000px, 1rem);
     height: stretch;
     overflow: hidden;
 
-    @media (max-width: $bp-desktop) {
+    @media only screen and (max-width: 1000px) {
         @include flex-v;
     }
 
@@ -139,7 +140,7 @@ article {
     div.left { flex: 4 1 }
     div.right { flex: 6 1 }
 
-    @media (max-width: $bp-desktop) {
+    @media only screen and (max-width: 1000px) {
         div.left { flex: 1 1 }
         div.right { flex: 10 1 }
     }
@@ -151,7 +152,7 @@ section.editor {
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
         
-        @media (max-width: $bp-desktop) {
+        @media only screen and (max-width: 1000px) {
             flex: none;
             resize: vertical;
         }
@@ -190,9 +191,11 @@ section.results {
 
         div.result {
             cursor: pointer;
+            font-weight: 500;
+            font-family: "Source Code Pro", monospace;
             white-space: nowrap;
-            background-color: $white-2;
             border-right: 1px solid $white-1;
+            background-color: $white-2;
         }
         
         div.result:hover {

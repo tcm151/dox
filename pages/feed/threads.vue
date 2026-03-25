@@ -12,7 +12,7 @@ const threads = useDatasource<Thread[]>("/api/thread", {
 </script>
 
 <template>
-    <article class="column g-2 p-4 fit-large">
+    <article class="column g-2 p-4">
         <Feed :items="threads" :sorting="true" @refresh="(type) => sortBy = type">
             <template #buttons>
                 <button class="dark px-5" @click="navigateTo('/editor/threads')">
@@ -29,12 +29,13 @@ const threads = useDatasource<Thread[]>("/api/thread", {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(60rem, 1rem);
 }
 
 header.box {
     outline: 2px solid $white-2;
 
-    @media (max-width: $bp-desktop) {
+    @media only screen and (max-width: 1000px) {
         button:not(.success) {
             flex: 0.25 1;
 

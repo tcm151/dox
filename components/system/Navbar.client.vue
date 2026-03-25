@@ -93,13 +93,13 @@ nav {
 
 section.left {
     a.title {
-        @media (max-width: $bp-mobile-wide) {
+        @media only screen and (max-width: 500px) {
             span { display: none; }
         }
     }
 
     a:not(.title) {
-        @media (max-width: $bp-desktop) {
+        @media only screen and (max-width: 1000px) {
             span { display: none; }
         }
     }
@@ -110,7 +110,7 @@ section.right {
     right: 0;
     position: absolute;
 
-    @media (max-width: $bp-tablet) {
+    @media only screen and (max-width: 600px) {
         span { display: none; }
     }
 }
@@ -123,7 +123,7 @@ a {
     line-height: 1rem;
     transition: color 64ms, background-color 64ms;
 
-    @media (max-width: $bp-tablet) {
+    @media screen and (max-width: 600px) {
         font-size: 1.5rem;
     }
 }

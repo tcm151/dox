@@ -79,18 +79,3 @@
 
 .b-0 { flex-basis: 0; }
 .b-auto { flex-basis: auto; }
-
-.fit-small, .fit-medium, .fit-large, .fit-huge, .fit-full {
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.fit-small { max-width: 30rem; }
-.fit-medium { max-width: 40rem; }
-.fit-large { max-width: 60rem; }
-.fit-huge { max-width: 80rem; }
-.fit-full { max-width: 100%; }
-
-.br-small { border-radius: 0.25rem; }
-.br-medium { border-radius: 0.5rem; }
-.br-large { border-radius: 0.75rem; }

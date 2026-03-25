@@ -25,7 +25,7 @@ async function saveSettings() {
 
 
 <template>
-    <article class="config box column g-4 p-5 m-4 fit-medium">
+    <article class="config box column g-4 p-5 m-4">
         <section>
             <header>
                 <h2>Email</h2>
@@ -124,6 +124,7 @@ async function saveSettings() {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(40rem, 1rem);
 }
 
 article.config {

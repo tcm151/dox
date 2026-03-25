@@ -206,15 +206,15 @@ async function saveDraft() {
 </script>
 
 <template>
-    <article class="editor column p-4 fit-large">
-        <div class="container box dark br-medium column f-1">
+    <article class="editor column p-4">
+        <div class="container column f-1">
             <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
             <MediaUploader :visible="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
             <div class="reply-to row inline g-2" v-if="replyTo">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p class="text-truncate">{{ replyTo?.title }}</p>
+                <p>{{ replyTo?.title }}</p>
             </div>
-            <section class="editor box br-medium column p-5">
+            <section class="editor column p-5">
                 <div class="column f-1" v-show="!showPreview">
                     <header class="row inline between mb-4">
                         <h1>New Post</h1>
@@ -252,7 +252,7 @@ async function saveDraft() {
                         </div>
                     </form>
                 </div>
-                <div class="preview box br-medium f-1" v-show="showPreview">
+                <div class="preview f-1" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>
                     <Markdown class="content" :content="draft.content" />
                     <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
@@ -288,13 +288,21 @@ async function saveDraft() {
 
 <style scoped lang="scss">
 article.editor {
+    @include fit-width (60rem, 1rem);
     justify-content: center;
     overflow-y: hidden;
+
+    div.container {
+        border-radius: 0.5rem 0.5rem;
+        background-color: $white-3;
+    }
 }
 
 section.editor, section.preview {
     flex: 1 1 400px;
     min-width: 250px;
+    border-radius: 0.5rem;
+    background-color: $white-0;
     overflow-y: hidden;
 }
 
@@ -304,6 +312,8 @@ div.reply-to {
     
     p {
         font-weight: 700;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
     }
 }
 
@@ -322,6 +332,10 @@ section.editor {
 
     textarea {
         resize: none !important;
+    }
+
+    input.invalid {
+        outline: 1px solid $red !important;
     }
 }
 

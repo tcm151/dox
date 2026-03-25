@@ -59,12 +59,18 @@ section.comments {
     border-radius: 0.5rem;
     background-color: $white-0;
 
-    @media (max-width: $bp-tablet) {
+    @media screen and (max-width: 600px) {
         padding: 1rem !important;
     }
 }
 
 header.sorting {
+    button.refresh {
+        i.spin {
+            animation: spin 512ms linear infinite;
+        }
+    }
+
     button.selected {
         color: $white-0;
         background-color: $white-3;

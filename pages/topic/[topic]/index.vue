@@ -16,7 +16,7 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
 </script>
 
 <template>
-    <article class="column g-2 p-4 fit-large" v-if="topic.data.value">
+    <article class="column g-2 p-4" v-if="topic.data.value">
         <TopicPreview :topic="topic.data.value" />
         <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
             <template #item="item">
@@ -28,5 +28,6 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
 
 <style scoped lang="scss">
 article {
+    @include fit-width(60rem, 1rem);
 }
 </style>
