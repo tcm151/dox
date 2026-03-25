@@ -15,12 +15,13 @@ export default defineNitroPlugin(async () => {
             )
             .execute()
 
+        console.log("Database migrations completed successfully.")
+
         if (config.surreal.admin.email && config.surreal.admin.name && config.surreal.admin.password) {
-            console.log("Creating default admin user if it does not already exist...")
-            await new DatabaseQuery()
+            const result = await new DatabaseQuery()
                 .addSql(`
-                    IF (SELECT VALUE id FROM user).len() = 0 {
-                        CREATE user SET
+                    IF array::len(SELECT VALUE id FROM user) = 0 {
+                        RETURN CREATE user SET
                             email = $email,
                             name = $name,
                             password = crypto::argon2::generate($password),
@@ -32,13 +33,15 @@ export default defineNitroPlugin(async () => {
                 .addParameter("name", config.surreal.admin.name)
                 .addParameter("password", config.surreal.admin.password)
                 .execute()
-        }
 
-        console.log("Database migrations completed successfully.")
+            if (result[0]) {
+                console.log("Created default admin user with supplied .env credentials.")
+            }
+        }
     }
     catch (error: any) {
         throw createError({
-            statusCode: 500,
+            status: 500,
             statusText: "Failed to apply database migrations on application startup.",
             message: error.message
         })
