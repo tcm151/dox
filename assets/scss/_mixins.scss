@@ -1,12 +1,10 @@
 //> MIXINS 
-@mixin shadow($size: 0.1rem, $blur: 0.5rem, $spread: 0.1rem, $color: #CCC ) {
+@mixin shadow($size: 0.1rem, $blur: 0.5rem, $spread: 0.1rem, $color: $white-3) {
     box-shadow: $size 0 $blur $spread $color,
                 0 $size $blur $spread $color,
-               (-$size) 0 $blur $spread $color,
+                (-$size) 0 $blur $spread $color,
                 0 (-$size) $blur $spread $color;
 }
-
-// REFACTOR update to wedding site standards
 @mixin flex-v($gap: 0em) {
     gap: $gap;
     display: flex;

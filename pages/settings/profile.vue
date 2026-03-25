@@ -101,10 +101,6 @@ div.profile-picture {
     }
 }
 
-input.invalid, textarea.invalid {
-    outline: 1px solid $red !important;
-}
-
 input[disabled] {
     color: $white-3;
 }

@@ -31,7 +31,7 @@ function resizePopup() {
 
 <template>
     <aside class="background column center" v-if="props.visible">
-        <main class="window p-5" :style="{ width, maxWidth, maxHeight }">
+        <main class="window box br-medium p-5" :style="{ width, maxWidth, maxHeight }">
             <header v-if="title">
                 <h1>{{ title }}</h1>
             </header>
@@ -52,16 +52,6 @@ function resizePopup() {
 </template>
 
 <style scoped lang="scss">
-@keyframes blur {
-    from { backdrop-filter: none }
-    to { backdrop-filter: blur(0.5rem) }
-}
-
-@keyframes fade-in {
-    from { opacity: 0% }
-    to { opacity: 100% }
-}
-
 aside.background {
     top: 0;
     left: 0;
@@ -73,9 +63,6 @@ aside.background {
 }
 
 main.window {
-    box-sizing: border-box;
-    border-radius: 0.5rem;
-    background-color: $white-0;
     box-shadow: 0.25rem 0.5rem 1rem -0.25rem $white-3, 0 0 0.33rem 1px $white-3;
     animation: fade-in 256ms;
 

@@ -42,7 +42,7 @@ async function unfollowUser() {
             <div class="name-follow row inline between f-1 g-4">
                 <div class="column">
                     <h1>{{ user.name }}</h1>
-                    <a :href="user.link" v-if="user.link">
+                    <a class="text truncate" :href="user.link" v-if="user.link">
                         {{ user.link }}
                     </a>
                 </div>
@@ -88,22 +88,12 @@ async function unfollowUser() {
 .name-follow {
     overflow-x: hidden;
 
-    div.column {
-        overflow-x: hidden;
-
-        a {
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-        }
-    }
-
     h1 {
         font-size: 1.5rem;
     }
 
     a {
         color: $purple;
-        cursor: pointer;
         font-weight: 600;
     }
 
@@ -113,7 +103,7 @@ async function unfollowUser() {
 }
 
 div.buttons {
-    @media only screen and (max-width: 600px) {
+    @media (max-width: $bp-tablet) {
         span {
             display: none;
         }

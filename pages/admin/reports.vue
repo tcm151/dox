@@ -18,7 +18,7 @@ function viewSubject(report: Report) {
                 <Tag type="link" icon="fa-trash-can" title="Dismiss" />
             </div>
         </section>
-        <section class="box p-3" v-else>
+        <section class="box p-3 text center" v-else>
             <p>There are currently no reports.</p>
         </section>
     </article>
@@ -29,9 +29,4 @@ article {
     @include fit-width(60rem, 1rem);
 }
 
-section.box {
-    p {
-        text-align: center;
-    }
-}
 </style>

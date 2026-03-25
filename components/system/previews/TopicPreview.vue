@@ -71,11 +71,6 @@ div.box:hover {
     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
 }
 
-div.box.animate:hover {
-    transform: scale(102%, 105%);
-    transition: transform 128ms;
-}
-
 header h1 {
     cursor: pointer;
     font-size: 1.5rem;

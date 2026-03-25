@@ -37,7 +37,7 @@ async function dismissFeedback(feedback: Feedback) {
                 </div>
             </div>
         </section>
-        <section class="empty box p-3" v-else>
+        <section class="empty box p-3 text center" v-else>
             <p>There is currently no feedback.</p>
         </section>
     </article>
@@ -55,13 +55,6 @@ section.feedback {
 
     div.tags {
         width: min-content;
-    }
-}
-
-
-section.empty {
-    p {
-        text-align: center;
     }
 }
 </style>

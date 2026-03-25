@@ -8,6 +8,28 @@
     }
 }
 
+@keyframes blur {
+    from {
+        backdrop-filter: none;
+    }
+    to {
+        backdrop-filter: blur(0.5rem);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0%;
+    }
+    to {
+        opacity: 100%;
+    }
+}
+
+.spin {
+    animation: spin 512ms linear infinite;
+}
+
 // Transition Group Animations
 .scale-up-move,
 .scale-up-enter-active,
@@ -32,4 +54,10 @@
 // .scale-up-leave-active {
 .scale-up-leave-active:not(:last-child) {
     position: absolute;
+}
+
+.tabs-move,
+.tabs-enter-active,
+.tabs-leave-active {
+    transition: all 128ms ease;
 }

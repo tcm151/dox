@@ -41,7 +41,7 @@ function copyReferralLink() {
             </div>
         </section>
         <section class="row wrap g-2">
-            <div class="welcome box column f-1 g-2 p-5">
+            <div class="welcome box column f-1 g-2 p-5 text break">
                 <h2 class="row inline g-2">
                     <i class="fa-solid fa-cube"></i>
                     <span>Store</span>
@@ -95,7 +95,6 @@ div.offer:hover {
 div.welcome {
     flex-basis: 50%;
     overflow-x: hidden;
-    white-space: break-spaces;
 }
 
 div.referrals {

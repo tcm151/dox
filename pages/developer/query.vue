@@ -129,7 +129,7 @@ article {
     height: stretch;
     overflow: hidden;
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         @include flex-v;
     }
 
@@ -140,7 +140,7 @@ article {
     div.left { flex: 4 1 }
     div.right { flex: 6 1 }
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         div.left { flex: 1 1 }
         div.right { flex: 10 1 }
     }
@@ -152,7 +152,7 @@ section.editor {
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
         
-        @media only screen and (max-width: 1000px) {
+        @media (max-width: $bp-desktop) {
             flex: none;
             resize: vertical;
         }

@@ -9,12 +9,12 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="post" :class="{'pinned': pinned }">
+    <div class="post box background" :class="{'pinned': pinned }">
         <div v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-            <p>{{ post.replyTo.title }}</p>
+            <p class="text truncate bold">{{ post.replyTo.title }}</p>
         </div>
-        <div class="main box row g-2 p-3" @click="navigateTo(`/post/${extractId(post.id)}`)">
+        <div class="main box row g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
             <div class="f-1">
                 <div class="row wrap g-1">
                     <Votes :target="post" />
@@ -36,7 +36,7 @@ const props = defineProps<{
                     {{ post.title }}
                 </h3>
             </div>
-            <img v-if="post.images[0]" :src="(post.images[0] as Image).url">
+            <img v-if="post.images[0]" class="br-medium" :src="(post.images[0] as Image).url">
         </div>
     </div>
 </template>
@@ -46,15 +46,8 @@ const props = defineProps<{
     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
 }
 
-.post.animate:hover {
-    transform: scale(102%, 105%);
-    transition: transform 128ms;
-}
-
 .post {
     cursor: pointer;
-    border-radius: 0.25rem;
-    background-color: $white-3;
 }
 
 .post:has(.reply-to:hover)  {
@@ -75,7 +68,6 @@ const props = defineProps<{
 
 .main {
     overflow: hidden;
-    white-space: break-spaces;
 }
 
 img {
@@ -83,7 +75,6 @@ img {
     max-height: 64px;
     aspect-ratio: 1 / 1;
     object-fit: cover;
-    border-radius: 0.5rem;
     border: 1px solid $white-1;
 }
 
@@ -97,9 +88,6 @@ img {
     color: $white-0;
     
     p {
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-        font-weight: 700;
         letter-spacing: 0.025rem;
     }
 }

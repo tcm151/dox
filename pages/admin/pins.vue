@@ -29,13 +29,13 @@ async function deletePin(pin: Pin) {
                     <Tag type="danger" icon="fa-trash-can" label="Remove" @click="deletePin(pin)" />
                     <Toggle class="toggle ml-2" :enabled="pin.active" @update:enabled="updatePin(pin)">
                         <template #label>
-                            <span>Active</span>
+                            <span class="text bold">Active</span>
                         </template>
                     </Toggle>
                 </header>
             </div>
         </section>
-        <section class="box p-3" v-else>
+        <section class="box p-3 text center" v-else>
             <p>There are currently no pins.</p>
         </section>
     </article>
@@ -50,15 +50,4 @@ header {
     border-top: 1px solid $white-2;
 }
 
-.toggle {
-    span {
-        font-weight: 700;
-    }
-}
-
-section.box {
-    p {
-        text-align: center;
-    }
-}
 </style>

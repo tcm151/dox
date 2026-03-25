@@ -80,14 +80,6 @@ article {
     @include fit-width(75rem, 1rem);
 }
 
-header.tools {
-    button.success {
-        i.spin {
-            animation: spin 512ms linear infinite;
-        }
-    }
-}
-
 section.all-images {
     justify-content: space-between;
     align-content: flex-start;
@@ -107,12 +99,12 @@ section.all-images {
             max-width: 100%;
             object-fit: cover;
 
-            @media only screen and (max-width: 800px) {
+            @media (max-width: $bp-laptop) {
                 min-height: 50px;
                 max-height: 100px;
             }
 
-            @media only screen and (max-width: 600px) {
+            @media (max-width: $bp-tablet) {
                 min-height: 40px;
                 max-height: 80px;
             }
@@ -137,10 +129,5 @@ section.popup-image {
             border-radius: 0.25rem;
         }
     }
-}
-    
-
-input[type=file]::file-selector-button {
-    display: none;
 }
 </style>

@@ -74,10 +74,10 @@ function differentPasswords() {
 
 <template>
     <article class="column g-2">
-        <div style="text-align: center;" v-if="referrer">
+        <div class="text center" v-if="referrer">
             <p>Referral: {{ referrer }}</p>
         </div>
-        <div class="register p-5">
+        <div class="register box br-medium p-5">
             <h1 class="mb-4">Register</h1>
             <div class="form">
                 <div class="field">
@@ -136,13 +136,5 @@ function differentPasswords() {
 <style scoped lang="scss">
 .register {
     width: 256px;
-    border-radius: 0.5rem;
-    background-color: $white-0;
-}
-
-.field {
-    input.invalid {
-        outline: 1px solid $red !important;
-    }
 }
 </style>

@@ -183,7 +183,7 @@ function toggleOptions() {
             </header>
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
-                <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
+                <aside v-if="thread.quote" class="quote br-medium mb-3 px-3 pt-3">
                     <div class="row wrap g-1">
                         <Votes :target="thread.quote" />
                         <UserTag :user="thread.quote.user" />
@@ -284,6 +284,5 @@ section.reply-to:hover {
 
 aside.quote {
     border: 1px solid $white-2;
-    border-radius: 0.5rem;
 }
 </style>

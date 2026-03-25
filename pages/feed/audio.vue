@@ -67,16 +67,4 @@ function viewAudio(audio: Audio) {
 article {
     @include fit-width(75rem, 1rem);
 }
-
-header.tools {
-    button.success {
-        i.spin {
-            animation: spin 512ms linear infinite;
-        }
-    }
-}
-
-input[type=file]::file-selector-button {
-    display: none;
-}
 </style>

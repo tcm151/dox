@@ -177,12 +177,12 @@ function toggleOptions() {
 
 <template>
     <article class="column g-2 p-4" v-if="post">
-        <div class="container column">
+        <div class="container box background br-medium column">
             <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p>{{ post.replyTo.title }}</p>
+                <p class="text truncate bold">{{ post.replyTo.title }}</p>
             </aside>
-            <section class="post p-5">
+            <section class="post box br-medium p-5">
                 <header class="tags row wrap g-1">
                     <Votes :target="post" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
@@ -284,23 +284,12 @@ function toggleOptions() {
 <style scoped lang="scss">
 article {
     @include fit-width(60rem, 1rem);
-
-    div.container {
-        border-radius: 0.5rem 0.5rem;
-        background-color: $white-3;
-    }
 }
 
 aside.reply-to {
     padding: 0.5rem 0.75rem;
     color: $white-0;
     cursor: pointer;
-    
-    p {
-        font-weight: 700;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
 }
 
 aside.reply-to + section.post {
@@ -309,10 +298,7 @@ aside.reply-to + section.post {
 }
 
 section.post {
-    border-radius: 0.5rem;
-    background-color: $white-0;
-    
-    @media screen and (max-width: 600px) {
+    @media (max-width: $bp-tablet) {
         padding: 1rem !important;
     }
 }
@@ -322,7 +308,7 @@ div.interactions {
         flex: 1 1 auto;
     }
 
-    @media screen and (max-width: 425px) {
+    @media (max-width: $bp-mobile) {
         button:is(.reply, .share) {
             flex: 1 0;
 
@@ -338,7 +324,4 @@ header.tags {
     .info { flex: 1 1 }
 }
 
-div.not-logged-in {
-    white-space: break-spaces;
-}
 </style>

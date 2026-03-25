@@ -21,7 +21,7 @@ function getColor(hint: Hint) {
     <aside class="background">
         <TransitionGroup name="hints">
         <template v-for="hint in hints.items" :key="hint.number">
-            <span class="hint px-4 py-2" :class="getColor(hint)" :style="{ backgroundColor: getColor(hint) }">
+            <span class="hint text bold break px-4 py-2" :class="getColor(hint)" :style="{ backgroundColor: getColor(hint) }">
                 {{ hint.message }}
             </span>
         </template>
@@ -59,9 +59,6 @@ span.hint {
     position: relative;
     width: fit-content;
     max-width: 60rem;
-    
-    font-weight: 700;
-    white-space: break-spaces;
     
     border-radius: 0.25rem;
     box-shadow: 0.25rem 0.25rem 1rem -0.25rem $white-3,

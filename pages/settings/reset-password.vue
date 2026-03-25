@@ -93,10 +93,4 @@ function differentPasswords() {
 article {
     @include fit-width(30rem, 1rem);
 }
-
-.field {
-    input.invalid {
-        outline: 1px solid $red !important;
-    }
-}
 </style>

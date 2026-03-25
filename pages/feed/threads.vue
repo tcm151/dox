@@ -35,7 +35,7 @@ article {
 header.box {
     outline: 2px solid $white-2;
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         button:not(.success) {
             flex: 0.25 1;
 
