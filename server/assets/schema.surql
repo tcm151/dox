@@ -385,8 +385,8 @@ DEFINE FIELD OVERWRITE status ON error
     TYPE number;
 DEFINE FIELD OVERWRITE description ON error
     TYPE string;
-DEFINE FIELD OVERWRITE message ON error
-    TYPE string;
+DEFINE FIELD OVERWRITE request ON error
+    TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE time ON error
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD OVERWRITE user ON error
@@ -395,7 +395,6 @@ DEFINE FIELD OVERWRITE stack ON error
     TYPE string;
 DEFINE FIELD OVERWRITE data ON error
     TYPE object FLEXIBLE;
-
 
 -- ------------------------------
 -- TABLE: appSettings

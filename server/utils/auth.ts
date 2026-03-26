@@ -27,7 +27,6 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
         let session = await sessionManager.authenticateToken(token)
         event.context.user = session.user.id
         return session.user
-
     }
     catch (error: any) {
         throw createError({
@@ -47,7 +46,7 @@ export const invalidateSession = async (event: H3Event, clear: boolean) => {
     }
     catch (error: any) {
         throw createError({
-            status: 400,
+            status: 403,
             statusText: "You aren't allowed invalidate this session.",
             message: error.message,
             stack: error.stack,

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, status, description, time, stack, data,
+            SELECT id, status, description, request, time, stack, data,
                 user.id, user.name
             FROM error
             ORDER BY time DESC

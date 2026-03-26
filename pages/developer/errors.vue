@@ -5,7 +5,6 @@ const cache = useCache()
 
 const { data: errors } = await useDatasource<Error[]>("/api/developer/error")
 
-
 const expanded = cache.get<string[]>("developer.expanded", () => [])
 function toggle(id: string) {
     if (expanded.value.includes(id)) {
@@ -26,10 +25,11 @@ function toggle(id: string) {
                     <div class="row g-1">
                         <Tag type="danger" :label="error.status" />
                         <Tag class="f-1" type="link" :label="error.description" @click="toggle(error.id)" />
-                        <UserTag width="12rem" :user="error.user" />
+                        <UserTag width="12rem" :user="error.user" label="unknown" />
                         <DurationTag width="6rem" :time="error.time" />
                     </div>
                     <footer v-if="expanded.includes(error.id)" class="column g-2">
+                        <Codeblock :code="JSON.stringify(error.request, undefined, 4)" />
                         <Codeblock :code="error.stack" />
                         <template v-if="Object.keys(error.data).length > 0">
                             <Codeblock  :code="JSON.stringify(error.data, undefined, 4)" />

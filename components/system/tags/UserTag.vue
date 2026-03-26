@@ -3,6 +3,7 @@ import type { User } from '~/types'
 
 const props = defineProps<{
     user: User
+    label?: string
     disable?: boolean
 }>()
 
@@ -22,7 +23,7 @@ function viewUser(userId: string) {
     <Tag
         type="info"
         icon="fa-user"
-        :label="user.name ?? 'deleted'"
+        :label="user.name ?? label ?? 'deleted'"
         @click.stop="viewUser(user.id)"
     />
 </template>

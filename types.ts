@@ -160,10 +160,11 @@ export interface PasswordReset extends Record {
 export interface Error extends Record {
     status: number
     description: string
+    request: any
     time: string
+    user: User & string
     stack: string
     data: { [key: string]: any }
-    user: User & string
 }
 
 export interface AppSettings {
