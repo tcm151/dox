@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
     let images = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, votes, type, tokens, time, url
+            SELECT id, user.id, user.name, votes, type, tokens, time, url, score, visits
             FROM image
             WHERE public = true
             ORDER BY time DESC
