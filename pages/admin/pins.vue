@@ -20,7 +20,7 @@ async function deletePin(pin: Pin) {
 
 <template>
     <article class="p-4">
-        <section class="column g-4" v-if="pins!.length > 0">
+        <section v-if="pins!.length > 0" class="column g-4">
             <div class="box" v-for="pin in pins" :key="pin.id">
                 <MultiPreview :item="pin.item" />
                 <header class="row g-1 p-3">
@@ -35,7 +35,7 @@ async function deletePin(pin: Pin) {
                 </header>
             </div>
         </section>
-        <section class="box p-3 text center" v-else>
+        <section v-else class="box p-3 text center">
             <p>There are currently no pins.</p>
         </section>
     </article>

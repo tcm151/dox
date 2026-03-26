@@ -4,11 +4,11 @@ export default defineEventHandler(async (event) => {
         requireRole(auth, "developer")
     }
 
-    let schema = Buffer.from(await useStorage("assets:server").getItem<string>("schema.surql") ?? "").toString()
     let migrations = Buffer.from(await useStorage("assets:server").getItem<string>("migrations.surql") ?? "").toString()
+    let schema = Buffer.from(await useStorage("assets:server").getItem<string>("schema.surql") ?? "").toString()
     
     return await new DatabaseQuery()
-        .addSql(migrations)
         .addSql(schema)
+        .addSql(migrations)
         .execute()
 })

@@ -33,8 +33,8 @@ function sortFeed(type: string) {
 </script>
 
 <template>
-    <section class="column g-2" v-if="items">
-        <header class="sorting row center g-2" v-if="props.sorting">
+    <section v-if="items" class="column g-2">
+        <header v-if="props.sorting" class="sorting row center g-2">
             <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>

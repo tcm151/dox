@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const props = defineProps<{
-    visible: boolean
     icon?: string
     title?: string
     width?: string
@@ -27,12 +26,12 @@ function resizePopup() {
 </script>
 
 <template>
-    <aside class="background column center" v-if="props.visible">
-        <main class="window box column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
+    <aside class="background column center">
+        <main class="window box br-large column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
             <header class="title-bar row inline between stretch g-4">
                 <div class="left row inline g-2 px-3 py-2">
-                    <i :class="icon" v-if="icon"></i>
-                    <h1 class="title" v-if="title">{{ title }}</h1>
+                    <i v-if="icon" :class="`fa-solid ${icon}`"></i>
+                    <h1 v-if="title" class="title">{{ title }}</h1>
                 </div>
                 <button class="close px-3" @click="emit('close')">
                     <i class="fa-solid fa-xmark"></i>

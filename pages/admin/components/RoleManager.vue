@@ -4,7 +4,6 @@ import type { Role, User } from '~/types'
 const hints = useHints()
 
 const props = defineProps<{
-    visible: boolean
     user: User | undefined
 }>()
 
@@ -31,11 +30,7 @@ async function toggleRole(role: Role) {
 </script>
 
 <template>
-    <Window
-        width="20rem"
-        :visible="visible"
-        title="Role Manager"
-    >
+    <Window  title="Role Manager" width="20rem">
         <main class="column g-2">
             <button class="default f-1" :class="{ inverted: hasRole(user!, 'admin') }" @click="toggleRole('admin')">
                 <i class="fa-solid fa-shield"></i>

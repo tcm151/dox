@@ -10,7 +10,7 @@ const events = useEvents()
 const session = getSession()
 
 const id = route.params.id?.toString()
-await useApi(`/api/post/${id}/visit`)
+await useDatasource(`/api/post/${id}/visit`)
 
 const sortBy = cache.get<string>("comments.sort", () => "new")
 const { data: post, status, refresh } = await useDatasource<Post>(`/api/post/${id}`, {
@@ -100,7 +100,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
     await useApi<Comment>("/api/comment/add", {
         body: {
             time: new Date(),
-            user: session.user?.id,
+            user: session.user.id,
             post: post.value?.id,
             replyTo: replyTo.id,
             content: content,
@@ -176,7 +176,7 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article class="column g-2 p-4" v-if="post">
+    <article v-if="post" class="column g-2 p-4">
         <div class="container box background br-medium column">
             <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
@@ -211,7 +211,7 @@ function toggleOptions() {
                     </div>
                 </ClientOnly>
                 <footer class="column g-2">
-                    <div class="interactions row wrap g-1" v-if="!showCommentBox && !editingPost">
+                    <div v-if="!showCommentBox && !editingPost" class="interactions row wrap g-1">
                         <button class="comment" @click="toggleCommentBox">
                             <i class="fa-solid fa-comment"></i>
                             <span>Comment</span>
@@ -228,9 +228,9 @@ function toggleOptions() {
                             <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
-                            <ExtraOptions 
+                            <ExtraOptions
+                                v-if="showOptions"
                                 :post="post"
-                                :visible="showOptions"
                                 @edit="toggleEditPost"
                                 @award="awardPost"
                                 @report="reportPost"
@@ -247,8 +247,8 @@ function toggleOptions() {
                             <span>Save</span>
                         </ButtonSpinner>
                         <!-- <button class="info f-1" @click="togglePreview">
-                            <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                            <i class="fa-solid fa-eye-slash" v-else></i>
+                            <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                            <i v-else class="fa-solid fa-eye-slash"></i>
                             <span>Preview</span>
                         </button> -->
                         <button class="danger" @click="toggleEditPost()">

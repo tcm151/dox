@@ -59,11 +59,11 @@ function viewImage(image: Image) {
                 <span>Refresh</span>
             </button>
             <ClientOnly>
-                <button class="link f-1" @click="selectImages()"  v-if="hasTrait(session.user, 'confirmed')">
+                <button v-if="hasTrait(session.user, 'confirmed')" class="link f-1" @click="selectImages()">
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
-                <MediaUploader :visible="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
+                <MediaUploader v-if="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
             </ClientOnly>
         </header>
         <section class="all-images f-1 row wrap g-2">

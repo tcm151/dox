@@ -1,17 +1,11 @@
 <script setup lang="ts">
 const props = defineProps<{
-    visible: boolean
     title?: string
     width?: string
     height?: string
     loading?: boolean
-    acceptLabel?: string
-    declineLabel?: string
-}>()
-
-const emit = defineEmits<{
-    (event: 'accept'): void
-    (event: 'decline'): void
+    accept: { label?: string, action: Function }
+    decline: { label?: string, action: Function }
 }>()
 
 const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
@@ -30,7 +24,7 @@ function resizePopup() {
 </script>
 
 <template>
-    <aside class="background column center" v-if="props.visible">
+    <aside class="background column center">
         <main class="window box br-medium p-5" :style="{ width, maxWidth, maxHeight }">
             <header v-if="title">
                 <h1>{{ title }}</h1>
@@ -39,11 +33,11 @@ function resizePopup() {
                 <slot />
             </div>
             <div class="row wrap g-2">
-                <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="emit('accept')">
-                    {{ acceptLabel ?? "Yes" }}
+                <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="accept.action()">
+                    {{ accept.label ?? "Yes" }}
                 </ButtonSpinner>
-                <button class="danger f-1 b-0" @click="emit('decline')">
-                    {{ declineLabel ?? "No" }}
+                <button class="danger f-1 b-0" @click="decline.action()">
+                    {{ decline.label ?? "No" }}
                 </button>
             </div>
         </main>

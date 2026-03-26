@@ -86,7 +86,7 @@ const resultPreviews = computed(() => {
                     <span>History</span>
                 </button>
             </header>
-            <section class="results column" v-if="tab == 'Results'">
+            <section v-if="tab == 'Results'" class="results column">
                 <header v-if="results.length > 1" class="tabs row">
                     <template v-for="(label, index) in resultPreviews">
                         <div class="result px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
@@ -101,7 +101,7 @@ const resultPreviews = computed(() => {
                     <Codeblock v-if="selectedResult == index" language="json" :code="JSON.stringify(result, undefined, 4)" />
                 </template>
             </section>
-            <section class="history column g-2" v-if="tab == 'History'">
+            <section v-if="tab == 'History'" class="history column g-2">
                 <div class="query" v-for="(item, index) in history" :key="index">
                     <Codeblock language="sql" :code="item" />
                     <div class="tools row g-3 p-3">

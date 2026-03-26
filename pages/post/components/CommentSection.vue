@@ -24,7 +24,7 @@ watch(() => props.loading, (status) => {
 </script>
 
 <template>
-    <section class="comments p-5" v-if="post && post.comments.length > 0">
+    <section v-if="post && post.comments.length > 0" class="comments p-5">
         <header class="sorting row g-1 mb-3">
             <button class="refresh dark" @click="emit('refresh', sortType)">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>

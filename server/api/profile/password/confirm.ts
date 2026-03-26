@@ -1,12 +1,4 @@
-import type { User } from "~/types"
-
-interface PasswordReset {
-    id: string
-    user: User
-    time: string
-    used: boolean
-    expired: boolean
-}
+import type { User, PasswordReset } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const body = await readBody<{

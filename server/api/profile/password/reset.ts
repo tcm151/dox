@@ -1,12 +1,5 @@
-import type { User, AppSettings } from "~/types"
+import type { User, AppSettings, PasswordReset } from "~/types"
 
-interface PasswordReset {
-    id: string
-    user: User
-    time: string
-    used: boolean
-    expired: boolean
-}
 
 export default defineEventHandler(async (event) => {
     const startTime = Date.now()

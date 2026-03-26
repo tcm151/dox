@@ -26,7 +26,7 @@ async function dismiss(notification: Notification) {
 
 <template>
     <article class="notifications p-4">
-        <section class="column g-2" v-if="notifications && notifications.length > 0">
+        <section v-if="notifications && notifications.length > 0" class="column g-2">
             <TransitionGroup name="notifications">
                 <div class="notification box p-4" v-for="notification in notifications" :key="notification.id">
                     <Markdown class="message column" :content="notification.message" />

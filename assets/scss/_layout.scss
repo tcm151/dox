@@ -80,6 +80,6 @@
 .b-0 { flex-basis: 0; }
 .b-auto { flex-basis: auto; }
 
-.br-small { border-radius: 0.25rem; }
-.br-medium { border-radius: 0.5rem; }
-.br-large { border-radius: 0.75rem; }
+.br-small { border-radius: 0.25rem !important; }
+.br-medium { border-radius: 0.5rem !important; }
+.br-large { border-radius: 0.75rem !important; }

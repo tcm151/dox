@@ -5,6 +5,7 @@ const cache = useCache()
 const route = useRoute()
 
 const id = route.params.topic?.toString()
+await useDatasource(`/api/topic/${id}/visit`)
 const topic = await useDatasource<Topic>(`/api/topic/${id}`)
 
 const sortBy = cache.get<string>("feed.sort", () => "new")
@@ -16,8 +17,8 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
 </script>
 
 <template>
-    <article class="column g-2 p-4" v-if="topic.data.value">
-        <TopicPreview :topic="topic.data.value" />
+    <article v-if="topic.data.value" class="column g-2 p-4">
+        <TopicPreview :topic="topic.data.value" @refresh="topic.refresh()" />
         <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
             <template #item="item">
                 <MultiPreview :item="item" />

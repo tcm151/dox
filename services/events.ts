@@ -8,6 +8,7 @@ export enum Trigger {
     // auth
     toggleLogin,
     toggleUserManager,
+    toggleFeedback,
     authenticatedUser,
     userLoggedOut,
     // system

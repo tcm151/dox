@@ -11,12 +11,12 @@ function toggleShowMessages() {
 <template>
     <aside class="messages row g-2 pt-2" :class="{ open: showMessages }">
         <section class="toggle grid center p-2">
-            <i class="fa-solid fa-circle-chevron-up" v-if="!showMessages" @click="toggleShowMessages"></i>
-            <i class="fa-solid fa-circle-chevron-down" v-else @click="toggleShowMessages"></i>
+            <i v-if="!showMessages" class="fa-solid fa-circle-chevron-up" @click="toggleShowMessages"></i>
+            <i v-else class="fa-solid fa-circle-chevron-down" @click="toggleShowMessages"></i>
         </section>
         <div class="f-1" />
         <TransitionGroup name="messages">
-            <section class="chat row inline between px-3 py-2" v-if="showMessages" v-for="index in 3">
+            <section v-if="showMessages" v-for="index in 3" class="chat row inline between px-3 py-2">
                 <div class="row inline g-2">
                     <i class="fa-solid fa-comment"></i>
                     <span>User</span>

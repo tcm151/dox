@@ -4,7 +4,6 @@ import type { Thread } from '~/types'
 const session = getSession()
 
 const props = defineProps<{
-    visible: boolean
     thread: Thread
 }>()
 
@@ -26,13 +25,7 @@ function emitAndClose(event: string) {
 </script>
 
 <template>
-    <Window
-        :visible="visible"
-        width="20rem"
-        title="Options"
-        icon="fa-solid fa-list-ul"
-        @close="emit('close')"
-    >
+    <Window title="Options" icon="fa-solid fa-list-ul" width="20rem" @close="emit('close')">
         <section class="column g-2">
             <button v-if="thread.user.id === session.user.id" @click="emitAndClose('edit')">
                 <i class="fa-solid fa-eraser"></i>

@@ -42,12 +42,12 @@ async function unfollowUser() {
             <div class="name-follow row inline between f-1 g-4">
                 <div class="column">
                     <h1>{{ user.name }}</h1>
-                    <a class="text truncate" :href="user.link" v-if="user.link">
+                    <a v-if="user.link" class="text truncate" :href="user.link">
                         {{ user.link }}
                     </a>
                 </div>
                 <ClientOnly>
-                    <div class="buttons row g-2" v-if="session.isAuthenticated">
+                    <div v-if="session.isAuthenticated" class="buttons row g-2">
                         <button v-if="user.id == session.user.id" @click="navigateTo('/settings')">
                             <i class="fa-solid fa-address-card"></i>
                             <span>Profile</span>
@@ -66,6 +66,9 @@ async function unfollowUser() {
             <Votes :target="user" />
             <!-- TODO add pages to view these in more detail -->
             <Tag class="f-1" type="link">
+                <strong>{{ user.visits }}</strong> visits
+            </Tag>
+            <Tag class="f-1" type="link">
                 <strong>{{ user.topics.length }}</strong> topics
             </Tag>
             <Tag class="f-1" type="info">
@@ -78,7 +81,7 @@ async function unfollowUser() {
                 joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong>
             </Tag>
         </section>
-        <section class="column g-2" v-if="user.description">
+        <section v-if="user.description" class="column g-2">
             <p>{{ user.description }}</p>
         </section>
     </header>

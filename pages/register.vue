@@ -74,7 +74,7 @@ function differentPasswords() {
 
 <template>
     <article class="column g-2">
-        <div class="text center" v-if="referrer">
+        <div v-if="referrer" class="text center">
             <p>Referral: {{ referrer }}</p>
         </div>
         <div class="register box br-medium p-5">

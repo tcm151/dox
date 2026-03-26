@@ -34,8 +34,9 @@ button {
     background-color: $white-2;
 }
 
-button.small {
+button.small, button.small i {
     font-size: 0.8rem;
+    line-height: 0.8rem;
 }
 
 button:hover, button.selected {

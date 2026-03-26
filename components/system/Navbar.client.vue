@@ -6,7 +6,6 @@ const session = getSession()
 
 const { public: { site } } = useRuntimeConfig()
 
-const feedbackVisible = ref(false)
 const accounts = useLocalStorage<any[]>("profiles", [])
 async function login() {
     if (accounts.value.length > 0) {
@@ -38,11 +37,11 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
                 <i class="fa-solid fa-signs-post"></i>
                 <span>Feeds</span>
             </NuxtLink>
-            <NuxtLink to="/admin" v-if="showAdmin" title="Admin">
+            <NuxtLink v-if="showAdmin" to="/admin" title="Admin">
                 <i class="fa-solid fa-shield"></i>
                 <span>Admin</span>
             </NuxtLink>
-            <NuxtLink to="/developer" v-if="showDeveloper" title="Developer">
+            <NuxtLink v-if="showDeveloper" to="/developer" title="Developer">
                 <i class="fa-solid fa-code"></i>
                 <span>Developer</span>
             </NuxtLink>
@@ -51,15 +50,11 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
             </NuxtLink>
         </section>
         <Transition name="slide">
-            <section class="right row authenticated" v-if="session.isAuthenticated">
-                <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
-                    <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
-                </Window>
-                <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
+            <section v-if="session.isAuthenticated" class="right row authenticated">
+                <NuxtLink v-if="showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
                     <i class="fa-solid fa-keyboard"></i>
-                    <span>Feedback</span>
                 </NuxtLink>
-                <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
+                <NuxtLink to="/inbox" title="Inbox">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Inbox</span>
                 </NuxtLink>

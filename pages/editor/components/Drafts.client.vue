@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import type { Draft } from '~/types'
 
-const props = defineProps<{
-    visible: boolean
-}>()
-
 const emit = defineEmits<{
     (event: 'close'): void
     (event: 'view', draft: Draft): void
@@ -13,13 +9,6 @@ const emit = defineEmits<{
 let { data: userDrafts, refresh } = await useDatasource<Draft[]>("/api/profile/drafts")
 
 let loading = ref(false)
-watch(props, async (value) => {
-    if (value.visible) {
-        loading.value = true
-        await refresh()
-        loading.value = false
-    }
-})
 
 async function deleteDraft(draft: Draft) {
     await useApi<Draft>(`/api/profile/drafts/${extractId(draft.id)}/delete`)
@@ -28,14 +17,8 @@ async function deleteDraft(draft: Draft) {
 </script>
 
 <template>
-    <Window
-        :visible="visible"
-        width="40rem"
-        title="Drafts"
-        icon="fa-solid fa-compass-drafting"
-        @close="emit('close')"
-    >
-        <section class="drafts column g-3" v-if="!loading && userDrafts">
+    <Window title="Drafts" icon="fa-compass-drafting" width="40rem" @close="emit('close')">
+        <section v-if="!loading && userDrafts" class="drafts column g-3">
             <div v-for="draft in userDrafts" :key="draft.id">
                 <h3 class="title text truncate mx-1 mb-1">{{ draft.title }}</h3>
                 <div class="row wrap g-1">

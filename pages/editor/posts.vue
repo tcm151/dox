@@ -208,9 +208,9 @@ async function saveDraft() {
 <template>
     <article class="editor column p-4">
         <div class="container column f-1">
-            <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-            <MediaUploader :visible="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
-            <div class="reply-to row inline g-2" v-if="replyTo">
+            <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
+            <MediaUploader v-if="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
+            <div v-if="replyTo" class="reply-to row inline g-2">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ replyTo?.title }}</p>
             </div>
@@ -239,7 +239,7 @@ async function saveDraft() {
                             <textarea class="f-1" v-model="draft.content" type="text" rows="12" />
                         </div>
                         <TopicField v-model:input="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
-                        <div class="field uploaded-images" v-if="uploadedImages.length > 0">
+                        <div v-if="uploadedImages.length > 0" class="field uploaded-images">
                             <label>Images</label>
                             <div class="row g-2">
                                 <img
@@ -255,14 +255,14 @@ async function saveDraft() {
                 <div class="preview f-1" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>
                     <Markdown class="content" :content="draft.content" />
-                    <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
+                    <span v-if="draft.title === '' && draft.content === ''" class="watermark">Preview</span>
                 </div>
                 <section class="row wrap g-2 mt-5">
                     <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                         <i class="fa-solid fa-share"></i>
                         <span>Submit</span>
                     </ButtonSpinner>
-                    <button class="link f-1 b-0" @click="saveDraft" v-if="draft.id != ''">
+                    <button v-if="draft.id != ''" class="link f-1 b-0" @click="saveDraft">
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Update</span>
                     </button>
@@ -275,8 +275,8 @@ async function saveDraft() {
                         <span>Upload</span>
                     </button>
                     <button class="info f-1 b-0" @click="togglePreview">
-                        <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                        <i class="fa-solid fa-eye-slash" v-else></i>
+                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                        <i v-else class="fa-solid fa-eye-slash"></i>
                         <span>Preview</span>
                     </button>
                     <!-- <button class="danger f-1" @click="navigateTo('/')">Cancel</button> -->

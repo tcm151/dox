@@ -5,11 +5,6 @@ const hints = useHints()
 const cache = useCache()
 const session = getSession()
 
-const showEditor = cache.get("feed.threads.showEditor", () => false)
-function toggleEditor() {
-    showEditor.value = !showEditor.value
-}
-
 const newTopic = ref<string>("")
 
 function addTopic(topic: string) {
@@ -40,6 +35,7 @@ let newThread = ref<Thread>({
     visits: 0,
     edited: false,
     deleted: false,
+    archived: false,
 })
 
 const submitting = ref<boolean>(false)
@@ -83,7 +79,7 @@ function togglePreview() {
 
 <template>
     <article class="editor column p-4">
-        <header class="box column g-2 p-4" v-if="showEditor">
+        <header class="box column g-2 p-4">
             <div class="field">
                 <label>Content</label>
                 <textarea class="f-1" type="text" rows="4" v-model="newThread.content" />
@@ -99,8 +95,8 @@ function togglePreview() {
                     <span>Upload</span>
                 </button>
                 <button class="info f-1 b-0" @click="togglePreview">
-                    <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                    <i class="fa-solid fa-eye-slash" v-else></i>
+                    <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                    <i v-else class="fa-solid fa-eye-slash"></i>
                     <span>Preview</span>
                 </button>
                 <button class="danger f-1 b-0" @click="toggleEditor">

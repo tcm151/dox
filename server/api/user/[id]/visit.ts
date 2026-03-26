@@ -3,12 +3,13 @@ import type { User } from "~/types"
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    return await new DatabaseQuery()
+    const user = await new DatabaseQuery()
         .addSql(`
-            SELECT id, name, link, description, dateJoined,
-                topics, followers, following, visits, votes, score
-            FROM $user
+            UPDATE $user SET
+            visits += 1    
         `)
         .addRecord("user", `user:${id}`)
         .queryOne<User>()
+
+    return user.visits
 })

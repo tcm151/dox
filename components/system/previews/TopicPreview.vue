@@ -5,6 +5,10 @@ const props = defineProps<{
     topic: Topic
 }>()
 
+const emit = defineEmits<{
+    (event: "refresh"): void
+}>()
+
 const session = getSession()
 const connections = useFollowing()
 
@@ -18,12 +22,14 @@ async function followTopic() {
     loading.value = true
     await connections.follow(props.topic.id)
     loading.value = false
+    emit("refresh")
 }
 
 async function unfollowTopic() {
     loading.value = true
     await connections.unfollow(props.topic.id)
     loading.value = false
+    emit("refresh")
 }
 
 // TODO allow requesting for moderation of specific topics by approved users
@@ -38,11 +44,11 @@ async function unfollowTopic() {
                 {{ extractId(topic.id) }}
             </h1>
             <ClientOnly>
-                <div class="follow" v-if="session.isAuthenticated">
-                    <ButtonSpinner v-if="following" :loading="loading" class="small danger" @click="unfollowTopic">
+                <div v-if="session.isAuthenticated" class="follow">
+                    <ButtonSpinner v-if="following" class="danger small" :loading="loading" @click="unfollowTopic">
                         Unfollow
                     </ButtonSpinner>
-                    <ButtonSpinner v-else class="small success" :loading="loading" @click="followTopic">
+                    <ButtonSpinner v-else class="success small" :loading="loading" @click="followTopic">
                         Follow
                     </ButtonSpinner>
                 </div>
@@ -50,16 +56,19 @@ async function unfollowTopic() {
         </header>
         <footer class="row wrap g-1 mt-2">
             <Votes :target="topic" />
-            <Tag class="f-1 b-0" type="link">
+            <Tag class="f-1" type="link">
+                <strong>{{ topic.visits }}</strong> visits
+            </Tag>
+            <Tag class="f-1" type="link">
                 <strong>{{ topic.posts.length }}</strong> posts
             </Tag>
-            <Tag class="f-1 b-0" type="link">
+            <Tag class="f-1" type="link">
                 <strong>{{ topic.threads.length }}</strong> threads
             </Tag>
-            <Tag class="f-1 b-0" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
+            <Tag class="f-1" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
                 <strong>{{ topic.followers.length }}</strong> followers
             </Tag>
-            <Tag class="f-1 b-0" type="info">
+            <Tag class="f-1" type="info">
                 first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
             </Tag>
         </footer>

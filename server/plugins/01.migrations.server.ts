@@ -40,6 +40,7 @@ export default defineNitroPlugin(async () => {
         }
     }
     catch (error: any) {
+        console.log(error.message)
         throw createError({
             status: 500,
             statusText: "Failed to apply database migrations on application startup.",

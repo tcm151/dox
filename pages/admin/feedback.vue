@@ -27,7 +27,7 @@ async function dismissFeedback(feedback: Feedback) {
                 <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
             </div>
         </header>
-        <section class="feedback column g-2" v-if="activeFeedback!.length > 0">
+        <section v-if="activeFeedback!.length > 0" class="feedback column g-2">
             <div class="box p-3" v-for="item in activeFeedback">
                 <p>{{ item.content }}</p>
                 <div class="tags row g-1 pt-1">
@@ -37,7 +37,7 @@ async function dismissFeedback(feedback: Feedback) {
                 </div>
             </div>
         </section>
-        <section class="empty box p-3 text center" v-else>
+        <section v-else class="empty box p-3 text center">
             <p>There is currently no feedback.</p>
         </section>
     </article>

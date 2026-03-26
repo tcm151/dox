@@ -13,10 +13,20 @@ export const getSession = defineStore("session", () => {
     //> SESSION
     const isAuthenticated = useSessionStorage<boolean>("authenticated", false)
     const tokens = useLocalStorage<Tokens>("tokens", { access: "" })
-    const user = useSessionStorage<User>("user", {
+    const user = useSessionStorage<User>("user", () => ({
         id: 'user:temp',
         email: '',
         name: '',
+        topics: [],
+        followers: [],
+        following: [],
+        time: "",
+        visits: 0,
+        dateJoined: '',
+        tokens: 0,
+        score: 0,
+        roles: [],
+        traits: [],
         votes: {
             positive: [],
             misleading: [],
@@ -24,19 +34,11 @@ export const getSession = defineStore("session", () => {
             awards: [],
             saves: [],
         },
-        topics: [],
-        following: [],
-        followers: [],
-        dateJoined: '',
-        tokens: 0,
-        score: 0,
-        roles: [],
-        traits: []
-    })
+    }))
 
     async function refreshProfile(): Promise<void> {
         try {
-            user.value =  await useApi<User>('/api/profile')
+            user.value = await useApi<User>('/api/profile')
         }
         catch (error: any) {
             throw createError({
@@ -93,6 +95,16 @@ export const getSession = defineStore("session", () => {
                 id: 'user:temp',
                 email: '',
                 name: '',
+                topics: [],
+                followers: [],
+                following: [],
+                time: "",
+                visits: 0,
+                dateJoined: '',
+                tokens: 0,
+                score: 0,
+                roles: [],
+                traits: [],
                 votes: {
                     positive: [],
                     misleading: [],
@@ -100,14 +112,6 @@ export const getSession = defineStore("session", () => {
                     awards: [],
                     saves: [],
                 },
-                topics: [],
-                following: [],
-                followers: [],
-                dateJoined: '',
-                score: 0,
-                tokens: 0,
-                roles: [],
-                traits: [],
             }
         }
         return navigateTo("/feed")

@@ -18,6 +18,9 @@ events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 let showUserManager = ref(false)
 events.subscribe(Trigger.toggleUserManager, () => showUserManager.value = !showUserManager.value)
 
+const showFeedback = ref(false)
+events.subscribe(Trigger.toggleFeedback, () => showFeedback.value = !showFeedback.value)
+
 let showPopup = ref(false)
 const popupTitle = ref<string>("")
 const popupMessage = ref<string>("")
@@ -42,6 +45,10 @@ async function popupAccept() {
     }
 }
 
+function closePopup() {
+    showPopup.value = false
+}
+
 if (ENV.isClient()) {
     const vh = window.innerHeight * 0.01
     document.documentElement.style.setProperty('--vh', `${vh}px`)
@@ -56,11 +63,14 @@ if (ENV.isClient()) {
 <template>
     <NuxtLoadingIndicator />
     <Navbar />
-    <Login :visible="showLogin" />
-    <Popup :visible="showPopup" :loading="handlingPopup" :title="popupTitle" @accept="popupAccept" @decline="showPopup = false">
+    <Login v-if="showLogin" />
+    <Popup v-if="showPopup" :loading="handlingPopup" :title="popupTitle" :accept="{ action: popupAccept }" :decline="{ action: closePopup }">
         {{ popupMessage }}
     </Popup>
-    <UserManager :visible="showUserManager" @close="showUserManager = !showUserManager" />
+    <UserManager v-if="showUserManager" @close="showUserManager = !showUserManager" />
+    <Window v-if="showFeedback" title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" @close="showFeedback = false">
+        <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
+    </Window>
     <NuxtLayout>
         <NuxtPage />
     </NuxtLayout>

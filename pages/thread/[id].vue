@@ -9,7 +9,7 @@ const events = useEvents()
 const session = getSession()
 
 const id = route.params.id?.toString()
-await useApi(`/api/thread/${id}/visit`)
+await useDatasource(`/api/thread/${id}/visit`)
 
 const { data: thread, refresh } = await useDatasource<Thread>(`/api/thread/${id}`)
 
@@ -149,7 +149,7 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article class="column p-4" v-if="thread">
+    <article v-if="thread" class="column p-4">
         <header class="row g-2 mb-2">
             <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -222,8 +222,8 @@ function toggleOptions() {
                             <i class="fa-solid fa-ellipsis"></i>
                         </button>
                         <ExtraOptions 
+                            v-if="showOptions"
                             :thread="thread"
-                            :visible="showOptions"
                             @edit="toggleEditThread"
                             @award="awardThread"
                             @report="submitReport(thread.id)"
@@ -240,8 +240,8 @@ function toggleOptions() {
                         <span>Save</span>
                     </ButtonSpinner>
                     <!-- <button class="info f-1" @click="togglePreview">
-                        <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                        <i class="fa-solid fa-eye-slash" v-else></i>
+                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                        <i v-else class="fa-solid fa-eye-slash"></i>
                         <span>Preview</span>
                     </button> -->
                     <button class="danger" @click="toggleEditThread">

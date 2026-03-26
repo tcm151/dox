@@ -1,10 +1,5 @@
-import type { User } from "~/types";
+import type { User, Session } from "~/types";
 
-interface Session {
-    id: string
-    user: User
-    invalidated: boolean
-}
 class SessionManager {
 
     async add(user: User) {

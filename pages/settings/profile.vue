@@ -43,7 +43,7 @@ async function resetPassword() {
     <article class="column g-4 p-4">
         <section class="box column g-4 p-5">
             <div class="column g-2">
-                <button class="f-1 danger" @click="sendConfirmation" v-if="!hasTrait(session.user, 'confirmed')">
+                <button v-if="!hasTrait(session.user, 'confirmed')" class="f-1 danger" @click="sendConfirmation">
                     Confirm Account
                 </button>
                 <button class="f-1 success" v-else>

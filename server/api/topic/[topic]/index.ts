@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM $topic
-            FETCH posts, posts.images
         `)
         .addRecord("topic", `topic:${topic}`)
         .queryOne<Topic>()

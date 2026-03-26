@@ -5,10 +5,6 @@ const hints = useHints()
 const events = useEvents()
 const session = getSession()
 
-defineProps<{
-    visible: boolean
-}>()
-
 interface Profile {
     id: string
     name: string
@@ -80,7 +76,7 @@ function newLogin() {
 </script>
 
 <template>
-    <Window :visible="visible" width="20rem" title="Profiles" icon="fa-solid fa-user">
+    <Window width="20rem" title="Profiles" icon="fa-solid fa-user">
         <main class="column g-2">
             <div class="row g-2" v-for="user in otherAccounts">
                 <ButtonSpinner class="info f-1" :loading="waiting == user.id" @click="useLogin(user)">

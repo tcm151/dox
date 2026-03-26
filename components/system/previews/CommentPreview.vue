@@ -109,8 +109,8 @@ async function deleteComment(commentId: string) {
                 </template>
             </ClientOnly>
         </header>
-        <Markdown class="body p-3" v-if="!editComment" :content="comment.content" />
-        <div class="comment-reply field px-3 pb-3" v-if="replyTo">
+        <Markdown v-if="!editComment" class="body p-3" :content="comment.content" />
+        <div v-if="replyTo" class="comment-reply field px-3 pb-3">
             <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
             <div class="row g-1 pt-2">
                 <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />

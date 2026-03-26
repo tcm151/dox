@@ -39,7 +39,7 @@ async function submitFeedback() {
     <div class="field">
         <textarea rows="10" :placeholder="placeholder ?? ''" v-model="feedback"></textarea>
         <div class="column mt-3" >
-            <ButtonSpinner class="success" v-if="session.isAuthenticated" :loading="submitting" @click="submitFeedback">
+            <ButtonSpinner v-if="session.isAuthenticated" class="success" :loading="submitting" @click="submitFeedback">
                 Submit
             </ButtonSpinner>
             <button class="negative" v-else>

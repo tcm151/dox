@@ -36,7 +36,7 @@ async function reportImage() {
 
 <template v-if="id">
     <article class="p-4">
-        <section class="box p-4" v-if="image">
+        <section v-if="image" class="box p-4">
             <header class="row wrap g-1 mb-2">
                 <Votes :target="image" />
                 <UserTag class="f-1" :user="image.user" />
