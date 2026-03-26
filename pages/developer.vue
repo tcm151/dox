@@ -27,8 +27,7 @@ const route = useRoute()
 const tabs = ref<any[]>([
     { route: '/developer/schema', icon: 'fa-solid fa-table-columns', label: 'Schema' },
     { route: '/developer/query', icon: 'fa-solid fa-terminal', label: 'Database' },
-    { route: '/developer/errors', icon: 'fa-solid fa-triangle-exclamation', label: 'Errors' },
-    { route: '/developer/misc', icon: 'fa-solid fa-ellipsis', label: 'Misc' },
+    { route: '/developer/errors', icon: 'fa-solid fa-circle-exclamation', label: 'Errors' },
 ])
 </script>
 
