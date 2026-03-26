@@ -24,7 +24,7 @@ async function attemptLogin() {
         await session.login(username.value, password.value)
         closeLogin()
     }
-    catch (ex) {
+    catch (error: any) {
         wrongAttempts.value += 1
         hints.addError("Failed to authenticate.")
     }

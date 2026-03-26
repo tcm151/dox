@@ -43,10 +43,11 @@ export default defineEventHandler(async (event) => {
         return true
     }
     catch (error: any) {
-        console.log(error)
         throw createError({
             status: 500,
-            statusText: error.message,
+            statusText: `Unabled to delete image:${id}`,
+            message: error.message,
+            stack: error.stack,
         })      
     }
 })

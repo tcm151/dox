@@ -57,8 +57,6 @@ export async function writeMedia(user: User, media: Media, buffer: Buffer, media
 
     }
     catch (error: any) {
-        console.log(error)
-
         await new DatabaseQuery()
             .addSql(`
                 RETURN {
@@ -78,6 +76,7 @@ export async function writeMedia(user: User, media: Media, buffer: Buffer, media
             status: 500,
             statusText: 'Unable to save file on server.',
             message: error.message,
+            stack: error.stack,
         })
     }
 }

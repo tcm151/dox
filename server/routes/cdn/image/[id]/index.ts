@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
             status: 500,
             statusText: `Unable to find image:${id}.`,
             message: error.message,
+            stack: error.stack,
         })
     }
 })

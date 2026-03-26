@@ -11,7 +11,7 @@ class SessionManager {
             .addParameter("user", user.id)
             .queryOne<Session>()
 
-        session.user = user
+        session.user = user as User & string
 
         await new DatabaseQuery()
             .addSql(`

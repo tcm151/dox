@@ -55,6 +55,9 @@ export default defineNuxtConfig({
     css: [
         "~/assets/scss/global.scss"
     ],
+    nitro: {
+        errorHandler: "~/server/plugins/errorHandler"
+    },
     vite: {
         css: {
             preprocessorOptions: {

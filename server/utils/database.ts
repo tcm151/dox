@@ -109,21 +109,12 @@ export class DatabaseQuery {
             return await connection.query(this.#sql.join("\n"), this.#parameters).collect()
         }
         catch (error: any) {
-            if (error.message.startsWith("Surreal Error:")) {
-                const message = error.message.split(":").at(1).trim()
-                throw createError({
-                    status: 500,
-                    statusText: message,
-                })
-            }
-            else {
-                console.log(error.message)
-                throw createError({
-                    status: 500,
-                    statusText: `Server Error: Unable to execute query.`,
-                    message: error.message,
-                })
-            }
+            throw createError({
+                status: 500,
+                statusText: "Failed to execute query.",
+                message: error.message,
+                stack: error.stack,
+            })
         }
     }
 

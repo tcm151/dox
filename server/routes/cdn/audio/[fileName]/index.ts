@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
             status: 500,
             statusText: `Unable to find audio:${id}.`,
             message: error.message,
+            stack: error.stack,
         })
     }
 })

@@ -380,7 +380,21 @@ DEFINE FIELD OVERWRITE expired ON passwordReset
 -- ------------------------------
 -- TABLE: error
 -- ------------------------------
-DEFINE TABLE OVERWRITE error SCHEMALESS;
+DEFINE TABLE OVERWRITE error SCHEMAFULL;
+DEFINE FIELD OVERWRITE status ON error
+    TYPE number;
+DEFINE FIELD OVERWRITE description ON error
+    TYPE string;
+DEFINE FIELD OVERWRITE message ON error
+    TYPE string;
+DEFINE FIELD OVERWRITE time ON error
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE user ON error
+    TYPE record|string;
+DEFINE FIELD OVERWRITE stack ON error
+    TYPE string;
+DEFINE FIELD OVERWRITE data ON error
+    TYPE object FLEXIBLE;
 
 
 -- ------------------------------

@@ -157,6 +157,15 @@ export interface PasswordReset extends Record {
     expired: boolean
 }
 
+export interface Error extends Record {
+    status: number
+    description: string
+    time: string
+    stack: string
+    data: { [key: string]: any }
+    user: User & string
+}
+
 export interface AppSettings {
     id: string
     email: {
