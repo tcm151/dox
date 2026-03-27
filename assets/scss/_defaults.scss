@@ -74,19 +74,12 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
     @include flex-v (0.75rem);
 }
 
-.field:not(.row) {
+.field {
+    display: flex;
     flex-direction: column;
 
     label {
         margin-bottom: 0.5rem;
-    }
-}
-
-.field {
-    display: flex;
-    flex-direction: row;
-
-    label {
         font-size: 0.95rem;
         font-weight: 600;
     }
@@ -130,6 +123,15 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
         margin-top: 0.5rem;
         font-size: 0.8rem;
         font-weight: 600;
+    }
+}
+
+.field.row {
+    flex-direction: row;
+    align-items: center;
+
+    label {
+        margin-bottom: 0;
     }
 }
 

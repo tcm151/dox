@@ -118,9 +118,11 @@ function differentPasswords() {
                 </div>
                 <div class="row g-2 mt-4">
                     <button class="success f-1" @click="register">
+                        <i class="fa-solid fa-paper-plane"></i>
                         Register
                     </button>
-                    <button class="danger f-1" @click="navigateTo('/feed')">
+                    <button class="danger" @click="navigateTo('/feed')">
+                        <i class="fa-solid fa-ban"></i>
                         Cancel
                     </button>
                 </div>
@@ -130,7 +132,7 @@ function differentPasswords() {
 </template>
 
 <style scoped lang="scss">
-.register {
-    width: 256px;
+article {
+    @include fit-width(30rem, 1rem);
 }
 </style>

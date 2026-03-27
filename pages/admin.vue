@@ -29,7 +29,7 @@ const tabs = [
     { route: '/admin/users', icon: 'fa-solid fa-user', label: 'Users' },
     { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
     { route: '/admin/feedback', icon: 'fa-solid fa-comment', label: 'Feedback' },
-    { route: '/admin/config', icon: 'fa-solid fa-gear', label: 'Config' },
+    { route: '/admin/settings', icon: 'fa-solid fa-gear', label: 'Settings' },
 
 ]
 </script>

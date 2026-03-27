@@ -3,6 +3,7 @@ import type { Topic, Sortable } from '~/types'
 
 const cache = useCache()
 const route = useRoute()
+const session = getSession()
 
 const id = route.params.topic?.toString()
 await useDatasource(`/api/topic/${id}/visit`)
@@ -14,16 +15,37 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
         sortBy: sortBy
     }
 })
+
+let following = computed(() => {
+    return session.user.topics.includes(topic.data.value.id)
+})
+
+async function requestModeration() {
+    await useApi("/api/topic/request-moderation")
+}
 </script>
 
 <template>
-    <article v-if="topic.data.value" class="column g-2 p-4">
-        <TopicPreview :topic="topic.data.value" @refresh="topic.refresh()" />
-        <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
-            <template #item="item">
-                <MultiPreview :item="item" />
-            </template>
-        </Feed>
+    <article class="p-4">
+        <template v-if="topic.data.value">
+            <section class="column g-2">
+                <Authenticated>
+                    <button v-if="following" class="f-1 b-0">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                        Request Moderation
+                    </button>
+                </Authenticated>
+                <TopicPreview :topic="topic.data.value" @refresh="topic.refresh()" />
+                <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
+                    <template #item="item">
+                        <MultiPreview :item="item" />
+                    </template>
+                </Feed>
+            </section>
+        </template>
+        <section v-else class="box p-3 text center">
+            <p>This topic hasn't been used yet.</p>
+        </section>
     </article>
 </template>
 

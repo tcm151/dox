@@ -3,6 +3,7 @@
 const props = defineProps<{
     enabled: boolean
     label?: string
+    disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -12,11 +13,12 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <div class="row g-2">
+    <div class="row g-2" :class="{ disabled }">
         <label class="toggle p-1">
             <input
                 type="checkbox"
                 :checked="enabled"
+                :disabled="disabled"
                 @change="emit('update:enabled', ($event.target as HTMLInputElement).checked)"
             />
             <span class="slider" />
@@ -68,6 +70,20 @@ label.toggle {
 label.toggle:has(input:checked) {
     background-color: $green;
     transition: all 256ms;
+}
+
+div.row.disabled {
+    label.toggle {
+        cursor: not-allowed;
+        background-color: $white-4;
+        
+    }
+    span.slider {
+        background-color: $white-2;
+    }
+    input:checked + span.slider {
+        background-color: $white-2;
+    }
 }
 
 span.label {
