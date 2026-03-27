@@ -34,20 +34,20 @@ async function unfollowUser() {
 </script>
 
 <template>
-    <header class="profile column g-3 p-5">
+    <header class="profile box column g-3 p-5">
         <section class="row g-2">
             <figure class="image is-64x64">
                 <img src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
-            <div class="name-follow row center-inline g-4">
+            <div class="name-follow row inline between f-1 g-4">
                 <div class="column">
                     <h1>{{ user.name }}</h1>
-                    <a :href="user.link" v-if="user.link">
+                    <a v-if="user.link" class="text truncate" :href="user.link">
                         {{ user.link }}
                     </a>
                 </div>
                 <ClientOnly>
-                    <div class="buttons row g-2" v-if="session.isAuthenticated">
+                    <div v-if="session.isAuthenticated" class="buttons row g-2">
                         <button v-if="user.id == session.user.id" @click="navigateTo('/settings')">
                             <i class="fa-solid fa-address-card"></i>
                             <span>Profile</span>
@@ -62,9 +62,12 @@ async function unfollowUser() {
                 </ClientOnly>
             </div>
         </section>
-        <section class="row-wrap g-1">
+        <section class="row wrap g-1">
             <Votes :target="user" />
             <!-- TODO add pages to view these in more detail -->
+            <Tag class="f-1" type="link">
+                <strong>{{ user.visits }}</strong> visits
+            </Tag>
             <Tag class="f-1" type="link">
                 <strong>{{ user.topics.length }}</strong> topics
             </Tag>
@@ -78,31 +81,15 @@ async function unfollowUser() {
                 joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong>
             </Tag>
         </section>
-        <section class="column g-2" v-if="user.description">
+        <section v-if="user.description" class="column g-2">
             <p>{{ user.description }}</p>
         </section>
     </header>
 </template>
 
 <style scoped lang="scss">
-.profile {
-    border-radius: 0.25rem;
-    background-color: $white-0;
-}
-
 .name-follow {
-    flex: 1 1;
-    justify-content: space-between;
     overflow-x: hidden;
-
-    div.column {
-        overflow-x: hidden;
-
-        a {
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-        }
-    }
 
     h1 {
         font-size: 1.5rem;
@@ -110,7 +97,6 @@ async function unfollowUser() {
 
     a {
         color: $purple;
-        cursor: pointer;
         font-weight: 600;
     }
 
@@ -120,7 +106,7 @@ async function unfollowUser() {
 }
 
 div.buttons {
-    @media only screen and (max-width: 600px) {
+    @media (max-width: $bp-tablet) {
         span {
             display: none;
         }

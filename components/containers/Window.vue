@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const props = defineProps<{
-    visible: boolean
     icon?: string
     title?: string
     width?: string
@@ -14,7 +13,7 @@ const emit = defineEmits<{
 const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
 const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
 
-if (import.meta.client) {
+if (ENV.isClient()) {
     resizePopup()
     window.visualViewport?.addEventListener('resize', resizePopup)
 }
@@ -27,12 +26,12 @@ function resizePopup() {
 </script>
 
 <template>
-    <aside class="background column center" v-if="props.visible">
-        <main class="window box column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
-            <header class="title-bar row g-4">
-                <div class="left row center-inline g-2 px-3 py-2">
-                    <i :class="icon" v-if="icon"></i>
-                    <h2 class="title" v-if="title">{{ title }}</h2>
+    <aside class="background column center">
+        <main class="window box br-large column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
+            <header class="title-bar row inline between stretch g-4">
+                <div class="left row inline g-2 px-3 py-2">
+                    <i v-if="icon" :class="`fa-solid ${icon}`"></i>
+                    <h1 v-if="title" class="title">{{ title }}</h1>
                 </div>
                 <button class="close px-3" @click="emit('close')">
                     <i class="fa-solid fa-xmark"></i>
@@ -47,17 +46,6 @@ function resizePopup() {
 </template>
 
 <style scoped lang="scss">
-
-@keyframes blur {
-    from { backdrop-filter: none }
-    to { backdrop-filter: blur(0.5rem) }
-}
-
-@keyframes fade-in {
-    from { opacity: 0% }
-    to { opacity: 100% }
-}
-
 aside.background {
     top: 0;
     left: 0;
@@ -75,8 +63,6 @@ main.window {
 }
 
 header.title-bar {
-    align-items: stretch;
-    justify-content: space-between;
     color: $white-0;
     background-color: $black-0;
     border-top-left-radius: 0.5rem;

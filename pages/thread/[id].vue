@@ -1,17 +1,51 @@
 <script setup lang="ts">
 import ThreadReply from './components/ThreadReply.vue'
 import ExtraOptions from './components/ExtraOptions.vue'
-import type { Thread, User } from '~/types'
+import type { Thread } from '~/types'
 
 const route = useRoute()
 const hints = useHints()
-const router = useRouter()
 const events = useEvents()
 const session = getSession()
 
 const id = route.params.id?.toString()
-await useFetch(`/api/thread/${id}/visit`)
-const { data: thread, refresh } = await useFetch<Thread>(`/api/thread/${id}`)
+await useDatasource(`/api/thread/${id}/visit`)
+
+const { data: thread, refresh } = await useDatasource<Thread>(`/api/thread/${id}`)
+
+let editingThread = ref(false)
+function toggleEditThread() {
+    editingThread.value = !editingThread.value
+}
+
+// const showPreview = ref(false)
+// function togglePreview() {
+//     showPreview.value = !showPreview.value
+// }
+
+async function updateThread() {
+    if (!thread.value) {
+        hints.addError("You can't edit something that doesn't exist.")
+        return
+    }
+    try {
+        submitting.value = true
+        await useApi(`/api/thread/${id}/edit`, {
+            body: {
+                content: thread.value.content
+            }
+        })
+        thread.value.edited = true
+        toggleEditThread()
+        await refresh()
+    }
+    catch (error: any) {
+        hints.addError(error.message)
+    }
+    finally {
+        submitting.value = false
+    }
+}
 
 const showReplyBox = ref<boolean>(false)
 const replyText = ref<string>("")
@@ -31,14 +65,16 @@ async function submitThread() {
     
     submitting.value = true
     const action = (quoting.value) ? "quote" : "reply"
-    await session.useApi<Thread>(`/api/thread/${id}/${action}`, {
-        user: session.user.id,
-        content: replyText.value,
-        votes: {
-            positive: [session.user.id],
-            misleading: [],
-            negative: [],
-        },
+    await useApi<Thread>(`/api/thread/${id}/${action}`, {
+        body: {
+            user: session.user.id,
+            content: replyText.value,
+            votes: {
+                positive: [session.user.id],
+                misleading: [],
+                negative: [],
+            },
+        }
     })
     submitting.value = false
 
@@ -67,7 +103,7 @@ async function deleteThread() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your thread?',
         accept: async () => {
-            await session.useApi(`/api/thread/${id}/delete`)
+            await useApi(`/api/thread/${id}/delete`)
             hints.addSuccess("Successfully deleted thread.")
             return navigateTo("/feed")
         },
@@ -75,7 +111,7 @@ async function deleteThread() {
 }
 
 async function awardThread() {
-    if ((thread.value?.user as User).id == session.user.id) {
+    if (thread.value?.user.id == session.user.id) {
         hints.addError("You can't award your own threads.")
         return
     }
@@ -88,7 +124,7 @@ async function awardThread() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this thread? It will cost 256 tokens.',
         accept: async () => {
-            await session.useApi(`/api/thread/${id}/award`)
+            await useApi(`/api/thread/${id}/award`)
             hints.addSuccess("Successfully awarded thread.")
             await refresh()
         },
@@ -96,13 +132,13 @@ async function awardThread() {
 }
 
 async function archiveThread() {
-    await session.useApi(`/api/thread/${id}/archive`)
+    await useApi(`/api/thread/${id}/archive`)
     hints.addSuccess("This thread has been archived.")
     await refresh()
 }
 
 async function pinThread() {
-    await session.useApi(`/api/thread/${id}/pin`)
+    await useApi(`/api/thread/${id}/pin`)
     hints.addSuccess("This thread has been pinned.")
 }
 
@@ -113,7 +149,7 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article class="column p-4" v-if="thread">
+    <article v-if="thread" class="column p-4">
         <header class="row g-2 mb-2">
             <button class="dark" @click="goBack">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -125,37 +161,50 @@ function toggleOptions() {
             </button> -->
         </header>
         <section v-if="thread.replyTo" class="mb-2">
-            <ThreadReply :thread="(thread.replyTo as Thread)" />
+            <ThreadReply :thread="thread.replyTo" />
         </section>
         <section class="main box column px-4 pt-4">
-            <header class="row-wrap g-1">
+            <header class="row wrap g-1">
                 <Votes :target="thread" />
-                <div class="row-wrap f-1 g-1">
-                    <UserTag class="f-1" :user="(thread.user as User)" />
+                <div class="row wrap f-1 g-1">
+                    <UserTag class="f-1" :user="thread.user" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
-                    <Tag class="f-1" type="info" icon="fa-message" :label="thread.replies.length.toString()" />
-                    <DurationTag class="f-1" :time="thread.time" />
-                    <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
+                    <Tag class="f-1" type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
+                    <Tag class="f-1" type="info">
+                        <i class="fa-solid fa-stopwatch"></i>
+                        {{ formatDate(thread.time) }}
+                        <template v-if="thread.edited">
+                            <i class="fa-solid fa-eraser"></i>
+                            {{ formatDate(thread.timeEdited) }}
+                        </template>
+                    </Tag>
                 </div>
-                <TopicTag class="f-10" v-for="topic in thread.topics" :topic="topic" />
+                <TopicTag v-for="topic in thread.topics" :topic="topic" />
             </header>
-            <Markdown class="content" :content="thread.content" />
-            <aside v-if="thread.quote" class="quote mb-3 px-3 pt-3">
-                <div class="row-wrap g-1">
-                    <Votes :target="thread.quote" />
-                    <UserTag :user="(thread.quote.user as User)" />
-                    <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
-                    <Tag type="info" icon="fa-message" :label="thread.quote.replies.length.toString()" />
-                    <DurationTag :time="thread.quote.time" />
-                    <div v-if="thread.quote.topics.length > 0" class="row-wrap g-1">
-                        <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
+            <template v-if="!editingThread">
+                <Markdown class="content" :content="thread.content" />
+                <aside v-if="thread.quote" class="quote br-medium mb-3 px-3 pt-3">
+                    <div class="row wrap g-1">
+                        <Votes :target="thread.quote" />
+                        <UserTag :user="thread.quote.user" />
+                        <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
+                        <Tag type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
+                        <DurationTag :time="thread.quote.time" />
+                        <div v-if="thread.quote.topics.length > 0" class="row wrap g-1">
+                            <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
+                        </div>
+                        <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
                     </div>
-                    <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
+                    <Markdown class="content preview" :content="thread.quote.content" />
+                </aside>
+            </template>
+            <ClientOnly>
+                <div v-if="editingThread && thread.user.id === session.user.id" class="field my-4">
+                    <textarea rows="10" v-model="thread.content" />
                 </div>
-                <Markdown class="content preview" :content="thread.quote.content" />
-            </aside>
+            </ClientOnly>
             <footer>
-                <div class="f-1 row-wrap g-1 mb-4" v-if="!showReplyBox && !thread.deleted">
+                <div v-if="!thread.deleted && !editingThread && !showReplyBox" class="f-1 row wrap g-1 mb-4">
                     <button class="f-1" @click="showReplyBox = true">
                         <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                         <span>Reply</span>
@@ -173,9 +222,9 @@ function toggleOptions() {
                             <i class="fa-solid fa-ellipsis"></i>
                         </button>
                         <ExtraOptions 
+                            v-if="showOptions"
                             :thread="thread"
-                            :visible="showOptions"
-                            @edit=""
+                            @edit="toggleEditThread"
                             @award="awardThread"
                             @report="submitReport(thread.id)"
                             @delete="deleteThread"
@@ -185,11 +234,26 @@ function toggleOptions() {
                         />
                     </ClientOnly>
                 </div>
+                <div v-else-if="editingThread" class="row wrap f-1 g-1 mb-4">
+                    <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Save</span>
+                    </ButtonSpinner>
+                    <!-- <button class="info f-1" @click="togglePreview">
+                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                        <i v-else class="fa-solid fa-eye-slash"></i>
+                        <span>Preview</span>
+                    </button> -->
+                    <button class="danger" @click="toggleEditThread">
+                        <i class="fa-solid fa-ban"></i>
+                        <span>Cancel</span>
+                    </button>
+                </div>
                 <div class="field" v-else-if="showReplyBox">
                     <textarea rows="5" v-model="replyText"></textarea>
                     <div class="row g-2 mt-2">
                         <ButtonSpinner class="success f-1" :loading="submitting" @click="submitThread">
-                            <i class="fa-solid fa-message"></i>
+                            <i class="fa-solid fa-comment"></i>
                             <span>Submit</span>
                         </ButtonSpinner>
                         <button class="danger" @click="showReplyBox = false">
@@ -220,6 +284,5 @@ section.reply-to:hover {
 
 aside.quote {
     border: 1px solid $white-2;
-    border-radius: 0.5rem;
 }
 </style>

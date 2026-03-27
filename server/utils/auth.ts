@@ -1,44 +1,39 @@
 import { H3Event } from "h3"
-import { DatabaseQuery } from './database'
 import type { User } from '~/types'
-
-export const authenticateRequest = async (event: H3Event): Promise<User> => {
-    const sessionManager = useSessions()
-    const token = getHeader(event, 'Authorization') ?? ""
-    let session = await sessionManager.authenticateToken(token)
-    if (!session) {
-        throw createError({
-            status: 401,
-            statusText: "Failed to authenticate request."
-        })
-    }
-    return session.user
-}
 
 export const authenticateLogin = async (event: H3Event) => {
     try {
         const sessionManager = useSessions()
         const header = atob(getHeader(event, 'Authorization') ?? "")
-
-        const user = await new DatabaseQuery(SurrealInstance)
-            .addSql(`
-                SELECT *
-                OMIT password
-                FROM user
-                WHERE (email = $id OR name = $id)
-                AND crypto::argon2::compare(password, $password)
-            `)
-            .addParameter("id", header.split(":")[0])
-            .addParameter("password", header.split(":")[1])
-            .queryOne<User>()
-
-        const session = await sessionManager.add(user)
-        return { tokens: { access: session.id }, user }
+        const [username, password] = header.split(":", 2)
+        const session = await sessionManager.authenticateLogin(username!, password!)
+        event.context.user = session.user.id
+        return { tokens: { access: session.id }, user: session.user }
     }
-    catch (ex: any) {
+    catch (error: any) {
         throw createError({
-            statusCode: 401,
-            statusMessage: "Failed to authenticate login.",
+            status: 401,
+            statusText: "Failed to authenticate login.",
+            message: error.message,
+            stack: error.stack,
+        })
+    }
+}
+
+export const authenticateRequest = async (event: H3Event): Promise<User> => {
+    try {
+        const sessionManager = useSessions()
+        const token = getHeader(event, 'Authorization') ?? ""
+        let session = await sessionManager.authenticateToken(token)
+        event.context.user = session.user.id
+        return session.user
+    }
+    catch (error: any) {
+        throw createError({
+            status: 401,
+            statusText: "Failed to authenticate request.",
+            message: error.message,
+            stack: error.stack,
         })
     }
 }
@@ -49,10 +44,12 @@ export const invalidateSession = async (event: H3Event, clear: boolean) => {
         const token = getHeader(event, 'Authorization') ?? ""
         await sessionManager.invalidateToken(token, clear)
     }
-    catch (ex: any) {
+    catch (error: any) {
         throw createError({
-            statusCode: 400,
-            statusMessage: "You aren't allowed invalidate this session.",
+            status: 403,
+            statusText: "You aren't allowed invalidate this session.",
+            message: error.message,
+            stack: error.stack,
         })
     }
 }

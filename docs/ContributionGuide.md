@@ -2,76 +2,134 @@
 
 Follow these steps to build and run the site on your local machine.
 
-## 1. SurrealDB
+## 1. Setup Repository
 
-Once you are have installed [SurrealDB](https://docs.surrealdb.com/docs/introduction/start/) on your local machine or a remote server, you will need to run it. Run the following command and replace `<username>`, `<password>`, and `<path_to_database_file>` with whatever values you'd like to use for your development environment.
+Clone the repo from GitHub into your development environment. You should use a recent Node.js LTS release and yarn.
 
-```bash
-surreal start --user <username> --pass <password> file:<path_to_database_file>
-```
-
-## 2. Setup Repository
-
-Clone the repo from GitHub into your development environment. You will need to have at minimum the latest version of `nodejs 18`, and `yarn` installed. I recommend using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage your `nodejs` installations. You can `install` yarn globally with the following command.
+I recommend using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage your Node.js installations. You can install yarn globally with:
 
 ```bash
 npm install --global yarn
 ```
 
+## 2. Choose Your Database Mode
+
+OpenForum supports two SurrealDB modes:
+
+- **remote**: connect to an external SurrealDB server over RPC.
+- **embedded**: run SurrealDB from inside the app process via a local engine.
+
+Choose one mode and set `SURREAL_TYPE` accordingly.
+
 ## 3. Environment Variables
 
-You will need to populate a `.env` file with a few specific parameters which the site will use. Here is a template of what values you need to provide.
+You will need to populate a `.env` file with a few specific parameters the app uses. Here is a template of the values you can provide.
 
 ```bash
-BASE_URL= # the address of your running Nuxt instance. Ex: http://localhost:3000
+PORT= # the port of your running Nuxt instance. Ex: 3000
+BASE_URL= # the address of your running Nuxt instance. Ex: http://localhost
 
 SITE_TITLE= # the title you'd like to be displayed in the browser tab
 SITE_TITLE_SHORT= # the shortened title used when space is limited
 
-SURREAL_URL= # the address of your running SurrealDB instance. Ex: http://localhost:8000/rpc
-SURREAL_USERNAME= # your SurrealDB root username
-SURREAL_PASSWORD= # your SurrealDB root password
-SURREAL_NAMESPACE= # the namespace you'd like to use. Ex: dox
+SURREAL_TYPE= # the SurrealDB instance type. Ex: remote or embedded
+# remote example: http://localhost:8000/rpc
+# embedded example: rocksdb://./database/default.db
+SURREAL_URL=
+SURREAL_NAMESPACE= # the namespace you'd like to use. Ex: example
 SURREAL_DATABASE= # the database you'd like to use. Ex: development
+SURREAL_USERNAME= # your SurrealDB root username, when SURREAL_TYPE=remote
+SURREAL_PASSWORD= # your SurrealDB root password, when SURREAL_TYPE=remote
+
+DEFAULT_USER_EMAIL= # the email of the default user created on startup
+DEFAULT_USER_NAME= # the name of the default user created on startup
+DEFAULT_USER_PASSWORD= # the password of the default user created on startup
 
 # OPTIONAL, only supply if needing to send emails
-# you can use your personal gmail account as an SMTP server
+# You can use your personal gmail account as an SMTP server
 # https://support.google.com/a/answer/176600?
 SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASS=
+SMTP_SENDER_TITLE=
 ```
 
-## 4. Run It
+## 4. Start SurrealDB (Remote Mode Only)
 
-With your SurrealDB instance running, you can start the site with the following command.
+If `SURREAL_TYPE=remote`, start SurrealDB separately:
+
+```bash
+surreal start --user <username> --pass <password> <protocol>://<path_to_database_file>
+```
+
+If `SURREAL_TYPE=embedded`, skip this step.
+
+## 5. Run the App
+
+Start the app:
 
 ```bash
 yarn dev
 ```
 
-If you have setup everything correctly, then you will see the following
+If setup is correct, logs will show a successful connection message including namespace, database, and URL.
 
-```bash
-...
-Connected to <namespace>:<database>
+```
+Connecting to remote/embedded instance...
+Connected to <namespace>:<database> @ <url>.
+Database migrations completed successfully.
 ```
 
-## 5. Sync Database Schema
+## 6. Sync Database Schema
 
-With the site and database running, you will need to sync the schema to define all the necessary scopes, tables, events, etc. You will need to use the SurrealDB CLI and the `import` command to run the `schema.surql` file in the `~/server/assets` directory. Run the following command to do this.
+Schema and migrations are applied automatically on application startup by [server/plugins/01.migrations.server.ts](../server/plugins/01.migrations.server.ts), which executes both [server/assets/schema.surql](../server/assets/schema.surql) and [server/assets/migrations.surql](../server/assets/migrations.surql).
 
-```bash
-surreal import --conn <surrealdb_url> --user <username> --pass <password> --ns dox --db development <path_to_schema_surql>
+If startup succeeds, you do not need to run manual `surreal import` commands.
+
+If startup fails, check your app logs for `Failed to apply database migrations on application startup.` and resolve database connectivity or query issues first.
+
+## 7. In-App Query Portal
+
+OpenForum includes a built-in query portal at `/developer/query` (see [pages/developer/query.vue](../pages/developer/query.vue)) so you can inspect and run queries against your database directly from the application.
+
+- In development mode, this route is available automatically.
+- Outside development mode, the current user must have the `developer` role (see [pages/developer.vue](../pages/developer.vue) and [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
+
+## 8. First User Setup
+
+Once the app is running:
+
+1. Open `/register` and create your first account.
+2. Open your profile at `/profile` to confirm authentication is working.
+3. (Recommended for local development) grant your account elevated roles so you can access admin/developer tooling.
+
+Example query in `/developer/query`:
+
+```sql
+UPDATE user:<your-user-id> SET
+    roles = array::union(roles, ["admin", "developer"]);
 ```
 
-> **Note:** uncomment the `account` scope when running the sync for the first time, then comment it out afterwards. Your session will be invalidated every time you do a sync, if left uncommented. Once completed the first time, you can sync the schema from within the site much easier.
+If you are not in development mode and cannot access `/developer/query` yet, use the Surreal CLI (`surreal sql`) to run the same update directly.
+
+## 9. Troubleshooting
+
+- **`Database URL was [...] Check environment variables.`**
+    - Verify `SURREAL_TYPE` and `SURREAL_URL` are set correctly.
+    - If `SURREAL_TYPE=remote`, ensure `SURREAL_URL` points to an RPC endpoint.
+
+- **`Failed to apply database migrations on application startup.`**
+    - Confirm database connectivity and credentials (`SURREAL_USERNAME`, `SURREAL_PASSWORD`) for remote mode.
+    - Confirm namespace/database values match your target (`SURREAL_NAMESPACE`, `SURREAL_DATABASE`).
+
+- **Cannot access `/developer/query`**
+    - In development mode this route should be available automatically.
+    - Outside development mode, the active account must include the `developer` role.
+
+- **Login/registration appears to work but pages fail to load expected content**
+    - Re-check migration startup logs and ensure schema/migrations executed successfully.
 
 ## It's Running
 
-If you did everything correctly, then you should be able to open the site in your browser and everything should be working correctly. There is an interactive `repl` you can use to interact with the database manually, you can use this to assign a user as an admin for example. You can access it with the following command.
-
-```bash
-surreal sql
-```
+If everything is configured correctly, the site should be available in your browser and basic flows should work.

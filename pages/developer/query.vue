@@ -1,176 +1,114 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-
 const cache = useCache()
 const hints = useHints()
-const session = getSession()
-const { history, saved } = storeToRefs(useQuery())
-
-const searchBar = ref("")
 
 const tab = cache.get<string>("query.tab", () => "History")
 const query = cache.get<string>("query.sql", () => "")
-const showSearch = cache.get<boolean>("query.showSearch", () => false)
 const results = cache.get<any[]>("query.results", () => [])
+const history = cache.get<string[]>("query.history", () => [])
 const selectedResult = cache.get<number>("query.selectedResult", () => 0)
 
-function filteredHistory(): any[] {
-    if (searchBar.value !== '') {
-        const rankings = history.value.map(query => {
-            const tokens = searchBar.value.split(/\s/)
-            let relevance = tokens.map(t => query.toLowerCase().includes(t.toLowerCase()) ? 1 : -5).reduce((a, b) => a + b, 0)
-            relevance += query.toLowerCase().includes(searchBar.value.toLowerCase()) ? 25 : -1
-            return { query, relevance }
-        })
-        const matches = rankings.filter(r => r.relevance > 0)
-        const sorted = matches.sort((a, b) => b.relevance - a.relevance)
-        return sorted.map(s => s.query)
-    }
-    else {
-        return history.value
-    }
-}
-
-function clearHistory() {
-
-}
-
-function reuseQuery (oldQuery: string) {
-    query.value = oldQuery
-}    
-
-function removeQueryFromHistory(oldQuery: string) {
-    history.value = history.value.filter(h => h !== oldQuery)
+function removeFromHistory(query: string) {
+    history.value = history.value.filter(h => h !== query)
     hints.addWarning("Query removed from history")
-}
-
-let grabbedQuery = ref<string>('')
-
-function saveQuery(event: DragEvent, folder: any) {
-    if (grabbedQuery.value != '') {
-        saved.value.push({
-            type: 'file',
-            name: '',
-            parent: folder.name,
-            query: grabbedQuery.value,
-            editing: true,
-        })
-        grabbedQuery.value = ''
-    }
-}
-
-function removeQueryFromSaved(item: any) {
-    saved.value = saved.value.filter(s => s !== item)
 }
 
 const loading = ref<boolean>(false)
 async function submitQuery() {
     try {
         loading.value = true
-        const response = await session.useApi<any[]>("/api/developer/database/query", {
-            query: query.value
+        results.value = await useApi<any[]>("/api/developer/database/query", {
+            body: {
+                query: query.value
+            }
         })
         
         history.value = history.value.filter(q => q !== query.value)
         history.value.unshift(query.value)
-        results.value = response ?? []
         if (results.value.length > 0) {
             selectedResult.value = results.value.length-1
         }
         tab.value = 'Results'
     }
-    catch (ex: any) {
-        hints.addError(ex.message)
+    catch (error: any) {
+        hints.addError(error.message)
     }
     finally {
         loading.value = false
     }
 }
 
-function clearQuery() {
-    query.value = ""
-    results.value = []
-}
+const resultPreviews = computed(() => {
+    let queries = history.value.at(0)?.split(";") ?? []
+    let filtered = queries.filter(q => q.trim() != "").filter((q, i) => results.value[i] != null)
+    return filtered.map(q => {
+        if (q.trim().length > 32) {
+            return q.trim().slice(0, 32) + '...'
+        }
+        else {
+            return q.trim().slice(0, 32)
+        }
+    })
+})
 </script>
 
 <template>
     <article class="row g-2 m-4">
-        <div class="left column g-2 p-4">
-            <section class="editor fill column g-2">
+        <div class="left box column g-2 p-4">
+            <section class="editor f-1 column g-2">
                 <header class="row g-2">
-                    <button class="danger" @click="clearQuery">
+                    <button class="danger" @click="query = ''">
+                        <i class="fa-solid fa-eraser"></i>
                         <span>Clear</span>
-                        <i class="fa-solid fa-soap"></i>
                     </button>
-                    <ButtonSpinner class="success fill" :loading="loading" @click="submitQuery">
-                        <span>Submit</span>
+                    <ButtonSpinner class="success f-1" :loading="loading" @click="submitQuery">
                         <i class="fa-solid fa-paper-plane"></i>
+                        <span>Submit</span>
                     </ButtonSpinner>
+                    <button class="link" @click="navigateTo('https://surrealdb.com/docs/surrealql/', { open: { target: '_blank' } })">
+                        <i class="fa-solid fa-file-code"></i>
+                        <span>Docs</span>
+                    </button>
                 </header>
-                <div class="field">
-                    <textarea rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
-                </div>
-                <div class="saved-query-directory">
-                    <Directory
-                        root="Queries"
-                        :buttons="['add-folder']"
-                        @add-item="saveQuery"
-                        @select-item="(item) => reuseQuery(item.query)"
-                        @remove-item="(item) => removeQueryFromSaved(item)"
-                        :items="saved"
-                    />
+                <div class="field f-1">
+                    <textarea class="f-1" rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
                 </div>
             </section>
         </div>
-        <div class="right column g-2 p-4">
-            <header class="column g-2">
-                <div class="row g-2">
-                    <button class="link fit" @click="showSearch = !showSearch">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                    <button class="link fill" @click="tab = 'Results'">
-                        <i class="fa-solid fa-square-poll-horizontal"></i>
-                        <span>Results</span>
-                    </button>
-                    <button class="link fill" @click="tab = 'History'">
-                        <i class="fa-solid fa-book"></i>
-                        <span>History</span>
-                    </button>
-                    <button class="link fit" @click="clearHistory">
-                        <i class="fa-solid fa-broom"></i>
-                    </button>
-                </div>
-                <div class="field" v-if="showSearch">
-                    <input type="search" v-model="searchBar">
-                </div>
+        <div class="right box column g-2 p-4">
+            <header class="row g-2">
+                <button class="link f-1" @click="tab = 'Results'">
+                    <i class="fa-solid fa-square-poll-horizontal"></i>
+                    <span>Results</span>
+                </button>
+                <button class="link f-1" @click="tab = 'History'">
+                    <i class="fa-solid fa-book"></i>
+                    <span>History</span>
+                </button>
             </header>
-            <section class="results column" v-if="tab == 'Results'">
-                <header v-if="results.length > 0" class="tabs row">
-                    <template v-for="(tab, index) in results">
-                        <div :class="{ active: selectedResult == index }" class="px-4 py-2" @click="selectedResult = index">
-                            {{ `Result #${index+1}` }}
+            <section v-if="tab == 'Results'" class="results column">
+                <header v-if="results.length > 1" class="tabs row">
+                    <template v-for="(label, index) in resultPreviews">
+                        <div class="result px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
+                            {{ label }}
                         </div>
                     </template>
+                    <div class="clear px-4 py-2" @click="results = []">
+                        <i class="fa-solid fa-eraser"></i>
+                    </div>
                 </header>
                 <template v-for="(result, index) in results">
-                    <Codeblock v-if="selectedResult == index"
-                        wrap
-                        language="json"
-                        :code="JSON.stringify(result, undefined, 4)"
-                    />
+                    <Codeblock v-if="selectedResult == index" language="json" :code="JSON.stringify(result, undefined, 4)" />
                 </template>
             </section>
-            <section class="history column g-2" v-if="tab == 'History'">
-                <div class="query" v-for="(item, index) in filteredHistory()" :key="index">
-                    <Codeblock wrap language="sql" :code="item" />
-                    <div class="buttons row g-2">
-                        <button @click="reuseQuery(item)">
+            <section v-if="tab == 'History'" class="history column g-2">
+                <div class="query" v-for="(item, index) in history" :key="index">
+                    <Codeblock language="sql" :code="item" />
+                    <div class="tools row g-3 p-3">
+                        <button class="p-0" @click="query = item">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
-                        <button draggable="true" @dragstart="grabbedQuery = item">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                        </button>
-                        <button @click="removeQueryFromHistory(item)">
+                        <button class="p-0" @click="removeFromHistory(item)">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -188,138 +126,104 @@ input[type=search]::-webkit-search-cancel-button:hover {
 
 article {
     @include fit-width (2000px, 1rem);
-    height: 100%;
+    height: stretch;
     overflow: hidden;
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         @include flex-v;
+    }
+
+    div.right {
+        overflow: hidden;
     }
 
     div.left { flex: 4 1 }
     div.right { flex: 6 1 }
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         div.left { flex: 1 1 }
         div.right { flex: 10 1 }
-    }
-
-    div.left, div.right {
-        border-radius: 0.25rem;
-        background-color: $white-0;
     }
 }
 
 section.editor {
-    header.row {
-        justify-content: flex-end;
-    }
-
-    div:has(textarea), div.saved-query-directory {
-        flex: 1 1;
-    }
-
-    div.saved-query-directory {
-        @media only screen and (max-width: 1000px) {
-            display: none;
-        }
-    }
-
     textarea {
-        flex: 1 1;
         resize: none;
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
         
-        @media only screen and (max-width: 1000px) {
+        @media (max-width: $bp-desktop) {
             flex: none;
             resize: vertical;
         }
     }
 }
 
-section.history, section.saved {
+section.history {
     overflow-y: auto;
 
     div.query {
         position: relative;
-        
-        p {
-            white-space: pre-wrap;
-            font-weight: 500;
-            font-family: "Source Code Pro", monospace;
-            border-radius: 0.25rem;
-            background-color: $white-1;
-        }
 
-        div.buttons {
-            top: 0;
-            right: 0;
+        div.tools {
+            inset: 0 0 auto auto;
             position: absolute;
-            padding: 0.75rem;
 
             button {
-                padding: 0;
-                font-size: 1.2rem;
                 background-color: transparent;
             }
 
             button:hover {
-                color: $white-2;
+                color: $white-4;
             }
         }
     }
-
-    button {
-        padding: 0.25rem 0.5rem;
-    }
-}
-
-div.right {
-    overflow: hidden;
 }
 
 section.results {
     overflow-y: auto;
 
     header.tabs {
-        
-        > div:first-child {
+
+        div.result:first-child {
             border-radius: 0.25rem 0 0 0;
         }
 
-        > div {
+        div.result {
+            cursor: pointer;
+            font-weight: 500;
+            font-family: "Source Code Pro", monospace;
             white-space: nowrap;
-            background-color: $white-2;
             border-right: 1px solid $white-1;
+            background-color: $white-2;
         }
         
-
-        > div:last-child {
-            border-radius: 0 0.25rem 0 0;
-            border-right: 0;
+        div.result:hover {
+            text-decoration: underline;
+        }
+        
+        div.result.active {
+            background-color: $white-1;
         }
 
-
-        > div:hover, > div.active {
+        div.clear {
             cursor: pointer;
-            background-color: $white-1;
+            background-color: $white-2;
+            border-radius: 0 0.25rem 0 0;
+        }
 
-            i:hover {
-                background-color: $white-3;
-                color: $red;
-
-                border-radius: 0.25rem;
-            }
+        div.clear:hover {
+            color: $red;
         }
     }
 
     code {
-        overflow-x: hidden;
-        overflow-y: visible;
         white-space: pre-wrap;
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
         background-color: $white-1 !important;
+        overflow-y: visible;
+        overflow-x: hidden;
     }
 }
 </style>

@@ -1,0 +1,63 @@
+$vertical: "y" !default;
+$horizontal: "x" !default;
+
+$types: (
+  "margin": "m",
+  "padding": "p",
+) !default;
+
+$directions: (
+  "top": "t",
+  "right": "r",
+  "bottom": "b",
+  "left": "l",
+) !default;
+
+$sizes: (
+  "0": 0,
+  "1": 0.25rem,
+  "2": 0.5rem,
+  "3": 0.75rem,
+  "4": 1rem,
+  "5": 1.5rem,
+  "6": 3rem,
+  "7": 5rem,
+  "8": 10rem,
+  "auto": auto,
+) !default;
+
+@each $name, $value in $sizes {
+  .g-#{$name} {
+    gap: $value !important;
+  }
+}
+
+@each $property, $shortcut in $types {
+  @each $name, $value in $sizes {
+    // All directions
+    .#{$shortcut}-#{$name} {
+      #{$property}: $value !important;
+    }
+
+    // Cardinal directions
+    @each $direction, $suffix in $directions {
+      .#{$shortcut}#{$suffix}-#{$name} {
+        #{$property}-#{$direction}: $value !important;
+      }
+    }
+
+    @if $horizontal != null {
+      .#{$shortcut}#{$horizontal}-#{$name} {
+        #{$property}-left: $value !important;
+        #{$property}-right: $value !important;
+      }
+    }
+
+    @if $vertical != null {
+      .#{$shortcut}#{$vertical}-#{$name} {
+        #{$property}-top: $value !important;
+        #{$property}-bottom: $value !important;
+      }
+    }
+  }
+}

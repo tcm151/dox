@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
         await new DatabaseQuery()
             .addSql(`
                 RETURN {
-                    IF $thread.user != $user AND $user.roles CONTAINSNOT "admin" {
+                    IF $image.user != $user AND $user.roles CONTAINSNOT "admin" {
                         THROW "You are not allowed to do this.";
                     };
                     UPDATE $user SET
@@ -43,10 +43,11 @@ export default defineEventHandler(async (event) => {
         return true
     }
     catch (error: any) {
-        console.log(error)
         throw createError({
-            status: 500,
-            statusText: error.message,
+            status: 403,
+            statusText: `Unabled to delete image:${id}`,
+            message: error.message,
+            stack: error.stack,
         })      
     }
 })

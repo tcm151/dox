@@ -5,14 +5,10 @@ const hints = useHints()
 const events = useEvents()
 const session = getSession()
 
-defineProps<{
-    visible: boolean
-}>()
-
 interface Profile {
     id: string
     name: string
-    session: string
+    token: string
 }
 
 const accounts = useLocalStorage<Profile[]>("profiles", [])
@@ -27,9 +23,8 @@ events.subscribe(Trigger.authenticatedUser, ({ user, token }: { user: User, toke
     accounts.value.unshift({
         id: user.id,
         name: user.name,
-        session: token,
+        token: token,
     })
-    
 })
 
 events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: User, clear: boolean }) => {
@@ -42,11 +37,11 @@ const waiting = ref<string>("")
 async function useLogin(profile: Profile) {
     try {
         waiting.value = profile.id
-        await session.authenticate(profile.session)
+        await session.authenticate(profile.token)
         events.publish(Trigger.toggleUserManager)
         hints.addSuccess(`Logged into profile: ${session.user.name}`)
     }
-    catch (ex: any) {
+    catch (error: any) {
         events.publish(Trigger.toggleUserManager)
         events.publish(Trigger.toggleLogin, profile.name)
     }
@@ -55,8 +50,22 @@ async function useLogin(profile: Profile) {
     }
 }
 
-function removeLogin(profile: Profile) {
-    accounts.value = accounts.value.filter(a => a.id != profile.id)
+async function removeLogin(profile: Profile) {
+    try {
+        await useApi("/api/profile/logout", {
+            headers: {
+                Authorization: profile.token
+            },
+            body: {
+                clear: true
+            }
+        })
+        accounts.value = accounts.value.filter(a => a.id != profile.id)
+        hints.addSuccess(`Removed and invalidated session for ${profile.name}.`)
+    }
+    catch (error: any) {
+        hints.addError("Unable to invalidate session.")
+    }
 }
 
 function newLogin() {
@@ -67,11 +76,7 @@ function newLogin() {
 </script>
 
 <template>
-    <Window
-        width="20rem"
-        :visible="visible"
-        title="Profiles"
-    >
+    <Window width="20rem" title="Profiles" icon="fa-solid fa-user">
         <main class="column g-2">
             <div class="row g-2" v-for="user in otherAccounts">
                 <ButtonSpinner class="info f-1" :loading="waiting == user.id" @click="useLogin(user)">

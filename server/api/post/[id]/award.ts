@@ -4,11 +4,15 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
+    // TODO need to check that the user has enough tokens
     return await new DatabaseQuery()
         .addSql(`
             RETURN {
                 IF $post.user = $awarder {
                     THROW "You cannot award your own posts...";
+                };
+                IF $post.votes.awards CONTAINS $awarder {
+                    THROW "You have already awarded this post.";
                 };
                 
                 UPDATE $post SET
@@ -24,8 +28,9 @@ export default defineEventHandler(async (event) => {
                 recipient = $post.user,
                 context = $post.id,
                 message = $message;
-                
-                RETURN SELECT * FROM $post;
+
+                RETURN SELECT *
+                FROM $post;
             };
         `)
         .addRecord("post", `post:${id}`)

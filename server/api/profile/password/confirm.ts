@@ -1,12 +1,4 @@
-import type { User } from "~/types"
-
-interface PasswordReset {
-    id: string
-    user: User
-    time: string
-    used: boolean
-    expired: boolean
-}
+import type { User, PasswordReset } from "~/types"
 
 export default defineEventHandler(async (event) => {
     const body = await readBody<{
@@ -25,22 +17,22 @@ export default defineEventHandler(async (event) => {
 
     if (passwordReset.expired) {
         throw createError({
-            statusCode: 400,
-            message: "Reset request period has expired, please try again and complete within 15 minutes."
+            status: 400,
+            statusText: "Reset request period has expired, please try again and complete within 15 minutes."
         })
     }
 
     if (passwordReset.used) {
         throw createError({
-            statusCode: 400,
-            message: "This reset request has already been used."
+            status: 400,
+            statusText: "This reset request has already been used."
         })
     }
 
     if (passwordReset.user.email !== body.email) {
         throw createError( {
-            statusCode: 400,
-            message: "Email does not match with reset request."
+            status: 400,
+            statusText: "Email does not match with reset request."
         })   
     }
 

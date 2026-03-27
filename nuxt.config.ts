@@ -28,7 +28,6 @@ export default defineNuxtConfig({
             ],
             meta: [
                 { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" },
-                { name: "google-adsense-account", content: "ca-pub-3080690900599338" },
             ],
         },
     },
@@ -56,6 +55,9 @@ export default defineNuxtConfig({
     css: [
         "~/assets/scss/global.scss"
     ],
+    nitro: {
+        errorHandler: "~/server/plugins/errorHandler"
+    },
     vite: {
         css: {
             preprocessorOptions: {
@@ -87,23 +89,25 @@ export default defineNuxtConfig({
             title: process.env.SMTP_SENDER_TITLE,
         },
         surreal: {
-            type: process.env.SURREAL_TYPE,
-            url: process.env.SURREAL_URL,
-            username: process.env.SURREAL_USERNAME,
-            password: process.env.SURREAL_PASSWORD,
-            namespace: process.env.SURREAL_NAMESPACE,
-            database: process.env.SURREAL_DATABASE,
+            info: {
+                type: process.env.SURREAL_TYPE,
+                url: process.env.SURREAL_URL,
+                username: process.env.SURREAL_USERNAME,
+                password: process.env.SURREAL_PASSWORD,
+                namespace: process.env.SURREAL_NAMESPACE,
+                database: process.env.SURREAL_DATABASE,
+            },
+            admin: {
+                email: process.env.DEFAULT_USER_EMAIL,
+                name: process.env.DEFAULT_USER_NAME,
+                password: process.env.DEFAULT_USER_PASSWORD,
+            }
         },
         public: {
             baseUrl: process.env.BASE_URL,
             site: {
                 title: process.env.SITE_TITLE,
                 titleShort: process.env.SITE_TITLE_SHORT,
-            },
-            surreal: {
-                url: process.env.SURREAL_URL,
-                namespace: process.env.SURREAL_NAMESPACE,
-                database: process.env.SURREAL_DATABASE,
             },
         },
     },

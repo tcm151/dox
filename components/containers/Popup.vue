@@ -1,23 +1,17 @@
 <script setup lang="ts">
 const props = defineProps<{
-    visible: boolean
     title?: string
     width?: string
     height?: string
     loading?: boolean
-    acceptLabel?: string
-    declineLabel?: string
-}>()
-
-const emit = defineEmits<{
-    (event: 'accept'): void
-    (event: 'decline'): void
+    accept: { label?: string, action: Function }
+    decline: { label?: string, action: Function }
 }>()
 
 const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
 const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
 
-if (import.meta.client) {
+if (ENV.isClient()) {
     resizePopup()
     window.visualViewport?.addEventListener('resize', resizePopup)
 }
@@ -30,20 +24,20 @@ function resizePopup() {
 </script>
 
 <template>
-    <aside class="background column center" v-if="props.visible">
-        <main class="window p-5" :style="{ width, maxWidth, maxHeight }">
-            <header class="" v-if="title">
+    <aside class="background column center">
+        <main class="window box br-medium p-5" :style="{ width, maxWidth, maxHeight }">
+            <header v-if="title">
                 <h1>{{ title }}</h1>
             </header>
             <div class="column py-4">
                 <slot />
             </div>
-            <div class="row-wrap g-2">
-                <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="emit('accept')">
-                    {{ acceptLabel ?? "Yes" }}
+            <div class="row wrap g-2">
+                <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="accept.action()">
+                    {{ accept.label ?? "Yes" }}
                 </ButtonSpinner>
-                <button class="danger f-1 b-0" @click="emit('decline')">
-                    {{ declineLabel ?? "No" }}
+                <button class="danger f-1 b-0" @click="decline.action()">
+                    {{ decline.label ?? "No" }}
                 </button>
             </div>
         </main>
@@ -52,16 +46,6 @@ function resizePopup() {
 </template>
 
 <style scoped lang="scss">
-@keyframes blur {
-    from { backdrop-filter: none }
-    to { backdrop-filter: blur(0.5rem) }
-}
-
-@keyframes fade-in {
-    from { opacity: 0% }
-    to { opacity: 100% }
-}
-
 aside.background {
     top: 0;
     left: 0;
@@ -73,9 +57,6 @@ aside.background {
 }
 
 main.window {
-    box-sizing: border-box;
-    border-radius: 0.5rem;
-    background-color: $white-0;
     box-shadow: 0.25rem 0.5rem 1rem -0.25rem $white-3, 0 0 0.33rem 1px $white-3;
     animation: fade-in 256ms;
 

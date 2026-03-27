@@ -7,8 +7,8 @@ const route = useRoute()
 const referrer = route.query['referral']
 
 const hints = useHints()
-const session = getSession()
 const valid = useValidation()
+const session = getSession()
 
 const email = ref("")
 const username = ref("")
@@ -34,8 +34,7 @@ async function register() {
 
     try {
         submitting.value = true
-        const result = await $fetch("/api/user/register", {
-            method: "POST",
+        const result = await useApi("/api/user/register", {
             headers: {
                 Authorization: btoa(`${email.value}:${username.value}:${password.value}`),
             },
@@ -48,7 +47,7 @@ async function register() {
         hints.addSuccess('Created account successfully!')
         navigateTo('/profile')
     }
-    catch (ex: any) {
+    catch (error: any) {
         hints.addError("Failed to register your account.")
     }
     finally {
@@ -75,10 +74,10 @@ function differentPasswords() {
 
 <template>
     <article class="column g-2">
-        <div style="text-align: center;" v-if="referrer">
+        <div v-if="referrer" class="text center">
             <p>Referral: {{ referrer }}</p>
         </div>
-        <div class="register p-5">
+        <div class="register box br-medium p-5">
             <h1 class="mb-4">Register</h1>
             <div class="form">
                 <div class="field">
@@ -122,10 +121,10 @@ function differentPasswords() {
                     />
                 </div>
                 <div class="row g-2 mt-4">
-                    <button class="success fill" @click="register">
+                    <button class="success f-1" @click="register">
                         Register
                     </button>
-                    <button class="danger fill" @click="navigateTo('/feed')">
+                    <button class="danger f-1" @click="navigateTo('/feed')">
                         Cancel
                     </button>
                 </div>
@@ -137,13 +136,5 @@ function differentPasswords() {
 <style scoped lang="scss">
 .register {
     width: 256px;
-    border-radius: 0.5rem;
-    background-color: $white-0;
-}
-
-.field {
-    input.invalid {
-        outline: 1px solid $red !important;
-    }
 }
 </style>

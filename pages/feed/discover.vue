@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Sortable, Post } from '~/types'
+import type { Pin, Sortable } from '~/types'
 
 const cache = useCache()
 
-const pins = await useFetch<Post[]>("/api/post/pinned")
+const pins = await useDatasource<Pin[]>("/api/feed/pinned")
 
 const sortBy = cache.get<string>("feed.sort", () => "new")
-const discover = await useFetch<Sortable[]>("/api/feed/discover", {
+const discover = useDatasource<Sortable[]>("/api/feed/discover", {
     query: {
         sortBy: sortBy
     }
@@ -15,8 +15,8 @@ const discover = await useFetch<Sortable[]>("/api/feed/discover", {
 
 <template>
     <section class="feed column g-2 p-4">
-        <template v-for="post in pins.data.value" :key="post.id">
-            <PostPreview :post="post" :pinned="true" />
+        <template v-for="pin in pins.data.value" :key="pin.id">
+            <MultiPreview :item="pin.item" />
         </template>
         <Feed :items="discover" :sorting="true" @refresh="(type) => sortBy = type">
             <template #item="item">

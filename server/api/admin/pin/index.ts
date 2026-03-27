@@ -6,13 +6,9 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, active, time,
-            user.id, user.name,
-            post.id, post.user.id, post.user.name, post.title, post.time,
-            post.replyTo.id, post.replyTo.title, post.topics, post.comments, post.votes,
-            post.images
+            SELECT *
             FROM pin
-            FETCH user, post, post.images;
+            FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images;
         `)
         .queryAll<Pin>()
 })

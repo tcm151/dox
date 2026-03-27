@@ -1,12 +1,9 @@
 @forward "colors";
 @forward "mixins";
 @forward "layout";
+@forward "spacing";
 @forward "defaults";
 @forward "elements";
 @forward "animations";
-
-@use "bulma/sass/utilities";
-@use "bulma/sass/helpers/spacing";
-@use "bulma/sass/elements/image";
 
 @use "highlight.js/scss/base16/solarized-light.scss";

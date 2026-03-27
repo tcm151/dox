@@ -57,8 +57,8 @@ export default defineEventHandler((event) => {
 
     if (limiter.limitExceeded(ipAddress, path)) {
         throw createError({
-            statusCode: 429,
-            statusMessage: "Too Many Requests. Please try again later.",
+            status: 429,
+            statusText: "Too Many Requests. Please try again later.",
             data: {
                 retryAfter: limiter.retryAfter(ipAddress, path)
             }

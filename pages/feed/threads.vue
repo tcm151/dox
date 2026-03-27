@@ -1,140 +1,23 @@
 <script setup lang="ts">
 import type { Thread } from '~/types'
 
-const hints = useHints()
 const cache = useCache()
-const session = getSession()
 
 const sortBy = cache.get<string>("feed.sort", () => "new")
-const threads = await useFetch<Thread[]>("/api/thread", {
+const threads = useDatasource<Thread[]>("/api/thread", {
     query: {
         sortBy: sortBy
     }
 })
-
-const showEditor = cache.get("feed.threads.showEditor", () => false)
-function toggleEditor() {
-    showEditor.value = !showEditor.value
-}
-
-const newTopic = ref<string>("")
-
-function addTopic(topic: string) {
-    newThread.value.topics.push(`topic:${topic}`)
-    newTopic.value = ""
-}
-
-function removeTopic(topic: string) {
-    newThread.value.topics = newThread.value.topics.filter(t => t !== topic)
-}
-
-let newThread = ref<Thread>({
-    id: '',
-    user: '',
-    content: '',
-    time: '',
-    topics: [],
-    replies: [],
-    images: [],
-    votes: {
-        positive: [],
-        misleading: [],
-        negative: [],
-        awards: [],
-        saves: [],
-    },
-    score: 0,
-    visits: 0,
-    edited: false,
-    deleted: false,
-})
-
-const submitting = ref<boolean>(false)
-async function submit() {
-    submitting.value = true
-    await session.useApi<Thread>("/api/thread/add", {
-        user: session.user.id,
-        content: newThread.value.content,
-        topics: newThread.value.topics,
-        votes: {
-            positive: [session.user.id],
-            misleading: [],
-            negative: [],
-        },
-    })
-    submitting.value = false
-
-    clearEditor()
-    await threads.refresh()
-}
-
-function clearEditor() {
-    newThread.value = {
-            id: '',
-            user: '',
-            content: '',
-            time: '',
-            topics: [],
-            replies: [],
-            images: [],
-            votes: {
-                positive: [],
-                misleading: [],
-                negative: [],
-                awards: [],
-                saves: [],
-            },
-            score: 0,
-            visits: 0,
-            edited: false,
-            deleted: false,
-        }
-}
-
-function selectImages() {
-    hints.addWarning('We are still working on this...')
-}
-
-const showPreview = ref<boolean>(false)
-function togglePreview() {
-    showPreview.value = !showPreview.value
-    hints.addWarning('We are still working on this...')
-}
 </script>
 
 <template>
     <article class="column g-2 p-4">
-        <header class="box column g-2 p-4" v-if="showEditor">
-            <div class="field">
-                <label>Content</label>
-                <textarea class="fill" type="text" rows="4" v-model="newThread.content" />
-            </div>
-            <TopicField v-model:input="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
-            <div class="row g-2 mt-2">
-                <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
-                    <i class="fa-solid fa-share"></i>
-                    <span>Submit</span>
-                </ButtonSpinner>
-                <button class="link f-1 b-0" @click="selectImages">
-                    <i class="fa-solid fa-images"></i>
-                    <span>Upload</span>
-                </button>
-                <button class="info f-1 b-0" @click="togglePreview">
-                    <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                    <i class="fa-solid fa-eye-slash" v-else></i>
-                    <span>Preview</span>
-                </button>
-                <button class="danger f-1 b-0" @click="toggleEditor">
-                    <i class="fa-solid fa-ban"></i>
-                    <span>Cancel</span>
-                </button>
-            </div>
-        </header>
         <Feed :items="threads" :sorting="true" @refresh="(type) => sortBy = type">
             <template #buttons>
-                <button class="dark px-5" @click="toggleEditor">
+                <button class="dark px-5" @click="navigateTo('/editor/threads')">
                     <i class="fa-solid fa-feather"></i>
-                    <span>Write</span>
+                    <span>Submit</span>
                 </button>
             </template>
             <template #item="thread">
@@ -152,7 +35,7 @@ article {
 header.box {
     outline: 2px solid $white-2;
 
-    @media only screen and (max-width: 1000px) {
+    @media (max-width: $bp-desktop) {
         button:not(.success) {
             flex: 0.25 1;
 

@@ -31,7 +31,7 @@ function copyReferralLink() {
                 <p>Contact to showcase your product/service on this storefront.</p>
             </div>
         </section> -->
-        <section class="box row-wrap g-4 p-5">
+        <section class="box row wrap g-4 p-5">
             <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
                 <h2 class="tokens row g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
@@ -40,9 +40,9 @@ function copyReferralLink() {
                 <p>{{ formatAs('currency', offer.cost) }}</p>
             </div>
         </section>
-        <section class="row-wrap g-2">
-            <div class="welcome box column f-1 g-2 p-5">
-                <h2 class="row center-inline g-2">
+        <section class="row wrap g-2">
+            <div class="welcome box column f-1 g-2 p-5 text break">
+                <h2 class="row inline g-2">
                     <i class="fa-solid fa-cube"></i>
                     <span>Store</span>
                 </h2>
@@ -95,7 +95,6 @@ div.offer:hover {
 div.welcome {
     flex-basis: 50%;
     overflow-x: hidden;
-    white-space: break-spaces;
 }
 
 div.referrals {

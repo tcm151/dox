@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { User, Sortable } from '~~/types'
 
-const route = useRoute()
-const userId = route.params.userId as string
-const user = await useFetch<User>(`/api/user/${userId}`)
-
-    
 const cache = useCache()
+const route = useRoute()
+
+const id = route.params.id?.toString()
+await useDatasource(`/api/user/${id}/visit`)
+const user = await useDatasource<User>(`/api/user/${id}`)
+    
 const sortBy = cache.get<string>("feed.sort", () => "new")
-const feed = await useFetch<Sortable[]>(`/api/user/${userId}/feed`, {
+const feed = useDatasource<Sortable[]>(`/api/user/${id}/feed`, {
     query: {
         sortBy: sortBy
     }

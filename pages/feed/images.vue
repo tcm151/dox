@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Image, User } from "~/types"
+import type { Image } from "~/types"
 
 const hints = useHints()
 const session = getSession()
 
-const { data: images, status, refresh } = await useFetch<Image[]>("/api/image")
+const { data: images, status, refresh } = await useDatasource<Image[]>("/api/image")
 
 const spinRefresh = ref(false)
 watch(status, (status) => {
@@ -30,9 +30,13 @@ const showImageUploader = computed(() => {
 
 let uploading = ref<boolean>(false)
 async function beginUpload() {
+    if (!files.value) {
+        hints.addWarning("You must select an image.")
+        return
+    }
     try {
         uploading.value = true
-        const image = await uploadMedia<Image>(files.value, "image")
+        await uploadMedia<Image>(files.value, "image")
         uploading.value = false
         await refresh()
         reset()
@@ -49,21 +53,21 @@ function viewImage(image: Image) {
 
 <template>
     <article class="column g-4 p-4">
-        <header class="tools box row center-inline g-2 p-4">
+        <header class="tools box row inline g-2 p-4">
             <button class="success" @click="refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
                 <span>Refresh</span>
             </button>
             <ClientOnly>
-                <button class="link fill" @click="selectImages()"  v-if="hasTrait(session.user, 'confirmed')">
+                <button v-if="hasTrait(session.user, 'confirmed')" class="link f-1" @click="selectImages()">
                     <i class="fa-solid fa-image"></i>
                     <span>Upload</span>
                 </button>
-                <MediaUploader :visible="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
+                <MediaUploader v-if="showImageUploader" :media="files" @accept="beginUpload" @close="reset" />
             </ClientOnly>
         </header>
-        <section class="all-images fill row-wrap g-2">
-            <div class="image fill" v-for="image in images" @click="viewImage(image)">
+        <section class="all-images f-1 row wrap g-2">
+            <div class="image f-1" v-for="image in images" @click="viewImage(image)">
                 <img :src="image.url">
             </div>
             <div style="flex: 25 0" />
@@ -74,14 +78,6 @@ function viewImage(image: Image) {
 <style scoped lang="scss">
 article {
     @include fit-width(75rem, 1rem);
-}
-
-header.tools {
-    button.success {
-        i.spin {
-            animation: spin 512ms linear infinite;
-        }
-    }
 }
 
 section.all-images {
@@ -103,12 +99,12 @@ section.all-images {
             max-width: 100%;
             object-fit: cover;
 
-            @media only screen and (max-width: 800px) {
+            @media (max-width: $bp-laptop) {
                 min-height: 50px;
                 max-height: 100px;
             }
 
-            @media only screen and (max-width: 600px) {
+            @media (max-width: $bp-tablet) {
                 min-height: 40px;
                 max-height: 80px;
             }
@@ -133,10 +129,5 @@ section.popup-image {
             border-radius: 0.25rem;
         }
     }
-}
-    
-
-input[type=file]::file-selector-button {
-    display: none;
 }
 </style>

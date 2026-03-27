@@ -1,37 +1,55 @@
-import type { User } from "~/types";
-import { DatabaseQuery } from "./database"
+import type { User, Session } from "~/types";
 
-interface Session {
-    id: string
-    user: User
-    invalidated: boolean
-}
 class SessionManager {
 
-    async add(user: User): Promise<Session> {
+    async add(user: User) {
         let session = await new DatabaseQuery()
             .addSql(`
                 CREATE session SET
-                    user = $user
+                    user = $user;
             `)
             .addParameter("user", user.id)
             .queryOne<Session>()
 
-        session.user = user
+        session.user = user as User & string
 
-        // TODO delete old sessions
+        await new DatabaseQuery()
+            .addSql(`
+                DELETE session
+                WHERE user = $user
+                AND (invalidated = true OR time::now()-time > 14d);
+            `)
+            .addRecord("user", session.user.id)
+            .execute()
 
         return session
     }
 
-    async authenticateToken(id: string): Promise<Session | undefined> {
+    async authenticateLogin(id: string, password: string) {
+        const user = await new DatabaseQuery()
+            .addSql(`
+                SELECT *
+                OMIT password
+                FROM user
+                WHERE (email = $id OR name = $id)
+                AND crypto::argon2::compare(password, $password);
+            `)
+            .addParameter("id", id)
+            .addParameter("password", password)
+            .queryOne<User>()
+
+        return await this.add(user);
+    }
+
+    async authenticateToken(id: string) {
         return await new DatabaseQuery()
             .addSql(`
                 SELECT *
                 OMIT user.password
-                FROM $id
-                WHERE invalidated = false
-                FETCH user
+                FROM session
+                WHERE id = $id
+                AND invalidated = false
+                FETCH user;
             `)
             .addRecord("id", id)
             .queryOne<Session>()
@@ -41,10 +59,11 @@ class SessionManager {
         if (clear) {
             await new DatabaseQuery()
                 .addSql(`
-                    UPDATE $session SET
+                    UPDATE session SET
                         invalidated = true
+                    WHERE id = $id;
                 `)
-                .addParameter("session", id)
+                .addRecord("id", id)
                 .execute()
         }
     }
@@ -54,9 +73,9 @@ class SessionManager {
             .addSql(`
                 UPDATE session SET
                     invalidated = true
-                WHERE user = $user
+                WHERE user = $user;
             `)
-            .addParameter("user", userId)
+            .addRecord("user", userId)
             .execute()
     }
 }

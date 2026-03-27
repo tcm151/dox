@@ -3,7 +3,7 @@ import type { Notification } from '~/types'
 
 definePageMeta({
     middleware: (to, from) => {
-        if (import.meta.client) {
+        if (ENV.isClient()) {
             const session = getSession()
             if (to.path.startsWith("/inbox") && !session.isAuthenticated) {
                 return abortNavigation()
@@ -12,32 +12,25 @@ definePageMeta({
     }
 })
 
-const session = getSession()
-let notifications = ref<Notification[] | null>(null)
-
-onMounted(async () => {
-    if (import.meta.client) {
-        notifications.value = await session.useApi<Notification[]>("/api/profile/notifications")
-    }
-})
+const { data: notifications } = await useDatasource<Notification[]>("/api/profile/notifications")
 
 function viewContext(notification: Notification) {
     navigateTo(`/${(notification.context as string).replace(':', '/')}`)
 }
 
 async function dismiss(notification: Notification) {
-    notifications.value = notifications.value!.filter(n => n.id !== notification.id)
-    await session.useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`, notification)
+    notifications.value = notifications.value?.filter(n => n.id !== notification.id)
+    await useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`)
 }
 </script>
 
 <template>
     <article class="notifications p-4">
-        <section class="column g-2" v-if="notifications && notifications.length > 0">
+        <section v-if="notifications && notifications.length > 0" class="column g-2">
             <TransitionGroup name="notifications">
-                <div class="notification p-4" v-for="notification in notifications" :key="notification.id">
+                <div class="notification box p-4" v-for="notification in notifications" :key="notification.id">
                     <Markdown class="message column" :content="notification.message" />
-                    <div class="row-fit g-2 mt-3">
+                    <div class="row g-2 mt-3">
                         <DurationTag :time="notification.time" />
                         <Tag type="link" icon="fa-link" label="Context" @click="viewContext(notification)" />
                         <Tag type="danger" label="Dismiss" @click="dismiss(notification)" />
@@ -45,7 +38,7 @@ async function dismiss(notification: Notification) {
                 </div>
             </TransitionGroup>
         </section>
-        <section class="empty p-4" v-else>
+        <section class="column center box p-4" v-else>
             <p>You have no unread notifications.</p>
         </section>
     </article>
@@ -57,17 +50,6 @@ article.notifications {
     max-width: 800px;
 }
 
-.notification {
-    border-radius: 0.25rem;
-    background-color: $white-0;
-}
-
-section.empty {
-    text-align: center;
-    border-radius: 0.25rem;
-    background-color: $white-0;
-}
-
 .notifications-move, .notifications-enter-active, .notifications-leave-active {
     transition: all 256ms ease;
 }
@@ -76,8 +58,4 @@ section.empty {
 .notifications-leave-to {
     opacity: 0;
 }
-
-// .notifications-leave-active {
-//     position: absolute;
-// }
 </style>

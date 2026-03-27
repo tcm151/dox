@@ -1,12 +1,11 @@
 <script setup lang="ts">
 
 const events = useEvents()
-const session = getSession()
 const config = useSettings()
+const session = getSession()
 
 const { public: { site } } = useRuntimeConfig()
 
-const feedbackVisible = ref(false)
 const accounts = useLocalStorage<any[]>("profiles", [])
 async function login() {
     if (accounts.value.length > 0) {
@@ -21,14 +20,14 @@ function toggleUserManager() {
     events.publish(Trigger.toggleUserManager)
 }
 
-const showAdmin = computed(() => ENV.isDevelopment() || (session.isAuthenticated && hasRole(session.user, "admin")))
-const showDeveloper = computed(() => (session.isAuthenticated && hasRole(session.user, 'developer')) || ENV.isDevelopment())
+const showAdmin = computed(() => session.isAuthenticated && hasRole(session.user, "admin"))
+const showDeveloper = computed(() => session.isAuthenticated && hasRole(session.user, 'developer'))
 const showStore = computed(() => session.isAuthenticated && config.app.navbar.showStore)
 const showFeedback = computed(() => session.isAuthenticated && config.app.navbar.showFeedback)
 </script>
 
 <template>
-    <nav class="navbar row">
+    <nav class="navbar row inline between">
         <section class="left row">
             <NuxtLink class="title" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
@@ -38,31 +37,24 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
                 <i class="fa-solid fa-signs-post"></i>
                 <span>Feeds</span>
             </NuxtLink>
-            <NuxtLink to="/admin" v-if="showAdmin" title="Admin">
+            <NuxtLink v-if="showAdmin" to="/admin" title="Admin">
                 <i class="fa-solid fa-shield"></i>
                 <span>Admin</span>
             </NuxtLink>
-            <NuxtLink to="/developer" v-if="showDeveloper" title="Developer">
+            <NuxtLink v-if="showDeveloper" to="/developer" title="Developer">
                 <i class="fa-solid fa-code"></i>
                 <span>Developer</span>
             </NuxtLink>
             <NuxtLink to="/store" v-if="showStore" title="Store">
                 <i class="fa-solid fa-coins"></i>
             </NuxtLink>
-            <NuxtLink @click="feedbackVisible = true" v-if="showFeedback" title="Feedback">
-                <i class="fa-solid fa-keyboard"></i>
-            </NuxtLink>
-            <Window title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" :visible="feedbackVisible" @close="feedbackVisible = false">
-                <Feedback placeholder="Tell us what you think..." @submit="feedbackVisible = false" />
-            </Window>
         </section>
         <Transition name="slide">
-            <section class="right row authenticated" v-if="session.isAuthenticated">
-                <NuxtLink to="/editor">
-                    <i class="fa-solid fa-feather-pointed"></i>
-                    <span>Submit</span>
+            <section v-if="session.isAuthenticated" class="right row authenticated">
+                <NuxtLink v-if="showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
+                    <i class="fa-solid fa-keyboard"></i>
                 </NuxtLink>
-                <NuxtLink to="/inbox" v-if="session.isAuthenticated" title="Inbox">
+                <NuxtLink to="/inbox" title="Inbox">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Inbox</span>
                 </NuxtLink>
@@ -90,21 +82,19 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
 
 <style scoped lang="scss">
 nav {
-    align-items: stretch;
-    justify-content: space-between;
     color: $white-1;
     background-color: $black-0;
 }
 
 section.left {
     a.title {
-        @media only screen and (max-width: 500px) {
+        @media (max-width: $bp-mobile-wide) {
             span { display: none; }
         }
     }
 
     a:not(.title) {
-        @media only screen and (max-width: 1000px) {
+        @media (max-width: $bp-desktop) {
             span { display: none; }
         }
     }
@@ -115,7 +105,7 @@ section.right {
     right: 0;
     position: absolute;
 
-    @media only screen and (max-width: 600px) {
+    @media (max-width: $bp-tablet) {
         span { display: none; }
     }
 }
@@ -128,7 +118,7 @@ a {
     line-height: 1rem;
     transition: color 64ms, background-color 64ms;
 
-    @media screen and (max-width: 600px) {
+    @media (max-width: $bp-tablet) {
         font-size: 1.5rem;
     }
 }

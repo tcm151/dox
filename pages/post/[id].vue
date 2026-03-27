@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import ExtraOptions from "./components/ExtraOptions.vue"
 import CommentSection from "./components/CommentSection.vue"
-import type { Post, Comment, User } from '~/types'
+import type { Post, Comment } from '~/types'
 
 const route = useRoute()
 const cache = useCache()
-const id = route.params.postId?.toString()
+const hints = useHints()
+const events = useEvents()
+const session = getSession()
 
-await useFetch(`/api/post/${id}/visit`)
+const id = route.params.id?.toString()
+await useDatasource(`/api/post/${id}/visit`)
+
 const sortBy = cache.get<string>("comments.sort", () => "new")
-const { data: post, status, refresh } = await useFetch<Post>(`/api/post/${id}`, {
+const { data: post, status, refresh } = await useDatasource<Post>(`/api/post/${id}`, {
     query: {
         sortBy: sortBy
     }
@@ -26,15 +30,12 @@ useSeoMeta({
     ogType: "article",
     title: () => post.value?.title,
     ogTitle: () => post.value?.title,
-    author: () => post.value ? (post.value.user as User).name : 'unknown',
+    author: () => post.value ? post.value.user.name : 'unknown',
     description: () => post.value?.content.slice(0, 256),
     ogDescription: () => post.value?.content.slice(0, 256),
     ogImage: () => post.value?.images?.[0]?.url ?? '',
 })
 
-const hints = useHints()
-const events = useEvents()
-const session = getSession()
 
 let editingPost = ref(false)
 function toggleEditPost() {
@@ -54,7 +55,11 @@ async function updatePost(changedPost: Post | null) {
 
     try {
         submitting.value = true
-        await session.useApi(`/api/post/${id}/edit`, { content: post.value?.content })
+        await useApi(`/api/post/${id}/edit`, {
+            body: {
+                content: post.value?.content
+            }
+        })
         post.value!.edited = true
         toggleEditPost()
     }
@@ -71,7 +76,7 @@ async function deletePost() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your post?',
         accept: async () => {
-            await session.useApi(`/api/post/${id}/delete`)
+            await useApi(`/api/post/${id}/delete`)
             hints.addSuccess("Successfully deleted post.")
             return navigateTo("/feed")
         },
@@ -92,17 +97,19 @@ async function submitComment(replyTo: Post | Comment, content: string) {
     }
 
     submitting.value = true
-    await session.useApi<Comment>("/api/comment/add", {
-        time: new Date(),
-        user: session.user?.id,
-        post: post.value?.id,
-        replyTo: replyTo.id,
-        content: content,
-        votes: {
-            positive: [session.user!.id],
-            misleading: [],
-            negative: [],
-        },
+    await useApi<Comment>("/api/comment/add", {
+        body: {
+            time: new Date(),
+            user: session.user.id,
+            post: post.value?.id,
+            replyTo: replyTo.id,
+            content: content,
+            votes: {
+                positive: [session.user!.id],
+                misleading: [],
+                negative: [],
+            },
+        }
     })
     submitting.value = false
 
@@ -118,7 +125,7 @@ function copyLink() {
 }
 
 async function awardPost() {
-    if ((post.value?.user as User).id == session.user.id) {
+    if (post.value?.user.id == session.user.id) {
         hints.addError("You can't award your own posts.")
         return
     }
@@ -131,7 +138,7 @@ async function awardPost() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this post? It will cost 256 tokens.',
         accept: async () => {
-            await session.useApi(`/api/post/${id}/award`)
+            await useApi(`/api/post/${id}/award`)
             hints.addSuccess("Successfully awarded post.")
             await refresh()
         },
@@ -147,18 +154,18 @@ function writePostReply() {
 }
 
 async function reportPost() {
-    await session.useApi(`/api/post/${id}/report`)
+    await useApi(`/api/post/${id}/report`)
     hints.addError("This post has been reported to the development team.")
 }
 
 async function archivePost() {
-    await session.useApi(`/api/post/${id}/archive`)
+    await useApi(`/api/post/${id}/archive`)
     hints.addSuccess("This post has been archived.")
     await refresh()
 }
 
 async function pinPost() {
-    await session.useApi(`/api/post/${id}/pin`)
+    await useApi(`/api/post/${id}/pin`)
     hints.addSuccess("This post has been pinned.")
 }
 
@@ -169,30 +176,27 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article class="column g-2 p-4" v-if="post">
-        <div class="container column">
-            <aside 
-                v-if="(post.replyTo as Post).id != null"
-                class="reply-to row center-inline g-2"
-                @click="navigateTo(`/post/${extractId((post.replyTo as Post).id)}`)"
-            >
+    <article v-if="post" class="column g-2 p-4">
+        <div class="container box background br-medium column">
+            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p>{{ (post.replyTo as Post).title }}</p>
+                <p class="text truncate bold">{{ post.replyTo.title }}</p>
             </aside>
-            <section class="post p-5">
-                <header class="tags row-wrap g-1">
+            <section class="post box br-medium p-5">
+                <header class="tags row wrap g-1">
                     <Votes :target="post" />
                     <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
-                    <UserTag class="f-1" :user="(post.user as User)" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
-                    <Tag v-if="post.edited" class="f-1" type="info">
+                    <UserTag class="f-1" :user="post.user" />
+                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
+                    <Tag class="f-1" type="info">
                         <i class="fa-solid fa-stopwatch"></i>
                         {{ formatDate(post.time) }}
-                        <i class="fa-solid fa-eraser"></i>
-                        {{ formatDate(post.timeEdited) }}
+                        <template v-if="post.edited">
+                            <i class="fa-solid fa-eraser"></i>
+                            {{ formatDate(post.timeEdited) }}
+                        </template>
                     </Tag>
-                    <DurationTag v-else :time="post.time" />
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}
@@ -202,14 +206,14 @@ function toggleOptions() {
                     :content="post.content" 
                 />
                 <ClientOnly>
-                    <div v-if="editingPost && (post.user as User).id === session.user.id" class="field my-4">
+                    <div v-if="editingPost && post.user.id === session.user.id" class="field my-4">
                         <textarea rows="10" v-model="post.content" />
                     </div>
                 </ClientOnly>
                 <footer class="column g-2">
-                    <div class="interactions row-wrap g-1" v-if="!showCommentBox && !editingPost">
+                    <div v-if="!showCommentBox && !editingPost" class="interactions row wrap g-1">
                         <button class="comment" @click="toggleCommentBox">
-                            <i class="fa-solid fa-message"></i>
+                            <i class="fa-solid fa-comment"></i>
                             <span>Comment</span>
                         </button>
                         <button class="reply" @click="writePostReply">
@@ -224,9 +228,9 @@ function toggleOptions() {
                             <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
-                            <ExtraOptions 
+                            <ExtraOptions
+                                v-if="showOptions"
                                 :post="post"
-                                :visible="showOptions"
                                 @edit="toggleEditPost"
                                 @award="awardPost"
                                 @report="reportPost"
@@ -238,13 +242,13 @@ function toggleOptions() {
                         </ClientOnly>
                     </div>
                     <div class="row g-1" v-else-if="editingPost">
-                        <ButtonSpinner class="success fill" :loading="submitting" @click="updatePost(post)">
+                        <ButtonSpinner class="success f-1" :loading="submitting" @click="updatePost(post)">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Save</span>
                         </ButtonSpinner>
-                        <!-- <button class="info fill" @click="togglePreview">
-                            <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                            <i class="fa-solid fa-eye-slash" v-else></i>
+                        <!-- <button class="info f-1" @click="togglePreview">
+                            <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                            <i v-else class="fa-solid fa-eye-slash"></i>
                             <span>Preview</span>
                         </button> -->
                         <button class="danger" @click="toggleEditPost()">
@@ -255,8 +259,8 @@ function toggleOptions() {
                     <div class="field" v-else-if="showCommentBox">
                         <textarea rows="5" v-model="comment"></textarea>
                         <div class="row g-2 mt-2">
-                            <ButtonSpinner class="success fill" :loading="submitting" @click="submitComment(post, comment)">
-                                <i class="fa-solid fa-message"></i>
+                            <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(post, comment)">
+                                <i class="fa-solid fa-comment"></i>
                                 <span>Submit</span>
                             </ButtonSpinner>
                             <button class="danger" @click="toggleCommentBox">
@@ -280,23 +284,12 @@ function toggleOptions() {
 <style scoped lang="scss">
 article {
     @include fit-width(60rem, 1rem);
-
-    div.container {
-        border-radius: 0.5rem 0.5rem;
-        background-color: $white-3;
-    }
 }
 
 aside.reply-to {
     padding: 0.5rem 0.75rem;
     color: $white-0;
     cursor: pointer;
-    
-    p {
-        font-weight: 700;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
 }
 
 aside.reply-to + section.post {
@@ -305,10 +298,7 @@ aside.reply-to + section.post {
 }
 
 section.post {
-    border-radius: 0.5rem;
-    background-color: $white-0;
-    
-    @media screen and (max-width: 600px) {
+    @media (max-width: $bp-tablet) {
         padding: 1rem !important;
     }
 }
@@ -318,7 +308,7 @@ div.interactions {
         flex: 1 1 auto;
     }
 
-    @media screen and (max-width: 425px) {
+    @media (max-width: $bp-mobile) {
         button:is(.reply, .share) {
             flex: 1 0;
 
@@ -334,7 +324,4 @@ header.tags {
     .info { flex: 1 1 }
 }
 
-div.not-logged-in {
-    white-space: break-spaces;
-}
 </style>

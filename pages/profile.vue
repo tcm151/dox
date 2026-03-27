@@ -4,8 +4,10 @@ definePageMeta({
         const hints = useHints()
         const session = getSession()
         if (from.query["confirmation"]) {
-            await session.useApi("/api/profile/confirm", {
-                id: from.query["confirmation"]
+            await useApi("/api/profile/confirm", {
+                body: {
+                    id: from.query["confirmation"]
+                }
             })
             hints.addSuccess("Your account has been confirmed.")
             return navigateTo("/feed")

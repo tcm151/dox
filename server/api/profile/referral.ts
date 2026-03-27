@@ -2,6 +2,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)    
     const { referral } = await readBody(event)
 
+    // TODO need to limit the amount of time someone could use this
     return await new DatabaseQuery()
         .addSql(`
             RETURN {
@@ -10,9 +11,9 @@ export default defineEventHandler(async (event) => {
                 };
                 
                 CREATE notification SET
-                recipient = $recipient,
-                context = $context,
-                message = $message;
+                    recipient = $recipient,
+                    context = $context,
+                    message = $message;
 
                 RETURN "Referral completed successfully.";
             };
@@ -20,9 +21,6 @@ export default defineEventHandler(async (event) => {
         .addRecord("user", `user:${referral}`)
         .addRecord("recipient", `user:${referral}`)
         .addRecord("context", auth.id)
-        .addParameter("message", [
-            `**${auth.name}** used your referral`,
-            `> You gained 1024 free tokens. Don't forget to thank them!\n`,
-        ].join('\n'))
-        .queryAll<string>()
+        .addParameter("message", `**${auth.name}** used your referral\n> You gained 1024 free tokens. Don't forget to thank them!\n`)
+        .queryOne<string>()
 })

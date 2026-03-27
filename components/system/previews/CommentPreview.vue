@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Comment, Post, User } from '~/types';
+import type { Comment, Post } from '~/types';
 
 const hints = useHints()
 const session = getSession()
@@ -31,7 +31,11 @@ function cancelComment() {
 
 async function updateComment(comment: Comment) {
     try {
-        await session.useApi(`/api/comment/${extractId(comment.id)}/edit`, { content: comment.content })
+        await useApi(`/api/comment/${extractId(comment.id)}/edit`, {
+            body: {
+                content: comment.content
+            }
+        })
         editComment.value = false
         emit("refresh")
     }
@@ -46,17 +50,19 @@ async function submitComment(replyId: Post | Comment, content: string) {
         return
     }
     try {
-        await session.useApi<Comment>("/api/comment/add", {
-            time: new Date(),
-            user: session.user?.id,
-            post: props.comment.post,
-            replyTo: replyId.id,
-            content: content,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
+        await useApi<Comment>("/api/comment/add", {
+            body: {
+                time: new Date(),
+                user: session.user.id,
+                post: props.comment.post,
+                replyTo: replyId.id,
+                content: content,
+                votes: {
+                    positive: [session.user.id],
+                    misleading: [],
+                    negative: [],
+                },
+            }
         })
         replyTo.value = false
         replyText.value = ""
@@ -69,7 +75,7 @@ async function submitComment(replyId: Post | Comment, content: string) {
 
 async function deleteComment(commentId: string) {
     try {
-        await session.useApi(`/api/comment/${extractId(commentId)}/delete`)
+        await useApi(`/api/comment/${extractId(commentId)}/delete`)
         emit("refresh")
     }
     catch (error: any) {
@@ -81,12 +87,12 @@ async function deleteComment(commentId: string) {
 
 <template>
     <main v-if="comment" class="comment" :id="comment.id">
-        <header class="row-fit g-1">
+        <header class="row g-1">
             <Votes :target="comment" />
             <!-- TODO create AuthorTag -->
-            <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user as string)}`)">
+            <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
                 <i class="fa-solid fa-user"></i>
-                {{ `${(comment.user as User).name}` }}
+                {{ `${comment.user.name}` }}
             </span>
             <Tag v-if="comment.edited" type="info">
                 <i class="fa-solid fa-stopwatch"></i>
@@ -97,23 +103,23 @@ async function deleteComment(commentId: string) {
             <DurationTag v-else :time="comment.time" />
             <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
             <ClientOnly>
-                <template v-if="!comment.deleted && (comment.user as User).id === session.user.id">
+                <template v-if="!comment.deleted && comment.user.id === session.user.id">
                     <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
                     <Tag type="link" icon="fa-trash-can" title="Delete" @click="deleteComment(comment.id)" />
                 </template>
             </ClientOnly>
         </header>
-        <Markdown class="body p-3" v-if="!editComment" :content="comment.content" />
-        <div class="comment-reply field px-3 pb-3" v-if="replyTo">
+        <Markdown v-if="!editComment" class="body p-3" :content="comment.content" />
+        <div v-if="replyTo" class="comment-reply field px-3 pb-3">
             <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
-            <div class="row-fit g-1 pt-2">
-                <Tag type="success" icon="fa-message" label="Submit" @click="submitComment(comment, replyText)" />
+            <div class="row g-1 pt-2">
+                <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
             </div>
         </div>
         <div class="comment-edit field px-3 pb-3 mt-2" v-if="editComment">
             <textarea rows="5" v-model="comment.content"></textarea>
-            <div class="row-fit g-1 pt-2">
+            <div class="row g-1 pt-2">
                 <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="editComment = false" />
             </div>
@@ -123,8 +129,8 @@ async function deleteComment(commentId: string) {
 
 <style lang="scss">
 main.comment {
-    header.row-fit {
-        @media screen and (max-width: 600px) {
+    header.row {
+        @media (max-width: $bp-tablet) {
             flex-wrap: wrap;
         }
     }

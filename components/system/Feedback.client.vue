@@ -21,10 +21,12 @@ async function submitFeedback() {
     }
     
     submitting.value = true
-    await session.useApi("/api/feedback/submit", {
-        user: session.user!.id,
+    await useApi("/api/feedback/submit", {
+        body: {
+            user: session.user.id,
             content: feedback.value,
             time: new Date(),
+        }
     })
     submitting.value = false
 
@@ -37,7 +39,7 @@ async function submitFeedback() {
     <div class="field">
         <textarea rows="10" :placeholder="placeholder ?? ''" v-model="feedback"></textarea>
         <div class="column mt-3" >
-            <ButtonSpinner class="success" v-if="session.isAuthenticated" :loading="submitting" @click="submitFeedback">
+            <ButtonSpinner v-if="session.isAuthenticated" class="success" :loading="submitting" @click="submitFeedback">
                 Submit
             </ButtonSpinner>
             <button class="negative" v-else>
@@ -46,14 +48,3 @@ async function submitFeedback() {
         </div>
     </div>
 </template>
-
-<style scoped lang="scss">
-h1 {
-    font-size: 1.5rem;
-}
-
-textarea::placeholder {
-    color: $white-2;
-    font-style: italic;
-}
-</style>

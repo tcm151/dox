@@ -2,6 +2,11 @@
 -- MIGRATIONS
 -- ------------------------------
 
+-- 2026-03-26
+UPDATE user, post, thread, user, topic SET
+  visits = 0
+WHERE visits = NONE;
+
 -- 2023-12-03: add threads default value to topics
 UPDATE topic SET
     threads = []
@@ -74,11 +79,6 @@ UPDATE appSettings SET
     voting.showNegative = true
 WHERE voting.showNegative = NONE;
 
---2025-06-17: threads should have at least 1 visit
-UPDATE thread SET
-    visits = 1
-WHERE visits = 0;
-
 -- 2025-06-19: add search to feed app settings
 UPDATE appSettings SET
     feed.showSearch = false
@@ -139,14 +139,38 @@ UPDATE user, topic, post, thread, comment SET
     votes.score = NONE
 WHERE votes.score != NONE;
 
--- 2026-03-21 visits should always exist
-UPDATE image, topic SET
-    visits = 1
-WHERE visits = NONE;
-
 -- 2026-03-22
 REMOVE FIELD IF EXISTS token
 ON TABLE session;
 UPDATE session SET
     token = NONE
 WHERE token != NONE;
+
+-- 2026-03-23: add support email to settings
+UPDATE appSettings SET
+    email.support = ""
+WHERE email.support = NONE;
+
+-- 2026-03-23: add media upload settings
+UPDATE appSettings SET
+    media.uploads.enabled = true
+WHERE media.uploads.enabled = NONE;
+UPDATE appSettings SET
+    media.uploads.imageMaxSize = 10
+WHERE media.uploads.imageMaxSize = NONE;
+UPDATE appSettings SET
+    media.uploads.audioMaxSize = 100
+WHERE media.uploads.audioMaxSize = NONE;
+
+-- 2026-03-25
+REMOVE FIELD IF EXISTS post
+ON TABLE pin;
+UPDATE pin SET
+    item = post,
+    post = NONE
+WHERE item = NONE;
+
+--2026-03-26
+UPDATE image SET
+    name = ""
+WHERE name = NONE;

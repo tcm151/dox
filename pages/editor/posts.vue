@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import Drafts from "./components/Drafts.client.vue"
-import { DateTime } from 'luxon'
-import type { Post, Draft, Image } from '~/types'
+import type { User, Post, Draft, Image } from '~/types'
 
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (import.meta.client) {
+        if (ENV.isClient()) {
             const session = getSession()
             if (to.path.startsWith("/editor") && !session.isAuthenticated) {
                 return abortNavigation()
@@ -16,13 +15,13 @@ definePageMeta({
 })
 
 const hints = useHints()
-const valid = useValidation()
 const session = getSession()
+const valid = useValidation()
 
 let draft = ref<Draft>({
     id: '',
     time: '',
-    user: session.user,
+    user: session.user as User & string,
     title: '',
     content: '',
     topics: [],
@@ -30,19 +29,16 @@ let draft = ref<Draft>({
 })
 
 const route = useRoute()
-const replyTo = computedAsync<Post | null>(async () => {
+const replyTo = computedAsync<Post | undefined>(async () => {
     if (route.query['replyTo'] || draft.value.replyTo) {
-        const post = await $fetch<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
-        draft.value.replyTo = post.id
+        const post = await useApi<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
+        draft.value.replyTo = post.id as Post & string
         return post
     }
-    return null
 })
 
 let newTopic = ref("")
 let titleFocused = ref(false)
-let topicsFocused = ref(false)
-
 
 function validTitle() {
     return (draft.value.title == '') ? true : valid.title.test(draft.value.title)
@@ -99,6 +95,10 @@ let uploading = ref<boolean>(false)
 
 
 async function beginUpload() {
+    if (!files.value) {
+        hints.addWarning("Please select an image.")
+        return
+    }
     confirmUpload.value = false
     uploading.value = true
     const image = await uploadMedia<Image>(files.value, "image")
@@ -115,7 +115,7 @@ function cancelUpload() {
 }
 
 async function deleteImage(image: Image) {
-    await session.useApi(`/api/image/${extractId(image.id)}/delete`)
+    await useApi(`/api/image/${extractId(image.id)}/delete`)
     uploadedImages.value = uploadedImages.value.filter(i => i !== image)
     hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
 }
@@ -139,24 +139,29 @@ async function submit() {
     
     try {
         submitting.value = true
-        const post = await session.useApi<Post>("/api/post/add", {
-            user: session.user!.id,
-            title: draft.value.title,
-            content: draft.value.content,
-            time: DateTime.now(),
-            replyTo: draft.value.replyTo,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
-            topics: draft.value.topics,
-            comments: [],
-            images: uploadedImages.value.map(i => i.id)
+        const post = await useApi<Post>("/api/post/add", {
+            body: {
+                user: session.user!.id,
+                title: draft.value.title,
+                content: draft.value.content,
+                time: new Date(),
+                replyTo: draft.value.replyTo,
+                votes: {
+                    positive: [session.user!.id],
+                    misleading: [],
+                    negative: [],
+                },
+                topics: draft.value.topics,
+                comments: [],
+                images: uploadedImages.value.map(i => i.id)
+            }
         })
         
         uploadedImages.value = []
-        navigateTo(`/post/${extractId(post!.id)}`)
+        navigateTo(`/post/${extractId(post.id)}`)
+    }
+    catch (error: any) {
+        hints.addError("Failed to submit post.")
     }
     finally {
         submitting.value = false
@@ -171,26 +176,30 @@ async function saveDraft() {
     }
 
     if (draft.value.id !== '') {
-        await session.useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
-            title: draft.value.title,
-            content: draft.value.content,
-            replyTo: draft.value.replyTo,
-            topics: draft.value.topics,
-            images: uploadedImages.value.map(i => i.id)
+        await useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
+            body: {
+                title: draft.value.title,
+                content: draft.value.content,
+                replyTo: draft.value.replyTo,
+                topics: draft.value.topics,
+                images: uploadedImages.value.map(i => i.id)
+            }
         })
         hints.addSuccess("Draft updated.")
     }
     else {
-        const response = await session.useApi<Draft>("/api/profile/drafts/add", {
-            user: session.user!.id,
-            title: draft.value.title,
-            content: draft.value.content,
-            time: new Date(),
-            replyTo: draft.value.replyTo,
-            topics: draft.value.topics,
-            images: uploadedImages.value.map(i => i.id)
+        const response = await useApi<Draft>("/api/profile/drafts/add", {
+            body: {
+                user: session.user!.id,
+                title: draft.value.title,
+                content: draft.value.content,
+                time: new Date(),
+                replyTo: draft.value.replyTo,
+                topics: draft.value.topics,
+                images: uploadedImages.value.map(i => i.id)
+            }
         })
-        draft.value.id = response!.id
+        draft.value.id = response.id
         hints.addSuccess("Draft saved.")
     }
 }
@@ -198,23 +207,23 @@ async function saveDraft() {
 
 <template>
     <article class="editor column p-4">
-        <div class="container column fill">
-            <Drafts :visible="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-            <MediaUploader :visible="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
-            <div class="reply-to row center-inline g-2" v-if="replyTo">
+        <div class="container column f-1">
+            <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
+            <MediaUploader v-if="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
+            <div v-if="replyTo" class="reply-to row inline g-2">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p>{{ replyTo?.title }}</p>
             </div>
             <section class="editor column p-5">
-                <div class="column fill" v-show="!showPreview">
-                    <header class="row center-inline mb-4">
+                <div class="column f-1" v-show="!showPreview">
+                    <header class="row inline between mb-4">
                         <h1>New Post</h1>
                         <button @click="showDrafts = true">
                             <i class="fa-solid fa-compass-drafting"></i>
                             <span>Drafts</span>
                         </button>
                     </header>
-                    <form class="form fill column g-2">
+                    <form class="form f-1 column g-2">
                         <div class="field">
                             <label>Title</label>
                             <input
@@ -225,28 +234,12 @@ async function saveDraft() {
                                 :class="{ 'invalid': titleFocused && !validTitle() }"
                             />
                         </div>
-                        <div class="field fill">
+                        <div class="field f-1">
                             <label>Content</label>
-                            <textarea class="fill" v-model="draft.content" type="text" rows="12" />
+                            <textarea class="f-1" v-model="draft.content" type="text" rows="12" />
                         </div>
                         <TopicField v-model:input="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
-                        <!-- <div class="field topic-input">
-                            <div class="row center-inline g-2 mb-2">
-                                <label class="mb-0">Topics</label>
-                                <TopicTag v-for="topic in draft.topics" :topic="topic" @contextmenu.prevent="removeTopic(topic)" />
-                            </div>
-                            <input
-                                type="text"
-                                v-model="newTopic"
-                                spellcheck="false"
-                                placeholder="press enter to add . . ."
-                                @keyup.enter="addTopic"
-                                @focus="topicsFocused = true"
-                                @blur="topicsFocused = false"
-                                :class="{ 'invalid': topicsFocused && !validTopic() }"
-                            />
-                        </div> -->
-                        <div class="field uploaded-images" v-if="uploadedImages.length > 0">
+                        <div v-if="uploadedImages.length > 0" class="field uploaded-images">
                             <label>Images</label>
                             <div class="row g-2">
                                 <img
@@ -259,17 +252,17 @@ async function saveDraft() {
                         </div>
                     </form>
                 </div>
-                <div class="preview fill" v-show="showPreview">
+                <div class="preview f-1" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>
                     <Markdown class="content" :content="draft.content" />
-                    <span class="watermark" v-if="draft.title === '' && draft.content === ''">Preview</span>
+                    <span v-if="draft.title === '' && draft.content === ''" class="watermark">Preview</span>
                 </div>
-                <section class="row-wrap g-2 mt-5">
+                <section class="row wrap g-2 mt-5">
                     <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                         <i class="fa-solid fa-share"></i>
                         <span>Submit</span>
                     </ButtonSpinner>
-                    <button class="link f-1 b-0" @click="saveDraft" v-if="draft.id != ''">
+                    <button v-if="draft.id != ''" class="link f-1 b-0" @click="saveDraft">
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Update</span>
                     </button>
@@ -282,11 +275,11 @@ async function saveDraft() {
                         <span>Upload</span>
                     </button>
                     <button class="info f-1 b-0" @click="togglePreview">
-                        <i class="fa-solid fa-eye" v-if="!showPreview"></i>
-                        <i class="fa-solid fa-eye-slash" v-else></i>
+                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                        <i v-else class="fa-solid fa-eye-slash"></i>
                         <span>Preview</span>
                     </button>
-                    <!-- <button class="danger fill" @click="navigateTo('/')">Cancel</button> -->
+                    <!-- <button class="danger f-1" @click="navigateTo('/')">Cancel</button> -->
                 </section>
             </section>
         </div>
@@ -325,10 +318,6 @@ div.reply-to {
 }
 
 section.editor {
-    header {
-        justify-content: space-between;
-    }
-
     .topic-input {
 
         .row {
@@ -389,7 +378,7 @@ div.uploaded-images {
         top: 50%;
         left: 50%;
         position: absolute;
-        font-size: 4.5rem;
+        font-size: 5rem;
         font-weight: 900;
         opacity: 0.05;
         color: $purple;

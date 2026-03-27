@@ -1,26 +1,28 @@
 <script setup lang="ts">
-import type { Post, Thread } from '~/types'
+import type { Sortable } from '~/types'
 
 const cache = useCache()
 
 const text = cache.get<string>("search.text", () => "")
-const posts = await useFetch<(Post | Thread)[]>("/api/feed/search", {
-    query: { text },
+const feed = useDatasource<Sortable[]>("/api/feed/search", {
     watch: false,
+    query: {
+        text: text
+    },
 })
 
 const [showFilters, toggle] = useToggle(false)
-const loading = computed(() => posts.status.value.toString() == "pending")
+const loading = computed(() => feed.status.value.toString() == "pending")
 </script>
 
 <template>
     <section class="feed column g-2 p-4">
         <header class="box column g-2 p-2">
             <div class="field row g-2">
-                <ButtonSpinner class="link" :loading="loading" @click="posts.refresh()">
+                <ButtonSpinner class="link" :loading="loading" @click="feed.refresh()">
                     <i class="fa-solid fa-magnifying-glass" />
                 </ButtonSpinner>
-                <input class="f-1" type="search" placeholder="Search..." v-model="text" @keyup.enter="posts.refresh()">
+                <input class="f-1" type="search" placeholder="Search..." v-model="text" @keyup.enter="feed.refresh()">
                 <!-- TODO add more advanced search options -->
                 <!-- <button class="link">
                     <i class="fa-solid fa-filter" @click="toggle()" />
@@ -30,14 +32,9 @@ const loading = computed(() => posts.status.value.toString() == "pending")
                 <input class="f-1" type="search" placeholder="Search...">
             </div>
         </header>
-        <Feed :items="posts">
+        <Feed :items="feed">
             <template #item="item">
-                <template v-if="item.id.startsWith('post')">
-                    <PostPreview :post="(item as Post)" />
-                </template>
-                <template v-if="item.id.startsWith('thread')">
-                    <ThreadPreview :thread="(item as Thread)" />
-                </template>
+                <MultiPreview :item="item" />
             </template>
         </Feed>
     </section>

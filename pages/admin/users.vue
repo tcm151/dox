@@ -2,7 +2,7 @@
 import RoleManager from "./components/RoleManager.vue"
 import type { Role, User } from '~/types'
 
-const { data: users, refresh } = await useFetch<User[]>("/api/user")
+const { data: users, refresh } = await useDatasource<User[]>("/api/user")
 
 const filter = ref<Role | "">("")
 const filteredUsers = computed(() => {
@@ -60,11 +60,7 @@ function toggleRoleManager(user?: User) {
                 <Tag type="info" icon="fa-ellipsis" @click="toggleRoleManager(user)" />
             </div>
         </section>
-        <RoleManager
-            :visible="showRoleManager"
-            :user="currentUser"
-            @close="toggleRoleManager"
-        />
+        <RoleManager v-if="showRoleManager" :user="currentUser" @close="toggleRoleManager" />
     </article>
 </template>
 

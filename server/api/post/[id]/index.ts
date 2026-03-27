@@ -22,6 +22,6 @@ export default defineEventHandler(async (event) => {
         .addRecord("post", `post:${id}`)
         .queryOne<Post>()
 
-    post.comments = sortList(post.comments as Comment[], query.sortBy) as Comment[]
+    post.comments = sortList(post.comments as Comment[], query.sortBy) as (Comment & string)[]
     return post
 })

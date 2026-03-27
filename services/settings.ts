@@ -16,6 +16,9 @@ export const useSettings = defineStore("user.settings", () => {
 
     const app = ref<AppSettings>({
         id: "appSettings:default", 
+        email: {
+            support: "",
+        },
         navbar: {
             showStore: true,
             showFeedback: true,
@@ -29,12 +32,21 @@ export const useSettings = defineStore("user.settings", () => {
         voting: {
             showMisleading: false,
             showNegative: true,
+        },
+        media: {
+            uploads: {
+                enabled: true,
+                imageMaxSize: 10,
+                audioMaxSize: 100,
+            }
         }
     })
 
-    async function fetch() {
-        app.value = await $fetch<AppSettings>("/api/settings/default")
+    async function refresh() {
+        app.value = await useApi<AppSettings>("/api/settings/default", {
+            method: "GET"
+        })
     }
 
-    return { user: skipHydrate(user), app, fetch }
+    return { user: skipHydrate(user), app, refresh }
 })

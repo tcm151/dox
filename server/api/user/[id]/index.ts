@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, name, link, description, dateJoined, votes, followers, following, topics
+            SELECT id, name, link, description, dateJoined,
+                topics, followers, following, visits, votes, score
             FROM $user
         `)
         .addRecord("user", `user:${id}`)

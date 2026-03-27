@@ -1,6 +1,5 @@
 export async function submitReport(subject: string) {
     const hints = useHints()
-    const session = getSession()
 
     const [table, id] = subject.toString().split(":", 2)
     if (!table || !id) {
@@ -10,6 +9,10 @@ export async function submitReport(subject: string) {
         })
     }
     
-    await session.useApi("/api/report/send", { subject })
+    await useApi("/api/report/send", {
+        body: {
+            subject: subject
+        }
+    })
     hints.addError("Thank you for reporting this to the development team.")
 }

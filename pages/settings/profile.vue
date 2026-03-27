@@ -7,7 +7,7 @@ function validDescription() {
 }
 
 async function sendConfirmation() {
-    await session.useApi("/api/profile/confirm/send")
+    await useApi("/api/profile/confirm/send")
     hints.addSuccess("Confirmation sent!")
     await new Promise(resolve => setTimeout(resolve, 1024))
     hints.addError("Expires in 15 minutes...")
@@ -19,7 +19,9 @@ async function updateProfile() {
         return
     }
 
-    await session.useApi("/api/profile/update", session.user)
+    await useApi("/api/profile/update", {
+        body: session.user
+    })
     await session.refreshProfile()
 }
 
@@ -30,7 +32,7 @@ async function resetPassword() {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            await session.useApi(`/api/profile/password/reset`)
+            await useApi(`/api/profile/password/reset`)
             hints.addSuccess("Password reset link sent to your email.")
         },
     })
@@ -41,10 +43,10 @@ async function resetPassword() {
     <article class="column g-4 p-4">
         <section class="box column g-4 p-5">
             <div class="column g-2">
-                <button class="fill danger" @click="sendConfirmation" v-if="!hasTrait(session.user, 'confirmed')">
+                <button v-if="!hasTrait(session.user, 'confirmed')" class="f-1 danger" @click="sendConfirmation">
                     Confirm Account
                 </button>
-                <button class="fill success" v-else>
+                <button class="f-1 success" v-else>
                     Account Confirmed
                 </button>
                 <button class="link" @click="resetPassword">
@@ -56,6 +58,7 @@ async function resetPassword() {
                     <label>Email</label>
                     <input disabled type="text" v-model="session.user.email"/>
                 </div>
+                <!-- TODO support changing usernames -->
                 <div class="field">
                     <label>Username</label>
                     <input disabled type="text" v-model="session.user.name"/>
@@ -96,10 +99,6 @@ div.profile-picture {
     img {
         border-radius: 0.5rem;
     }
-}
-
-input.invalid, textarea.invalid {
-    outline: 1px solid $red !important;
 }
 
 input[disabled] {

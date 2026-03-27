@@ -1,19 +1,10 @@
 <script setup lang="ts">
-const props = defineProps<{ visible: boolean }>()
-
-const session = getSession()
-const events = useEvents()
 const hints = useHints()
+const events = useEvents()
+const session = getSession()
 
 const username = ref("")
 const password = ref("")
-
-const input = useTemplateRef('usernameInput')
-watch(() => props.visible, (visible) => {
-    if (visible) {
-        nextTick(() => input.value?.focus())
-    }
-})
 
 events.subscribe(Trigger.toggleLogin, (name?: string) => {
     if (name) username.value = name
@@ -33,7 +24,7 @@ async function attemptLogin() {
         await session.login(username.value, password.value)
         closeLogin()
     }
-    catch (ex) {
+    catch (error: any) {
         wrongAttempts.value += 1
         hints.addError("Failed to authenticate.")
     }
@@ -44,13 +35,14 @@ async function attemptLogin() {
 
 const wrongAttempts = ref(0)
 function forgetPassword() {
-    const possibleUsername = username.value
     events.publish(Trigger.showPopup, {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            await session.useApi(`/api/profile/password/reset`, {
-                id: possibleUsername
+            await useApi(`/api/profile/password/reset`, {
+                body: {
+                    id: username.value
+                }
             })
             hints.addSuccess("Password reset link sent to your email.")
         },
@@ -60,23 +52,14 @@ function forgetPassword() {
 </script>
 
 <template>
-    <Popup
-        title="Login"
-        width="20rem"
-        :visible="visible"
-        :loading="loading"
-        accept-label="Login"
-        @accept="attemptLogin"
-        decline-label="Cancel"
-        @decline="closeLogin"
-    >
+    <Popup title="Login" width="20rem" :loading="loading" :accept="{ label: 'Login', action: attemptLogin }" :decline="{ label: 'Cancel', action: closeLogin }">
         <main class="login form">
             <div class="field">
                 <label>Username</label>
                 <input v-model="username" type="text" ref="usernameInput" />
             </div>
             <div class="field">
-                <label class="forgot" v-if="wrongAttempts >= 3">
+                <label v-if="wrongAttempts >= 3" class="forgot">
                     <NuxtLink @click="forgetPassword">
                         Forget your password?
                     </NuxtLink>

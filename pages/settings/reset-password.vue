@@ -31,8 +31,7 @@ async function resetPassword() {
         return
     }
 
-    await $fetch("/api/profile/password/confirm", {
-        method: "POST",
+    await useApi("/api/profile/password/confirm", {
         body: {
             resetId: resetId,
             email: email.value,
@@ -93,11 +92,5 @@ function differentPasswords() {
 <style scoped lang="scss">
 article {
     @include fit-width(30rem, 1rem);
-}
-
-.field {
-    input.invalid {
-        outline: 1px solid $red !important;
-    }
 }
 </style>

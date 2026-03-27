@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Thread, User } from '~/types'
+import type { Thread } from '~/types'
 
 const props = defineProps<{
     thread: Thread
@@ -13,14 +13,13 @@ const props = defineProps<{
         <aside class="indent-line ml-4 my-4" />
         <div class="main column f-1 px-4 pt-4">
             <section>
-                <div class="row-wrap g-1">
+                <div class="row wrap g-1">
                     <Votes :target="thread" />
-                    <div class="row-wrap f-1 g-1">
-                        <UserTag :user="(thread.user as User)" />
+                    <div class="row wrap f-1 g-1">
+                        <UserTag :user="thread.user" />
                         <Tag type="info" icon="fa-chart-simple" :label="thread.visits" />
-                        <Tag type="info" icon="fa-message" :label="thread.replies.length.toString()" />
+                        <Tag type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
                         <DurationTag :time="thread.time" />
-                        <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                         <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                     </div>
                 </div>
@@ -28,15 +27,15 @@ const props = defineProps<{
             </section>
             <template v-if="thread.chain">
                 <section v-for="reply in thread.chain">
-                    <div class="row-wrap g-1">
+                    <div class="row wrap g-1">
                         <Votes :target="reply" />
-                        <div class="row-wrap f-1 g-1">
-                            <UserTag :user="(reply.user as User)" />
+                        <div class="row wrap f-1 g-1">
+                            <UserTag :user="reply.user" />
                             <Tag type="info" icon="fa-chart-simple" :label="reply.visits" />
-                            <Tag type="info" icon="fa-message" :label="reply.replies.length.toString()" />
+                            <Tag type="info" icon="fa-comment" :label="reply.replies.length.toString()" />
                             <DurationTag :time="reply.time" />
                             <Tag v-if="reply.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(reply.timeEdited)" />
-                            <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
+                            <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(reply.id)}`)" />
                         </div>
                     </div>
                     <Markdown class="content preview" :content="reply.content" />
@@ -49,10 +48,6 @@ const props = defineProps<{
 <style scoped lang="scss">
 
 .thread {
-    // border-radius: 0.25rem;
-    // background-color: $white-3;
-    // transition: transform 128ms;
-
     .indent-line {
         border-radius: 0.25rem;
         background-color: $white-1;

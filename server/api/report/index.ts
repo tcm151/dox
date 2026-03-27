@@ -1,3 +1,5 @@
+import type { Report } from "~/types"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, "admin")
@@ -9,5 +11,5 @@ export default defineEventHandler(async (event) => {
             ORDER BY time DESC
             FETCH reporter, subject
         `)
-        .queryAll<{ id: string, reporter: string, subject: string, time: string }>()
+        .queryAll<Report>()
 })

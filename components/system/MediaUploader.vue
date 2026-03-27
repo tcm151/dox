@@ -8,7 +8,6 @@ interface MediaFile extends File {
 // }
 
 const props = defineProps<{
-    visible: boolean
     media: FileList | null
     loading?: boolean
 }>()
@@ -33,14 +32,7 @@ function getMediaUrl(image: File) {
 </script>
 
 <template>
-    <Popup
-        :visible="visible"
-        :loading="loading"
-        title="Confirm Media"
-        accept-label="Upload"
-        decline-label="Cancel"
-        @decline="emit('close')"
-    >
+    <Popup title="Confirm Media" :loading="loading" :accept="{ label: 'Upload', action: () => {} }" :decline="{ label: 'Cancel', action: () => emit('close') }">
         <div class="media column g-2" v-for="item in (media as FileList)">
             <section v-if="item.type.startsWith('image/')">
                 <img :src="getMediaUrl(item)" alt="">

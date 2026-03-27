@@ -1,31 +1,39 @@
-import { Surreal, createRemoteEngines, RecordId, BoundQuery } from 'surrealdb'
+import { createRemoteEngines, Surreal, RecordId } from 'surrealdb'
 import { createNodeEngines } from '@surrealdb/node';
 
 const config = useRuntimeConfig()
-export let SurrealInstance: Surreal
+let SurrealInstance: Surreal | undefined
 
-(async () => {
-    if (config.surreal.type == "remote") {
-        if (config.surreal.url == "" || !config.surreal.url.includes("/rpc")) {
+export async function shutdownDatabase() {
+    return await SurrealInstance?.close()
+}
+
+async function initializeDatabase() {
+    if (SurrealInstance && SurrealInstance.status != "disconnected") {
+        return Promise.resolve(SurrealInstance)
+    }
+    if (config.surreal.info.type == "remote") {
+        if (config.surreal.info.url == "" || !config.surreal.info.url.includes("/rpc")) {
             throw createError({
-                statusCode: 500,
-                statusMessage: `Database URL was [${config.surreal.url ?? "empty"}]. Check environment variables.`
+                status: 500,
+                statusText: `Database URL was [${config.surreal.info.url ?? "empty"}]. Check environment variables.`
             })
         }
         SurrealInstance = new Surreal();
         console.log("Connecting to remote instance...")
-        await SurrealInstance.connect(config.surreal.url, {
-            namespace: config.surreal.namespace,
-            database: config.surreal.database,
+        await SurrealInstance.connect(config.surreal.info.url, {
+            namespace: config.surreal.info.namespace,
+            database: config.surreal.info.database,
             authentication: {
-                username: config.surreal.username,
-                password: config.surreal.password,
+                username: config.surreal.info.username,
+                password: config.surreal.info.password,
             }
         })
         await SurrealInstance.ready
-        console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
+        console.log(`Connected to ${config.surreal.info.namespace}:${config.surreal.info.database} @ ${config.surreal.info.url}`)
+        return SurrealInstance
     }
-    else if (config.surreal.type == "embedded") {
+    else if (config.surreal.info.type == "embedded") {
         console.log("Starting embedded instance...")
         SurrealInstance = new Surreal({
             engines: {
@@ -34,24 +42,28 @@ export let SurrealInstance: Surreal
             },
         });
         console.log("Connecting to embedded instance...")
-        await SurrealInstance.connect(config.surreal.url, {
-            namespace: config.surreal.namespace,
-            database: config.surreal.database,
+        await SurrealInstance.connect(config.surreal.info.url, {
+            namespace: config.surreal.info.namespace,
+            database: config.surreal.info.database,
         })
         await SurrealInstance.ready
-        console.log(`Connected to ${config.surreal.namespace}:${config.surreal.database} @ ${config.surreal.url}`)
+        console.log(`Connected to ${config.surreal.info.namespace}:${config.surreal.info.database} @ ${config.surreal.info.url}`)
+        return SurrealInstance
     }
-})()
-
+    else {
+        throw createError({
+            status: 500,
+            statusText: `Database type was [${config.surreal.info.type ?? "empty"}].`
+        })
+    }
+}
 export class DatabaseQuery {
     #sql: string[] = []
-    #parameters: { [key: string]: any } = { }
-    #connection: Surreal = SurrealInstance
+    #parameters: Record<string, any> = { }
+    #connection: Surreal | undefined
 
     constructor(connection?: Surreal) {
-        if (connection) {
-            this.#connection = connection
-        }
+        this.#connection = connection ?? SurrealInstance
     }
 
     private parseRecord(record: string) {
@@ -66,7 +78,8 @@ export class DatabaseQuery {
     }
 
     addSql(sql: string) {
-        this.#sql.push(sql)
+        const trimmed = sql.split("\n").map(line => line.trim()).join("\n")
+        this.#sql.push(trimmed)
         return this
     }
 
@@ -91,25 +104,17 @@ export class DatabaseQuery {
 
     async execute<T>(): Promise<T[][]> {
         try {
-            let query = new BoundQuery<T[][]>(this.#sql.join("\n"), this.#parameters)
-            return await this.#connection.query(query)
+            const connection = this.#connection ?? await initializeDatabase()
+            await connection.ready
+            return await connection.query(this.#sql.join("\n"), this.#parameters).collect()
         }
-        catch (ex: any) {
-            if (ex.message.startsWith("Surreal Error:")) {
-                const message = ex.message.split(":").at(1).trim()
-                throw createError({
-                    statusCode: 500,
-                    statusMessage: message,
-                })
-            }
-            else {
-                console.log(ex)
-                throw createError({
-                    statusCode: 500,
-                    statusMessage: `Server Error: Oops.`,
-                    message: ex.message
-                })
-            }
+        catch (error: any) {
+            throw createError({
+                status: 500,
+                statusText: "Failed to execute query.",
+                message: error.message,
+                stack: error.stack,
+            })
         }
     }
 
@@ -117,8 +122,8 @@ export class DatabaseQuery {
         let responses = await this.execute<T>()
         if (!responses[0] || !responses[0][0]) {
             throw createError({
-                statusCode: 404,
-                statusMessage: "This query returns nothing."
+                status: 404,
+                statusText: "This queryOne returns nothing.",
             })
         }
         return responses[0][0]
@@ -129,7 +134,7 @@ export class DatabaseQuery {
         if (!responses[0]) {
             throw createError({
                 status: 404,
-                statusText: "This query returns nothing."
+                statusText: "This queryAll returns nothing.",
             })
         }
         return responses[0]

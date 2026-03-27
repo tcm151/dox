@@ -18,11 +18,6 @@ watch(() => props.loading, (loading) => {
 </template>
 
 <style scoped lang="scss">
-@keyframes spin {
-    from { transform: rotateZ(0deg) }
-    to { transform: rotateZ(360deg) }
-}
-
 button {
     transition: all 128ms;
 }

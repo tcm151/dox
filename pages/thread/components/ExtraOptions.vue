@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { Thread, User } from '~/types'
+import type { Thread } from '~/types'
 
 const session = getSession()
 
 const props = defineProps<{
-    visible: boolean
     thread: Thread
 }>()
 
@@ -26,15 +25,9 @@ function emitAndClose(event: string) {
 </script>
 
 <template>
-    <Window
-        :visible="visible"
-        width="20rem"
-        title="Options"
-        icon="fa-solid fa-list-ul"
-        @close="emit('close')"
-    >
+    <Window title="Options" icon="fa-solid fa-list-ul" width="20rem" @close="emit('close')">
         <section class="column g-2">
-            <button v-if="(thread.user as User).id === session.user.id" @click="emitAndClose('edit')">
+            <button v-if="thread.user.id === session.user.id" @click="emitAndClose('edit')">
                 <i class="fa-solid fa-eraser"></i>
                 <span>Edit</span>
             </button>
@@ -55,7 +48,7 @@ function emitAndClose(event: string) {
                 <span v-if="!thread.archived">Archive</span>
                 <span v-else>Unarchive</span>
             </button> -->
-            <button v-if="(thread.user as User).id === session.user.id" @click="emitAndClose('delete')">
+            <button v-if="thread.user.id === session.user.id" @click="emitAndClose('delete')">
                 <i class="fa-solid fa-trash-can"></i>
                 <span>Delete</span>
             </button>

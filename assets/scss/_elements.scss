@@ -113,10 +113,87 @@
     border-radius: 0.25rem;
 }
 
+.box.background {
+    background-color: $white-3;
+}
+
+.animate {
+    transition: transform 128ms;
+}
+
+.animate:hover {
+    transform: scale(102%, 105%);
+}
+
+.text.bold {
+    font-weight: 700;
+}
+.text.truncate {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.text.break {
+    white-space: break-spaces;
+}
+.text.center {
+    text-align: center;
+}
+.text.left {
+    text-align: left;
+}
+.text.right {
+    text-align: right;
+}
+
+nav.tabstrip {
+    width: stretch;
+    justify-content: center;
+    border-top: 1px solid $black-1;
+    background-color: $black-0;
+
+    button, a {
+        min-height: 19px;
+        padding: 0.5rem 0.75rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: $white-2;
+        border-radius: 0;
+        background-color: $black-0;
+    }
+
+    button.selected, button:hover,
+    a.selected, a:hover {
+        cursor: pointer;
+        background-color: $black-1;
+    }
+}
+
+nav.tabstrip.wide {
+    button, a {
+        padding: 0.5rem 1.5rem;
+    }
+}
+
+@media (max-width: $bp-desktop) {
+    nav.tabstrip.large button:not(.selected) span,
+    nav.tabstrip.large a:not(.selected) span {
+        display: none;
+    }
+}
+
+@media (max-width: $bp-tablet) {
+    nav.tabstrip.medium button:not(.selected) span,
+    nav.tabstrip.medium a:not(.selected) span {
+        display: none;
+    }
+}
+
 .tag:has(span, i) {
     @include flex-h(0.33rem);
     justify-content: center;
     align-items: center;
+    line-height: 1rem;
 }
 
 span.tag {
@@ -127,4 +204,8 @@ span.tag {
 button.tag {
     padding: 0.5rem 1.25rem;
     font-size: 1rem;
+
+    i {
+        font-size: 1rem;
+    }
 }
