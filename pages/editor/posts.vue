@@ -224,14 +224,13 @@ async function saveDraft() {
                         </button>
                     </header>
                     <form class="form f-1 column g-2">
-                        <div class="field">
+                        <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
                             <label>Title</label>
                             <input
                                 type="text"
                                 v-model="draft.title"
                                 @focus="titleFocused = true"
                                 @blur="titleFocused = false"
-                                :class="{ 'invalid': titleFocused && !validTitle() }"
                             />
                         </div>
                         <div class="field f-1">
@@ -332,10 +331,6 @@ section.editor {
 
     textarea {
         resize: none !important;
-    }
-
-    input.invalid {
-        outline: 1px solid $red !important;
     }
 }
 

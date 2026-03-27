@@ -80,43 +80,39 @@ function differentPasswords() {
         <div class="register box br-medium p-5">
             <h1 class="mb-4">Register</h1>
             <div class="form">
-                <div class="field">
+                <div class="field" :class="{ invalid: invalidEmail() }">
                     <label>Email</label>
                     <input
                         type="email"
                         spellcheck="false"
-                        :class="{ invalid: invalidEmail() }"
                         v-model="email"
                     />
                 </div>
-                <div class="field">
+                <div class="field" :class="{ invalid: invalidUsername() }">
                     <label>Username</label>
                     <input
                         type="text"
                         spellcheck="false"
                         title="/^[\w]{3,32}$/"
-                        :class="{ invalid: invalidUsername() }"
                         v-model="username"
                     />
                 </div>
-                <div class="field">
+                <div class="field" :class="{ invalid: invalidPassword(password) }">
                     <label>Password</label>
                     <input
                         type="password"
                         spellcheck="false"
                         title="/^[\S]{8,64}$/"
-                        :class="{ invalid: invalidPassword(password) }"
                         v-model="password"
                         />
                     </div>
-                    <div class="field">
+                    <div class="field" :class="{ invalid: invalidPassword(confirmation) || differentPasswords() }">
                         <label>Confirm Password</label>
                         <input
                         type="password"
                         spellcheck="false"
                         title="/^[\S]{8,64}$/"
                         @keydown.enter="register"
-                        :class="{ invalid: invalidPassword(confirmation) || differentPasswords() }"
                         v-model="confirmation"
                     />
                 </div>

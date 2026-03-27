@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const hints = useHints()
+const valid = useValidation()
+const events = useEvents()
 const session = getSession()
 
 function validDescription() {
@@ -9,23 +11,58 @@ function validDescription() {
 async function sendConfirmation() {
     await useApi("/api/profile/confirm/send")
     hints.addSuccess("Confirmation sent!")
-    await new Promise(resolve => setTimeout(resolve, 1024))
     hints.addError("Expires in 15 minutes...")
 }
 
+const username = ref<string>(session.user.name)
+function invalidUsername() {
+    return usernameTaken.value || !valid.username.test(username.value)
+}
+
+const usernameTaken = ref<boolean>(false)
+async function checkUsernameTaken() {
+    usernameTaken.value = await useApi("/api/profile/username-taken", {
+        body: {
+            username: username.value
+        }
+    })
+}
+
+const loading = ref<boolean>(false)
 async function updateProfile() {
+    if (usernameTaken.value) {
+        hints.addError("That username is already taken")
+        return
+    }
     if (!validDescription()) {
         hints.addWarning("Description must be shorter than 256 characters.")
         return
     }
+    try {
+        loading.value = true
+        await useApi("/api/profile/update", {
+            body: {
+                name: username.value,
+                link: session.user.link,
+                description: session.user.description,
+            }
+        })
+        await session.refreshProfile()
+    }
+    catch (error: any) {
 
-    await useApi("/api/profile/update", {
-        body: session.user
-    })
-    await session.refreshProfile()
+    }
+    finally {
+        loading.value = false
+    }
 }
 
-const events = useEvents()
+async function resetProfile() {
+    await session.refreshProfile()
+    username.value = session.user.name
+    usernameTaken.value = false
+}
+
 
 async function resetPassword() {
     events.publish(Trigger.showPopup, {
@@ -58,28 +95,28 @@ async function resetPassword() {
                     <label>Email</label>
                     <input disabled type="text" v-model="session.user.email"/>
                 </div>
-                <!-- TODO support changing usernames -->
-                <div class="field">
+                <div class="field" :class="{ invalid: invalidUsername() }">
                     <label>Username</label>
-                    <input disabled type="text" v-model="session.user.name"/>
+                    <input type="text" v-model="username" @change="checkUsernameTaken" />
+                    <span v-if="usernameTaken" class="tip">That username has already been taken.</span>
                 </div>
                 <div class="field">
                     <label>Link</label>
-                    <input type="text" v-model="session.user.link"/>
+                    <input type="text" v-model="session.user.link" />
                 </div>
-                <div class="field">
+                <div class="field" :class="{ invalid: !validDescription() }">
                     <label>Description</label>
-                    <textarea :class="{ invalid: !validDescription() }" rows="6" v-model="session.user.description"/>
+                    <textarea rows="6" v-model="session.user.description"/>
                 </div>
             </div>
             <div class="row g-2">
-                <button class="success" @click="updateProfile">
+                <ButtonSpinner class="success f-1" :loading="loading" @click="updateProfile">
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Update</span>
-                </button>
-                <button class="danger" @click="session.refreshProfile">
-                    <i class="fa-solid fa-ban"></i>
-                    <span>Cancel</span>
+                </ButtonSpinner>
+                <button class="dark" @click="resetProfile">
+                    <i class="fa-solid fa-refresh"></i>
+                    <span>Reset</span>
                 </button>
             </div>
         </section>
@@ -99,14 +136,5 @@ div.profile-picture {
     img {
         border-radius: 0.5rem;
     }
-}
-
-input[disabled] {
-    color: $white-3;
-}
-
-input[disabled]:hover {
-    outline: 1px solid $white-2;
-    cursor: not-allowed;
 }
 </style>

@@ -63,17 +63,17 @@ function differentPasswords() {
     <article class="column g-4 p-6">
         <section class="box form column g-4 p-5">
             <h2>Reset Password</h2>
-            <div class="field mt-2">
+            <div class="field mt-2" :class="{ invalid: invalidEmail() }">
                 <label>Email</label>
-                <input type="email" :class="{ invalid: invalidEmail() }" v-model="email" />
+                <input type="email" v-model="email" />
             </div>
-            <div class="field">
+            <div class="field" :class="{ invalid: invalidPassword(password) || differentPasswords() }">
                 <label>New Password</label>
-                <input type="password" :class="{ invalid: invalidPassword(password) || differentPasswords() }" v-model="password" />
+                <input type="password" v-model="password" />
             </div>
-            <div class="field">
+            <div class="field" :class="{ invalid: invalidPassword(confirmation) || differentPasswords() }">
                 <label>Confirm Password</label>
-                <input type="password" :class="{ invalid: invalidPassword(confirmation) || differentPasswords() }" v-model="confirmation" />
+                <input type="password" v-model="confirmation" />
             </div>
             <div class="row g-2 mt-2">
                 <button class="success" @click="resetPassword">

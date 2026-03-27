@@ -65,6 +65,11 @@ input[type=file]::file-selector-button {
     display: none;
 }
 
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid $blue;
+}
+
 .form {
     @include flex-v (0.75rem);
 }
@@ -87,43 +92,55 @@ input[type=file]::file-selector-button {
     }
 
     input, textarea, select {
-        padding: 0.5rem;
-
+        padding: 0.5rem 0.75rem;
         font-size: 1rem;
         font-family: inherit;
         font-weight: 500;
-
         background-color: $white-1;
-        border: 1px solid $white-1;
+        outline: 2px solid transparent;
+        border: none;
         border-radius: 0.25rem;
     }
 
     textarea {
-        outline: none;
         resize: vertical;
     }
 
     input:hover, input:focus, input:focus-visible,
     textarea:hover, textarea:focus, textarea:focus-visible,
-    select:hover, select:focus, select:focus-visible {
-        outline: 1px solid $blue;
+    select:hover, select:focus, select:focus-visible{
+        outline-color: $blue;
     }
 
-    input::placeholder {
+    input::placeholder, textarea::placeholder {
         color: $white-3;
         font-style: italic;
     }
+
+    input[disabled], textarea[disabled], select[disabled] {
+        cursor: not-allowed;
+        color: $white-4;
+    }
+
+    input[disabled]:hover, textarea[disabled]:hover, select[disabled]:hover {
+        outline-color: $white-3;
+    }
+
+    span.tip {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
 }
 
-input.invalid, textarea.invalid, select.invalid {
-    outline: 1px solid $red !important;
-    border-color: $red !important;
-}
+.field.invalid {
+    input, textarea, select {
+        outline-color: $red !important;
+    }
 
-a:focus-visible, button:focus-visible, input:focus-visible,
-textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
-    outline: 2px solid $blue;
-    outline-offset: 2px;
+    span.tip {
+        color: $red;
+    }
 }
 
 code {
