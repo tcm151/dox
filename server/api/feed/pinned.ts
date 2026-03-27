@@ -5,6 +5,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM pin
+            WHERE active = true
             FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images;
         `)
         .queryAll<Post>()

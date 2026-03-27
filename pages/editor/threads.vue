@@ -99,7 +99,7 @@ function togglePreview() {
                     <i v-else class="fa-solid fa-eye-slash"></i>
                     <span>Preview</span>
                 </button>
-                <button class="danger f-1 b-0" @click="toggleEditor">
+                <button class="danger f-1 b-0" @click="">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
