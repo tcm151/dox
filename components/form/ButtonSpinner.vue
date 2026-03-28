@@ -18,12 +18,10 @@ watch(() => props.loading, (loading) => {
 </template>
 
 <style scoped lang="scss">
-button {
-    transition: all 128ms;
-}
-
 i.fa-spinner {
     color: $red;
     animation: spin 1s linear infinite;
+    transition: all 128ms;
+
 }
 </style>

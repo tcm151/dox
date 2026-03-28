@@ -51,9 +51,9 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
         </section>
         <Transition name="slide">
             <section v-if="session.isAuthenticated" class="right row authenticated">
-                <NuxtLink v-if="showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
+                <button v-if="showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
                     <i class="fa-solid fa-keyboard"></i>
-                </NuxtLink>
+                </button>
                 <NuxtLink to="/inbox" title="Inbox">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Inbox</span>
@@ -62,9 +62,9 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
                     <i class="fa-solid fa-user"></i>
                     <span>{{ session.user?.name }}</span>
                 </NuxtLink>
-                <NuxtLink @click="session.logout(true)" @contextmenu.prevent="session.logout(false)" title="Logout">
+                <button title="Logout" @click="session.logout(true)" @contextmenu.prevent="session.logout(false)">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                </NuxtLink>
+                </button>
             </section>
             <section class="right row anonymous" v-else>
                 <NuxtLink @click="login">
@@ -81,9 +81,10 @@ const showFeedback = computed(() => session.isAuthenticated && config.app.navbar
 </template>
 
 <style scoped lang="scss">
-nav {
+nav, button {
     color: $white-1;
     background-color: $black-0;
+    border-radius: 0;
 }
 
 section.left {
@@ -93,7 +94,7 @@ section.left {
         }
     }
 
-    a:not(.title) {
+    a:not(.title), button {
         @media (max-width: $bp-desktop) {
             span { display: none; }
         }
@@ -110,7 +111,7 @@ section.right {
     }
 }
 
-a {
+a, button {
     cursor: pointer;
     padding: 0.75rem 0.75rem;
     font-weight: 700;
@@ -123,7 +124,13 @@ a {
     }
 }
 
-a:hover {
+a:focus-visible, button:focus-visible {
+    outline: 3px solid $black-4;
+    outline-offset: -3px;
+    background-color: $black-1;
+}
+
+a:hover, button:hover {
     background-color: $black-1;
 }
 
