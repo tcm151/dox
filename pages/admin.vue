@@ -25,11 +25,11 @@ definePageMeta({
 const route = useRoute()
 
 const tabs = [
-    { route: '/admin/pins', icon: 'fa-solid fa-thumbtack', label: 'Pins' },
-    { route: '/admin/users', icon: 'fa-solid fa-user', label: 'Users' },
-    { route: '/admin/reports', icon: 'fa-solid fa-flag', label: 'Reports' },
-    { route: '/admin/feedback', icon: 'fa-solid fa-comment', label: 'Feedback' },
-    { route: '/admin/settings', icon: 'fa-solid fa-gear', label: 'Settings' },
+    { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
+    { route: '/admin/users', icon: 'fa-user', label: 'Users' },
+    { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
+    { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback' },
+    { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
 
 ]
 </script>

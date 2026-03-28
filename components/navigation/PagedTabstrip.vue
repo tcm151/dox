@@ -19,7 +19,7 @@ const route = useRoute()
                     :class="{ selected: tab.route == route.fullPath }"
                     :to="tab.route"
                 >
-                    <i :class="tab.icon"></i>
+                    <i :class="`fa-solid ${tab.icon}`"></i>
                     <span>{{ tab.label }}</span>
                 </NuxtLink>
             </template>

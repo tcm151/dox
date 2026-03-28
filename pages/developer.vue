@@ -25,9 +25,9 @@ definePageMeta({
 const route = useRoute()
 
 const tabs = ref<any[]>([
-    { route: '/developer/schema', icon: 'fa-solid fa-table-columns', label: 'Schema' },
-    { route: '/developer/query', icon: 'fa-solid fa-terminal', label: 'Database' },
-    { route: '/developer/errors', icon: 'fa-solid fa-triangle-exclamation', label: 'Errors' },
+    { route: '/developer/schema', icon: 'fa-table-columns', label: 'Schema' },
+    { route: '/developer/query', icon: 'fa-terminal', label: 'Database' },
+    { route: '/developer/errors', icon: 'fa-triangle-exclamation', label: 'Errors' },
 ])
 </script>
 

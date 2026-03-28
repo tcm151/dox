@@ -22,9 +22,9 @@ definePageMeta({
     <article class="column inline">
         <PagedTabstrip
             :tabs="[
-                { route: '/settings/profile', icon: 'fa-solid fa-address-card', label: 'Profile' },
-                // { route: '/settings/account', icon: 'fa-solid fa-address-card', label: 'Account' },
-                { route: '/settings/preferences', icon: 'fa-solid fa-sliders', label: 'Preferences' },
+                { route: '/settings/profile', icon: 'fa-address-card', label: 'Profile' },
+                // { route: '/settings/account', icon: 'fa-address-card', label: 'Account' },
+                { route: '/settings/preferences', icon: 'fa-sliders', label: 'Preferences' },
             ]"
         />
         <section class="page column inline">
