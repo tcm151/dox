@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { topic } = event.context.params!
 
-    return await new DatabaseQuery()
+    await new DatabaseQuery()
         .addSql(`
             CREATE moderationRequest SET
                 topic = $topic,
@@ -10,5 +10,5 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("topic", `topic:${topic}`)
         .addRecord("user", auth.id)
-        .queryOne()
+        .execute()
 })

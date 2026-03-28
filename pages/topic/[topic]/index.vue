@@ -17,11 +17,11 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
 })
 
 let following = computed(() => {
-    return session.user.topics.includes(topic.data.value.id)
+    return session.user.topics.includes(topic.data.value?.id ?? "")
 })
 
 async function requestModeration() {
-    await useApi("/api/topic/request-moderation")
+    await useApi(`/api/topic/${id}/request-moderation`)
 }
 </script>
 
@@ -30,10 +30,16 @@ async function requestModeration() {
         <template v-if="topic.data.value">
             <section class="column g-2">
                 <Authenticated>
-                    <button v-if="following" class="f-1 b-0">
-                        <i class="fa-solid fa-screwdriver-wrench"></i>
-                        Request Moderation
-                    </button>
+                    <header class="row g-2">
+                        <button v-if="following" class="f-1 b-0" @click="requestModeration">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            Request Moderation
+                        </button>
+                        <button v-if="hasRole(session.user, 'admin')" class="f-1 b-0" @click="navigateTo(`/topic/${id}/moderation`)">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            Moderate
+                        </button>
+                    </header>
                 </Authenticated>
                 <TopicPreview :topic="topic.data.value" @refresh="topic.refresh()" />
                 <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">

@@ -40,6 +40,7 @@ export default defineNuxtConfig({
         "/admin/**": { ssr: false },
         "/developer/**": { ssr: false },
         "/settings/**": { ssr: false },
+        "/topic/*/moderation": { ssr: false},
     },
     modules: [
         "@pinia/nuxt",
