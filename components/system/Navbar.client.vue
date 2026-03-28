@@ -19,39 +19,36 @@ async function login() {
 function toggleUserManager() {
     events.publish(Trigger.toggleUserManager)
 }
-
-const showAdmin = computed(() => session.isAuthenticated && hasRole(session.user, "admin"))
-const showDeveloper = computed(() => session.isAuthenticated && hasRole(session.user, 'developer'))
-const showStore = computed(() => session.isAuthenticated && config.app.navbar.showStore)
-const showFeedback = computed(() => session.isAuthenticated && config.app.navbar.showFeedback)
 </script>
 
 <template>
     <nav class="navbar row inline between">
         <section class="left row">
-            <NuxtLink class="title" title="Home">
+            <NuxtLink class="title" to="/feed" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>{{ site.titleShort.toUpperCase() }}</span>
             </NuxtLink>
-            <NuxtLink to="/feed" title="Feed">
-                <i class="fa-solid fa-signs-post"></i>
-                <span>Feeds</span>
-            </NuxtLink>
-            <NuxtLink v-if="showAdmin" to="/admin" title="Admin">
-                <i class="fa-solid fa-shield"></i>
-                <span>Admin</span>
-            </NuxtLink>
-            <NuxtLink v-if="showDeveloper" to="/developer" title="Developer">
-                <i class="fa-solid fa-code"></i>
-                <span>Developer</span>
-            </NuxtLink>
-            <NuxtLink to="/store" v-if="showStore" title="Store">
+            <Authenticated>
+                <NuxtLink v-if="hasRole(session.user, 'moderator')" to="/moderator" title="Moderator">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    <span>Moderator</span>
+                </NuxtLink>
+                <NuxtLink v-if="hasRole(session.user, 'admin')" to="/admin" title="Admin">
+                    <i class="fa-solid fa-shield"></i>
+                    <span>Admin</span>
+                </NuxtLink>
+                <NuxtLink v-if="hasRole(session.user, 'developer')" to="/developer" title="Developer">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Developer</span>
+                </NuxtLink>
+            </Authenticated>
+            <NuxtLink to="/store" v-if="config.app.navbar.showStore" title="Store">
                 <i class="fa-solid fa-coins"></i>
             </NuxtLink>
         </section>
         <Transition name="slide">
             <section v-if="session.isAuthenticated" class="right row authenticated">
-                <button v-if="showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
+                <button v-if="config.app.navbar.showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
                     <i class="fa-solid fa-keyboard"></i>
                 </button>
                 <NuxtLink to="/inbox" title="Inbox">
