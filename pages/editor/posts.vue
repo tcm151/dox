@@ -237,7 +237,7 @@ async function saveDraft() {
                             <label>Content</label>
                             <textarea class="f-1" v-model="draft.content" type="text" rows="12" />
                         </div>
-                        <TopicField v-model:input="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
+                        <TopicField v-model:text="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
                         <div v-if="uploadedImages.length > 0" class="field uploaded-images">
                             <label>Images</label>
                             <div class="row g-2">

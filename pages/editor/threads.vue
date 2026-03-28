@@ -82,9 +82,9 @@ function togglePreview() {
         <header class="box column g-2 p-4">
             <div class="field">
                 <label>Content</label>
-                <textarea class="f-1" type="text" rows="4" v-model="newThread.content" />
+                <textarea class="f-1" rows="4" v-model="newThread.content" />
             </div>
-            <TopicField v-model:input="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
+            <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             <div class="row g-2 mt-2">
                 <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                     <i class="fa-solid fa-share"></i>

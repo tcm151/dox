@@ -79,6 +79,9 @@
 
 .b-0 { flex-basis: 0; }
 .b-auto { flex-basis: auto; }
+.b-half { flex-basis: fit-content; max-width: calc-size(fit-content, size * 1.5); }
+.b-double { flex-basis: fit-content; max-width: calc-size(fit-content, size * 2); }
+.b-triple { flex-basis: fit-content; max-width: calc-size(fit-content, size * 3); }
 
 .br-small { border-radius: 0.25rem !important; }
 .br-medium { border-radius: 0.5rem !important; }

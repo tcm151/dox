@@ -70,6 +70,12 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
     outline: 2px solid $blue;
 }
 
+hr {
+    margin-block: 1rem;
+    color: $white-2;
+    border-style: solid;
+}
+
 .form {
     @include flex-v (0.75rem);
 }
@@ -90,8 +96,8 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
         font-family: inherit;
         font-weight: 500;
         background-color: $white-1;
-        outline: 2px solid transparent;
-        border: none;
+        outline: none;
+        border: 2px solid transparent;
         border-radius: 0.25rem;
     }
 
@@ -102,7 +108,7 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
     input:hover, input:focus, input:focus-visible,
     textarea:hover, textarea:focus, textarea:focus-visible,
     select:hover, select:focus, select:focus-visible{
-        outline-color: $blue;
+        border-color: $blue;
     }
 
     input::placeholder, textarea::placeholder {
@@ -116,13 +122,16 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
     }
 
     input[disabled]:hover, textarea[disabled]:hover, select[disabled]:hover {
-        outline-color: $white-3;
+        border-color: $white-3;
     }
 
     span.tip {
-        margin-top: 0.5rem;
+        margin-top: 0.25rem;
         font-size: 0.8rem;
         font-weight: 600;
+        color: $white-4;
+        font-weight: 500;
+        // font-style: italic;
     }
 }
 
@@ -137,7 +146,7 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
 
 .field.invalid {
     input, textarea, select {
-        outline-color: $red !important;
+        border-color: $red !important;
     }
 
     span.tip {

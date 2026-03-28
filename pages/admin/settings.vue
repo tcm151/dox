@@ -1,17 +1,25 @@
 <script setup lang="ts">
 
 const hints = useHints()
-const settings = useSettings()
+const cache = useCache()
+const defaults = useSettings()
+const settings = ref(defaults.app)
+
+async function refreshSettings() {
+    await defaults.refresh()
+    settings.value = defaults.app
+}
 
 const loading = ref<boolean>(false)
 async function saveSettings() {
     try {
         loading.value = true
-        await useApi(`/api/admin/config/${settings.app.id}/update`, {
+        await useApi(`/api/admin/config/${defaults.app.id}/update`, {
             body: {
-                config: settings.app
+                config: settings.value
             }
         })
+        await defaults.refresh()
         hints.addSuccess("Settings saved successfully.")
     }
     catch (error: any) {
@@ -21,162 +29,207 @@ async function saveSettings() {
         loading.value = false
     }
 }
+
+const section = cache.get<string>("settings.lastTab", () => "contact")
+const tabs = ['contact', 'voting', 'topics', 'posts', 'threads', 'images', 'audio', 'misc']
+
+
+const allowedTopicsOnly = ref<boolean>(false)
+const topicInput = useTemplateRef("topic")
+const allowedTopics = ref<string[]>([])
+function addTopic() {
+    if (topicInput.value) {
+        allowedTopics.value.push(`topic:${topicInput.value.value}`)
+        topicInput.value.value = ""
+    }
+}
+
+async function addExistingTopics() {
+    const topics = await useApi<{ id: string, score: number }[]>("/api/topic/available")
+    allowedTopics.value = topics.map(t => t.id)
+}
+
+function removeTopic(topic: string) {
+    allowedTopics.value = allowedTopics.value.filter(t => t != topic)
+}
+
+
 </script>
 
 
 <template>
-    <article class="config box column g-4 p-5 m-4">
-        <section>
-            <header>
-                <h2>Contact</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">support email</label>
-                <input type="email" name="supportEmail" class="f-1" v-model="settings.app.email.support">
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Voting</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable misleading votes</label>
-                <Toggle v-model:enabled="settings.app.voting.showMisleading" />
-            </div>
-            <div class="field row">
-                <label class="f-1">enable negative votes</label>
-                <Toggle v-model:enabled="settings.app.voting.showNegative" />
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Topics</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable topics</label>
-                <Toggle :enabled="true" disabled />
-            </div>
-            <div class="field row">
-                <label class="f-1">show topic feed</label>
-                <Toggle v-model:enabled="settings.app.feed.showTopics" />
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Posts</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable posts</label>
-                <Toggle :enabled="true" disabled />
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Threads</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable threads</label>
-                <Toggle :enabled="true" disabled />
-            </div>
-            <div class="field row">
-                <label class="f-1">show threads feed</label>
-                <Toggle v-model:enabled="settings.app.feed.showThreads" />
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Images</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable images</label>
-                <Toggle v-model:enabled="settings.app.media.uploads.enabled" />
-            </div>
-            <div class="field row">
-                <label class="f-1">show images feed</label>
-                <Toggle v-model:enabled="settings.app.feed.showImages" />
-            </div>
-            <div class="field row">
-                <label class="f-1">image upload limit (megabytes)</label>
-                <input
-                    type="number"
-                    min="1" step="1"
-                    :disabled="!settings.app.media.uploads.enabled"
-                    v-model.number="settings.app.media.uploads.imageMaxSize"
-                >
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Audio</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable audio</label>
-                <Toggle v-model:enabled="settings.app.media.uploads.enabled" disabled />
-            </div>
-            <div class="field row">
-                <label class="f-1">show audio feed</label>
-                <Toggle :enabled="false" disabled />
-            </div>
-            <div class="field row">
-                <label class="f-1">audio upload limit (megabytes)</label>
-                <input
-                    type="number"
-                    min="1" step="1"
-                    :disabled="!settings.app.media.uploads.enabled"
-                    v-model.number="settings.app.media.uploads.audioMaxSize"
-                >
-            </div>
-        </section>
-        <section>
-            <header>
-                <h2>Misc</h2>
-            </header>
-            <div class="field row">
-                <label class="f-1">enable search</label>
-                <Toggle v-model:enabled="settings.app.feed.showSearch" />
-            </div>
-            <div class="field row">
-                <label class="f-1">enable feedback</label>
-                <Toggle v-model:enabled="settings.app.navbar.showFeedback" />
-            </div>
-            <div class="field row">
-                <label class="f-1">enable store</label>
-                <Toggle v-model:enabled="settings.app.navbar.showStore" />
-            </div>
-        </section>
-        <section class="row inline end g-2 mt-4">
+    <article class="column g-4 m-4">
+        <div class="box row g-6 p-5">
+            <aside class="tabs column g-2 pr-6">
+                <template v-for="tab in tabs">
+                    <h3 :class="{ active: section == tab }" @click="section = tab">
+                        {{ tab }}
+                    </h3>    
+                </template>
+            </aside>
+            <section class="column f-1">
+                <div v-if="section == 'contact'">
+                    <div class="field">
+                        <label>support email</label>
+                        <input type="email" name="supportEmail" v-model="settings.email.support">
+                    </div>
+                    <div class="field">
+                        <label>additional emails</label>
+                        <textarea rows="2"></textarea>
+                        <span class="tip">Multiple emails can be included, separated by ;</span>
+                    </div>
+                </div>
+                <div v-if="section == 'voting'">
+                    <div class="field row">
+                        <label class="f-1">enable misleading votes</label>
+                        <Toggle v-model:enabled="settings.voting.showMisleading" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">enable negative votes</label>
+                        <Toggle v-model:enabled="settings.voting.showNegative" />
+                    </div>
+                </div>
+                <div v-if="section == 'topics'">
+                    <div class="field row">
+                        <label class="f-1">enable topics</label>
+                        <Toggle :enabled="true" disabled />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show topic feed</label>
+                        <Toggle v-model:enabled="settings.feed.showTopics" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">allowed topics only</label>
+                        <Toggle v-model:enabled="allowedTopicsOnly" />
+                    </div>
+                    <template v-if="allowedTopicsOnly">
+                        <div class="field row g-2">
+                            <input class="f-1" ref="topic" placeholder="press enter to add . . ." @keyup.enter="addTopic">
+                            <button class="small" @click="addExistingTopics">
+                                Add Existing
+                            </button>
+                        </div>
+                        <template v-if="allowedTopics.length > 0">
+                            <div class="field">
+                                <div class="row wrap g-1">
+                                    <template v-for="topic in allowedTopics">
+                                        <Tag class="f-1 s-1 b-half" type="link" :label="extractId(topic)" @click="removeTopic(topic)" />
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+                <div v-if="section == 'posts'">
+                    <div class="field row">
+                        <label class="f-1">enable posts</label>
+                        <Toggle :enabled="true" disabled />
+                    </div>
+                </div>
+                <div v-if="section == 'threads'">
+                    <div class="field row">
+                        <label class="f-1">enable threads</label>
+                        <Toggle :enabled="true" disabled />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show threads feed</label>
+                        <Toggle v-model:enabled="settings.feed.showThreads" />
+                    </div>
+                </div>
+                <div v-if="section == 'images'">
+                    <div class="field row">
+                        <label class="f-1">enable images</label>
+                        <Toggle v-model:enabled="settings.media.uploads.enabled" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show images feed</label>
+                        <Toggle v-model:enabled="settings.feed.showImages" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">image upload limit (megabytes)</label>
+                        <input
+                            type="number"
+                            min="1" step="1"
+                            :disabled="!settings.media.uploads.enabled"
+                            v-model.number="settings.media.uploads.imageMaxSize"
+                        >
+                    </div>
+                </div>
+                <div v-if="section == 'audio'">
+                    <div class="field row">
+                        <label class="f-1">enable audio</label>
+                        <Toggle v-model:enabled="settings.media.uploads.enabled" disabled />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show audio feed</label>
+                        <Toggle :enabled="false" disabled />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">audio upload limit (megabytes)</label>
+                        <input
+                            type="number"
+                            min="1" step="1"
+                            :disabled="!settings.media.uploads.enabled"
+                            v-model.number="settings.media.uploads.audioMaxSize"
+                        >
+                    </div>
+                </div>
+                <div v-if="section == 'misc'">
+                    <div class="field row">
+                        <label class="f-1">enable search</label>
+                        <Toggle v-model:enabled="settings.feed.showSearch" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">enable feedback</label>
+                        <Toggle v-model:enabled="settings.navbar.showFeedback" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">enable store</label>
+                        <Toggle v-model:enabled="settings.navbar.showStore" />
+                    </div>
+                </div>
+            </section>
+        </div>
+        <footer class="row g-2">
             <ButtonSpinner class="success f-1" :loading="loading" @click="saveSettings">
                 <i class="fa-solid fa-floppy-disk"></i>
                 <span>Save</span>
             </ButtonSpinner>
-            <button class="dark" @click="settings.refresh()">
+            <button class="dark" @click="refreshSettings">
                 <i class="fa-solid fa-rotate"></i>
                 <span>Reset</span>
             </button>
-        </section>
+        </footer>
     </article>
 </template>
 
 <style scoped lang="scss">
 article {
-    @include fit-width(40rem, 1rem);
+    @include fit-width(50rem, 1rem);
 }
 
-article.config {
-    div.field {
-        margin-block: 0.5rem;
+aside.tabs {
+    border-right: 2px solid $white-2;
+
+    h3:hover, h3.active {
+        cursor: pointer;
+        color: $purple;
     }
-    input {
-        padding: 0.25rem 0.5rem;
+}
+
+div.field {
+    margin-bottom: 0.5rem;
+
+    label {
+        margin-right: 1rem;
+    }    
+    input, textarea {
         font-size: 0.8rem;
     }
-    input[type="text"], input[type="email"] {
-        max-width: 12rem;
-        text-align: right;
-    }
     input[type="number"] {
+        padding: 0.25rem 0.5rem;
+        max-width: 6rem;
         text-align: center;
-        max-width: 8rem;
     }
 }
 </style>
