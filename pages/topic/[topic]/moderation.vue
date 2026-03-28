@@ -15,6 +15,9 @@ const route = useRoute()
 
 const id = route.params.topic?.toString()
 const topic = await useDatasource<Topic>(`/api/topic/${id}`)
+
+// TODO implement additonals ways to customize a topic
+// TODO allow moderating usages of the topic, removing from submissions, etc
 </script>
 
 <template>

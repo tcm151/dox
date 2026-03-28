@@ -33,6 +33,10 @@ const matchingResults = computed(() => {
 })
 
 function addTopic() {
+    if (props.topics.length > 3) {
+        hints.addError("You can only add 3 topics per submission.")
+        return
+    }
     if (text.value && validTopic()) {
         emit("add", text.value)
         text.value = ""

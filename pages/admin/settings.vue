@@ -53,7 +53,7 @@ function removeTopic(topic: string) {
     allowedTopics.value = allowedTopics.value.filter(t => t != topic)
 }
 
-
+// TODO make all of the settings here actually functional
 </script>
 
 
@@ -93,6 +93,14 @@ function removeTopic(topic: string) {
                     <div class="field row">
                         <label class="f-1">enable topics</label>
                         <Toggle :enabled="true" disabled />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">topics per submission</label>
+                        <input
+                            type="number"
+                            min="0" step="1" max="5"
+                            value="3"
+                        >
                     </div>
                     <div class="field row">
                         <label class="f-1">show topic feed</label>
@@ -149,7 +157,7 @@ function removeTopic(topic: string) {
                         <label class="f-1">image upload limit (megabytes)</label>
                         <input
                             type="number"
-                            min="1" step="1"
+                            min="0" step="5" max="100"
                             :disabled="!settings.media.uploads.enabled"
                             v-model.number="settings.media.uploads.imageMaxSize"
                         >
@@ -168,7 +176,7 @@ function removeTopic(topic: string) {
                         <label class="f-1">audio upload limit (megabytes)</label>
                         <input
                             type="number"
-                            min="1" step="1"
+                            min="0" step="10" max="500"
                             :disabled="!settings.media.uploads.enabled"
                             v-model.number="settings.media.uploads.audioMaxSize"
                         >
@@ -228,7 +236,8 @@ div.field {
     }
     input[type="number"] {
         padding: 0.25rem 0.5rem;
-        max-width: 6rem;
+        width: stretch;
+        max-width: 4rem;
         text-align: center;
     }
 }
