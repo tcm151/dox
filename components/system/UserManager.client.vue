@@ -18,12 +18,12 @@ const otherAccounts = computed(() => {
         : accounts.value
 })
 
-events.subscribe(Trigger.authenticatedUser, ({ user, token }: { user: User, token: string }): void => {
-    accounts.value = accounts.value.filter(u => u.id != user.id)
+events.subscribe(Trigger.authenticatedUser, (payload: { user: User, token: string }): void => {
+    accounts.value = accounts.value.filter(u => u.id != payload.user.id)
     accounts.value.unshift({
-        id: user.id,
-        name: user.name,
-        token: token,
+        id: payload.user.id,
+        name: payload.user.name,
+        token: payload.token,
     })
 })
 

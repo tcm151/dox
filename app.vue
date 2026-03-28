@@ -63,11 +63,11 @@ if (ENV.isClient()) {
 <template>
     <NuxtLoadingIndicator />
     <Navbar />
-    <Login v-if="showLogin" />
+    <Login v-show="showLogin" />
     <Popup v-if="showPopup" :loading="handlingPopup" :title="popupTitle" :accept="{ action: popupAccept }" :decline="{ action: closePopup }">
         {{ popupMessage }}
     </Popup>
-    <UserManager v-if="showUserManager" @close="showUserManager = !showUserManager" />
+    <UserManager v-show="showUserManager" @close="showUserManager = !showUserManager" />
     <Window v-if="showFeedback" title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" @close="showFeedback = false">
         <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
     </Window>
