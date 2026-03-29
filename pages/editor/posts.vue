@@ -220,7 +220,7 @@ async function saveDraft() {
                             <span>Drafts</span>
                         </button>
                     </header>
-                    <form class="form f-1 column g-2">
+                    <section class="form f-1 column g-2">
                         <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
                             <label>Title</label>
                             <input
@@ -246,7 +246,7 @@ async function saveDraft() {
                                 >
                             </div>
                         </div>
-                    </form>
+                    </section>
                 </section>
                 <section class="preview f-1" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>

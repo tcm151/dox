@@ -38,7 +38,7 @@ function getMediaUrl(image: File) {
             <section v-if="item.type.startsWith('audio/')">
                 <audio controls :src="getMediaUrl(item)" />
             </section>
-            <form class="form f-1 b-0">
+            <section class="form f-1 b-0">
                 <div class="field">
                     <label>File - {{ getFileSize(item.size) }}</label>
                     <input type="text" v-model="item.name">
@@ -47,7 +47,7 @@ function getMediaUrl(image: File) {
                     <label>Description</label>
                     <textarea class="f-1" resize="none" v-model="(item as MediaFile).description" />
                 </div>
-            </form>
+            </section>
         </div>
     </Popup>
 </template>

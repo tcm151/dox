@@ -69,7 +69,7 @@ function useTopic(topic: string | undefined) {
                 v-model="text"
                 @focus="inputFocused = true"
                 @blur="inputFocused = false"
-                @keyup.enter="addTopic"
+                @keyup.enter.prevent="addTopic"
             />
             <aside v-if="matchingResults.length > 0">
                 <template v-for="topic in matchingResults.slice(0, 10)">
