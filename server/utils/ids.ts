@@ -1,9 +1,3 @@
-export function extractId(id: string | undefined) {
-    if (!id || !id.includes(':')) {
-        throw createError({
-            status: 400,
-            statusText: "Invalid ID provided."
-        })
-    }
-    return id.split(':')[1]
+export function extractId(id: string) {
+    return id.toString().split(":").at(1)
 }

@@ -150,7 +150,7 @@ function writePostReply() {
         hints.addError("You must be logged in to interact with others.")
         return
     }
-    return navigateTo(`/editor?replyTo=${extractId(post.value!.id)}`)
+    return navigateTo(`/editor/posts?replyTo=${extractId(post.value!.id)}`)
 }
 
 async function reportPost() {

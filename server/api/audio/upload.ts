@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
     const settings = await useSettings()
 
-    if (!settings.media.uploads.enabled) {
+    if (!settings.app.media.audio.enabled) {
         return createError({
             status: 503,
             statusText: "Media uploads are currently disabled."
@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const fileSize = data[0].data.byteLength / 1_048_576
-    if (fileSize > settings.media.uploads.audioMaxSize) {
+    if (fileSize > settings.app.media.audio.uploadLimit) {
         return createError({
             status: 400,
-            statusText: `File size exceeds the ${settings.media.uploads.audioMaxSize}MB limit.`
+            statusText: `File size exceeds the ${settings.app.media.audio.uploadLimit}MB limit.`
         })
     }
 
@@ -59,5 +59,5 @@ export default defineEventHandler(async (event) => {
         .queryOne<Audio>()
         
     await writeMedia(auth, audio, buffer, "audio")
-    return { audio, tokens }
+    return { media: audio, tokens }
 })

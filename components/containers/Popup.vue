@@ -36,7 +36,7 @@ function resizePopup() {
                 <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="accept.action()">
                     {{ accept.label ?? "Yes" }}
                 </ButtonSpinner>
-                <button class="danger f-1 b-0" @click="decline.action()">
+                <button class="danger" @click="decline.action()">
                     {{ decline.label ?? "No" }}
                 </button>
             </div>

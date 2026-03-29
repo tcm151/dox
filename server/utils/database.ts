@@ -83,8 +83,16 @@ export class DatabaseQuery {
         return this
     }
 
-    addRecord(key: string, record: string) {
-        this.#parameters[key] = this.parseRecord(record)
+    addRecord(key: string, record: string, optional: boolean = false) {
+        try {
+            this.#parameters[key] = this.parseRecord(record)
+        }
+        catch (error: any) {
+            if (!optional) {
+                throw error
+            }
+            this.#parameters[key] = null
+        }
         return this
     }
 

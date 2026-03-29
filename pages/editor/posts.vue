@@ -33,28 +33,27 @@ const replyTo = computedAsync<Post | undefined>(async () => {
     if (route.query['replyTo'] || draft.value.replyTo) {
         const post = await useApi<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
         draft.value.replyTo = post.id as Post & string
+        useRouter().replace({ query: {} })
         return post
     }
 })
 
-let newTopic = ref("")
 let titleFocused = ref(false)
 
 function validTitle() {
     return (draft.value.title == '') ? true : valid.title.test(draft.value.title)
 }
 
-function validTopic() {
-    return (newTopic.value == '') ? true : valid.topic.test(newTopic.value)
+function validTopic(topic: string) {
+    return (topic == '') ? true : valid.topic.test(topic)
 }
 
-function addTopic() {
-    if (validTopic()) {
-        draft.value.topics.push(`topic:${newTopic.value}`)
-        newTopic.value = ""
+function addTopic(topic: string) {
+    if (!validTopic(topic)) {
+        hints.addWarning("Topic is not valid")
         return
     }
-    hints.addWarning("Topic is not valid")
+    draft.value.topics.push(`topic:${topic}`)
 }
 
 function removeTopic(topic: string) {
@@ -206,16 +205,14 @@ async function saveDraft() {
 </script>
 
 <template>
-    <article class="editor column p-4">
-        <div class="container column f-1">
-            <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-            <MediaUploader v-if="confirmUpload" :media="files" @accept="beginUpload" @close="cancelUpload" />
-            <div v-if="replyTo" class="reply-to row inline g-2">
+    <article class="column p-4">
+        <div class="box background column">
+            <header v-if="replyTo" class="reply-to row inline g-2 px-3 py-2">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p>{{ replyTo?.title }}</p>
-            </div>
-            <section class="editor column p-5">
-                <div class="column f-1" v-show="!showPreview">
+                <p class="text bold truncate">{{ replyTo?.title }}</p>
+            </header>
+            <div class="box column p-5">
+                <section class="editor column" v-show="!showPreview">
                     <header class="row inline between mb-4">
                         <h1>New Post</h1>
                         <button @click="showDrafts = true">
@@ -235,9 +232,9 @@ async function saveDraft() {
                         </div>
                         <div class="field f-1">
                             <label>Content</label>
-                            <textarea class="f-1" v-model="draft.content" type="text" rows="12" />
+                            <textarea class="f-1" rows="4" v-model="draft.content" />
                         </div>
-                        <TopicField v-model:text="newTopic" :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
+                        <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
                         <div v-if="uploadedImages.length > 0" class="field uploaded-images">
                             <label>Images</label>
                             <div class="row g-2">
@@ -250,13 +247,13 @@ async function saveDraft() {
                             </div>
                         </div>
                     </form>
-                </div>
-                <div class="preview f-1" v-show="showPreview">
+                </section>
+                <section class="preview f-1" v-show="showPreview">
                     <h1 class="mb-2">{{ draft.title }}</h1>
                     <Markdown class="content" :content="draft.content" />
                     <span v-if="draft.title === '' && draft.content === ''" class="watermark">Preview</span>
-                </div>
-                <section class="row wrap g-2 mt-5">
+                </section>
+                <footer class="row wrap g-2 mt-5">
                     <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                         <i class="fa-solid fa-share"></i>
                         <span>Submit</span>
@@ -279,61 +276,22 @@ async function saveDraft() {
                         <span>Preview</span>
                     </button>
                     <!-- <button class="danger f-1" @click="navigateTo('/')">Cancel</button> -->
-                </section>
-            </section>
+                </footer>
+            </div>
         </div>
+        <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
+        <MediaUploader v-show="confirmUpload" :media="files" @upload="beginUpload" @close="cancelUpload" />
     </article>
 </template>
 
 <style scoped lang="scss">
-article.editor {
+article {
     @include fit-width (60rem, 1rem);
-    justify-content: center;
-    overflow-y: hidden;
-
-    div.container {
-        border-radius: 0.5rem 0.5rem;
-        background-color: $white-3;
-    }
 }
 
-section.editor, section.preview {
-    flex: 1 1 400px;
-    min-width: 250px;
-    border-radius: 0.5rem;
-    background-color: $white-0;
-    overflow-y: hidden;
-}
-
-div.reply-to {
-    padding: 0.5rem 0.75rem;
+header.reply-to {
     color: $white-0;
-    
-    p {
-        font-weight: 700;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
 }
-
-section.editor {
-    .topic-input {
-
-        .row {
-            width: min-content;
-        }
-        
-        label {
-            vertical-align: middle;
-            line-height: 1.5rem;
-        }
-    }
-
-    textarea {
-        resize: none !important;
-    }
-}
-
 
 div.uploaded-images {
     div.row {
@@ -355,9 +313,8 @@ div.uploaded-images {
     }
 }
 
-.preview {
+section.preview {
     position: relative;
-    min-height: 100px;
     white-space: normal;
     overflow-y: auto;
 

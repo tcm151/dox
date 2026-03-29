@@ -78,14 +78,23 @@ function togglePreview() {
 </script>
 
 <template>
-    <article class="editor column p-4">
-        <header class="box column g-2 p-4">
-            <div class="field">
-                <label>Content</label>
-                <textarea class="f-1" rows="4" v-model="newThread.content" />
-            </div>
-            <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
-            <div class="row g-2 mt-2">
+    <article class="column m-4">
+        <section class="box column p-5">
+            <header class="row inline between mb-4">
+                <h1>New Thread</h1>
+                <button @click="">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>Drafts</span>
+                </button>
+            </header>
+            <form class="form f-1 column g-2">
+                <div class="field">
+                    <label>Content</label>
+                    <textarea class="f-1" rows="4" v-model="newThread.content" />
+                </div>
+                <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
+            </form>
+            <footer class="row g-2 mt-2">
                 <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>
@@ -103,13 +112,13 @@ function togglePreview() {
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
-            </div>
-        </header>
+            </footer>
+        </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article.editor {
+article {
     @include fit-width (60rem, 1rem);
 }
 </style>

@@ -1,4 +1,5 @@
 import type { Image } from "~/types"
+import { useSettings } from "~/server/utils/settings"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -6,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
     const settings = await useSettings()
 
-    if (!settings.media.uploads.enabled) {
+    if (!settings.media.images.enabled) {
         return createError({
             status: 503,
             statusText: "Media uploads are currently disabled."
@@ -21,10 +22,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const fileSize = data[0].data.byteLength / 1_048_576
-    if (fileSize > settings.media.uploads.imageMaxSize) {
+    if (fileSize > settings.media.images.uploadLimit) {
         return createError({
             status: 400,
-            statusText: `File size exceeds the ${settings.media.uploads.imageMaxSize}MB limit.`
+            statusText: `File size exceeds the ${settings.media.images.uploadLimit}MB limit.`
         })
     }
 
@@ -42,13 +43,13 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             RETURN {
                 UPDATE $user SET
-                tokens -= $tokens;
+                    tokens -= $tokens;
 
                 RETURN CREATE image SET
-                user = $user,
-                type = $type,
-                tokens = $tokens,
-                origin = $origin;
+                    user = $user,
+                    type = $type,
+                    tokens = $tokens,
+                    origin = $origin;
             };
         `)
         .addRecord('user', auth.id)
@@ -58,5 +59,5 @@ export default defineEventHandler(async (event) => {
         .queryOne<Image>()
 
     await writeMedia(auth, image, buffer, "image")
-    return { image, tokens }
+    return { media: image, tokens }
 })
