@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
         const audio = await new DatabaseQuery()
             .addSql(`
                 SELECT *
-                OMIT user.password
                 FROM $audio
                 FETCH user
             `)

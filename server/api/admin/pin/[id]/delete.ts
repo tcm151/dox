@@ -1,5 +1,3 @@
-import type { Pin } from "~/types"
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, ["admin", "developer"])
@@ -11,7 +9,7 @@ export default defineEventHandler(async (event) => {
             DELETE $pin
         `)
         .addRecord("pin", `pin:${id}`)
-        .queryOne<Pin>()
+        .execute()
 
     return true
 })

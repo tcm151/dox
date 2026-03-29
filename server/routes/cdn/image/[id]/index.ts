@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
         const image = await new DatabaseQuery()
             .addSql(`
                 SELECT *
-                OMIT user.password
                 FROM $image
                 FETCH user
             `)

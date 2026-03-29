@@ -45,7 +45,6 @@ class SessionManager {
         return await new DatabaseQuery()
             .addSql(`
                 SELECT *
-                OMIT user.password
                 FROM session
                 WHERE id = $id
                 AND invalidated = false

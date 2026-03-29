@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
 
     const passwordReset = await new DatabaseQuery()
         .addSql(`
-            SELECT * FROM $passwordReset
+            SELECT *
+            FROM $passwordReset
             FETCH user
         `)
         .addRecord("passwordReset", `passwordReset:${body.resetId}`)

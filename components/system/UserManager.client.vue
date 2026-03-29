@@ -60,11 +60,13 @@ async function removeLogin(profile: Profile) {
                 clear: true
             }
         })
-        accounts.value = accounts.value.filter(a => a.id != profile.id)
         hints.addSuccess(`Removed and invalidated session for ${profile.name}.`)
     }
     catch (error: any) {
         hints.addError("Unable to invalidate session.")
+    }
+    finally {
+        accounts.value = accounts.value.filter(a => a.id != profile.id)
     }
 }
 

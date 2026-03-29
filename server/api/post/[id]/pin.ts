@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
         return await new DatabaseQuery()
             .addSql(`
                 CREATE pin SET
-                post = $post,
-                user = $user;
+                    item = $post,
+                    user = $user;
             `)
             .addRecord("post", `post:${id}`)
             .addRecord("user", auth.id)
