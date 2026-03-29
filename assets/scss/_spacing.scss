@@ -30,6 +30,12 @@ $sizes: (
   .g-#{$name} {
     gap: $value !important;
   }
+  .gr-#{$name} {
+    row-gap: $value !important;
+  }
+  .gc-#{$name} {
+    column-gap: $value !important;
+  }
 }
 
 @each $property, $shortcut in $types {

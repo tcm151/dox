@@ -273,7 +273,7 @@ aside.tabs {
 }
 
 div.field {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 
     label {
         margin-right: 1rem;

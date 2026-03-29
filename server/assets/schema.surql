@@ -1,14 +1,4 @@
 -- ------------------------------
--- TABLE: account
--- ------------------------------
-DEFINE TABLE OVERWRITE account SCHEMAFULL;
-DEFINE FIELD OVERWRITE email ON account
-    TYPE string ASSERT string::is_email($value);
-DEFINE FIELD OVERWRITE password ON account
-    TYPE string;
-
-
--- ------------------------------
 -- TABLE: user
 -- ------------------------------
 DEFINE TABLE OVERWRITE user SCHEMAFULL;
@@ -212,6 +202,8 @@ DEFINE FIELD OVERWRITE time ON thread
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD OVERWRITE quote ON thread
     TYPE option<record<thread>>;
+DEFINE FIELD OVERWRITE quotes ON thread
+    TYPE array<record<thread>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE replyTo ON thread
     TYPE option<record<thread>>;
 DEFINE FIELD OVERWRITE topics ON thread
@@ -459,12 +451,4 @@ IF !record::exists(appSettings:default) {
             }
         },
     };
-};
-
-
--- ------------------------------
--- FUNCTIONS
--- ------------------------------
-DEFINE FUNCTION OVERWRITE fn::days_since($time: datetime) {
-    RETURN <float> (time::now() - $time) / 60 / 60 / 24;
 };

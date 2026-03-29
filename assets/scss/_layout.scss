@@ -49,12 +49,28 @@
     justify-content: space-around;
 }
 
-.row.inline.stretch, .column.inline.stretch {
-    align-items: stretch;
+.row.start, .column.start {
+    justify-content: flex-start;
 }
 
 .row.end, .column.end {
     justify-content: flex-end;
+}
+
+.row.stretch, .column.stretch {
+    justify-content: stretch;
+}
+
+.row.inline.stretch, .column.inline.stretch {
+    align-items: stretch;
+}
+
+.row.inline.start, .column.inline.start {
+    align-items: flex-start;
+}
+
+.row.inline.end, .column.inline.end {
+    align-items: flex-end;
 }
 
 .grid {

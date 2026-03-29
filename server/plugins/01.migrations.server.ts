@@ -25,7 +25,7 @@ export default defineNitroPlugin(async () => {
                             email = $email,
                             name = $name,
                             password = crypto::argon2::generate($password),
-                            roles = ["admin", "developer"],
+                            roles = ["moderator", "admin", "developer"],
                             traits = ["confirmed", "verified"];
                     };
                 `)
@@ -40,7 +40,6 @@ export default defineNitroPlugin(async () => {
         }
     }
     catch (error: any) {
-        console.log(error.message)
         throw createError({
             status: 500,
             statusText: "Failed to apply database migrations on application startup.",

@@ -12,7 +12,7 @@ export default defineNitroErrorHandler(async (error, event) => {
                         data = $data;
                 `)
                 .addParameter("status", error.statusCode)
-                .addParameter("description", error.statusMessage ?? "")
+                .addParameter("description", error.statusMessage ?? error.message)
                 .addParameter("request", {
                     path: event.path,
                     method: event.method,
