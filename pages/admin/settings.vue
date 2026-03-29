@@ -3,7 +3,7 @@
 const hints = useHints()
 const cache = useCache()
 const defaults = useSettings()
-const settings = ref(defaults.app)
+const settings = ref({ ...defaults.app })
 
 async function refreshSettings() {
     await defaults.refresh()
@@ -31,29 +31,24 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
-const tabs = ['contact', 'voting', 'topics', 'posts', 'threads', 'images', 'audio', 'misc']
+const tabs = ['contact', 'voting', 'feeds', 'topics', 'posts', 'threads', 'media', 'misc']
 
-
-const allowedTopicsOnly = ref<boolean>(false)
 const topicInput = useTemplateRef("topic")
-const allowedTopics = ref<string[]>([])
 function addTopic() {
     if (topicInput.value) {
-        allowedTopics.value.push(`topic:${topicInput.value.value}`)
+        settings.value.topics.allowList.push(`topic:${topicInput.value.value}`)
         topicInput.value.value = ""
     }
 }
 
 async function addExistingTopics() {
     const topics = await useApi<{ id: string, score: number }[]>("/api/topic/available")
-    allowedTopics.value = topics.map(t => t.id)
+    settings.value.topics.allowList = topics.map(t => t.id)
 }
 
 function removeTopic(topic: string) {
-    allowedTopics.value = allowedTopics.value.filter(t => t != topic)
+    settings.value.topics.allowList = settings.value.topics.allowList.filter(t => t != topic)
 }
-
-// TODO make all of the settings here actually functional
 </script>
 
 
@@ -75,52 +70,110 @@ function removeTopic(topic: string) {
                     </div>
                     <div class="field">
                         <label>additional emails</label>
-                        <textarea rows="2"></textarea>
+                        <textarea rows="2" v-model="settings.email.additional"></textarea>
                         <span class="tip">Multiple emails can be included, separated by ;</span>
                     </div>
                 </div>
                 <div v-if="section == 'voting'">
                     <div class="field row">
-                        <label class="f-1">enable misleading votes</label>
-                        <Toggle v-model:enabled="settings.voting.showMisleading" />
+                        <label class="f-1">enable voting</label>
+                        <Toggle v-model:enabled="settings.voting.enabled" />
                     </div>
                     <div class="field row">
-                        <label class="f-1">enable negative votes</label>
-                        <Toggle v-model:enabled="settings.voting.showNegative" />
+                        <label class="f-1">use misleading votes</label>
+                        <Toggle 
+                            :disabled="!settings.voting.enabled"
+                            v-model:enabled="settings.voting.misleading"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">use negative votes</label>
+                        <Toggle
+                            :disabled="!settings.voting.enabled"
+                            v-model:enabled="settings.voting.negative"
+                        />
+                    </div>
+                </div>
+                <div v-if="section == 'feeds'">
+                    <div class="field row">
+                        <label class="f-1">enable search</label>
+                        <Toggle v-model:enabled="settings.feeds.search" />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show discover feed</label>
+                        <Toggle
+                            v-model:enabled="settings.feeds.discover"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show topics feed</label>
+                        <Toggle
+                            :disabled="!settings.topics.enabled"
+                            v-model:enabled="settings.feeds.topics"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show posts feed</label>
+                        <Toggle
+                            :disabled="!settings.posts.enabled"
+                            v-model:enabled="settings.feeds.posts"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show threads feed</label>
+                        <Toggle
+                            :disabled="!settings.threads.enabled"
+                            v-model:enabled="settings.feeds.threads"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show images feed</label>
+                        <Toggle
+                            :disabled="!settings.media.images.enabled"
+                            v-model:enabled="settings.feeds.images"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show audio feed</label>
+                        <Toggle 
+                            :disabled="!settings.media.audio.enabled"
+                            v-model:enabled="settings.feeds.audio"
+                        />
                     </div>
                 </div>
                 <div v-if="section == 'topics'">
                     <div class="field row">
                         <label class="f-1">enable topics</label>
-                        <Toggle :enabled="true" disabled />
+                        <Toggle v-model:enabled="settings.topics.enabled" />
                     </div>
+                    
                     <div class="field row">
                         <label class="f-1">topics per submission</label>
                         <input
                             type="number"
                             min="0" step="1" max="5"
-                            value="3"
+                            :disabled="!settings.topics.enabled"
+                            v-model="settings.topics.perSubmission"
                         >
                     </div>
                     <div class="field row">
-                        <label class="f-1">show topic feed</label>
-                        <Toggle v-model:enabled="settings.feed.showTopics" />
-                    </div>
-                    <div class="field row">
                         <label class="f-1">allowed topics only</label>
-                        <Toggle v-model:enabled="allowedTopicsOnly" />
+                        <Toggle
+                            :disabled="!settings.topics.enabled"
+                            v-model:enabled="settings.topics.restrictTopics"
+                        />
                     </div>
-                    <template v-if="allowedTopicsOnly">
+                    <template v-if="settings.topics.enabled && settings.topics.restrictTopics">
                         <div class="field row g-2">
                             <input class="f-1" ref="topic" placeholder="press enter to add . . ." @keyup.enter="addTopic">
                             <button class="small" @click="addExistingTopics">
                                 Add Existing
                             </button>
                         </div>
-                        <template v-if="allowedTopics.length > 0">
+                        <template v-if="settings.topics.allowList.length > 0">
                             <div class="field">
                                 <div class="row wrap g-1">
-                                    <template v-for="topic in allowedTopics">
+                                    <template v-for="topic in settings.topics.allowList">
                                         <Tag class="f-1 s-1 b-half" type="link" :label="extractId(topic)" @click="removeTopic(topic)" />
                                     </template>
                                 </div>
@@ -131,69 +184,63 @@ function removeTopic(topic: string) {
                 <div v-if="section == 'posts'">
                     <div class="field row">
                         <label class="f-1">enable posts</label>
-                        <Toggle :enabled="true" disabled />
+                        <Toggle v-model:enabled="settings.posts.enabled" />
                     </div>
                 </div>
                 <div v-if="section == 'threads'">
                     <div class="field row">
                         <label class="f-1">enable threads</label>
-                        <Toggle :enabled="true" disabled />
+                        <Toggle v-model:enabled="settings.threads.enabled" />
                     </div>
-                    <div class="field row">
-                        <label class="f-1">show threads feed</label>
-                        <Toggle v-model:enabled="settings.feed.showThreads" />
-                    </div>
+                    
                 </div>
-                <div v-if="section == 'images'">
+                <div v-if="section == 'media'">
+                    <div class="field row">
+                        <label class="f-1">use tokens</label>
+                        <Toggle v-model:enabled="settings.media.tokens.enabled" />
+                    </div>
+                    <hr>
                     <div class="field row">
                         <label class="f-1">enable images</label>
-                        <Toggle v-model:enabled="settings.media.uploads.enabled" />
+                        <Toggle v-model:enabled="settings.media.images.enabled" />
                     </div>
-                    <div class="field row">
-                        <label class="f-1">show images feed</label>
-                        <Toggle v-model:enabled="settings.feed.showImages" />
-                    </div>
+                    
                     <div class="field row">
                         <label class="f-1">image upload limit (megabytes)</label>
                         <input
                             type="number"
                             min="0" step="5" max="100"
-                            :disabled="!settings.media.uploads.enabled"
-                            v-model.number="settings.media.uploads.imageMaxSize"
+                            :disabled="!settings.media.images.enabled"
+                            v-model.number="settings.media.images.uploadLimit"
                         >
                     </div>
-                </div>
-                <div v-if="section == 'audio'">
+                    <hr>
                     <div class="field row">
                         <label class="f-1">enable audio</label>
-                        <Toggle v-model:enabled="settings.media.uploads.enabled" disabled />
+                        <Toggle v-model:enabled="settings.media.audio.enabled" />
                     </div>
-                    <div class="field row">
-                        <label class="f-1">show audio feed</label>
-                        <Toggle :enabled="false" disabled />
-                    </div>
+                    
                     <div class="field row">
                         <label class="f-1">audio upload limit (megabytes)</label>
                         <input
                             type="number"
                             min="0" step="10" max="500"
-                            :disabled="!settings.media.uploads.enabled"
-                            v-model.number="settings.media.uploads.audioMaxSize"
+                            :disabled="!settings.media.audio.enabled"
+                            v-model.number="settings.media.audio.uploadLimit"
                         >
                     </div>
                 </div>
                 <div v-if="section == 'misc'">
                     <div class="field row">
-                        <label class="f-1">enable search</label>
-                        <Toggle v-model:enabled="settings.feed.showSearch" />
-                    </div>
-                    <div class="field row">
                         <label class="f-1">enable feedback</label>
-                        <Toggle v-model:enabled="settings.navbar.showFeedback" />
+                        <Toggle v-model:enabled="settings.misc.feedback.enabled" />
                     </div>
                     <div class="field row">
-                        <label class="f-1">enable store</label>
-                        <Toggle v-model:enabled="settings.navbar.showStore" />
+                        <label class="f-1">allow anonymous</label>
+                        <Toggle 
+                            :disabled="!settings.misc.feedback.enabled"
+                            v-model:enabled="settings.misc.feedback.allowAnonymous"
+                        />
                     </div>
                 </div>
             </section>

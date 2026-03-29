@@ -3,7 +3,7 @@ definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
         const cache = useCache()
-        const lastTab = cache.get("feed.lastTab", () => "posts")
+        const lastTab = cache.get("feed.lastTab", () => "discover")
         if (to.path === "/feed") {
             return navigateTo(`/feed/${lastTab.value}`)
         }
@@ -17,12 +17,12 @@ const route = useRoute()
 const settings = useSettings()
 
 const tabs = ref<any[]>([
-    { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feed.showSearch },
+    { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feeds.search },
     { route: '/feed/discover', icon: 'fa-house', label: 'Home' },
-    { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feed.showTopics },
+    { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
     { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts' },
-    { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feed.showThreads },
-    { route: '/feed/images', icon: 'fa-image', label: 'Images', hide: () => !settings.app.feed.showImages },
+    { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
+    { route: '/feed/images', icon: 'fa-image', label: 'Images', hide: () => !settings.app.feeds.images },
     { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: ()=> true },
 ])
 </script>

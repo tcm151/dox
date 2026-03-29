@@ -12,7 +12,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="fit row g-1">
+    <div v-if="settings.app.voting.enabled" class="fit row g-1">
         <ClientOnly>
             <span
                 class="tag positive"
@@ -21,14 +21,14 @@ const props = defineProps<{
             >
                 {{ target.votes.positive.length }}
             </span>
-            <span v-if="settings.app.voting.showMisleading"
+            <span v-if="settings.app.voting.misleading"
                 class="tag misleading"
                 :class="{ voted: target.votes.misleading.includes(session.user.id)}"
                 @click.stop="vote.misleading(target)"
             >
                 {{ target.votes.misleading.length }}
             </span>
-            <span v-if="settings.app.voting.showNegative"
+            <span v-if="settings.app.voting.negative"
                 class="tag negative"
                 :class="{ voted: target.votes.negative.includes(session.user.id)}"
                 @click.stop="vote.negative(target)"

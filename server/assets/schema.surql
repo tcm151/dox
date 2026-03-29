@@ -404,28 +404,58 @@ IF !record::exists(appSettings:default) {
     CREATE appSettings:default CONTENT {
         email: {
             support: "",
-        },
-        navbar: {
-            showStore: false,
-            showFeedback: true,
-        },
-        feed: {
-            showSearch: false,
-            showTopics: true,
-            showThreads: true,
-            showImages: true,
+            additional: "",
         },
         voting: {
-            showMisleading: true,
-            showNegative: true,
+            enabled: true,
+            misleading: true,
+            negative: true,
+        },
+        topics: {
+            enabled: true,
+            perSubmission: 3,
+            restrictTopics: false,
+            allowList: [],
+        },
+        feeds: {
+            search: true,
+            discover: true,
+            topics: true,
+            posts: true,
+            threads: true,
+            images: true,
+            audio: false,
+            video: false,
+        },
+        posts: {
+            enabled: true,
+        },
+        threads: {
+            enabled: true,
         },
         media: {
-            uploads: {
+            tokens: {
+                enabled: false,
+            },
+            images: {
                 enabled: true,
-                imageMaxSize: 10,
-                audioMaxSize: 100,
+                uploadLimit: 10,
+            },
+            audio: {
+                enabled: false,
+                uploadLimit: 100,
+            },
+            video: {
+                enabled: false,
+                uploadLimit: 500,
             }
-        }
+        },
+        misc: {
+            feedback: {
+                enabled: true,
+                allowAnonymous: false,
+            }
+        },
     };
 };
 

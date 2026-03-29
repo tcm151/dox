@@ -36,11 +36,12 @@ export default defineNuxtConfig({
     ssr: true,
     routeRules: {
         "/inbox": { ssr: false },
-        "/editor": { ssr: false },
+        "/editor/**": { ssr: false },
+        "/moderator/**": { ssr: false },
+        "/topic/*/moderation": { ssr: false},
         "/admin/**": { ssr: false },
         "/developer/**": { ssr: false },
         "/settings/**": { ssr: false },
-        "/topic/*/moderation": { ssr: false},
     },
     modules: [
         "@pinia/nuxt",

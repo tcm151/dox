@@ -2,6 +2,7 @@
 defineProps(['error'])
 
 const router = useRouter()
+const settings = useSettings()
 
 let complain = ref(false)
 </script>
@@ -19,7 +20,7 @@ let complain = ref(false)
                     <i class="fa-solid fa-hand-point-left"></i>
                     <span>Go Back</span>
                 </button>
-                <button class="danger" @click="complain = true">
+                <button v-if="settings.app.misc.feedback.enabled" class="danger" @click="complain = true">
                     <i class="fa-solid fa-keyboard"></i>
                     <span>Complain</span>
                 </button>

@@ -27,17 +27,18 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
         hints.addWarning("Please select a file.")
         return
     }
-    if (!settings.app.media.uploads.enabled) {
+    // TODO account for all media types
+    if (!settings.app.media.images.enabled) {
         hints.addError("Media uploads are currently disabled.")
         return
     }
     
     let maxSize = 0;
     if (mediaType === "image") {
-        maxSize = settings.app.media.uploads.imageMaxSize
+        maxSize = settings.app.media.images.uploadLimit
     }
     if (mediaType === "audio") {
-        maxSize = settings.app.media.uploads.audioMaxSize
+        maxSize = settings.app.media.audio.uploadLimit
     }
 
     const fileSize = files[0].size / 1_048_576

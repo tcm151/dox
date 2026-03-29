@@ -42,15 +42,19 @@ function toggleUserManager() {
                     <span>Developer</span>
                 </NuxtLink>
             </Authenticated>
-            <NuxtLink to="/store" v-if="config.app.navbar.showStore" title="Store">
+            <NuxtLink to="/store" v-if="config.app.media.tokens.enabled" title="Store">
                 <i class="fa-solid fa-coins"></i>
             </NuxtLink>
         </section>
         <Transition name="slide">
             <section v-if="session.isAuthenticated" class="right row authenticated">
-                <button v-if="config.app.navbar.showFeedback" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
+                <button v-if="config.app.misc.feedback.enabled" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
                     <i class="fa-solid fa-keyboard"></i>
                 </button>
+                <NuxtLink to="/editor" title="Submit">
+                    <i class="fa-solid fa-feather"></i>
+                    <span>Submit</span>
+                </NuxtLink>
                 <NuxtLink to="/inbox" title="Inbox">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Inbox</span>

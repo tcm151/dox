@@ -167,30 +167,59 @@ export interface Error extends Record {
     data: { [key: string]: any }
 }
 
-export interface AppSettings {
-    id: string
+export interface AppSettings extends Record {
     email: {
         support: string
-    }
-    navbar: {
-        showStore: boolean,
-        showFeedback: boolean,
-    }
-    feed: {
-        showSearch: boolean,
-        showTopics: boolean,
-        showThreads: boolean,
-        showImages: boolean,
+        additional: string
     }
     voting: {
-        showMisleading: boolean
-        showNegative: boolean
+        enabled: boolean
+        misleading: boolean
+        negative: boolean
+    }
+    topics: {
+        enabled: boolean
+        perSubmission: number
+        restrictTopics: boolean
+        allowList: string[]
+    }
+    feeds: {
+        search: boolean
+        discover: boolean
+        topics: boolean
+        posts: boolean
+        threads: boolean
+        images: boolean
+        audio: boolean
+        video: boolean
+    }
+    posts: {
+        enabled: boolean
+    }
+    threads: {
+        enabled: boolean
     }
     media: {
-        uploads: {
+        tokens: {
             enabled: boolean
-            imageMaxSize: number
-            audioMaxSize: number
+        }
+        images: {
+            enabled: boolean
+            uploadLimit: number
+        }
+        audio: {
+            enabled: boolean
+            uploadLimit: number
+        }
+        video: {
+            enabled: boolean
+            uploadLimit: number
+        }
+    }
+    misc: {
+        feedback: {
+            enabled: true
+            allowAnonymous: false
         }
     }
 }

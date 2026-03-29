@@ -174,3 +174,34 @@ WHERE item = NONE;
 UPDATE image SET
     name = ""
 WHERE name = NONE;
+
+-- 2026-03-28 major settings migration
+UPDATE appSettings:default SET
+    email.support = email.support,
+    email.additional = "",
+    voting.enabled = true,
+    voting.misleading = voting.showMisleading,
+    voting.negative = voting.showNegative,
+    topics.enabled = true,
+    topics.perSubmission = 3,
+    topics.restrictTopics = false,
+    topics.allowList = [],
+    feeds.search = feed.showSearch,
+    feeds.discover = true,
+    feeds.topics = feed.showTopics,
+    feeds.posts = true,
+    feeds.threads = feed.showThreads,
+    feeds.images = feed.showImages,
+    feeds.audio = false,
+    feeds.video = false,
+    posts.enabled = true,
+    threads.enabled = true,
+    media.tokens.enabled = navbar.showStore,
+    media.images.enabled = media.uploads.enabled,
+    media.images.uploadLimit = media.uploads.imageMaxSize,
+    media.audio.enabled = false,
+    media.audio.uploadLimit = media.uploads.audioMaxSize,
+    media.video.enabled = false,
+    media.video.uploadLimit = 500,
+    misc.feedback.enabled = navbar.showFeedback
+WHERE email.additional = NONE;

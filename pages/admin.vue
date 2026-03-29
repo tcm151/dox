@@ -23,14 +23,14 @@ definePageMeta({
 })
 
 const route = useRoute()
+const settings = useSettings()
 
 const tabs = [
     { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
     { route: '/admin/users', icon: 'fa-user', label: 'Users' },
     { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
-    { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback' },
+    { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
     { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
-
 ]
 </script>
 
