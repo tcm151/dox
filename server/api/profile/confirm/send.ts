@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
             CREATE confirmation SET
                 account = $account
         `)
-        .addRecord('account', auth.id)
+        .addRecord('account', event.context.account.id)
         .queryOne<Confirmation>()
 
     const { public: { baseUrl } } = useRuntimeConfig()

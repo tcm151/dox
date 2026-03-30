@@ -144,14 +144,14 @@ export interface Report extends Record {
 }
 
 export interface Confirmation extends Record {
-    user: User & string
+    account: Account & string
     time: string
     used: boolean
     expired: boolean
 }
 
 export interface PasswordReset extends Record {
-    user: User & string
+    account: Account & string
     time: string
     used: boolean
     expired: boolean

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             };
 
             RETURN {
-                UPDATE $confirmation.user SET
+                UPDATE $confirmation.account.user SET
                     traits = array::union(traits, ["confirmed"]);
 
                 UPDATE $confirmation SET

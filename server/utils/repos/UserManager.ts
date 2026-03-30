@@ -19,9 +19,9 @@ export class UserManager {
     
                     let $account = (
                         CREATE ONLY account SET
+                            user = $user.id,
                             email = $email,
-                            password = $password,
-                            user = $user.id
+                            password = crypto::argon2::generate($password);
                     );
 
                     RETURN {

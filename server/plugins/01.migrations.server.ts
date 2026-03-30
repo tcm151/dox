@@ -22,15 +22,17 @@ export default defineNitroPlugin(async () => {
                 .addSql(`
                     IF array::len(SELECT VALUE id FROM user) = 0 {
                         
-                        CREATE user SET
-                            name = $name,
-                            roles = ["moderator", "admin", "developer"],
-                            traits = ["confirmed", "verified"];
+                        LET $user = (
+                            CREATE ONLY user SET
+                                name = $name,
+                                roles = ["moderator", "admin", "developer"],
+                                traits = ["confirmed", "verified"]
+                        );
     
                         CREATE account SET
+                            user = $user.id,
                             email = $email,
-                            password = $password,
-                            user = $user.id;
+                            password = crypto::argon2::generate($password);
                     };
                 `)
                 .addParameter("email", config.surreal.admin.email)

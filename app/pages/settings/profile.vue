@@ -4,6 +4,8 @@ const valid = useValidation()
 const events = useEvents()
 const session = getSession()
 
+const { data: account } = await useDatasource("/api/profile/account")
+
 function validDescription() {
     return session.user.description !== '' ? valid.user.description(session.user.description!) : true
 }
@@ -63,7 +65,6 @@ async function resetProfile() {
     usernameTaken.value = false
 }
 
-// TODO remove references to session.user.email, grab manually
 async function resetPassword() {
     events.publish(Trigger.showPopup, {
         title: 'Confirm Password Reset',
@@ -71,7 +72,7 @@ async function resetPassword() {
         accept: async () => {
             await useApi(`/api/profile/password/reset`, {
                 body: {
-                    id: session.user.email
+                    id: account.value.email
                 }
             })
             hints.addSuccess("Password reset link sent to your email.")
@@ -97,7 +98,7 @@ async function resetPassword() {
             <div class="form">
                 <div class="field">
                     <label>Email</label>
-                    <input disabled type="text" v-model="session.user.email"/>
+                    <input disabled type="text" :value="account.email"/>
                 </div>
                 <div class="field" :class="{ invalid: invalidUsername() }">
                     <label>Username</label>
