@@ -63,7 +63,7 @@ async function resetProfile() {
     usernameTaken.value = false
 }
 
-
+// TODO remove references to session.user.email, grab manually
 async function resetPassword() {
     events.publish(Trigger.showPopup, {
         title: 'Confirm Password Reset',

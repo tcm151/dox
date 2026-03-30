@@ -1,5 +1,3 @@
-import type { PasswordReset } from "@@/shared/types"
-
 export default defineEventHandler(async (event) => {
     const body = await readBody<{ id: string, email: string, password: string }>(event)
     const valid = useValidation()
@@ -20,14 +18,14 @@ export default defineEventHandler(async (event) => {
                 IF $passwordReset.used {
                     THROW "This password reset has already been used.";
                 };
-                IF $passwordReset.user.email != $email {
+                IF $passwordReset.account.email != $email {
                     THROW "Email does not match with reset request.";
                 };
     
                 RETURN {
-                    UPDATE user SET
+                    UPDATE account SET
                         password = crypto::argon2::generate($password)
-                    WHERE id = $passwordReset.user.id;
+                    WHERE id = $passwordReset.account.id;
         
                     UPDATE $passwordReset SET
                         used = true;

@@ -21,12 +21,16 @@ export default defineNitroPlugin(async () => {
             const result = await new DatabaseQuery()
                 .addSql(`
                     IF array::len(SELECT VALUE id FROM user) = 0 {
-                        RETURN CREATE user SET
-                            email = $email,
+                        
+                        CREATE user SET
                             name = $name,
-                            password = crypto::argon2::generate($password),
                             roles = ["moderator", "admin", "developer"],
                             traits = ["confirmed", "verified"];
+    
+                        CREATE account SET
+                            email = $email,
+                            password = $password,
+                            user = $user.id;
                     };
                 `)
                 .addParameter("email", config.surreal.admin.email)

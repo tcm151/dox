@@ -1,41 +1,39 @@
 export class SessionManager {
-    static async add(user: User) {
-        let session = await new DatabaseQuery()
+    static async add(account: Account) {
+        return await new DatabaseQuery()
             .addSql(`
-                CREATE session SET
-                    user = $user;
+                RETURN {
+                    LET $sesh = (CREATE ONLY session SET account = $account);
+    
+                    DELETE session
+                    WHERE account = $account
+                    AND (invalidated = true OR time::now()-time > 14d);
+    
+                    RETURN SELECT *
+                    FROM session
+                    WHERE id = $sesh.id
+                    FETCH account, account.user;
+                }
             `)
-            .addParameter("user", user.id)
+            .addParameter("account", account.id)
             .queryOne<Session>()
-
-        session.user = user as User & string
-
-        await new DatabaseQuery()
-            .addSql(`
-                DELETE session
-                WHERE user = $user
-                AND (invalidated = true OR time::now()-time > 14d);
-            `)
-            .addRecord("user", session.user.id)
-            .execute()
-
-        return session
     }
 
     static async authenticateLogin(id: string, password: string) {
-        const user = await new DatabaseQuery()
+        const account = await new DatabaseQuery()
             .addSql(`
                 SELECT *
                 OMIT password
-                FROM user
-                WHERE (email = $id OR name = $id)
-                AND crypto::argon2::compare(password, $password);
+                FROM account
+                WHERE (email = $id OR user.name = $id)
+                AND crypto::argon2::compare(password, $password)
+                FETCH user;
             `)
             .addParameter("id", id)
             .addParameter("password", password)
-            .queryOne<User>()
+            .queryOne<Account>()
 
-        return await this.add(user);
+        return await this.add(account);
     }
 
     static async authenticateToken(id: string) {
@@ -45,7 +43,7 @@ export class SessionManager {
                 FROM session
                 WHERE id = $id
                 AND invalidated = false
-                FETCH user;
+                FETCH account, account.user;
             `)
             .addRecord("id", id)
             .queryOne<Session>()
@@ -62,14 +60,14 @@ export class SessionManager {
             .execute()
     }
 
-    static async invalidateUser(userId: string) {
+    static async invalidateAccount(account: Account) {
         await new DatabaseQuery()
             .addSql(`
                 UPDATE session SET
                     invalidated = true
-                WHERE user = $user;
+                WHERE account.id = $account;
             `)
-            .addRecord("user", userId)
+            .addRecord("account", account.id)
             .execute()
     }
 }

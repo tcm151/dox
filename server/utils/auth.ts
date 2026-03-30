@@ -9,13 +9,23 @@ interface RegistrationRequest {
 }
 
 export const registerUser = async (event: H3Event) => {
-    const { username, email, password, referral } = await readBody<RegistrationRequest>(event)
-    const user = await UserManager.create(email, username, password)
-    const session = await SessionManager.add(user)
-    if (referral) {
-        await ReferralManager.claimReferral(user, referral)
+    try {
+        const { username, email, password, referral } = await readBody<RegistrationRequest>(event)
+        const { user, account } = await UserManager.create(email, username, password)
+        const session = await SessionManager.add(account)
+        if (referral) {
+            await ReferralManager.claimReferral(user, referral)
+        }
+        return session.id
     }
-    return session.id
+    catch (error: any) {
+        throw createError({
+            status: 400,
+            statusText: "Failed to register user.",
+            message: error.message,
+            stack: error.stack,
+        })
+    }
 }
 
 export const authenticateLogin = async (event: H3Event) => {
@@ -23,8 +33,8 @@ export const authenticateLogin = async (event: H3Event) => {
         const header = atob(getHeader(event, 'Authorization') ?? "")
         const [username, password] = header.split(":", 2)
         const session = await SessionManager.authenticateLogin(username!, password!)
-        event.context.user = session.user.id
-        return { tokens: { access: session.id }, user: session.user }
+        event.context.account = session.account
+        return { tokens: { access: session.id }, user: session.account.user }
     }
     catch (error: any) {
         throw createError({
@@ -40,8 +50,8 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
     try {
         const token = getHeader(event, 'Authorization') ?? ""
         let session = await SessionManager.authenticateToken(token)
-        event.context.user = session.user.id
-        return session.user
+        event.context.account = session.account
+        return session.account.user
     }
     catch (error: any) {
         throw createError({

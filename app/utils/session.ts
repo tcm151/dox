@@ -14,7 +14,6 @@ export const getSession = defineStore("session", () => {
     const tokens = useLocalStorage<Tokens>("tokens", { access: "" })
     const user = useSessionStorage<User>("user", () => ({
         id: 'user:temp',
-        email: '',
         name: '',
         topics: [],
         followers: [],
@@ -92,7 +91,6 @@ export const getSession = defineStore("session", () => {
             }
             user.value = {
                 id: 'user:temp',
-                email: '',
                 name: '',
                 topics: [],
                 followers: [],

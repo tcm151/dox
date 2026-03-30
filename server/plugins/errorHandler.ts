@@ -23,7 +23,7 @@ export default defineNitroErrorHandler(async (error, event) => {
                         referer: getHeader(event, "referer"),
                     }
                 })
-                .addParameter("user", event.context.user ?? "unknown")
+                .addParameter("user", event.context.account.user.id ?? "unknown")
                 .addParameter("stack", error.stack ?? "")
                 .addParameter("data", error.data ?? {})
                 .queryOne<Error>()

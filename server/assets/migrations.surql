@@ -186,3 +186,25 @@ WHERE email.additional = NONE;
 -- 2026-03-29 cleanup schema and remove unused stuff
 REMOVE ACCESS IF EXISTS account ON DATABASE;
 REMOVE FUNCTION IF EXISTS fn::days_since;
+
+-- 2026-03-30 major account migration
+UPDATE session SET
+    account = (SELECT VALUE id FROM account WHERE user.id = $parent.user)[0]
+WHERE account = NONE AND user != NONE;
+
+FOR $user IN (SELECT id, email, password FROM user) {
+    IF array::len(SELECT user FROM account WHERE user = $user.id) = 0 {
+        CREATE account SET
+            user = $user.id,
+            email = $user.email,
+            password = $user.password;
+    };
+};
+
+REMOVE FIELD IF EXISTS email ON TABLE user;
+REMOVE FIELD IF EXISTS password ON TABLE user;
+UPDATE user SET email = NONE, password = NONE
+WHERE email != NONE OR password != NONE;
+
+REMOVE FIELD IF EXISTS user ON TABLE session;
+UPDATE session SET user = NONE WHERE user != NONE;

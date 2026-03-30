@@ -1,5 +1,7 @@
+import type { User, Account } from "@@/shared/types"
+
 export class UserManager {
-    static async create(email: string, name: string, password: string): Promise<User> {
+    static async create(email: string, name: string, password: string): Promise<{ user: User, account: Account }> {
         
         new Validator("User")
             .match(email, "user.email")
@@ -9,14 +11,28 @@ export class UserManager {
         
         return await new DatabaseQuery()
             .addSql(`
-                CREATE user SET
-                    email = $email,
-                    name = $name,
-                    password = crypto::argon2::generate($password);
+                RETURN {
+                    LET $user = (
+                        CREATE ONLY user SET
+                            name = $name
+                    );
+    
+                    let $account = (
+                        CREATE ONLY account SET
+                            email = $email,
+                            password = $password,
+                            user = $user.id
+                    );
+
+                    RETURN {
+                        user: $user,
+                        account: $account
+                    };
+                }
             `)
             .addParameter("email", email)
             .addParameter("name", name)
             .addParameter("password", password)
-            .queryOne<User>()
+            .queryOne<{ user: User, account: Account }>()
     }
 }

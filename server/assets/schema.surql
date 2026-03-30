@@ -17,16 +17,10 @@ DEFINE INDEX OVERWRITE user ON account
 -- TABLE: user
 -- ------------------------------
 DEFINE TABLE OVERWRITE user SCHEMAFULL;
-DEFINE FIELD OVERWRITE email ON user
-    TYPE string ASSERT string::is_email($value);
-DEFINE INDEX OVERWRITE email ON user
-    FIELDS email UNIQUE;
 DEFINE FIELD OVERWRITE name ON user
     TYPE string ASSERT $value = /^[\w]{3,32}$/;
 DEFINE INDEX OVERWRITE name ON user
     FIELDS name UNIQUE;
-DEFINE FIELD OVERWRITE password ON user
-    TYPE string;
 DEFINE FIELD OVERWRITE link ON user
     TYPE option<string>;
 DEFINE FIELD OVERWRITE description on user
@@ -362,8 +356,8 @@ DEFINE FIELD OVERWRITE time ON report
 -- TABLE: confirmation
 -- ------------------------------
 DEFINE TABLE OVERWRITE confirmation SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON confirmation
-    TYPE record<user>;
+DEFINE FIELD OVERWRITE account ON confirmation
+    TYPE record<account>;
 DEFINE FIELD OVERWRITE time ON confirmation
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD OVERWRITE used ON confirmation
@@ -376,8 +370,8 @@ DEFINE FIELD OVERWRITE expired ON confirmation
 -- TABLE: passwordReset
 -- ------------------------------
 DEFINE TABLE OVERWRITE passwordReset SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON passwordReset
-    TYPE record<user>;
+DEFINE FIELD OVERWRITE account ON passwordReset
+    TYPE record<account>;
 DEFINE FIELD OVERWRITE time ON passwordReset
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD OVERWRITE used ON passwordReset

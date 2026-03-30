@@ -1,42 +1,41 @@
-import type { User, AppSettings, PasswordReset } from "@@/shared/types"
+import type { PasswordReset, Account } from "@@/shared/types"
 
 
 export default defineEventHandler(async (event) => {
-    const startTime = Date.now()
     const { id } = await readBody<{ id: string }>(event)
-
     const settings = await settingsManager.get()
-
+    const startTime = Date.now()
+    
     try {
-        const user = await new DatabaseQuery()
+        const account = await new DatabaseQuery()
             .addSql(`
-                SELECT id, name, email
-                FROM user
-                WHERE name = $id
+                SELECT id, email, user.name
+                FROM account
+                WHERE user.name = $id
                 OR email = $id
             `)
             .addParameter('id', id)
-            .queryOne<User>()
+            .queryOne<Account>()
     
         const passwordReset = await new DatabaseQuery()
             .addSql(`
                 CREATE passwordReset SET
-                user = $user
+                    account = $account
             `)
-            .addRecord('user', user.id)
+            .addRecord('account', account.id)
             .queryOne<PasswordReset>()
     
         const { public: { baseUrl } } = useRuntimeConfig()
         let template = await useStorage("assets:server").getItem("templates/reset-password.html") as string
-        template = template.replace('{{user.email}}', user.email)
-        template = template.replace('{{user.name}}', user.name)
+        template = template.replace('{{user.email}}', account.email)
+        template = template.replace('{{user.name}}', account.user.name)
         template = template.replace('{{resetPasswordLink}}', `${baseUrl}/settings/reset-password?id=${extractId(passwordReset.id)}`)
         template = template.replace('{{reportLink}}', `${baseUrl}/settings/reset-password?report=${extractId(passwordReset.id)}`)
         template = template.replace('{{supportEmail}}', settings.email.support ?? "support@example.com")
         
         await sendEmail({
-            recipient: user.email,
-            subject: `Reset Password: ${user.name}`,
+            recipient: account.email,
+            subject: `Reset Password: ${account.user.name}`,
             text: 'password reset request.',
             html: template
         })
