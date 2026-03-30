@@ -1,4 +1,19 @@
 -- ------------------------------
+-- TABLE: account
+-- ------------------------------
+DEFINE TABLE OVERWRITE account SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON account
+    TYPE string ASSERT string::is_email($value);
+DEFINE INDEX OVERWRITE email ON account
+    FIELDS email UNIQUE;
+DEFINE FIELD OVERWRITE password ON account
+    TYPE string;
+DEFINE FIELD OVERWRITE user ON account
+    TYPE record<user>;
+DEFINE INDEX OVERWRITE user ON account
+    FIELDS user UNIQUE;
+
+-- ------------------------------
 -- TABLE: user
 -- ------------------------------
 DEFINE TABLE OVERWRITE user SCHEMAFULL;
@@ -46,8 +61,8 @@ DEFINE FIELD OVERWRITE score ON user
 -- TABLE: session
 -- ------------------------------
 DEFINE TABLE OVERWRITE session SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON session
-    TYPE record<user>;
+DEFINE FIELD OVERWRITE account ON session
+    TYPE record<account>;
 DEFINE FIELD OVERWRITE time ON session
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD OVERWRITE invalidated ON session
