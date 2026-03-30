@@ -1,4 +1,4 @@
-import type { Notification } from "~/types"
+import type { Notification } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

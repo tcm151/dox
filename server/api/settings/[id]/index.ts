@@ -1,4 +1,4 @@
-import type { AppSettings } from "~/types"
+import type { AppSettings } from "@@/shared/types"
 
 // INFO: these settings are public application configurations and are not sensitive.
 // They are stored in the database for easy retrieval and management, and synchronized across all instances.

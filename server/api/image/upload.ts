@@ -1,11 +1,10 @@
-import type { Image } from "~/types"
-import { useSettings } from "~/server/utils/settings"
+import type { Image } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
 
-    const settings = await useSettings()
+    const settings = await settingsManager.getById()
 
     if (!settings.media.images.enabled) {
         return createError({

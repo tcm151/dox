@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import type { Audio } from "~/types"
+import type { Audio } from "@@/shared/types"
 
 
 export default defineEventHandler(async (event) => {

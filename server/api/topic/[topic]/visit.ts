@@ -1,4 +1,4 @@
-import type { Topic } from "~/types"
+import type { Topic } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const id = event.context.params!.topic!.toString()

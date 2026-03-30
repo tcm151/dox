@@ -1,4 +1,4 @@
-import type { User, AppSettings, PasswordReset } from "~/types"
+import type { User, AppSettings, PasswordReset } from "@@/shared/types"
 
 
 export default defineEventHandler(async (event) => {

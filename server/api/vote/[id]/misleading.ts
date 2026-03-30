@@ -1,4 +1,4 @@
-import type { Voteable } from "~/types"
+import type { Voteable } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

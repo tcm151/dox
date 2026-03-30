@@ -1,4 +1,4 @@
-import type { AppSettings } from "~/types"
+import type { AppSettings } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

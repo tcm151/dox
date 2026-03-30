@@ -1,4 +1,4 @@
-import type { Post, Comment } from "~/types"
+import type { Post, Comment } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     let query = getQuery<{ sortBy: string }>(event)

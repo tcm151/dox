@@ -1,4 +1,4 @@
-import type { Feedback } from "~/types"
+import type { Feedback } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

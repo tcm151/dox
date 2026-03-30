@@ -1,4 +1,4 @@
-import type { Audio } from "~/types"
+import type { Audio } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()

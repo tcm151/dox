@@ -1,4 +1,4 @@
-import type { Sortable } from "~/types"
+import type { Sortable } from "@@/shared/types"
 import { DateTime } from "luxon"
 
 export function sortList(items: Sortable[], sortType: string) {

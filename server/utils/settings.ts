@@ -1,11 +1,15 @@
-import type { AppSettings } from "~/types"
+import type { AppSettings } from "@@/shared/types"
 
-export async function useSettings(id: string = "default") {
-    return await new DatabaseQuery()
-        .addSql(`
-            SELECT *
-            FROM $settings
-        `)
-        .addRecord("settings", `appSettings:${id}`)
-        .queryOne<AppSettings>()
+class SettingsManager {
+    async getById(id: string = "default") {
+        return await new DatabaseQuery()
+            .addSql(`
+                SELECT *
+                FROM $settings
+            `)
+            .addRecord("settings", `appSettings:${id}`)
+            .queryOne<AppSettings>()
+    }
 }
+
+export const settingsManager = new SettingsManager()

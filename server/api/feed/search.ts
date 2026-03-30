@@ -1,4 +1,4 @@
-import type { Post, Thread } from "~/types"
+import type { Post, Thread } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const { text } = getQuery(event)

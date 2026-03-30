@@ -1,12 +1,12 @@
-import type { Audio } from "~/types"
+import type { Audio } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
 
-    const settings = await useSettings()
+    const settings = await settingsManager.getById()
 
-    if (!settings.app.media.audio.enabled) {
+    if (!settings.media.audio.enabled) {
         return createError({
             status: 503,
             statusText: "Media uploads are currently disabled."
@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const fileSize = data[0].data.byteLength / 1_048_576
-    if (fileSize > settings.app.media.audio.uploadLimit) {
+    if (fileSize > settings.media.audio.uploadLimit) {
         return createError({
             status: 400,
-            statusText: `File size exceeds the ${settings.app.media.audio.uploadLimit}MB limit.`
+            statusText: `File size exceeds the ${settings.media.audio.uploadLimit}MB limit.`
         })
     }
 

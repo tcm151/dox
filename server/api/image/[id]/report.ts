@@ -1,4 +1,4 @@
-import type { Image } from "~/types"
+import type { Image } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

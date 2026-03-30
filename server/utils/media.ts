@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import sharp from "sharp"
 import type { MultiPartData } from "h3"
-import type { User, Media } from "~/types"
+import type { User, Media } from "@@/shared/types"
 
 // REFACTOR implement server-side token calculations
 export async function processMedia(media: MultiPartData): Promise<{ buffer: Buffer, type: string }> {

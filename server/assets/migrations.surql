@@ -182,6 +182,8 @@ UPDATE appSettings:default SET
     voting.enabled = true,
     voting.misleading = voting.showMisleading,
     voting.negative = voting.showNegative,
+    voting.showMisleading = NONE,
+    voting.showNegative = NONE,
     topics.enabled = true,
     topics.perSubmission = 3,
     topics.restrictTopics = false,
@@ -194,6 +196,7 @@ UPDATE appSettings:default SET
     feeds.images = feed.showImages,
     feeds.audio = false,
     feeds.video = false,
+    feed = NONE,
     posts.enabled = true,
     threads.enabled = true,
     media.tokens.enabled = navbar.showStore,
@@ -203,7 +206,10 @@ UPDATE appSettings:default SET
     media.audio.uploadLimit = media.uploads.audioMaxSize,
     media.video.enabled = false,
     media.video.uploadLimit = 500,
-    misc.feedback.enabled = navbar.showFeedback
+    media.uploads = NONE,
+    misc.feedback.enabled = navbar.showFeedback,
+    misc.feedback.allowAnonymous = false,
+    navbar = NONE
 WHERE email.additional = NONE;
 
 -- 2026-03-29 cleanup schema and remove unused stuff

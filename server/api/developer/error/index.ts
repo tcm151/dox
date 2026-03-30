@@ -1,10 +1,10 @@
-import type { Error } from "~/types"
+import type { Error } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, "developer")
 
-    const query = getQuery<{ limit: number, codes: number[] }>(event)
+    const query = getQuery<{ limit: number, codes: number[], start: string, end: string }>(event)
 
     if (query.codes && !Array.isArray(query.codes)) {
         query.codes = [query.codes]

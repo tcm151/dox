@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import type { Image } from "~/types"
+import type { Image } from "@@/shared/types"
 
 
 export default defineEventHandler(async (event) => {

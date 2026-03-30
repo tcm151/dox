@@ -1,4 +1,4 @@
-import type { Thread } from "~/types"
+import type { Thread } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

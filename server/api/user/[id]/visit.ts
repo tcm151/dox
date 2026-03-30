@@ -1,4 +1,4 @@
-import type { User } from "~/types"
+import type { User } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!

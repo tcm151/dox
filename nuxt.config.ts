@@ -1,5 +1,55 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+    compatibilityDate: "2025-12-01",
+    devtools: { enabled: false },
+    ssr: true,
+    modules: [
+        "@pinia/nuxt",
+        "@vueuse/nuxt"
+    ],
+    components: [
+        { path: "~/components", pathPrefix: false, }
+    ],
+    imports: {
+        dirs: ["@@/shared/types"],
+    },
+    vite: {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    quietDeps: true,
+                    additionalData: [
+                        '@use "~/assets/scss/colors" as *;',
+                        '@use "~/assets/scss/mixins" as *;',
+                    ].join("\n"),
+                },
+            },
+        },
+        optimizeDeps: {
+            include: [
+                'marked',
+                'luxon',
+                'isomorphic-dompurify',
+                'html-entities',
+                'highlight.js/lib/common',
+            ],
+        },
+    },
+    routeRules: {
+        "/inbox": { ssr: false },
+        "/editor/**": { ssr: false },
+        "/moderator/**": { ssr: false },
+        "/topic/*/moderation": { ssr: false},
+        "/admin/**": { ssr: false },
+        "/developer/**": { ssr: false },
+        "/settings/**": { ssr: false },
+    },
+    nitro: {
+        errorHandler: "server/plugins/errorHandler"
+    },
+    css: [
+        "~/assets/scss/global.scss"
+    ],
     app: {
         rootId: "app",
         rootTag: "main",
@@ -28,57 +78,6 @@ export default defineNuxtConfig({
             ],
             meta: [
                 { name: "viewport", content: "width=device-width, height=device-height, initial-scale=1" },
-            ],
-        },
-    },
-    compatibilityDate: "2025-12-01",
-    devtools: { enabled: false },
-    ssr: true,
-    routeRules: {
-        "/inbox": { ssr: false },
-        "/editor/**": { ssr: false },
-        "/moderator/**": { ssr: false },
-        "/topic/*/moderation": { ssr: false},
-        "/admin/**": { ssr: false },
-        "/developer/**": { ssr: false },
-        "/settings/**": { ssr: false },
-    },
-    modules: [
-        "@pinia/nuxt",
-        "@vueuse/nuxt"
-    ],
-    components: [
-        { path: "~/components", pathPrefix: false },
-        { path: "~/**/components", pathPrefix: false },
-    ],
-    imports: {
-        dirs: ["services/**", "datasources/**"],
-    },
-    css: [
-        "~/assets/scss/global.scss"
-    ],
-    nitro: {
-        errorHandler: "~/server/plugins/errorHandler"
-    },
-    vite: {
-        css: {
-            preprocessorOptions: {
-                scss: {
-                    quietDeps: true,
-                    additionalData: [
-                        '@use "~/assets/scss/colors" as *;',
-                        '@use "~/assets/scss/mixins" as *;',
-                    ].join("\n"),
-                },
-            },
-        },
-        optimizeDeps: {
-            include: [
-                'marked',
-                'luxon',
-                'isomorphic-dompurify',
-                'html-entities',
-                'highlight.js/lib/common',
             ],
         },
     },

@@ -1,4 +1,4 @@
-import type { User, PasswordReset } from "~/types"
+import type { User, PasswordReset } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const body = await readBody<{

@@ -1,4 +1,4 @@
-import type { Post } from "~/types"
+import type { Post } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     let query = getQuery<{ sortBy: string, page: number, pageSize: number }>(event)
