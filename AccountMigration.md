@@ -4,14 +4,35 @@
 
 Move sensitive credentials and identity fields out of the `user` record and into `account`, so regular `user` fetches no longer include email/password data.
 
+## Last 6 Commits Review (2026-03-30)
+
+Reviewed commits:
+
+1. `4ac441d` merge from `dev`
+2. `d3821d8` start on account table migration
+3. `953c67a` UI alignment (non-auth)
+4. `fa4d11d` validation updates
+5. `808e16a` schema ordering updates
+6. `bacae5d` repository-based auth refactor
+
+Commit impact on this migration:
+
+1. `d3821d8` introduced `Account`, `Session.account`, and account schema definitions.
+2. `bacae5d` moved auth responsibilities into repository classes:
+   - `server/utils/repos/UserManager.ts`
+   - `server/utils/repos/SessionManager.ts`
+   - `server/utils/repos/ReferralManager.ts`
+3. `shared/types/index.ts` now removes `email` from `User`, but runtime auth/data paths still depend on `user.email`/`user.password` in multiple server and client flows.
+4. `server/assets/migrations.surql` no longer drops `account`; previous risk note about `REMOVE TABLE IF EXISTS account` is obsolete.
+
 ## Current State (Observed Drift)
 
 1. Shared types and schema already model `Account` and `Session.account`.
-2. Runtime auth still creates and validates credentials directly on `user`.
-3. Runtime sessions in `server/utils/auth.ts` still use `session.user` and `FETCH user`.
+2. Runtime auth has been refactored to repository classes, but still creates and validates credentials directly on `user`.
+3. Runtime sessions still use `session.user` and `FETCH user` in `SessionManager` despite schema and types using `session.account`.
 4. Startup default admin seed in `server/plugins/01.migrations.server.ts` still writes `user.email` and `user.password`.
 5. Password reset and confirm-email paths still rely on `user.email` and `user.password`.
-6. `server/assets/migrations.surql` currently contains a `REMOVE TABLE IF EXISTS account;` cleanup migration (2026-03-29), which conflicts with this target architecture.
+6. Client settings profile still references `session.user.email` even though `User` type no longer includes `email`.
 
 ## Target Data Model
 
@@ -37,7 +58,7 @@ Move sensitive credentials and identity fields out of the `user` record and into
 
 1. Freeze auth-related writes during migration window or run in a maintenance window.
 2. Back up DB before migration.
-3. Remove or supersede migrations that drop `account`.
+3. Verify no migration reintroduces destructive account-table changes in future merges.
 4. Keep migration scripts idempotent (safe to run multiple times).
 
 ## Phase 1: Schema Alignment (Backward Compatible)
@@ -86,7 +107,7 @@ RETURN {
 
 ## Phase 3: Auth and Session Code Cutover
 
-Update `server/utils/auth.ts` to read credentials from `account` and sessions from `session.account`.
+Update repository-driven auth flow to read credentials from `account` and sessions from `session.account`.
 
 ### Login flow changes
 
@@ -123,7 +144,7 @@ Target behavior: invalidate by `session.account.user` or by account lookup first
 
 ## Phase 4: Registration and Bootstrap Cutover
 
-### Registration (`server/utils/auth.ts`)
+### Registration (`server/utils/auth.ts` + `server/utils/repos/UserManager.ts`)
 
 Current behavior: create `user` with `email` and hashed `password` directly on `user`.
 
@@ -232,17 +253,23 @@ UPDATE session SET user = NONE WHERE user != NONE;
    - Ensure `user` no longer defines credential fields at final phase.
 2. `server/assets/migrations.surql`
    - Add backfill migration blocks.
-   - Remove/replace destructive migration that drops `account`.
+   - Keep existing account-related cleanup (`REMOVE ACCESS IF EXISTS account ON DATABASE`) under review only if DB access policies are reintroduced.
    - Add cleanup migration to null/remove legacy user credential fields.
 
 ## Server auth/session layer
 
 1. `server/utils/auth.ts`
+   - Keep as orchestration layer only (parse headers, map errors, call repo methods).
+2. `server/utils/repos/UserManager.ts`
+   - Change user creation to profile-only fields.
+   - Add account creation linked to user for registration/bootstrap paths.
+3. `server/utils/repos/SessionManager.ts`
    - Replace login credential checks to account table.
    - Create sessions with account reference.
    - Authenticate token via `FETCH account, account.user`.
    - Invalidate sessions by account/user relationship.
-   - Registration: create user + account + session.
+4. `server/utils/repos/ReferralManager.ts`
+   - Validate that referral flows continue to use `user` records only and do not depend on credential fields.
 
 ## Startup/bootstrap
 
@@ -275,6 +302,14 @@ UPDATE session SET user = NONE WHERE user != NONE;
    - Option A: never include in `User`; expose separate account endpoint.
    - Option B: include in a separate response type only for current authenticated user.
 2. Keep public profile/user list endpoints sanitized.
+
+## Commit-Aware Priority Order
+
+1. Refactor `SessionManager` login/token methods first (highest drift vs schema/types).
+2. Refactor `UserManager.create` and default-admin bootstrap to user+account split.
+3. Update password reset/confirm and confirm-send endpoints to resolve account email/password.
+4. Resolve client usage of `session.user.email` with a private account endpoint or separate account store.
+5. Perform hard cleanup of legacy fields after dual-read period.
 
 ## Security and Reliability Checklist
 
