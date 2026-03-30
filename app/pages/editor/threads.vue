@@ -75,6 +75,7 @@ function togglePreview() {
     hints.addWarning('We are still working on this...')
 }
 
+// TODO finish implementing thread editor; drafts, image uploads, previews
 </script>
 
 <template>

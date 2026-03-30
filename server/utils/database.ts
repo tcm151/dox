@@ -69,7 +69,7 @@ export class DatabaseQuery {
 
     private parseRecord(record: string) {
         const [table, id] = record.toString().split(":", 2)
-        if (!table || !id) {
+        if (!table || !id || !useValidation().record.id(record)) {
             throw createError({
                 status: 400,
                 statusText: "Invalid record ID."

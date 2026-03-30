@@ -3,7 +3,7 @@ export const useValidation = () => {
         email: (v: string) => /^\S+@\S+\.\S+$/.test(v),
         name: (v: string) => /^[\w]{3,32}$/.test(v),
         password: (v: string) => /^[\S]{8,64}$/.test(v),
-        description: (v: string) => /^[\w\W]{0,256}$/.test(v)
+        description: (v: string) => /^[\w\W]{0,256}$/.test(v),
     }
 
     const post = {
@@ -15,7 +15,7 @@ export const useValidation = () => {
     }
 
     const record = {
-        id: (v: string) => /^\w+:\w+$/.test(v)
+        id: (v: string) => /^\w+:\w+$/.test(v),
     }
 
     return {
