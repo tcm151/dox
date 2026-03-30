@@ -206,10 +206,10 @@ DEFINE FIELD OVERWRITE quotes ON thread
     TYPE array<record<thread>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE replyTo ON thread
     TYPE option<record<thread>>;
-DEFINE FIELD OVERWRITE topics ON thread
-    TYPE array<record<topic>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE replies ON thread 
     TYPE array<record<thread>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE topics ON thread
+    TYPE array<record<topic>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE images ON thread
     TYPE array<record<image>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE archived ON thread
