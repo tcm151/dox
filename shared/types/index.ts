@@ -21,14 +21,13 @@ export interface Sortable extends Record, Voteable {
     // archived: boolean
 }
 
-// REFACTOR split off account into its own type
 export interface Account extends Record {
     email: string
     password: string
+    user: User & string
 }
 
 export interface User extends Sortable {
-    email: string
     name: string
     link?: string
     description?: string
@@ -45,7 +44,8 @@ export type Role = "admin" | "developer" | "moderator"
 export type Trait = "confirmed" | "verified"
 
 export interface Session extends Record {
-    user: User & string
+    account: Account & string
+    time: string
     invalidated: boolean
 }
 

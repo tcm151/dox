@@ -184,6 +184,5 @@ UPDATE appSettings:default SET
 WHERE email.additional = NONE;
 
 -- 2026-03-29 cleanup schema and remove unused stuff
-REMOVE TABLE IF EXISTS account;
 REMOVE ACCESS IF EXISTS account ON DATABASE;
 REMOVE FUNCTION IF EXISTS fn::days_since;
