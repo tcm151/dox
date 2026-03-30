@@ -28,7 +28,7 @@ function resizePopup() {
 <template>
     <aside class="background column center">
         <main class="window box br-large column" ref="window" :style="{ width: width, maxWidth: maxWidth, maxHeight: maxHeight }">
-            <header class="title-bar row inline between stretch g-4">
+            <header class="title-bar row between g-4">
                 <div class="left row inline g-2 px-3 py-2">
                     <i v-if="icon" :class="`fa-solid ${icon}`"></i>
                     <h1 v-if="title" class="title">{{ title }}</h1>
