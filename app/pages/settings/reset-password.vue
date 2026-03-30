@@ -8,37 +8,32 @@ const valid = useValidation()
 const events = useEvents()
 
 const route = useRoute()
-const resetId = route.query['id']
+const id = route.query['id']
 
 const email = ref("")
 const password = ref("")
 const confirmation = ref("")
 
 async function resetPassword() {
-
     if (!valid.user.email(email.value)) {
         hints.addError("Invalid email.")
         return
     }
-
     if (!valid.user.password(password.value) || !valid.user.password(confirmation.value)) {
         hints.addError("Invalid password.")
         return
-    } 
-
+    }
     if (password.value !== confirmation.value) {
         hints.addWarning("Passwords entered are not identical")
         return
     }
-
     await useApi("/api/profile/password/confirm", {
         body: {
-            resetId: resetId,
+            id: id,
             email: email.value,
             password: password.value
         }
     })
-    
     email.value = ""
     password.value = ""
     confirmation.value = ""

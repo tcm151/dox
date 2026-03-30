@@ -35,11 +35,11 @@ async function register() {
     try {
         submitting.value = true
         const result = await useApi("/api/user/register", {
-            headers: {
-                Authorization: btoa(`${email.value}:${username.value}:${password.value}`),
-            },
             body: {
-                referral: referrer
+                email: email.value,
+                username: username.value,
+                password: password.value,
+                referral: referrer,
             },
         })
 

@@ -16,23 +16,23 @@ class RateLimiter {
         }
     }
 
-    limitExceeded(ipAddress: string, path: string): boolean {
+    limitExceeded(key: string, path: string): boolean {
         const now = Date.now()
-        const bucket = this.#buckets[ipAddress] ?? []
+        const bucket = this.#buckets[key] ?? []
         if (this.#routes[path]) {
             const { ms, max } = this.#routes[path]
-            this.#buckets[ipAddress] = bucket.filter(t => t > now - ms)
-            if (this.#buckets[ipAddress].length >= max) {
+            this.#buckets[key] = bucket.filter(t => t > now - ms)
+            if (this.#buckets[key].length >= max) {
                 return true
             }
-            this.#buckets[ipAddress].push(now)
+            this.#buckets[key].push(now)
         }
         return false
     }
 
-    retryAfter(ipAddress: string, path: string): number {
+    retryAfter(key: string, path: string): number {
         const { ms } = this.#routes[path] ?? { ms: 0 }
-        const oldest = this.#buckets[ipAddress]?.at(0) ?? Date.now()
+        const oldest = this.#buckets[key]?.at(0) ?? Date.now()
         return Math.ceil((oldest + ms - Date.now()) / 1000)
     }
 
@@ -49,18 +49,21 @@ const limiter = new RateLimiter(10 * 60 * 1000, {
     "/api/user/register": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/profile/login": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/profile/password/reset": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
+    "/api/profile/password/confirm": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
+    "/api/profile/confirm": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
 }) 
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
     const path = event.path.split("?").at(0) ?? ""
-    const ipAddress = getRequestIP(event, { xForwardedFor: true }) ?? "unknown"
+    const ipAddress = getRequestIP(event, { xForwardedFor: false }) ?? "unknown"
+    const bucketKey = `${path}:${ipAddress}`
 
-    if (limiter.limitExceeded(ipAddress, path)) {
+    if (limiter.limitExceeded(bucketKey, path)) {
         throw createError({
             status: 429,
             statusText: "Too Many Requests. Please try again later.",
             data: {
-                retryAfter: limiter.retryAfter(ipAddress, path)
+                retryAfter: limiter.retryAfter(bucketKey, path)
             }
         })
     }

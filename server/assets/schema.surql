@@ -372,6 +372,32 @@ DEFINE FIELD OVERWRITE expired ON passwordReset
 
 
 -- ------------------------------
+-- TABLE: referralClaim
+-- ------------------------------
+DEFINE TABLE OVERWRITE referralClaim SCHEMAFULL;
+DEFINE FIELD OVERWRITE claimant ON referralClaim
+    TYPE record<user>;
+DEFINE FIELD OVERWRITE recipient ON referralClaim
+    TYPE record<user>;
+DEFINE INDEX OVERWRITE claimant_recipient ON referralClaim
+    FIELDS claimant, recipient UNIQUE;
+DEFINE FIELD OVERWRITE time ON referralClaim
+    TYPE datetime DEFAULT ALWAYS time::now();
+
+
+-- ------------------------------
+-- TABLE: moderationRequest
+-- ------------------------------
+DEFINE TABLE OVERWRITE moderationRequest SCHEMAFULL;
+DEFINE FIELD OVERWRITE user ON moderationRequest
+    TYPE record<user>;
+DEFINE FIELD OVERWRITE topic ON moderationRequest
+    TYPE record<topic>;
+DEFINE INDEX OVERWRITE user_topic ON moderationRequest
+    FIELDS user, topic UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: error
 -- ------------------------------
 DEFINE TABLE OVERWRITE error SCHEMAFULL;

@@ -83,8 +83,15 @@ class SessionManager {
 const sessionManager = new SessionManager()
 
 export const registerUser = async (event: H3Event) => {
-    const register = await readBody<{ referral?: string }>(event)
-    const header = atob(getHeader(event, 'Authorization') ?? "")
+    const register = await readBody<{ email: string, username: string, password: string, referral?: string }>(event)
+    const valid = useValidation()
+
+    if (!valid.user.email(register.email) || !valid.user.name(register.username) || !valid.user.password(register.password)) {
+        throw createError({
+            status: 400,
+            statusText: "Invalid user registration information."
+        })
+    }
     
     const user = await new DatabaseQuery()
         .addSql(`
@@ -93,30 +100,15 @@ export const registerUser = async (event: H3Event) => {
                 name = $username,
                 password = crypto::argon2::generate($password);
         `)
-        .addParameter("email", header.split(":")[0])
-        .addParameter("username", header.split(":")[1])
-        .addParameter("password", header.split(":")[2])
+        .addParameter("email", register.email)
+        .addParameter("username", register.username)
+        .addParameter("password", register.password)
         .queryOne<User>()
     
     const session = await sessionManager.add(user)
 
     if (register.referral) {
-        await new DatabaseQuery()
-            .addSql(`
-                IF record::exists($recipient) {
-                    UPDATE $recipient SET
-                        tokens += 1024;
-                    
-                    CREATE notification SET
-                        recipient = $recipient,
-                        context = $context,
-                        message = $message;
-                };
-            `)
-            .addRecord("recipient", `user:${register.referral}`)
-            .addRecord("context", session.user.id)
-            .addParameter("message", `**${session.user.name}** used your referral\n> You gained 1024 free tokens. Don't forget to thank them!\n`)
-            .queryAll<string>()
+        await ReferralManager.claimReferral(user, register.referral)
     }
 
     return session.id

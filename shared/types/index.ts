@@ -157,6 +157,12 @@ export interface PasswordReset extends Record {
     expired: boolean
 }
 
+export interface ReferralClaim extends Record {
+    claimant: User & string
+    recipient: User & string
+    time: string
+}
+
 export interface Error extends Record {
     status: number
     description: string

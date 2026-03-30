@@ -1,53 +1,50 @@
-import type { User, PasswordReset } from "@@/shared/types"
+import type { PasswordReset } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody<{
-        resetId: string,
-        email: string,
-        password: string
-    }>(event)
+    const body = await readBody<{ id: string, email: string, password: string }>(event)
+    const valid = useValidation()
 
-    const passwordReset = await new DatabaseQuery()
-        .addSql(`
-            SELECT *
-            FROM $passwordReset
-            FETCH user
-        `)
-        .addRecord("passwordReset", `passwordReset:${body.resetId}`)
-        .queryOne<PasswordReset>()
-
-    if (passwordReset.expired) {
+    if (!valid.user.email(body.email) || !valid.user.password(body.password)) {
         throw createError({
             status: 400,
-            statusText: "Reset request period has expired, please try again and complete within 15 minutes."
+            statusText: "Invalid user password reset information."
         })
     }
 
-    if (passwordReset.used) {
+    try {
+        await new DatabaseQuery()
+            .addSql(`
+                IF $passwordReset.expired {
+                    THROW "Reset period has expired, please try again and complete within 15 minutes."
+                };
+                IF $passwordReset.used {
+                    THROW "This password reset has already been used.";
+                };
+                IF $passwordReset.user.email != $email {
+                    THROW "Email does not match with reset request.";
+                };
+    
+                RETURN {
+                    UPDATE user SET
+                        password = crypto::argon2::generate($password)
+                    WHERE id = $passwordReset.user.id;
+        
+                    UPDATE $passwordReset SET
+                        used = true;
+                };
+    
+            `)
+            .addParameter("email", body.email)
+            .addParameter("password", body.password)
+            .addRecord("passwordReset", `passwordReset:${body.id}`)
+            .execute()
+    }
+    catch (error: any) {
         throw createError({
             status: 400,
-            statusText: "This reset request has already been used."
+            statusText: "Unable to process password reset request.",
+            message: error.message,
+            stack: error.stack,
         })
     }
-
-    if (passwordReset.user.email !== body.email) {
-        throw createError( {
-            status: 400,
-            statusText: "Email does not match with reset request."
-        })   
-    }
-
-    return await new DatabaseQuery()
-        .addSql(`
-            UPDATE user SET
-            password = crypto::argon2::generate($password)
-            WHERE email = $email;
-
-            UPDATE $passwordReset SET
-            used = true;
-        `)
-        .addParameter("email", body.email)
-        .addParameter("password", body.password)
-        .addRecord("passwordReset", `passwordReset:${body.resetId}`)
-        .execute()
 })
