@@ -2,24 +2,22 @@
 
 const hints = useHints()
 const cache = useCache()
-const defaults = useSettings()
-const settings = ref({ ...defaults.app })
+const { app: { id, ...defaults }, refresh } = useSettings()
+const settings = ref({ ...defaults })
 
 async function refreshSettings() {
-    await defaults.refresh()
-    settings.value = defaults.app
+    await refresh()
+    settings.value = defaults
 }
 
 const loading = ref<boolean>(false)
 async function saveSettings() {
     try {
         loading.value = true
-        await useApi(`/api/admin/config/${defaults.app.id}/update`, {
-            body: {
-                config: settings.value
-            }
+        await useApi(`/api/admin/settings/${extractId(id)}/update`, {
+            body: settings.value
         })
-        await defaults.refresh()
+        await refresh()
         hints.addSuccess("Settings saved successfully.")
     }
     catch (error: any) {

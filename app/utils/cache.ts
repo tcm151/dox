@@ -1,21 +1,17 @@
 import type { Ref } from "vue"
 import { skipHydrate } from "pinia"
 
-interface Cache {
-    [key: string]: any 
-}
-
 export const useCache = defineStore("cache", () => {
     const events = useEvents()
     const session = getSession()
 
-    function refreshCache() {
-        return useLocalStorage<Cache>(`cache:${session.user.id}`, {})
+    function refresh() {
+        return useLocalStorage<Record<string, any>>(`cache:${session.user.id}`, {})
     }
         
-    let cache = refreshCache()
-    events.subscribe(Trigger.authenticatedUser, () => cache = refreshCache())
-    events.subscribe(Trigger.userLoggedOut, () => cache = refreshCache())
+    let cache = refresh()
+    events.subscribe(Trigger.authenticatedUser, () => cache = refresh())
+    events.subscribe(Trigger.userLoggedOut, () => cache = refresh())
 
     function get<T>(key: string, fallback: () => T): Ref<T> {
         if (key in cache.value == false) {
@@ -27,9 +23,5 @@ export const useCache = defineStore("cache", () => {
         return cachedRef
     }
 
-    function set(key: string, value: any) {
-        cache.value[key] = value
-    }
-
-    return { cache: skipHydrate(cache), get, set }
+    return { cache: skipHydrate(cache), get }
 })

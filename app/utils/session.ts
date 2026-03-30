@@ -113,7 +113,7 @@ export const getSession = defineStore("session", () => {
                 },
             }
         }
-        return navigateTo("/feed")
+        return navigateTo("/feed/discover")
     }
 
     return {

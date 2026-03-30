@@ -15,8 +15,8 @@ definePageMeta({
 })
 
 const hints = useHints()
-const session = getSession()
 const valid = useValidation()
+const session = getSession()
 
 let draft = ref<Draft>({
     id: '',
@@ -41,11 +41,11 @@ const replyTo = computedAsync<Post | undefined>(async () => {
 let titleFocused = ref(false)
 
 function validTitle() {
-    return (draft.value.title == '') ? true : valid.title.test(draft.value.title)
+    return (draft.value.title == '') ? true : valid.post.title(draft.value.title)
 }
 
 function validTopic(topic: string) {
-    return (topic == '') ? true : valid.topic.test(topic)
+    return (topic == '') ? true : valid.topic.name(topic)
 }
 
 function addTopic(topic: string) {

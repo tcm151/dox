@@ -4,11 +4,6 @@ import type { AppSettings } from "@@/shared/types"
 // They are stored in the database for easy retrieval and management, and synchronized across all instances.
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
-    return await new DatabaseQuery()
-        .addSql(`
-            SELECT *
-            FROM $settings
-        `)
-        .addRecord("settings", `appSettings:${id}`)
-        .queryOne<AppSettings>()
+    return await settingsManager.get(id)
+
 })

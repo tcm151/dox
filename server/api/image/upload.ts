@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
 
-    const settings = await settingsManager.getById()
+    const settings = await settingsManager.get()
 
     if (!settings.media.images.enabled) {
         return createError({

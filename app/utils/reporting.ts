@@ -1,8 +1,8 @@
 export async function submitReport(subject: string) {
     const hints = useHints()
+    const valid = useValidation()
 
-    const [table, id] = subject.toString().split(":", 2)
-    if (!table || !id) {
+    if (!valid.record.id(subject)) {
         throw createError({
             status: 400,
             statusText: "Unable to report this."
@@ -14,5 +14,6 @@ export async function submitReport(subject: string) {
             subject: subject
         }
     })
+    
     hints.addError("Thank you for reporting this to the development team.")
 }

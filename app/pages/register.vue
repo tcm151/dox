@@ -17,17 +17,17 @@ const confirmation = ref("")
 
 const submitting = ref<boolean>(false)
 async function register() {
-    if (!valid.email.test(email.value)) {
+    if (!valid.user.email(email.value)) {
         hints.addError("Invalid email.")
         return
     }
 
-    if (!valid.username.test(username.value)) {
+    if (!valid.user.name(username.value)) {
         hints.addError("Invalid username.")
         return
     } 
 
-    if (!valid.password.test(password.value) || !valid.password.test(confirmation.value)) {
+    if (!valid.user.password(password.value) || !valid.user.password(confirmation.value)) {
         hints.addError("Invalid password.")
         return
     } 
@@ -56,15 +56,15 @@ async function register() {
 }
 
 function invalidEmail() {
-    return email.value !== '' && !valid.email.test(email.value)
+    return email.value !== '' && !valid.user.email(email.value)
 }
 
 function invalidUsername() {
-    return username.value !== '' && !valid.username.test(username.value)
+    return username.value !== '' && !valid.user.name(username.value)
 }
 
 function invalidPassword(password: string) {
-    return password !== '' && !valid.password.test(password)
+    return password !== '' && !valid.user.password(password)
 }
 
 function differentPasswords() {

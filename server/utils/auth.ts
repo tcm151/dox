@@ -89,10 +89,9 @@ export const registerUser = async (event: H3Event) => {
     const user = await new DatabaseQuery()
         .addSql(`
             CREATE user SET
-            email = $email,
-            name = $username,
-            password = crypto::argon2::generate($password),
-            dateJoined = time::now()
+                email = $email,
+                name = $username,
+                password = crypto::argon2::generate($password);
         `)
         .addParameter("email", header.split(":")[0])
         .addParameter("username", header.split(":")[1])
@@ -104,26 +103,19 @@ export const registerUser = async (event: H3Event) => {
     if (register.referral) {
         await new DatabaseQuery()
             .addSql(`
-                RETURN {
-                    IF $user != NONE {
-                        UPDATE $user SET tokens += 1024;
-                    };
-
-                    CREATE notification SET
-                    recipient = $recipient,
-                    context = $context,
-                    message = $message;
+                IF record::exists($recipient) {
+                    UPDATE $recipient SET
+                        tokens += 1024;
                     
-                    RETURN "Referral completed successfully.";
+                    CREATE notification SET
+                        recipient = $recipient,
+                        context = $context,
+                        message = $message;
                 };
             `)
-            .addRecord("user", `user:${register.referral}`)
             .addRecord("recipient", `user:${register.referral}`)
             .addRecord("context", session.user.id)
-            .addParameter("message", [
-                `**${session.user.name}** used your referral`,
-                `> You gained 1024 free tokens. Don't forget to thank them!\n`,
-            ].join('\n'))
+            .addParameter("message", `**${session.user.name}** used your referral\n> You gained 1024 free tokens. Don't forget to thank them!\n`)
             .queryAll<string>()
     }
 

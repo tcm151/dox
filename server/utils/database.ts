@@ -57,6 +57,7 @@ async function initializeDatabase() {
         })
     }
 }
+
 export class DatabaseQuery {
     #sql: string[] = []
     #parameters: Record<string, any> = { }

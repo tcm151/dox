@@ -18,15 +18,12 @@ interface Email {
     html: string
 }
 
-export const useEmail = () => {
-    async function sendMessage(email: Email) {
-        return client.sendMail({
-            from: smtp.title,
-            to: email.recipient,
-            subject: email.subject,
-            text: email.text ?? 'Oops.',
-            html: email.html
-        })
-    }
-    return { sendMessage }
+export async function sendEmail(email: Email) {
+    return await client.sendMail({
+        from: smtp.title,
+        to: email.recipient,
+        subject: email.subject,
+        text: email.text ?? 'Oops.',
+        html: email.html
+    })
 }

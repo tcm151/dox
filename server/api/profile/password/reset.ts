@@ -5,6 +5,8 @@ export default defineEventHandler(async (event) => {
     const startTime = Date.now()
     const { id } = await readBody<{ id: string }>(event)
 
+    const settings = await settingsManager.get()
+
     try {
         const user = await new DatabaseQuery()
             .addSql(`
@@ -16,13 +18,6 @@ export default defineEventHandler(async (event) => {
             .addParameter('id', id)
             .queryOne<User>()
     
-        const appSettings = await new DatabaseQuery()
-            .addSql(`
-                SELECT *
-                FROM appSettings:default
-            `)
-            .queryOne<AppSettings>()
-
         const passwordReset = await new DatabaseQuery()
             .addSql(`
                 CREATE passwordReset SET
@@ -37,9 +32,9 @@ export default defineEventHandler(async (event) => {
         template = template.replace('{{user.name}}', user.name)
         template = template.replace('{{resetPasswordLink}}', `${baseUrl}/settings/reset-password?id=${extractId(passwordReset.id)}`)
         template = template.replace('{{reportLink}}', `${baseUrl}/settings/reset-password?report=${extractId(passwordReset.id)}`)
-        template = template.replace('{{supportEmail}}', appSettings.email.support ?? "support@example.com")
+        template = template.replace('{{supportEmail}}', settings.email.support ?? "support@example.com")
         
-        await useEmail().sendMessage({
+        await sendEmail({
             recipient: user.email,
             subject: `Reset Password: ${user.name}`,
             text: 'password reset request.',
@@ -47,7 +42,7 @@ export default defineEventHandler(async (event) => {
         })
     }
     catch (error) {
-        // ignore for now
+        console.log(error)
     }
     finally {
         const duration = Date.now() - startTime

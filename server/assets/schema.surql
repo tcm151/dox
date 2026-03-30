@@ -393,7 +393,30 @@ DEFINE FIELD OVERWRITE data ON error
 -- ------------------------------
 -- TABLE: appSettings
 -- ------------------------------
-DEFINE TABLE OVERWRITE appSettings SCHEMALESS;
+DEFINE TABLE OVERWRITE appSettings SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE voting ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE topics ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE feeds ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE posts ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE threads ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE media.tokens ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE media.images ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE media.audio ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE media.video ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE misc.feedback ON appSettings
+    TYPE object FLEXIBLE;
+
 IF !record::exists(appSettings:default) {
     CREATE appSettings:default CONTENT {
         email: {

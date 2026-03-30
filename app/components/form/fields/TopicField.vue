@@ -2,6 +2,7 @@
 import type { Topic } from '@@/shared/types';
 
 const hints = useHints()
+const settings = useSettings()
 
 const props = defineProps<{
     topics: string[]
@@ -17,7 +18,7 @@ const emit = defineEmits<{
 
 const valid = useValidation()
 function validTopic() {
-    return (text.value && text.value !== '') ? valid.topic.test(text.value) : true
+    return (text.value && text.value !== '') ? valid.topic.name(text.value) : true
 }
 
 const { data: available, refresh } = useDatasource<Topic[]>("/api/topic/available")
@@ -33,9 +34,11 @@ const matchingResults = computed(() => {
 })
 
 function addTopic() {
-    if (props.topics.length > 3) {
-        hints.addError("You can only add 3 topics per submission.")
-        return
+    if (props.topics.length >= settings.app.topics.perSubmission) {
+        return hints.addError(`You can only add ${settings.app.topics.perSubmission} topics per submission.`)
+    }
+    if (settings.app.topics.restrictTopics && !settings.app.topics.allowList.includes(`topic:${text.value}`)) {
+        return hints.addError("You must use one of the predefined topics.")
     }
     if (text.value && validTopic()) {
         emit("add", text.value)

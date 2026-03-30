@@ -1,14 +1,6 @@
 export const ENV = {
-    isDevelopment: () => {
-        return import.meta.dev
-    },
-    isProduction: () => {
-        return !import.meta.dev
-    },
-    isServer: () => {
-        return import.meta.server
-    },
-    isClient: () => {
-        return import.meta.client
-    },
+    isDevelopment: () => import.meta.dev,
+    isProduction: () => !import.meta.dev,
+    isServer: () => import.meta.server,
+    isClient: () => import.meta.client,
 }

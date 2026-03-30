@@ -4,8 +4,8 @@ definePageMeta({
 })
 
 const hints = useHints()
-const events = useEvents()
 const valid = useValidation()
+const events = useEvents()
 
 const route = useRoute()
 const resetId = route.query['id']
@@ -16,12 +16,12 @@ const confirmation = ref("")
 
 async function resetPassword() {
 
-    if (!valid.email.test(email.value)) {
+    if (!valid.user.email(email.value)) {
         hints.addError("Invalid email.")
         return
     }
 
-    if (!valid.password.test(password.value) || !valid.password.test(confirmation.value)) {
+    if (!valid.user.password(password.value) || !valid.user.password(confirmation.value)) {
         hints.addError("Invalid password.")
         return
     } 
@@ -47,11 +47,11 @@ async function resetPassword() {
 }
 
 function invalidEmail() {
-    return email.value !== '' && !valid.email.test(email.value)
+    return email.value !== '' && !valid.user.email(email.value)
 }
 
 function invalidPassword(password: string) {
-    return password !== '' && !valid.password.test(password)
+    return password !== '' && !valid.user.password(password)
 }
 
 function differentPasswords() {

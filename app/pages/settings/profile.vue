@@ -5,7 +5,7 @@ const events = useEvents()
 const session = getSession()
 
 function validDescription() {
-    return session.user.description !== '' ? /^[\w\W]{0,256}$/.test(session.user.description!) : true
+    return session.user.description !== '' ? valid.user.description(session.user.description!) : true
 }
 
 async function sendConfirmation() {
@@ -16,7 +16,7 @@ async function sendConfirmation() {
 
 const username = ref<string>(session.user.name)
 function invalidUsername() {
-    return usernameTaken.value || !valid.username.test(username.value)
+    return usernameTaken.value || !valid.user.name(username.value)
 }
 
 const usernameTaken = ref<boolean>(false)
@@ -69,7 +69,11 @@ async function resetPassword() {
         title: 'Confirm Password Reset',
         message: 'Are you sure you want to reset your password?',
         accept: async () => {
-            await useApi(`/api/profile/password/reset`)
+            await useApi(`/api/profile/password/reset`, {
+                body: {
+                    id: session.user.email
+                }
+            })
             hints.addSuccess("Password reset link sent to your email.")
         },
     })
