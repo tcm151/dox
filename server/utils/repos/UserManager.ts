@@ -2,9 +2,9 @@ export class UserManager {
     static async create(email: string, name: string, password: string): Promise<User> {
         
         new Validator("User")
-            .add(email, "user.email")
-            .add(name, "user.name")
-            .add(password, "user.pasword")
+            .match(email, "user.email")
+            .match(name, "user.name")
+            .match(password, "user.password")
             .confirm()
         
         return await new DatabaseQuery()

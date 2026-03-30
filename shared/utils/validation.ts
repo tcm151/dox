@@ -23,7 +23,7 @@ export const useValidation = () => {
     }
 }
 
-const valid = {
+const regex = {
     "user.email": (v: string) => /^\S+@\S+\.\S+$/.test(v),
     "user.name": (v: string) => /^[\w]{3,32}$/.test(v),
     "user.password": (v: string) => /^[\S]{8,64}$/.test(v),
@@ -43,8 +43,15 @@ export class Validator {
         this.item = item
     }
 
-    add(value: string, type: keyof typeof valid) {
-        if (!valid[type](value)) {
+    test<T>(value: T, action: (v: T) => boolean, message: string) {
+        if (!action(value)) {
+            this.#messages.push(message)
+        }
+        return this
+    }
+
+    match(value: string, type: keyof typeof regex) {
+        if (!regex[type](value)) {
             this.#messages.push(`Invalid ${type}`)
         }
         return this
