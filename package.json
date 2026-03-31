@@ -4,23 +4,19 @@
         "predev": "yarn install",
         "dev": "nuxt dev",
         "build": "nuxt build",
-        "test": "vitest run",
-        "test:watch": "vitest",
         "postinstall": "nuxt prepare",
         "deploy": "ssh root@tcmdev.ca \"cd dox && ./deploy.sh --build\"",
         "start:local": "node .output/server/index.mjs",
         "start:production": "PORT=8001 node .production/server/index.mjs"
     },
     "devDependencies": {
-        "@nuxt/test-utils": "^3.17.2",
         "@types/luxon": "^3.7.1",
         "@types/node": "^25.5.0",
         "@types/nodemailer": "^7.0.4",
         "@types/sanitize-html": "^2.16.0",
         "@vueuse/core": "^14.2.1",
         "@vueuse/nuxt": "^14.2.1",
-        "nuxt": "^4.2.1",
-        "vitest": "^3.2.4"
+        "nuxt": "^4.2.1"
     },
     "dependencies": {
         "@pinia/nuxt": "^0.11.3",
