@@ -3,7 +3,7 @@ import type { PasswordReset, Account } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const { id } = await readBody<{ id: string }>(event)
-    const settings = await settingsManager.get()
+    const settings = await SettingsManager.get()
     const startTime = Date.now()
     
     try {

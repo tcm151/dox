@@ -95,7 +95,7 @@ function togglePreview() {
                 </div>
                 <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             </section>
-            <footer class="row g-2 mt-2">
+            <footer class="row g-2 mt-5">
                 <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>

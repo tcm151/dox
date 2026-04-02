@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import type { Topic } from '@@/shared/types'
 
+definePageMeta({
+    middleware: (to, from) => {
+        const settings = useSettings()
+        if (!settings.app.topics.enabled) {
+            return navigateTo("/feed/discover")
+        }
+    }
+})
+
 const { data: topics } = await useDatasource<Topic[]>("/api/topic")
 </script>
 

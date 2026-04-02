@@ -2,22 +2,22 @@
 
 const hints = useHints()
 const cache = useCache()
-const { app: { id, ...defaults }, refresh } = useSettings()
-const settings = ref({ ...defaults })
+const defaults = useSettings()
+const settings = ref({ ...defaults.app })
 
 async function refreshSettings() {
-    await refresh()
-    settings.value = defaults
+    await defaults.refresh()
+    settings.value = { ...defaults.app }
 }
 
 const loading = ref<boolean>(false)
 async function saveSettings() {
     try {
         loading.value = true
-        await useApi(`/api/admin/settings/${extractId(id)}/update`, {
+        await useApi(`/api/admin/settings/${extractId(defaults.app.id)}/update`, {
             body: settings.value
         })
-        await refresh()
+        await defaults.refresh()
         hints.addSuccess("Settings saved successfully.")
     }
     catch (error: any) {
@@ -30,6 +30,14 @@ async function saveSettings() {
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
 const tabs = ['contact', 'voting', 'feeds', 'topics', 'posts', 'threads', 'media', 'misc']
+
+watch(() => settings.value.topics.enabled, (topicsEnabled) => {
+    if (!topicsEnabled) {
+        settings.value.feeds.topics = false
+        settings.value.topics.restrictTopics = false
+        settings.value.topics.allowList = []
+    }
+})
 
 const topicInput = useTemplateRef("topic")
 function addTopic() {
@@ -47,6 +55,36 @@ async function addExistingTopics() {
 function removeTopic(topic: string) {
     settings.value.topics.allowList = settings.value.topics.allowList.filter(t => t != topic)
 }
+
+watch(() => settings.value.posts.enabled, (postsEnabled) => {
+    if (!postsEnabled) {
+        settings.value.feeds.posts = false
+    }
+})
+
+watch(() => settings.value.threads.enabled, (threadsEnabled) => {
+    if (!threadsEnabled) {
+        settings.value.feeds.threads = false
+    }
+})
+
+watch(() => settings.value.media.images.enabled, (imagesEnabled) => {
+    if (!imagesEnabled) {
+        settings.value.feeds.images = false
+    }
+})
+
+watch(() => settings.value.media.audio.enabled, (audioEnabled) => {
+    if (!audioEnabled) {
+        settings.value.feeds.audio = false
+    }
+})
+
+watch(() => settings.value.media.video.enabled, (videoEnabled) => {
+    if (!videoEnabled) {
+        settings.value.feeds.video = false
+    }
+})
 </script>
 
 
@@ -172,7 +210,7 @@ function removeTopic(topic: string) {
                             <div class="field">
                                 <div class="row wrap g-1">
                                     <template v-for="topic in settings.topics.allowList">
-                                        <Tag class="f-1 s-1 b-half" type="link" :label="extractId(topic)" @click="removeTopic(topic)" />
+                                        <Tag class="f-1 b-half" type="link" :label="extractId(topic)" @click="removeTopic(topic)" />
                                     </template>
                                 </div>
                             </div>

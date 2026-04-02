@@ -1,7 +1,7 @@
 import type { AppSettings } from "@@/shared/types"
 
-class SettingsManager {
-    async get(id: string = "default") {
+export class SettingsManager {
+    static async get(id: string = "default") {
         return await new DatabaseQuery()
             .addSql(`
                 SELECT *
@@ -10,17 +10,27 @@ class SettingsManager {
             .addRecord("settings", `appSettings:${id}`)
             .queryOne<AppSettings>()
     }
-    async update(id: string, settings: AppSettings) {
+    static async update(id: string, settings: AppSettings) {
         return await new DatabaseQuery()
             .addSql(`
-                UPDATE appSettings
-                CONTENT $settings
+                UPDATE appSettings SET
+                    email = $email,
+                    voting = $voting,
+                    topics = $topics,
+                    feeds = $feeds,
+                    threads = $threads,
+                    media = $media,
+                    misc = $misc
                 WHERE id = $id
             `)
-            .addRecord('id', id)
-            .addParameter('settings', settings)
+            .addRecord("id", id)
+            .addParameter("email", settings.email)
+            .addParameter("voting", settings.voting)
+            .addParameter("topics", settings.topics)
+            .addParameter("feeds", settings.feeds)
+            .addParameter("threads", settings.threads)
+            .addParameter("media", settings.media)
+            .addParameter("misc", settings.misc)
             .queryOne<AppSettings>()
     }
 }
-
-export const settingsManager = new SettingsManager()

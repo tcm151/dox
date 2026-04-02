@@ -8,6 +8,7 @@ const cache = useCache()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
+const settings = useSettings()
 
 const id = route.params.id?.toString()
 await useDatasource(`/api/post/${id}/visit`)
@@ -173,6 +174,10 @@ const showOptions = ref<boolean>(false)
 function toggleOptions() {
     showOptions.value = !showOptions.value
 }
+
+const showTopics = computed(() => {
+    return settings.app.topics.enabled && post.value && post.value.topics.length > 0
+})
 </script>
 
 <template>
@@ -185,7 +190,6 @@ function toggleOptions() {
             <section class="post box br-medium p-5">
                 <header class="tags row wrap g-1">
                     <Votes :target="post" />
-                    <TopicTag v-for="topic in post.topics" :topic="topic" />
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
                     <UserTag class="f-1" :user="post.user" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
@@ -197,6 +201,9 @@ function toggleOptions() {
                             {{ formatDate(post.timeEdited) }}
                         </template>
                     </Tag>
+                    <template v-if="showTopics" class="row wrap f-1 g-1">
+                        <TopicTag v-for="topic in post.topics" :topic="topic" />
+                    </template>
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}

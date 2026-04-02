@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { Post, Image } from '@@/shared/types'
 
+const settings = useSettings()
+
 const props = defineProps<{
     post: Post
     pinned?: boolean
 }>()
 
+const showTopics = computed(() => {
+    return settings.app.topics.enabled && props.post.topics.length > 0
+})
 </script>
 
 <template>
@@ -28,7 +33,7 @@ const props = defineProps<{
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
                     <Tag v-if="post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
                     <Tag v-if="post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
-                    <div class="f-1 row wrap g-1">
+                    <div v-if="showTopics" class="f-1 row wrap g-1">
                         <TopicTag v-for="topic in post.topics" :topic="topic" />
                     </div>
                 </div>

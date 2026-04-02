@@ -2,7 +2,7 @@ import type { Confirmation, AppSettings } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const settings = await settingsManager.get()
+    const settings = await SettingsManager.get()
 
     if (!event.context.account.email) {
         throw createError({

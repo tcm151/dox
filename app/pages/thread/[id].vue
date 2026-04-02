@@ -150,16 +150,6 @@ function toggleOptions() {
 
 <template>
     <article v-if="thread" class="column p-4">
-        <header class="row g-2 mb-2">
-            <button class="dark" @click="goBack">
-                <i class="fa-solid fa-arrow-left"></i>
-                Back to Feed
-            </button>
-            <!-- <button class="dark" @click="previous">
-                <i class="fa-solid fa-arrow-up"></i>
-                Previous
-            </button> -->
-        </header>
         <section v-if="thread.replyTo" class="mb-2">
             <ThreadReply :thread="thread.replyTo" />
         </section>

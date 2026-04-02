@@ -7,5 +7,5 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     const settings = await readBody<AppSettings>(event)
 
-    return settingsManager.update(`appSettings:${id}`, settings)
+    return SettingsManager.update(`appSettings:${id}`, settings)
 })

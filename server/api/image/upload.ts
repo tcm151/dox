@@ -3,8 +3,7 @@ import type { Image } from "@@/shared/types"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const data = await readMultipartFormData(event)
-
-    const settings = await settingsManager.get()
+    const settings = await SettingsManager.get()
 
     if (!settings.media.images.enabled) {
         return createError({

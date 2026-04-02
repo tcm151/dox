@@ -21,7 +21,7 @@ function validTopic() {
     return (text.value && text.value !== '') ? valid.topic.name(text.value) : true
 }
 
-const { data: available, refresh } = useDatasource<Topic[]>("/api/topic/available")
+const { data: available } = useDatasource<Topic[]>("/api/topic/available")
 
 const inputFocused = ref<boolean>(false)
 const matchingResults = computed(() => {
@@ -35,10 +35,13 @@ const matchingResults = computed(() => {
 
 function addTopic() {
     if (props.topics.length >= settings.app.topics.perSubmission) {
-        return hints.addError(`You can only add ${settings.app.topics.perSubmission} topics per submission.`)
+        hints.addError(`You can only add ${settings.app.topics.perSubmission} topics per submission.`)
+        text.value = ""
+        return
     }
     if (settings.app.topics.restrictTopics && !settings.app.topics.allowList.includes(`topic:${text.value}`)) {
-        return hints.addError("You must use one of the predefined topics.")
+        hints.addError("You must use one of the predefined topics.")
+        return
     }
     if (text.value && validTopic()) {
         emit("add", text.value)
@@ -51,14 +54,14 @@ function addTopic() {
 
 function useTopic(topic: string | undefined) {
     if (topic) {
-        emit("add", topic)
-        text.value = ""
+        text.value = topic
+        addTopic()
     }
 }
 </script>
 
 <template>
-    <main class="field" :class="{ 'invalid': !validTopic() }">
+    <main v-if="settings.app.topics.enabled" class="field" :class="{ 'invalid': !validTopic() }">
         <div class="row inline g-2 mb-2">
             <label class="mb-0">Topics</label>
             <TopicTag v-for="topic in topics" :topic="topic" disable @contextmenu.prevent="emit('remove', topic)" />
