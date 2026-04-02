@@ -1,18 +1,9 @@
 <script setup lang="ts">
 import type { Thread } from '@@/shared/types'
 
-const settings = useSettings()
-
 const props = defineProps<{
     thread: Thread
 }>()
-
-const showThreadTopics = computed(() => {
-    return settings.app.topics.enabled && props.thread.topics.length > 0
-})
-const showQuoteTopics = computed(() => {
-    return settings.app.topics.enabled && props.thread.quote && props.thread.quote.topics.length > 0
-})
 </script>
 
 <template>
@@ -27,7 +18,7 @@ const showQuoteTopics = computed(() => {
                     <DurationTag class="f-1" :time="thread.time" />
                     <!-- <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" /> -->
                 </div>
-                <div v-if="showThreadTopics" class="row wrap f-1 g-1">
+                <div v-if="props.thread.topics.length > 0" class="row wrap f-1 g-1">
                     <TopicTag v-for="topic in thread.topics" :topic="topic" />
                 </div>
             </div>
@@ -41,7 +32,7 @@ const showQuoteTopics = computed(() => {
                         <Tag class="f-1" type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
                         <DurationTag class="f-1" :time="thread.quote.time" />
                     </div>
-                    <div v-if="showQuoteTopics" class="row wrap f-1 g-1">
+                    <div v-if="thread.quote.topics.length > 0" class="row wrap f-1 g-1">
                         <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
                     </div>
                 </div>

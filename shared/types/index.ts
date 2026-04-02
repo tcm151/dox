@@ -184,10 +184,9 @@ export interface AppSettings extends Record {
         negative: boolean
     }
     topics: {
-        enabled: boolean
         perSubmission: number
-        restrictTopics: boolean
-        allowList: string[]
+        restrict: boolean
+        allowed: string[]
     }
     feeds: {
         search: boolean

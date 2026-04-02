@@ -8,7 +8,6 @@ const cache = useCache()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
-const settings = useSettings()
 
 const id = route.params.id?.toString()
 await useDatasource(`/api/post/${id}/visit`)
@@ -174,10 +173,6 @@ const showOptions = ref<boolean>(false)
 function toggleOptions() {
     showOptions.value = !showOptions.value
 }
-
-const showTopics = computed(() => {
-    return settings.app.topics.enabled && post.value && post.value.topics.length > 0
-})
 </script>
 
 <template>
@@ -201,7 +196,7 @@ const showTopics = computed(() => {
                             {{ formatDate(post.timeEdited) }}
                         </template>
                     </Tag>
-                    <template v-if="showTopics" class="row wrap f-1 g-1">
+                    <template v-if="post.topics.length > 0" class="row wrap f-1 g-1">
                         <TopicTag v-for="topic in post.topics" :topic="topic" />
                     </template>
                 </header>

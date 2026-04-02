@@ -204,9 +204,22 @@ BEGIN TRANSACTION;
 
     REMOVE FIELD IF EXISTS email ON TABLE user;
     REMOVE FIELD IF EXISTS password ON TABLE user;
-    UPDATE user SET email = NONE, password = NONE
+    UPDATE user SET
+        email = NONE,
+        password = NONE
     WHERE email != NONE OR password != NONE;
     
     REMOVE FIELD IF EXISTS user ON TABLE session;
-    UPDATE session SET user = NONE WHERE user != NONE;
+    UPDATE session SET
+        user = NONE
+    WHERE user != NONE;
 COMMIT TRANSACTION;
+
+-- 2026-04-02 topics are a core feature and shouldn't be disabled
+UPDATE appSettings SET
+    topics.enabled = NONE,
+    topics.restrict = topics.restrictTopics,
+    topics.allowed = topics.allowList,
+    topics.restrictTopics = NONE,
+    topics.allowList = NONE
+WHERE topics.enabled != NONE;

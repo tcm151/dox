@@ -466,8 +466,8 @@ IF !record::exists(appSettings:default) {
         topics: {
             enabled: true,
             perSubmission: 3,
-            restrictTopics: false,
-            allowList: [],
+            restrict: false,
+            allowed: [],
         },
         feeds: {
             search: true,

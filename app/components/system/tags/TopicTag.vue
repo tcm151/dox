@@ -14,7 +14,7 @@ function viewTopic(topic: string) {
 </script>
 
 <template>
-    <Tag v-if="settings.app.topics.enabled"
+    <Tag
         type="topic"
         class="f-max"
         :label="extractId(topic)"

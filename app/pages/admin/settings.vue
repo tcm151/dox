@@ -31,29 +31,21 @@ async function saveSettings() {
 const section = cache.get<string>("settings.lastTab", () => "contact")
 const tabs = ['contact', 'voting', 'feeds', 'topics', 'posts', 'threads', 'media', 'misc']
 
-watch(() => settings.value.topics.enabled, (topicsEnabled) => {
-    if (!topicsEnabled) {
-        settings.value.feeds.topics = false
-        settings.value.topics.restrictTopics = false
-        settings.value.topics.allowList = []
-    }
-})
-
 const topicInput = useTemplateRef("topic")
 function addTopic() {
     if (topicInput.value) {
-        settings.value.topics.allowList.push(`topic:${topicInput.value.value}`)
+        settings.value.topics.allowed.push(`topic:${topicInput.value.value}`)
         topicInput.value.value = ""
     }
 }
 
 async function addExistingTopics() {
     const topics = await useApi<{ id: string, score: number }[]>("/api/topic/available")
-    settings.value.topics.allowList = topics.map(t => t.id)
+    settings.value.topics.allowed = topics.map(t => t.id)
 }
 
 function removeTopic(topic: string) {
-    settings.value.topics.allowList = settings.value.topics.allowList.filter(t => t != topic)
+    settings.value.topics.allowed = settings.value.topics.allowed.filter(t => t != topic)
 }
 
 watch(() => settings.value.posts.enabled, (postsEnabled) => {
@@ -143,10 +135,7 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                     </div>
                     <div class="field row">
                         <label class="f-1">show topics feed</label>
-                        <Toggle
-                            :disabled="!settings.topics.enabled"
-                            v-model:enabled="settings.feeds.topics"
-                        />
+                        <Toggle v-model:enabled="settings.feeds.topics" />
                     </div>
                     <div class="field row">
                         <label class="f-1">show posts feed</label>
@@ -179,37 +168,28 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                 </div>
                 <div v-if="section == 'topics'">
                     <div class="field row">
-                        <label class="f-1">enable topics</label>
-                        <Toggle v-model:enabled="settings.topics.enabled" />
-                    </div>
-                    
-                    <div class="field row">
                         <label class="f-1">topics per submission</label>
                         <input
                             type="number"
                             min="0" step="1" max="5"
-                            :disabled="!settings.topics.enabled"
                             v-model="settings.topics.perSubmission"
                         >
                     </div>
                     <div class="field row">
                         <label class="f-1">allowed topics only</label>
-                        <Toggle
-                            :disabled="!settings.topics.enabled"
-                            v-model:enabled="settings.topics.restrictTopics"
-                        />
+                        <Toggle v-model:enabled="settings.topics.restrict" />
                     </div>
-                    <template v-if="settings.topics.enabled && settings.topics.restrictTopics">
+                    <template v-if="settings.topics.restrict">
                         <div class="field row g-2">
                             <input class="f-1" ref="topic" placeholder="press enter to add . . ." @keyup.enter="addTopic">
                             <button class="small" @click="addExistingTopics">
                                 Add Existing
                             </button>
                         </div>
-                        <template v-if="settings.topics.allowList.length > 0">
+                        <template v-if="settings.topics.allowed.length > 0">
                             <div class="field">
                                 <div class="row wrap g-1">
-                                    <template v-for="topic in settings.topics.allowList">
+                                    <template v-for="topic in settings.topics.allowed">
                                         <Tag class="f-1 b-half" type="link" :label="extractId(topic)" @click="removeTopic(topic)" />
                                     </template>
                                 </div>

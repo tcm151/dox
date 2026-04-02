@@ -39,7 +39,7 @@ function addTopic() {
         text.value = ""
         return
     }
-    if (settings.app.topics.restrictTopics && !settings.app.topics.allowList.includes(`topic:${text.value}`)) {
+    if (settings.app.topics.restrict && !settings.app.topics.allowed.includes(`topic:${text.value}`)) {
         hints.addError("You must use one of the predefined topics.")
         return
     }
@@ -61,7 +61,7 @@ function useTopic(topic: string | undefined) {
 </script>
 
 <template>
-    <main v-if="settings.app.topics.enabled" class="field" :class="{ 'invalid': !validTopic() }">
+    <main class="field" :class="{ 'invalid': !validTopic() }">
         <div class="row inline g-2 mb-2">
             <label class="mb-0">Topics</label>
             <TopicTag v-for="topic in topics" :topic="topic" disable @contextmenu.prevent="emit('remove', topic)" />
