@@ -6,6 +6,8 @@ export default defineEventHandler(async (event) => {
     const { fileName } = event.context.params!
     const id = fileName?.split('.').at(0)
 
+    const config = useRuntimeConfig()
+
     try {
         const audio = await new DatabaseQuery()
             .addSql(`
@@ -16,7 +18,7 @@ export default defineEventHandler(async (event) => {
             .addRecord("audio" ,`audio:${id}`)
             .queryOne<Audio>()
 
-        return fs.readFileSync(`./media/audio/${id}.${audio.type}`)
+        return fs.readFileSync(`${config.media.path}/audio/${id}.${audio.type}`)
     }
     catch (error: any) {
         throw createError({

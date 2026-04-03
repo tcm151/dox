@@ -6,6 +6,8 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
+    const config = useRuntimeConfig()
+
     const image = await new DatabaseQuery()
         .addSql(`
             SELECT *
@@ -16,12 +18,9 @@ export default defineEventHandler(async (event) => {
         .queryOne<Image>()
 
     try {
-        const path = (ENV.isDevelopment())
-            ? `./media/images/${id}.${image.type}`
-            : `./.production/media/images/${id}.${image.type}`
 
-        if (fs.existsSync(path)) {
-            fs.rmSync(path)
+        if (fs.existsSync(config.media.path)) {
+            fs.rmSync(config.media.path)
         }
 
         await new DatabaseQuery()

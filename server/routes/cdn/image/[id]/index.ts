@@ -5,6 +5,8 @@ import type { Image } from "@@/shared/types"
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
+    const config = useRuntimeConfig()
+
     try {
         const image = await new DatabaseQuery()
             .addSql(`
@@ -15,7 +17,7 @@ export default defineEventHandler(async (event) => {
             .addRecord("image" ,`image:${id}`)
             .queryOne<Image>()
 
-        return fs.readFileSync(`./media/image/${id}.${image.type}`)
+        return fs.readFileSync(`${config.media.path}/image/${id}.${image.type}`)
     }
     catch (error: any) {
         throw createError({

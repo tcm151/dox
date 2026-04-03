@@ -44,9 +44,8 @@ type MediaType = "image" | "audio"
 
 export async function writeMedia(user: User, media: Media, buffer: Buffer, mediaType: MediaType) {
     try {
-        const basePath = (ENV.isDevelopment())
-            ? `./media/${mediaType}`
-            : `./.production/media/${mediaType}`
+        const config = useRuntimeConfig()
+        const basePath = `${config.media.path}/${mediaType}`
 
         if (!fs.existsSync(basePath)) {
             fs.mkdirSync(basePath, { recursive: true })
@@ -54,7 +53,6 @@ export async function writeMedia(user: User, media: Media, buffer: Buffer, media
         fs.writeFileSync(`${basePath}/${extractId(media.id)}.${media.type}`, buffer, {
             flag: "w+"
         })  
-
     }
     catch (error: any) {
         await new DatabaseQuery()
