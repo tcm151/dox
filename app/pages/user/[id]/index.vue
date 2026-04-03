@@ -6,7 +6,9 @@ const route = useRoute()
 
 const id = route.params.id?.toString()
 await useDatasource(`/api/user/${id}/visit`)
-const user = await useDatasource<User>(`/api/user/${id}`)
+const user = await useDatasource<User>(`/api/user/${id}`, {
+    key: `user:${id}`,
+})
     
 const sortBy = cache.get<string>("feed.sort", () => "new")
 const feed = useDatasource<Sortable[]>(`/api/user/${id}/feed`, {

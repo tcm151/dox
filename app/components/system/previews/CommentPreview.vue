@@ -89,11 +89,7 @@ async function deleteComment(commentId: string) {
     <main v-if="comment" class="comment" :id="comment.id">
         <header class="row g-1">
             <Votes :target="comment" />
-            <!-- TODO create AuthorTag -->
-            <span class="tag info" @click="navigateTo(`/user/${extractId(comment.user.id)}`)">
-                <i class="fa-solid fa-user"></i>
-                {{ `${comment.user.name}` }}
-            </span>
+            <UserTag :user="comment.user" />
             <Tag v-if="comment.edited" type="info">
                 <i class="fa-solid fa-stopwatch"></i>
                 {{ formatDate(comment.time) }}

@@ -21,7 +21,7 @@ function validTopic() {
     return (text.value && text.value !== '') ? valid.topic.name(text.value) : true
 }
 
-const { data: available } = useDatasource<Topic[]>("/api/topic/available")
+const { data: available } = await useDatasource<Topic[]>("/api/topic/available")
 
 const inputFocused = ref<boolean>(false)
 const matchingResults = computed(() => {

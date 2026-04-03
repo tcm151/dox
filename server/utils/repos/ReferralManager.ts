@@ -26,7 +26,7 @@ export class ReferralManager {
                 .execute()
         }
         catch (error: any) {
-            if (error.statusText?.includes("index `claimant_recipient` already contains")) {
+            if (error.message?.includes("index `claimant_recipient` already contains")) {
                 throw createError({
                     status: 400,
                     statusText: "This referral code has already been made."

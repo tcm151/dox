@@ -34,57 +34,56 @@ async function unfollowUser() {
 </script>
 
 <template>
-    <header class="profile box column g-3 p-5">
+    <main class="box column g-3 p-5">
         <section class="row g-2">
             <figure class="image is-64x64">
                 <img src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
             <div class="name-follow row inline between f-1 g-4">
-                <div class="column">
+                <div>
                     <h1>{{ user.name }}</h1>
                     <a v-if="user.link" class="text truncate" :href="user.link">
                         {{ user.link }}
                     </a>
                 </div>
-                <ClientOnly>
-                    <div v-if="session.isAuthenticated" class="buttons row g-2">
-                        <button v-if="user.id == session.user.id" @click="navigateTo('/settings')">
+                <Authenticated>
+                    <div class="row g-2">
+                        <button v-if="user.id == session.user.id" class="small" @click="navigateTo('/settings')">
                             <i class="fa-solid fa-address-card"></i>
                             <span>Profile</span>
                         </button>
-                        <ButtonSpinner v-else-if="following" class="danger" :loading="loading" @click="unfollowUser">
+                        <ButtonSpinner v-else-if="following" class="danger small" :loading="loading" @click="unfollowUser">
                             Unfollow
                         </ButtonSpinner>
-                        <ButtonSpinner v-else class="success" :loading="loading" @click="followUser">
+                        <ButtonSpinner v-else class="success small" :loading="loading" @click="followUser">
                             Follow
                         </ButtonSpinner>
                     </div>
-                </ClientOnly>
+                </Authenticated>
             </div>
         </section>
         <section class="row wrap g-1">
             <Votes :target="user" />
-            <!-- TODO add pages to view these in more detail -->
             <Tag class="f-1" type="link">
                 <strong>{{ user.visits }}</strong> visits
             </Tag>
-            <Tag class="f-1" type="link">
+            <Tag class="f-1" type="link" @click="navigateTo(`/user/${extractId(user.id)}/topics`)">
                 <strong>{{ user.topics.length }}</strong> topics
             </Tag>
-            <Tag class="f-1" type="info">
+            <Tag class="f-1" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
                 <strong>{{ user.followers.length }}</strong> followers
             </Tag>
-            <Tag class="f-1" type="info">
+            <Tag class="f-1" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
                 <strong>{{ user.following.length }}</strong> following
             </Tag>
             <Tag class="f-1" type="info">
-                joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong>
+                joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong> ago
             </Tag>
         </section>
         <section v-if="user.description" class="column g-2">
             <p>{{ user.description }}</p>
         </section>
-    </header>
+    </main>
 </template>
 
 <style scoped lang="scss">
@@ -113,7 +112,7 @@ div.buttons {
     }
 
     button {
-        min-width: 7.5rem;
+        min-width: 6rem;
     }
 }
 

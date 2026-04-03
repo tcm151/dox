@@ -239,7 +239,7 @@ function toggleOptions() {
                         <span>Cancel</span>
                     </button>
                 </div>
-                <div class="field" v-else-if="showReplyBox">
+                <div class="field mb-4" v-else-if="showReplyBox">
                     <textarea rows="5" v-model="replyText"></textarea>
                     <div class="row g-2 mt-2">
                         <ButtonSpinner class="success f-1" :loading="submitting" @click="submitThread">
@@ -255,7 +255,6 @@ function toggleOptions() {
             </footer>
         </section>
         <section class="column g-2 mt-2">
-
             <template v-for="reply in thread.replies">
                 <ThreadReply :thread="reply" :chain="true" />
             </template>
