@@ -50,9 +50,11 @@ export interface Session extends Record {
 }
 
 export interface Topic extends Sortable {
+    description?: string
     posts: Post[]
     threads: Thread[]
     followers: (User & string)[]
+    moderators: (User & string)[]
     firstUsed: string
 }
 
@@ -163,6 +165,14 @@ export interface ReferralClaim extends Record {
     time: string
 }
 
+export interface ModerationRequest extends Record {
+    topic: Topic & string
+    user: User & string
+    approvals: string[]
+    denials: string[]
+    closed: boolean
+}
+
 export interface Error extends Record {
     status: number
     description: string
@@ -177,6 +187,9 @@ export interface AppSettings extends Record {
     email: {
         support: string
         additional: string
+    }
+    moderation: {
+        threshold: number
     }
     voting: {
         enabled: boolean

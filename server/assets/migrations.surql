@@ -223,3 +223,18 @@ UPDATE appSettings SET
     topics.restrictTopics = NONE,
     topics.allowList = NONE
 WHERE topics.enabled != NONE;
+
+-- 2026-04-02 add moderators to topics
+UPDATE topic SET
+    moderators = []
+WHERE moderators = NONE;
+
+-- 2026-04-02 moderation requests can be approved or denied
+UPDATE moderationRequest SET
+    approvals = [],
+    denials = [],
+    closed = false
+WHERE approvals = NONE;
+UPDATE appSettings SET
+    moderation.threshold = 1
+WHERE moderation = NONE;

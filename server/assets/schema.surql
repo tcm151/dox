@@ -67,6 +67,8 @@ DEFINE FIELD OVERWRITE invalidated ON session
 -- TABLE: topic
 -- ------------------------------
 DEFINE TABLE OVERWRITE topic SCHEMAFULL;
+DEFINE FIELD OVERWRITE description ON topic
+    TYPE option<string>;
 DEFINE FIELD OVERWRITE posts ON topic
     TYPE array<record<post>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE threads ON topic
@@ -75,6 +77,8 @@ DEFINE FIELD OVERWRITE visits ON topic
     TYPE number DEFAULT ALWAYS 0;
 DEFINE FIELD OVERWRITE followers ON topic
     COMPUTED SELECT VALUE id FROM user WHERE topics CONTAINS $parent.id;
+DEFINE FIELD OVERWRITE moderators ON topic
+    TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE firstUsed ON topic
     COMPUTED time::min(array::union(posts.time, threads.time));
 DEFINE FIELD OVERWRITE votes.positive ON topic
@@ -404,6 +408,12 @@ DEFINE FIELD OVERWRITE topic ON moderationRequest
     TYPE record<topic>;
 DEFINE INDEX OVERWRITE user_topic ON moderationRequest
     FIELDS user, topic UNIQUE;
+DEFINE FIELD OVERWRITE approvals ON moderationRequest
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE denials ON moderationRequest
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE closed ON moderationRequest
+    TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
@@ -431,6 +441,8 @@ DEFINE FIELD OVERWRITE data ON error
 DEFINE TABLE OVERWRITE appSettings SCHEMAFULL;
 DEFINE FIELD OVERWRITE email ON appSettings
     TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE moderation ON appSettings
+    TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE voting ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE topics ON appSettings
@@ -457,6 +469,9 @@ IF !record::exists(appSettings:default) {
         email: {
             support: "",
             additional: "",
+        },
+        moderation: {
+            threshold: 1,
         },
         voting: {
             enabled: true,

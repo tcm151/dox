@@ -26,7 +26,7 @@ const route = useRoute()
 
 const tabs = [
     { route: '/moderator/topics', icon: 'fa-tags', label: 'Topics' },
-
+    { route: '/moderator/requests', icon: 'fa-bell', label: 'Requests' },
 ]
 </script>
 

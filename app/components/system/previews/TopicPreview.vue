@@ -9,12 +9,9 @@ const emit = defineEmits<{
     (event: "refresh"): void
 }>()
 
+const hints = useHints()
 const session = getSession()
 const connections = useFollowing()
-
-let following = computed(() => {
-    return session.user?.topics.includes(props.topic.id)
-})
 
 const loading = ref<boolean>(false)
 
@@ -32,29 +29,63 @@ async function unfollowTopic() {
     emit("refresh")
 }
 
-// TODO allow requesting for moderation of specific topics by approved users
-// TODO allow admins to create predefined topics, which are the only ones that can be used
-// TODO when adding topics in the editor, show preview of available/popular matching topics
+let showFollow = computed(() => {
+    return session.user.topics.includes(props.topic.id)
+        && !props.topic.moderators.includes(session.user.id as User & string)
+})
+
+const noModerators = computed(() => {
+    return session.user.topics.includes(props.topic.id)
+        && props.topic.moderators.length == 0
+})
+
+async function requestModeration() {
+    try {
+        await useApi(`/api/topic/${extractId(props.topic.id)}/request-moderation`)
+        hints.addSuccess("Successfully requested to moderate this topic.")
+    }
+    catch (error: any) {
+        hints.addError(error.statusText ?? "Failed to request to moderate this topic.")
+    }
+}
+
+const showModerationTools = computed(() => {
+    return hasRole(session.user, "admin")
+        || props.topic.moderators.includes(session.user.id as User & string)
+})
 </script>
 
 <template>
-    <div class="box column p-4">
-        <header class="row inline between mb-2">
-            <h1 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
-                {{ extractId(topic.id) }}
-            </h1>
-            <ClientOnly>
-                <div v-if="session.isAuthenticated" class="follow">
-                    <ButtonSpinner v-if="following" class="danger small" :loading="loading" @click="unfollowTopic">
-                        Unfollow
-                    </ButtonSpinner>
-                    <ButtonSpinner v-else class="success small" :loading="loading" @click="followTopic">
-                        Follow
-                    </ButtonSpinner>
-                </div>
-            </ClientOnly>
-        </header>
-        <footer class="row wrap g-1">
+    <main class="box column g-3 p-5">
+        <section class="row g-2">
+            <figure class="image is-64x64">
+                <img src="https://bulma.io/assets/images/placeholders/64x64.png">
+            </figure>
+            <div class="row inline between f-1 g-4">
+                <h1 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
+                    {{ extractId(topic.id) }}
+                </h1>
+                <Authenticated>
+                    <div class="row g-2">
+                        <button v-if="noModerators" class="small" @click="requestModeration">
+                            <i class="fa-solid fa-hand"></i>
+                            Request Moderator
+                        </button>
+                        <button v-else-if="showModerationTools" class="small" @click="navigateTo(`/topic/${extractId(topic.id)}/moderation`)">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            Moderate
+                        </button>
+                        <ButtonSpinner v-else-if="showFollow" class="danger small" :loading="loading" @click="unfollowTopic">
+                            Unfollow
+                        </ButtonSpinner>
+                        <ButtonSpinner v-else class="success small" :loading="loading" @click="followTopic">
+                            Follow
+                        </ButtonSpinner>
+                    </div>
+                </Authenticated>
+            </div>
+        </section>
+        <section class="row wrap g-1">
             <Votes :target="topic" />
             <Tag class="f-1" type="link">
                 <strong>{{ topic.visits }}</strong> visits
@@ -71,8 +102,11 @@ async function unfollowTopic() {
             <Tag class="f-1" type="info">
                 first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
             </Tag>
-        </footer>
-    </div>
+        </section>
+        <section v-if="topic.description" class="column g-2">
+            <p>{{ topic.description }}</p>
+        </section>
+    </main>
 </template>
 
 <style scoped lang="scss">
@@ -89,6 +123,12 @@ header h1 {
 div.follow {
     button {
         width: 6rem;
+    }
+}
+
+.image {
+    img {
+        border-radius: 0.25rem;
     }
 }
 
