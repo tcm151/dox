@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-    currentTab: string
+    selected: string
     tabs: {
         label: string
         icon?: string
@@ -8,20 +8,19 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (event: 'switchTabs', tab: string): void
+    (event: 'switch', tab: string): void
 }>()
-
 </script>
 
 <template>
-    <nav class="row tabstrip large">
+    <nav class="row tabstrip small">
         <TransitionGroup name="tabs">
             <button v-for="tab in tabs"
-                :class="{ selected: tab.label == currentTab }"
-                @click="emit('switchTabs', tab.label)"
+                :class="{ selected: tab.label.toLowerCase() == selected.toLowerCase() }"
+                @click="emit('switch', tab.label)"
                 :key="tab.label"
             >
-                <i v-if="tab.icon" :class="tab.icon"></i>
+                <i v-if="tab.icon" :class="`fa solid ${tab.icon}`"></i>
                 <span>{{ tab.label }}</span>
             </button>
         </TransitionGroup>
