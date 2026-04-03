@@ -30,13 +30,12 @@ async function unfollowTopic() {
 }
 
 let showFollow = computed(() => {
-    return session.user.topics.includes(props.topic.id)
-        && !props.topic.moderators.includes(session.user.id as User & string)
+    return !session.user.topics.includes(props.topic.id)
 })
 
 const noModerators = computed(() => {
-    return session.user.topics.includes(props.topic.id)
-        && props.topic.moderators.length == 0
+    return props.topic.moderators.length == 0
+    && session.user.topics.includes(props.topic.id)
 })
 
 async function requestModeration() {
@@ -71,15 +70,15 @@ const showModerationTools = computed(() => {
                             <i class="fa-solid fa-hand"></i>
                             Request Moderator
                         </button>
-                        <button v-else-if="showModerationTools" class="small" @click="navigateTo(`/topic/${extractId(topic.id)}/moderation`)">
+                        <button v-if="showModerationTools" class="small" @click="navigateTo(`/topic/${extractId(topic.id)}/moderation`)">
                             <i class="fa-solid fa-screwdriver-wrench"></i>
                             Moderate
                         </button>
-                        <ButtonSpinner v-else-if="showFollow" class="danger small" :loading="loading" @click="unfollowTopic">
-                            Unfollow
-                        </ButtonSpinner>
-                        <ButtonSpinner v-else class="success small" :loading="loading" @click="followTopic">
+                        <ButtonSpinner v-if="showFollow" class="success small" :loading="loading" @click="followTopic">
                             Follow
+                        </ButtonSpinner>
+                        <ButtonSpinner v-if="!showFollow && !props.topic.moderators.includes(session.user.id as User & string)" class="danger small" :loading="loading" @click="unfollowTopic">
+                            Unfollow
                         </ButtonSpinner>
                     </div>
                 </Authenticated>

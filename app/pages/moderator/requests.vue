@@ -14,7 +14,7 @@ const approvedRequests = computed(() => {
 })
 
 const deniedRequests = computed(() => {
-    return requests.value?.filter(r => !r.closed && r.denials.length > r.approvals.length) ?? []
+    return requests.value?.filter(r => r.closed && r.denials.length > r.approvals.length) ?? []
 })
 
 async function approveRequest(id: string) {
@@ -43,8 +43,8 @@ async function denyRequest(id: string) {
 <template>
     <article class="column g-2 p-4">
         <section v-if="openRequests.length > 0" class="box column g-2 p-3">
+            <h3>Open</h3>
             <div class="row g-1" v-for="request in openRequests">
-                <h3>Open</h3>
                 <TopicTag class="b-0" :topic="request.topic.id" />
                 <UserTag class="f-max b-0" :user="request.user" />
                 <Tag type="success" label="Approve" icon="fa-check" @click="approveRequest(request.id)" />
@@ -56,7 +56,7 @@ async function denyRequest(id: string) {
             <div class="row g-1" v-for="request in approvedRequests">
                 <TopicTag class="b-0" :topic="request.topic.id" />
                 <UserTag class="f-max b-0" :user="request.user" />
-                <Tag type="success" label="Approved" icon="fa-check" />
+                <Tag class="f-max b-0" type="success" label="Approved" icon="fa-check" />
             </div>
         </section>
         <section v-if="deniedRequests.length > 0" class="box column g-2 p-3">
@@ -64,7 +64,7 @@ async function denyRequest(id: string) {
             <div class="row g-1" v-for="request in deniedRequests">
                 <TopicTag class="b-0" :topic="request.topic.id" />
                 <UserTag class="f-max b-0" :user="request.user" />
-                <Tag type="danger" label="Denied" icon="fa-x" />
+                <Tag class="f-max b-0" type="danger" label="Denied" icon="fa-x" />
             </div>
         </section>
         <footer v-if="!requests || requests.length == 0" class="box p-3 text center">

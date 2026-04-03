@@ -22,7 +22,7 @@ function toggleUserManager() {
 </script>
 
 <template>
-    <nav class="navbar row inline between">
+    <nav class="tabstrip row inline between">
         <section class="left row">
             <NuxtLink class="title" to="/feed" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
@@ -82,12 +82,6 @@ function toggleUserManager() {
 </template>
 
 <style scoped lang="scss">
-nav, button {
-    color: $white-1;
-    background-color: $black-0;
-    border-radius: 0;
-}
-
 section.left {
     a.title {
         @media (max-width: $bp-mobile-wide) {
@@ -110,29 +104,6 @@ section.right {
     @media (max-width: $bp-tablet) {
         span { display: none; }
     }
-}
-
-a, button {
-    cursor: pointer;
-    padding: 0.75rem 0.75rem;
-    font-weight: 700;
-    font-size: 1.25rem;
-    line-height: 1rem;
-    transition: color 64ms, background-color 64ms;
-
-    @media (max-width: $bp-tablet) {
-        font-size: 1.5rem;
-    }
-}
-
-a:focus-visible, button:focus-visible {
-    outline: 3px solid $black-4;
-    outline-offset: -3px;
-    background-color: $black-1;
-}
-
-a:hover, button:hover {
-    background-color: $black-1;
 }
 
 @keyframes slide {

@@ -149,7 +149,7 @@
 nav.tabstrip {
     width: stretch;
     justify-content: center;
-    border-top: 1px solid $black-1;
+    border-top: 1px solid $black-3;
     background-color: $black-0;
 
     button, a {
@@ -162,10 +162,16 @@ nav.tabstrip {
         background-color: $black-0;
     }
 
+    button:focus-visible, a:focus-visible {
+        outline: 3px solid $white-4;
+        outline-offset: -3px;
+        background-color: $black-3;
+    }
+
     button.selected, button:hover,
     a.selected, a:hover {
         cursor: pointer;
-        background-color: $black-1;
+        background-color: $black-3;
     }
 }
 
@@ -185,6 +191,13 @@ nav.tabstrip.wide {
 @media (max-width: $bp-tablet) {
     nav.tabstrip.medium button:not(.selected) span,
     nav.tabstrip.medium a:not(.selected) span {
+        display: none;
+    }
+}
+
+@media (max-width: $bp-compact) {
+    nav.tabstrip.small button:not(.selected) span,
+    nav.tabstrip.small a:not(.selected) span {
         display: none;
     }
 }

@@ -16,6 +16,11 @@ export default defineEventHandler(async (event) => {
                 IF array::len($request.approvals) >= $threshold {
                     UPDATE $request.topic SET
                         moderators += $request.user;
+
+                    IF $request.user.roles CONTAINSNOT "moderator" {
+                        UPDATE $request.user SET
+                            roles += "moderator";
+                    };
     
                     UPDATE $request SET
                         closed = true;
