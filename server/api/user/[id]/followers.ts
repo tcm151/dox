@@ -1,15 +1,15 @@
 import type { User } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
-    const { topic } = event.context.params!
+    const { id } = event.context.params!
 
     return await new DatabaseQuery()
         .addSql(`
             SELECT id, name, roles, traits, dateJoined, votes, score
             FROM user
-            WHERE topics CONTAINS $topic
-            ORDER BY score
+            WHERE $user.followers CONTAINS id
+            ORDER BY score DESC
         `)
-        .addRecord("topic", `topic:${topic}`)
+        .addRecord("user", `user:${id}`)
         .queryAll<User>()
 })
