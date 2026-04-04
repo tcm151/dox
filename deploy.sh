@@ -20,9 +20,6 @@ set -e
    		# copy build to production
    		cp -r .output .production
    		echo "Replaced production with build output"
-   		# symlink image uploads to production
-   		ln -s ~/dox/data ~/dox/.production/data
-   		echo "Linked data upload directory to production"
 	else
     	# kill running server
     	kill $(lsof -t -i :8001) 2>/dev/null || true
