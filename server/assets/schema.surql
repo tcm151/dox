@@ -356,17 +356,18 @@ DEFINE FIELD OVERWRITE subject ON report
 DEFINE FIELD OVERWRITE time ON report
     TYPE datetime DEFAULT ALWAYS time::now();
 
+
 -- ------------------------------
--- TABLE: confirmation
+-- TABLE: accountConfirmation
 -- ------------------------------
-DEFINE TABLE OVERWRITE confirmation SCHEMAFULL;
-DEFINE FIELD OVERWRITE account ON confirmation
+DEFINE TABLE OVERWRITE accountConfirmation SCHEMAFULL;
+DEFINE FIELD OVERWRITE account ON accountConfirmation
     TYPE record<account>;
-DEFINE FIELD OVERWRITE time ON confirmation
+DEFINE FIELD OVERWRITE time ON accountConfirmation
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE used ON confirmation
+DEFINE FIELD OVERWRITE used ON accountConfirmation
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE expired ON confirmation
+DEFINE FIELD OVERWRITE expired ON accountConfirmation
     COMPUTED time::now() > time + 15m;
 
 

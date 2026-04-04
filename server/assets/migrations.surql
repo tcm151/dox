@@ -238,3 +238,11 @@ WHERE approvals = NONE;
 UPDATE appSettings SET
     moderation.threshold = 1
 WHERE moderation = NONE;
+
+-- 2026-04-03 rename table to be consistent
+IF (INFO FOR DB).tables.confirmation != NONE {
+    INSERT INTO accountConfirmation
+    SELECT account, time, used, expired
+    FROM confirmation;
+    REMOVE TABLE IF EXISTS confirmation;
+};

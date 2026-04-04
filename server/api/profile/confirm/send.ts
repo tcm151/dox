@@ -1,4 +1,4 @@
-import type { Confirmation, AppSettings } from "@@/shared/types"
+import type { AccountConfirmation, AppSettings } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -13,11 +13,11 @@ export default defineEventHandler(async (event) => {
 
     const confirmation = await new DatabaseQuery()
         .addSql(`
-            CREATE confirmation SET
+            CREATE AccountConfirmation SET
                 account = $account
         `)
         .addRecord('account', event.context.account.id)
-        .queryOne<Confirmation>()
+        .queryOne<AccountConfirmation>()
 
     const { public: { baseUrl } } = useRuntimeConfig()
     let template = await useStorage("assets:server").getItem("templates/confirm-account.html") as string
