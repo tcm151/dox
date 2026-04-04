@@ -9,16 +9,16 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             IF $draft.user = $user.id {
                 RETURN UPDATE $draft SET
-                title = $title,
-                content = $content,
-                topics = $topics,
-                time = time::now();
+                    title = $title,
+                    content = $content,
+                    topics = $topics,
+                    time = time::now();
             };
         `)
         .addRecord("draft", `draft:${id}`)
-        .addParameter("user", auth)
+        .addRecord("user", auth.id)
         .addParameter("title", draft.title)
         .addParameter("content", draft.content)
-        .addParameter("topics", draft.topics)
+        .addRecords("topics", draft.topics)
         .queryOne<Draft>()
 })
