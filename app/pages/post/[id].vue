@@ -133,6 +133,10 @@ async function awardPost() {
         hints.addWarning('You have already awarded this post.')
         return
     }
+    if (session.user.tokens < 256) {
+        hints.addWarning("You don't have enought tokens.")
+        return
+    }
 
     events.publish(Trigger.showPopup, {
         title: 'Confirm Award',
