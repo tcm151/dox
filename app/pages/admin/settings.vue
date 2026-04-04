@@ -29,7 +29,7 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
-const tabs = ['contact', 'voting', 'feeds', 'topics', 'posts', 'threads', 'media', 'misc']
+const tabs = ['contact', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'threads', 'media', 'misc']
 
 const topicInput = useTemplateRef("topic")
 function addTopic() {
@@ -100,6 +100,12 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                         <label>additional emails</label>
                         <textarea rows="2" v-model="settings.email.additional"></textarea>
                         <span class="tip">Multiple emails can be included, separated by ;</span>
+                    </div>
+                </div>
+                <div v-if="section == 'moderation'">
+                    <div class="field row">
+                        <label class="f-1">request threshold</label>
+                        <input type="number" v-model="settings.moderation.threshold">
                     </div>
                 </div>
                 <div v-if="section == 'voting'">
