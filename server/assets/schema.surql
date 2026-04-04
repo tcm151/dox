@@ -417,6 +417,20 @@ DEFINE FIELD OVERWRITE closed ON moderationRequest
 
 
 -- ------------------------------
+-- TABLE: developerQuery
+-- ------------------------------
+DEFINE TABLE OVERWRITE developerQuery SCHEMAFULL;
+DEFINE FIELD OVERWRITE user ON developerQuery
+    TYPE record<user>;
+DEFINE FIELD OVERWRITE sql ON developerQuery
+    TYPE string;
+DEFINE FIELD OVERWRITE results ON developerQuery
+    TYPE any;
+DEFINE FIELD OVERWRITE time ON developerQuery
+    TYPE datetime DEFAULT ALWAYS time::now();
+
+
+-- ------------------------------
 -- TABLE: error
 -- ------------------------------
 DEFINE TABLE OVERWRITE error SCHEMAFULL;
