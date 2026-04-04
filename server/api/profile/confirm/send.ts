@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
     const confirmation = await new DatabaseQuery()
         .addSql(`
-            CREATE AccountConfirmation SET
+            CREATE accountConfirmation SET
                 account = $account
         `)
         .addRecord('account', event.context.account.id)

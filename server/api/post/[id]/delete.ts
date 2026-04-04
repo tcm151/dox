@@ -29,6 +29,6 @@ export default defineEventHandler(async (event) => {
             };
         `)
         .addRecord("post", `post:${id}`)
-        .addParameter("user", auth)
+        .addParameter("user", auth.id)
         .execute()
 })
