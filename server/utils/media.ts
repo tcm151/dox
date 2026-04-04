@@ -1,36 +1,24 @@
 import fs from "node:fs"
 import sharp from "sharp"
-import type { MultiPartData } from "h3"
+import type { H3Event, MultiPartData } from "h3"
 import type { User, Media } from "@@/shared/types"
 
-// REFACTOR implement server-side token calculations
-export async function processMedia(media: MultiPartData): Promise<{ buffer: Buffer, type: string }> {
+type MediaType = "image" | "audio"
+
+export async function processMedia(event: H3Event, type: MediaType): Promise<{ buffer: Buffer, tokens: number, type: string }> {
+    const media = await validateMedia(event, type)
+    
     switch (media.type) {
         case "image/gif":
-            return {
-                type: "gif",
-                buffer: await sharp(media.data, { animated: true }).gif().toBuffer(),
-            }
+            return await handleGif(media)
         case "image/webp":
-            return {
-                type: "webp",
-                buffer: await sharp(media.data).webp().toBuffer(),
-            }
+            return await handleWebp(media)
         case "image/png":
-            return {
-                type: "png",
-                buffer: await sharp(media.data).png({ compressionLevel: 9 }).toBuffer(),
-            }
+            return await handlePng(media)
         case "image/jpeg":
-            return {
-                buffer: await sharp(media.data).jpeg({ quality: 80, force: true }).toBuffer(),
-                type: "jpeg"
-            }
+            return await handleJpeg(media)
         case "audio/mpeg": {
-            return {
-                type: "mp3",
-                buffer: media.data,
-            }
+            return handleMpeg(media)
         }
         default:
             throw createError({
@@ -40,12 +28,97 @@ export async function processMedia(media: MultiPartData): Promise<{ buffer: Buff
     }
 }
 
-type MediaType = "image" | "audio"
+async function validateMedia(event: H3Event, type: MediaType): Promise<MultiPartData> {
+    const data = await readMultipartFormData(event)
+    const settings = await SettingsManager.get()
 
-export async function writeMedia(user: User, media: Media, buffer: Buffer, mediaType: MediaType) {
+    if (type == "image" && !settings.media.images.enabled) {
+        throw createError({
+            status: 503,
+            statusText: "Image uploads are currently disabled."
+        })
+    }
+    if (type == "audio" && !settings.media.audio.enabled) {
+        throw createError({
+            status: 503,
+            statusText: "Audio uploads are currently disabled."
+        })
+    }
+
+    if (!data || !data[0]) {
+        throw createError({
+            status: 400,
+            statusText: "You did pass any files to be uploaded."
+        })
+    }
+
+    const fileSize = data[0].data.byteLength / 1_048_576
+
+    if (type == "image" && fileSize > settings.media.images.uploadLimit) {
+        throw createError({
+            status: 400,
+            statusText: `File size exceeds the ${settings.media.images.uploadLimit}MB limit.`
+        })
+    }
+    if (type == "audio" && fileSize > settings.media.audio.uploadLimit) {
+        throw createError({
+            status: 400,
+            statusText: `File size exceeds the ${settings.media.audio.uploadLimit}MB limit.`
+        })
+    }
+
+    return data[0]
+}
+
+async function handleGif(media: MultiPartData) {
+    const gif = await sharp(media.data, { animated: true }).gif().toBuffer()
+    return {
+        type: "gif",
+        tokens: Math.round(gif.byteLength / 2_048),
+        buffer: gif
+    }
+}
+
+async function handleWebp(media: MultiPartData) {
+    const webp = await sharp(media.data).webp().toBuffer()
+    return {
+        type: "webp",
+        tokens: Math.round(webp.byteLength / 2_048),
+        buffer: webp
+    }
+}
+
+async function handlePng(media: MultiPartData) {
+    const png = await sharp(media.data).png({ compressionLevel: 9 }).toBuffer()
+    return {
+        type: "png",
+        tokens: Math.round(png.byteLength / 2_048),
+        buffer: png
+    }
+}
+
+async function handleJpeg(media: MultiPartData) {
+    const jpeg = await sharp(media.data).jpeg({ quality: 80, force: true }).toBuffer()
+    return {
+        type: "jpeg",
+        tokens: Math.round(jpeg.byteLength / 2_048),
+        buffer: jpeg
+    }
+}
+
+function handleMpeg(media: MultiPartData) {
+    const mpeg = media.data
+    return {
+        type: "mp3",
+        tokens: Math.round(mpeg.byteLength / 2_048),
+        buffer: mpeg
+    }
+}
+
+export async function writeMedia(user: User, media: Media, buffer: Buffer, type: MediaType) {
     try {
         const config = useRuntimeConfig()
-        const basePath = `${config.media.path}/${mediaType}`
+        const basePath = `${config.media.path}/${type}`
 
         if (!fs.existsSync(basePath)) {
             fs.mkdirSync(basePath, { recursive: true })

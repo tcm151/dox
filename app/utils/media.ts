@@ -23,13 +23,17 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
     const hints = useHints()
     const settings = useSettings()
 
-    if (!files || !files[0]) {
-        hints.addWarning("Please select a file.")
+    if (mediaType == "image" && !settings.app.media.images.enabled) {
+        hints.addError("Image uploads are not enabled.")
         return
     }
-    // TODO account for all media types
-    if (!settings.app.media.images.enabled) {
-        hints.addError("Media uploads are currently disabled.")
+    if (mediaType == "audio" && !settings.app.media.audio.enabled) {
+        hints.addError("Audio uploads are not enabled.")
+        return
+    }
+    
+    if (!files || !files[0]) {
+        hints.addWarning("Please select a file.")
         return
     }
     

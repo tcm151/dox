@@ -2,44 +2,17 @@ import type { Image } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const data = await readMultipartFormData(event)
-    const settings = await SettingsManager.get()
+    requireTrait(auth, "confirmed")
 
-    if (!settings.media.images.enabled) {
-        return createError({
-            status: 503,
-            statusText: "Media uploads are currently disabled."
-         })
-    }
-
-    if (!data || !data[0]) {
-        return createError({
-            status: 400,
-            statusText: "You did pass any files to be uploaded."
-        })
-    }
-
-    const fileSize = data[0].data.byteLength / 1_048_576
-    if (fileSize > settings.media.images.uploadLimit) {
-        return createError({
-            status: 400,
-            statusText: `File size exceeds the ${settings.media.images.uploadLimit}MB limit.`
-        })
-    }
-
-    const { buffer, type } = await processMedia(data[0])
-    const tokens = Math.round(buffer.byteLength / 2_048)
+    const media = await processMedia(event, "image")
     
-    if (auth.tokens < tokens) {
-        throw createError({
-            status: 401,
-            statusText: "You do not have enough tokens to upload this image."
-        })
-    }
-
     const image = await new DatabaseQuery()
         .addSql(`
             RETURN {
+                IF $user.tokens < $tokens {
+                    THROW "You do not have enough tokens to upload this image.";
+                };
+
                 UPDATE $user SET
                     tokens -= $tokens;
 
@@ -51,11 +24,11 @@ export default defineEventHandler(async (event) => {
             };
         `)
         .addRecord('user', auth.id)
-        .addParameter('tokens', tokens)
-        .addParameter('type', type)
+        .addParameter('tokens', media.tokens)
+        .addParameter('type', media.type)
         .addParameter("origin", useRuntimeConfig().public.baseUrl)
         .queryOne<Image>()
 
-    await writeMedia(auth, image, buffer, "image")
-    return { media: image, tokens }
+    await writeMedia(auth, image, media.buffer, "image")
+    return { media: image, tokens: media.tokens }
 })
