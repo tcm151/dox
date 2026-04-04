@@ -188,7 +188,7 @@ REMOVE ACCESS IF EXISTS account ON DATABASE;
 REMOVE FUNCTION IF EXISTS fn::days_since;
 
 -- 2026-03-30 major account migration
-BEGIN TRANSACTION;
+IF (INFO FOR TABLE user).fields.email != NONE {
     FOR $user IN (SELECT id, email, password FROM user) {
         IF array::len(SELECT user FROM account WHERE user = $user.id) = 0 {
             CREATE account SET
@@ -201,19 +201,35 @@ BEGIN TRANSACTION;
     UPDATE session SET
         account = (SELECT VALUE id FROM account WHERE user.id = $parent.user)[0]
     WHERE account = NONE AND user != NONE;
+    REMOVE FIELD IF EXISTS user ON TABLE session;
+    UPDATE session SET
+        user = NONE
+    WHERE user != NONE AND account != NONE;
+
+    UPDATE confirmation SET
+        account = (SELECT VALUE id FROM account WHERE user.id = $parent.user)[0]
+    WHERE account = NONE AND user != NONE;
+    REMOVE FIELD IF EXISTS user ON TABLE confirmation;
+    UPDATE confirmation SET
+        user = NONE
+    WHERE user != NONE AND account != NONE;
+    
+    UPDATE passwordReset SET
+        account = (SELECT VALUE id FROM account WHERE user.id = $parent.user)[0]
+    WHERE account = NONE AND user != NONE;
+    REMOVE FIELD IF EXISTS user ON TABLE passwordReset;
+    UPDATE passwordReset SET
+        user = NONE
+    WHERE user != NONE AND account != NONE;
 
     REMOVE FIELD IF EXISTS email ON TABLE user;
+    REMOVE INDEX IF EXISTS email ON TABLE user;
     REMOVE FIELD IF EXISTS password ON TABLE user;
     UPDATE user SET
         email = NONE,
         password = NONE
     WHERE email != NONE OR password != NONE;
-    
-    REMOVE FIELD IF EXISTS user ON TABLE session;
-    UPDATE session SET
-        user = NONE
-    WHERE user != NONE;
-COMMIT TRANSACTION;
+};
 
 -- 2026-04-02 topics are a core feature and shouldn't be disabled
 UPDATE appSettings SET
