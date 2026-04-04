@@ -18,6 +18,7 @@ const route = useRoute()
                 <NuxtLink v-if="!tab.hide?.()"
                     :class="{ selected: tab.route == route.fullPath }"
                     :to="tab.route"
+                    :title="tab.label"
                 >
                     <i :class="`fa-solid ${tab.icon}`"></i>
                     <span>{{ tab.label }}</span>

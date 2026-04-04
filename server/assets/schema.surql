@@ -13,6 +13,7 @@ DEFINE FIELD OVERWRITE user ON account
 DEFINE INDEX OVERWRITE user ON account
     FIELDS user UNIQUE;
 
+
 -- ------------------------------
 -- TABLE: user
 -- ------------------------------
@@ -449,6 +450,7 @@ DEFINE FIELD OVERWRITE stack ON error
     TYPE string;
 DEFINE FIELD OVERWRITE data ON error
     TYPE object FLEXIBLE;
+
 
 -- ------------------------------
 -- TABLE: appSettings
