@@ -20,6 +20,9 @@ export const useSettings = defineStore("user.settings", () => {
             support: "",
             additional: "",
         },
+        moderation: {
+            threshold: 1,
+        },
         voting: {
             enabled: true,
             misleading: true,
