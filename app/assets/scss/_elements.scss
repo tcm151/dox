@@ -202,14 +202,14 @@ nav.tabstrip.wide {
     }
 }
 
-.tag:has(span, i) {
+.tag:has(div, i) {
     @include flex-h(0.33rem);
     justify-content: center;
     align-items: center;
     line-height: 1rem;
 }
 
-span.tag {
+div.tag {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
 }

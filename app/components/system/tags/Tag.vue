@@ -9,21 +9,21 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span v-if="!hidden" class="tag" :class="type" :style="{ width }">
+    <div v-if="!hidden" class="tag" :class="type" :style="{ width }">
         <i v-if="icon" class="fa-solid" :class="icon"></i>
         <span v-if="label">{{ label }}</span>
         <slot />
-    </span>
+    </div>
 </template>
 
 <style scoped lang="scss">
-span.tag.default {
+.tag.default {
     background-color: $white-2;
     transition: color 256ms, background-color 256ms;
     font-weight: 800;
 }
 
-span.tag.default:hover {
+.tag.default:hover {
     color: $white-0;
     background-color: $white-3;
 }
