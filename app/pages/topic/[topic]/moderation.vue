@@ -40,7 +40,7 @@ function switchTabs(newTab: string) {
     tab.value = newTab
 }
 
-// TODO implement additonals ways to customize a topic
+// TODO implement additional ways to customize a topic
 // TODO allow moderating usages of the topic, removing from submissions, etc
 </script>
 
@@ -69,14 +69,7 @@ function switchTabs(newTab: string) {
                 </button>
             </div>
         </section>
-        <!-- <footer>
-            <InternalTabstrip :selected="tab" @switch="switchTabs" :tabs="[
-                { label: 'First', icon: 'fa-shield' },
-                { label: 'Second', icon: 'fa-shield' },
-            ]"/>
-        </footer> -->
     </article>
-
 </template>
 
 <style scoped lang="scss">

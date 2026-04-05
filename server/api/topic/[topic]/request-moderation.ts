@@ -1,5 +1,9 @@
+import { requireTrait } from "~~/shared/utils/traits"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+    requireTrait(auth, "confirmed")
+    
     const { topic } = event.context.params!
 
     try {

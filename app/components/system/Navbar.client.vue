@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+const route = useRoute()
 const events = useEvents()
 const config = useSettings()
 const session = getSession()
@@ -24,25 +25,25 @@ function toggleUserManager() {
 <template>
     <nav class="tabstrip row inline between">
         <section class="left row">
-            <NuxtLink class="title" to="/feed" title="Home">
+            <NuxtLink class="title" :class="{ selected: route.path.startsWith('/feed') }" to="/feed" title="Home">
                 <i class="fa-solid fa-box-archive"></i>
                 <span>{{ site.titleShort.toUpperCase() }}</span>
             </NuxtLink>
             <Authenticated>
-                <NuxtLink v-if="hasRole(session.user, 'moderator')" to="/moderator" title="Moderator">
+                <NuxtLink v-if="hasRole(session.user, 'moderator')" :class="{ selected: route.path.startsWith('/moderator') }" to="/moderator" title="Moderator">
                     <i class="fa-solid fa-screwdriver-wrench"></i>
                     <span>Moderator</span>
                 </NuxtLink>
-                <NuxtLink v-if="hasRole(session.user, 'admin')" to="/admin" title="Admin">
+                <NuxtLink v-if="hasRole(session.user, 'admin')" :class="{ selected: route.path.startsWith('/admin') }" to="/admin" title="Admin">
                     <i class="fa-solid fa-shield"></i>
                     <span>Admin</span>
                 </NuxtLink>
-                <NuxtLink v-if="hasRole(session.user, 'developer')" to="/developer" title="Developer">
+                <NuxtLink v-if="hasRole(session.user, 'developer')" :class="{ selected: route.path.startsWith('/developer') }" to="/developer" title="Developer">
                     <i class="fa-solid fa-code"></i>
                     <span>Developer</span>
                 </NuxtLink>
             </Authenticated>
-            <NuxtLink to="/store" v-if="config.app.media.tokens.enabled" title="Store">
+            <NuxtLink v-if="config.app.media.tokens.enabled" to="/store" title="Store">
                 <i class="fa-solid fa-coins"></i>
             </NuxtLink>
         </section>
@@ -51,11 +52,11 @@ function toggleUserManager() {
                 <button v-if="config.app.misc.feedback.enabled" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
                     <i class="fa-solid fa-keyboard"></i>
                 </button>
-                <NuxtLink to="/editor" title="Submit">
+                <NuxtLink :class="{ selected: route.path.startsWith('/editor') }" to="/editor" title="Submit">
                     <i class="fa-solid fa-feather"></i>
                     <span>Submit</span>
                 </NuxtLink>
-                <NuxtLink to="/inbox" title="Inbox">
+                <NuxtLink :class="{ selected: route.path.startsWith('/inbox') }" to="/inbox" title="Inbox">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Inbox</span>
                 </NuxtLink>

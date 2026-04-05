@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { Account } from "@@/shared/types"
+
 const hints = useHints()
 const valid = useValidation()
 const events = useEvents()
 const session = getSession()
 
-const { data: account } = await useDatasource("/api/profile/account")
+const { data: account } = await useDatasource<Account>("/api/profile/account")
 
 function validDescription() {
     return session.user.description !== '' ? valid.user.description(session.user.description!) : true
@@ -12,8 +14,7 @@ function validDescription() {
 
 async function sendConfirmation() {
     await useApi("/api/profile/confirm/send")
-    hints.addSuccess("Confirmation sent!")
-    hints.addError("Expires in 15 minutes...")
+    hints.addSuccess("Confirmation sent! Expires in 15 minutes...")
 }
 
 const username = ref<string>(session.user.name)
@@ -49,10 +50,11 @@ async function updateProfile() {
                 description: session.user.description,
             }
         })
+        hints.addSuccess("Updated your profile successfully.")
         await session.refreshProfile()
     }
     catch (error: any) {
-
+        hints.addError("Failed to update your profile.")
     }
     finally {
         loading.value = false
@@ -72,7 +74,7 @@ async function resetPassword() {
         accept: async () => {
             await useApi(`/api/profile/password/reset`, {
                 body: {
-                    id: account.value.email
+                    id: account.value?.email
                 }
             })
             hints.addSuccess("Password reset link sent to your email.")
@@ -96,7 +98,7 @@ async function resetPassword() {
                 </button>
             </div>
             <div class="form">
-                <div class="field">
+                <div v-if="account" class="field">
                     <label>Email</label>
                     <input disabled type="text" :value="account.email"/>
                 </div>

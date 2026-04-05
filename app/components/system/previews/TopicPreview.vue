@@ -35,7 +35,8 @@ let showFollow = computed(() => {
 
 const noModerators = computed(() => {
     return props.topic.moderators.length == 0
-    && session.user.topics.includes(props.topic.id)
+        && session.user.topics.includes(props.topic.id)
+        && hasTrait(session.user, "confirmed")
 })
 
 async function requestModeration() {

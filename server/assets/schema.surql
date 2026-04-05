@@ -13,6 +13,7 @@ DEFINE FIELD OVERWRITE user ON account
 DEFINE INDEX OVERWRITE user ON account
     FIELDS user UNIQUE;
 
+
 -- ------------------------------
 -- TABLE: user
 -- ------------------------------
@@ -356,17 +357,18 @@ DEFINE FIELD OVERWRITE subject ON report
 DEFINE FIELD OVERWRITE time ON report
     TYPE datetime DEFAULT ALWAYS time::now();
 
+
 -- ------------------------------
--- TABLE: confirmation
+-- TABLE: accountConfirmation
 -- ------------------------------
-DEFINE TABLE OVERWRITE confirmation SCHEMAFULL;
-DEFINE FIELD OVERWRITE account ON confirmation
+DEFINE TABLE OVERWRITE accountConfirmation SCHEMAFULL;
+DEFINE FIELD OVERWRITE account ON accountConfirmation
     TYPE record<account>;
-DEFINE FIELD OVERWRITE time ON confirmation
+DEFINE FIELD OVERWRITE time ON accountConfirmation
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE used ON confirmation
+DEFINE FIELD OVERWRITE used ON accountConfirmation
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE expired ON confirmation
+DEFINE FIELD OVERWRITE expired ON accountConfirmation
     COMPUTED time::now() > time + 15m;
 
 
@@ -417,6 +419,20 @@ DEFINE FIELD OVERWRITE closed ON moderationRequest
 
 
 -- ------------------------------
+-- TABLE: developerQuery
+-- ------------------------------
+DEFINE TABLE OVERWRITE developerQuery SCHEMAFULL;
+DEFINE FIELD OVERWRITE user ON developerQuery
+    TYPE record<user>;
+DEFINE FIELD OVERWRITE sql ON developerQuery
+    TYPE string;
+DEFINE FIELD OVERWRITE results ON developerQuery
+    TYPE any;
+DEFINE FIELD OVERWRITE time ON developerQuery
+    TYPE datetime DEFAULT ALWAYS time::now();
+
+
+-- ------------------------------
 -- TABLE: error
 -- ------------------------------
 DEFINE TABLE OVERWRITE error SCHEMAFULL;
@@ -434,6 +450,7 @@ DEFINE FIELD OVERWRITE stack ON error
     TYPE string;
 DEFINE FIELD OVERWRITE data ON error
     TYPE object FLEXIBLE;
+
 
 -- ------------------------------
 -- TABLE: appSettings

@@ -27,4 +27,14 @@ const markdown = computed(() => {
     div.codeblock:not(.wrap) {
         overflow-x: auto;
     }
+
+    div.codeblock.error {
+        color: $red;
+        background-color: $red-light;
+        
+        :deep(code) {
+            color: $red;
+            background-color: $red-light;
+        }
+    }
 </style>

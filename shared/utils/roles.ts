@@ -13,7 +13,7 @@ export function requireRole(user: User, role: Role | Role[]) {
     if (!hasRole(user, role)) {
         throw createError({
             status: 403,
-            statusText: "You do not have permission to do this."
+            statusText: "You are not allowed to do this."
         })
     }
 }

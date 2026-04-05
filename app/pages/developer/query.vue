@@ -7,6 +7,7 @@ const query = cache.get<string>("query.sql", () => "")
 const results = cache.get<any[]>("query.results", () => [])
 const history = cache.get<string[]>("query.history", () => [])
 const selectedResult = cache.get<number>("query.selectedResult", () => 0)
+const errorMessage = cache.get<string>("query.error", () => "")
 
 function removeFromHistory(query: string) {
     history.value = history.value.filter(h => h !== query)
@@ -23,6 +24,7 @@ async function submitQuery() {
             }
         })
         
+        errorMessage.value = ""
         history.value = history.value.filter(q => q !== query.value)
         history.value.unshift(query.value)
         if (results.value.length > 0) {
@@ -31,7 +33,10 @@ async function submitQuery() {
         tab.value = 'Results'
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.statusText)
+        errorMessage.value = error.data.message
+        tab.value = "Error"
+        results.value = []
     }
     finally {
         loading.value = false
@@ -77,7 +82,11 @@ const resultPreviews = computed(() => {
         </div>
         <div class="right box column g-2 p-4">
             <header class="row g-2">
-                <button class="link f-1" @click="tab = 'Results'">
+                <button v-if="errorMessage != ''"  class="danger f-1" @click="tab = 'Results'">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Error</span>
+                </button>
+                <button v-else class="link f-1" @click="tab = 'Results'">
                     <i class="fa-solid fa-square-poll-horizontal"></i>
                     <span>Results</span>
                 </button>
@@ -86,6 +95,9 @@ const resultPreviews = computed(() => {
                     <span>History</span>
                 </button>
             </header>
+            <section v-if="tab == 'Error'">
+                <Codeblock class="error" language="text" :code="errorMessage" />
+            </section>
             <section v-if="tab == 'Results'" class="results column">
                 <header v-if="results.length > 1" class="tabs row">
                     <template v-for="(label, index) in resultPreviews">

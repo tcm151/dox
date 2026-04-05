@@ -145,7 +145,7 @@ export interface Report extends Record {
     time: string
 }
 
-export interface Confirmation extends Record {
+export interface AccountConfirmation extends Record {
     account: Account & string
     time: string
     used: boolean

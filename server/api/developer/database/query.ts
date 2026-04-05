@@ -4,9 +4,26 @@ export default defineEventHandler(async (event) => {
     
     let { query } = await readBody<{ query: string }>(event)
 
-    // TODO add audit logging for queries
-    
-    return await new DatabaseQuery()
+    const results = await new DatabaseQuery()
         .addSql(query)
         .execute()
+
+    try {
+        await new DatabaseQuery()
+            .addSql(`
+                CREATE developerQuery SET
+                    user = $user,
+                    sql = $sql,
+                    results = $results
+            `)
+            .addRecord("user", auth.id)
+            .addParameter("sql", query)
+            .addParameter("results", results)
+            .execute()
+    }
+    catch (error: any) {
+        console.log(error)
+    }
+
+    return results
 })
