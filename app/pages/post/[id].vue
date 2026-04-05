@@ -281,6 +281,11 @@ function toggleOptions() {
             @refresh="refreshPost"
         />
     </article>
+    <article v-else class="column p-4">
+        <footer class="box text center p-4">
+            There is nothing here.
+        </footer>
+    </article>
 </template>
 
 <style scoped lang="scss">
