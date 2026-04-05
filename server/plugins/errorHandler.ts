@@ -17,10 +17,11 @@ export default defineNitroErrorHandler(async (error, event) => {
                     path: event.path,
                     method: event.method,
                     headers: {
-                        host: getHeader(event, "host"),
+                        ip: getRequestIP(event, { xForwardedFor: true }),
                         origin: getHeader(event, "origin"),
-                        userAgent: getHeader(event, "user-agent"),
+                        host: getHeader(event, "host"),
                         referer: getHeader(event, "referer"),
+                        userAgent: getHeader(event, "user-agent"),
                     }
                 })
                 .addParameter("user", event.context.account?.user.id ?? "unknown")
