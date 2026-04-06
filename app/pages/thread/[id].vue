@@ -146,6 +146,8 @@ const showOptions = ref<boolean>(false)
 function toggleOptions() {
     showOptions.value = !showOptions.value
 }
+
+// TODO allow locking threads, for moderator triage and author control
 </script>
 
 <template>

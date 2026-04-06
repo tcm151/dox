@@ -22,6 +22,10 @@ async function dismiss(notification: Notification) {
     notifications.value = notifications.value?.filter(n => n.id !== notification.id)
     await useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`)
 }
+
+// TODO add mark all as read
+// TODO implement real-time notifications with WebSockets or Server-Sent Events for immediate user feedback on new interactions.
+// TODO add pagination or infinite scroll for notifications if the list grows too long, with appropriate loading states and UX.
 </script>
 
 <template>

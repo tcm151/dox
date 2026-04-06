@@ -28,20 +28,16 @@ async function updateProfile() {
         hints.addSuccess("Updated topic profile successfully.")
     }
     catch (error: any) {
-        hints.addError("Failed to update topic profie.")
+        hints.addError("Failed to update topic profile.")
     }
     finally {
         loading.value = false
     }
 }
 
-const tab = ref<string>("first")
-function switchTabs(newTab: string) {
-    tab.value = newTab
-}
-
-// TODO implement additional ways to customize a topic
-// TODO allow moderating usages of the topic, removing from submissions, etc
+// TODO add topic moderation controls for rename, archive/lock, and moderator assignment with role checks.
+// TODO add topic usage moderation tools (remove topic from posts/threads in bulk, with confirmation and audit-safe UX).
+// TODO add user score threshold for using topics to prevent spam and abuse, with appropriate feedback and appeals process for affected users.
 </script>
 
 <template>

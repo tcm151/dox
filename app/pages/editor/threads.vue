@@ -70,12 +70,14 @@ function selectImages() {
 }
 
 const showPreview = ref<boolean>(false)
+// TODO render actual preview content when showPreview is true; current toggle only changes button/icon state.
 function togglePreview() {
     showPreview.value = !showPreview.value
     hints.addWarning('We are still working on this...')
 }
 
-// TODO finish implementing thread editor; drafts, image uploads, previews
+// TODO complete thread editor parity with post editor: drafts, image upload, markdown preview, and cancel/discard flow.
+// TODO allow for direct mentions of users in the content with autocomplete and validation, similar to topic tagging in the post editor.
 </script>
 
 <template>
@@ -83,6 +85,7 @@ function togglePreview() {
         <section class="box column p-5">
             <header class="row inline between mb-4">
                 <h1>New Thread</h1>
+                <!-- FIXME drafts button has empty click handler; wire to drafts flow or hide until implemented. -->
                 <button @click="">
                     <i class="fa-solid fa-compass-drafting"></i>
                     <span>Drafts</span>
@@ -109,6 +112,7 @@ function togglePreview() {
                     <i v-else class="fa-solid fa-eye-slash"></i>
                     <span>Preview</span>
                 </button>
+                <!-- FIXME cancel button has empty click handler; implement clear/navigate/discard-confirm behavior. -->
                 <button class="danger f-1 b-0" @click="">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>

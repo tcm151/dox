@@ -15,6 +15,10 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
         sortBy: sortBy
     }
 })
+
+// TODO add rules/summary page with versioned history
+// TODO add ability for moderators to feature or pin specific posts within the topic feed, with appropriate role checks and visual indicators.
+// TODO determine related topics based on shared usage in posts and threads, and display them on the topic page to encourage content discovery and topic exploration.
 </script>
 
 <template>

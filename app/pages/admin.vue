@@ -32,6 +32,8 @@ const tabs = [
     { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
     { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
 ]
+
+// TODO add shadow quarantine queue for suspicious first-time users with limited visibility and interaction
 </script>
 
 <template>

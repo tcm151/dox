@@ -16,6 +16,8 @@ const feed = useDatasource<Sortable[]>(`/api/user/${id}/feed`, {
         sortBy: sortBy
     }
 })
+
+// TODO allow support for blocking users, topics, or keywords to filter out unwanted content
 </script>
 
 

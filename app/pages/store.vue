@@ -32,6 +32,7 @@ function copyReferralLink() {
             </div>
         </section> -->
         <section class="box row wrap g-4 p-5">
+            <!-- TODO replace placeholder purchase warning with checkout flow, or hide these offers behind a feature flag. -->
             <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
                 <h2 class="tokens row g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
@@ -54,6 +55,7 @@ function copyReferralLink() {
                     <i class="fa-solid fa-handshake-simple"></i>
                     <span>Refer a Friend</span>
                 </button>
+                <!-- TODO implement referral code redemption flow with validation, idempotency checks, and clear user feedback. -->
                 <button class="link px-6 py-4" @click="hints.addWarning('We are still working on this...')">
                     <i class="fa-solid fa-barcode"></i>
                     <span>Enter Referral</span>
