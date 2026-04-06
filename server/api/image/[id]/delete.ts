@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM $image
-            FETCH user
         `)
         .addRecord("image", `image:${id}`)
         .queryOne<Image>()
@@ -21,7 +20,8 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // TODO need to add more robust cleanup if errors occur during deletion
+    // FIXME deletion order is non-atomic; if fs delete succeeds and DB update fails, state becomes inconsistent.
+    // TODO implement resilient cleanup/compensation strategy (DB-first with retry queue or rollback-safe file handling).
     try {
         const config = useRuntimeConfig()
         if (fs.existsSync(`${config.media.path}/image/${id}.${image.type}`)) {
