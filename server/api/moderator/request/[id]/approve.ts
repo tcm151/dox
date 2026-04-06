@@ -8,6 +8,16 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             RETURN {
+                IF $request.closed {
+                    THROW "This request has already been closed.";
+                };
+                IF $request.approvals CONTAINS $user {
+                    THROW "You have already approved this request.";
+                };
+                IF $request.user = $user {
+                    THROW "You cannot approve your own request.";
+                };
+
                 LET $request = (
                     UPDATE ONLY $request SET
                         approvals += $user

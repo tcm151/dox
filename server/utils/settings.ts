@@ -15,6 +15,7 @@ export class SettingsManager {
             .addSql(`
                 UPDATE appSettings SET
                     email = $email,
+                    moderation = $moderation,
                     voting = $voting,
                     topics = $topics,
                     feeds = $feeds,
@@ -25,6 +26,7 @@ export class SettingsManager {
             `)
             .addRecord("id", id)
             .addParameter("email", settings.email)
+            .addParameter("moderation", settings.moderation)
             .addParameter("voting", settings.voting)
             .addParameter("topics", settings.topics)
             .addParameter("feeds", settings.feeds)

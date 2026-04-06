@@ -1,12 +1,9 @@
 import fs from "node:fs"
 import type { Image } from "@@/shared/types"
 
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
-
-    const config = useRuntimeConfig()
 
     const image = await new DatabaseQuery()
         .addSql(`
@@ -17,34 +14,39 @@ export default defineEventHandler(async (event) => {
         .addRecord("image", `image:${id}`)
         .queryOne<Image>()
 
-    try {
+    if (image.user != auth.id && !hasRole(auth, "admin")) {
+        throw createError({
+            status: 403,
+            statusText: `You are not allowed to do this.`,
+        })
+    }
 
-        if (fs.existsSync(config.media.path)) {
-            fs.rmSync(config.media.path)
+    // TODO need to add more robust cleanup if errors occur during deletion
+    try {
+        const config = useRuntimeConfig()
+        if (fs.existsSync(`${config.media.path}/image/${id}.${image.type}`)) {
+            fs.rmSync(`${config.media.path}/image/${id}.${image.type}`)
         }
 
         await new DatabaseQuery()
             .addSql(`
                 RETURN {
-                    IF $image.user != $user AND $user.roles CONTAINSNOT "admin" {
-                        THROW "You are not allowed to do this.";
-                    };
                     UPDATE $user SET
-                        tokens += $tokens;
+                        tokens += $image.tokens;
+                    
                     DELETE $image;
                 };
             `)
             .addRecord("user", auth.id)
             .addRecord("image", image.id)
-            .addParameter("tokens", image.tokens)
             .execute()
 
         return true
     }
     catch (error: any) {
         throw createError({
-            status: 403,
-            statusText: `Unabled to delete image:${id}`,
+            status: 500,
+            statusText: `Unable to delete image:${id}`,
             message: error.message,
             stack: error.stack,
         })      

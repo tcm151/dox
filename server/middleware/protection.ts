@@ -55,7 +55,7 @@ const limiter = new RateLimiter(10 * 60 * 1000, {
 
 export default defineEventHandler(async (event) => {
     const path = event.path.split("?").at(0) ?? ""
-    const ipAddress = getRequestIP(event, { xForwardedFor: true }) ?? "unknown"
+    const ipAddress = getRequestIP(event, { xForwardedFor: false }) ?? "unknown"
     const bucketKey = `${path}:${ipAddress}`
 
     if (limiter.limitExceeded(bucketKey, path)) {

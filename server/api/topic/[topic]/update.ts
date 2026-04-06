@@ -6,16 +6,19 @@ interface UpdateTopicRequest {
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    requireRole(auth, "moderator")
+    requireRole(auth, ["moderator", "admin"])
     
     const { topic } = event.context.params!
     const body = await readBody<UpdateTopicRequest>(event)
 
     return await new DatabaseQuery()
         .addSql(`
-            UPDATE $topic SET
-                description = $description
+            IF $topic.moderators CONTAINS $user OR $user.roles CONTAINS "admin" {
+                UPDATE $topic SET
+                    description = $description;
+            };
         `)
+        .addRecord("user", auth.id)
         .addRecord("topic", `topic:${topic}`)
         .addParameter("description", body.description)
         .queryOne<Topic>()

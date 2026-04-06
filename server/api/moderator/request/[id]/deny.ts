@@ -8,6 +8,16 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             RETURN {
+                IF $request.closed {
+                    THROW "This request has already been closed.";
+                };
+                IF $request.denials CONTAINS $user {
+                    THROW "You have already denied this request.";
+                };
+                IF $request.user = $user {
+                    THROW "You cannot deny your own request.";
+                };
+
                 LET $request = (
                     UPDATE ONLY $request SET
                         denials += $user
