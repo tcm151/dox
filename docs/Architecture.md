@@ -11,7 +11,7 @@ High-level architecture:
 - Backend: Nitro server under `server/` (API routes, middleware, plugins, utilities)
 - Data contracts: shared TypeScript interfaces under `shared/types/`
 - Persistence: SurrealDB schema and migrations under `server/assets/`
-- Static/public assets: `public/` and media files written to `media/`
+- Static/public assets: `public/` and media files written to `MEDIA_PATH`
 
 Deployment model:
 - Single process app serving UI + API
@@ -84,7 +84,7 @@ Typical API request lifecycle:
 ### 4.1 Type contract model
 
 Core interfaces live in `shared/types/index.ts` and include:
-- `User`, `Session`
+- `User`, `Account`, `Session`
 - `Post`, `Comment`, `Thread`, `Draft`
 - `Topic`, `Pin`, `Notification`, `Feedback`, `Report`
 - `Image`, `Audio`
@@ -106,8 +106,9 @@ Design pattern:
 
 ### 4.3 Core entities and relationships (conceptual)
 
-- `user` owns authored entities and sessions
-- `session` links auth token identity to `user`
+- `user` owns authored entities and links to account records
+- `account` stores credentials and links identity to a `user`
+- `session` links auth token identity to an `account`
 - `topic` connects to `post` and `thread` for taxonomy/discovery
 - `post` contains title/content and may include comments/images
 - `thread` supports chain/reply patterns and quoting
@@ -121,7 +122,7 @@ Design pattern:
 Auth implementation resides in `server/utils/auth.ts`:
 - `SessionManager.add`: creates session + cleanup of stale/invalidated sessions
 - `authenticateLogin`: credential verification and session issue
-- `authenticateToken`: token-to-session lookup and fetch user
+- `authenticateToken`: token-to-session lookup and fetch account + user context
 - `authenticateRequest`: standard guard for protected handlers
 - `invalidateSession`: logout/invalidation path
 
@@ -178,6 +179,7 @@ Runtime configuration is defined in `nuxt.config.ts` and env variables.
 
 Key env groups:
 - App identity and URL: `PORT`, `BASE_URL`, titles
+- Media storage path: `MEDIA_PATH`
 - Surreal connection: `SURREAL_TYPE`, `SURREAL_URL`, namespace/database, credentials
 - Default admin bootstrap: `DEFAULT_USER_*`
 - SMTP: optional email delivery settings
