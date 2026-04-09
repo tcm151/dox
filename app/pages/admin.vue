@@ -1,4 +1,20 @@
 <script setup lang="ts">
+const route = useRoute()
+const settings = useSettings()
+
+const tabs = useTabRoute({
+    key: "admin.lastTab",
+    routePath: "/admin",
+    defaultTab: "users",
+    startingRoutes: [
+        { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
+        { route: '/admin/users', icon: 'fa-user', label: 'Users' },
+        { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
+        { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
+        { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
+    ],
+})
+
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
@@ -11,27 +27,14 @@ definePageMeta({
             }
         }
         
-        const cache = useCache()
-        const lastTab = cache.get("admin.lastTab", () => "users")
         if (to.path === "/admin") {
-            return navigateTo(`/admin/${lastTab.value}`)
+            return navigateTo(tabs.getLastTab())
         }
         else {
-            lastTab.value = to.path.split("/").at(-1)!
+            tabs.setLastTab(to.path)
         }
     }
 })
-
-const route = useRoute()
-const settings = useSettings()
-
-const tabs = [
-    { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
-    { route: '/admin/users', icon: 'fa-user', label: 'Users' },
-    { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
-    { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
-    { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
-]
 
 // TODO add shadow quarantine queue for suspicious first-time users with limited visibility and interaction
 </script>
@@ -39,7 +42,7 @@ const tabs = [
 <template>
     <article class="admin column inline">
         <ClientOnly>
-            <PagedTabstrip :tabs="tabs" />
+            <PagedTabstrip :tabs="tabs.routes" />
         </ClientOnly>
         <section class="page column inline">
             <NuxtPage :key="route.path" />

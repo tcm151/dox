@@ -1,4 +1,17 @@
 <script setup lang="ts">
+const route = useRoute()
+
+const tabs = useTabRoute({
+    key: "developer.lastTab",
+    routePath: "/developer",
+    defaultTab: "query",
+    startingRoutes: [
+        { route: '/developer/schema', icon: 'fa-table-columns', label: 'Schema' },
+        { route: '/developer/query', icon: 'fa-terminal', label: 'Database' },
+        { route: '/developer/errors', icon: 'fa-triangle-exclamation', label: 'Errors' },
+    ],
+})
+
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
@@ -11,30 +24,20 @@ definePageMeta({
             }
         }
 
-        const cache = useCache()
-        const lastTab = cache.get("developer.lastTab", () => "query")
         if (to.path === "/developer") {
-            return navigateTo(`/developer/${lastTab.value}`)
+            return navigateTo(tabs.getLastTab())
         }
         else {
-            lastTab.value = to.path.split("/").at(-1)!
+            tabs.setLastTab(to.path)
         }
     }
 })
-
-const route = useRoute()
-
-const tabs = ref<any[]>([
-    { route: '/developer/schema', icon: 'fa-table-columns', label: 'Schema' },
-    { route: '/developer/query', icon: 'fa-terminal', label: 'Database' },
-    { route: '/developer/errors', icon: 'fa-triangle-exclamation', label: 'Errors' },
-])
 </script>
 
 <template>
     <article class="developer column inline">
         <ClientOnly>
-            <PagedTabstrip :tabs="tabs" />
+            <PagedTabstrip :tabs="tabs.routes" />
         </ClientOnly>
         <section class="page column inline">
             <NuxtPage :key="route.path" />
