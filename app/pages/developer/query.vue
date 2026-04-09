@@ -44,7 +44,7 @@ async function submitQuery() {
 }
 
 const resultPreviews = computed(() => {
-    let queries = history.value.at(0)?.split(";") ?? []
+    let queries = history.value[0]?.split(";") ?? []
     let filtered = queries.filter(q => q.trim() != "").filter((q, i) => results.value[i] != null)
     return filtered.map(q => {
         if (q.trim().length > 32) {

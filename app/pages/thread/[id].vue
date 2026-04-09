@@ -89,15 +89,6 @@ function copyLink() {
     hints.addSuccess("Copied thread URL")
 }
 
-function goBack() {
-    const lastTab = useCache().get<string>("feed.lastTab", () => "home")
-    return navigateTo(`/feed/${lastTab.value}`)
-}
-
-// function previous() {
-//     router.back()
-// }
-
 async function deleteThread() {
     events.publish(Trigger.showPopup, {
         title: 'Confirm Deletion',

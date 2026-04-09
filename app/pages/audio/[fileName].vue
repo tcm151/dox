@@ -7,7 +7,10 @@ definePageMeta({
 
 const route = useRoute()
 const fileName = route.params.fileName?.toString()
-const id = computed(() => fileName?.split('.').at(0))
+const id = computed(() => {
+    const parts = (fileName || "").split(".")
+    return parts[0] ?? ""
+})
 
 const { data: audio } = await useDatasource<Audio>(`/api/audio/${id.value}`)
 </script>
