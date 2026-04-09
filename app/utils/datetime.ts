@@ -31,7 +31,7 @@ export function formatDate(dateString?: string): string {
         return `${duration.minutes.toFixed(0)}m`
     }
     else {
-        return '< 1m ago'
+        return '< 1m'
     }
 }
 

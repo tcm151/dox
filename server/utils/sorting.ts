@@ -26,8 +26,10 @@ function sortNew(first: Sortable, second: Sortable) {
 
 function sortHot(first: Sortable, second: Sortable) {
     const now = DateTime.now()
-    const firstHotness = first.score / Math.max(1, now.diff(DateTime.fromISO(first.time), "hours").hours)
-    const secondHotness = second.score / Math.max(1, now.diff(DateTime.fromISO(second.time), "hours").hours)
+    const firstDays = Math.max(1, now.diff(DateTime.fromISO(first.time), "hours").hours)
+    const secondDays = Math.max(1, now.diff(DateTime.fromISO(second.time), "hours").hours)
+    const firstHotness = first.score / (firstDays * firstDays)
+    const secondHotness = second.score / (secondDays * secondDays)
     return firstHotness < secondHotness ? 1 : -1
 }
 

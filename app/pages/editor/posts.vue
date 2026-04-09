@@ -91,8 +91,6 @@ function selectImages() {
 }
 
 let uploading = ref<boolean>(false)
-
-
 async function beginUpload() {
     if (!files.value) {
         hints.addWarning("Please select an image.")
@@ -167,39 +165,47 @@ async function submit() {
     }
 }
 
+const saving = ref<boolean>(false)
 async function saveDraft() {
-    
     if (!validTitle()) {
         hints.addError("Title is invalid.")
         return
     }
-
-    if (draft.value.id !== '') {
-        await useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
-            body: {
-                title: draft.value.title,
-                content: draft.value.content,
-                replyTo: draft.value.replyTo,
-                topics: draft.value.topics,
-                images: uploadedImages.value.map(i => i.id)
-            }
-        })
-        hints.addSuccess("Draft updated.")
+    try {
+        saving.value = true
+        if (draft.value.id !== '') {
+            await useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
+                body: {
+                    title: draft.value.title,
+                    content: draft.value.content,
+                    replyTo: draft.value.replyTo,
+                    topics: draft.value.topics,
+                    images: uploadedImages.value.map(i => i.id)
+                }
+            })
+            hints.addSuccess("Draft updated.")
+        }
+        else {
+            const response = await useApi<Draft>("/api/profile/drafts/add", {
+                body: {
+                    user: session.user!.id,
+                    title: draft.value.title,
+                    content: draft.value.content,
+                    time: new Date(),
+                    replyTo: draft.value.replyTo,
+                    topics: draft.value.topics,
+                    images: uploadedImages.value.map(i => i.id)
+                }
+            })
+            draft.value.id = response.id
+            hints.addSuccess("Draft saved.")
+        }
     }
-    else {
-        const response = await useApi<Draft>("/api/profile/drafts/add", {
-            body: {
-                user: session.user!.id,
-                title: draft.value.title,
-                content: draft.value.content,
-                time: new Date(),
-                replyTo: draft.value.replyTo,
-                topics: draft.value.topics,
-                images: uploadedImages.value.map(i => i.id)
-            }
-        })
-        draft.value.id = response.id
-        hints.addSuccess("Draft saved.")
+    catch (error: any) {
+        hints.addError("Failed to save/update draft.")
+    }
+    finally {
+        saving.value = false
     }
 }
 </script>
@@ -232,7 +238,7 @@ async function saveDraft() {
                         </div>
                         <div class="field f-1">
                             <label>Content</label>
-                            <textarea class="f-1" rows="4" v-model="draft.content" />
+                            <textarea class="f-1" rows="12" v-model="draft.content" />
                         </div>
                         <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
                         <div v-if="uploadedImages.length > 0" class="field uploaded-images">
@@ -258,11 +264,11 @@ async function saveDraft() {
                         <i class="fa-solid fa-share"></i>
                         <span>Submit</span>
                     </ButtonSpinner>
-                    <button v-if="draft.id != ''" class="link f-1 b-0" @click="saveDraft">
+                    <ButtonSpinner v-if="draft.id != ''" class="link f-1 b-0" :loading="saving" @click="saveDraft">
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Update</span>
-                    </button>
-                    <button class="link f-1 b-0" @click="saveDraft" v-else>
+                    </ButtonSpinner>
+                    <button class="link f-1 b-0" :loading="saving" @click="saveDraft" v-else>
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
                     </button>
