@@ -49,7 +49,13 @@ async function updateProfile() {
             </button>
         </header>
         <section v-if="topic.data.value" class="box column g-4 p-5">
-            <h1>{{ id }}</h1>
+            <div class="row between">
+                <h1>{{ id }}</h1>
+                <button @click="">
+                    <i class="fa-solid fa-signature"></i>
+                    Request Rename
+                </button>
+            </div>
             <div class="field">
                 <label>Description</label>
                 <textarea rows="4" v-model="topic.data.value.description" />
