@@ -4,6 +4,14 @@ export default defineEventHandler(async (event) => {
     
     let { query } = await readBody<{ query: string }>(event)
 
+    if (query.includes("developerQuery")) {
+        throw createError({
+            status: 400,
+            statusText: "You aren't allowed to execute this query.",
+            message: "Executing queries against the `developerQuery` table is not allowed."
+        })
+    }
+
     const results = await new DatabaseQuery()
         .addSql(query)
         .execute()
