@@ -13,16 +13,31 @@ const emit = defineEmits<{
 const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
 const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
 
-if (ENV.isClient()) {
-    resizePopup()
-    window.visualViewport?.addEventListener('resize', resizePopup)
+function getViewportSize() {
+    const viewport = window.visualViewport
+    if (viewport && Number.isFinite(viewport.width) && Number.isFinite(viewport.height)) {
+        return { width: viewport.width, height: viewport.height }
+    }
+    return { width: window.innerWidth, height: window.innerHeight }
 }
 
 function resizePopup() {
-    maxWidth.value = `calc(${window.visualViewport!.width}px - 2rem)`
-    maxHeight.value = `calc(${window.visualViewport!.height}px - 2rem)`
+    const vp = getViewportSize()
+    maxWidth.value = `calc(${vp.width}px - 2rem)`
+    maxHeight.value = `calc(${vp.height}px - 2rem)`
 }
 
+if (ENV.isClient()) {
+    resizePopup()
+    window.visualViewport?.addEventListener('resize', resizePopup)
+    window.addEventListener('resize', resizePopup) // fallback path
+}
+
+onBeforeUnmount(() => {
+    if (!ENV.isClient()) return
+    window.visualViewport?.removeEventListener('resize', resizePopup)
+    window.removeEventListener('resize', resizePopup)
+})
 </script>
 
 <template>
