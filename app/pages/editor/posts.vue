@@ -41,7 +41,7 @@ const replyTo = computedAsync<Post | undefined>(async () => {
 let titleFocused = ref(false)
 
 function validTitle() {
-    return (draft.value.title == '') ? true : valid.post.title(draft.value.title)
+    return valid.post.title(draft.value.title)
 }
 
 function validTopic(topic: string) {
@@ -164,6 +164,14 @@ async function submit() {
         submitting.value = false
     }
 }
+
+// TODO add more keyboard shortcuts for the editor
+onKeyStroke(["s", "S"], async (event) => {
+    if (event.metaKey || event.ctrlKey) {
+        event.preventDefault()
+        await saveDraft()
+    }
+})
 
 const saving = ref<boolean>(false)
 async function saveDraft() {
