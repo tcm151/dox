@@ -41,7 +41,7 @@ async function unfollowUser() {
             </figure>
             <div class="name-follow row inline between f-1 g-4">
                 <div>
-                    <h1>{{ user.name }}</h1>
+                    <h2>{{ user.name }}</h2>
                     <a v-if="user.link" class="text truncate" :href="user.link">
                         {{ user.link }}
                     </a>
@@ -89,10 +89,6 @@ async function unfollowUser() {
 <style scoped lang="scss">
 .name-follow {
     overflow-x: hidden;
-
-    h1 {
-        font-size: 1.5rem;
-    }
 
     a {
         color: $purple;
