@@ -6,8 +6,10 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             IF $draft.user != $user {
                 THROW "You are not allowed to do this.";
+            }
+            ELSE {
+                DELETE $draft;
             };
-            DELETE $draft;
         `)
         .addRecord("draft", `draft:${id}`)
         .addParameter("user", auth.id)
