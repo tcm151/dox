@@ -38,8 +38,8 @@ function sortFeed(type: string) {
             <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
-            <slot name="buttons" />
             <ClientOnly>
+                <slot name="buttons" />
                 <button @click="sortFeed('new')" :class="{ selected: sortType === 'new' }">
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>

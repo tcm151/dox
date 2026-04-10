@@ -7,7 +7,7 @@ definePageMeta({
     middleware: (to, from) => {
         if (!ENV.isClient()) return
 
-        const tabs = useLastTab({ base: "feed", default: "discover" })
+        const tabs = useLastTab({ base: "feed", default: "home" })
         if (to.path === "/feed") {
             return navigateTo(tabs.getLastTab())
         }
@@ -19,7 +19,7 @@ definePageMeta({
 
 const tabs = ref<TabItem[]>([
     { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feeds.search },
-    { route: '/feed/discover', icon: 'fa-house', label: 'Home' },
+    { route: '/feed/home', icon: 'fa-house', label: 'Home' },
     { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
     { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts' },
     { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },

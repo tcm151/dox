@@ -6,18 +6,17 @@ const cache = useCache()
 const pins = await useDatasource<Pin[]>("/api/feed/pinned")
 
 const sortBy = cache.get<string>("feed.sort", () => "new")
-const selectedFeed = cache.get<string>("feed.type", () => "discover")
-const discover = useDatasource<Sortable[]>(`/api/feed/${selectedFeed.value}`, {
+const selectedFeed = cache.get<string>("feed.type", () => "popular")
+const discover = useDatasource<Sortable[]>(() => `/api/feed/${selectedFeed.value}`, {
     query: {
-        type: selectedFeed,
         sortBy: sortBy,
     }
 })
 
-const feeds = ["discover", "following"]
+const feeds = ["popular", "following"]
 function cycleFeed() {
     const index = feeds.findIndex(f => f == selectedFeed.value)
-    selectedFeed.value = feeds[index] ?? "discover"
+    selectedFeed.value = feeds[index+1] ?? "popular"
 }
 </script>
 
@@ -26,14 +25,14 @@ function cycleFeed() {
         <template v-for="pin in pins.data.value" :key="pin.id">
             <MultiPreview :item="pin.item" />
         </template>
-        <header class="row g-2">
-            <template v-for="type in feeds">
-                <button class="dark text capitalize" @click="cycleFeed">
-                    {{ type }}
-                </button>
-            </template>
-        </header>
         <Feed :items="discover" :sorting="true" @refresh="(type) => sortBy = type">
+            <template #buttons>
+                <template v-for="type in feeds">
+                    <button v-if="selectedFeed == type" class="dark text capitalize" @click="cycleFeed">
+                        {{ type }}
+                    </button>
+                </template>
+            </template>
             <template #item="item">
                 <MultiPreview :item="item" />
             </template>

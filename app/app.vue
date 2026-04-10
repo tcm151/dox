@@ -10,6 +10,8 @@ useSeoMeta({
 
 await callOnce("app.settings", () => settings.refresh())
 
+events.subscribe(Trigger.authenticatedUser, () => useRouter().go(0))
+
 let showLogin = ref(false)
 events.subscribe(Trigger.toggleLogin, () => showLogin.value = !showLogin.value)
 
