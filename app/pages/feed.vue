@@ -2,24 +2,12 @@
 const route = useRoute()
 const settings = useSettings()
 
-const tabs = useTabRoute({
-    key: "feed.lastTab",
-    routePath: "/feed",
-    defaultTab: "discover",
-    startingRoutes: [
-        { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feeds.search },
-        { route: '/feed/discover', icon: 'fa-house', label: 'Home' },
-        { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
-        { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts' },
-        { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
-        { route: '/feed/images', icon: 'fa-image', label: 'Images', hide: () => !settings.app.feeds.images },
-        { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: ()=> true },
-    ],
-})
-
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
+        if (!ENV.isClient()) return
+
+        const tabs = useLastTab({ base: "feed", default: "discover" })
         if (to.path === "/feed") {
             return navigateTo(tabs.getLastTab())
         }
@@ -29,15 +17,23 @@ definePageMeta({
     }
 })
 
+const tabs = ref<TabItem[]>([
+    { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feeds.search },
+    { route: '/feed/discover', icon: 'fa-house', label: 'Home' },
+    { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
+    { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts' },
+    { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
+    { route: '/feed/images', icon: 'fa-image', label: 'Images', hide: () => !settings.app.feeds.images },
+    { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: ()=> true },
+])
+
 // TODO create follow feed based on users/topics that the user follows
 // TODO create user customizable feeds with filtering and sorting options, and allow users to save and share their custom feeds
 </script>
 
 <template>
     <article class="feed column inline">
-        <ClientOnly>
-            <PagedTabstrip :tabs="tabs.routes" />
-        </ClientOnly>
+        <PagedTabstrip :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage :key="route.path" />
         </section>

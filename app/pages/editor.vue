@@ -1,21 +1,12 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const tabs = useTabRoute({
-    key: "editor.lastTab",
-    routePath: "/editor",
-    defaultTab: "posts",
-    startingRoutes: [
-        { route: '/editor/posts', icon: 'fa-feather', label: 'Post' },
-        { route: '/editor/threads', icon: 'fa-message', label: 'Thread' },
-    ],
-})
-
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
         if (!ENV.isClient()) return
 
+        const tabs = useLastTab({ base: "editor", default: "posts" })
         if (to.path === "/editor") {
             return navigateTo(tabs.getLastTab())
         }
@@ -24,6 +15,11 @@ definePageMeta({
         }
     }
 })
+
+const tabs = ref<TabItem[]>([
+    { route: '/editor/posts', icon: 'fa-feather', label: 'Post' },
+    { route: '/editor/threads', icon: 'fa-message', label: 'Thread' },
+])
 
 // TODO allow scheduling of posts and threads with future publish dates
 // TODO add support for polls with multiple options and expiration dates, and display results in real-time on the post or thread.
@@ -36,9 +32,7 @@ definePageMeta({
 
 <template>
     <article class="editor column inline">
-        <ClientOnly>
-            <PagedTabstrip :tabs="tabs.routes" />
-        </ClientOnly>
+        <PagedTabstrip :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage :key="route.path" />
         </section>

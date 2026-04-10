@@ -23,5 +23,9 @@ export const useCache = defineStore("cache", () => {
         return cachedRef
     }
 
-    return { cache: skipHydrate(cache), get }
+    function set(key: string, value: any) {
+        cache.value[key] = value
+    }
+
+    return { cache: skipHydrate(cache), get, set }
 })

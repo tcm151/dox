@@ -1,11 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-    tabs: {
-        route: string
-        label: string
-        icon: string
-        hide?: () => boolean
-    }[]
+    tabs: TabItem[]
 }>()
 
 const route = useRoute()

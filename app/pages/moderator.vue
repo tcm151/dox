@@ -1,16 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const tabs = useTabRoute({
-    key: "moderator.lastTab",
-    routePath: "/moderator",
-    defaultTab: "topics",
-    startingRoutes: [
-        { route: '/moderator/topics', icon: 'fa-tags', label: 'Topics' },
-        { route: '/moderator/requests', icon: 'fa-bell', label: 'Requests' },
-    ],
-})
-
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
@@ -22,7 +12,8 @@ definePageMeta({
                 return abortNavigation()
             }
         }
-        
+
+        const tabs = useLastTab({ base: "moderator", default: "topics" })
         if (to.path === "/moderator") {
             return navigateTo(tabs.getLastTab())
         }
@@ -32,15 +23,18 @@ definePageMeta({
     }
 })
 
+const tabs = ref<TabItem[]>([
+    { route: '/moderator/topics', icon: 'fa-tags', label: 'Topics' },
+    { route: '/moderator/requests', icon: 'fa-bell', label: 'Requests' },
+])
+
 // TODO add moderator action logging and audit trail for accountability, with details on the moderator, action taken, and timestamp.
 // TODO add appeal workflow for moderated content with status tracking and communication between moderators and users, and display appeal status on the relevant content.
 </script>
 
 <template>
     <article class="moderator column inline">
-        <ClientOnly>
-            <PagedTabstrip :tabs="tabs.routes" />
-        </ClientOnly>
+        <PagedTabstrip :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage :key="route.path" />
         </section>

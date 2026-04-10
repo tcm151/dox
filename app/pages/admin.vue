@@ -2,19 +2,6 @@
 const route = useRoute()
 const settings = useSettings()
 
-const tabs = useTabRoute({
-    key: "admin.lastTab",
-    routePath: "/admin",
-    defaultTab: "users",
-    startingRoutes: [
-        { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
-        { route: '/admin/users', icon: 'fa-user', label: 'Users' },
-        { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
-        { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
-        { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
-    ],
-})
-
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
@@ -27,6 +14,7 @@ definePageMeta({
             }
         }
         
+        const tabs = useLastTab({ base: "admin", default: "users" })
         if (to.path === "/admin") {
             return navigateTo(tabs.getLastTab())
         }
@@ -36,14 +24,20 @@ definePageMeta({
     }
 })
 
+const tabs = ref<TabItem[]>([
+    { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
+    { route: '/admin/users', icon: 'fa-user', label: 'Users' },
+    { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
+    { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
+    { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
+])
+
 // TODO add shadow quarantine queue for suspicious first-time users with limited visibility and interaction
 </script>
 
 <template>
     <article class="admin column inline">
-        <ClientOnly>
-            <PagedTabstrip :tabs="tabs.routes" />
-        </ClientOnly>
+        <PagedTabstrip :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage :key="route.path" />
         </section>

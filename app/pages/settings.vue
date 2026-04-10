@@ -1,18 +1,22 @@
 <script setup lang="ts">
+
+const tabs = ref<TabItem[]>([
+    { route: '/settings/profile', icon: 'fa-address-card', label: 'Profile' },
+    { route: '/settings/preferences', icon: 'fa-sliders', label: 'Preferences' },
+])
+
 definePageMeta({
     layout: 'simple',
     middleware: (to, from) => {
-        if (ENV.isClient()) {
-            const session = getSession()
-            if (to.path.includes("/reset-password")) {
-                return
-            }
-            if (to.path.startsWith("/settings") && !session.isAuthenticated) {
-                return abortNavigation()
-            }
-            if (to.path === "/settings") {
-                return navigateTo("/settings/profile")
-            }
+        if (!ENV.isClient()) return
+
+        const session = getSession()
+
+        if (to.path.startsWith("/settings") && !session.isAuthenticated) {
+            return abortNavigation()
+        }
+        if (to.path === "/settings") {
+            return navigateTo("/settings/profile")
         }
     }
 })
@@ -24,13 +28,7 @@ definePageMeta({
 
 <template>
     <article class="column inline">
-        <PagedTabstrip
-            :tabs="[
-                { route: '/settings/profile', icon: 'fa-address-card', label: 'Profile' },
-                // { route: '/settings/account', icon: 'fa-address-card', label: 'Account' },
-                { route: '/settings/preferences', icon: 'fa-sliders', label: 'Preferences' },
-            ]"
-        />
+        <PagedTabstrip :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage />
         </section>
