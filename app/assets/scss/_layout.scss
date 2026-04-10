@@ -99,6 +99,7 @@
 .b-double { flex-basis: fit-content; max-width: calc-size(fit-content, size * 2); }
 .b-triple { flex-basis: fit-content; max-width: calc-size(fit-content, size * 3); }
 
+.br-none { border-radius: 0 !important; }
 .br-small { border-radius: 0.25rem !important; }
 .br-medium { border-radius: 0.5rem !important; }
 .br-large { border-radius: 0.75rem !important; }

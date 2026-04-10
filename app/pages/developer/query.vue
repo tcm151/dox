@@ -31,6 +31,12 @@ async function submitQuery() {
             selectedResult.value = results.value.length-1
         }
         tab.value = 'Results'
+        if (resultTabs.value) {
+            resultTabs.value.scrollTo({
+                left: resultTabs.value.scrollWidth,
+                behavior: 'smooth'
+            })
+        }
     }
     catch (error: any) {
         hints.addError(error.statusText)
@@ -43,17 +49,19 @@ async function submitQuery() {
     }
 }
 
-const resultPreviews = computed(() => {
+const resultTabs = useTemplateRef<HTMLDivElement>("result-tabs")
+
+const tabTitles = computed(() => {
     let queries = history.value[0]?.split(";") ?? []
-    let filtered = queries.filter(q => q.trim() != "").filter((q, i) => results.value[i] != null)
-    return filtered.map(q => {
-        if (q.trim().length > 32) {
-            return q.trim().slice(0, 32) + '...'
-        }
-        else {
-            return q.trim().slice(0, 32)
-        }
-    })
+    return queries.filter(q => q.trim() != "")
+        .map(q => {
+            if (q.trim().length > 32) {
+                return q.trim().slice(0, 32) + '...'
+            }
+            else {
+                return q.trim().slice(0, 32)
+            }
+        })
 })
 </script>
 
@@ -99,8 +107,8 @@ const resultPreviews = computed(() => {
                 <Codeblock class="error" language="text" :code="errorMessage" />
             </section>
             <section v-if="tab == 'Results'" class="results column">
-                <header v-if="results.length > 1" class="tabs row">
-                    <template v-for="(label, index) in resultPreviews">
+                <header v-if="results.length > 0" class="tabs row" ref="result-tabs">
+                    <template v-for="(label, index) in tabTitles">
                         <div class="result px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
                             {{ label }}
                         </div>
@@ -110,7 +118,7 @@ const resultPreviews = computed(() => {
                     </div>
                 </header>
                 <template v-for="(result, index) in results">
-                    <Codeblock v-if="selectedResult == index" language="json" :code="JSON.stringify(result, undefined, 4)" />
+                    <Codeblock v-if="selectedResult == index" class="br-none" language="json" :code="JSON.stringify(result, undefined, 4)" />
                 </template>
             </section>
             <section v-if="tab == 'History'" class="history column g-2">
@@ -141,18 +149,18 @@ article {
     height: stretch;
     overflow: hidden;
 
-    @media (max-width: $bp-desktop) {
-        @include flex-v;
-    }
-
     div.right {
         overflow: hidden;
     }
+    
+    @media (max-width: 1200px) {
+        @include flex-v;
+    }
 
-    div.left { flex: 4 1 }
-    div.right { flex: 6 1 }
+    div.left { flex: 5 1 }
+    div.right { flex: 5 1 }
 
-    @media (max-width: $bp-desktop) {
+    @media (max-width: 1200px) {
         div.left { flex: 1 1 }
         div.right { flex: 10 1 }
     }
@@ -164,7 +172,7 @@ section.editor {
         font-weight: 500;
         font-family: "Source Code Pro", monospace;
         
-        @media (max-width: $bp-desktop) {
+        @media (max-width: 1200px) {
             flex: none;
             resize: vertical;
         }
@@ -194,11 +202,16 @@ section.history {
 
 section.results {
     overflow-y: auto;
+    overflow-x: hidden;
 
     header.tabs {
+        overflow-x: auto;
+        min-height: min-content;
+        border-radius: 0.25rem 0.25rem 0 0;
+        border-bottom: 1px solid $white-2;
 
-        div.result:first-child {
-            border-radius: 0.25rem 0 0 0;
+        &::-webkit-scrollbar {
+            display: none;
         }
 
         div.result {
@@ -227,15 +240,6 @@ section.results {
         div.clear:hover {
             color: $red;
         }
-    }
-
-    code {
-        white-space: pre-wrap;
-        font-weight: 500;
-        font-family: "Source Code Pro", monospace;
-        background-color: $white-1 !important;
-        overflow-y: visible;
-        overflow-x: hidden;
     }
 }
 </style>
