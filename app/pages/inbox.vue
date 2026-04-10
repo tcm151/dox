@@ -12,35 +12,72 @@ definePageMeta({
     }
 })
 
-const { data: notifications } = await useDatasource<Notification[]>("/api/profile/notifications")
+const pageAmount = ref<number>(5)
+
+const showDismissed = ref<boolean>(false)
+const notificationAmount = ref<number>(pageAmount.value)
+const { data: result, pending, refresh } = await useDatasource<{ total: number, notifications: Notification[] }>("/api/profile/notifications", {
+    query: {
+        dismissed: showDismissed,
+        amount: notificationAmount,
+    }
+})
+
+async function dismissAll() {
+    await useApi(`/api/profile/notifications/dismiss`)
+    await refresh()
+}
 
 function viewContext(notification: Notification) {
-    navigateTo(`/${(notification.context as string).replace(':', '/')}`)
+    return navigateTo(`/${(notification.context as string).replace(':', '/')}`)
 }
 
 async function dismiss(notification: Notification) {
-    notifications.value = notifications.value?.filter(n => n.id !== notification.id)
     await useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`)
+    await refresh()
 }
 
-// TODO add mark all as read
+function loadMore() {
+    notificationAmount.value += pageAmount.value
+}
+
 // TODO implement real-time notifications with WebSockets or Server-Sent Events for immediate user feedback on new interactions.
-// TODO add pagination or infinite scroll for notifications if the list grows too long, with appropriate loading states and UX.
 </script>
 
 <template>
-    <article class="notifications p-4">
-        <section v-if="notifications && notifications.length > 0" class="column g-2">
+    <article class="p-4">
+        <header class="row end g-2 mb-2">
+            <ButtonSpinner class="dark f-1" :loading="pending" @click="refresh">
+                <i class="fa-solid fa-refresh"></i>
+                Refresh
+            </ButtonSpinner>
+            <button class="dark" @click="dismissAll">
+                <i class="fa-solid fa-angles-right"></i>
+                Dismiss All
+            </button>
+            <div class="box px-4 py-2">
+                <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
+            </div>
+        </header>
+        <section v-if="result && result.total > 0" class="column g-2">
             <TransitionGroup name="notifications">
-                <div class="notification box p-4" v-for="notification in notifications" :key="notification.id">
+                <div class="notification box p-4" v-for="notification in result.notifications" :key="notification.id">
                     <Markdown class="message column" :content="notification.message" />
-                    <div class="row g-2 mt-3">
+                    <div class="row g-1 mt-3">
                         <DurationTag :time="notification.time" />
-                        <Tag type="link" icon="fa-link" label="Context" @click="viewContext(notification)" />
-                        <Tag type="danger" label="Dismiss" @click="dismiss(notification)" />
+                        <Tag type="link" icon="fa-eye" label="Context" @click="viewContext(notification)" />
+                        <template v-if="!notification.viewed">
+                            <Tag type="danger" icon="fa-angle-right" label="Dismiss" @click="dismiss(notification)" />
+                        </template>
                     </div>
                 </div>
             </TransitionGroup>
+            <template v-if="result.total > result.notifications.length">
+                <button class="link" @click="loadMore">
+                    <i class="fa-solid fa-angles-down"></i>
+                    Load More
+                </button>
+            </template>
         </section>
         <section class="column center box p-4" v-else>
             <p>You have no unread notifications.</p>
@@ -49,9 +86,8 @@ async function dismiss(notification: Notification) {
 </template>
 
 <style scoped lang="scss">
-article.notifications {
-    width: calc(100% - 2rem);
-    max-width: 800px;
+article {
+    @include fit-width (60rem, 1rem);
 }
 
 .notifications-move, .notifications-enter-active, .notifications-leave-active {

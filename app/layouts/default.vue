@@ -15,6 +15,10 @@
 </template>
 
 <style scoped lang="scss">
+main.page {
+    overflow-anchor: none;
+}
+
 footer.row {
     @include fit-width (60rem, 1rem);
     order: 9999;
