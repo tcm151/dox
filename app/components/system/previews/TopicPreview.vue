@@ -9,8 +9,8 @@ const emit = defineEmits<{
     (event: "refresh"): void
 }>()
 
-const hints = useHints()
 const session = getSession()
+const moderator = useModeration()
 const connections = useFollowing()
 
 const loading = ref<boolean>(false)
@@ -32,27 +32,6 @@ async function unfollowTopic() {
 let showFollow = computed(() => {
     return !session.user.topics.includes(props.topic.id)
 })
-
-const noModerators = computed(() => {
-    return props.topic.moderators.length == 0
-        && session.user.topics.includes(props.topic.id)
-        && hasTrait(session.user, "confirmed")
-})
-
-async function requestModeration() {
-    try {
-        await useApi(`/api/topic/${extractId(props.topic.id)}/request-moderation`)
-        hints.addSuccess("Successfully requested to moderate this topic.")
-    }
-    catch (error: any) {
-        hints.addError(error.statusText ?? "Failed to request to moderate this topic.")
-    }
-}
-
-const showModerationTools = computed(() => {
-    return hasRole(session.user, "admin")
-        || props.topic.moderators.includes(session.user.id as User & string)
-})
 </script>
 
 <template>
@@ -62,23 +41,15 @@ const showModerationTools = computed(() => {
                 <img src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
             <div class="row inline between f-1 g-4">
-                <h1 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
+                <h2 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
                     {{ extractId(topic.id) }}
-                </h1>
+                </h2>
                 <Authenticated>
                     <div class="row g-2">
-                        <button v-if="noModerators" class="small" @click="requestModeration">
-                            <i class="fa-solid fa-hand"></i>
-                            Request Moderator
-                        </button>
-                        <button v-if="showModerationTools" class="small" @click="navigateTo(`/topic/${extractId(topic.id)}/moderation`)">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
-                            Moderate
-                        </button>
                         <ButtonSpinner v-if="showFollow" class="success small" :loading="loading" @click="followTopic">
                             Follow
                         </ButtonSpinner>
-                        <ButtonSpinner v-if="!showFollow && !props.topic.moderators.includes(session.user.id as User & string)" class="danger small" :loading="loading" @click="unfollowTopic">
+                        <ButtonSpinner v-if="!showFollow && !moderator.forTopic(topic)" class="danger small" :loading="loading" @click="unfollowTopic">
                             Unfollow
                         </ButtonSpinner>
                     </div>

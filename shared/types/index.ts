@@ -189,6 +189,7 @@ export interface AppSettings extends Record {
         additional: string
     }
     moderation: {
+        perTopic: number
         threshold: number
     }
     voting: {

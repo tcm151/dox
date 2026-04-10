@@ -3,14 +3,15 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT topics AS id, count()
+            SELECT id, count()
             FROM (
-                SELECT topics
+                SELECT topics AS id
                 FROM post, thread
-                WHERE topics CONTAINS topic:Testing
+                WHERE topics CONTAINS $topic
                 SPLIT topics
             )
-            GROUP BY topics
+            WHERE id != $topic
+            GROUP BY id
             ORDER BY count DESC
             LIMIT 5
         `)

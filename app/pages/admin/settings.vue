@@ -106,7 +106,11 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                 </div>
                 <div v-if="section == 'moderation'">
                     <div class="field row">
-                        <label class="f-1">request threshold</label>
+                        <label class="f-1">expected moderators per topic</label>
+                        <input type="number" v-model="settings.moderation.perTopic">
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">moderation request threshold</label>
                         <input type="number" v-model="settings.moderation.threshold">
                     </div>
                 </div>

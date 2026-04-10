@@ -262,3 +262,8 @@ IF (INFO FOR DB).tables.confirmation != NONE {
     FROM confirmation;
     REMOVE TABLE IF EXISTS confirmation;
 };
+
+-- 2026-04-10 add desired moderators per topic
+UPDATE appSettings SET
+    moderation.perTopic = 3
+WHERE moderation.perTopic = NONE;

@@ -488,7 +488,8 @@ IF !record::exists(appSettings:default) {
             additional: "",
         },
         moderation: {
-            threshold: 1,
+            perTopic: 3,
+            threshold: 2,
         },
         voting: {
             enabled: true,

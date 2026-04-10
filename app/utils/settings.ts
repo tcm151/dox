@@ -21,7 +21,8 @@ export const useSettings = defineStore("user.settings", () => {
             additional: "",
         },
         moderation: {
-            threshold: 1,
+            perTopic: 3,
+            threshold: 2,
         },
         voting: {
             enabled: true,
