@@ -1,0 +1,17 @@
+services:
+  classicforum:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: classicforum:local
+    container_name: classicforum
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - classicforum_data:/app/data
+
+volumes:
+  classicforum_data:

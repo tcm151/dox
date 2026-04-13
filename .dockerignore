@@ -1,0 +1,9 @@
+node_modules
+.nuxt
+.output
+.git
+.gitignore
+.vscode
+.env
+.env.*
+*.log
