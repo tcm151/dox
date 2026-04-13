@@ -21,10 +21,10 @@ const tabs = ref<TabItem[]>([
     { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feeds.search },
     { route: '/feed/home', icon: 'fa-house', label: 'Home' },
     { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
-    { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts' },
+    { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts', hide: () => !settings.app.feeds.posts },
     { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
     { route: '/feed/images', icon: 'fa-image', label: 'Images', hide: () => !settings.app.feeds.images },
-    { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: ()=> true },
+    { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: () => !settings.app.feeds.audio },
 ])
 
 // TODO create user customizable feeds with filtering and sorting options, and allow users to save and share their custom feeds

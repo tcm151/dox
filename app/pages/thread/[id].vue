@@ -139,6 +139,7 @@ function toggleOptions() {
 }
 
 // TODO allow locking threads, for moderator triage and author control
+// TODO create a breadcrumb system to dynamically generate previous pages
 </script>
 
 <template>

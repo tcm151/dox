@@ -123,7 +123,7 @@ aside {
 
     .match {
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 500;
     }
     
     .match:hover {

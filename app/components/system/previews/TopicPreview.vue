@@ -85,10 +85,8 @@ div.box:hover {
     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
 }
 
-header h1 {
+h2 {
     cursor: pointer;
-    font-size: 1.5rem;
-
 }
 
 div.follow {
