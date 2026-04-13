@@ -23,8 +23,6 @@ Create a single production quickstart guide (Linux VM + reverse proxy + TLS) wit
 
 ## Relevant Files
 - [docs/ContributionGuide.md](../ContributionGuide.md)
-- [Dockerfile](../../Dockerfile)
-- [docker-compose.yml](../../docker-compose.yml)
 - [docs/.env.example](../.env.example)
 
 ## Progress Log

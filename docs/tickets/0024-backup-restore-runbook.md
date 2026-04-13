@@ -23,7 +23,6 @@ Document practical backup/restore steps so operators can recover service and dat
 ## Relevant Files
 - [docs/ContributionGuide.md](../ContributionGuide.md)
 - [docs/.env.example](../.env.example)
-- [docker-compose.yml](../../docker-compose.yml)
 - [server/plugins/01.migrations.server.ts](../../server/plugins/01.migrations.server.ts)
 
 ## Progress Log

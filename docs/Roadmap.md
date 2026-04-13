@@ -15,7 +15,6 @@ Goal: make self-hosting reliable by default, with embedded SurrealDB as the prim
 **Success metric**: every PR is validated by CI and critical flows have automated smoke coverage.
 
 ### A2. Install/Deploy Simplicity
-- 🟩 Add embedded-first `Dockerfile` + `docker-compose.yml` quickstart profile. (`L`)
 - 🟩 Add `.env.example` with embedded defaults and remote-mode advanced examples. (`S`)
 - 🟥 Add single “Production Quickstart” doc (Linux VM + reverse proxy + TLS), with embedded as default path. (`M`)
 - 🟥 Add a separate “Remote SurrealDB at Scale” operations guide (networking, credentials, failure modes). (`M`)
@@ -115,18 +114,3 @@ Goal: enable optional community funding after core ops, trust, and UX priorities
 - 🟥 Add operator-facing policy docs for community funding controls and moderation implications. (`S`)
 
 **Success metric**: monetization can be safely enabled without compromising core community trust.
-
-## 4) Milestones
-
-1. 🟦 CI pipeline live; `.env.example` committed; production quickstart draft.
-2. 🟦 Embedded-default docker/deploy path validated on clean machine; remote profile documented as advanced.
-3. 🟦 Security fixes for rate limits and moderation-adjacent abuse paths merged.
-4. 🟥 Backup/restore drill completed for embedded and remote modes; v0.1 self-host-baseline release tagged.
-5. 🟥 Moderation workflow, audit log, and appeals MVP documented.
-6. 🟦 Anti-spam defaults and moderation UX hardening shipped.
-7. 🟥 User control features (session revoke, block/mute, privacy prefs) merged.
-8. 🟥 Saved feed presets + async inbox/feed UX improvements shipped.
-9. 🟥 API contracts, high-risk contract tests, and structured logging established.
-10. 🟥 v0.2 community-trust-and-ux release tagged.
-11. 🟥 Monetization architecture plan and feature flags prepared (disabled by default).
-12. 🟥 v0.3 maturity release tagged with operational and community health trend summary.
