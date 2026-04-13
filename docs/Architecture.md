@@ -148,13 +148,26 @@ Role checks are applied in route handlers and page middleware as needed.
 
 ### 6.2 Moderation/reporting
 
-- Reports are created through report endpoints and surfaced in admin routes.
+- Reports are created through report endpoints and surfaced in admin and moderator-facing routes.
+- Topic-scoped reporting views exist for moderators (for example, topic report queues under `app/pages/topic/[topic]/reports.vue` backed by `server/api/topic/[topic]/reports.ts`).
 - Topic moderation/request features exist and are evolving.
 - Moderation state and workflows are partly implemented and should be validated before broad feature additions.
 
 ### 6.3 Feedback
 
 - Feedback submission and dismissal flows are wired through `server/api/feedback/**` and related admin views.
+
+### 6.4 Moderator Role Surface
+
+The moderator role has expanded beyond global moderation pages and now includes topic-level workflows.
+
+Current expectations:
+- Topic-level moderation pages enforce moderator role checks in page middleware.
+- Topic-scoped moderation APIs enforce moderator role checks server-side.
+- Report review and related-topic moderation flows can be performed from topic surfaces without requiring admin role.
+
+Engineering implication:
+- New moderation capabilities should be evaluated for moderator/admin boundary clarity and documented when scope expands.
 
 ## 7. Media Pipeline
 
@@ -206,6 +219,8 @@ Present controls:
 - Global rate limiting middleware for auth and email confirmation endpoints
 - Referral token grants are idempotent and constrained to one claim per claimant account
 - Server-side validation and controlled mutation patterns through API handlers
+- Developer query tooling is restricted to `developer` role users
+- Developer query audit integrity is protected by blocking direct queries against the `developerQuery` table
 
 Important engineering expectation:
 - Any new write endpoint should explicitly evaluate abuse vectors (rate limit, replay, role/auth checks, idempotency, and state constraints).

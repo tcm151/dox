@@ -5,7 +5,7 @@ const cache = useCache()
 
 const pins = await useDatasource<Pin[]>("/api/feed/pinned")
 
-// TODO add paged loading like from the notification inbox
+// TODO add paged loading parity with inbox notifications.
 const sortBy = cache.get<string>("feed.sort", () => "new")
 const selectedFeed = cache.get<string>("feed.type", () => "popular")
 const feed = useDatasource<Sortable[]>(() => `/api/feed/${selectedFeed.value}`, {

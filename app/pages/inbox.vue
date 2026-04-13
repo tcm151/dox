@@ -41,7 +41,6 @@ function loadMore() {
     notificationAmount.value += pageAmount.value
 }
 
-// TODO implement real-time notifications with WebSockets or Server-Sent Events for immediate user feedback on new interactions.
 </script>
 
 <template>

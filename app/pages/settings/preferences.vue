@@ -1,10 +1,6 @@
 <script setup lang="ts">
 
 const settings = useSettings()
-
-// TODO add support for configuration notifications and email preferences
-// TODO add customization of default sorting options for threads and posts, and default feed filters on the homepage
-// TODO add support for user privacy, profile visibility, discoverablity, follower permissions, and blocking/muting other users
 </script>
 
 

@@ -27,7 +27,6 @@ const tabs = ref<TabItem[]>([
     { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: () => !settings.app.feeds.audio },
 ])
 
-// TODO create user customizable feeds with filtering and sorting options, and allow users to save and share their custom feeds
 </script>
 
 <template>

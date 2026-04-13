@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // FIXME deletion order is non-atomic; if fs delete succeeds and DB update fails, state becomes inconsistent.
-    // TODO implement resilient cleanup/compensation strategy (DB-first with retry queue or rollback-safe file handling).
+    // FIXME deletion order is non-atomic; fs and DB state can diverge on partial failure.
+    // TODO implement compensation strategy (DB-first with retry queue or rollback-safe file handling).
     try {
         const config = useRuntimeConfig()
         if (fs.existsSync(`${config.media.path}/image/${id}.${image.type}`)) {

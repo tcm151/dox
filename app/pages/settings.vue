@@ -21,9 +21,6 @@ definePageMeta({
     }
 })
 
-// TODO allow for revoking all active account sessions
-// TODO allow for deleting/archiving account so a user can remove their presence but keep their content and contributions intact
-// TODO add configuration of content preferences, blocked users, topics, keywords, etc
 </script>
 
 <template>

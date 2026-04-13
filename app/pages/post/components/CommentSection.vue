@@ -21,9 +21,6 @@ watch(() => props.loading, (status) => {
     }
 })
 
-// TODO allow locking comments, for moderator triage and author control
-// TODO add comment slow mode, to prevent spamming and allow for more thoughtful discussions
-// TODO allow reporting a comment for moderator review, with reason selection and optional comment
 </script>
 
 <template>

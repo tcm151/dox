@@ -165,7 +165,7 @@ async function submit() {
     }
 }
 
-// TODO add more keyboard shortcuts for the editor
+// TODO add additional keyboard shortcuts beyond save-draft.
 onKeyStroke(["s", "S"], async (event) => {
     if (event.metaKey || event.ctrlKey) {
         event.preventDefault()

@@ -95,8 +95,8 @@ If startup fails, check your app logs for `Failed to apply database migrations o
 
 ClassicForum includes a built-in query portal at `/developer/query` (see [app/pages/developer/query.vue](../app/pages/developer/query.vue)) so you can inspect and run queries against your database directly from the application.
 
-- In development mode, this route is available automatically.
-- Outside development mode, the current user must have the `developer` role (see [app/pages/developer.vue](../app/pages/developer.vue) and [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
+- Access is always restricted to authenticated users with the `developer` role, including in development mode (see [app/pages/developer.vue](../app/pages/developer.vue) and [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
+- Queries that target the `developerQuery` table are blocked to preserve audit integrity (see [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
 
 ## 8. First User Setup
 
@@ -113,7 +113,7 @@ UPDATE user:<your-user-id> SET
     roles = array::union(roles, ["admin", "developer"]);
 ```
 
-If you are not in development mode and cannot access `/developer/query` yet, use the Surreal CLI (`surreal sql`) to run the same update directly.
+If you do not currently have the `developer` role and cannot access `/developer/query` yet, use the Surreal CLI (`surreal sql`) to run the same update directly.
 
 ## 9. Troubleshooting
 
@@ -126,8 +126,11 @@ If you are not in development mode and cannot access `/developer/query` yet, use
     - Confirm namespace/database values match your target (`SURREAL_NAMESPACE`, `SURREAL_DATABASE`).
 
 - **Cannot access `/developer/query`**
-    - In development mode this route should be available automatically.
-    - Outside development mode, the active account must include the `developer` role.
+    - The active account must include the `developer` role in all environments.
+
+- **`Executing queries against the `developerQuery` table is not allowed.`**
+    - This restriction is intentional and preserves the internal query audit trail.
+    - Use other read/write queries for diagnostics, but do not target the `developerQuery` table directly.
 
 - **Login/registration appears to work but pages fail to load expected content**
     - Re-check migration startup logs and ensure schema/migrations executed successfully.

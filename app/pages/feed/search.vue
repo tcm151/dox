@@ -23,7 +23,6 @@ const loading = computed(() => feed.status.value.toString() == "pending")
                     <i class="fa-solid fa-magnifying-glass" />
                 </ButtonSpinner>
                 <input class="f-1" type="search" placeholder="Search..." v-model="text" @keyup.enter="feed.refresh()">
-                <!-- TODO implement advanced filters (type/topic/user/date) and keep URL query state in sync. -->
                 <!-- <button class="link">
                     <i class="fa-solid fa-filter" @click="toggle()" />
                 </button> -->

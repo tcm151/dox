@@ -28,8 +28,6 @@ const tabs = ref<TabItem[]>([
     { route: '/moderator/requests', icon: 'fa-bell', label: 'Requests' },
 ])
 
-// TODO add moderator action logging and audit trail for accountability, with details on the moderator, action taken, and timestamp.
-// TODO add appeal workflow for moderated content with status tracking and communication between moderators and users, and display appeal status on the relevant content.
 </script>
 
 <template>

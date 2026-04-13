@@ -32,7 +32,6 @@ const tabs = ref<TabItem[]>([
     { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
 ])
 
-// TODO add shadow quarantine queue for suspicious first-time users with limited visibility and interaction
 </script>
 
 <template>

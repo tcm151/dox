@@ -10,7 +10,7 @@ useSeoMeta({
 
 await callOnce("app.settings", () => settings.refresh())
 
-// TODO find a better solution for this...
+// REFACTOR replace full router reload auth refresh with targeted state hydration.
 // events.subscribe(Trigger.authenticatedUser, () => useRouter().go(0))
 
 let showLogin = ref(false)

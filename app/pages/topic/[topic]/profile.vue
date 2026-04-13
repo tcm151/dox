@@ -35,9 +35,6 @@ async function updateProfile() {
     }
 }
 
-// TODO add topic moderation controls for rename, archive/lock, and moderator assignment with role checks.
-// TODO add topic usage moderation tools (remove topic from posts/threads in bulk, with confirmation and audit-safe UX).
-// TODO add user score threshold for using topics to prevent spam and abuse, with appropriate feedback and appeals process for affected users.
 </script>
 
 <template>

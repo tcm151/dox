@@ -78,7 +78,6 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
     }
 })
 
-// TODO add additional configuration for content visibility, NSFW, spoilers, etc
 </script>
 
 

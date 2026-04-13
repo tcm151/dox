@@ -63,7 +63,7 @@ function useTopic(topic: string | undefined) {
     }
 }
 
-// TODO build a dropdown/select component using the same styles and layout from here
+// REFACTOR extract shared searchable dropdown component used by topic and mention pickers.
 </script>
 
 <template>

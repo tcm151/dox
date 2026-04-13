@@ -51,7 +51,9 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 ### B2. Abuse Controls and Safety Defaults
 - 🟦 Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
 - 🟦 Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
+- 🟥 Add shadow-quarantine flow for suspicious first-time users with limited visibility and interaction. (`M`)
 - 🟥 Add configurable per-community moderation defaults with documented recommended presets. (`M`)
+- 🟥 Add admin controls for content visibility policy (NSFW/spoiler/sensitive content defaults). (`M`)
 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.
 
@@ -59,6 +61,8 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 - 🟦 Complete or hide unfinished moderation and messaging UI areas to avoid beta behavior in production. (`M`)
 - 🟥 Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`M`)
 - 🟦 Add empty/error/loading state consistency pass on moderation and report surfaces. (`M`)
+- 🟥 Add topic governance tools (rename/archive/lock, moderator assignment, rules/summary history, and featured/pinned topic content). (`L`)
+- 🟥 Add conversation controls for lock/slow-mode/report handling across threads and comments. (`L`)
 
 **Success metric**: moderation UX is understandable for both moderators and affected users.
 
@@ -70,6 +74,7 @@ Goal: deliver modern, fluid async interactions while improving contributor produ
 - 🟦 Add revoke-all-sessions capability and session management UI for account safety. (`M`)
 - 🟥 Add block/mute controls for users, topics, and keywords with clear UX. (`L`)
 - 🟦 Add privacy and notification preference controls with documented defaults. (`M`)
+- 🟥 Add configurable email and in-app notification preference controls in user settings. (`M`)
 
 **Success metric**: users can control their experience and account risk without moderator intervention.
 
@@ -77,8 +82,20 @@ Goal: deliver modern, fluid async interactions while improving contributor produ
 - 🟥 Add saved/custom feed presets and URL-synced filter state for search/discovery. (`L`)
 - 🟦 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling). (`M`)
 - 🟦 Resolve high-visibility TODOs affecting trust in feed/search/settings core paths. (`M`)
+- 🟥 Add optional realtime notification delivery mode (SSE/WebSocket) after polling baseline is stable. (`L`)
 
 **Success metric**: core browse and notification workflows feel modern without requiring full realtime infrastructure.
+
+### C4. Advanced Authoring Experience
+- 🟥 Add scheduled publish support for posts and threads. (`M`)
+- 🟥 Add richer poll creation (multiple options, expiration, and result display states). (`M`)
+- 🟥 Add rich link/article/video embed support with preview rendering. (`M`)
+- 🟥 Add side-by-side markdown preview with debounced rendering controls. (`M`)
+- 🟥 Add series/collection grouping for related posts and threads. (`L`)
+- 🟥 Add revision history for posts/threads with moderator review and revert capabilities. (`L`)
+- 🟥 Complete thread editor parity with post editor, including draft and mention workflows. (`M`)
+
+**Success metric**: advanced content creation workflows are consistent across editor types and safe for moderation.
 
 ### C3. Contributor and Contract Stability
 - 🟥 Publish API endpoint inventory with auth requirements and response contracts. (`M`)

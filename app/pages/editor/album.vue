@@ -64,7 +64,6 @@ async function submit() {
             <header class="row inline between mb-4">
                 <h1>New Album</h1>
                 <button @click="">
-                    <!-- FIXME drafts button has empty click handler; wire to drafts flow or hide until implemented. -->
                     <i class="fa-solid fa-compass-drafting"></i>
                     <span>Drafts</span>
                 </button>

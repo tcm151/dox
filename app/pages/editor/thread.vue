@@ -70,14 +70,12 @@ function selectImages() {
 }
 
 const showPreview = ref<boolean>(false)
-// TODO render actual preview content when showPreview is true; current toggle only changes button/icon state.
+// REFACTOR render real preview content instead of state-only toggle.
 function togglePreview() {
     showPreview.value = !showPreview.value
     hints.addWarning('We are still working on this...')
 }
 
-// TODO complete thread editor parity with post editor: drafts, image upload, markdown preview, and cancel/discard flow.
-// TODO allow for direct mentions of users in the content with autocomplete and validation, similar to topic tagging in the post editor.
 </script>
 
 <template>
@@ -85,7 +83,6 @@ function togglePreview() {
         <section class="box column p-5">
             <header class="row inline between mb-4">
                 <h1>New Thread</h1>
-                <!-- FIXME drafts button has empty click handler; wire to drafts flow or hide until implemented. -->
                 <button @click="">
                     <i class="fa-solid fa-compass-drafting"></i>
                     <span>Drafts</span>
