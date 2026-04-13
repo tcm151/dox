@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
             .addRecord("image" ,`image:${id}`)
             .queryOne<Image>()
 
-        return fs.readFileSync(`${config.media.path}/image/${id}.${image.type}`)
+        return fs.readFileSync(`${config.data.path}/image/${id}.${image.type}`)
     }
     catch (error: any) {
         throw createError({

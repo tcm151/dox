@@ -11,7 +11,7 @@ High-level architecture:
 - Backend: Nitro server under `server/` (API routes, middleware, plugins, utilities)
 - Data contracts: shared TypeScript interfaces under `shared/types/`
 - Persistence: SurrealDB schema and migrations under `server/assets/`
-- Static/public assets: `public/` and media files written to `MEDIA_PATH`
+- Static/public assets: `public/` and media files written to `DATA_PATH`
 
 Deployment model:
 - Single process app serving UI + API
@@ -192,7 +192,7 @@ Runtime configuration is defined in `nuxt.config.ts` and env variables.
 
 Key env groups:
 - App identity and URL: `PORT`, `BASE_URL`, titles
-- Media storage path: `MEDIA_PATH`
+- Media storage path: `DATA_PATH`
 - Surreal connection: `SURREAL_TYPE`, `SURREAL_URL`, namespace/database, credentials
 - Default admin bootstrap: `DEFAULT_USER_*`
 - SMTP: optional email delivery settings

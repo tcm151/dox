@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
             .addRecord("audio" ,`audio:${id}`)
             .queryOne<Audio>()
 
-        return fs.readFileSync(`${config.media.path}/audio/${id}.${audio.type}`)
+        return fs.readFileSync(`${config.data.path}/audio/${id}.${audio.type}`)
     }
     catch (error: any) {
         throw createError({

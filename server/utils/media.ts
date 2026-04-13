@@ -118,7 +118,7 @@ function handleMpeg(media: MultiPartData) {
 export async function writeMedia(user: User, media: Media, buffer: Buffer, type: MediaType) {
     try {
         const config = useRuntimeConfig()
-        const basePath = `${config.media.path}/${type}`
+        const basePath = `${config.data.path}/${type}`
 
         if (!fs.existsSync(basePath)) {
             fs.mkdirSync(basePath, { recursive: true })

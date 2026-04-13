@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
     // TODO implement compensation strategy (DB-first with retry queue or rollback-safe file handling).
     try {
         const config = useRuntimeConfig()
-        if (fs.existsSync(`${config.media.path}/image/${id}.${image.type}`)) {
-            fs.rmSync(`${config.media.path}/image/${id}.${image.type}`)
+        if (fs.existsSync(`${config.data.path}/image/${id}.${image.type}`)) {
+            fs.rmSync(`${config.data.path}/image/${id}.${image.type}`)
         }
 
         await new DatabaseQuery()

@@ -89,8 +89,8 @@ export default defineNuxtConfig({
             pass: process.env.SMTP_PASS,
             title: process.env.SMTP_SENDER_TITLE,
         },
-        media: {
-            path: process.env.MEDIA_PATH,
+        data: {
+            path: process.env.DATA_PATH,
         },
         surreal: {
             info: {
