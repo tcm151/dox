@@ -14,7 +14,7 @@ npm install --global yarn
 
 ## 2. Choose Your Database Mode
 
-OpenForum supports two SurrealDB modes:
+ClassicForum supports two SurrealDB modes:
 
 - **remote**: connect to an external SurrealDB server over RPC.
 - **embedded**: run SurrealDB from inside the app process via a local engine.
@@ -93,7 +93,7 @@ If startup fails, check your app logs for `Failed to apply database migrations o
 
 ## 7. In-App Query Portal
 
-OpenForum includes a built-in query portal at `/developer/query` (see [app/pages/developer/query.vue](../app/pages/developer/query.vue)) so you can inspect and run queries against your database directly from the application.
+ClassicForum includes a built-in query portal at `/developer/query` (see [app/pages/developer/query.vue](../app/pages/developer/query.vue)) so you can inspect and run queries against your database directly from the application.
 
 - In development mode, this route is available automatically.
 - Outside development mode, the current user must have the `developer` role (see [app/pages/developer.vue](../app/pages/developer.vue) and [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).

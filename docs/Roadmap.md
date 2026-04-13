@@ -1,12 +1,12 @@
-# OpenForum Developer Roadmap
+# ClassicForum Developer Roadmap
 
 Status legend: `Not Started` | `In Progress` | `Blocked` | `Done`  
 Priority legend: `P0` (critical), `P1` (high), `P2` (medium)  
 Effort legend: `S` (1-2 days), `M` (3-5 days), `L` (1-2 weeks)  
 
-## Phase A: Engineering Baseline (Quality, Security, Operations)
+## Phase A: Self-Host Baseline (Quality, Security, Operations)
 
-Goal: establish strong production and contributor foundations.
+Goal: make self-hosting reliable by default, with embedded SurrealDB as the primary deployment path and remote mode documented as advanced scale.
 
 ### A1. CI + Test Baseline
 - `P0` Add GitHub Actions pipeline for install, type-check, build, and smoke tests. (`M`)
@@ -16,9 +16,10 @@ Goal: establish strong production and contributor foundations.
 **Success metric**: every PR is validated by CI and critical flows have automated smoke coverage.
 
 ### A2. Install/Deploy Simplicity
-- `P0` Add `Dockerfile` + `docker-compose.yml` for app + SurrealDB quickstart. (`L`)
-- `P1` Add `.env.example` with documented defaults. (`S`)
-- `P0` Add single “Production Quickstart” doc (Linux VM + reverse proxy + TLS). (`M`)
+- `P0` Add embedded-first `Dockerfile` + `docker-compose.yml` quickstart profile. (`L`)
+- `P0` Add `.env.example` with embedded defaults and remote-mode advanced examples. (`S`)
+- `P0` Add single “Production Quickstart” doc (Linux VM + reverse proxy + TLS), with embedded as default path. (`M`)
+- `P1` Add a separate “Remote SurrealDB at Scale” operations guide (networking, credentials, failure modes). (`M`)
 
 **Success metric**: clean machine setup to running app in <= 30 minutes.
 
@@ -32,72 +33,84 @@ Goal: establish strong production and contributor foundations.
 
 ### A4. Ops Essentials
 - `P0` Add backup/restore runbook for both remote and embedded SurrealDB modes. (`M`)
-- `P1` Add health/readiness endpoint docs and operator checks. (`S`)
+- `P0` Add health/readiness endpoint docs and operator checks for embedded and remote profiles. (`S`)
 - `P1` Add release versioning + changelog process. (`S`)
 
 **Success metric**: operator can recover data/service from documentation alone.
 
-## Phase B: Product & Developer Experience
+## Phase B: Moderation and Community Trust
 
-Goal: reduce friction for maintainers, contributors, and self-host developers.
+Goal: make moderation outcomes consistent, reviewable, and fair for small niche communities.
 
-### B1. Onboarding and Contributor Flow
-- `P1` Add first-run admin checklist (account, roles, settings, moderation baseline). (`M`)
-- `P1` Improve first user -> admin/developer bootstrap path (reduce manual query steps). (`M`)
-- `P1` Add architecture overview doc (routing, data model, auth/session, migrations). (`M`)
-
-**Success metric**: new contributor can run, understand, and modify core flows in <= 1 day.
-
-### B2. Moderation and Safety Completeness
+### B1. Moderation Workflow Completeness
 - `P1` Ensure moderation queue/report triage is complete and documented. (`M`)
-- `P1` Add moderation action log/audit trail MVP. (`L`)
-- `P2` Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
+- `P1` Add moderation action log/audit trail MVP (who, what, when, reason, target). (`L`)
+- `P1` Add appeal workflow MVP with status transitions and resolution notes. (`L`)
 
-**Success metric**: moderation actions are consistent and traceable.
+**Success metric**: moderation decisions are traceable end-to-end and can be appealed with predictable outcomes.
 
-### B3. UI/UX Completion for Core Paths
-- `P1` Complete or hide unfinished messaging UI areas to avoid beta behavior in production. (`M`)
-- `P2` Resolve high-visibility TODOs affecting trust in core pages. (`M`)
-- `P2` Add empty/error/loading state consistency pass on main user flows. (`M`)
+### B2. Abuse Controls and Safety Defaults
+- `P1` Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
+- `P1` Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
+- `P2` Add configurable per-community moderation defaults with documented recommended presets. (`M`)
 
-**Success metric**: no obvious incomplete features in default user/admin paths.
+**Success metric**: communities can apply sane moderation defaults without custom engineering.
 
-## Phase C: Platform Maturity (Scale, Extensibility, Maintainability)
+### B3. Moderator and User Experience Hardening
+- `P1` Complete or hide unfinished moderation and messaging UI areas to avoid beta behavior in production. (`M`)
+- `P1` Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`M`)
+- `P2` Add empty/error/loading state consistency pass on moderation and report surfaces. (`M`)
 
-Goal: make OpenForum easier to operate at scale and safer to evolve.
+**Success metric**: moderation UX is understandable for both moderators and affected users.
 
-### C1. Observability and Performance
-- `P1` Add structured request logging for API and error contexts. (`M`)
-- `P1` Define baseline metrics and operational SLOs (latency, error rate, migration success). (`M`)
-- `P2` Add lightweight performance benchmark script for critical feed and thread endpoints. (`M`)
+## Phase C: Product and DX for Modern Async Communities
 
-**Success metric**: performance and error regressions are detectable before production incidents.
+Goal: deliver modern, fluid async interactions while improving contributor productivity.
 
-### C2. API and Contract Stability
+### C1. User Control and Account Safety
+- `P1` Add revoke-all-sessions capability and session management UI for account safety. (`M`)
+- `P1` Add block/mute controls for users, topics, and keywords with clear UX. (`L`)
+- `P2` Add privacy and notification preference controls with documented defaults. (`M`)
+
+**Success metric**: users can control their experience and account risk without moderator intervention.
+
+### C2. Fluid Async Discovery and Inbox UX
+- `P1` Add saved/custom feed presets and URL-synced filter state for search/discovery. (`L`)
+- `P1` Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling). (`M`)
+- `P2` Resolve high-visibility TODOs affecting trust in feed/search/settings core paths. (`M`)
+
+**Success metric**: core browse and notification workflows feel modern without requiring full realtime infrastructure.
+
+### C3. Contributor and Contract Stability
 - `P1` Publish API endpoint inventory with auth requirements and response contracts. (`M`)
-- `P1` Add contract tests for high-risk routes (auth, media upload, vote/report). (`L`)
-- `P2` Define deprecation/versioning policy for breaking API changes. (`S`)
+- `P1` Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`L`)
+- `P1` Add structured request logging for API and error contexts. (`M`)
+- `P2` Define baseline metrics and operational SLOs (latency, error rate, migration success). (`M`)
 
-**Success metric**: API changes are intentional and backward-compatibility is trackable.
+**Success metric**: changes to core async and moderation flows are safer to ship and easier to maintain.
 
-### C3. Extensibility and Internal Architecture
-- `P1` Document extension points (middleware, server utilities, component conventions). (`M`)
-- `P1` Refactor high-churn modules with clear ownership boundaries. (`L`)
-- `P2` Add coding standards and “definition of done” for feature PRs. (`S`)
+## Phase D: Long-Term Monetization (Deferred)
 
-**Success metric**: feature work lands faster with fewer regressions and cleaner diffs.
+Goal: enable optional community funding after core ops, trust, and UX priorities are stable.
+
+### D1. Store and Funding Foundations
+- `P2` Replace placeholder purchase flow with feature-flagged checkout architecture. (`L`)
+- `P2` Implement referral/reward redemption hardening with idempotency and abuse protections. (`M`)
+- `P2` Add operator-facing policy docs for community funding controls and moderation implications. (`S`)
+
+**Success metric**: monetization can be safely enabled without compromising core community trust.
 
 ## 4) Milestones
 
 1. CI pipeline live; `.env.example` committed; production quickstart draft.
-2. Docker/deploy path validated on clean machine; initial smoke tests pass.
-3. Security fixes for award/referral/rate limits merged.
-4. Backup/restore drill completed; v0.1 engineering-baseline release tagged.
-5. Admin onboarding + contributor architecture docs published.
-6. Moderation workflow + audit log MVP documented.
-7. Incomplete UX areas cleaned/hid; quality pass for core flows.
-8. v0.2 developer-experience release tagged.
-9. Structured logging + baseline metrics established.
-10. API contract inventory and tests merged.
-11. Extensibility docs + coding standards finalized.
-12. v0.3 platform-maturity release tagged with regression trend summary.
+2. Embedded-default docker/deploy path validated on clean machine; remote profile documented as advanced.
+3. Security fixes for rate limits and moderation-adjacent abuse paths merged.
+4. Backup/restore drill completed for embedded and remote modes; v0.1 self-host-baseline release tagged.
+5. Moderation workflow, audit log, and appeals MVP documented.
+6. Anti-spam defaults and moderation UX hardening shipped.
+7. User control features (session revoke, block/mute, privacy prefs) merged.
+8. Saved feed presets + async inbox/feed UX improvements shipped.
+9. API contracts, high-risk contract tests, and structured logging established.
+10. v0.2 community-trust-and-ux release tagged.
+11. Monetization architecture plan and feature flags prepared (disabled by default).
+12. v0.3 maturity release tagged with operational and community health trend summary.

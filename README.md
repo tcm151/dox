@@ -1,10 +1,10 @@
-# OpenForum
+# ClassicForum
 
 Own your community. Host it yourself. Shape it your way.
 
-OpenForum is a self-hosted, modern forum platform for people who want an alternative to closed platforms like Discord, heavily centralized networks like Reddit, and aging forum software stacks. It is designed for public communities, niche interests, and creators who want full control over how their space looks, works, and grows.
+ClassicForum is a self-hosted, modern forum platform for people who want an alternative to closed platforms like Discord, heavily centralized networks like Reddit, and aging forum software stacks. It is designed for public communities, niche interests, and creators who want full control over how their space looks, works, and grows.
 
-## Why OpenForum?
+## Why ClassicForum?
 
 - **You own the platform**: run it on your own hardware or cloud server.
 - **You own the rules**: moderate and manage the community how you want.
@@ -32,6 +32,35 @@ OpenForum is a self-hosted, modern forum platform for people who want an alterna
 
 If you want to run or contribute locally, follow the [Contribution Guide](./docs/ContributionGuide.md).
 
+## Docker (Basic Template)
+
+A minimal Docker template is included for single-container self-hosting with embedded SurrealDB.
+
+1. Create your env file from the shared template:
+
+```bash
+cp docs/.env.example .env
+```
+
+2. For Docker, update these values in `.env`:
+
+```dotenv
+BASE_URL=http://localhost:3000
+SURREAL_URL=rocksdb:///app/data/classicforum.db
+MEDIA_PATH=/app/data
+SURREAL_DATABASE=production
+```
+
+3. Build and start:
+
+```bash
+docker compose up --build -d
+```
+
+4. Open the app at `http://localhost:3000`.
+
+Data is persisted in the named Docker volume `classicforum_data` mounted at `/app/data`.
+
 ## Deployment Types
 
 ### Remote SurrealDB
@@ -48,12 +77,12 @@ If you want to run or contribute locally, follow the [Contribution Guide](./docs
 
 ## Project Status
 
-OpenForum is an active passion project, originally built for personal publishing and community discussion. If this direction resonates with you, star the repository and open issues with feedback or ideas.
+ClassicForum is an active passion project, originally built for personal publishing and community discussion. If this direction resonates with you, star the repository and open issues with feedback or ideas.
 
 ## License
 
-OpenForum is released under the MIT License. See [LICENSE](./LICENSE).
+ClassicForum is released under the MIT License. See [LICENSE](./LICENSE).
 
 ## Philosophy
 
-The internet works best when communities can be independently run, publicly accessible, and not locked behind someone else’s platform decisions. OpenForum exists to make that path easier.
+The internet works best when communities can be independently run, publicly accessible, and not locked behind someone else’s platform decisions. ClassicForum exists to make that path easier.

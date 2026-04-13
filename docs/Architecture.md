@@ -4,7 +4,7 @@ Purpose: provide a single, implementation-grounded architecture reference for co
 
 ## 1. Product and System Overview
 
-OpenForum is a self-hosted forum platform built as a Nuxt 4 full-stack app with SurrealDB.
+ClassicForum is a self-hosted forum platform built as a Nuxt 4 full-stack app with SurrealDB.
 
 High-level architecture:
 - Frontend: Nuxt app under `app/` (pages, layouts, components, stores, plugins)
