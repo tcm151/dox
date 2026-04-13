@@ -276,10 +276,10 @@ async function saveDraft() {
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Update</span>
                     </ButtonSpinner>
-                    <button class="link f-1 b-0" :loading="saving" @click="saveDraft" v-else>
+                    <ButtonSpinner v-else class="link f-1 b-0" :loading="saving" @click="saveDraft">
                         <i class="fa-solid fa-folder-open"></i>
                         <span>Save</span>
-                    </button>
+                    </ButtonSpinner>
                     <button class="link f-1 b-0" @click="selectImages">
                         <i class="fa-solid fa-images"></i>
                         <span>Upload</span>
@@ -294,7 +294,7 @@ async function saveDraft() {
             </div>
         </div>
         <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-        <MediaUploader v-show="confirmUpload" :media="files" @upload="beginUpload" @close="cancelUpload" />
+        <MediaUploader v-if="files" :media="files" @upload="beginUpload" @close="cancelUpload" />
     </article>
 </template>
 

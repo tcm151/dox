@@ -112,11 +112,6 @@ function togglePreview() {
                     <i v-else class="fa-solid fa-eye-slash"></i>
                     <span>Preview</span>
                 </button>
-                <!-- FIXME cancel button has empty click handler; implement clear/navigate/discard-confirm behavior. -->
-                <button class="danger f-1 b-0" @click="">
-                    <i class="fa-solid fa-ban"></i>
-                    <span>Cancel</span>
-                </button>
             </footer>
         </section>
     </article>

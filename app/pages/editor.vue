@@ -17,8 +17,12 @@ definePageMeta({
 })
 
 const tabs = ref<TabItem[]>([
-    { route: '/editor/posts', icon: 'fa-feather', label: 'Post' },
-    { route: '/editor/threads', icon: 'fa-message', label: 'Thread' },
+    { route: '/editor/post', icon: 'fa-feather', label: 'Post' },
+    { route: '/editor/thread', icon: 'fa-message', label: 'Thread' },
+    { route: '/editor/link', icon: 'fa-link', label: 'Link' },
+    { route: '/editor/album', icon: 'fa-images', label: 'Album' },
+    { route: '/editor/audio', icon: 'fa-music', label: 'Audio' },
+    { route: '/editor/poll', icon: 'fa-list', label: 'Poll' },
 ])
 
 // TODO allow scheduling of posts and threads with future publish dates
