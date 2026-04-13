@@ -98,6 +98,7 @@
 .b-half { flex-basis: fit-content; max-width: calc-size(fit-content, size * 1.5); }
 .b-double { flex-basis: fit-content; max-width: calc-size(fit-content, size * 2); }
 .b-triple { flex-basis: fit-content; max-width: calc-size(fit-content, size * 3); }
+.b-quad { flex-basis: fit-content; max-width: calc-size(fit-content, size * 4); }
 
 .br-none { border-radius: 0 !important; }
 .br-small { border-radius: 0.25rem !important; }

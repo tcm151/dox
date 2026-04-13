@@ -102,9 +102,9 @@ hr {
 
     input, textarea, select {
         padding: 0.5rem 0.75rem;
-        font-size: 1rem;
+        font-size: 0.8rem;
         font-family: inherit;
-        font-weight: 500;
+        font-weight: 600;
         background-color: $white-1;
         outline: none;
         border: 2px solid transparent;
@@ -133,6 +133,16 @@ hr {
 
     input[disabled]:hover, textarea[disabled]:hover, select[disabled]:hover {
         border-color: $white-3;
+    }
+
+    select, select::picker(select) {
+        appearance: base-select;
+    }
+
+    select::picker(select) {
+        background-color: $white-1;
+        border-radius: 0.25rem;
+        border: 2px solid $blue;
     }
 
     span.tip {

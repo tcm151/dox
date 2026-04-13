@@ -6,7 +6,7 @@ definePageMeta({
         if (!ENV.isClient()) return
 
         const session = getSession()
-        if (!session.isAuthenticated || !hasRole(session.user, ["moderator", "admin"])) {
+        if (!session.isAuthenticated || !hasRole(session.user, "moderator")) {
             return abortNavigation()
         }
     }
@@ -50,7 +50,7 @@ async function updateProfile() {
         </header>
         <section v-if="topic.data.value" class="box column g-4 p-5">
             <div class="row between">
-                <h1>{{ id }}</h1>
+                <h2>{{ id }}</h2>
                 <button @click="">
                     <i class="fa-solid fa-signature"></i>
                     Request Rename
@@ -76,6 +76,6 @@ async function updateProfile() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width (40rem, 1rem);
+    @include fit-width (60rem, 1rem);
 }
 </style>

@@ -306,9 +306,6 @@ div.field {
     label {
         margin-right: 1rem;
     }    
-    input, textarea {
-        font-size: 0.8rem;
-    }
     input[type="number"] {
         padding: 0.25rem 0.5rem;
         width: stretch;

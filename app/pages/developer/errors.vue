@@ -42,7 +42,7 @@ function toggle(id: string) {
     <article class="p-4">
         <section class="box column g-2 p-3">
             <header class="row wrap gr-2 gc-4">
-                <ButtonSpinner class="small dark f-1" :loading="pending" @click="refresh()">
+                <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
                     <i class="fa-solid fa-refresh"></i>
                     Refresh
                 </ButtonSpinner>
@@ -72,15 +72,15 @@ function toggle(id: string) {
                         <label>End</label>
                         <input type="date" v-model="end">
                     </div>
-                </div>
-                <div class="field row">
-                    <label>Results</label>
-                    <select v-model.number="limit">
-                        <option>25</option>
-                        <option>50</option>
-                        <option>100</option>
-                        <option>250</option>
-                    </select>
+                    <div class="field row">
+                        <label>Results</label>
+                        <select v-model.number="limit">
+                            <option>25</option>
+                            <option>50</option>
+                            <option>100</option>
+                            <option>250</option>
+                        </select>
+                    </div>
                 </div>
             </header>
             <template v-if="errors && errors.length > 0">
@@ -112,10 +112,6 @@ article {
 div.field {
     label {
         font-weight: 700;
-    }
-    input, textarea, select {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
     }
     .danger.active {
         background-color: $red;

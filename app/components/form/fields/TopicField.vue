@@ -43,6 +43,10 @@ function addTopic() {
         hints.addError("You must use one of the predefined topics.")
         return
     }
+    if (props.topics.includes(`topic:${text.value}`)) {
+        hints.addError("You have already added this topic.")
+        return
+    }
     if (text.value && validTopic()) {
         emit("add", text.value)
         text.value = ""
@@ -58,13 +62,15 @@ function useTopic(topic: string | undefined) {
         addTopic()
     }
 }
+
+// TODO build a dropdown/select component using the same styles and layout from here
 </script>
 
 <template>
     <main class="field" :class="{ 'invalid': !validTopic() }">
         <div class="row inline g-2 mb-2">
             <label class="mb-0">Topics</label>
-            <TopicTag v-for="topic in topics" :topic="topic" disable @contextmenu.prevent="emit('remove', topic)" />
+            <TopicTag v-for="topic in topics" :topic="topic" disable @click="emit('remove', topic)" />
         </div>
         <div class="topic-input column">
             <input
@@ -107,7 +113,7 @@ div.topic-input {
 }
 
 aside {
-    top: calc(2rem + 4px);
+    top: 2rem;
     width: stretch;
     position: absolute;
     background-color: $white-1;
@@ -115,7 +121,13 @@ aside {
     border: 2px solid $blue;
     border-top: 2px dashed $white-2;
 
-    div:hover {
+    .match {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .match:hover {
+        cursor: pointer;
         background-color: $white-2;
     }
 }

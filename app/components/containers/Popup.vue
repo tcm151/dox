@@ -7,44 +7,15 @@ const props = defineProps<{
     accept: { label?: string, action: Function }
     decline: { label?: string, action: Function }
 }>()
-
-const maxWidth = ref(`${Number.POSITIVE_INFINITY}px`)
-const maxHeight = ref(`${Number.POSITIVE_INFINITY}px`)
-
-function getViewportSize() {
-    const viewport = window.visualViewport
-    if (viewport && Number.isFinite(viewport.width) && Number.isFinite(viewport.height)) {
-        return { width: viewport.width, height: viewport.height }
-    }
-    return { width: window.innerWidth, height: window.innerHeight }
-}
-
-function resizePopup() {
-    const vp = getViewportSize()
-    maxWidth.value = `calc(${vp.width}px - 2rem)`
-    maxHeight.value = `calc(${vp.height}px - 2rem)`
-}
-
-if (ENV.isClient()) {
-    resizePopup()
-    window.visualViewport?.addEventListener('resize', resizePopup)
-    window.addEventListener('resize', resizePopup) // fallback path
-}
-
-onBeforeUnmount(() => {
-    if (!ENV.isClient()) return
-    window.visualViewport?.removeEventListener('resize', resizePopup)
-    window.removeEventListener('resize', resizePopup)
-})
 </script>
 
 <template>
     <aside class="background column center">
-        <main class="window box br-medium p-5" :style="{ width, maxWidth, maxHeight }">
+        <main class="window box br-medium p-5" :style="{ width }">
             <header v-if="title">
                 <h1>{{ title }}</h1>
             </header>
-            <div class="column py-4">
+            <div class="slot column py-4">
                 <slot />
             </div>
             <div class="row wrap g-2">
@@ -85,6 +56,7 @@ aside.filler {
 }
 
 .slot {
-    max-height: 512px;
+    max-height: 100%;
+    overflow-y: hidden;
 }
 </style>
