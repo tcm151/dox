@@ -32,35 +32,6 @@ ClassicForum is a self-hosted, modern forum platform for people who want an alte
 
 If you want to run or contribute locally, follow the [Contribution Guide](./docs/ContributionGuide.md).
 
-## Docker (Basic Template)
-
-A minimal Docker template is included for single-container self-hosting with embedded SurrealDB.
-
-1. Create your env file from the shared template:
-
-```bash
-cp docs/.env.example .env
-```
-
-2. For Docker, update these values in `.env`:
-
-```dotenv
-BASE_URL=http://localhost:3000
-SURREAL_URL=rocksdb:///app/data/classicforum.db
-MEDIA_PATH=/app/data
-SURREAL_DATABASE=production
-```
-
-3. Build and start:
-
-```bash
-docker compose up --build -d
-```
-
-4. Open the app at `http://localhost:3000`.
-
-Data is persisted in the named Docker volume `classicforum_data` mounted at `/app/data`.
-
 ## Deployment Types
 
 ### Remote SurrealDB
