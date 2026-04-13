@@ -61,6 +61,10 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                                 <i class="fa-solid fa-address-card"></i>
                                 Profile
                             </button>
+                            <button class="small" @click="navigateTo(`/topic/${id}/reports`)">
+                                <i class="fa-solid fa-flag"></i>
+                                Reports
+                            </button>
                         </template>
                     </Authenticated>
                 </aside>
@@ -74,7 +78,7 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(60rem, 1rem);
+    @include fit-width(75rem, 1rem);
 }
 
 aside.sidebar {
