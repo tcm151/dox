@@ -98,7 +98,7 @@ section.left {
 }
 
 section.right {
-    top: 0;
+    top: 1px;
     right: 0;
     position: absolute;
 

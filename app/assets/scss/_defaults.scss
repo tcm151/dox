@@ -90,6 +90,12 @@ hr {
     @include flex-v (0.75rem);
 }
 
+.field-small {
+    input, textarea, select {
+        font-size: 0.8rem;
+    }
+}
+
 .field {
     display: flex;
     flex-direction: column;
@@ -102,7 +108,7 @@ hr {
 
     input, textarea, select {
         padding: 0.5rem 0.75rem;
-        font-size: 0.8rem;
+        font-size: 1rem;
         font-family: inherit;
         font-weight: 500;
         background-color: $white-1;
@@ -294,7 +300,14 @@ pre {
     }
 
     ul, ol {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem; 
         margin-block: 1rem;
+    }
+
+    li > ul {
+        margin-block: 0.5rem;
     }
 
     blockquote {
@@ -344,6 +357,7 @@ pre {
         text-align: left;
         padding: 0.25rem 0.75rem;
         border-top: 1px solid $white-2;
+        vertical-align: top
     }
 
     .row {
