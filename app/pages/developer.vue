@@ -24,6 +24,7 @@ definePageMeta({
 })
 
 const tabs = ref<TabItem[]>([
+    { route: '/developer/info', icon: 'fa-list', label: 'Info' },
     { route: '/developer/schema', icon: 'fa-table-columns', label: 'Schema' },
     { route: '/developer/query', icon: 'fa-terminal', label: 'Database' },
     { route: '/developer/errors', icon: 'fa-triangle-exclamation', label: 'Errors' },

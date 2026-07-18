@@ -108,6 +108,7 @@ export default defineNuxtConfig({
             }
         },
         public: {
+            version: "0.1.0",
             baseUrl: process.env.BASE_URL,
             site: {
                 title: process.env.SITE_TITLE,
