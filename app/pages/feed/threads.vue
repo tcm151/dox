@@ -15,7 +15,7 @@ const threads = useDatasource<Thread[]>("/api/thread", {
     <article class="column g-2 p-4">
         <Feed :items="threads" :sorting="true" @refresh="(type) => sortBy = type">
             <template #buttons>
-                <button class="dark px-5" @click="navigateTo('/editor/threads')">
+                <button class="dark px-5" @click="navigateTo('/editor/thread')">
                     <i class="fa-solid fa-feather"></i>
                     <span>Submit</span>
                 </button>

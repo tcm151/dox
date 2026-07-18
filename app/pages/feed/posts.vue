@@ -15,7 +15,7 @@ const posts = useDatasource<Post[]>("/api/post", {
     <section class="feed column g-2 p-4">
         <Feed :items="posts" :sorting="true" @refresh="(type) => sortBy = type">
             <template #buttons>
-                <button class="dark px-5" @click="navigateTo('/editor/posts')">
+                <button class="dark px-5" @click="navigateTo('/editor/post')">
                     <i class="fa-solid fa-feather"></i>
                     <span>Submit</span>
                 </button>
