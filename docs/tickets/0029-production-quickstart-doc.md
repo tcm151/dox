@@ -21,16 +21,19 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 
 ## Notes
 - Keep this practical and copy-paste friendly.
-- Release artifact archive name is `forum-<version>.tar.gz`.
-- Package releases so archives extract to versioned folders like `/root/forum/<version>`.
-- Persistent data defaults to `/root/forum/data`, beside the versioned release folders.
-- Package `.env.example` instead of a live `.env`; the installer may create shared `/root/forum/.env` if missing, but upgrades must preserve operator config.
-- Built `.output` contents are flattened into the versioned release folder, so the server entrypoint is `<version>/server/index.mjs`.
+- Warning: do not package a live `.env`; upgrades rely on shared `/root/forum/.env` remaining outside versioned release folders.
 - Installer commands: `install` default, `run`, `status`, `stop`, and `restart`.
 - Installer stops a running `forum` service before install work and writes a systemd unit pointing at the current version folder.
 - Operators configure their own reverse proxy/TLS and must set `BASE_URL` to the public URL for that setup.
 - Revisit friendlier messages for `status` and `restart` before the service has been installed.
 - Revisit safer `.env` parsing later if the installer grows beyond this simple deployment path.
+
+## Current Decisions
+- The release staging script creates `releases/forum-<version>.tar.gz` and removes local `.output` after archive creation.
+- Archives extract to `forum/<version>`, which maps to `/root/forum/<version>` on the target host.
+- Built `.output` contents are flattened into the versioned release folder, so the server entrypoint is `<version>/server/index.mjs`.
+- Persistent data defaults to `/root/forum/data`, beside the versioned release folders.
+- Packaged releases include `.env.example`; the installer may create shared `/root/forum/.env` if missing, but upgrades must preserve operator config.
 
 ## Relevant Files
 - docs/ContributionGuide.md
@@ -38,16 +41,13 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - scripts/installer.sh
 - scripts/release.env
 - scripts/stage-release.mjs
+- .gitignore
 - package.json
 
 ## Progress Log
-- 2026-07-21: Moved live config to shared `/root/forum/.env` so version upgrades do not need to copy config forward.
-- 2026-07-21: Updated release artifact layout so `installer.sh` lives at the release root and build artifacts live under `app/`.
-- 2026-07-21: Flattened release artifacts so the built server folder lives at the versioned release root.
-- 2026-07-21: Changed archives to unpack under `forum/<version>` with persistent data at `forum/data`.
-- 2026-07-21: Changed release artifact folders to `forum-<version>` and moved the default persistent data path outside the release folder.
-- 2026-07-21: Changed release packaging to ship `.env.example`, preserve live `.env`, and document stop-before-extract upgrades plus service commands.
-- 2026-07-21: Switched the default layout to sibling app/data folders and made installer stop a running service before install work.
+- 2026-07-21: Streamlined release staging to archive directly from a reorganized `.output` folder and remove local `.output` after archive creation.
+- 2026-07-21: Moved live config to shared `/root/forum/.env`, persistent data to `/root/forum/data`, and packaged only `.env.example` for upgrades.
+- 2026-07-21: Flattened release artifacts into `forum/<version>` so the built server entrypoint lives at the versioned release root.
 - 2026-07-21: Updated the packaged installer and quickstart for root-home artifact deployment as an auto-starting systemd service.
 - 2026-07-21: Added a packaged installer script and initial production quickstart draft for staged release artifacts.
 - 2026-04-13: Ticket created.

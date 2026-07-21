@@ -8,6 +8,7 @@
 .output
 .production
 .env
+releases/
 
 data/*
 logs/*
