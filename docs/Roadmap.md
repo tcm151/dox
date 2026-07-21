@@ -92,7 +92,8 @@ Goal: deliver modern, fluid async interactions while improving contributor produ
 - 🟥 Add side-by-side markdown preview with debounced rendering controls. (`M`)
 - 🟥 Add series/collection grouping for related posts and threads. (`L`)
 - 🟥 Add revision history for posts/threads with moderator review and revert capabilities. (`L`)
-- 🟥 Complete thread editor parity with post editor, including draft and mention workflows. (`M`)
+- 🟩 Complete thread editor parity with post editor for supported publishing, preview, validation, and upload workflows. (`M`)
+- 🟥 Extract reusable dropdown/autocomplete form component for topics and future mention workflows. (`M`)
 
 **Success metric**: advanced content creation workflows are consistent across editor types and safe for moderation.
 

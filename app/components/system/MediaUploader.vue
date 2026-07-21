@@ -58,7 +58,7 @@ function getMediaUrl(image: File) {
                 <button class="link">
                     <i class="fa-solid fa-caret-left"></i>
                 </button>
-                <button class="link f-1">
+                <button class="link f-1" :disabled="loading" @click="emit('upload')">
                     Upload
                 </button>
                 <button class="link">

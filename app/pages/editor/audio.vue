@@ -1,91 +1,123 @@
 <script setup lang="ts">
-import type { User, Thread } from '@@/shared/types'
+import EditorFrame from "./components/EditorFrame.vue"
+import type { Audio } from '@@/shared/types'
 
 const hints = useHints()
-const cache = useCache()
 const session = getSession()
 
-const { files, open: selectAudio, reset } = useFileDialog({
-    accept: "audio/mp3"
+const title = ref<string>("")
+const description = ref<string>("")
+const uploadedAudio = useSessionStorage<Audio | null>('uploadedAudio', null)
+
+const { files, open: openFileDialog, reset } = useFileDialog({
+    accept: "audio/*"
 })
 
-const confirmUpload = computed(() => files.value != null)
 let uploading = ref<boolean>(false)
 async function beginUpload() {
-    try {
-        console.log(files.value)
-        // uploading.value = true
-        // await uploadMedia<Audio>(files.value, "audio")
-        // reset()
+    if (!files.value) {
+        hints.addWarning("Please select an audio file.")
+        return
     }
-    finally {
-        uploading.value = false
+    uploading.value = true
+    const audio = await uploadMedia<Audio>(files.value, "audio")
+    if (audio != null) {
+        uploadedAudio.value = audio
+    }
+    uploading.value = false
+    reset()
+}
+
+function selectAudio() {
+    if (!hasTrait(session.user, "confirmed")) {
+        hints.addWarning("You must confirm your account before uploading audio.")
+        return
+    }
+    openFileDialog()
+}
+
+function copyAudioUrl() {
+    if (uploadedAudio.value) {
+        navigator.clipboard.writeText(uploadedAudio.value.url)
+        hints.addSuccess("Copied audio URL.")
     }
 }
 
-const newTopic = ref<string>("")
-const topics = ref<string[]>([])
-function addTopic(topic: string) {
-    topics.value.push(`topic:${topic}`)
-    newTopic.value = ""
+function clearAudio() {
+    uploadedAudio.value = null
+    hints.addWarning("Audio removed from this editor.")
 }
 
-function removeTopic(topic: string) {
-    topics.value = topics.value.filter(t => t !== topic)
-}
+const topics = useTopicManager()
 
 const submitting = ref<boolean>(false)
 async function submit() {
-    try {
-        submitting.value = true
-        const thread = await useApi<Thread>("/api/thread/add", {
-        })
-        return navigateTo(`/thread/${extractId(thread.id)}`)
+    if (title.value.trim().length < 4) {
+        hints.addError("Title must be at least 4 characters.")
+        return
     }
-    catch (error: any) {
-        hints.addError("Failed to submit thread.")
+    if (!uploadedAudio.value) {
+        hints.addError("You must upload an audio file.")
+        return
     }
-    finally {
-        submitting.value = false
+    if (topics.items.length == 0) {
+        hints.addError("You must include at least one topic.")
+        return
     }
-}
 
+    submitting.value = true
+    hints.addWarning("Audio publishing is not available yet.")
+    submitting.value = false
+}
 </script>
 
 <template>
-    <article class="column m-4">
-        <section class="box column p-5">
-            <header class="row inline between mb-4">
-                <h1>New Audio</h1>
-                <button @click="">
-                    <i class="fa-solid fa-compass-drafting"></i>
-                    <span>Drafts</span>
-                </button>
-            </header>
-            <section class="form f-1 column g-2">
-                <div class="field">
-                    <label>Audio</label>
-                    <input type="text">
+    <EditorFrame title="New Audio" :submitting="submitting" @submit="submit">
+        <template #form>
+            <div class="field">
+                <label>Title</label>
+                <input type="text" v-model="title">
+            </div>
+            <div class="field f-1">
+                <label>Description</label>
+                <MarkdownEditor bounded class="f-1" :rows="8" v-model="description" />
+            </div>
+            <aside v-if="uploadedAudio" class="field uploaded-audio">
+                <label>Audio</label>
+                <div class="row inline g-2">
+                    <audio class="f-1" controls :src="uploadedAudio.url" />
+                    <button class="link b-0" @click="copyAudioUrl">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button class="danger b-0" @click="clearAudio">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-                <TopicField v-model:text="newTopic" :topics="[]" @add="addTopic" @remove="removeTopic" />
-                <MediaUploader v-if="files" :media="files" :loading="uploading" @accept="beginUpload" @close="reset" />
-            </section>
-            <footer class="row g-2 mt-5">
-                <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
-                    <i class="fa-solid fa-share"></i>
-                    <span>Submit</span>
-                </ButtonSpinner>
-                <button class="link f-1 b-0" @click="">
-                    <i class="fa-solid fa-music"></i>
-                    <span>Upload</span>
-                </button>
-            </footer>
-        </section>
-    </article>
+            </aside>
+            <TopicField :topics="topics" />
+        </template>
+        <template #preview>
+            <h1 class="mb-2">{{ title }}</h1>
+            <audio v-if="uploadedAudio" class="preview-audio mb-3" controls :src="uploadedAudio.url" />
+            <Markdown class="content" :content="description" />
+        </template>
+        <template #footer-actions>
+            <button class="link f-1 b-0" @click="selectAudio">
+                <i class="fa-solid fa-music"></i>
+                <span>Upload</span>
+            </button>
+        </template>
+        <MediaUploader v-if="files" :media="files" :loading="uploading" @upload="beginUpload" @close="reset" />
+    </EditorFrame>
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width (60rem, 1rem);
+aside.uploaded-audio audio,
+audio.preview-audio {
+    width: 100%;
+}
+
+input[type=file] {
+    display: none;
 }
 </style>

@@ -6,7 +6,12 @@ definePageMeta({
     middleware: (to, from) => {
         if (!ENV.isClient()) return
 
-        const tabs = useLastTab({ base: "editor", default: "posts" })
+        const session = getSession()
+        if (to.path.startsWith("/editor") && !session.isAuthenticated) {
+            return abortNavigation()
+        }
+
+        const tabs = useLastTab({ base: "editor", default: "post" })
         if (to.path === "/editor") {
             return navigateTo(tabs.getLastTab())
         }
@@ -20,7 +25,7 @@ const tabs = ref<TabItem[]>([
     { route: '/editor/post', icon: 'fa-feather', label: 'Post' },
     { route: '/editor/thread', icon: 'fa-message', label: 'Thread' },
     { route: '/editor/link', icon: 'fa-link', label: 'Link' },
-    { route: '/editor/album', icon: 'fa-images', label: 'Album' },
+    { route: '/editor/image', icon: 'fa-images', label: 'Image' },
     { route: '/editor/audio', icon: 'fa-music', label: 'Audio' },
     { route: '/editor/poll', icon: 'fa-list', label: 'Poll' },
 ])

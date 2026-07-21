@@ -1,4 +1,4 @@
-import type { Media } from "@@/shared/types"
+import type { Image, Media } from "@@/shared/types"
 
 export const calculateTokens = (file: File | null) => {
     if (!file) {
@@ -62,4 +62,67 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
         hints.addError(`Failed to upload file "${files[0].name}"`)
         return
     }
+}
+
+export function useImageUploader(storageKey: string) {
+    const hints = useHints()
+    const session = getSession()
+
+    const { files, open: openFileDialog, reset: cancel } = useFileDialog({
+        accept: "image/*"
+    })
+
+    const uploading = ref<boolean>(false)
+    const uploaded = useSessionStorage<Image[]>(storageKey, [])
+
+    function select() {
+        if (!hasTrait(session.user, "confirmed")) {
+            hints.addWarning("You must confirm your account before uploading images.")
+            return
+        }
+        openFileDialog()
+    }
+
+    async function upload() {
+        if (!files.value) {
+            hints.addWarning("Please select an image.")
+            return
+        }
+
+        uploading.value = true
+        try {
+            const image = await uploadMedia<Image>(files.value, "image")
+            if (image != null) {
+                uploaded.value.push(image)
+            }
+        }
+        finally {
+            uploading.value = false
+            cancel()
+        }
+    }
+
+
+    async function remove(image: Image) {
+        await useApi(`/api/image/${extractId(image.id)}/delete`)
+        uploaded.value = uploaded.value.filter(i => i !== image)
+        hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
+    }
+
+    function copy(event: Event) {
+        let imageUrl = (event.target as HTMLImageElement).currentSrc
+        navigator.clipboard.writeText(`![](${imageUrl})`)
+        hints.addSuccess("Copied image in markdown syntax.")
+    }
+
+    return reactive({
+        files,
+        uploading,
+        uploaded,
+        select,
+        upload,
+        cancel,
+        remove,
+        copy,
+    })
 }

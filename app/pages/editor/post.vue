@@ -1,32 +1,12 @@
 <script setup lang="ts">
 import Drafts from "./components/Drafts.client.vue"
-import type { User, Post, Draft, Image } from '@@/shared/types'
-
-definePageMeta({
-    layout: 'simple',
-    middleware: (to, from) => {
-        if (ENV.isClient()) {
-            const session = getSession()
-            if (to.path.startsWith("/editor") && !session.isAuthenticated) {
-                return abortNavigation()
-            }
-        }
-    }
-})
+import EditorFrame from "./components/EditorFrame.vue"
+import UploadedImages from "./components/UploadedImages.vue"
+import type { User, Post, Draft } from '@@/shared/types'
 
 const hints = useHints()
 const valid = useValidation()
 const session = getSession()
-
-let draft = ref<Draft>({
-    id: '',
-    time: '',
-    user: session.user as User & string,
-    title: '',
-    content: '',
-    topics: [],
-    images: [],
-})
 
 const route = useRoute()
 const replyTo = computedAsync<Post | undefined>(async () => {
@@ -38,89 +18,29 @@ const replyTo = computedAsync<Post | undefined>(async () => {
     }
 })
 
-let titleFocused = ref(false)
+let draft = ref<Draft>({
+    id: '',
+    time: '',
+    user: session.user as User & string,
+    title: '',
+    content: '',
+    topics: [],
+    images: [],
+})
 
+let titleFocused = ref(false)
 function validTitle() {
     return valid.post.title(draft.value.title)
 }
 
-function validTopic(topic: string) {
-    return (topic == '') ? true : valid.topic.name(topic)
-}
-
-function addTopic(topic: string) {
-    if (!validTopic(topic)) {
-        hints.addWarning("Topic is not valid")
-        return
-    }
-    draft.value.topics.push(`topic:${topic}`)
-}
-
-function removeTopic(topic: string) {
-    draft.value.topics = draft.value.topics.filter(t => t !== topic)
-}
+const images = useImageUploader('editorImages')
+const topics = useTopicManager()
 
 let showDrafts = ref(false)
 function viewDraft(existingDraft: Draft) {
     draft.value = existingDraft
+    topics.set(existingDraft.topics)
     showDrafts.value = false
-}
-
-let showPreview = ref(false)
-function togglePreview() {
-    showPreview.value = !showPreview.value
-}
-
-const confirmUpload = ref(false)
-let uploadedImages = useSessionStorage<Image[]>('uploadedImages', [])
-
-const { files, open: openFileDialog, reset } = useFileDialog({
-    accept: "image/*"
-})
-
-whenever(files, () => {
-    confirmUpload.value = true
-})
-
-function selectImages() {
-    if (!hasTrait(session.user, "confirmed")) {
-        hints.addWarning("You must confirm your account before uploading images.")
-        return
-    }
-    openFileDialog()
-}
-
-let uploading = ref<boolean>(false)
-async function beginUpload() {
-    if (!files.value) {
-        hints.addWarning("Please select an image.")
-        return
-    }
-    confirmUpload.value = false
-    uploading.value = true
-    const image = await uploadMedia<Image>(files.value, "image")
-    if (image != null) {
-        uploadedImages.value.push(image)
-    }
-    uploading.value = false
-    reset()
-}
-
-function cancelUpload() {
-    confirmUpload.value = false
-    reset()
-}
-
-async function deleteImage(image: Image) {
-    await useApi(`/api/image/${extractId(image.id)}/delete`)
-    uploadedImages.value = uploadedImages.value.filter(i => i !== image)
-    hints.addSuccess(`You have been refunded ${image.tokens} tokens.`)
-}
-
-function copyImageUrl(event: Event) {
-    let imageUrl = (event.target as HTMLImageElement).currentSrc
-    navigator.clipboard.writeText(`![](${imageUrl})`)
-    hints.addSuccess("Copied image in markdown syntax.")
 }
 
 const submitting = ref<boolean>(false)
@@ -129,11 +49,10 @@ async function submit() {
         hints.addError("Title is invalid.")
         return
     }
-    if (draft.value.topics.length == 0) {
+    if (topics.items.length == 0) {
         hints.addError("You must include at least one topic.")
         return
     }
-    
     try {
         submitting.value = true
         const post = await useApi<Post>("/api/post/add", {
@@ -148,13 +67,13 @@ async function submit() {
                     misleading: [],
                     negative: [],
                 },
-                topics: draft.value.topics,
+                topics: topics.items,
                 comments: [],
-                images: uploadedImages.value.map(i => i.id)
+                images: images.uploaded.map(i => i.id)
             }
         })
         
-        uploadedImages.value = []
+        images.uploaded = []
         navigateTo(`/post/${extractId(post.id)}`)
     }
     catch (error: any) {
@@ -186,8 +105,8 @@ async function saveDraft() {
                     title: draft.value.title,
                     content: draft.value.content,
                     replyTo: draft.value.replyTo,
-                    topics: draft.value.topics,
-                    images: uploadedImages.value.map(i => i.id)
+                    topics: topics.items,
+                    images: images.uploaded.map(i => i.id)
                 }
             })
             hints.addSuccess("Draft updated.")
@@ -200,8 +119,8 @@ async function saveDraft() {
                     content: draft.value.content,
                     time: new Date(),
                     replyTo: draft.value.replyTo,
-                    topics: draft.value.topics,
-                    images: uploadedImages.value.map(i => i.id)
+                    topics: topics.items,
+                    images: images.uploaded.map(i => i.id)
                 }
             })
             draft.value.id = response.id
@@ -218,148 +137,52 @@ async function saveDraft() {
 </script>
 
 <template>
-    <article class="column p-4">
-        <div class="container box column g-3 p-5">
-            <section class="editor form column" v-show="!showPreview">
-                <header class="row inline between g-4">
-                    <h1>New Post</h1>
-                    <button v-if="replyTo"class="reply-to f-1">
-                        <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                        <p class="text bold truncate">{{ replyTo.title }}</p>
-                    </button>
-                    <button @click="showDrafts = true">
-                        <i class="fa-solid fa-compass-drafting"></i>
-                        <span>Drafts</span>
-                    </button>
-                </header>
-                <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
-                    <label>Title</label>
-                    <input type="text" v-model="draft.title" @focus="titleFocused = true" @blur="titleFocused = false">
-                </div>
-                <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />
-                <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
-                <aside v-if="uploadedImages.length > 0" class="field uploaded-images">
-                    <label>Images</label>
-                    <div class="row g-2">
-                        <template v-for="image in uploadedImages">
-                            <img :src="image.url" @click="copyImageUrl" @contextmenu.prevent="deleteImage(image)">
-                        </template>
-                    </div>
-                </aside>
-            </section>
-            <section class="preview f-1" v-show="showPreview">
-                <h1 class="mb-2">{{ draft.title }}</h1>
-                <Markdown class="content" :content="draft.content" />
-                <span v-if="draft.title === '' && draft.content === ''" class="watermark">Preview</span>
-            </section>
-            <footer class="row wrap g-2 mt-3">
-                <ButtonSpinner class="success f-2 b-0" :loading="submitting" @click="submit">
-                    <i class="fa-solid fa-share"></i>
-                    <span>Submit</span>
-                </ButtonSpinner>
-                <button class="info f-1 b-0" @click="togglePreview">
-                    <i v-if="!showPreview" class="fa-solid fa-eye"></i>
-                    <i v-else class="fa-solid fa-eye-slash"></i>
-                    <span>Preview</span>
-                </button>
-                <button class="link f-1 b-0" @click="selectImages">
-                    <i class="fa-solid fa-images"></i>
-                    <span>Upload</span>
-                </button>
-                <ButtonSpinner v-if="draft.id != ''" class="link f-1 b-0" :loading="saving" @click="saveDraft">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>Update</span>
-                </ButtonSpinner>
-                <ButtonSpinner v-else class="link f-1 b-0" :loading="saving" @click="saveDraft">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>Save</span>
-                </ButtonSpinner>
-            </footer>
-        </div>
+    <EditorFrame title="New Post" :submitting="submitting" @submit="submit">
+        <template #header-actions>
+            <button v-if="replyTo" class="reply-to f-1">
+                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                <p class="text bold truncate">{{ replyTo.title }}</p>
+            </button>
+            <button @click="showDrafts = true">
+                <i class="fa-solid fa-compass-drafting"></i>
+                <span>Drafts</span>
+            </button>
+        </template>
+        <template #form>
+            <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
+                <label>Title</label>
+                <input type="text" v-model="draft.title" @focus="titleFocused = true" @blur="titleFocused = false">
+            </div>
+            <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />
+            <TopicField :topics="topics" />
+            <UploadedImages :images="images" />
+        </template>
+        <template #preview>
+            <h1 class="mb-2">{{ draft.title }}</h1>
+            <Markdown class="content" :content="draft.content" />
+        </template>
+        <template #footer-actions>
+            <button class="link f-1 b-0" @click="images.select">
+                <i class="fa-solid fa-images"></i>
+                <span>Upload</span>
+            </button>
+            <ButtonSpinner v-if="draft.id != ''" class="link f-1 b-0" :loading="saving" @click="saveDraft">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Update</span>
+            </ButtonSpinner>
+            <ButtonSpinner v-else class="link f-1 b-0" :loading="saving" @click="saveDraft">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Save</span>
+            </ButtonSpinner>
+        </template>
         <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-        <MediaUploader v-if="files" :media="files" @upload="beginUpload" @close="cancelUpload" />
-    </article>
+        <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+    </EditorFrame>
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width (60rem, 1rem);
-    flex: 1 1 auto;
-    min-height: 0;
-    box-sizing: border-box;
-}
-
-article > div.box,
-article > div.box > div.box,
-section.editor,
-section.form {
-    flex: 1 1 auto;
-    min-height: 0;
-}
-
-article > div.box > div.box {
-    overflow: hidden;
-}
-
-section.editor > header,
-footer.row {
-    flex: 0 0 auto;
-}
-
 button.reply-to {
     color: $white-0;
     background-color: $white-4;
-}
-
-div.uploaded-images {
-    div.row {
-        overflow-x: auto;
-    }
-
-    img {
-        height: 64px;
-        max-width: calc(64px + 32px);
-        object-fit: contain;
-        border-radius: 0.25rem;
-        border: 1px solid transparent;
-        background-color: $white-1;
-    }
-
-    img:hover {
-        cursor: pointer;
-        border: 1px solid $blue;
-    }
-}
-
-section.preview {
-    position: relative;
-    min-height: 0;
-    white-space: normal;
-    overflow-y: auto;
-
-    div.content {
-        white-space: normal;
-        
-        h1, h2, h3, h4 {
-            margin-bottom: 0.2rem !important;
-        }
-    }
-
-    .watermark {
-        top: 50%;
-        left: 50%;
-        position: absolute;
-        font-size: 5rem;
-        font-weight: 900;
-        opacity: 0.05;
-        color: $purple;
-        text-align: center;
-        text-transform: uppercase;
-        transform: translate(-50%, -50%);
-    }
-}
-
-input[type=file] {
-    display: none;
 }
 </style>

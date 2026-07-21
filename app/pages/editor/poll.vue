@@ -1,83 +1,99 @@
 <script setup lang="ts">
-import type { User, Thread } from '@@/shared/types'
+import EditorFrame from "./components/EditorFrame.vue"
 
 const hints = useHints()
-const cache = useCache()
-const session = getSession()
 
-const newTopic = ref<string>("")
-const topics = ref<string[]>([])
-function addTopic(topic: string) {
-    topics.value.push(`topic:${topic}`)
-    newTopic.value = ""
+const question = ref<string>("")
+const responseType = ref<"radio" | "checkbox" | "input">("radio")
+const responses = ref<string[]>(["", ""])
+const questionFocused = ref(false)
+
+const topics = useTopicManager()
+
+function validQuestion() {
+    const length = question.value.trim().length
+    return length >= 4 && length <= 256
 }
 
-function removeTopic(topic: string) {
-    topics.value = topics.value.filter(t => t !== topic)
+function addResponse() {
+    responses.value.push("")
+}
+
+function removeResponse(index: number) {
+    if (responses.value.length <= 2) {
+        hints.addWarning("Polls need at least two responses.")
+        return
+    }
+    responses.value.splice(index, 1)
+}
+
+function filledResponses() {
+    return responses.value.filter(response => response.trim() !== "")
+}
+
+function validResponses() {
+    return filledResponses().length >= 2
 }
 
 const submitting = ref<boolean>(false)
 async function submit() {
-    try {
-        submitting.value = true
-        const thread = await useApi<Thread>("/api/thread/add", {
-        })
-        return navigateTo(`/thread/${extractId(thread.id)}`)
+    if (!validQuestion()) {
+        hints.addError("Question must be 4-256 characters.")
+        return
     }
-    catch (error: any) {
-        hints.addError("Failed to submit thread.")
+    if (!validResponses()) {
+        hints.addError("Polls need at least two responses.")
+        return
     }
-    finally {
-        submitting.value = false
+    if (topics.items.length == 0) {
+        hints.addError("You must include at least one topic.")
+        return
     }
-}
 
+    submitting.value = true
+    hints.addWarning("Poll publishing is not available yet.")
+    submitting.value = false
+}
 </script>
 
 <template>
-    <article class="column m-4">
-        <section class="box column p-5">
-            <header class="row inline between mb-4">
-                <h1>New Poll</h1>
-                <button @click="">
-                    <i class="fa-solid fa-compass-drafting"></i>
-                    <span>Drafts</span>
-                </button>
-            </header>
-            <section class="form f-1 column g-2">
-                <div class="field f-1">
-                    <label>Question</label>
-                    <textarea class="f-1" rows="3" />
+    <EditorFrame title="New Poll" :submitting="submitting" @submit="submit">
+        <template #form>
+            <div class="field" :class="{ 'invalid': questionFocused && !validQuestion() }">
+                <label>Question</label>
+                <textarea rows="4" v-model="question" @focus="questionFocused = true" @blur="questionFocused = false" />
+            </div>
+            <div class="field f-1">
+                <label>Responses</label>
+                <div class="row g-2 mb-2">
+                    <button class="link b-0" @click="addResponse">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <select class="f-1 b-0" v-model="responseType">
+                        <option value="radio">Radio</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="input">Input</option>
+                    </select>
                 </div>
-                <div class="field f-1">
-                    <label>Responses</label>
-                    <div class="row g-2">
-                        <button class="link">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                        <select class="f-1 b-0">
-                            <option>Radio</option>
-                            <option>Checkbox</option>
-                            <option>Input</option>
-                        </select>
-                        <input class="f-4 b-0" type="text" />
-                    </div> 
-                    
+                <div v-for="(response, index) in responses" class="row g-2 mb-2">
+                    <button class="danger b-0" @click="removeResponse(index)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <input class="f-1 b-0" type="text" v-model="responses[index]" />
                 </div>
-                <TopicField v-model:text="newTopic" :topics="topics" @add="addTopic" @remove="removeTopic" />
-            </section>
-            <footer class="row g-2 mt-5">
-                <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
-                    <i class="fa-solid fa-share"></i>
-                    <span>Submit</span>
-                </ButtonSpinner>
-            </footer>
-        </section>
-    </article>
+            </div>
+            <TopicField :topics="topics" />
+        </template>
+        <template #preview>
+            <h1 class="mb-3">{{ question }}</h1>
+            <div class="poll-preview column g-2">
+                <label v-for="response in filledResponses()" class="row inline g-2">
+                    <input v-if="responseType === 'radio'" type="radio" disabled>
+                    <input v-else-if="responseType === 'checkbox'" type="checkbox" disabled>
+                    <input v-else type="text" disabled>
+                    <span>{{ response }}</span>
+                </label>
+            </div>
+        </template>
+    </EditorFrame>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width (60rem, 1rem);
-}
-</style>

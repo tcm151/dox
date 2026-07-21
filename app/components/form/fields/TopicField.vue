@@ -5,28 +5,25 @@ const hints = useHints()
 const settings = useSettings()
 
 const props = defineProps<{
-    topics: string[]
+    topics: {
+        text: string
+        items: string[]
+        add: (topic: string) => void
+        remove: (topic: string) => void
+    }
 }>()
-
-const text = defineModel<string>()
-
-const emit = defineEmits<{
-    (event: 'add', topic: string): void
-    (event: 'remove', topic: string): void
-}>()
-
 
 const valid = useValidation()
 function validTopic() {
-    return (text.value && text.value !== '') ? valid.topic.name(text.value) : true
+    return (props.topics.text && props.topics.text !== '') ? valid.topic.name(props.topics.text) : true
 }
 
 const { data: available } = await useDatasource<Topic[]>("/api/topic/available")
 
 const inputFocused = ref<boolean>(false)
 const matchingResults = computed(() => {
-    if (text.value && text.value.length > 0) {
-        return available.value!.filter(t => extractId(t.id)?.toLowerCase().includes(text.value!.toLowerCase()))
+    if (props.topics.text && props.topics.text.length > 0) {
+        return available.value!.filter(t => extractId(t.id)?.toLowerCase().includes(props.topics.text.toLowerCase()))
     }
     else {
         return []
@@ -34,22 +31,21 @@ const matchingResults = computed(() => {
 })
 
 function addTopic() {
-    if (props.topics.length >= settings.app.topics.perSubmission) {
+    if (props.topics.items.length >= settings.app.topics.perSubmission) {
         hints.addError(`You can only add ${settings.app.topics.perSubmission} topics per submission.`)
-        text.value = ""
+        props.topics.text = ""
         return
     }
-    if (settings.app.topics.restrict && !settings.app.topics.allowed.includes(`topic:${text.value}`)) {
+    if (settings.app.topics.restrict && !settings.app.topics.allowed.includes(`topic:${props.topics.text}`)) {
         hints.addError("You must use one of the predefined topics.")
         return
     }
-    if (props.topics.includes(`topic:${text.value}`)) {
+    if (props.topics.items.includes(`topic:${props.topics.text}`)) {
         hints.addError("You have already added this topic.")
         return
     }
-    if (text.value && validTopic()) {
-        emit("add", text.value)
-        text.value = ""
+    if (props.topics.text && validTopic()) {
+        props.topics.add(props.topics.text)
     }
     else {
         hints.addError("That is an invalid topic.")
@@ -58,7 +54,7 @@ function addTopic() {
 
 function useTopic(topic: string | undefined) {
     if (topic) {
-        text.value = topic
+        props.topics.text = topic
         addTopic()
     }
 }
@@ -70,7 +66,7 @@ function useTopic(topic: string | undefined) {
     <main class="field" :class="{ 'invalid': !validTopic() }">
         <div class="row inline g-2 mb-2">
             <label class="mb-0">Topics</label>
-            <TopicTag v-for="topic in topics" :topic="topic" disable @click="emit('remove', topic)" />
+            <TopicTag v-for="topic in topics.items" :topic="topic" disable @click="topics.remove(topic)" />
         </div>
         <div class="topic-input column">
             <input
@@ -78,7 +74,7 @@ function useTopic(topic: string | undefined) {
                 type="text"
                 spellcheck="false"
                 placeholder="press enter to add . . ."
-                v-model="text"
+                v-model="topics.text"
                 @focus="inputFocused = true"
                 @blur="inputFocused = false"
                 @keyup.enter.prevent="addTopic"
