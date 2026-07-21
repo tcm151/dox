@@ -2,7 +2,7 @@
 
 ## Status
 - State: Todo
-- Priority: Medium
+- Priority: High
 - Next action: Decide readiness conditions and simple health contract
 
 ## Goal

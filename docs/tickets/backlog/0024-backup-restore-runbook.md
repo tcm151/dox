@@ -2,7 +2,7 @@
 
 ## Status
 - State: Todo
-- Priority: Medium
+- Priority: High
 - Next action: Draft first runbook version for embedded deployment
 
 ## Goal

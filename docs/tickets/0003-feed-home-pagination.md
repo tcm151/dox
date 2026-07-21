@@ -2,7 +2,7 @@
 
 ## Status
 - State: Todo
-- Priority: Medium
+- Priority: High
 - Next action: Decide pagination model (offset/cursor) for /api/feed/*
 
 ## Goal

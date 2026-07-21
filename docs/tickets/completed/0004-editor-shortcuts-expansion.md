@@ -1,9 +1,9 @@
 # Ticket 0004: Expand Editor Keyboard Shortcuts
 
 ## Status
-- State: Todo
+- State: Done
 - Priority: Low
-- Next action: Pick first 3 shortcuts to implement beyond save-draft
+- Next action: None
 
 ## Goal
 Improve authoring speed by adding a small set of reliable keyboard shortcuts in the post editor.
