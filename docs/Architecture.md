@@ -203,6 +203,7 @@ Key env groups:
 
 Server-side:
 - `server/plugins/errorHandler.ts` captures errors and writes structured records to DB.
+- `GET /api/health` returns the app health report. It returns `200` only after startup migrations are marked complete and a cheap SurrealDB query succeeds; otherwise it returns `503` with check details.
 
 Client-side:
 - `app/plugins/errorHandler.ts` and hint systems expose user-facing feedback.
@@ -232,6 +233,7 @@ Important engineering expectation:
 - Executes both before normal runtime activity
 - Optionally seeds default admin if configured
 - Throws blocking startup error if migration fails
+- Marks migration status for `/api/health`; failed startup may surface to operators as either a `503` health response or process startup failure/connection refusal, depending on how far Nitro starts before the migration error is raised.
 
 Contributor rule:
 - Schema-impacting features should update both TypeScript contracts and Surreal schema/migrations together.

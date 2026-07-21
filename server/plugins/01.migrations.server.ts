@@ -1,5 +1,8 @@
 export default defineNitroPlugin(async () => {
+    const health = useHealth()
+
     try {
+        health.setAppStatus("starting")
         const config = useRuntimeConfig()
 
         await new DatabaseQuery()
@@ -16,6 +19,7 @@ export default defineNitroPlugin(async () => {
             .execute()
 
         console.log("Database migrations completed successfully.")
+        health.setAppStatus("ready")
 
         if (config.surreal.admin.email && config.surreal.admin.name && config.surreal.admin.password) {
             const result = await new DatabaseQuery()
@@ -46,6 +50,8 @@ export default defineNitroPlugin(async () => {
         }
     }
     catch (error: any) {
+        health.setAppStatus("failed")
+
         throw createError({
             status: 500,
             statusText: "Failed to apply database migrations on application startup.",
