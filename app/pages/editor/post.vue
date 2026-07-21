@@ -165,7 +165,6 @@ async function submit() {
     }
 }
 
-// TODO add additional keyboard shortcuts beyond save-draft.
 onKeyStroke(["s", "S"], async (event) => {
     if (event.metaKey || event.ctrlKey) {
         event.preventDefault()
@@ -220,75 +219,62 @@ async function saveDraft() {
 
 <template>
     <article class="column p-4">
-        <div class="box background column">
-            <header v-if="replyTo" class="reply-to row inline g-2 px-3 py-2">
-                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p class="text bold truncate">{{ replyTo?.title }}</p>
-            </header>
-            <div class="box column p-5">
-                <section class="editor column" v-show="!showPreview">
-                    <header class="row inline between mb-4">
-                        <h1>New Post</h1>
-                        <button @click="showDrafts = true">
-                            <i class="fa-solid fa-compass-drafting"></i>
-                            <span>Drafts</span>
-                        </button>
-                    </header>
-                    <section class="form f-1 column g-2">
-                        <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
-                            <label>Title</label>
-                            <input
-                                type="text"
-                                v-model="draft.title"
-                                @focus="titleFocused = true"
-                                @blur="titleFocused = false"
-                            />
-                        </div>
-                        <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />
-                        <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
-                        <div v-if="uploadedImages.length > 0" class="field uploaded-images">
-                            <label>Images</label>
-                            <div class="row g-2">
-                                <img
-                                    v-for="image in uploadedImages"
-                                    @click="copyImageUrl"
-                                    @contextmenu.prevent="deleteImage(image)"
-                                    :src="image.url"
-                                >
-                            </div>
-                        </div>
-                    </section>
-                </section>
-                <section class="preview f-1" v-show="showPreview">
-                    <h1 class="mb-2">{{ draft.title }}</h1>
-                    <Markdown class="content" :content="draft.content" />
-                    <span v-if="draft.title === '' && draft.content === ''" class="watermark">Preview</span>
-                </section>
-                <footer class="row wrap g-2 mt-5">
-                    <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
-                        <i class="fa-solid fa-share"></i>
-                        <span>Submit</span>
-                    </ButtonSpinner>
-                    <ButtonSpinner v-if="draft.id != ''" class="link f-1 b-0" :loading="saving" @click="saveDraft">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Update</span>
-                    </ButtonSpinner>
-                    <ButtonSpinner v-else class="link f-1 b-0" :loading="saving" @click="saveDraft">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Save</span>
-                    </ButtonSpinner>
-                    <button class="link f-1 b-0" @click="selectImages">
-                        <i class="fa-solid fa-images"></i>
-                        <span>Upload</span>
+        <div class="container box column g-3 p-5">
+            <section class="editor form column" v-show="!showPreview">
+                <header class="row inline between g-4">
+                    <h1>New Post</h1>
+                    <button v-if="replyTo"class="reply-to f-1">
+                        <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                        <p class="text bold truncate">{{ replyTo.title }}</p>
                     </button>
-                    <button class="info f-1 b-0" @click="togglePreview">
-                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
-                        <i v-else class="fa-solid fa-eye-slash"></i>
-                        <span>Preview</span>
+                    <button @click="showDrafts = true">
+                        <i class="fa-solid fa-compass-drafting"></i>
+                        <span>Drafts</span>
                     </button>
-                    <!-- <button class="danger f-1" @click="navigateTo('/')">Cancel</button> -->
-                </footer>
-            </div>
+                </header>
+                <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
+                    <label>Title</label>
+                    <input type="text" v-model="draft.title" @focus="titleFocused = true" @blur="titleFocused = false">
+                </div>
+                <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />
+                <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
+                <aside v-if="uploadedImages.length > 0" class="field uploaded-images">
+                    <label>Images</label>
+                    <div class="row g-2">
+                        <template v-for="image in uploadedImages">
+                            <img :src="image.url" @click="copyImageUrl" @contextmenu.prevent="deleteImage(image)">
+                        </template>
+                    </div>
+                </aside>
+            </section>
+            <section class="preview f-1" v-show="showPreview">
+                <h1 class="mb-2">{{ draft.title }}</h1>
+                <Markdown class="content" :content="draft.content" />
+                <span v-if="draft.title === '' && draft.content === ''" class="watermark">Preview</span>
+            </section>
+            <footer class="row wrap g-2 mt-3">
+                <ButtonSpinner class="success f-2 b-0" :loading="submitting" @click="submit">
+                    <i class="fa-solid fa-share"></i>
+                    <span>Submit</span>
+                </ButtonSpinner>
+                <button class="info f-1 b-0" @click="togglePreview">
+                    <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                    <i v-else class="fa-solid fa-eye-slash"></i>
+                    <span>Preview</span>
+                </button>
+                <button class="link f-1 b-0" @click="selectImages">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Upload</span>
+                </button>
+                <ButtonSpinner v-if="draft.id != ''" class="link f-1 b-0" :loading="saving" @click="saveDraft">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Update</span>
+                </ButtonSpinner>
+                <ButtonSpinner v-else class="link f-1 b-0" :loading="saving" @click="saveDraft">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Save</span>
+                </ButtonSpinner>
+            </footer>
         </div>
         <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
         <MediaUploader v-if="files" :media="files" @upload="beginUpload" @close="cancelUpload" />
@@ -320,8 +306,9 @@ footer.row {
     flex: 0 0 auto;
 }
 
-header.reply-to {
+button.reply-to {
     color: $white-0;
+    background-color: $white-4;
 }
 
 div.uploaded-images {

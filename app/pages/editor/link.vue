@@ -7,6 +7,7 @@ const session = getSession()
 
 const title = ref<string>("")
 const url = ref<string>("")
+const content = ref<string>("")
 
 const newTopic = ref<string>("")
 const topics = ref<string[]>([])
@@ -23,12 +24,12 @@ const submitting = ref<boolean>(false)
 async function submit() {
     try {
         submitting.value = true
-        const thread = await useApi<Thread>("/api/thread/add", {
+        const link = await useApi<Thread>("/api/link/add", {
         })
-        return navigateTo(`/thread/${extractId(thread.id)}`)
+        return navigateTo(`/thread/${extractId(link.id)}`)
     }
     catch (error: any) {
-        hints.addError("Failed to submit thread.")
+        hints.addError("Failed to submit link.")
     }
     finally {
         submitting.value = false
@@ -56,6 +57,7 @@ async function submit() {
                     <label>Link</label>
                     <input v-model="url" />
                 </div>
+                <MarkdownEditor bounded class="f-1" label="Content" :rows="6" v-model="content" />
                 <TopicField v-model:text="newTopic" :topics="topics" @add="addTopic" @remove="removeTopic" />
             </section>
             <footer class="row g-2 mt-5">
