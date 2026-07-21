@@ -260,7 +260,7 @@ div.markdown-editor {
         overflow-x: auto;
         width: stretch;
         box-sizing: border-box;
-        background-color: $white-1;
+        background-color: $white-2;
         border-radius: 0.25rem 0.25rem 0 0;
     }
 
