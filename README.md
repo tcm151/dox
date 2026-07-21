@@ -50,6 +50,10 @@ If you want to run or contribute locally, follow the [Contribution Guide](./docs
 
 ClassicForum is an active passion project, originally built for personal publishing and community discussion. If this direction resonates with you, star the repository and open issues with feedback or ideas.
 
+## Releases
+
+ClassicForum uses package-owned `year.major.patch` versions. See [CHANGELOG.md](./CHANGELOG.md) for release notes.
+
 ## License
 
 ClassicForum is released under the MIT License. See [LICENSE](./LICENSE).

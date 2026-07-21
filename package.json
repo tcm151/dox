@@ -1,5 +1,6 @@
 {
     "private": true,
+    "version": "2026.5.0",
     "scripts": {
         "predev": "yarn install",
         "dev": "nuxt dev",

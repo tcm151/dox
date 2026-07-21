@@ -135,6 +135,19 @@ If you do not currently have the `developer` role and cannot access `/developer/
 - **Login/registration appears to work but pages fail to load expected content**
     - Re-check migration startup logs and ensure schema/migrations executed successfully.
 
+## 10. Release And Versioning
+
+ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a steady release and deployment cadence.
+
+- `package.json` owns the current application version.
+- The public Nuxt runtime version is read from `package.json`.
+- The first number is the release year.
+- The second number increments for a meaningful release line within that year.
+- The third number increments for fixes, docs, and small follow-up deployments within that release line.
+- At the start of a new year, begin again at `<year>.1.0`.
+
+When preparing a release or deployment, update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. Changelog entries can group a meaningful block of work across days, weeks, or months into a retroactive release when no tag existed at the time. Tagging and the fuller release checklist are intentionally deferred until the process is clearer.
+
 ## It's Running
 
 If everything is configured correctly, the site should be available in your browser and basic flows should work.

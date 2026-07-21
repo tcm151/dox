@@ -32,7 +32,7 @@ Goal: make self-hosting reliable by default, with embedded SurrealDB as the prim
 ### A4. Ops Essentials
 - 🟥 Add backup/restore runbook for both remote and embedded SurrealDB modes. (`M`)
 - 🟥 Add health/readiness endpoint docs and operator checks for embedded and remote profiles. (`S`)
-- 🟥 Add release versioning + changelog process. (`S`)
+- 🟩 Add release versioning + changelog process. (`S`)
 
 **Success metric**: operator can recover data/service from documentation alone.
 
