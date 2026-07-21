@@ -22,10 +22,10 @@ Create an operations guide for remote SurrealDB deployments covering networking,
 - Treat this as advanced scale path documentation.
 
 ## Relevant Files
-- [docs/ContributionGuide.md](../ContributionGuide.md)
-- [docs/Architecture.md](../Architecture.md)
-- [server/utils/database.ts](../../server/utils/database.ts)
-- [docs/.env.example](../.env.example)
+- docs/ContributionGuide.md
+- docs/Architecture.md
+- server/utils/database.ts
+- docs/.env.example
 
 ## Progress Log
 - 2026-04-13: Ticket created.

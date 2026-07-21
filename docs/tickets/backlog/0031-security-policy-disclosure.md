@@ -22,9 +22,9 @@ Publish a project security policy with clear vulnerability reporting and disclos
 - Keep policy realistic for a solo maintainer.
 
 ## Relevant Files
-- [README.md](../../README.md)
-- [docs/ContributionGuide.md](../ContributionGuide.md)
-- [docs/Architecture.md](../Architecture.md)
+- README.md
+- docs/ContributionGuide.md
+- docs/Architecture.md
 
 ## Progress Log
 - 2026-04-13: Ticket created.

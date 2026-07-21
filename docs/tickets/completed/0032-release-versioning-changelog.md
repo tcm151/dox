@@ -25,12 +25,12 @@ Establish a lightweight release process with clear versioning and a maintained c
 - Hold off on tagging automation and the fuller release checklist until the process is clearer.
 
 ## Relevant Files
-- [README.md](../../../README.md)
-- [CHANGELOG.md](../../../CHANGELOG.md)
-- [docs/Roadmap.md](../../Roadmap.md)
-- [docs/ContributionGuide.md](../../ContributionGuide.md)
-- [package.json](../../../package.json)
-- [nuxt.config.ts](../../../nuxt.config.ts)
+- README.md
+- CHANGELOG.md
+- docs/Roadmap.md
+- docs/ContributionGuide.md
+- package.json
+- nuxt.config.ts
 
 ## Progress Log
 - 2026-07-21: Completed ticket; release checklist/tagging work remains intentionally deferred for a future ticket.

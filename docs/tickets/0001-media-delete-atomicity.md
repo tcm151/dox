@@ -23,9 +23,9 @@ Image deletion is currently non-atomic. If file deletion succeeds but the databa
 ## Notes
 
 ## Relevant Files
-- [server/api/image/[id]/delete.ts](../../server/api/image/[id]/delete.ts)
-- [server/utils/media.ts](../../server/utils/media.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- server/api/image/[id]/delete.ts
+- server/utils/media.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

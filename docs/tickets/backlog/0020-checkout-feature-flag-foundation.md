@@ -21,10 +21,10 @@ Prepare store checkout architecture behind a feature flag so monetization work c
 ## Notes
 
 ## Relevant Files
-- [app/pages/store.vue](../../app/pages/store.vue)
-- [app/utils/settings.ts](../../app/utils/settings.ts)
-- [server/api/admin/settings/[id]/update.ts](../../server/api/admin/settings/[id]/update.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/store.vue
+- app/utils/settings.ts
+- server/api/admin/settings/[id]/update.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

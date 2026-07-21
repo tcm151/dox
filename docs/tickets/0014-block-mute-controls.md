@@ -21,10 +21,10 @@ Let users reduce unwanted content by managing personal block and mute settings.
 ## Notes
 
 ## Relevant Files
-- [app/pages/settings/preferences.vue](../../app/pages/settings/preferences.vue)
-- [app/pages/user/[id]/index.vue](../../app/pages/user/[id]/index.vue)
-- [server/api/feed/search.ts](../../server/api/feed/search.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/settings/preferences.vue
+- app/pages/user/[id]/index.vue
+- server/api/feed/search.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

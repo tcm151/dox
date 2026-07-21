@@ -22,11 +22,11 @@ Add a basic appeals workflow so moderated users can request review and moderator
 - Keep initial process simple and auditable.
 
 ## Relevant Files
-- [app/pages/moderator.vue](../../app/pages/moderator.vue)
-- [app/pages/topic/[topic]/reports.vue](../../app/pages/topic/[topic]/reports.vue)
-- [server/api/topic/[topic]/reports.ts](../../server/api/topic/[topic]/reports.ts)
-- [server/api/report/send.ts](../../server/api/report/send.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/moderator.vue
+- app/pages/topic/[topic]/reports.vue
+- server/api/topic/[topic]/reports.ts
+- server/api/report/send.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

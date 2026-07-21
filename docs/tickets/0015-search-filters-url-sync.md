@@ -21,10 +21,10 @@ Add practical search filters and keep filter state synchronized in the URL for s
 ## Notes
 
 ## Relevant Files
-- [app/pages/feed/search.vue](../../app/pages/feed/search.vue)
-- [app/pages/feed.vue](../../app/pages/feed.vue)
-- [app/utils/cache.ts](../../app/utils/cache.ts)
-- [server/api/feed/search.ts](../../server/api/feed/search.ts)
+- app/pages/feed/search.vue
+- app/pages/feed.vue
+- app/utils/cache.ts
+- server/api/feed/search.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

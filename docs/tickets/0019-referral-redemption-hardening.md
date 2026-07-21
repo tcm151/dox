@@ -21,10 +21,10 @@ Harden referral redemption for idempotency and abuse resistance while keeping us
 ## Notes
 
 ## Relevant Files
-- [app/pages/store.vue](../../app/pages/store.vue)
-- [server/api/profile/referral.ts](../../server/api/profile/referral.ts)
-- [server/utils/auth.ts](../../server/utils/auth.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/store.vue
+- server/api/profile/referral.ts
+- server/utils/auth.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

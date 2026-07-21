@@ -29,10 +29,10 @@ Expand the developer info page with non-sensitive build, deployment, and runtime
 - Consider using monospace formatting for identifiers and adding a simple copy action for customer support workflows.
 
 ## Relevant Files
-- [app/pages/developer/info.vue](../../app/pages/developer/info.vue)
-- [nuxt.config.ts](../../nuxt.config.ts)
-- [package.json](../../package.json)
-- [deploy.sh](../../deploy.sh)
+- app/pages/developer/info.vue
+- nuxt.config.ts
+- package.json
+- deploy.sh
 
 ## Progress Log
 - 2026-07-21: Ticket created.

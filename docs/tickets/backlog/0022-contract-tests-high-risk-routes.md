@@ -21,10 +21,10 @@ Add tests around critical API contracts to catch regressions in auth, moderation
 ## Notes
 
 ## Relevant Files
-- [package.json](../../package.json)
-- [server/api/profile/login.ts](../../server/api/profile/login.ts)
-- [server/api/topic/[topic]/reports.ts](../../server/api/topic/[topic]/reports.ts)
-- [server/api/image/upload.ts](../../server/api/image/upload.ts)
+- package.json
+- server/api/profile/login.ts
+- server/api/topic/[topic]/reports.ts
+- server/api/image/upload.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

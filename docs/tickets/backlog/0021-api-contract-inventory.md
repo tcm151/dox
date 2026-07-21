@@ -21,10 +21,10 @@ Create a practical API inventory documenting auth requirements and response shap
 ## Notes
 
 ## Relevant Files
-- [server/api/[...].ts](../../server/api/[...].ts)
-- [docs/Architecture.md](../Architecture.md)
-- [docs/ContributionGuide.md](../ContributionGuide.md)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- server/api/[...].ts
+- docs/Architecture.md
+- docs/ContributionGuide.md
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

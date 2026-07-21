@@ -22,9 +22,9 @@ Add a baseline CI pipeline that validates install, type-check, build, and core s
 - Keep first pass reliable and fast before expanding matrix coverage.
 
 ## Relevant Files
-- [package.json](../../package.json)
-- [.github/copilot-instructions.md](../.github/copilot-instructions.md)
-- [docs/ContributionGuide.md](../ContributionGuide.md)
+- package.json
+- .github/copilot-instructions.md
+- docs/ContributionGuide.md
 
 ## Progress Log
 - 2026-04-13: Ticket created.

@@ -21,10 +21,10 @@ Provide a topic-level rules/summary page with revision history to improve clarit
 ## Notes
 
 ## Relevant Files
-- [app/pages/topic/[topic]/index.vue](../../app/pages/topic/[topic]/index.vue)
-- [app/pages/topic/[topic]/profile.vue](../../app/pages/topic/[topic]/profile.vue)
-- [server/api/topic/[topic]/index.ts](../../server/api/topic/[topic]/index.ts)
-- [server/api/topic/[topic]/update.ts](../../server/api/topic/[topic]/update.ts)
+- app/pages/topic/[topic]/index.vue
+- app/pages/topic/[topic]/profile.vue
+- server/api/topic/[topic]/index.ts
+- server/api/topic/[topic]/update.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

@@ -21,10 +21,10 @@ Add admin settings for content visibility policy (NSFW/spoiler/sensitive content
 ## Notes
 
 ## Relevant Files
-- [app/pages/admin/settings.vue](../../app/pages/admin/settings.vue)
-- [app/utils/settings.ts](../../app/utils/settings.ts)
-- [server/api/admin/settings/[id]/update.ts](../../server/api/admin/settings/[id]/update.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/admin/settings.vue
+- app/utils/settings.ts
+- server/api/admin/settings/[id]/update.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

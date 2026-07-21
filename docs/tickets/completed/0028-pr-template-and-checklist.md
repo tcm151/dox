@@ -23,10 +23,10 @@ Standardize pull requests with a lightweight template and required checks for te
 - The template asks for a summary plus two confirmations: testing and docs impact.
 
 ## Relevant Files
-- [.github/PULL_REQUEST_TEMPLATE.md](../../../.github/PULL_REQUEST_TEMPLATE.md)
-- [.gitignore](../../../.gitignore)
-- [docs/ContributionGuide.md](../../ContributionGuide.md)
-- [docs/Roadmap.md](../../Roadmap.md)
+- .github/PULL_REQUEST_TEMPLATE.md
+- .gitignore
+- docs/ContributionGuide.md
+- docs/Roadmap.md
 
 ## Progress Log
 - 2026-07-21: Completed ticket with a simple PR template, contribution guide note, and roadmap status update.

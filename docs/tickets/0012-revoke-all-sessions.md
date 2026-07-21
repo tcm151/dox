@@ -21,10 +21,10 @@ Allow users to revoke all active sessions from settings to recover account contr
 ## Notes
 
 ## Relevant Files
-- [app/pages/settings.vue](../../app/pages/settings.vue)
-- [app/utils/session.ts](../../app/utils/session.ts)
-- [server/utils/auth.ts](../../server/utils/auth.ts)
-- [server/api/profile/logout.ts](../../server/api/profile/logout.ts)
+- app/pages/settings.vue
+- app/utils/session.ts
+- server/utils/auth.ts
+- server/api/profile/logout.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

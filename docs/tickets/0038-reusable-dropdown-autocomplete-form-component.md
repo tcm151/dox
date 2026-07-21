@@ -25,10 +25,9 @@ Create a reusable form dropdown/autocomplete component for typeahead selection f
 - Keep validation and domain decisions outside the reusable component; it should own rendering, option navigation, and selection mechanics.
 
 ## Relevant Files
-- [app/components/form/fields/TopicField.vue](../../app/components/form/fields/TopicField.vue)
-- [app/utils/topics.ts](../../app/utils/topics.ts)
-- [app/components/form](../../app/components/form)
+- app/components/form/fields/TopicField.vue
+- app/utils/topics.ts
+- app/components/form
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-07-21: Ticket created.

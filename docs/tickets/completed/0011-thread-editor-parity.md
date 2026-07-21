@@ -41,23 +41,23 @@ Bring thread editor capabilities in line with post editor where the product mode
 - Keep future mention support separate from this ticket unless a concrete post/thread mention workflow is introduced first.
 
 ## Relevant Files
-- [app/pages/editor.vue](../../../app/pages/editor.vue)
-- [app/pages/editor/thread.vue](../../../app/pages/editor/thread.vue)
-- [app/pages/editor/post.vue](../../../app/pages/editor/post.vue)
-- [app/pages/editor/image.vue](../../../app/pages/editor/image.vue)
-- [app/pages/editor/audio.vue](../../../app/pages/editor/audio.vue)
-- [app/pages/editor/link.vue](../../../app/pages/editor/link.vue)
-- [app/pages/editor/poll.vue](../../../app/pages/editor/poll.vue)
-- [app/pages/editor/components/EditorFrame.vue](../../../app/pages/editor/components/EditorFrame.vue)
-- [app/pages/editor/components/UploadedImages.vue](../../../app/pages/editor/components/UploadedImages.vue)
-- [app/utils/media.ts](../../../app/utils/media.ts)
-- [app/utils/topics.ts](../../../app/utils/topics.ts)
-- [app/components/system/MediaUploader.vue](../../../app/components/system/MediaUploader.vue)
-- [app/components/form/fields/TopicField.vue](../../../app/components/form/fields/TopicField.vue)
-- [app/components/system/previews/ThreadPreview.vue](../../../app/components/system/previews/ThreadPreview.vue)
-- [app/pages/thread/[id].vue](../../../app/pages/thread/[id].vue)
-- [server/api/thread/add.ts](../../../server/api/thread/add.ts)
-- [server/assets/schema.surql](../../../server/assets/schema.surql)
+- app/pages/editor.vue
+- app/pages/editor/thread.vue
+- app/pages/editor/post.vue
+- app/pages/editor/image.vue
+- app/pages/editor/audio.vue
+- app/pages/editor/link.vue
+- app/pages/editor/poll.vue
+- app/pages/editor/components/EditorFrame.vue
+- app/pages/editor/components/UploadedImages.vue
+- app/utils/media.ts
+- app/utils/topics.ts
+- app/components/system/MediaUploader.vue
+- app/components/form/fields/TopicField.vue
+- app/components/system/previews/ThreadPreview.vue
+- app/pages/thread/[id].vue
+- server/api/thread/add.ts
+- server/assets/schema.surql
 
 ## Progress Log
 - 2026-07-21: Completed current thread editor parity scope and moved ticket to completed.

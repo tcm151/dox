@@ -21,10 +21,10 @@ Define and document health/readiness checks so deployments can detect degraded s
 ## Notes
 
 ## Relevant Files
-- [nuxt.config.ts](../../nuxt.config.ts)
-- [server/plugins/01.migrations.server.ts](../../server/plugins/01.migrations.server.ts)
-- [server/api/[...].ts](../../server/api/[...].ts)
-- [docs/Architecture.md](../Architecture.md)
+- nuxt.config.ts
+- server/plugins/01.migrations.server.ts
+- server/api/[...].ts
+- docs/Architecture.md
 
 ## Progress Log
 - 2026-04-13: Ticket created.

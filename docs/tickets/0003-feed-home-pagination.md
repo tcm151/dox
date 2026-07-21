@@ -21,10 +21,10 @@ Add paged loading behavior to home feed so users can load more content predictab
 ## Notes
 
 ## Relevant Files
-- [app/pages/feed/home.vue](../../app/pages/feed/home.vue)
-- [app/components/lists/Feed.vue](../../app/components/lists/Feed.vue)
-- [server/api/feed/popular.ts](../../server/api/feed/popular.ts)
-- [server/api/feed/following.ts](../../server/api/feed/following.ts)
+- app/pages/feed/home.vue
+- app/components/lists/Feed.vue
+- server/api/feed/popular.ts
+- server/api/feed/following.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

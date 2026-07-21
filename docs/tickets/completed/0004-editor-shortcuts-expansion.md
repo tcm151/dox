@@ -22,10 +22,10 @@ Improve authoring speed by adding a small set of reliable keyboard shortcuts in 
 - Undo/redo using the regular browser tools doesn't really work anymore. Need to implement own stack.
 
 ## Relevant Files
-- [app/pages/editor/post.vue](../../app/pages/editor/post.vue)
-- [app/pages/editor.vue](../../app/pages/editor.vue)
-- [app/utils/cache.ts](../../app/utils/cache.ts)
-- [app/plugins/markdown.ts](../../app/plugins/markdown.ts)
+- app/pages/editor/post.vue
+- app/pages/editor.vue
+- app/utils/cache.ts
+- app/plugins/markdown.ts
 
 ## Progress Log
 - 2026-07-21: Scaffolded and tested basic markdown functions.

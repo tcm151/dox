@@ -21,10 +21,10 @@ Let users control notification behavior from settings without requiring moderato
 ## Notes
 
 ## Relevant Files
-- [app/pages/settings/preferences.vue](../../app/pages/settings/preferences.vue)
-- [app/utils/settings.ts](../../app/utils/settings.ts)
-- [server/api/settings/[id]/index.ts](../../server/api/settings/[id]/index.ts)
-- [server/api/profile/notifications/index.ts](../../server/api/profile/notifications/index.ts)
+- app/pages/settings/preferences.vue
+- app/utils/settings.ts
+- server/api/settings/[id]/index.ts
+- server/api/profile/notifications/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

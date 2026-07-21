@@ -22,11 +22,11 @@ Add minimal API smoke tests for auth and core content/moderation flows.
 - Prioritize confidence over full route coverage.
 
 ## Relevant Files
-- [server/api/profile/login.ts](../../server/api/profile/login.ts)
-- [server/api/post/add.ts](../../server/api/post/add.ts)
-- [server/api/thread/[id]/reply.ts](../../server/api/thread/[id]/reply.ts)
-- [server/api/report/send.ts](../../server/api/report/send.ts)
-- [package.json](../../package.json)
+- server/api/profile/login.ts
+- server/api/post/add.ts
+- server/api/thread/[id]/reply.ts
+- server/api/report/send.ts
+- package.json
 
 ## Progress Log
 - 2026-04-13: Ticket created.

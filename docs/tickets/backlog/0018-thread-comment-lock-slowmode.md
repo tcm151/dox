@@ -21,11 +21,11 @@ Give moderators targeted controls to reduce escalation and spam during active mo
 ## Notes
 
 ## Relevant Files
-- [app/pages/thread/[id].vue](../../app/pages/thread/[id].vue)
-- [app/pages/post/components/CommentSection.vue](../../app/pages/post/components/CommentSection.vue)
-- [server/api/thread/[id]/archive.ts](../../server/api/thread/[id]/archive.ts)
-- [server/api/comment/add.ts](../../server/api/comment/add.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/thread/[id].vue
+- app/pages/post/components/CommentSection.vue
+- server/api/thread/[id]/archive.ts
+- server/api/comment/add.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

@@ -26,10 +26,10 @@ Make writing and previewing posts and threads feel stable by giving editor surfa
 - User-tested after implementation and confirmed the fullscreen editor behavior works well.
 
 ## Relevant Files
-- [app/components/form/MarkdownEditor.vue](../../../app/components/form/MarkdownEditor.vue)
-- [app/pages/editor/post.vue](../../../app/pages/editor/post.vue)
-- [app/pages/editor/thread.vue](../../../app/pages/editor/thread.vue)
-- [app/layouts/simple.vue](../../../app/layouts/simple.vue)
+- app/components/form/MarkdownEditor.vue
+- app/pages/editor/post.vue
+- app/pages/editor/thread.vue
+- app/layouts/simple.vue
 
 ## Progress Log
 - 2026-07-21: Completed ticket after user verification with long editor content.

@@ -21,10 +21,10 @@ Deliver moderator topic governance controls for lifecycle and safety management.
 ## Notes
 
 ## Relevant Files
-- [app/pages/topic/[topic]/profile.vue](../../app/pages/topic/[topic]/profile.vue)
-- [app/pages/topic/[topic]/index.vue](../../app/pages/topic/[topic]/index.vue)
-- [server/api/topic/[topic]/update.ts](../../server/api/topic/[topic]/update.ts)
-- [server/api/topic/[topic]/request-moderation.ts](../../server/api/topic/[topic]/request-moderation.ts)
+- app/pages/topic/[topic]/profile.vue
+- app/pages/topic/[topic]/index.vue
+- server/api/topic/[topic]/update.ts
+- server/api/topic/[topic]/request-moderation.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

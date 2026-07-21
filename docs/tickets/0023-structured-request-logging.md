@@ -44,14 +44,14 @@ The existing implementation is an error inspection tool, not a full structured r
 - The main missing pieces for the original ticket intent are lifecycle correlation, stronger structure, and redaction guarantees.
 
 ## Relevant Files
-- [server/plugins/errorHandler.ts](../../server/plugins/errorHandler.ts)
-- [server/middleware/protection.ts](../../server/middleware/protection.ts)
-- [server/api/[...].ts](../../server/api/[...].ts)
-- [server/utils/database.ts](../../server/utils/database.ts)
-- [server/assets/schema.surql](../../server/assets/schema.surql)
-- [shared/types/index.ts](../../shared/types/index.ts)
-- [app/pages/developer/errors.vue](../../app/pages/developer/errors.vue)
-- [server/api/developer/error/index.ts](../../server/api/developer/error/index.ts)
+- server/plugins/errorHandler.ts
+- server/middleware/protection.ts
+- server/api/[...].ts
+- server/utils/database.ts
+- server/assets/schema.surql
+- shared/types/index.ts
+- app/pages/developer/errors.vue
+- server/api/developer/error/index.ts
 
 ## Progress Log
 - 2026-07-21: Reviewed current developer errors page and error persistence path. Existing implementation already provides developer-only persisted error inspection with basic request context; remaining work should be scoped as small structured logging and correlation improvements.

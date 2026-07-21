@@ -21,11 +21,11 @@ Allow post/thread submissions to be scheduled for future publication.
 ## Notes
 
 ## Relevant Files
-- [app/pages/editor/post.vue](../../app/pages/editor/post.vue)
-- [app/pages/editor/thread.vue](../../app/pages/editor/thread.vue)
-- [server/api/post/add.ts](../../server/api/post/add.ts)
-- [server/api/thread/add.ts](../../server/api/thread/add.ts)
-- [server/assets/schema.surql](../../server/assets/schema.surql)
+- app/pages/editor/post.vue
+- app/pages/editor/thread.vue
+- server/api/post/add.ts
+- server/api/thread/add.ts
+- server/assets/schema.surql
 
 ## Progress Log
 - 2026-04-13: Ticket created.

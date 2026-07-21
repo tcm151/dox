@@ -21,10 +21,10 @@ Track core moderation actions with enough detail to support accountability and r
 ## Notes
 
 ## Relevant Files
-- [app/pages/moderator.vue](../../app/pages/moderator.vue)
-- [server/api/moderator/topics.ts](../../server/api/moderator/topics.ts)
-- [server/api/topic/[topic]/reports.ts](../../server/api/topic/[topic]/reports.ts)
-- [shared/utils/moderation.ts](../../shared/utils/moderation.ts)
+- app/pages/moderator.vue
+- server/api/moderator/topics.ts
+- server/api/topic/[topic]/reports.ts
+- shared/utils/moderation.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

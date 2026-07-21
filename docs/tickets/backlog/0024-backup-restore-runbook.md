@@ -21,9 +21,9 @@ Document practical backup/restore steps so operators can recover service and dat
 ## Notes
 
 ## Relevant Files
-- [docs/ContributionGuide.md](../ContributionGuide.md)
-- [docs/.env.example](../.env.example)
-- [server/plugins/01.migrations.server.ts](../../server/plugins/01.migrations.server.ts)
+- docs/ContributionGuide.md
+- docs/.env.example
+- server/plugins/01.migrations.server.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

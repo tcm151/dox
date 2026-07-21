@@ -21,10 +21,10 @@ Ensure data fetches always use the latest access token so authenticated flows do
 ## Notes
 
 ## Relevant Files
-- [app/utils/data.ts](../../app/utils/data.ts)
-- [app/utils/session.ts](../../app/utils/session.ts)
-- [server/utils/auth.ts](../../server/utils/auth.ts)
-- [server/api/profile/login.ts](../../server/api/profile/login.ts)
+- app/utils/data.ts
+- app/utils/session.ts
+- server/utils/auth.ts
+- server/api/profile/login.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

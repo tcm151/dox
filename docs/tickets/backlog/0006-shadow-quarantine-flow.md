@@ -21,10 +21,10 @@ Add a moderation safety flow that limits visibility and interaction for suspicio
 ## Notes
 
 ## Relevant Files
-- [app/pages/admin.vue](../../app/pages/admin.vue)
-- [server/api/user/register.ts](../../server/api/user/register.ts)
-- [server/middleware/protection.ts](../../server/middleware/protection.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/admin.vue
+- server/api/user/register.ts
+- server/middleware/protection.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

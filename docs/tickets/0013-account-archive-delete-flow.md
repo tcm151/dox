@@ -21,10 +21,10 @@ Provide a user-controlled account exit flow while preserving forum integrity and
 ## Notes
 
 ## Relevant Files
-- [app/pages/settings.vue](../../app/pages/settings.vue)
-- [server/api/profile/account.ts](../../server/api/profile/account.ts)
-- [server/api/profile/logout.ts](../../server/api/profile/logout.ts)
-- [shared/types/index.ts](../../shared/types/index.ts)
+- app/pages/settings.vue
+- server/api/profile/account.ts
+- server/api/profile/logout.ts
+- shared/types/index.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.
