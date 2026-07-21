@@ -40,12 +40,15 @@ const tabs = ref<TabItem[]>([
 <style scoped lang="scss">
 article.editor {
     width: stretch;
-    overflow-y: hidden;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 section.page {
+    flex: 1 1 auto;
     width: stretch;
-    height: stretch;
-    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden;
 }
 </style>

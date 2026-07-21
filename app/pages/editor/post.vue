@@ -244,7 +244,7 @@ async function saveDraft() {
                                 @blur="titleFocused = false"
                             />
                         </div>
-                        <MarkdownEditor class="f-1" label="Content" :rows="12" v-model="draft.content" />
+                        <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />
                         <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
                         <div v-if="uploadedImages.length > 0" class="field uploaded-images">
                             <label>Images</label>
@@ -298,6 +298,26 @@ async function saveDraft() {
 <style scoped lang="scss">
 article {
     @include fit-width (60rem, 1rem);
+    flex: 1 1 auto;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+article > div.box,
+article > div.box > div.box,
+section.editor,
+section.form {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+article > div.box > div.box {
+    overflow: hidden;
+}
+
+section.editor > header,
+footer.row {
+    flex: 0 0 auto;
 }
 
 header.reply-to {
@@ -326,6 +346,7 @@ div.uploaded-images {
 
 section.preview {
     position: relative;
+    min-height: 0;
     white-space: normal;
     overflow-y: auto;
 

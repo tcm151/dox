@@ -70,29 +70,34 @@ function selectImages() {
 }
 
 const showPreview = ref<boolean>(false)
-// REFACTOR render real preview content instead of state-only toggle.
 function togglePreview() {
     showPreview.value = !showPreview.value
-    hints.addWarning('We are still working on this...')
 }
 
 </script>
 
 <template>
-    <article class="column m-4">
+    <article class="column p-4">
         <section class="box column p-5">
-            <header class="row inline between mb-4">
-                <h1>New Thread</h1>
-                <button @click="">
-                    <i class="fa-solid fa-compass-drafting"></i>
-                    <span>Drafts</span>
-                </button>
-            </header>
-            <section class="form f-1 column g-2">
-                <MarkdownEditor label="Content" :rows="8" v-model="newThread.content" />
-                <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
+            <section class="editor column" v-show="!showPreview">
+                <header class="row inline between mb-4">
+                    <h1>New Thread</h1>
+                    <button @click="">
+                        <i class="fa-solid fa-compass-drafting"></i>
+                        <span>Drafts</span>
+                    </button>
+                </header>
+                <section class="form f-1 column g-2">
+                    <MarkdownEditor bounded label="Content" :rows="8" v-model="newThread.content" />
+                    <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
+                </section>
             </section>
-            <footer class="row g-2 mt-5">
+            <section class="preview f-1" v-show="showPreview">
+                <h1>New Thread</h1>
+                <Markdown class="content" :content="newThread.content" />
+                <span v-if="newThread.content === ''" class="watermark">Preview</span>
+            </section>
+            <footer class="row wrap g-2 mt-5">
                 <ButtonSpinner class="success f-1 b-0" :loading="submitting" @click="submit">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>
@@ -114,5 +119,48 @@ function togglePreview() {
 <style scoped lang="scss">
 article {
     @include fit-width (60rem, 1rem);
+    flex: 1 1 auto;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+article > section.box,
+section.editor,
+section.form {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+article > section.box {
+    overflow: hidden;
+}
+
+section.editor > header,
+footer.row {
+    flex: 0 0 auto;
+}
+
+section.preview {
+    position: relative;
+    min-height: 0;
+    white-space: normal;
+    overflow-y: auto;
+
+    div.content {
+        white-space: normal;
+    }
+
+    .watermark {
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        font-size: 5rem;
+        font-weight: 900;
+        opacity: 0.05;
+        color: $purple;
+        text-align: center;
+        text-transform: uppercase;
+        transform: translate(-50%, -50%);
+    }
 }
 </style>

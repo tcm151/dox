@@ -24,6 +24,7 @@ defineProps<{
     placeholder?: string
     disabled?: boolean
     spellcheck?: boolean
+    bounded?: boolean
 }>()
 
 const content = defineModel<string>({ default: "" })
@@ -221,7 +222,7 @@ function handleKeydown(event: KeyboardEvent) {
 </script>
 
 <template>
-    <div class="field markdown-editor">
+    <div class="field markdown-editor" :class="{ bounded }">
         <label v-if="label">{{ label }}</label>
         <header class="toolbar row inline wrap g-1 p-1">
             <button
@@ -253,6 +254,8 @@ function handleKeydown(event: KeyboardEvent) {
 
 <style scoped lang="scss">
 div.markdown-editor {
+    min-height: 0;
+
     header.toolbar {
         overflow-x: auto;
         width: stretch;
@@ -282,6 +285,22 @@ div.markdown-editor {
     textarea {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
+    }
+}
+
+div.markdown-editor.bounded {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    label, header.toolbar {
+        flex: 0 0 auto;
+    }
+
+    textarea {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        resize: none;
     }
 }
 </style>

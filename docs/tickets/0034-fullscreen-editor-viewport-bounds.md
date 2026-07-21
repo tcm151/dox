@@ -1,9 +1,9 @@
 # Ticket 0034: Fullscreen Editor Viewport Bounds
 
 ## Status
-- State: Todo
+- State: In Progress
 - Priority: Medium
-- Next action: Audit post and thread editor layout heights
+- Next action: Test desktop and mobile viewport sizes with long editor content
 
 ## Goal
 Make writing and previewing posts and threads feel stable by giving editor surfaces a fullscreen workflow with viewport-bounded text areas and preview panes.
@@ -14,10 +14,10 @@ Make writing and previewing posts and threads feel stable by giving editor surfa
 - [ ] Switching between edit and preview keeps the user near the same writing or reading position without requiring extra page scrolling.
 
 ## Tasks
-- [ ] Audit editor page layout, toolbar, footer, and preview containers for fixed-height/fullscreen behavior.
-- [ ] Update `MarkdownEditor` styling or props so editor textareas can fill their container while respecting viewport max-height constraints.
-- [ ] Align edit and preview pane heights so toggling preview does not shift the page or hide the toggle controls.
-- [ ] Preserve or restore textarea and preview scroll positions when toggling between edit and preview.
+- [x] Audit editor page layout, toolbar, footer, and preview containers for fixed-height/fullscreen behavior.
+- [x] Update `MarkdownEditor` styling or props so editor textareas can fill their container while respecting viewport max-height constraints.
+- [x] Align edit and preview pane heights so toggling preview does not shift the page or hide the toggle controls.
+- [x] Preserve or restore textarea and preview scroll positions when toggling between edit and preview.
 - [ ] Test desktop and mobile viewport sizes with long post and thread content.
 
 ## Notes
@@ -31,4 +31,5 @@ Make writing and previewing posts and threads feel stable by giving editor surfa
 - [app/layouts/simple.vue](../../app/layouts/simple.vue)
 
 ## Progress Log
+- 2026-07-21: Added bounded editor shell, bounded MarkdownEditor mode, fixed editor action footers, and internal edit/preview scrolling for post and thread editors.
 - 2026-07-21: Ticket created.
