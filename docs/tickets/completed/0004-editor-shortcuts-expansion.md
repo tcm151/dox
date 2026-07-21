@@ -28,7 +28,7 @@ Improve authoring speed by adding a small set of reliable keyboard shortcuts in 
 - [app/plugins/markdown.ts](../../app/plugins/markdown.ts)
 
 ## Progress Log
-- 2026-04-13: Ticket created.
 - 2026-07-21: Scaffolded and tested basic markdown functions.
+- 2026-04-13: Ticket created.
 
 

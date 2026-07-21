@@ -24,5 +24,6 @@
 - <path/to/primary/file>
 
 ## Progress Log
+<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - YYYY-MM-DD: Ticket created.
 
