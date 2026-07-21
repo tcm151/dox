@@ -248,7 +248,13 @@ Contributor rule:
 - Do not bypass `DatabaseQuery` conventions unless there is a strong justification.
 - Keep route and component placement aligned with Nuxt 4 app-directory conventions.
 
-### 12.2 Change Impact Map
+### 12.2 Server API Style
+
+- Keep `server/api/**` route handlers thin when behavior can live in a focused `server/utils/**` helper or composable.
+- Prefer Nuxt/Nitro auto-import conventions in server routes and utilities unless an explicit import is already the local pattern or needed for clarity.
+- Server utilities should expose only the fields and functions needed by callers; keep internal state and intermediate checks private.
+
+### 12.3 Change Impact Map
 
 If you change auth/session:
 - Update `server/utils/auth.ts`
@@ -270,7 +276,7 @@ If you change media:
 - Update upload handlers, processing utilities, and CDN routes together
 - Validate token/permission implications
 
-### 12.3 Expected Review Checklist
+### 12.4 Expected Review Checklist
 
 Before merging architectural changes:
 1. Is auth/role enforcement still correct?
