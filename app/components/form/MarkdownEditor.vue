@@ -30,22 +30,22 @@ const content = defineModel<string>({ default: "" })
 const textarea = useTemplateRef<HTMLTextAreaElement>("textarea")
 
 const tools: Tool[] = [
-    { label: "Bold", icon: "fa-bold", title: "Bold (Ctrl/Cmd+B)", action: applyBold },
-    { label: "Italic", icon: "fa-italic", title: "Italic (Ctrl/Cmd+I)", action: applyItalic },
+    { label: "Bold", icon: "fa-bold", title: "Bold", action: applyBold },
+    { label: "Italic", icon: "fa-italic", title: "Italic", action: applyItalic },
     { label: "Strikethrough", icon: "fa-strikethrough", title: "Strikethrough", action: applyStrikethrough },
+    { label: "Code", icon: "fa-code", title: "Inline code", action: applyInlineCode },
+    { label: "Spoiler", icon: "fa-eye-slash", title: "Spoiler", action: applySpoiler },
     { label: "Heading 1", text: "H1", title: "Heading 1", action: () => applyHeading(1) },
     { label: "Heading 2", text: "H2", title: "Heading 2", action: () => applyHeading(2) },
     { label: "Heading 3", text: "H3", title: "Heading 3", action: () => applyHeading(3) },
     { label: "Quote", icon: "fa-quote-right", title: "Quote", action: applyQuote },
-    { label: "Code", icon: "fa-code", title: "Inline code", action: applyInlineCode },
-    { label: "Code block", icon: "fa-file-code", title: "Code block", action: applyCodeBlock },
-    { label: "Link", icon: "fa-link", title: "Link (Ctrl/Cmd+K)", action: applyLink },
-    { label: "Image", icon: "fa-image", title: "Image", action: applyImage },
-    { label: "Horizontal rule", icon: "fa-minus", title: "Horizontal rule", action: applyHorizontalRule },
+    { label: "Codeblock", icon: "fa-file-code", title: "Codeblock", action: applyCodeBlock },
     { label: "Bulleted list", icon: "fa-list-ul", title: "Bulleted list", action: applyBulletedList },
     { label: "Numbered list", icon: "fa-list-ol", title: "Numbered list", action: applyNumberedList },
+    { label: "Link", icon: "fa-link", title: "Link", action: applyLink },
+    { label: "Image", icon: "fa-image", title: "Image", action: applyImage },
     { label: "Row", icon: "fa-table-columns", title: "Row", action: applyRow },
-    { label: "Spoiler", icon: "fa-eye-slash", title: "Spoiler", action: applySpoiler },
+    { label: "Horizontal rule", icon: "fa-minus", title: "Horizontal rule", action: applyHorizontalRule },
 ]
 
 function getCursor(): Cursor {
@@ -258,8 +258,6 @@ div.markdown-editor {
         width: stretch;
         box-sizing: border-box;
         background-color: $white-1;
-        border: 2px solid transparent;
-        border-bottom: 0;
         border-radius: 0.25rem 0.25rem 0 0;
     }
 
@@ -284,12 +282,6 @@ div.markdown-editor {
     textarea {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
-    }
-
-    header.toolbar:has(+ textarea:hover),
-    header.toolbar:has(+ textarea:focus),
-    header.toolbar:has(+ textarea:focus-visible) {
-        border-color: $blue;
     }
 }
 </style>
