@@ -89,10 +89,7 @@ function togglePreview() {
                 </button>
             </header>
             <section class="form f-1 column g-2">
-                <div class="field">
-                    <label>Content</label>
-                    <textarea class="f-1" rows="8" v-model="newThread.content" />
-                </div>
+                <MarkdownEditor label="Content" :rows="8" v-model="newThread.content" />
                 <TopicField v-model:text="newTopic" :topics="newThread.topics" @add="addTopic" @remove="removeTopic" />
             </section>
             <footer class="row g-2 mt-5">

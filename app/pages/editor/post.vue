@@ -244,10 +244,7 @@ async function saveDraft() {
                                 @blur="titleFocused = false"
                             />
                         </div>
-                        <div class="field f-1">
-                            <label>Content</label>
-                            <textarea class="f-1" rows="12" v-model="draft.content" />
-                        </div>
+                        <MarkdownEditor class="f-1" label="Content" :rows="12" v-model="draft.content" />
                         <TopicField :topics="draft.topics" @add="addTopic" @remove="removeTopic" />
                         <div v-if="uploadedImages.length > 0" class="field uploaded-images">
                             <label>Images</label>
