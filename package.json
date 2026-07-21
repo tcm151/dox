@@ -8,7 +8,8 @@
         "postinstall": "nuxt prepare",
         "deploy": "ssh root@tcmdev.ca \"cd dox && ./deploy.sh --build\"",
         "start:local": "node .output/server/index.mjs",
-        "start:production": "PORT=8001 node .production/server/index.mjs"
+        "start:production": "PORT=8001 node .production/server/index.mjs",
+        "stage:release": "yarn build && node scripts/stage-release.mjs"
     },
     "devDependencies": {
         "@types/luxon": "^3.7.1",
