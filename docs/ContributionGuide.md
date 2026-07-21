@@ -135,7 +135,11 @@ If you do not currently have the `developer` role and cannot access `/developer/
 - **Login/registration appears to work but pages fail to load expected content**
     - Re-check migration startup logs and ensure schema/migrations executed successfully.
 
-## 10. Release And Versioning
+## 10. Pull Requests
+
+Keep pull requests focused and use the repository template when opening one. The template intentionally asks for only a short summary, test status, and docs impact so it stays quick to complete.
+
+## 11. Release And Versioning
 
 ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a steady release and deployment cadence.
 

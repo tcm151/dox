@@ -1,5 +1,7 @@
 .vscode
-.github
+.github/*
+!.github/
+!.github/PULL_REQUEST_TEMPLATE.md
 .nuxt
 .nitro
 .cache
