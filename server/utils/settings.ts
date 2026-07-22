@@ -19,8 +19,11 @@ export class SettingsManager {
                     voting = $voting,
                     topics = $topics,
                     feeds = $feeds,
+                    posts = $posts,
+                    links = $links,
                     threads = $threads,
                     media = $media,
+                    polls = $polls,
                     misc = $misc
                 WHERE id = $id
             `)
@@ -30,8 +33,11 @@ export class SettingsManager {
             .addParameter("voting", settings.voting)
             .addParameter("topics", settings.topics)
             .addParameter("feeds", settings.feeds)
+            .addParameter("posts", settings.posts)
+            .addParameter("links", settings.links)
             .addParameter("threads", settings.threads)
             .addParameter("media", settings.media)
+            .addParameter("polls", settings.polls)
             .addParameter("misc", settings.misc)
             .queryOne<AppSettings>()
     }

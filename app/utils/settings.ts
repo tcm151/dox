@@ -39,12 +39,17 @@ export const useSettings = defineStore("user.settings", () => {
             discover: true,
             topics: true,
             posts: true,
+            links: false,
             threads: true,
             images: true,
             audio: false,
             video: false,
+            polls: false,
         },
         posts: {
+            enabled: true,
+        },
+        links: {
             enabled: true,
         },
         threads: {
@@ -66,6 +71,9 @@ export const useSettings = defineStore("user.settings", () => {
                 enabled: false,
                 uploadLimit: 500,
             }
+        },
+        polls: {
+            enabled: true,
         },
         misc: {
             feedback: {

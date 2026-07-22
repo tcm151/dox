@@ -267,3 +267,9 @@ IF (INFO FOR DB).tables.confirmation != NONE {
 UPDATE appSettings SET
     moderation.perTopic = 3
 WHERE moderation.perTopic = NONE;
+
+-- 2026-07-21 add new submission types to settings
+UPDATE appSettings SET
+    links = { enabled: false },
+    polls = { enabled: false }
+WHERE links = NONE OR polls = NONE;

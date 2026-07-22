@@ -207,14 +207,19 @@ export interface AppSettings extends Record {
         discover: boolean
         topics: boolean
         posts: boolean
+        links: boolean
         threads: boolean
         images: boolean
         audio: boolean
         video: boolean
+        polls: boolean
     }
     posts: {
         enabled: boolean
     }
+    links: {
+        enabled: boolean
+    },
     threads: {
         enabled: boolean
     }
@@ -235,6 +240,9 @@ export interface AppSettings extends Record {
             uploadLimit: number
         }
     }
+    polls: {
+        enabled: boolean
+    },
     misc: {
         feedback: {
             enabled: true

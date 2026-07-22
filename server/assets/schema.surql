@@ -468,6 +468,8 @@ DEFINE FIELD OVERWRITE feeds ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE posts ON appSettings
     TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE links ON appSettings
+    TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE threads ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE media.tokens ON appSettings
@@ -477,6 +479,8 @@ DEFINE FIELD OVERWRITE media.images ON appSettings
 DEFINE FIELD OVERWRITE media.audio ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE media.video ON appSettings
+    TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE polls ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD OVERWRITE misc.feedback ON appSettings
     TYPE object FLEXIBLE;

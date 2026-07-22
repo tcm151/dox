@@ -21,13 +21,16 @@ definePageMeta({
     }
 })
 
+const settings = useSettings()
+
 const tabs = ref<TabItem[]>([
-    { route: '/editor/post', icon: 'fa-feather', label: 'Post' },
-    { route: '/editor/thread', icon: 'fa-message', label: 'Thread' },
-    { route: '/editor/link', icon: 'fa-link', label: 'Link' },
-    { route: '/editor/image', icon: 'fa-images', label: 'Image' },
-    { route: '/editor/audio', icon: 'fa-music', label: 'Audio' },
-    { route: '/editor/poll', icon: 'fa-list', label: 'Poll' },
+    { route: '/editor/post', icon: 'fa-feather', label: 'Post', hide: () => !settings.app.posts.enabled },
+    { route: '/editor/link', icon: 'fa-link', label: 'Link', hide: () => !settings.app.links.enabled },
+    { route: '/editor/thread', icon: 'fa-message', label: 'Thread', hide: () => !settings.app.threads.enabled },
+    { route: '/editor/image', icon: 'fa-images', label: 'Image', hide: () => !settings.app.media.images.enabled },
+    { route: '/editor/audio', icon: 'fa-music', label: 'Audio', hide: () => !settings.app.media.audio.enabled },
+    { route: '/editor/video', icon: 'fa-video', label: 'Video', hide: () => !settings.app.media.video.enabled },
+    { route: '/editor/poll', icon: 'fa-list', label: 'Poll', hide: () => !settings.app.polls.enabled },
 ])
 
 // REFACTOR consolidate unfinished editor variant actions (drafts/upload/preview) behind shared placeholder components.

@@ -29,7 +29,7 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
-const tabs = ['contact', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'threads', 'media', 'misc']
+const tabs = ['contact', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
 
 const topicInput = useTemplateRef("topic")
 function addTopic() {
@@ -146,7 +146,9 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                     </div>
                     <div class="field row">
                         <label class="f-1">show topics feed</label>
-                        <Toggle v-model:enabled="settings.feeds.topics" />
+                        <Toggle 
+                            v-model:enabled="settings.feeds.topics"
+                        />
                     </div>
                     <div class="field row">
                         <label class="f-1">show posts feed</label>
@@ -163,6 +165,13 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                         />
                     </div>
                     <div class="field row">
+                        <label class="f-1">show links feed</label>
+                        <Toggle
+                            :disabled="!settings.links.enabled"
+                            v-model:enabled="settings.feeds.links"
+                        />
+                    </div>
+                    <div class="field row">
                         <label class="f-1">show images feed</label>
                         <Toggle
                             :disabled="!settings.media.images.enabled"
@@ -176,6 +185,20 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                             v-model:enabled="settings.feeds.audio"
                         />
                     </div>
+                    <div class="field row">
+                        <label class="f-1">show video feed</label>
+                        <Toggle
+                            :disabled="!settings.media.video.enabled"
+                            v-model:enabled="settings.feeds.video"
+                        />
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">show polls feed</label>
+                        <Toggle 
+                            :disabled="!settings.polls.enabled"
+                            v-model:enabled="settings.feeds.polls"
+                        />
+                        </div>
                 </div>
                 <div v-if="section == 'topics'">
                     <div class="field row">
@@ -212,6 +235,12 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                     <div class="field row">
                         <label class="f-1">enable posts</label>
                         <Toggle v-model:enabled="settings.posts.enabled" />
+                    </div>
+                </div>
+                <div v-if="section == 'links'">
+                    <div class="field row">
+                        <label class="f-1">enable links</label>
+                        <Toggle v-model:enabled="settings.links.enabled" />
                     </div>
                 </div>
                 <div v-if="section == 'threads'">
@@ -255,6 +284,12 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                             :disabled="!settings.media.audio.enabled"
                             v-model.number="settings.media.audio.uploadLimit"
                         >
+                    </div>
+                </div>
+                <div v-if="section == 'polls'">
+                    <div class="field row">
+                        <label class="f-1">enable polls</label>
+                        <Toggle v-model:enabled="settings.polls.enabled" />
                     </div>
                 </div>
                 <div v-if="section == 'misc'">
