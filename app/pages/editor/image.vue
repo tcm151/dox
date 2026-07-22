@@ -6,16 +6,12 @@ const hints = useHints()
 
 const images = useImageUploader('editorImages')
 const topics = useTopicManager()
-const summary = ref<string>("")
+const description = ref<string>("")
 
 const submitting = ref<boolean>(false)
 async function submit() {
     if (images.uploaded.length == 0) {
         hints.addError("You must upload at least one image.")
-        return
-    }
-    if (summary.value.trim().length < 4) {
-        hints.addError("Summary must be at least 4 characters.")
         return
     }
     if (topics.items.length == 0) {
@@ -30,12 +26,12 @@ async function submit() {
 </script>
 
 <template>
-    <EditorFrame title="New Image" :submitting="submitting" @submit="submit">
+    <EditorFrame title="Upload Images" :submitting="submitting" @submit="submit">
         <template #form>
-            <UploadedImages :images="images" />
+            <UploadedImages button size="large" :images="images" />
             <div class="field f-1">
-                <label>Summary</label>
-                <MarkdownEditor bounded class="f-1" :rows="8" v-model="summary" />
+                <label>Description</label>
+                <MarkdownEditor bounded class="f-1" :rows="1" v-model="description" />
             </div>
             <TopicField :topics="topics" />
         </template>
@@ -43,13 +39,7 @@ async function submit() {
             <div v-if="images.uploaded.length > 0" class="image-preview">
                 <img v-for="image in images.uploaded" :src="image.url">
             </div>
-            <Markdown class="content mt-3" :content="summary" />
-        </template>
-        <template #footer-actions>
-            <button class="link f-1 b-0" @click="images.select">
-                <i class="fa-solid fa-images"></i>
-                <span>Upload</span>
-            </button>
+            <Markdown class="content mt-3" :content="description" />
         </template>
         <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
     </EditorFrame>

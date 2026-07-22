@@ -153,9 +153,9 @@ async function saveDraft() {
                 <label>Title</label>
                 <input type="text" v-model="draft.title" @focus="titleFocused = true" @blur="titleFocused = false">
             </div>
+            <UploadedImages size="small" :images="images" />
             <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />
             <TopicField :topics="topics" />
-            <UploadedImages :images="images" />
         </template>
         <template #preview>
             <h1 class="mb-2">{{ draft.title }}</h1>

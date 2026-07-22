@@ -81,11 +81,9 @@ async function submit() {
 <template>
     <EditorFrame title="New Thread" :submitting="submitting" @submit="submit">
         <template #form>
-            <div class="field f-1" :class="{ 'invalid': contentFocused && !validContent() }">
-                <MarkdownEditor bounded label="Content" :rows="12" v-model="newThread.content" @focus="contentFocused = true" @blur="contentFocused = false" />
-            </div>
+            <UploadedImages size="small" :images="images" />
+            <MarkdownEditor bounded label="Content" :rows="12" v-model="newThread.content" @focus="contentFocused = true" @blur="contentFocused = false" />
             <TopicField :topics="topics" />
-            <UploadedImages :images="images" />
         </template>
         <template #preview>
             <Markdown class="content" :content="newThread.content" />
