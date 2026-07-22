@@ -1,5 +1,5 @@
+import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs"
 import { execFileSync } from "node:child_process"
-import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -31,10 +31,10 @@ rmSync(join(outputDir, artifactRoot), { recursive: true, force: true })
 mkdirSync(artifactDir, { recursive: true })
 mkdirSync(releasesDir, { recursive: true })
 
-// Move the Nuxt build output into the final archive layout before creating the tarball.
+// Copy the Nuxt build output into the final archive layout before creating the tarball.
 for (const entry of readdirSync(outputDir)) {
     if (entry !== artifactRoot) {
-        renameSync(join(outputDir, entry), join(artifactDir, entry))
+        cpSync(join(outputDir, entry), join(artifactDir, entry), { recursive: true })
     }
 }
 
@@ -48,10 +48,14 @@ requireFile(join(artifactDir, ".env.example"), "Staged artifact is missing .env.
 requireFile(join(artifactDir, "Quickstart.md"), "Staged artifact is missing Quickstart.md.")
 requireFile(join(artifactDir, "server", "index.mjs"), "Staged artifact is missing server/index.mjs.")
 
-rmSync(archivePath, { force: true })
-execFileSync("tar", ["-czf", archivePath, "-C", outputDir, `${artifactRoot}/${version}`], { stdio: "inherit" })
-requireFile(archivePath, `Release archive was not created: ${archivePath}`)
+function normalizePath(value) {
+    return value.replace(/\\/g, "/")
+}
 
+rmSync(archivePath, { force: true })
+const tarArgs = ["-czf", archivePath, "-C", normalizePath(outputDir), "--exclude", "./*/node_modules/*", normalizePath(join(artifactRoot, version))]
+execFileSync("tar", tarArgs, { stdio: "inherit" })
+requireFile(archivePath, `Release archive was not created: ${archivePath}`)
 rmSync(outputDir, { recursive: true, force: true })
 
 console.log(`Created release archive at ${archivePath}`)
