@@ -72,7 +72,7 @@ async function submit() {
 </script>
 
 <template>
-    <EditorFrame title="New Audio" :submitting="submitting" @submit="submit">
+    <EditorFrame title="New Audio" unavailable>
         <template #form>
             <div class="field">
                 <label>Title</label>
@@ -102,7 +102,7 @@ async function submit() {
             <Markdown class="content" :content="description" />
         </template>
         <template #footer-actions>
-            <button class="link f-1 b-0" @click="selectAudio">
+            <button class="link f-1 b-0" disabled @click="selectAudio">
                 <i class="fa-solid fa-music"></i>
                 <span>Upload</span>
             </button>

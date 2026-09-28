@@ -57,7 +57,7 @@ async function submit() {
 </script>
 
 <template>
-    <EditorFrame title="New Poll" :submitting="submitting" @submit="submit">
+    <EditorFrame title="New Poll" unavailable>
         <template #form>
             <div class="field" :class="{ 'invalid': questionFocused && !validQuestion() }">
                 <label>Question</label>

@@ -48,7 +48,7 @@ async function submit() {
 </script>
 
 <template>
-    <EditorFrame title="New Link" :submitting="submitting" @submit="submit">
+    <EditorFrame title="New Link" unavailable>
         <template #form>
             <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
                 <label>Title</label>

@@ -2,6 +2,7 @@
 defineProps<{
     title: string
     submitting?: boolean
+    unavailable?: boolean
 }>()
 
 const preview = ref<boolean>(false)
@@ -23,18 +24,22 @@ function togglePreview() {
                     <h1>{{ title }}</h1>
                     <slot name="header-actions" />
                 </header>
+                <aside v-if="unavailable" class="unavailable row inline g-2 p-3">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Publishing is not available yet. This editor is preview-only.</span>
+                </aside>
                 <slot name="form" />
             </section>
-            <section class="preview f-1" v-show="preview">
+            <section v-if="$slots.preview" class="preview f-1" v-show="preview">
                 <slot name="preview" />
                 <span class="watermark">Preview</span>
             </section>
             <footer class="row wrap g-2 mt-3">
-                <ButtonSpinner class="success f-2 b-0" :loading="submitting" @click="emit('submit')">
+                <ButtonSpinner class="success f-2 b-0" :loading="submitting" :disabled="unavailable" @click="emit('submit')">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>
                 </ButtonSpinner>
-                <button class="info f-1 b-0" @click="togglePreview">
+                <button v-if="$slots.preview" class="info f-1 b-0" @click="togglePreview">
                     <i v-if="!preview" class="fa-solid fa-eye"></i>
                     <i v-else class="fa-solid fa-eye-slash"></i>
                     <span>Preview</span>
@@ -64,6 +69,13 @@ section.form {
 section.editor > header,
 footer.row {
     flex: 0 0 auto;
+}
+
+aside.unavailable {
+    color: $yellow-dark;
+    border: 1px solid $yellow;
+    border-radius: 0.25rem;
+    background-color: $yellow-light;
 }
 
 section.preview {

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{ loading?: boolean }>()
+const props = defineProps<{
+    loading?: boolean
+    disabled?: boolean
+}>()
 
 const spinning = ref<Boolean>(false)
 
@@ -11,7 +14,7 @@ watch(() => props.loading, (loading) => {
 </script>
 
 <template>
-    <button :disabled="loading">
+    <button :disabled="loading || disabled">
         <Spinner v-if="spinning" />
         <slot v-else />
     </button>

@@ -50,7 +50,7 @@ export const useSettings = defineStore("user.settings", () => {
             enabled: true,
         },
         links: {
-            enabled: true,
+            enabled: false,
         },
         threads: {
             enabled: true,
@@ -73,7 +73,7 @@ export const useSettings = defineStore("user.settings", () => {
             }
         },
         polls: {
-            enabled: true,
+            enabled: false,
         },
         misc: {
             feedback: {

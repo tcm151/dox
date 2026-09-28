@@ -511,13 +511,18 @@ IF !record::exists(appSettings:default) {
             discover: true,
             topics: true,
             posts: true,
+            links: false,
             threads: true,
             images: true,
             audio: false,
             video: false,
+            polls: false,
         },
         posts: {
             enabled: true,
+        },
+        links: {
+            enabled: false,
         },
         threads: {
             enabled: true,
@@ -538,6 +543,9 @@ IF !record::exists(appSettings:default) {
                 enabled: false,
                 uploadLimit: 500,
             }
+        },
+        polls: {
+            enabled: false,
         },
         misc: {
             feedback: {

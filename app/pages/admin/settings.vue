@@ -54,6 +54,12 @@ watch(() => settings.value.posts.enabled, (postsEnabled) => {
     }
 })
 
+watch(() => settings.value.links.enabled, (linksEnabled) => {
+    if (!linksEnabled) {
+        settings.value.feeds.links = false
+    }
+})
+
 watch(() => settings.value.threads.enabled, (threadsEnabled) => {
     if (!threadsEnabled) {
         settings.value.feeds.threads = false
@@ -75,6 +81,12 @@ watch(() => settings.value.media.audio.enabled, (audioEnabled) => {
 watch(() => settings.value.media.video.enabled, (videoEnabled) => {
     if (!videoEnabled) {
         settings.value.feeds.video = false
+    }
+})
+
+watch(() => settings.value.polls.enabled, (pollsEnabled) => {
+    if (!pollsEnabled) {
+        settings.value.feeds.polls = false
     }
 })
 
@@ -238,6 +250,10 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                     </div>
                 </div>
                 <div v-if="section == 'links'">
+                    <p class="unavailable row inline g-2 p-3 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Link publishing is unfinished. Enabling it exposes a preview-only editor.</span>
+                    </p>
                     <div class="field row">
                         <label class="f-1">enable links</label>
                         <Toggle v-model:enabled="settings.links.enabled" />
@@ -271,6 +287,10 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                         >
                     </div>
                     <hr>
+                    <p class="unavailable row inline g-2 p-3 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Audio and video publishing are unfinished. Enabling them exposes preview-only editors.</span>
+                    </p>
                     <div class="field row">
                         <label class="f-1">enable audio</label>
                         <Toggle v-model:enabled="settings.media.audio.enabled" />
@@ -285,8 +305,16 @@ watch(() => settings.value.media.video.enabled, (videoEnabled) => {
                             v-model.number="settings.media.audio.uploadLimit"
                         >
                     </div>
+                    <div class="field row">
+                        <label class="f-1">enable video</label>
+                        <Toggle v-model:enabled="settings.media.video.enabled" />
+                    </div>
                 </div>
                 <div v-if="section == 'polls'">
+                    <p class="unavailable row inline g-2 p-3 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Poll publishing is unfinished. Enabling it exposes a preview-only editor.</span>
+                    </p>
                     <div class="field row">
                         <label class="f-1">enable polls</label>
                         <Toggle v-model:enabled="settings.polls.enabled" />
@@ -332,6 +360,13 @@ aside.tabs {
         cursor: pointer;
         color: $purple;
     }
+}
+
+p.unavailable {
+    color: $yellow-dark;
+    border: 1px solid $yellow;
+    border-radius: 0.25rem;
+    background-color: $yellow-light;
 }
 
 div.field {

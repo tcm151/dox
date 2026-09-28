@@ -270,6 +270,18 @@ WHERE moderation.perTopic = NONE;
 
 -- 2026-07-21 add new submission types to settings
 UPDATE appSettings SET
-    links = { enabled: false },
-    polls = { enabled: false }
-WHERE links = NONE OR polls = NONE;
+    links.enabled = false
+WHERE links.enabled = NONE;
+
+UPDATE appSettings SET
+    polls.enabled = false
+WHERE polls.enabled = NONE;
+
+-- 2026-09-28 add new submission types to feed settings
+UPDATE appSettings SET
+    feeds.links = false
+WHERE feeds.links = NONE;
+
+UPDATE appSettings SET
+    feeds.polls = false
+WHERE feeds.polls = NONE;
