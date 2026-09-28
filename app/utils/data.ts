@@ -5,13 +5,12 @@ export function useDatasource<T>(
     url: string | Ref<string> | (() => string),
     options: UseFetchOptions<T> = {}
 ) {
-    // FIXME session token is stale when access token is replaced in-place.
     const session = getSession()
     return useFetch(url, {
         deep: true,
-        headers: {
+        headers: computed(() => ({
             Authorization: session.tokens.access
-        },
+        })),
         ...options
     })
 }
