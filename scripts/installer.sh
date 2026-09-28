@@ -91,6 +91,28 @@ load_environment() {
     set +a
 }
 
+validate_default_account_credentials() {
+    ADMIN_EMAIL="${DEFAULT_USER_EMAIL:-}"
+    ADMIN_NAME="${DEFAULT_USER_NAME:-}"
+    ADMIN_PASSWORD="${DEFAULT_USER_PASSWORD:-}"
+
+    if [ -z "$ADMIN_EMAIL" ] && [ -z "$ADMIN_NAME" ] && [ -z "$ADMIN_PASSWORD" ]; then
+        return
+    fi
+
+    if [ -z "$ADMIN_EMAIL" ] || [ -z "$ADMIN_NAME" ] || [ -z "$ADMIN_PASSWORD" ]; then
+        echo "Set all DEFAULT_USER_* values for the default account, or leave all three blank when an account already exists."
+        exit 1
+    fi
+
+    case "$ADMIN_PASSWORD" in
+        admin123|change-this-password)
+            echo "Replace the placeholder DEFAULT_USER_PASSWORD before starting the service."
+            exit 1
+            ;;
+    esac
+}
+
 prepare_data_paths() {
     DATA_PATH="${DATA_PATH:-../data}"
     mkdir -p "$DATA_PATH"
@@ -148,6 +170,7 @@ case "$COMMAND" in
         ensure_environment_file
         require_runtime
         load_environment
+        validate_default_account_credentials
         prepare_data_paths
         install_service
         ;;
@@ -155,6 +178,7 @@ case "$COMMAND" in
         ensure_environment_file
         require_runtime
         load_environment
+        validate_default_account_credentials
         prepare_data_paths
         run_foreground
         ;;

@@ -19,12 +19,24 @@ export default defineNitroPlugin(async () => {
             .execute()
 
         console.log("Database migrations completed successfully.")
-        health.setAppStatus("ready")
 
-        if (config.surreal.admin.email && config.surreal.admin.name && config.surreal.admin.password) {
-            const result = await new DatabaseQuery()
+        const defaultAccount = [config.surreal.admin.email, config.surreal.admin.name, config.surreal.admin.password]
+        if (defaultAccount.some(Boolean) && !defaultAccount.every(Boolean)) {
+            throw new Error("Set all DEFAULT_USER_* values, or leave all three blank when an account already exists.")
+        }
+
+        const accounts = await new DatabaseQuery()
+            .addSql(`SELECT VALUE id FROM account LIMIT 1`)
+            .queryAll<unknown>()
+
+        if (accounts.length === 0 && !defaultAccount.every(Boolean)) {
+            throw new Error("No accounts exist. Set DEFAULT_USER_EMAIL, DEFAULT_USER_NAME, and DEFAULT_USER_PASSWORD to create the required default account.")
+        }
+
+        if (accounts.length === 0) {
+            await new DatabaseQuery()
                 .addSql(`
-                    IF array::len(SELECT VALUE id FROM user) = 0 {
+                    IF array::len(SELECT VALUE id FROM account LIMIT 1) = 0 {
                         
                         LET $user = (
                             CREATE ONLY user SET
@@ -44,17 +56,17 @@ export default defineNitroPlugin(async () => {
                 .addParameter("password", config.surreal.admin.password)
                 .execute()
 
-            if (result[0]) {
-                console.log("Created default admin user with supplied .env credentials.")
-            }
+            console.log("Created default account with supplied .env credentials.")
         }
+
+        health.setAppStatus("ready")
     }
     catch (error: any) {
         health.setAppStatus("failed")
 
         throw createError({
             status: 500,
-            statusText: "Failed to apply database migrations on application startup.",
+            statusText: "Application startup failed.",
             message: error.message,
             stack: error.stack,
         })
