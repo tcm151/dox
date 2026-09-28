@@ -34,6 +34,7 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - Built `.output` contents are flattened into the versioned release folder, so the server entrypoint is `<version>/server/index.mjs`.
 - Persistent data defaults to `/root/forum/data`, beside the versioned release folders.
 - Packaged releases include `.env.example`; the installer may create shared `/root/forum/.env` if missing, but upgrades must preserve operator config.
+- Packaged default account credentials are blank by default. Fresh installations must configure all three `DEFAULT_USER_*` values or startup fails; existing installations with an account may leave all three blank. Partial values and known placeholder passwords are rejected.
 
 ## Relevant Files
 - docs/ContributionGuide.md
@@ -45,6 +46,8 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - package.json
 
 ## Progress Log
+- 2026-09-28: Made startup reject empty databases without complete default account credentials and aligned setup documentation with that requirement.
+- 2026-09-28: Removed predictable default account credentials from environment templates and added installer validation.
 - 2026-07-21: Streamlined release staging to archive directly from a reorganized `.output` folder and remove local `.output` after archive creation.
 - 2026-07-21: Moved live config to shared `/root/forum/.env`, persistent data to `/root/forum/data`, and packaged only `.env.example` for upgrades.
 - 2026-07-21: Flattened release artifacts into `forum/<version>` so the built server entrypoint lives at the versioned release root.

@@ -1,6 +1,6 @@
 # Production Quickstart
 
-This guide deploys an already-downloaded forum release artifact on a generic Linux server. Release artifacts live in versioned folders like `/root/forum/<version>`, while persistent data lives beside those version folders at `/root/forum/data`.
+Use this guide to install a forum release on a Linux server. Releases live in versioned folders such as `/root/forum/<version>`, while persistent data stays in `/root/forum/data`.
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ The installed layout is:
 
 ## Configure Environment
 
-The artifact includes `.env.example` copied from the release template. Create the shared `.env` beside the version folders, then review it before first start:
+Each release includes `.env.example`. Create the shared `.env` beside the version folders, then review it before the first start:
 
 ```bash
 cp -n .env.example ../.env
@@ -56,21 +56,25 @@ SURREAL_TYPE=embedded
 SURREAL_URL=rocksdb://../data/database/default.db
 ```
 
-For a simple first deployment, set these values:
+Set these values before starting the service. Use unique credentials for all three `DEFAULT_USER_*` fields:
 
 ```bash
 PORT=8001
 BASE_URL=http://your-server-hostname-or-ip:8001
 SITE_TITLE="Forum"
 SITE_TITLE_SHORT="Forum"
-DEFAULT_USER_EMAIL=admin@example.com
-DEFAULT_USER_NAME=admin
-DEFAULT_USER_PASSWORD=change-this-password
+DEFAULT_USER_EMAIL=
+DEFAULT_USER_NAME=
+DEFAULT_USER_PASSWORD=
 ```
 
 If values contain spaces, wrap them in quotes.
 
-When you put a reverse proxy or TLS in front of the app, set `BASE_URL` to the public URL served by that proxy.
+The default account receives the `moderator`, `admin`, and `developer` roles. It is created only when no accounts exist. A fresh installation will not start without all three values because no one would be able to access the administration, moderation, or developer tools.
+
+If an account already exists, leave all three values blank. The installer rejects partial configuration and known placeholder passwords.
+
+If you use a reverse proxy or TLS, set `BASE_URL` to the public URL.
 
 ## Install And Start The Service
 

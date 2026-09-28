@@ -1,8 +1,16 @@
 # Changelog
 
-ClassicForum uses `year.major.patch` versions. `package.json` is the source of truth for the current application version.
+ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
-Backfilled entries are retroactive release blocks based on Git commit history. They group runs of days, weeks, or months where related work produced significant application changes.
+Older entries group related work from periods when no release tag was created.
+
+## [Unreleased]
+
+### Changed
+- Updated roadmap markers to match the Production Quickstart, session revocation, notification preference, and referral hardening tickets.
+
+### Security
+- Removed preset default account credentials from environment templates. The installer now rejects partial configuration and placeholder passwords, and fresh databases require complete default account credentials before startup.
 
 ## [2026.5.0] - 2026-07-21
 

@@ -5,7 +5,7 @@ Effort legend: `S` (1-2 days), `M` (3-5 days), `L` (1-2 weeks)
 
 ## Phase A: Self-Host Baseline (Quality, Security, Operations)
 
-Goal: make self-hosting reliable by default, with embedded SurrealDB as the primary deployment path and remote mode documented as advanced scale.
+Goal: make self-hosting reliable, with embedded SurrealDB as the default and remote mode available for larger deployments.
 
 ### A1. CI + Test Baseline
 - 🟥 Add GitHub Actions pipeline for install, type-check, build, and smoke tests. (`M`)
@@ -16,7 +16,7 @@ Goal: make self-hosting reliable by default, with embedded SurrealDB as the prim
 
 ### A2. Install/Deploy Simplicity
 - 🟩 Add `.env.example` with embedded defaults and remote-mode advanced examples. (`S`)
-- 🟥 Add single “Production Quickstart” doc (Linux VM + reverse proxy + TLS), with embedded as default path. (`M`)
+- 🟦 Add single “Production Quickstart” doc for a Linux VM service install, with embedded as the default and operator-managed reverse proxy/TLS. Clean-host validation remains. (`M`)
 - 🟥 Add a separate “Remote SurrealDB at Scale” operations guide (networking, credentials, failure modes). (`M`)
 
 **Success metric**: clean machine setup to running app in <= 30 minutes.
@@ -24,7 +24,7 @@ Goal: make self-hosting reliable by default, with embedded SurrealDB as the prim
 ### A3. Security Hardening (Critical Paths)
 - 🟦 Expand rate limiting coverage beyond current auth endpoints. (`M`)
 - 🟦 Fix award flow token validation + anti-double-spend guardrails. (`M`)
-- 🟦 Add referral abuse limits (cooldown/one-time constraints). (`M`)
+- 🟥 Add referral abuse limits (cooldown/one-time constraints). (`M`)
 - 🟥 Add security policy + responsible disclosure doc. (`S`)
 
 **Success metric**: no known P0 abuse paths in auth/economy endpoints.
@@ -57,7 +57,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.
 
 ### B3. Moderator and User Experience Hardening
-- 🟦 Complete or hide unfinished moderation and messaging UI areas to avoid beta behavior in production. (`M`)
+- 🟦 Complete or hide unfinished moderation and messaging UI before production. (`M`)
 - 🟥 Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`M`)
 - 🟦 Add empty/error/loading state consistency pass on moderation and report surfaces. (`M`)
 - 🟥 Add topic governance tools (rename/archive/lock, moderator assignment, rules/summary history, and featured/pinned topic content). (`L`)
@@ -67,12 +67,12 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 
 ## Phase C: Product and DX for Modern Async Communities
 
-Goal: deliver modern, fluid async interactions while improving contributor productivity.
+Goal: improve async interactions and make the project easier to contribute to.
 
 ### C1. User Control and Account Safety
-- 🟦 Add revoke-all-sessions capability and session management UI for account safety. (`M`)
+- 🟥 Add revoke-all-sessions capability and session management UI for account safety. (`M`)
 - 🟥 Add block/mute controls for users, topics, and keywords with clear UX. (`L`)
-- 🟦 Add privacy and notification preference controls with documented defaults. (`M`)
+- 🟥 Add privacy controls with documented defaults. (`M`)
 - 🟥 Add configurable email and in-app notification preference controls in user settings. (`M`)
 
 **Success metric**: users can control their experience and account risk without moderator intervention.
@@ -111,7 +111,7 @@ Goal: enable optional community funding after core ops, trust, and UX priorities
 
 ### D1. Store and Funding Foundations
 - 🟥 Replace placeholder purchase flow with feature-flagged checkout architecture. (`L`)
-- 🟦 Implement referral/reward redemption hardening with idempotency and abuse protections. (`M`)
+- 🟥 Implement referral/reward redemption hardening with idempotency and abuse protections. (`M`)
 - 🟥 Add operator-facing policy docs for community funding controls and moderation implications. (`S`)
 
 **Success metric**: monetization can be safely enabled without compromising core community trust.

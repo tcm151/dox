@@ -1,6 +1,6 @@
 # Architecture
 
-Purpose: provide a single, implementation-grounded architecture reference for contributors.
+This document explains how ClassicForum is structured and how its main pieces fit together.
 
 ## 1. Product and System Overview
 
@@ -35,7 +35,7 @@ Deployment model:
 
 - `server/api/`: HTTP route handlers (auth, content, moderation, admin, developer)
 - `server/middleware/protection.ts`: global request protection (rate limiting)
-- `server/plugins/01.migrations.server.ts`: startup schema/migration sync and bootstrap logic
+- `server/plugins/01.migrations.server.ts`: startup schema/migration sync and default account logic
 - `server/plugins/errorHandler.ts`: server-side error capture/logging
 - `server/plugins/cleanup.ts`: shutdown cleanup
 - `server/routes/cdn/`: media delivery endpoints
@@ -58,7 +58,7 @@ Boot sequence:
 1. App process starts, runtime config loaded from env.
 2. Database connection is initialized lazily through `DatabaseQuery` usage.
 3. Startup plugin `01.migrations.server.ts` applies schema + migrations.
-4. Optional default admin user is created if configured and user table is empty.
+4. A default account is created when the account table is empty; startup fails unless all three `DEFAULT_USER_*` values are configured for that first account.
 5. Client bootstraps shell (`app/app.vue`) and loads app settings store.
 
 ### 3.2 Frontend initialization path
@@ -96,7 +96,7 @@ Design pattern:
 
 ### 4.2 Schema ownership
 
-`server/assets/schema.surql` is authoritative for:
+`server/assets/schema.surql` defines:
 - Table definitions and field constraints
 - Computed fields
 - Record relations
@@ -104,7 +104,7 @@ Design pattern:
 
 `server/assets/migrations.surql` is for incremental data/schema updates that must execute at startup.
 
-### 4.3 Core entities and relationships (conceptual)
+### 4.3 Core Entities and Relationships
 
 - `user` owns authored entities and links to account records
 - `account` stores credentials and links identity to a `user`
@@ -151,7 +151,7 @@ Role checks are applied in route handlers and page middleware as needed.
 - Reports are created through report endpoints and surfaced in admin and moderator-facing routes.
 - Topic-scoped reporting views exist for moderators (for example, topic report queues under `app/pages/topic/[topic]/reports.vue` backed by `server/api/topic/[topic]/reports.ts`).
 - Topic moderation/request features exist and are evolving.
-- Moderation state and workflows are partly implemented and should be validated before broad feature additions.
+- Some moderation workflows are incomplete. Check existing behavior before building on them.
 
 ### 6.3 Feedback
 
@@ -161,13 +161,12 @@ Role checks are applied in route handlers and page middleware as needed.
 
 The moderator role has expanded beyond global moderation pages and now includes topic-level workflows.
 
-Current expectations:
+Topic moderation currently works as follows:
 - Topic-level moderation pages enforce moderator role checks in page middleware.
 - Topic-scoped moderation APIs enforce moderator role checks server-side.
 - Report review and related-topic moderation flows can be performed from topic surfaces without requiring admin role.
 
-Engineering implication:
-- New moderation capabilities should be evaluated for moderator/admin boundary clarity and documented when scope expands.
+When expanding moderation, keep the moderator/admin boundary clear and document any change in scope.
 
 ## 7. Media Pipeline
 
@@ -183,8 +182,7 @@ Flow:
 4. File is written to filesystem.
 5. CDN route serves file and associated metadata/visit flows.
 
-Operational note:
-- File lifecycle management (including cleanup consistency with DB deletion) must be considered when modifying media behavior.
+Media changes must keep filesystem cleanup and database deletion consistent.
 
 ## 8. Configuration and Settings
 
@@ -194,7 +192,7 @@ Key env groups:
 - App identity and URL: `PORT`, `BASE_URL`, titles
 - Media storage path: `DATA_PATH`
 - Surreal connection: `SURREAL_TYPE`, `SURREAL_URL`, namespace/database, credentials
-- Default admin bootstrap: `DEFAULT_USER_*`
+- Required first default account: `DEFAULT_USER_*` (may be blank after an account exists)
 - SMTP: optional email delivery settings
 
 `AppSettings` runtime configuration is persisted in DB and exposed through settings APIs and admin settings UI.
@@ -208,11 +206,9 @@ Server-side:
 Client-side:
 - `app/plugins/errorHandler.ts` and hint systems expose user-facing feedback.
 
-Current posture:
-- Error capture exists.
-- Broader observability (metrics/SLO dashboards, endpoint-level performance traces) is a roadmap area.
+Errors are captured today. Broader observability, including metrics, SLO dashboards, and endpoint performance traces, remains on the roadmap.
 
-## 10. Security Model (Current Fundamentals)
+## 10. Security Model
 
 Present controls:
 - Session-based authentication
@@ -223,29 +219,27 @@ Present controls:
 - Developer query tooling is restricted to `developer` role users
 - Developer query audit integrity is protected by blocking direct queries against the `developerQuery` table
 
-Important engineering expectation:
-- Any new write endpoint should explicitly evaluate abuse vectors (rate limit, replay, role/auth checks, idempotency, and state constraints).
+For every new write endpoint, review rate limits, replay protection, authorization, idempotency, and state constraints.
 
-## 11. Startup, Migrations, and Bootstrap
+## 11. Startup, Migrations, and Default Account
 
-`server/plugins/01.migrations.server.ts` guarantees startup synchronization:
+`server/plugins/01.migrations.server.ts` handles startup setup:
 - Reads schema + migrations from server assets storage
 - Executes both before normal runtime activity
-- Optionally seeds default admin if configured
-- Throws blocking startup error if migration fails
-- Marks migration status for `/api/health`; failed startup may surface to operators as either a `503` health response or process startup failure/connection refusal, depending on how far Nitro starts before the migration error is raised.
+- Creates the required default account when the account table is empty
+- Throws a blocking startup error if migrations fail or an empty database lacks complete `DEFAULT_USER_*` values
+- Reports startup failures through `/api/health` when Nitro starts far enough to serve it. Earlier failures stop the process before health checks are available.
 
-Contributor rule:
-- Schema-impacting features should update both TypeScript contracts and Surreal schema/migrations together.
+Schema changes must update TypeScript contracts and Surreal schema or migrations together.
 
 ## 12. Contributor Working Model
 
-### 12.1 Invariants (Do Not Violate)
+### 12.1 Core Rules
 
 - All API writes must go through authenticated/authorized handlers where required.
 - Shared types and Surreal schema must stay aligned.
-- Changes touching data shape should consider migration impact.
-- Do not bypass `DatabaseQuery` conventions unless there is a strong justification.
+- Data shape changes must include any required migrations.
+- Use `DatabaseQuery` for database access.
 - Keep route and component placement aligned with Nuxt 4 app-directory conventions.
 
 ### 12.2 Server API Style
@@ -286,9 +280,9 @@ Before merging architectural changes:
 5. Are failure paths clear and logged?
 6. Did docs in `docs/` stay consistent with implementation?
 
-## 13. Known Gaps and Active Evolution Areas
+## 13. Known Gaps
 
-Areas known to be evolving (reference roadmap for priority):
+Work still in progress:
 - CI and automated test coverage baseline
 - Expanded rate-limiting and abuse controls
 - Moderation/audit completeness
@@ -296,7 +290,7 @@ Areas known to be evolving (reference roadmap for priority):
 - Ops maturity (health/readiness, backup/restore, release process)
 - API contract documentation and stability practices
 
-Treat these as architecture constraints when designing new features:
+When adding features:
 - Prefer incremental hardening over broad surface expansion.
 - Prioritize backward-compatible data and API changes.
 
@@ -319,8 +313,8 @@ Recommended order for new contributors:
 - SurrealQL: query language used by SurrealDB.
 - Record ID: Surreal identifier in `table:id` shape.
 - CSR-only route: route rendered client-side only (no SSR) per Nuxt route rules.
-- Bootstrap admin: optional first user generated from env on startup.
+- Default account: required first account generated from `DEFAULT_USER_*` values when the account table is empty.
 
 ---
 
-If this document drifts from implementation, implementation is authoritative. Update this file in the same PR as architectural changes.
+Update this document in the same pull request as any architecture change.

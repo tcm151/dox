@@ -23,7 +23,7 @@ Choose one mode and set `SURREAL_TYPE` accordingly.
 
 ## 3. Environment Variables
 
-You will need to populate a `.env` file with a few specific parameters the app uses. Here is a template of the values you can provide.
+Create a `.env` file with these parameters:
 
 ```bash
 PORT= # the port of your running Nuxt instance. Ex: 3000
@@ -41,9 +41,9 @@ SURREAL_DATABASE= # the database you'd like to use. Ex: development
 SURREAL_USERNAME= # your SurrealDB root username, when SURREAL_TYPE=remote
 SURREAL_PASSWORD= # your SurrealDB root password, when SURREAL_TYPE=remote
 
-DEFAULT_USER_EMAIL= # the email of the default user created on startup
-DEFAULT_USER_NAME= # the name of the default user created on startup
-DEFAULT_USER_PASSWORD= # the password of the default user created on startup
+DEFAULT_USER_EMAIL= # required on an empty database; email for the default account
+DEFAULT_USER_NAME= # required on an empty database; name for the default account
+DEFAULT_USER_PASSWORD= # required on an empty database; password for the default account
 
 DATA_PATH= # the path where media and embedded databases are saved
 
@@ -89,7 +89,7 @@ Schema and migrations are applied automatically on application startup by [serve
 
 If startup succeeds, you do not need to run manual `surreal import` commands.
 
-If startup fails, check your app logs for `Failed to apply database migrations on application startup.` and resolve database connectivity or query issues first.
+If startup fails, check your app logs for `Application startup failed.` and resolve the reported database, migration, or default account configuration issue first.
 
 ## 7. In-App Query Portal
 
@@ -98,22 +98,17 @@ ClassicForum includes a built-in query portal at `/developer/query` (see [app/pa
 - Access is always restricted to authenticated users with the `developer` role, including in development mode (see [app/pages/developer.vue](../app/pages/developer.vue) and [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
 - Queries that target the `developerQuery` table are blocked to preserve audit integrity (see [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
 
-## 8. First User Setup
+## 8. Default Account
+
+On an empty database, set all three `DEFAULT_USER_*` values before starting the app. Startup creates the default account with the `moderator`, `admin`, and `developer` roles.
 
 Once the app is running:
 
-1. Open `/register` and create your first account.
-2. Open your profile at `/profile` to confirm authentication is working.
-3. (Recommended for local development) grant your account elevated roles so you can access admin/developer tooling.
+1. Sign in with the default account credentials from `.env`.
+2. Open `/profile` to confirm authentication is working.
+3. Open `/developer/query` to confirm developer access.
 
-Example query in `/developer/query`:
-
-```sql
-UPDATE user:<your-user-id> SET
-    roles = array::union(roles, ["admin", "developer"]);
-```
-
-If you do not currently have the `developer` role and cannot access `/developer/query` yet, use the Surreal CLI (`surreal sql`) to run the same update directly.
+If the database already contains an account, leave all three `DEFAULT_USER_*` values blank. Startup will not create another default account.
 
 ## 9. Troubleshooting
 
@@ -121,15 +116,16 @@ If you do not currently have the `developer` role and cannot access `/developer/
     - Verify `SURREAL_TYPE` and `SURREAL_URL` are set correctly.
     - If `SURREAL_TYPE=remote`, ensure `SURREAL_URL` points to an RPC endpoint.
 
-- **`Failed to apply database migrations on application startup.`**
+- **`Application startup failed.`**
     - Confirm database connectivity and credentials (`SURREAL_USERNAME`, `SURREAL_PASSWORD`) for remote mode.
     - Confirm namespace/database values match your target (`SURREAL_NAMESPACE`, `SURREAL_DATABASE`).
+    - If no accounts exist, set all three `DEFAULT_USER_*` values so startup can create the required default account.
 
 - **Cannot access `/developer/query`**
     - The active account must include the `developer` role in all environments.
 
 - **`Executing queries against the `developerQuery` table is not allowed.`**
-    - This restriction is intentional and preserves the internal query audit trail.
+    - This protects the internal query audit trail.
     - Use other read/write queries for diagnostics, but do not target the `developerQuery` table directly.
 
 - **Login/registration appears to work but pages fail to load expected content**
@@ -137,20 +133,20 @@ If you do not currently have the `developer` role and cannot access `/developer/
 
 ## 10. Pull Requests
 
-Keep pull requests focused and use the repository template when opening one. The template intentionally asks for only a short summary, test status, and docs impact so it stays quick to complete.
+Keep pull requests focused and use the repository template. It asks for a short summary, test status, and documentation impact.
 
 ## 11. Release And Versioning
 
 ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a steady release and deployment cadence.
 
-- `package.json` owns the current application version.
+- The current application version is in `package.json`.
 - The public Nuxt runtime version is read from `package.json`.
 - The first number is the release year.
 - The second number increments for a meaningful release line within that year.
 - The third number increments for fixes, docs, and small follow-up deployments within that release line.
 - At the start of a new year, begin again at `<year>.1.0`.
 
-When preparing a release or deployment, update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. Changelog entries can group a meaningful block of work across days, weeks, or months into a retroactive release when no tag existed at the time. Tagging and the fuller release checklist are intentionally deferred until the process is clearer.
+When preparing a release or deployment, update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. If work was not tagged at the time, group it into a clear release entry. Tagging and a full release checklist will be added when the release process needs them.
 
 ## It's Running
 
