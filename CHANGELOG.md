@@ -6,8 +6,21 @@ Older entries group related work from periods when no release tag was created.
 
 ## [Unreleased]
 
+## [2026.5.1] - 2026-09-28
+
+### Added
+- Added scoped implementation tickets for unfinished editor types and versioned database migrations.
+
 ### Changed
+- Kept unfinished link, audio, video, and poll editors disabled by default and safely preview-only when enabled.
+- Backfilled missing link, poll, and related feed settings during upgrades without overwriting existing choices.
 - Updated roadmap markers to match the Production Quickstart, session revocation, notification preference, and referral hardening tickets.
+
+### Fixed
+- Made datasource authorization headers follow the current access token during refetches and session changes.
+- Prevented the preview-only audio editor from accepting uploads that could charge tokens without a publication path.
+- Hid preview controls on unfinished editor routes that do not provide preview content.
+- Kept link and poll feed settings synchronized when their submission types are disabled.
 
 ### Security
 - Removed preset default account credentials from environment templates. The installer now rejects partial configuration and placeholder passwords, and fresh databases require complete default account credentials before startup.
