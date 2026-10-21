@@ -1,14 +1,14 @@
 # Ticket 0021: API Contract Inventory
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Generate initial endpoint list by scanning server/api routes
+- Next: Generate initial endpoint list by scanning server/api routes
 
 ## Goal
 Create a practical API inventory documenting auth requirements and response shapes for safer iteration.
 
-## Done Looks Like
+## Requirements
 - [ ] Core API endpoints are cataloged with method/path/auth expectations.
 - [ ] High-risk write endpoints are marked.
 - [ ] Inventory is easy to update as routes evolve.
@@ -28,5 +28,3 @@ Create a practical API inventory documenting auth requirements and response shap
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

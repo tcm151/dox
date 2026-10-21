@@ -1,14 +1,14 @@
 # Ticket 0018: Thread/Comment Lock And Slow Mode
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Define lock and slow-mode state fields for thread/comment surfaces
+- Next: Define lock and slow-mode state fields for thread/comment surfaces
 
 ## Goal
 Give moderators targeted controls to reduce escalation and spam during active moderation.
 
-## Done Looks Like
+## Requirements
 - [ ] Moderators can lock threads/comments where supported.
 - [ ] Slow mode enforcement limits posting frequency as configured.
 - [ ] UI indicates locked/slow-mode states clearly.
@@ -29,5 +29,3 @@ Give moderators targeted controls to reduce escalation and spam during active mo
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

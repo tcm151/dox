@@ -1,14 +1,14 @@
 # Ticket 0024: Backup And Restore Runbook
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Draft first runbook version for embedded deployment
+- Next: Draft first runbook version for embedded deployment
 
 ## Goal
 Document practical backup/restore steps so operators can recover service and data safely.
 
-## Done Looks Like
+## Requirements
 - [ ] Runbook exists for embedded mode backup and restore.
 - [ ] Runbook includes verification steps after restore.
 - [ ] Failure scenarios and rollback guidance are included.
@@ -27,5 +27,3 @@ Document practical backup/restore steps so operators can recover service and dat
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

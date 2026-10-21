@@ -1,14 +1,14 @@
 # Ticket 0007: Build Topic Governance Tools
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Split into rename/archive/moderator-assignment sub-features
+- Next: Split into rename/archive/moderator-assignment sub-features
 
 ## Goal
 Deliver moderator topic governance controls for lifecycle and safety management.
 
-## Done Looks Like
+## Requirements
 - [ ] Moderators can perform approved topic governance actions.
 - [ ] Actions are role-gated and validated server-side.
 - [ ] Topic UI clearly shows governance state where relevant.
@@ -28,5 +28,3 @@ Deliver moderator topic governance controls for lifecycle and safety management.
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

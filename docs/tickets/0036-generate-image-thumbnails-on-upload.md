@@ -1,14 +1,14 @@
 # Ticket 0036: Generate Image Thumbnails On Upload
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Decide the thumbnail derivative size, format, and storage path convention for uploaded images.
+- Next: Decide the thumbnail derivative size, format, and storage path convention for uploaded images.
 
 ## Goal
 Generate a small thumbnail derivative when an image is uploaded so preview-only views can load a lighter asset instead of the full image. This should reduce page load time and bandwidth for feeds, search results, and other thumbnail-sized image displays.
 
-## Done Looks Like
+## Requirements
 - [ ] Image uploads create both the display image and a smaller thumbnail derivative using the existing Sharp-based processing flow.
 - [ ] Image records expose a thumbnail URL or equivalent field without breaking existing consumers of `url`.
 - [ ] Preview-only UI surfaces render the thumbnail asset while full image/detail views continue to use the full image.

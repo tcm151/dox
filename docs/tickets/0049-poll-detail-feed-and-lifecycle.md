@@ -1,14 +1,18 @@
 # Ticket 0049: Poll Detail, Feed, and Lifecycle
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define the poll detail and compact preview states for open, answered, closed, and expired polls.
+- Next: Define the poll detail and compact preview states for open, answered, closed, and expired polls.
+
+## Dependencies
+- [0047](0047-poll-creation-model-and-publishing.md): Detail pages and feed previews need published polls and their lifecycle rules.
+- [0048](0048-poll-responses-and-results.md): Poll interactions and result displays need response handling and result calculations.
 
 ## Goal
 Make polls discoverable and understandable across detail and feed surfaces while exposing complete, authorized closure, deletion, reporting, and result states.
 
-## Done Looks Like
+## Requirements
 - [ ] Poll detail renders open, answered, closed, expired, empty-result, and unavailable states accessibly.
 - [ ] Polls render through `MultiPreview` and appear only in enabled aggregate, topic, and dedicated feed surfaces.
 - [ ] Inline and detail responses share mutation and result behavior without stale or contradictory state.
@@ -24,7 +28,6 @@ Make polls discoverable and understandable across detail and feed surfaces while
 - [ ] Validate keyboard interaction, screen-reader labels, narrow layouts, stale responses, missing records, and mixed feeds.
 
 ## Notes
-- Depends on Tickets 0047 and 0048.
 - Roadmap C4 calls for expiration and result display states; those states should be visible consistently in compact and full views.
 
 ## Relevant Files
@@ -36,5 +39,4 @@ Make polls discoverable and understandable across detail and feed surfaces while
 - docs/Roadmap.md
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

@@ -1,14 +1,17 @@
 # Ticket 0045: Video Upload Pipeline
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Implement the `Video` contract and schema from the decisions recorded in Ticket 0044.
+- Next: Implement the `Video` contract and schema from the decisions recorded in Ticket 0044.
+
+## Dependencies
+- [0044](0044-video-delivery-architecture.md): Upload processing needs the chosen video formats, delivery approach, and resource limits.
 
 ## Goal
 Provide a secure, observable video upload pipeline that validates media, records ownership and cost, persists files, and supports staged publication without partial state.
 
-## Done Looks Like
+## Requirements
 - [ ] Shared types, schema, and migrations define the same video and upload-state fields.
 - [ ] Confirmed users can upload only supported video files within configured limits.
 - [ ] Successful uploads can be played through an authenticated staged-media route before publication.
@@ -25,7 +28,6 @@ Provide a secure, observable video upload pipeline that validates media, records
 - [ ] Cover malformed media, unsupported codecs, oversized uploads, interrupted processing, insufficient tokens, and successful playback.
 
 ## Notes
-- Depends on Ticket 0044.
 - The existing `MediaType` union and processing utility support only image and audio; video should follow the chosen design rather than merely adding another switch branch.
 
 ## Relevant Files
@@ -38,5 +40,4 @@ Provide a secure, observable video upload pipeline that validates media, records
 - server/middleware/protection.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

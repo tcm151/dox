@@ -1,14 +1,17 @@
 # Ticket 0027: API Smoke Tests Baseline
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Pick first critical flows for smoke coverage
+- Next: Pick first critical flows for smoke coverage
+
+## Dependencies
+- [0026](0026-ci-pipeline-baseline.md): Completion requires CI to run the API smoke tests with deterministic setup and teardown.
 
 ## Goal
 Add minimal API smoke tests for auth and core content/moderation flows.
 
-## Done Looks Like
+## Requirements
 - [ ] Smoke tests cover login/auth, post create, thread reply, and report flow.
 - [ ] Tests run in CI with deterministic setup/teardown.
 - [ ] Failures clearly identify broken flow stage.

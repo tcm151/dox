@@ -1,14 +1,14 @@
 # Ticket 0031: Security Policy And Responsible Disclosure
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Draft SECURITY.md scope, reporting path, and disclosure timeline
+- Next: Draft SECURITY.md scope, reporting path, and disclosure timeline
 
 ## Goal
 Publish a project security policy with clear vulnerability reporting and disclosure expectations.
 
-## Done Looks Like
+## Requirements
 - [ ] SECURITY.md exists with supported versions and reporting contact/process.
 - [ ] Responsible disclosure timeline and response expectations are documented.
 - [ ] Contribution docs link to security policy.

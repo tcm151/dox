@@ -1,14 +1,14 @@
 # Ticket 0010: Saved Custom Feeds
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define minimal custom feed filter schema
+- Next: Define minimal custom feed filter schema
 
 ## Goal
 Enable users to save reusable feed presets with filter and sort settings.
 
-## Done Looks Like
+## Requirements
 - [ ] Users can create, edit, and select saved feed presets.
 - [ ] Presets map cleanly to feed query behavior.
 - [ ] URL state and selected preset stay in sync.
@@ -28,5 +28,3 @@ Enable users to save reusable feed presets with filter and sort settings.
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

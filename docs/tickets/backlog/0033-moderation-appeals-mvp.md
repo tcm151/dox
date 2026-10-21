@@ -1,14 +1,14 @@
 # Ticket 0033: Moderation Appeals Workflow MVP
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Define appeal states and first-pass moderator actions
+- Next: Define appeal states and first-pass moderator actions
 
 ## Goal
 Add a basic appeals workflow so moderated users can request review and moderators can resolve appeals with status tracking.
 
-## Done Looks Like
+## Requirements
 - [ ] Users can submit appeals on moderated actions/content.
 - [ ] Moderators can view and transition appeal statuses.
 - [ ] Appeal history is visible with timestamps and resolution notes.

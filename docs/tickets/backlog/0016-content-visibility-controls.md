@@ -1,14 +1,14 @@
 # Ticket 0016: Content Visibility Policy Controls
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define admin-level policy fields and defaults
+- Next: Define admin-level policy fields and defaults
 
 ## Goal
 Add admin settings for content visibility policy (NSFW/spoiler/sensitive content) to support safer community defaults.
 
-## Done Looks Like
+## Requirements
 - [ ] Admin can configure visibility policy settings.
 - [ ] Policy settings are applied consistently in relevant views.
 - [ ] Defaults are documented and safe.
@@ -28,5 +28,3 @@ Add admin settings for content visibility policy (NSFW/spoiler/sensitive content
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

@@ -1,14 +1,14 @@
 # Ticket 0011: Thread Editor Parity With Post Editor
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: Medium
-- Next action: None
+- Next: None
 
 ## Goal
 Bring thread editor capabilities in line with post editor where the product model already supports parity, while keeping editor-specific behavior local and reducing duplicated editor plumbing.
 
-## Done Looks Like
+## Requirements
 - [x] Draft workflow remains post-only until other editor variants have concrete persistence needs.
 - [x] Preview behavior matches post editor expectations.
 - [x] Thread image upload workflow is consistent with existing editor patterns.

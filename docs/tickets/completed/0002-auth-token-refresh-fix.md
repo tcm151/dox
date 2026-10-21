@@ -1,14 +1,14 @@
 # Ticket 0002: Fix Stale Auth Token In Data Requests
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: High
-- Next action: None
+- Next: None
 
 ## Goal
 Ensure data fetches always use the latest access token so authenticated flows do not break after session token updates.
 
-## Done Looks Like
+## Requirements
 - [x] `useDatasource` reads the current token after token refresh or replacement.
 - [x] Datasource refetches no longer retain the token captured when the composable was created.
 - [x] Explicit per-request headers can still override the default authorization header.

@@ -1,14 +1,14 @@
 # Ticket 0047: Poll Creation Model and Publishing
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define radio, checkbox, and free-text response semantics and limits before writing the poll schema.
+- Next: Define radio, checkbox, and free-text response semantics and limits before writing the poll schema.
 
 ## Goal
 Define and implement a durable poll contract so the existing poll editor can publish validated questions, response rules, options, topics, and optional expiration.
 
-## Done Looks Like
+## Requirements
 - [ ] Poll type semantics, option limits, expiration, result visibility, and editability are documented.
 - [ ] Shared types and the SurrealDB schema represent the same poll creation fields and lifecycle state.
 - [ ] Authenticated users can publish valid polls from `/editor/poll` when polls are enabled.
@@ -37,5 +37,4 @@ Define and implement a durable poll contract so the existing poll editor can pub
 - docs/Roadmap.md
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

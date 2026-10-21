@@ -1,14 +1,14 @@
 # Ticket 0005: Add Moderation Audit Log MVP
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Define minimum audit event schema
+- Next: Define minimum audit event schema
 
 ## Goal
 Track core moderation actions with enough detail to support accountability and review.
 
-## Done Looks Like
+## Requirements
 - [ ] Core moderation actions produce audit records.
 - [ ] Audit records include actor, action, target, and timestamp.
 - [ ] Basic moderator/admin audit view is available.
@@ -28,5 +28,3 @@ Track core moderation actions with enough detail to support accountability and r
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

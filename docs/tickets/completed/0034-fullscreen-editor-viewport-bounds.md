@@ -1,14 +1,14 @@
 # Ticket 0034: Fullscreen Editor Viewport Bounds
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: Medium
-- Next action: None
+- Next: None
 
 ## Goal
 Make writing and previewing posts and threads feel stable by giving editor surfaces a fullscreen workflow with viewport-bounded text areas and preview panes.
 
-## Done Looks Like
+## Requirements
 - [x] Post and thread editors can use the available viewport height for the writing and preview experience without pushing key actions off-screen.
 - [x] Markdown textareas cannot be resized taller than the fullscreen editor area; overflowing content scrolls inside the textarea instead of expanding the page.
 - [x] Switching between edit and preview keeps the user near the same writing or reading position without requiring extra page scrolling.

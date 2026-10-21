@@ -1,14 +1,14 @@
 # Ticket 0044: Video Delivery Architecture
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Test representative video files against the current single-process deployment and filesystem media model.
+- Next: Test representative video files against the current single-process deployment and filesystem media model.
 
 ## Goal
 Choose and document a video ingestion and playback design that fits OpenForum's deployment model before exposing uploads or committing to a record contract.
 
-## Done Looks Like
+## Requirements
 - [ ] Supported containers, codecs, maximum size, and validation strategy are documented.
 - [ ] The project has an explicit store-as-is versus transcode decision with resource and dependency tradeoffs.
 - [ ] Playback delivery defines byte-range, cache, content-type, and private or staged access behavior.
@@ -38,5 +38,4 @@ Choose and document a video ingestion and playback design that fits OpenForum's 
 - server/routes/cdn/audio/[fileName]/index.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

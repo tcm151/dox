@@ -1,14 +1,18 @@
 # Ticket 0043: Audio Detail, Feed, and Cleanup
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define the public audio query shape shared by detail and preview rendering.
+- Next: Define the public audio query shape shared by detail and preview rendering.
+
+## Dependencies
+- [0001](0001-media-delete-atomicity.md): Audio deletion must use the shared media cleanup and retry approach.
+- [0042](0042-audio-publication-lifecycle.md): Playback, discovery, and deletion need the audio publication model and file state.
 
 ## Goal
 Make published audio playable and discoverable while providing complete owner and moderator lifecycle behavior for both database records and stored files.
 
-## Done Looks Like
+## Requirements
 - [ ] Published audio has a canonical detail page with an accessible player, metadata, topics, author, and engagement actions.
 - [ ] Public audio renders through `MultiPreview` and appears only in enabled feed surfaces.
 - [ ] Private staged audio is not returned by public list, detail, feed, or CDN requests.
@@ -25,7 +29,6 @@ Make published audio playable and discoverable while providing complete owner an
 - [ ] Cover private-media access, deletion failure, missing file, mixed feed, and playback fallback cases.
 
 ## Notes
-- Depends on Ticket 0042 and on the reusable consistency approach from Ticket 0001.
 - The existing audio list endpoint does not filter publication state and returns only raw upload fields.
 
 ## Relevant Files
@@ -38,5 +41,4 @@ Make published audio playable and discoverable while providing complete owner an
 - server/api/vote/[id]/positive.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

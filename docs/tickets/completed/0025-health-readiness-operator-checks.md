@@ -1,14 +1,14 @@
 # Ticket 0025: Health/Readiness Operator Checks
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: High
-- Next action: None
+- Next: None
 
 ## Goal
 Define and document health/readiness checks so deployments can detect degraded startup/runtime conditions early.
 
-## Done Looks Like
+## Requirements
 - [x] Health/readiness endpoint behavior is clearly defined.
 - [x] Operator check steps are documented for local and server environments.
 - [x] Startup migration failure state is reflected in readiness behavior.

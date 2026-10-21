@@ -1,29 +1,39 @@
-# Ticket XXXX: <Short Title>
+# Ticket XXXX: `Short Title`
+<!-- Read this template before every ticket edit. Keep guidance comments and placeholder instructions here; real tickets contain ticket-specific content only -->
 
 ## Status
-- State: Todo
-- Priority: High | Medium | Low
-- Next action: <single immediate next step>
+<!-- Choose one state and priority; use Next: None for completed work -->
+- State: `Planned | In Progress | Completed`
+- Priority: `High | Medium | Low`
+- Next: `single immediate next step`
+
+## Dependencies
+<!-- Link to prerequisite tickets that must be completed first; omit this section if there are none. Use relative paths and avoid self-dependencies or cycles -->
+- [XXXX](relative-ticket-path.md): `reason this ticket must be completed first`
 
 ## Goal
-<one or two sentences describing the problem or outcome>
+`one or two sentences describing the problem or outcome`
 
-## Done Looks Like
-- [ ] <acceptance criterion 1>
-- [ ] <acceptance criterion 2>
-- [ ] <acceptance criterion 3>
+## Requirements
+<!-- Define the acceptance criteria that must be met for this ticket to be considered complete -->
+- [ ] `acceptance criteria 1`
+- [ ] `acceptance criteria 2`
+- [ ] `acceptance criteria 3`
 
 ## Tasks
-- [ ] <task 1>
-- [ ] <task 2>
-- [ ] <task 3>
+<!-- List of actionable tasks required to complete the ticket -->
+- [ ] `task 1`
+- [ ] `task 2`
+- [ ] `task 3`
 
 ## Notes
+<!-- Keep items concise and separated by bullet points -->
+- `relevant information, context, or notes about the ticket`
 
 ## Relevant Files
-- <path/to/primary/file>
+- `path/to/primary/file`
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
+<!-- Keep in reverse chronological order, with the newest entries first -->
 - YYYY-MM-DD: Ticket created.
 

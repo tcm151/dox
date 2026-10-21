@@ -1,14 +1,17 @@
 # Ticket 0037: User Post Email Subscriptions
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Draft the subscription preference data model and matching rules for subscribed users and post topics.
+- Next: Draft the subscription preference data model and matching rules for subscribed users and post topics.
+
+## Dependencies
+- [0008](../0008-user-notification-preferences.md): Subscription emails must respect the shared notification and email preference model.
 
 ## Goal
 Let users subscribe to another user and receive email when that user publishes matching posts. Subscriptions should be configurable so a subscriber can choose all posts from a user or only posts that include selected topics.
 
-## Done Looks Like
+## Requirements
 - [ ] Users can create, edit, disable, and remove email subscriptions for a specific user.
 - [ ] Each subscription supports at least two scopes: all posts by the user, or posts by the user that match selected topics.
 - [ ] Email delivery triggers when a subscribed user publishes a matching post and respects account email state plus global notification/email preferences.

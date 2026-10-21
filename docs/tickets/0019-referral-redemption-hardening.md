@@ -1,14 +1,14 @@
 # Ticket 0019: Referral Redemption Hardening
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Audit current referral claim path for replay and race conditions
+- Next: Audit current referral claim path for replay and race conditions
 
 ## Goal
 Harden referral redemption for idempotency and abuse resistance while keeping user feedback clear.
 
-## Done Looks Like
+## Requirements
 - [ ] Referral claims are idempotent under retries/concurrency.
 - [ ] Abuse paths (replay/self-claim/multiple claims) are blocked.
 - [ ] User sees clear success/failure reasons.
@@ -28,5 +28,3 @@ Harden referral redemption for idempotency and abuse resistance while keeping us
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

@@ -1,14 +1,14 @@
 # Ticket 0035: Developer Info Diagnostics
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Decide safe public diagnostics fields
+- Next: Decide safe public diagnostics fields
 
 ## Goal
 Expand the developer info page with non-sensitive build, deployment, and runtime metadata that helps diagnose customer issues quickly.
 
-## Done Looks Like
+## Requirements
 - [ ] Developer info shows useful support metadata such as app version, build time, commit/ref, deployment target, base URL, runtime mode, and relevant feature/config flags where safe.
 - [ ] Sensitive values such as credentials, database URLs with secrets, SMTP settings, tokens, and raw private runtime config are never exposed in the browser.
 - [ ] Missing metadata renders as a clear unavailable value instead of breaking the page.

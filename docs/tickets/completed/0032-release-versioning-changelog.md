@@ -1,14 +1,14 @@
 # Ticket 0032: Release Versioning And Changelog Process
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: Medium
-- Next action: None
+- Next: None
 
 ## Goal
 Establish a lightweight release process with clear versioning and a maintained changelog.
 
-## Done Looks Like
+## Requirements
 - [x] Versioning approach is documented.
 - [x] Changelog format and update process are defined.
 - [x] Current package release includes a changelog entry.

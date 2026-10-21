@@ -1,14 +1,14 @@
 # Ticket 0028: PR Template And Contribution Checklist
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: Medium
-- Next action: None
+- Next: None
 
 ## Goal
 Standardize pull requests with a lightweight template and required checks for tests and docs updates.
 
-## Done Looks Like
+## Requirements
 - [x] Repository has a pull request template with core checklist items.
 - [x] Checklist includes test status and docs impact confirmation.
 - [x] Contribution docs reference PR expectations.

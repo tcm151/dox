@@ -1,14 +1,17 @@
 # Ticket 0041: Link Detail and Feed Integration
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Map the fields needed by a link detail page and compact feed preview onto the Ticket 0039 contract.
+- Next: Map the fields needed by a link detail page and compact feed preview onto the Ticket 0039 contract.
+
+## Dependencies
+- [0039](0039-link-publishing-foundation.md): Detail pages and feed previews need the Link contract and published records.
 
 ## Goal
 Make published links readable, discoverable, and actionable through a canonical detail page and the same feed surfaces used by other content types.
 
-## Done Looks Like
+## Requirements
 - [ ] Each published link has a canonical detail page with author, topics, content, destination, and moderation actions.
 - [ ] Link previews render correctly through `MultiPreview` without changing post, thread, or image rendering.
 - [ ] Public links can appear in applicable topic and aggregate feeds with stable sorting and pagination behavior.
@@ -24,7 +27,7 @@ Make published links readable, discoverable, and actionable through a canonical 
 - [ ] Validate detail loading, missing records, permissions, disabled settings, and mixed-feed rendering.
 
 ## Notes
-- Depends on Ticket 0039. Ticket 0040 enriches previews but is not required for basic detail and feed rendering.
+- Ticket 0040 enriches previews but is not required for basic detail and feed rendering.
 - Reuse the generic vote and report endpoints where their record-level authorization and schema assumptions hold.
 
 ## Relevant Files
@@ -36,5 +39,4 @@ Make published links readable, discoverable, and actionable through a canonical 
 - shared/types/index.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

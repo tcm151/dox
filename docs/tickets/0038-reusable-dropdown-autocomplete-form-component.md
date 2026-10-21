@@ -1,14 +1,14 @@
 # Ticket 0038: Reusable Dropdown Autocomplete Form Component
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define the component API by extracting the current topic match dropdown behavior from `TopicField`.
+- Next: Define the component API by extracting the current topic match dropdown behavior from `TopicField`.
 
 ## Goal
 Create a reusable form dropdown/autocomplete component for typeahead selection flows, starting with topic selection and keeping the API suitable for a future mention picker.
 
-## Done Looks Like
+## Requirements
 - [ ] `TopicField` uses a reusable autocomplete/dropdown component without losing topic validation, topic limits, or restricted-topic behavior.
 - [ ] The shared component supports controlled query text, filtered options/results, mouse selection, keyboard selection, focus/blur behavior, and loading/empty states.
 - [ ] The component API is general enough for a future mention picker but does not add mention persistence, parsing, or notification behavior.

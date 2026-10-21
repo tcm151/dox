@@ -1,14 +1,14 @@
 # Ticket 0013: Account Archive/Delete Flow
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define archive vs delete behavior and retained content rules
+- Next: Define archive vs delete behavior and retained content rules
 
 ## Goal
 Provide a user-controlled account exit flow while preserving forum integrity and moderation traceability.
 
-## Done Looks Like
+## Requirements
 - [ ] User can trigger account archive/delete from settings.
 - [ ] Content retention behavior is consistent and documented.
 - [ ] Auth/session state is safely invalidated after action.
@@ -28,5 +28,3 @@ Provide a user-controlled account exit flow while preserving forum integrity and
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

@@ -1,14 +1,14 @@
 # Ticket 0042: Audio Publication Lifecycle
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define the schemafull audio record and staged-upload state used before publication.
+- Next: Define the schemafull audio record and staged-upload state used before publication.
 
 ## Goal
 Turn the existing raw audio upload into a complete publication flow that persists title, description, topics, ownership, visibility, and file state consistently.
 
-## Done Looks Like
+## Requirements
 - [ ] Audio records are governed by a schemafull table aligned with the shared `Audio` contract.
 - [ ] Successful uploads remain private until the editor publishes valid metadata and at least one topic.
 - [ ] The audio editor can publish its uploaded file and navigate to the canonical audio route.
@@ -38,5 +38,4 @@ Turn the existing raw audio upload into a complete publication flow that persist
 - server/utils/media.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

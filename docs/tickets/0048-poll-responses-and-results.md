@@ -1,14 +1,17 @@
 # Ticket 0048: Poll Responses and Results
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Specify the authenticated response command and idempotency rules for each poll mode.
+- Next: Specify the authenticated response command and idempotency rules for each poll mode.
+
+## Dependencies
+- [0047](0047-poll-creation-model-and-publishing.md): Responses and results need the poll model, option limits, and visibility rules.
 
 ## Goal
 Allow users to answer polls safely and show accurate results under concurrent requests, closure, expiration, and response changes.
 
-## Done Looks Like
+## Requirements
 - [ ] Authenticated users can submit only responses permitted by the poll's configured mode and limits.
 - [ ] Duplicate retries are idempotent and concurrent submissions do not lose or double-count responses.
 - [ ] Closed or expired polls reject mutations while preserving readable results.
@@ -25,7 +28,6 @@ Allow users to answer polls safely and show accurate results under concurrent re
 - [ ] Test retries, concurrent updates, changed responses, expiration boundaries, permissions, and result privacy.
 
 ## Notes
-- Depends on Ticket 0047.
 - Poll responses are distinct from the generic positive, misleading, and negative content votes and should not reuse that API contract.
 - Prefer a relation or dedicated response record over growing user arrays inside each poll option.
 
@@ -37,5 +39,4 @@ Allow users to answer polls safely and show accurate results under concurrent re
 - server/middleware/protection.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

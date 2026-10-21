@@ -1,14 +1,14 @@
 # Ticket 0030: Remote SurrealDB Operations Guide
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define remote deployment assumptions and failure modes
+- Next: Define remote deployment assumptions and failure modes
 
 ## Goal
 Create an operations guide for remote SurrealDB deployments covering networking, credentials, and common failure handling.
 
-## Done Looks Like
+## Requirements
 - [ ] Guide documents secure remote connectivity and env setup.
 - [ ] Failure modes and recovery checks are clearly listed.
 - [ ] Guide differentiates remote mode from embedded default flow.

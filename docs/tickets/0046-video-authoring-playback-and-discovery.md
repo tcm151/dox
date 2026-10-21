@@ -1,14 +1,18 @@
 # Ticket 0046: Video Authoring, Playback, and Discovery
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Sketch the video editor payload and publication transition on top of Ticket 0045's staged upload contract.
+- Next: Sketch the video editor payload and publication transition on top of Ticket 0045's staged upload contract.
+
+## Dependencies
+- [0044](0044-video-delivery-architecture.md): Authoring and playback must follow the selected video delivery architecture.
+- [0045](0045-video-upload-pipeline.md): The editor and player need staged uploads, file delivery, and publication transitions.
 
 ## Goal
 Complete the user-facing video workflow from editor metadata and preview through publication, canonical playback, feeds, and moderation actions.
 
-## Done Looks Like
+## Requirements
 - [ ] The video editor supports upload, title, description, topics, preview, publish, retry, and cancellation states.
 - [ ] Published video has a canonical responsive playback page with metadata and accessible controls.
 - [ ] Public videos render through `MultiPreview` and appear only in enabled feed surfaces.
@@ -24,7 +28,6 @@ Complete the user-facing video workflow from editor metadata and preview through
 - [ ] Validate keyboard operation, responsive sizing, interrupted playback, missing derivatives, and mixed-feed rendering.
 
 ## Notes
-- Depends on Tickets 0044 and 0045.
 - Rich external video embeds belong with the safe link-preview work in Ticket 0040; this ticket covers hosted video.
 - Draft support remains out of scope per completed Ticket 0011.
 
@@ -38,5 +41,4 @@ Complete the user-facing video workflow from editor metadata and preview through
 - shared/types/index.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

@@ -1,14 +1,17 @@
 # Ticket 0040: Safe Link Metadata Previews
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Document the metadata fields and network restrictions required for remote URL inspection.
+- Next: Document the metadata fields and network restrictions required for remote URL inspection.
+
+## Dependencies
+- [0039](0039-link-publishing-foundation.md): Metadata previews need the Link contract and publication path.
 
 ## Goal
 Generate useful link previews without allowing remote metadata fetches to expose internal services or consume unbounded server resources.
 
-## Done Looks Like
+## Requirements
 - [ ] Link previews can resolve a title, description, canonical URL, and representative image when a remote page provides them.
 - [ ] Fetches reject private or reserved network targets and revalidate every redirect destination.
 - [ ] Fetches enforce protocol, timeout, redirect, response-size, and content-type limits.
@@ -24,7 +27,6 @@ Generate useful link previews without allowing remote metadata fetches to expose
 - [ ] Cover loopback, private address, redirect, oversized response, timeout, malformed HTML, and successful preview cases.
 
 ## Notes
-- Depends on Ticket 0039 for the link contract and publication path.
 - This is the rich link preview portion of Roadmap C4. It is separate from basic publishing because server-side URL fetching introduces SSRF and resource-exhaustion risks.
 - Publication must remain usable when metadata extraction fails.
 
@@ -36,5 +38,4 @@ Generate useful link previews without allowing remote metadata fetches to expose
 - docs/Roadmap.md
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.

@@ -1,14 +1,14 @@
 # Ticket 0020: Checkout Flow Feature Flag Foundation
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Low
-- Next action: Define feature flag name and default disabled behavior
+- Next: Define feature flag name and default disabled behavior
 
 ## Goal
 Prepare store checkout architecture behind a feature flag so monetization work can progress safely without exposing incomplete flows.
 
-## Done Looks Like
+## Requirements
 - [ ] Checkout routes/actions are gated by a server-backed feature flag.
 - [ ] Disabled state hides or replaces purchase controls cleanly.
 - [ ] No accidental checkout path is reachable when flag is off.
@@ -28,5 +28,3 @@ Prepare store checkout architecture behind a feature flag so monetization work c
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

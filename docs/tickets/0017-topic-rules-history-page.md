@@ -1,14 +1,14 @@
 # Ticket 0017: Topic Rules And History Page
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Low
-- Next action: Decide page route and minimal rules schema
+- Next: Decide page route and minimal rules schema
 
 ## Goal
 Provide a topic-level rules/summary page with revision history to improve clarity and moderation transparency.
 
-## Done Looks Like
+## Requirements
 - [ ] Topic has a dedicated rules/summary view.
 - [ ] Rules changes are versioned with timestamps.
 - [ ] Users can see current rules and recent changes.
@@ -28,5 +28,3 @@ Provide a topic-level rules/summary page with revision history to improve clarit
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

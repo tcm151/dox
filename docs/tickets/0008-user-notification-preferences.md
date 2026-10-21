@@ -1,14 +1,14 @@
 # Ticket 0008: Add User Notification Preferences
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define first-pass preference model (in-app + email toggles)
+- Next: Define first-pass preference model (in-app + email toggles)
 
 ## Goal
 Let users control notification behavior from settings without requiring moderator/admin intervention.
 
-## Done Looks Like
+## Requirements
 - [ ] User preferences are persisted and loaded in settings.
 - [ ] Notification delivery respects user preference toggles.
 - [ ] Defaults are documented and sensible for self-hosted communities.
@@ -28,5 +28,3 @@ Let users control notification behavior from settings without requiring moderato
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

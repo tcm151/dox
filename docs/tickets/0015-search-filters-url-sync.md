@@ -1,14 +1,14 @@
 # Ticket 0015: Search Filters With URL Sync
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Pick initial filter set for first release
+- Next: Pick initial filter set for first release
 
 ## Goal
 Add practical search filters and keep filter state synchronized in the URL for shareable queries.
 
-## Done Looks Like
+## Requirements
 - [ ] Search supports initial filter set (type/topic/user/date or subset).
 - [ ] URL query string reflects active search state.
 - [ ] Refresh/back/forward preserve search context.
@@ -28,5 +28,3 @@ Add practical search filters and keep filter state synchronized in the URL for s
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

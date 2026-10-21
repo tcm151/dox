@@ -1,14 +1,14 @@
 # Ticket 0026: CI Pipeline Baseline
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Define first CI workflow stages and trigger rules
+- Next: Define first CI workflow stages and trigger rules
 
 ## Goal
 Add a baseline CI pipeline that validates install, type-check, build, and core smoke checks on every PR.
 
-## Done Looks Like
+## Requirements
 - [ ] CI runs on pull requests and default branch pushes.
 - [ ] Pipeline includes install, type-check, build, and smoke checks.
 - [ ] Failed checks block merge by policy.
@@ -20,6 +20,7 @@ Add a baseline CI pipeline that validates install, type-check, build, and core s
 
 ## Notes
 - Keep first pass reliable and fast before expanding matrix coverage.
+- The initial smoke check can verify application startup and health. Ticket 0027 adds the broader API flow suite once the pipeline exists.
 
 ## Relevant Files
 - package.json

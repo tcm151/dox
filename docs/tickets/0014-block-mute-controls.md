@@ -1,14 +1,14 @@
 # Ticket 0014: Block And Mute Controls
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define first-pass block targets (users/topics/keywords)
+- Next: Define first-pass block targets (users/topics/keywords)
 
 ## Goal
 Let users reduce unwanted content by managing personal block and mute settings.
 
-## Done Looks Like
+## Requirements
 - [ ] Users can block/mute supported targets from settings/profile surfaces.
 - [ ] Feed/search/inbox respect block/mute settings.
 - [ ] Controls are reversible and easy to understand.
@@ -28,5 +28,3 @@ Let users reduce unwanted content by managing personal block and mute settings.
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

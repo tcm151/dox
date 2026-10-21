@@ -1,14 +1,14 @@
 # Ticket 0004: Expand Editor Keyboard Shortcuts
 
 ## Status
-- State: Done
+- State: Completed
 - Priority: Low
-- Next action: None
+- Next: None
 
 ## Goal
 Improve authoring speed by adding a small set of reliable keyboard shortcuts in the post editor.
 
-## Done Looks Like
+## Requirements
 - [x] At least 3 new editor shortcuts are implemented.
 - [x] Shortcut behaviors are discoverable in UI/help text.
 - [x] Existing Ctrl/Cmd+S draft-save behavior is unchanged.

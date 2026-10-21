@@ -1,14 +1,17 @@
 # Ticket 0022: Contract Tests For High-Risk Routes
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: High
-- Next action: Select first 5 endpoints for contract coverage
+- Next: Select first 5 endpoints for contract coverage
+
+## Dependencies
+- [0026](0026-ci-pipeline-baseline.md): Completion requires CI to run the contract tests reliably.
 
 ## Goal
 Add tests around critical API contracts to catch regressions in auth, moderation, media, and vote/report flows.
 
-## Done Looks Like
+## Requirements
 - [ ] High-risk routes have baseline contract tests.
 - [ ] Tests validate status codes, auth gates, and key response fields.
 - [ ] CI runs contract tests reliably.
@@ -28,5 +31,3 @@ Add tests around critical API contracts to catch regressions in auth, moderation
 
 ## Progress Log
 - 2026-04-13: Ticket created.
-
-

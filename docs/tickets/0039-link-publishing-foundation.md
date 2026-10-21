@@ -1,14 +1,14 @@
 # Ticket 0039: Link Publishing Foundation
 
 ## Status
-- State: Todo
+- State: Planned
 - Priority: Medium
-- Next action: Define the shared `Link` contract and matching SurrealDB table fields.
+- Next: Define the shared `Link` contract and matching SurrealDB table fields.
 
 ## Goal
 Make links a first-class persisted content type so the existing link editor can validate and publish a URL, title, content, and topics through an authenticated API.
 
-## Done Looks Like
+## Requirements
 - [ ] Shared types and the SurrealDB schema define the same link record shape.
 - [ ] Authenticated users can publish valid HTTP or HTTPS links with at least one topic from `/editor/link`.
 - [ ] Invalid payloads, disabled link publishing, and unauthorized requests are rejected server-side.
@@ -36,5 +36,4 @@ Make links a first-class persisted content type so the existing link editor can 
 - server/api/post/add.ts
 
 ## Progress Log
-<!-- Add newest progress entries first; keep this log in reverse chronological order. -->
 - 2026-09-28: Ticket created.
