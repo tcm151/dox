@@ -8,12 +8,12 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
                 replyTo.id, replyTo.title, topics, comments, votes, score,
-                archived, images, visits
+                archived, images.{id, url} AS images, visits
             FROM post
             WHERE archived != true
             AND (topics CONTAINSANY $user.topics OR $user.following CONTAINS user.id)
             ORDER BY time DESC
-            FETCH user, replyTo, images
+            FETCH user, replyTo
         `)
         .addRecord("user", auth.id)
         .queryAll<Post>()
@@ -22,12 +22,12 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, content, time,
                 topics, quote, replies, votes, score,
-                edited, timeEdited, visits, images
+                edited, timeEdited, visits, images.{id, url} AS images
             FROM thread
             WHERE replyTo = NONE
             AND (topics CONTAINSANY $user.topics OR $user.following CONTAINS user.id)
             ORDER BY time DESC
-            FETCH user, quote, quote.user, images
+            FETCH user, quote, quote.user
         `)
         .addRecord("user", auth.id)
         .queryAll<Thread>()

@@ -1,8 +1,16 @@
 import type { Post } from "@@/shared/types"
 
+type CreatePostRequest = {
+    title: string
+    content: string
+    replyTo?: string
+    topics: string[]
+    images?: string[]
+}
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    let post = await readBody<Post>(event)
+    const post = await readBody<CreatePostRequest>(event)
 
     return await new DatabaseQuery()
         .addSql(`
@@ -18,8 +26,8 @@ export default defineEventHandler(async (event) => {
         .addRecord("user", auth.id)
         .addParameter("title", post.title)
         .addParameter("content", post.content)
-        .addRecord('replyTo', post.replyTo as string, true)
+        .addRecord('replyTo', post.replyTo ?? "", true)
         .addRecords("topics", post.topics)
-        .addRecords("images", (post.images as string[]) ?? [])
+        .addRecords("images", post.images ?? [])
         .queryOne<Post>()
 })

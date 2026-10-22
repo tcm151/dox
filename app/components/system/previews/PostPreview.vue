@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post, Image } from '@@/shared/types'
+import type { Post } from '@@/shared/types'
 
 const props = defineProps<{
     post: Post
@@ -35,7 +35,7 @@ const props = defineProps<{
                     {{ post.title }}
                 </h3>
             </div>
-            <img v-if="post.images[0]" class="br-medium" :src="(post.images[0] as Image).url">
+            <img v-if="post.images[0]" class="br-medium" :src="post.images[0].url">
         </div>
     </div>
 </template>

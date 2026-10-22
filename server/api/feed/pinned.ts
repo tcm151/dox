@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
             SELECT *
             FROM pin
             WHERE active = true
-            FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images;
+            FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images.url;
         `)
         .queryAll<Post>()
 })

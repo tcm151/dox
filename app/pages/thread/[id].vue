@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ThreadReply from './components/ThreadReply.vue'
 import ExtraOptions from './components/ExtraOptions.vue'
-import type { Thread, Image } from '@@/shared/types'
+import type { Thread } from '@@/shared/types'
 
 const route = useRoute()
 const hints = useHints()
@@ -166,7 +166,7 @@ function toggleOptions() {
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
                 <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
-                    <img v-for="image in thread.images" :src="(image as Image).url">
+                    <img v-for="image in thread.images" :src="image.url">
                 </aside>
                 <aside v-if="thread.quote" class="quote br-medium mb-3 px-3 pt-3">
                     <div class="row wrap g-1">

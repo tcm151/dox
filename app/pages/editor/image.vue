@@ -19,9 +19,28 @@ async function submit() {
         return
     }
 
-    submitting.value = true
-    hints.addWarning("Image publishing is not available yet.")
-    submitting.value = false
+    try {
+        submitting.value = true
+        await useApi("/api/image/publish", {
+            body: {
+                images: images.uploaded.map(image => image.id),
+                description: description.value,
+                topics: topics.items,
+            },
+        })
+
+        images.uploaded = []
+        topics.clear()
+        description.value = ""
+        hints.addSuccess("Images published.")
+        await navigateTo("/feed/images")
+    }
+    catch {
+        hints.addError("Failed to publish images.")
+    }
+    finally {
+        submitting.value = false
+    }
 }
 </script>
 

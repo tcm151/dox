@@ -31,7 +31,7 @@ Bring thread editor capabilities in line with post editor where the product mode
 	- Post editor supports server-backed draft load/save/update and Ctrl+S save.
 	- Existing `draft` records are post-shaped: they require `title`, allow `replyTo` only for posts, and do not carry a `kind`/`type` field.
 	- Do not show Drafts actions on thread, link, poll, image, or audio editors until those variants have concrete persistence needs.
-- Link, poll, image, and audio editors now present post-style shells, validation, topics, previews, and explicit unavailable-publishing notices where no create API exists yet.
+- Link, poll, and audio editors still show unavailable-publishing notices where no create API exists. The image editor now publishes standalone images with descriptions and topics.
 - Reusable dropdown/autocomplete work has been split into Ticket 0038 so mention infrastructure does not block this parity ticket.
 
 ### Watch-outs
@@ -56,10 +56,13 @@ Bring thread editor capabilities in line with post editor where the product mode
 - app/components/form/fields/TopicField.vue
 - app/components/system/previews/ThreadPreview.vue
 - app/pages/thread/[id].vue
+- app/pages/image/[id].vue
 - server/api/thread/add.ts
+- server/api/image/publish.ts
 - server/assets/schema.surql
 
 ## Progress Log
+- 2026-10-22: Added standalone image publishing with descriptions and topics, and exposed the metadata in image feed and detail views.
 - 2026-07-21: Completed current thread editor parity scope and moved ticket to completed.
 - 2026-07-21: Completed current thread editor parity scope and split reusable dropdown/autocomplete follow-up into Ticket 0038.
 - 2026-07-21: Updated editor component APIs so `TopicField` and `UploadedImages` accept the relevant composable objects directly.

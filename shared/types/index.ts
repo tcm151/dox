@@ -65,7 +65,7 @@ export interface Post extends Sortable {
     replyTo?: Post & string
     topics: string[]
     comments: (Comment & string)[]
-    images: (Image & string)[]
+    images: Attachment[]
     archived: boolean
     edited: boolean
     timeEdited?: string
@@ -98,7 +98,7 @@ export interface Thread extends Sortable {
     replyTo?: Thread & string
     topics: string[]
     replies: (Thread & string)[]
-    images: (Image & string)[]
+    images: Attachment[]
     chain?: Thread[]
     archived: boolean
     deleted: boolean
@@ -114,7 +114,15 @@ export interface Media extends Sortable {
     tokens: number
 }
 
-export interface Image extends Media { }
+export interface Image extends Media {
+    description: string
+    topics: string[]
+}
+
+export interface Attachment extends Record {
+    url: string
+}
+
 export interface Audio extends Media { }
 
 export interface Pin extends Record {

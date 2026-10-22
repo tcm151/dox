@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT *
             FROM pin
-            FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images;
+            FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images.url;
         `)
         .queryAll<Pin>()
 })

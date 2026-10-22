@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, content, time,
             replyTo.id, replyTo.title, topics, votes, archived, edited, timeEdited, visits,
-            images,
+            images.{id, url} AS images,
             (
                 SELECT id, time, user.id, user.name, post,
                     replyTo, content, votes, score, edited, deleted, timeEdited
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
                 FETCH user
             ) AS comments
             FROM $post
-            FETCH user, replyTo, images
+            FETCH user, replyTo
         `)
         .addRecord("post", `post:${id}`)
         .queryOne<Post>()

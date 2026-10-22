@@ -7,11 +7,11 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
             replyTo.id, replyTo.title, topics, comments, votes, score,
-            archived, images, visits
+            archived, images.{id, url} AS images, visits
             FROM post
             WHERE archived != true
             ORDER BY time DESC
-            FETCH user, replyTo, images
+            FETCH user, replyTo
         `)
         .queryAll<Post>()
     
