@@ -35,13 +35,14 @@ Deployment model:
 
 - `server/api/`: HTTP route handlers (auth, content, moderation, admin, developer)
 - `server/middleware/protection.ts`: global request protection (rate limiting)
-- `server/plugins/01.migrations.server.ts`: startup schema/migration sync and default account logic
+- `server/plugins/01.startup.server.ts`: startup schema/migration sync, default account setup, and health status
+- `server/middleware/00.startup.ts`: blocks requests until startup is ready and serves the unavailable response
 - `server/plugins/errorHandler.ts`: server-side error capture/logging
 - `server/plugins/cleanup.ts`: shutdown cleanup
 - `server/routes/cdn/`: media delivery endpoints
 - `server/utils/`: backend service layer (auth, database, media, email, settings)
 - `server/assets/schema.surql`: schema definitions and table-level rules
-- `server/assets/migrations.surql`: migration statements run at startup
+- `server/assets/migrations/<version>.surql`: ordered, versioned migrations
 
 ### 2.3 Shared (`shared/`)
 
@@ -55,11 +56,13 @@ Deployment model:
 Nuxt runs in SSR mode by default with selected route groups configured as CSR-only in `nuxt.config.ts` route rules (admin/developer/editor/moderator/settings style routes).
 
 Boot sequence:
-1. App process starts, runtime config loaded from env.
-2. Database connection is initialized lazily through `DatabaseQuery` usage.
-3. Startup plugin `01.migrations.server.ts` applies schema + migrations.
-4. A default account is created when the account table is empty; startup fails unless all three `DEFAULT_USER_*` values are configured for that first account.
-5. Client bootstraps shell (`app/app.vue`) and loads app settings store.
+1. App process starts and loads runtime config from env.
+2. Startup sets health to `starting` and initializes the database through `DatabaseQuery`.
+3. A fresh database receives `schema.surql`, which records the current app version.
+4. Later starts apply versioned migration files newer than the database version, in numeric order. Each file records its version in the same transaction as its changes.
+5. A default account is created when the account table is empty. The first account requires all three `DEFAULT_USER_*` values.
+6. Startup sets health to `ready`. Until then, `/api/health` remains available and reports the attempted version if a migration fails; after migrations succeed, it reports the app version. Other requests receive a 503 and browser requests use `/unavailable`.
+7. The unavailable page bypasses the normal app shell and settings fetch. Normal client startup loads app settings through `app/app.vue`.
 
 ### 3.2 Frontend initialization path
 
@@ -102,7 +105,9 @@ Design pattern:
 - Record relations
 - Uniqueness/index constraints
 
-`server/assets/migrations.surql` is for incremental data/schema updates that must execute at startup.
+Fresh installs use `server/assets/schema.surql` and record the current app version in the migration version table.
+
+Subsequent starts read `server/assets/migrations/<version>.surql`, apply files newer than the latest applied migration in numeric order, and record each version in its migration transaction. New migration files should wrap their changes and final version record in a transaction.
 
 ### 4.3 Core Entities and Relationships
 
@@ -258,7 +263,7 @@ If you change auth/session:
 If you change data entities:
 - Update `shared/types/index.ts`
 - Update `server/assets/schema.surql`
-- Add migration logic in `server/assets/migrations.surql` when needed
+- Add a versioned migration in `server/assets/migrations/` when needed
 - Validate all API handlers using those records
 
 If you change settings behavior:

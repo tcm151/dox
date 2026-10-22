@@ -1,96 +1,110 @@
 -- ------------------------------
+-- TABLE: migrations
+-- ------------------------------
+DEFINE TABLE migration SCHEMAFULL;
+DEFINE FIELD version ON migration
+    TYPE string;
+DEFINE FIELD time ON migration
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE INDEX version ON migration
+    FIELDS version UNIQUE;
+
+CREATE ONLY migration SET version = $version;
+
+
+-- ------------------------------
 -- TABLE: account
 -- ------------------------------
-DEFINE TABLE OVERWRITE account SCHEMAFULL;
-DEFINE FIELD OVERWRITE email ON account
+DEFINE TABLE account SCHEMAFULL;
+DEFINE FIELD email ON account
     TYPE string ASSERT string::is_email($value);
-DEFINE INDEX OVERWRITE email ON account
+DEFINE INDEX email ON account
     FIELDS email UNIQUE;
-DEFINE FIELD OVERWRITE password ON account
+DEFINE FIELD password ON account
     TYPE string;
-DEFINE FIELD OVERWRITE user ON account
+DEFINE FIELD user ON account
     TYPE record<user>;
-DEFINE INDEX OVERWRITE user ON account
+DEFINE INDEX user ON account
     FIELDS user UNIQUE;
 
 
 -- ------------------------------
 -- TABLE: user
 -- ------------------------------
-DEFINE TABLE OVERWRITE user SCHEMAFULL;
-DEFINE FIELD OVERWRITE name ON user
+DEFINE TABLE user SCHEMAFULL;
+DEFINE FIELD name ON user
     TYPE string ASSERT $value = /^[\w]{3,32}$/;
-DEFINE INDEX OVERWRITE name ON user
+DEFINE INDEX name ON user
     FIELDS name UNIQUE;
-DEFINE FIELD OVERWRITE link ON user
+DEFINE FIELD link ON user
     TYPE option<string>;
-DEFINE FIELD OVERWRITE description on user
+DEFINE FIELD description on user
     TYPE option<string>;
-DEFINE FIELD OVERWRITE dateJoined ON user 
+DEFINE FIELD dateJoined ON user
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE topics ON user
+DEFINE FIELD topics ON user
     TYPE array<record<topic>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE followers ON user
+DEFINE FIELD followers ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE following ON user
+DEFINE FIELD following ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE tokens ON user
+DEFINE FIELD tokens ON user
     TYPE int DEFAULT ALWAYS 5000 ASSERT $value >= 0 AND $value <= 65536;
-DEFINE FIELD OVERWRITE roles ON user
+DEFINE FIELD roles ON user
     TYPE array<string> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE traits ON user
+DEFINE FIELD traits ON user
     TYPE array<string> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE visits ON user
+DEFINE FIELD visits ON user
     TYPE number DEFAULT ALWAYS 0;
-DEFINE FIELD OVERWRITE votes.positive ON user
+DEFINE FIELD votes.positive ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.misleading ON user
+DEFINE FIELD votes.misleading ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.negative ON user
+DEFINE FIELD votes.negative ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE score ON user
+DEFINE FIELD score ON user
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 
 
 -- ------------------------------
 -- TABLE: session
 -- ------------------------------
-DEFINE TABLE OVERWRITE session SCHEMAFULL;
-DEFINE FIELD OVERWRITE account ON session
+DEFINE TABLE session SCHEMAFULL;
+DEFINE FIELD account ON session
     TYPE record<account>;
-DEFINE FIELD OVERWRITE time ON session
+DEFINE FIELD time ON session
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE invalidated ON session
+DEFINE FIELD invalidated ON session
     TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
 -- TABLE: topic
 -- ------------------------------
-DEFINE TABLE OVERWRITE topic SCHEMAFULL;
-DEFINE FIELD OVERWRITE description ON topic
+DEFINE TABLE topic SCHEMAFULL;
+DEFINE FIELD description ON topic
     TYPE option<string>;
-DEFINE FIELD OVERWRITE posts ON topic
+DEFINE FIELD posts ON topic
     TYPE array<record<post>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE threads ON topic
+DEFINE FIELD threads ON topic
     TYPE array<record<thread>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE visits ON topic
+DEFINE FIELD visits ON topic
     TYPE number DEFAULT ALWAYS 0;
-DEFINE FIELD OVERWRITE followers ON topic
+DEFINE FIELD followers ON topic
     COMPUTED SELECT VALUE id FROM user WHERE topics CONTAINS $parent.id;
-DEFINE FIELD OVERWRITE moderators ON topic
+DEFINE FIELD moderators ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE firstUsed ON topic
+DEFINE FIELD firstUsed ON topic
     COMPUTED time::min(array::union(posts.time, threads.time));
-DEFINE FIELD OVERWRITE votes.positive ON topic
+DEFINE FIELD votes.positive ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.misleading ON topic
+DEFINE FIELD votes.misleading ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.negative ON topic
+DEFINE FIELD votes.negative ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE score ON topic
+DEFINE FIELD score ON topic
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
-DEFINE EVENT OVERWRITE removeBlank ON topic WHEN $event = 'UPDATE' THEN {
+DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
     IF array::len($after.posts) = 0 AND array::len($after.threads) = 0 {
         DELETE $after.id;
     };
@@ -100,46 +114,46 @@ DEFINE EVENT OVERWRITE removeBlank ON topic WHEN $event = 'UPDATE' THEN {
 -- ------------------------------
 -- TABLE: post
 -- ------------------------------
-DEFINE TABLE OVERWRITE post SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON post
+DEFINE TABLE post SCHEMAFULL;
+DEFINE FIELD user ON post
     TYPE record<user>;
-DEFINE FIELD OVERWRITE title ON post
+DEFINE FIELD title ON post
     TYPE string ASSERT $value = /.{4,128}/;
-DEFINE FIELD OVERWRITE content ON post
+DEFINE FIELD content ON post
     TYPE string;
-DEFINE FIELD OVERWRITE time ON post
+DEFINE FIELD time ON post
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE replyTo ON post
+DEFINE FIELD replyTo ON post
     TYPE option<record<post>>;
-DEFINE FIELD OVERWRITE topics ON post
+DEFINE FIELD topics ON post
     TYPE array<record<topic>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE comments ON post
+DEFINE FIELD comments ON post
     TYPE array<record<comment>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE images ON post
+DEFINE FIELD images ON post
     TYPE array<record<image>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE archived ON post
+DEFINE FIELD archived ON post
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE deleted ON post
+DEFINE FIELD deleted ON post
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE edited ON post
+DEFINE FIELD edited ON post
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE timeEdited ON post
+DEFINE FIELD timeEdited ON post
     TYPE option<datetime>;
-DEFINE FIELD OVERWRITE visits ON post
+DEFINE FIELD visits ON post
     TYPE number DEFAULT ALWAYS 0;
-DEFINE FIELD OVERWRITE votes.positive ON post
+DEFINE FIELD votes.positive ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.misleading ON post
+DEFINE FIELD votes.misleading ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.negative ON post
+DEFINE FIELD votes.negative ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.awards ON post
+DEFINE FIELD votes.awards ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.saves ON post
+DEFINE FIELD votes.saves ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE score ON post
+DEFINE FIELD score ON post
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
-DEFINE EVENT OVERWRITE updateTopics ON post WHEN $event = 'CREATE' THEN {
+DEFINE EVENT updateTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
             CREATE $topic SET posts = [$after.id];
@@ -154,52 +168,52 @@ DEFINE EVENT OVERWRITE updateTopics ON post WHEN $event = 'CREATE' THEN {
 -- ------------------------------
 -- TABLE: draft
 -- ------------------------------
-DEFINE TABLE OVERWRITE draft SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON draft
+DEFINE TABLE draft SCHEMAFULL;
+DEFINE FIELD user ON draft
     TYPE record<user>;
-DEFINE FIELD OVERWRITE title ON draft
+DEFINE FIELD title ON draft
     TYPE string ASSERT $value = /.{4,128}/;
-DEFINE FIELD OVERWRITE content ON draft
+DEFINE FIELD content ON draft
     TYPE string;
-DEFINE FIELD OVERWRITE time ON draft
+DEFINE FIELD time ON draft
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE replyTo ON draft
+DEFINE FIELD replyTo ON draft
     TYPE option<record<post>>;
-DEFINE FIELD OVERWRITE topics ON draft
+DEFINE FIELD topics ON draft
     TYPE array<record<topic>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE images ON draft
+DEFINE FIELD images ON draft
     TYPE array<record<image>> DEFAULT ALWAYS [];
 
 
 -- ------------------------------
 -- TABLE: comment
 -- ------------------------------
-DEFINE TABLE OVERWRITE comment SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON comment
+DEFINE TABLE comment SCHEMAFULL;
+DEFINE FIELD user ON comment
     TYPE record<user>;
-DEFINE FIELD OVERWRITE post ON comment
+DEFINE FIELD post ON comment
     TYPE record<post>;
-DEFINE FIELD OVERWRITE content ON comment
+DEFINE FIELD content ON comment
     TYPE string;
-DEFINE FIELD OVERWRITE time ON comment
+DEFINE FIELD time ON comment
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE replyTo ON comment
+DEFINE FIELD replyTo ON comment
     TYPE record<post | comment>;
-DEFINE FIELD OVERWRITE deleted ON comment
+DEFINE FIELD deleted ON comment
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE edited ON comment
+DEFINE FIELD edited ON comment
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE timeEdited ON comment
+DEFINE FIELD timeEdited ON comment
     TYPE option<datetime>;
-DEFINE FIELD OVERWRITE votes.positive ON comment
+DEFINE FIELD votes.positive ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.misleading ON comment
+DEFINE FIELD votes.misleading ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.negative ON comment
+DEFINE FIELD votes.negative ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE score ON comment
+DEFINE FIELD score ON comment
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len());
-DEFINE EVENT OVERWRITE updatePost ON comment WHEN $event = 'CREATE' THEN {
+DEFINE EVENT updatePost ON comment WHEN $event = 'CREATE' THEN {
     UPDATE $after.post SET comments += $after.id;
 };
 
@@ -207,48 +221,48 @@ DEFINE EVENT OVERWRITE updatePost ON comment WHEN $event = 'CREATE' THEN {
 -- ------------------------------
 -- TABLE: thread
 -- ------------------------------
-DEFINE TABLE OVERWRITE thread SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON thread
+DEFINE TABLE thread SCHEMAFULL;
+DEFINE FIELD user ON thread
     TYPE record<user>;
-DEFINE FIELD OVERWRITE content ON thread
+DEFINE FIELD content ON thread
     TYPE string ASSERT $value = /.{4,512}/;
-DEFINE FIELD OVERWRITE time ON thread
+DEFINE FIELD time ON thread
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE quote ON thread
+DEFINE FIELD quote ON thread
     TYPE option<record<thread>>;
-DEFINE FIELD OVERWRITE quotes ON thread
+DEFINE FIELD quotes ON thread
     TYPE array<record<thread>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE replyTo ON thread
+DEFINE FIELD replyTo ON thread
     TYPE option<record<thread>>;
-DEFINE FIELD OVERWRITE replies ON thread 
+DEFINE FIELD replies ON thread
     TYPE array<record<thread>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE topics ON thread
+DEFINE FIELD topics ON thread
     TYPE array<record<topic>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE images ON thread
+DEFINE FIELD images ON thread
     TYPE array<record<image>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE archived ON thread
+DEFINE FIELD archived ON thread
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE deleted ON thread
+DEFINE FIELD deleted ON thread
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE edited ON thread
+DEFINE FIELD edited ON thread
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE timeEdited ON thread
+DEFINE FIELD timeEdited ON thread
     TYPE option<datetime>;
-DEFINE FIELD OVERWRITE visits ON thread
+DEFINE FIELD visits ON thread
     TYPE number DEFAULT ALWAYS 0;
-DEFINE FIELD OVERWRITE votes.positive ON thread
+DEFINE FIELD votes.positive ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.misleading ON thread
+DEFINE FIELD votes.misleading ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.negative ON thread
+DEFINE FIELD votes.negative ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.awards ON thread
+DEFINE FIELD votes.awards ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.saves ON thread
+DEFINE FIELD votes.saves ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE score ON thread
+DEFINE FIELD score ON thread
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
-DEFINE EVENT OVERWRITE updateTopics ON thread WHEN $event = 'CREATE' THEN {
+DEFINE EVENT updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
             CREATE $topic SET threads = [$after.id];
@@ -258,7 +272,7 @@ DEFINE EVENT OVERWRITE updateTopics ON thread WHEN $event = 'CREATE' THEN {
         }
     };
 };
-DEFINE EVENT OVERWRITE updateReplyTo ON thread WHEN $event = 'CREATE' THEN {
+DEFINE EVENT updateReplyTo ON thread WHEN $event = 'CREATE' THEN {
     IF $after.replyTo != NONE {
         UPDATE $after.replyTo SET replies += $after.id;
     };
@@ -271,218 +285,218 @@ DEFINE EVENT OVERWRITE updateReplyTo ON thread WHEN $event = 'CREATE' THEN {
 -- ------------------------------
 -- TABLE: image
 -- ------------------------------
-DEFINE TABLE OVERWRITE image SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON image
+DEFINE TABLE image SCHEMAFULL;
+DEFINE FIELD user ON image
     TYPE record<user>;
-DEFINE FIELD OVERWRITE type ON image
+DEFINE FIELD type ON image
     TYPE string;
-DEFINE FIELD OVERWRITE name ON image
+DEFINE FIELD name ON image
     TYPE string DEFAULT ALWAYS "";
-DEFINE FIELD OVERWRITE time ON image
+DEFINE FIELD time ON image
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE origin ON image
+DEFINE FIELD origin ON image
     TYPE string;
-DEFINE FIELD OVERWRITE url ON image
+DEFINE FIELD url ON image
     COMPUTED string::concat(origin, "/cdn/image/", record::id(id));
-DEFINE FIELD OVERWRITE tokens ON image
+DEFINE FIELD tokens ON image
     TYPE number DEFAULT ALWAYS 25000;
-DEFINE FIELD OVERWRITE public ON image
+DEFINE FIELD public ON image
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE visits ON image
+DEFINE FIELD visits ON image
     TYPE number DEFAULT ALWAYS 0;
-DEFINE FIELD OVERWRITE votes.positive ON image
+DEFINE FIELD votes.positive ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.misleading ON image
+DEFINE FIELD votes.misleading ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE votes.negative ON image
+DEFINE FIELD votes.negative ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE score ON image
+DEFINE FIELD score ON image
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 
 
 -- ------------------------------
 -- TABLE: pin
 -- ------------------------------
-DEFINE TABLE OVERWRITE pin SCHEMAFULL;
-DEFINE FIELD OVERWRITE item ON pin
+DEFINE TABLE pin SCHEMAFULL;
+DEFINE FIELD item ON pin
     TYPE record<post|thread>;
-DEFINE INDEX OVERWRITE item ON pin
+DEFINE INDEX item ON pin
     FIELDS item UNIQUE;
-DEFINE FIELD OVERWRITE user ON pin
+DEFINE FIELD user ON pin
     TYPE record<user>;
-DEFINE FIELD OVERWRITE active ON pin
+DEFINE FIELD active ON pin
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE time ON pin
+DEFINE FIELD time ON pin
     TYPE datetime DEFAULT ALWAYS time::now();
 
 
 -- ------------------------------
 -- TABLE: notification
 -- ------------------------------
-DEFINE TABLE OVERWRITE notification SCHEMAFULL;
-DEFINE FIELD OVERWRITE recipient ON notification
+DEFINE TABLE notification SCHEMAFULL;
+DEFINE FIELD recipient ON notification
     TYPE record<user>;
-DEFINE FIELD OVERWRITE context ON notification
+DEFINE FIELD context ON notification
     TYPE record<post|comment|user|thread>;
-DEFINE FIELD OVERWRITE message ON notification
+DEFINE FIELD message ON notification
     TYPE string;
-DEFINE FIELD OVERWRITE time ON notification
+DEFINE FIELD time ON notification
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE viewed ON notification
+DEFINE FIELD viewed ON notification
     TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
 -- TABLE: feedback
 -- ------------------------------
-DEFINE TABLE OVERWRITE feedback SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON feedback
+DEFINE TABLE feedback SCHEMAFULL;
+DEFINE FIELD user ON feedback
     TYPE record<user>;
-DEFINE FIELD OVERWRITE content ON feedback
+DEFINE FIELD content ON feedback
     TYPE string;
-DEFINE FIELD OVERWRITE time ON feedback
+DEFINE FIELD time ON feedback
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE dismissed ON feedback
+DEFINE FIELD dismissed ON feedback
     TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
 -- TABLE: report
 -- ------------------------------
-DEFINE TABLE OVERWRITE report SCHEMAFULL;
-DEFINE FIELD OVERWRITE reporter ON report
+DEFINE TABLE report SCHEMAFULL;
+DEFINE FIELD reporter ON report
     TYPE record<user>;
-DEFINE FIELD OVERWRITE subject ON report
+DEFINE FIELD subject ON report
     TYPE record;
-DEFINE FIELD OVERWRITE time ON report
+DEFINE FIELD time ON report
     TYPE datetime DEFAULT ALWAYS time::now();
 
 
 -- ------------------------------
 -- TABLE: accountConfirmation
 -- ------------------------------
-DEFINE TABLE OVERWRITE accountConfirmation SCHEMAFULL;
-DEFINE FIELD OVERWRITE account ON accountConfirmation
+DEFINE TABLE accountConfirmation SCHEMAFULL;
+DEFINE FIELD account ON accountConfirmation
     TYPE record<account>;
-DEFINE FIELD OVERWRITE time ON accountConfirmation
+DEFINE FIELD time ON accountConfirmation
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE used ON accountConfirmation
+DEFINE FIELD used ON accountConfirmation
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE expired ON accountConfirmation
+DEFINE FIELD expired ON accountConfirmation
     COMPUTED time::now() > time + 15m;
 
 
 -- ------------------------------
 -- TABLE: passwordReset
 -- ------------------------------
-DEFINE TABLE OVERWRITE passwordReset SCHEMAFULL;
-DEFINE FIELD OVERWRITE account ON passwordReset
+DEFINE TABLE passwordReset SCHEMAFULL;
+DEFINE FIELD account ON passwordReset
     TYPE record<account>;
-DEFINE FIELD OVERWRITE time ON passwordReset
+DEFINE FIELD time ON passwordReset
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE used ON passwordReset
+DEFINE FIELD used ON passwordReset
     TYPE bool DEFAULT ALWAYS false;
-DEFINE FIELD OVERWRITE expired ON passwordReset
+DEFINE FIELD expired ON passwordReset
     COMPUTED time::now() > time + 15m;
 
 
 -- ------------------------------
 -- TABLE: referralClaim
 -- ------------------------------
-DEFINE TABLE OVERWRITE referralClaim SCHEMAFULL;
-DEFINE FIELD OVERWRITE claimant ON referralClaim
+DEFINE TABLE referralClaim SCHEMAFULL;
+DEFINE FIELD claimant ON referralClaim
     TYPE record<user>;
-DEFINE FIELD OVERWRITE recipient ON referralClaim
+DEFINE FIELD recipient ON referralClaim
     TYPE record<user>;
-DEFINE INDEX OVERWRITE claimant_recipient ON referralClaim
+DEFINE INDEX claimant_recipient ON referralClaim
     FIELDS claimant, recipient UNIQUE;
-DEFINE FIELD OVERWRITE time ON referralClaim
+DEFINE FIELD time ON referralClaim
     TYPE datetime DEFAULT ALWAYS time::now();
 
 
 -- ------------------------------
 -- TABLE: moderationRequest
 -- ------------------------------
-DEFINE TABLE OVERWRITE moderationRequest SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON moderationRequest
+DEFINE TABLE moderationRequest SCHEMAFULL;
+DEFINE FIELD user ON moderationRequest
     TYPE record<user>;
-DEFINE FIELD OVERWRITE topic ON moderationRequest
+DEFINE FIELD topic ON moderationRequest
     TYPE record<topic>;
-DEFINE INDEX OVERWRITE user_topic ON moderationRequest
+DEFINE INDEX user_topic ON moderationRequest
     FIELDS user, topic UNIQUE;
-DEFINE FIELD OVERWRITE approvals ON moderationRequest
+DEFINE FIELD approvals ON moderationRequest
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE denials ON moderationRequest
+DEFINE FIELD denials ON moderationRequest
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD OVERWRITE closed ON moderationRequest
+DEFINE FIELD closed ON moderationRequest
     TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
 -- TABLE: developerQuery
 -- ------------------------------
-DEFINE TABLE OVERWRITE developerQuery SCHEMAFULL;
-DEFINE FIELD OVERWRITE user ON developerQuery
+DEFINE TABLE developerQuery SCHEMAFULL;
+DEFINE FIELD user ON developerQuery
     TYPE record<user>;
-DEFINE FIELD OVERWRITE sql ON developerQuery
+DEFINE FIELD sql ON developerQuery
     TYPE string;
-DEFINE FIELD OVERWRITE results ON developerQuery
+DEFINE FIELD results ON developerQuery
     TYPE any;
-DEFINE FIELD OVERWRITE time ON developerQuery
+DEFINE FIELD time ON developerQuery
     TYPE datetime DEFAULT ALWAYS time::now();
 
 
 -- ------------------------------
 -- TABLE: error
 -- ------------------------------
-DEFINE TABLE OVERWRITE error SCHEMAFULL;
-DEFINE FIELD OVERWRITE status ON error
+DEFINE TABLE error SCHEMAFULL;
+DEFINE FIELD status ON error
     TYPE number;
-DEFINE FIELD OVERWRITE description ON error
+DEFINE FIELD description ON error
     TYPE string;
-DEFINE FIELD OVERWRITE request ON error
+DEFINE FIELD request ON error
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE time ON error
+DEFINE FIELD time ON error
     TYPE datetime DEFAULT ALWAYS time::now();
-DEFINE FIELD OVERWRITE user ON error
+DEFINE FIELD user ON error
     TYPE record|string;
-DEFINE FIELD OVERWRITE stack ON error
+DEFINE FIELD stack ON error
     TYPE string;
-DEFINE FIELD OVERWRITE data ON error
+DEFINE FIELD data ON error
     TYPE object FLEXIBLE;
 
 
 -- ------------------------------
 -- TABLE: appSettings
 -- ------------------------------
-DEFINE TABLE OVERWRITE appSettings SCHEMAFULL;
-DEFINE FIELD OVERWRITE email ON appSettings
+DEFINE TABLE appSettings SCHEMAFULL;
+DEFINE FIELD email ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE moderation ON appSettings
+DEFINE FIELD moderation ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE voting ON appSettings
+DEFINE FIELD voting ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE topics ON appSettings
+DEFINE FIELD topics ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE feeds ON appSettings
+DEFINE FIELD feeds ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE posts ON appSettings
+DEFINE FIELD posts ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE links ON appSettings
+DEFINE FIELD links ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE threads ON appSettings
+DEFINE FIELD threads ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE media.tokens ON appSettings
+DEFINE FIELD media.tokens ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE media.images ON appSettings
+DEFINE FIELD media.images ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE media.audio ON appSettings
+DEFINE FIELD media.audio ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE media.video ON appSettings
+DEFINE FIELD media.video ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE polls ON appSettings
+DEFINE FIELD polls ON appSettings
     TYPE object FLEXIBLE;
-DEFINE FIELD OVERWRITE misc.feedback ON appSettings
+DEFINE FIELD misc.feedback ON appSettings
     TYPE object FLEXIBLE;
 
 IF !record::exists(appSettings:default) {

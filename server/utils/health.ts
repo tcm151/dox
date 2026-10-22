@@ -3,15 +3,22 @@ type Status = "starting" | "ready" | "failed" | "unknown"
 const health = {
     app: "starting" as Status,
     database: "unknown" as Status,
+    version: null as string | null,
     timeStarted: new Date().toISOString(),
     lastChecked: undefined as string | undefined,
 }
 
 export function useHealth() {
-    const config = useRuntimeConfig()
-
-    function setAppStatus(status: Status) {
+    function setStatus(status: Status) {
         health.app = status
+    }
+
+    function getStatus() {
+        return health.app
+    }
+
+    function setVersion(version: string | null) {
+        health.version = version
     }
 
     async function healthReport(event: any) {
@@ -35,7 +42,7 @@ export function useHealth() {
         return {
             app: health.app,
             database: health.database,
-            version: config.public.version,
+            version: health.version,
             timeStarted: health.timeStarted,
             lastChecked: health.lastChecked,
             uptime: process.uptime(),
@@ -43,7 +50,9 @@ export function useHealth() {
     }
 
     return {
-        setAppStatus,
+        setStatus,
+        getStatus,
+        setVersion,
         healthReport,
     }
 }

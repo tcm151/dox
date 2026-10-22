@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const config = useRuntimeConfig()
+const route = useRoute()
 const events = useEvents()
 const settings = useSettings()
 
@@ -8,7 +9,10 @@ useSeoMeta({
     ogSiteName: config.public.site.title,
 })
 
-await callOnce("app.settings", () => settings.refresh())
+const appUnavailable = computed(() => route.path === "/unavailable")
+if (!appUnavailable.value) {
+    await callOnce("app.settings", () => settings.refresh())
+}
 
 // REFACTOR replace full router reload auth refresh with targeted state hydration.
 // events.subscribe(Trigger.authenticatedUser, () => useRouter().go(0))
@@ -62,20 +66,23 @@ if (ENV.isClient()) {
 </script>
 
 <template>
-    <NuxtLoadingIndicator />
-    <Navbar />
-    <Login v-show="showLogin" />
-    <Popup v-if="showPopup" :loading="handlingPopup" :title="popupTitle" :accept="{ action: popupAccept }" :decline="{ action: closePopup }">
-        {{ popupMessage }}
-    </Popup>
-    <UserManager v-show="showUserManager" @close="showUserManager = !showUserManager" />
-    <Window v-if="settings.app.misc.feedback.enabled && showFeedback" title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" @close="showFeedback = false">
-        <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
-    </Window>
-    <NuxtLayout>
-        <NuxtPage />
-    </NuxtLayout>
-    <Hints />
+    <NuxtPage v-if="appUnavailable" />
+    <template v-else>
+        <NuxtLoadingIndicator />
+        <Navbar />
+        <Login v-show="showLogin" />
+        <Popup v-if="showPopup" :loading="handlingPopup" :title="popupTitle" :accept="{ action: popupAccept }" :decline="{ action: closePopup }">
+            {{ popupMessage }}
+        </Popup>
+        <UserManager v-show="showUserManager" @close="showUserManager = !showUserManager" />
+        <Window v-if="settings.app.misc.feedback.enabled && showFeedback" title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" @close="showFeedback = false">
+            <Feedback placeholder="Tell us what you think..." @submit="showFeedback = false" />
+        </Window>
+        <NuxtLayout>
+            <NuxtPage />
+        </NuxtLayout>
+        <Hints />
+    </template>
 </template>
 
 <style lang="scss">

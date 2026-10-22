@@ -75,30 +75,46 @@ Start the app:
 yarn dev
 ```
 
-If setup is correct, logs will show a successful connection message including namespace, database, and URL.
+If setup is correct, logs will show a successful connection message including namespace, database, and URL. Confirm startup completed by requesting `/api/health`; a healthy response has `app` and `database` set to `ready` and includes the running version.
 
 ```
 Connecting to remote/embedded instance...
 Connected to <namespace>:<database> @ <url>.
-Database migrations completed successfully.
 ```
 
 ## 6. Sync Database Schema
 
-Schema and migrations are applied automatically on application startup by [server/plugins/01.migrations.server.ts](../server/plugins/01.migrations.server.ts), which executes both [server/assets/schema.surql](../server/assets/schema.surql) and [server/assets/migrations.surql](../server/assets/migrations.surql).
+Schema and migrations are applied automatically on application startup by [server/plugins/01.startup.server.ts](../server/plugins/01.startup.server.ts). A fresh database receives [server/assets/schema.surql](../server/assets/schema.surql); later changes run from versioned files in `server/assets/migrations/`.
 
 If startup succeeds, you do not need to run manual `surreal import` commands.
 
-If startup fails, check your app logs for `Application startup failed.` and resolve the reported database, migration, or default account configuration issue first.
+If startup fails, check the app logs and `/api/health`. A failed migration reports its attempted version there; after migrations complete, the health response reports the app version. Resolve the database, migration, or default account issue before retrying startup.
 
-## 7. In-App Query Portal
+## 7. Add a Database Migration
+
+Create a new `YYYY.M.patch.surql` file in `server/assets/migrations/` using the next version after the latest migration. Do not edit a migration after release.
+
+Wrap the migration and its version record in one transaction. Record the file version only after its changes succeed:
+
+```sql
+BEGIN TRANSACTION;
+
+-- Schema or data changes go here.
+
+CREATE ONLY migration SET version = 'YYYY.minor.patch';
+COMMIT;
+```
+
+Test fresh startup, the upgrade from the previous version, and a repeated startup. For changes to post deletion, also verify that `post.deleted` remains defined and works when a post with comments is deleted.
+
+## 8. In-App Query Portal
 
 ClassicForum includes a built-in query portal at `/developer/query` (see [app/pages/developer/query.vue](../app/pages/developer/query.vue)) so you can inspect and run queries against your database directly from the application.
 
 - Access is always restricted to authenticated users with the `developer` role, including in development mode (see [app/pages/developer.vue](../app/pages/developer.vue) and [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
 - Queries that target the `developerQuery` table are blocked to preserve audit integrity (see [server/api/developer/database/query.ts](../server/api/developer/database/query.ts)).
 
-## 8. Default Account
+## 9. Default Account
 
 On an empty database, set all three `DEFAULT_USER_*` values before starting the app. Startup creates the default account with the `moderator`, `admin`, and `developer` roles.
 
@@ -110,7 +126,7 @@ Once the app is running:
 
 If the database already contains an account, leave all three `DEFAULT_USER_*` values blank. Startup will not create another default account.
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 - **`Database URL was [...] Check environment variables.`**
     - Verify `SURREAL_TYPE` and `SURREAL_URL` are set correctly.
@@ -131,11 +147,11 @@ If the database already contains an account, leave all three `DEFAULT_USER_*` va
 - **Login/registration appears to work but pages fail to load expected content**
     - Re-check migration startup logs and ensure schema/migrations executed successfully.
 
-## 10. Pull Requests
+## 11. Pull Requests
 
 Keep pull requests focused and use the repository template. It asks for a short summary, test status, and documentation impact.
 
-## 11. Release And Versioning
+## 12. Release And Versioning
 
 ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a steady release and deployment cadence.
 

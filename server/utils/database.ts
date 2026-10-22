@@ -129,7 +129,7 @@ export class DatabaseQuery {
 
     async queryOne<T>(): Promise<T> {
         let responses = await this.execute<T>()
-        if (!responses[0] || !responses[0][0]) {
+        if (responses[0] == undefined || responses[0][0] == undefined) {
             throw createError({
                 status: 404,
                 statusText: "This queryOne returns nothing.",
@@ -140,10 +140,21 @@ export class DatabaseQuery {
 
     async queryAll<T>(): Promise<T[]> {
         let responses = await this.execute<T>()
-        if (!responses[0]) {
+        if (responses[0] == undefined) {
             throw createError({
                 status: 404,
                 statusText: "This queryAll returns nothing.",
+            })
+        }
+        return responses[0]
+    }
+
+    async queryValue<T>(): Promise<T> {
+        let responses = await this.execute<T>()
+        if (responses[0] == undefined) {
+            throw createError({
+                status: 404,
+                statusText: "This queryValue returns nothing.",
             })
         }
         return responses[0]
