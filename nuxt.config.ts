@@ -88,6 +88,7 @@ export default defineNuxtConfig({
         },
     },
     runtimeConfig: {
+        trustedProxies: "",
         smtp: {
             host: "",
             port: "",

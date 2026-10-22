@@ -195,6 +195,7 @@ Runtime configuration is defined in `nuxt.config.ts` and env variables.
 
 Key env groups:
 - App identity and URL: `PORT`, `NUXT_PUBLIC_BASE_URL`, `NUXT_PUBLIC_SITE_TITLE`, `NUXT_PUBLIC_SITE_TITLE_SHORT`
+- Trusted reverse proxies: `NUXT_TRUSTED_PROXIES` (comma-separated IP addresses or narrow CIDRs; empty means no forwarded-header trust)
 - Media storage path: `NUXT_DATA_PATH`
 - Surreal connection: `NUXT_SURREAL_INFO_TYPE`, `NUXT_SURREAL_INFO_URL`, namespace/database, credentials
 - Required first default account: `NUXT_SURREAL_ADMIN_*` (may be blank after an account exists)
@@ -221,6 +222,7 @@ Present controls:
 - Session-based authentication
 - Role gates for privileged routes/actions
 - Global rate limiting middleware for auth and email confirmation endpoints
+- Client IPs from `X-Forwarded-For` are used only when the connecting socket is in `NUXT_TRUSTED_PROXIES`; otherwise the socket address is used
 - Referral token grants are idempotent and constrained to one claim per claimant account
 - Server-side validation and controlled mutation patterns through API handlers
 - Developer query tooling is restricted to `developer` role users

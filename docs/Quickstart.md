@@ -77,7 +77,9 @@ The default account receives the `moderator`, `admin`, and `developer` roles. It
 
 If an account already exists, leave all three values blank. The installer rejects partial configuration and known placeholder passwords.
 
-If you use a reverse proxy or TLS, set `NUXT_PUBLIC_BASE_URL` to the public URL.
+If you use a reverse proxy or TLS, set `NUXT_PUBLIC_BASE_URL` to the public URL. For a reverse proxy, set `NUXT_TRUSTED_PROXIES` to the proxy's exact source IP or narrow CIDR, such as `127.0.0.1,10.0.0.0/24`. Leave it blank when the app is not behind a trusted proxy.
+
+The app uses forwarded client addresses only when the connecting socket belongs to a configured trusted proxy. Configure the proxy to replace incoming `X-Forwarded-For` with the address it observed, or append that observed address consistently. Do not expose the app port to untrusted peers if the proxy network is intended to be the only path to the app.
 
 Nuxt reads the `NUXT_*` settings when the server starts, so changing them and restarting does not require a rebuild.
 

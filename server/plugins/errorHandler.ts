@@ -17,7 +17,7 @@ export default defineNitroErrorHandler(async (error, event) => {
                     path: event.path,
                     method: event.method,
                     headers: {
-                        ip: getRequestIP(event, { xForwardedFor: true }),
+                        ip: getClientAddress(event),
                         origin: getHeader(event, "origin"),
                         host: getHeader(event, "host"),
                         referer: getHeader(event, "referer"),
