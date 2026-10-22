@@ -4,6 +4,7 @@
 .cache
 .output
 .production
+.test-output-*/
 .env
 releases/
 

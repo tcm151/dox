@@ -7,7 +7,7 @@
 
 ## Dependencies
 - [0052](0052-image-attachment-ownership-and-refunds.md): Defines ownership, shared-image deletion, and refund rules required before post cleanup integration.
-- [0054](0054-general-purpose-automated-test-harness.md): Provides the test infrastructure required for cleanup success and failure/retry coverage.
+- [0054](completed/0054-general-purpose-automated-test-harness.md): Provides the test infrastructure required for cleanup success and failure/retry coverage.
 
 ## Goal
 Keep image files, database records, and token refunds consistent across direct image deletion and post deletion. A failed or retried operation must not lose media or refund it twice.

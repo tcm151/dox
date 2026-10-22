@@ -84,6 +84,19 @@ Connecting to remote/embedded instance...
 Connected to <namespace>:<database> @ <url>.
 ```
 
+### Automated Integration Tests
+
+Install the project dependencies, then run the integration smoke tests:
+
+```bash
+yarn install
+yarn test
+```
+
+The test command builds and starts its own Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder.
+
+Add HTTP integration tests under `tests/` and use `@nuxt/test-utils/e2e` to start the test server and make requests. Startup failures include the captured server logs. The same `yarn test` command can be used in CI.
+
 ## 6. Sync Database Schema
 
 Schema and migrations are applied automatically on application startup by [server/plugins/01.startup.server.ts](../server/plugins/01.startup.server.ts). A fresh database receives [server/assets/schema.surql](../server/assets/schema.surql); later changes run from versioned files in `server/assets/migrations/`.
