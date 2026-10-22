@@ -21,16 +21,19 @@ export default defineEventHandler(async (event) => {
                 IF $passwordReset.account.email != $email {
                     THROW "Email does not match with reset request.";
                 };
-    
+
                 RETURN {
                     UPDATE account SET
                         password = crypto::argon2::generate($password)
                     WHERE id = $passwordReset.account.id;
-        
+
                     UPDATE $passwordReset SET
                         used = true;
+
+                    UPDATE session SET
+                        invalidated = true
+                    WHERE account.id = $passwordReset.account.id;
                 };
-    
             `)
             .addParameter("email", body.email)
             .addParameter("password", body.password)

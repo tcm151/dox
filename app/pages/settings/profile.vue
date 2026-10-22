@@ -81,6 +81,22 @@ async function resetPassword() {
         },
     })
 }
+
+async function invalidateSessions() {
+    events.publish(Trigger.showPopup, {
+        title: 'Sign Out Everywhere?',
+        message: 'This will sign you out of all other devices. This session will remain active.',
+        accept: async () => {
+            try {
+                await useApi('/api/profile/sessions/invalidate')
+                hints.addSuccess('All other sessions signed out successfully.')
+            }
+            catch {
+                hints.addError('Failed to sign out other sessions.')
+            }
+        },
+    })
+}
 </script>
 
 <template>
@@ -95,6 +111,9 @@ async function resetPassword() {
                 </button>
                 <button class="link" @click="resetPassword">
                     Reset Password
+                </button>
+                <button class="danger" @click="invalidateSessions">
+                    Sign Out Everywhere
                 </button>
             </div>
             <div class="form">

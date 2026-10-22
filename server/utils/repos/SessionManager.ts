@@ -43,6 +43,7 @@ export class SessionManager {
                 FROM session
                 WHERE id = $id
                 AND invalidated = false
+                AND time::now() - time <= 14d
                 FETCH account, account.user;
             `)
             .addRecord("id", id)
@@ -68,6 +69,19 @@ export class SessionManager {
                 WHERE account.id = $account;
             `)
             .addRecord("account", account.id)
+            .execute()
+    }
+
+    static async invalidateSessions(account: Account, currentSessionId: string) {
+        await new DatabaseQuery()
+            .addSql(`
+                UPDATE session SET
+                    invalidated = true
+                WHERE account.id = $account
+                AND id != $currentSession;
+            `)
+            .addRecord("account", account.id)
+            .addRecord("currentSession", currentSessionId)
             .execute()
     }
 }
