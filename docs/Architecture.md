@@ -38,9 +38,9 @@ Deployment model:
 - `server/plugins/01.startup.server.ts`: startup schema/migration sync, default account setup, and health status
 - `server/middleware/00.startup.ts`: blocks requests until startup is ready and serves the unavailable response
 - `server/plugins/errorHandler.ts`: server-side error capture/logging
-- `server/plugins/cleanup.ts`: shutdown cleanup
+- `server/plugins/cleanup.ts`: stops scheduled tasks and closes the database on shutdown
 - `server/routes/cdn/`: media delivery endpoints
-- `server/utils/`: backend service layer (auth, database, media, email, settings)
+- `server/utils/`: backend service layer (auth, database, media, email, settings, scheduled tasks)
 - `server/assets/schema.surql`: schema definitions and table-level rules
 - `server/assets/migrations/<version>.surql`: ordered, versioned migrations
 
@@ -185,7 +185,8 @@ Flow:
 2. Server validates/processes media.
 3. DB record is created/updated.
 4. File is written to filesystem.
-5. CDN route serves file and associated metadata/visit flows.
+5. Standalone image publication stores description/topics and makes the image public for feed discovery.
+6. CDN route serves file and associated metadata/visit flows.
 
 Media changes must keep filesystem cleanup and database deletion consistent.
 
@@ -235,9 +236,12 @@ For every new write endpoint, review rate limits, replay protection, authorizati
 `server/plugins/01.startup.server.ts` handles startup setup:
 - Reads the fresh schema or pending versioned migrations from server assets storage
 - Completes database setup before normal runtime activity
+- Starts registered scheduled tasks after migrations; each task runs once before its interval begins
 - Creates the required default account when the account table is empty
 - Throws a blocking startup error if migrations fail or an empty database lacks complete `DEFAULT_USER_*` values
 - Reports startup failures through `/api/health` when Nitro starts far enough to serve it. Earlier failures stop the process before health checks are available.
+
+Startup registers scheduled tasks with `server/utils/scheduledTasks.ts` and starts the manager after migrations and account setup. The manager runs each task once before its interval begins, prevents overlapping executions, and clears intervals and waits for in-flight work before the database closes.
 
 Schema changes must update TypeScript contracts and Surreal schema or migrations together.
 

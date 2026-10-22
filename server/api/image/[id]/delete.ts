@@ -1,9 +1,15 @@
-import fs from "node:fs"
 import type { Image } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
+
+    if (!id) {
+        throw createError({
+            status: 400,
+            statusText: "Image ID is required.",
+        })
+    }
 
     const image = await new DatabaseQuery()
         .addSql(`
@@ -20,27 +26,8 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // FIXME deletion order is non-atomic; fs and DB state can diverge on partial failure.
-    // TODO implement compensation strategy (DB-first with retry queue or rollback-safe file handling).
     try {
-        const config = useRuntimeConfig()
-        if (fs.existsSync(`${config.data.path}/image/${id}.${image.type}`)) {
-            fs.rmSync(`${config.data.path}/image/${id}.${image.type}`)
-        }
-
-        await new DatabaseQuery()
-            .addSql(`
-                RETURN {
-                    UPDATE $user SET
-                        tokens += $image.tokens;
-                    
-                    DELETE $image;
-                };
-            `)
-            .addRecord("user", auth.id)
-            .addRecord("image", image.id)
-            .execute()
-
+        await trashImage(id, auth.id)
         return true
     }
     catch (error: any) {

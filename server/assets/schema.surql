@@ -302,6 +302,10 @@ DEFINE FIELD tokens ON image
     TYPE number DEFAULT ALWAYS 25000;
 DEFINE FIELD public ON image
     TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD description ON image
+    TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD topics ON image
+    TYPE array<record<topic>> DEFAULT ALWAYS [];
 DEFINE FIELD visits ON image
     TYPE number DEFAULT ALWAYS 0;
 DEFINE FIELD votes.positive ON image
@@ -312,6 +316,18 @@ DEFINE FIELD votes.negative ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON image
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+
+
+-- ------------------------------
+-- TABLE: mediaTrash
+-- ------------------------------
+DEFINE TABLE mediaTrash SCHEMAFULL;
+DEFINE FIELD type ON mediaTrash
+    TYPE string;
+DEFINE FIELD extension ON mediaTrash
+    TYPE string;
+DEFINE FIELD time ON mediaTrash
+    TYPE datetime DEFAULT ALWAYS time::now();
 
 
 -- ------------------------------

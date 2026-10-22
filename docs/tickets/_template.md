@@ -3,7 +3,7 @@
 
 ## Status
 <!-- Choose one state and priority; use Next: None for completed work -->
-- State: `Planned | In Progress | Completed`
+- State: `Planned | In Progress | Blocked | Completed`
 - Priority: `High | Medium | Low`
 - Next: `single immediate next step`
 
