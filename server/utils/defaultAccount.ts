@@ -17,7 +17,7 @@ export async function setupDefaultAccount(config: DefaultAccount) {
         const credentials = [config.email, config.name, config.password]
 
         if (!credentials.every(Boolean)) {
-            throw new Error("No accounts exist. Set DEFAULT_USER_EMAIL, DEFAULT_USER_NAME, and DEFAULT_USER_PASSWORD to create the required default account.")
+            throw new Error("No accounts exist. Set NUXT_SURREAL_ADMIN_EMAIL, NUXT_SURREAL_ADMIN_NAME, and NUXT_SURREAL_ADMIN_PASSWORD to create the required default account.")
         }
 
         await new DatabaseQuery()

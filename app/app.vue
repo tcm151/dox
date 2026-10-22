@@ -5,6 +5,7 @@ const events = useEvents()
 const settings = useSettings()
 
 useSeoMeta({
+    title: config.public.site.title,
     robots: { index: true },
     ogSiteName: config.public.site.title,
 })

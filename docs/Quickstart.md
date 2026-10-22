@@ -7,7 +7,7 @@ Use this guide to install a forum release on a Linux server. Releases live in ve
 - A Linux VM or server with `systemd`.
 - Root shell access.
 - Node.js LTS installed and available as `node`.
-- A forum release artifact already downloaded to the server, such as `forum-<version>.tar.gz`.
+- A Linux release artifact already downloaded to the server, such as `forum-<version>-linux-x64.tar.gz`.
 
 ## Install The Artifact
 
@@ -15,7 +15,7 @@ Log in as root, then unpack the release under `/root`:
 
 ```bash
 cd /root
-tar -xzf forum-<version>.tar.gz
+tar -xzf forum-<version>-linux-x64.tar.gz
 cd /root/forum/<version>
 ```
 
@@ -34,8 +34,11 @@ The installed layout is:
 		installer.sh
 		.env.example
 		server/
+			node_modules/
 	data/
 ```
+
+Release archives include production dependencies and are specific to the OS and architecture they were built for. Build and stage a separate archive on each target platform, then install the matching archive.
 
 ## Configure Environment
 
@@ -51,21 +54,21 @@ The installer also creates `../.env` from `.env.example` if `../.env` is missing
 The default path uses embedded SurrealDB with data stored beside the versioned release folder:
 
 ```bash
-DATA_PATH=../data
-SURREAL_TYPE=embedded
-SURREAL_URL=rocksdb://../data/database/default.db
+NUXT_DATA_PATH=../data
+NUXT_SURREAL_INFO_TYPE=embedded
+NUXT_SURREAL_INFO_URL=rocksdb://../data/database/default.db
 ```
 
-Set these values before starting the service. Use unique credentials for all three `DEFAULT_USER_*` fields:
+Set these values before starting the service. Use unique credentials for all three `NUXT_SURREAL_ADMIN_*` fields:
 
 ```bash
 PORT=8001
-BASE_URL=http://your-server-hostname-or-ip:8001
-SITE_TITLE="Forum"
-SITE_TITLE_SHORT="Forum"
-DEFAULT_USER_EMAIL=
-DEFAULT_USER_NAME=
-DEFAULT_USER_PASSWORD=
+NUXT_PUBLIC_BASE_URL=http://your-server-hostname-or-ip:8001
+NUXT_PUBLIC_SITE_TITLE="Forum"
+NUXT_PUBLIC_SITE_TITLE_SHORT="Forum"
+NUXT_SURREAL_ADMIN_EMAIL=
+NUXT_SURREAL_ADMIN_NAME=
+NUXT_SURREAL_ADMIN_PASSWORD=
 ```
 
 If values contain spaces, wrap them in quotes.
@@ -74,7 +77,9 @@ The default account receives the `moderator`, `admin`, and `developer` roles. It
 
 If an account already exists, leave all three values blank. The installer rejects partial configuration and known placeholder passwords.
 
-If you use a reverse proxy or TLS, set `BASE_URL` to the public URL.
+If you use a reverse proxy or TLS, set `NUXT_PUBLIC_BASE_URL` to the public URL.
+
+Nuxt reads the `NUXT_*` settings when the server starts, so changing them and restarting does not require a rebuild.
 
 ## Install And Start The Service
 
@@ -101,7 +106,7 @@ Stop the running service before replacing app files:
 cd /root/forum/<current-version>
 ./installer.sh stop
 cd /root
-tar -xzf forum-<new-version>.tar.gz
+tar -xzf forum-<new-version>-linux-x64.tar.gz
 cd /root/forum/<new-version>
 ./installer.sh
 ```

@@ -194,11 +194,13 @@ Media changes must keep filesystem cleanup and database deletion consistent.
 Runtime configuration is defined in `nuxt.config.ts` and env variables.
 
 Key env groups:
-- App identity and URL: `PORT`, `BASE_URL`, titles
-- Media storage path: `DATA_PATH`
-- Surreal connection: `SURREAL_TYPE`, `SURREAL_URL`, namespace/database, credentials
-- Required first default account: `DEFAULT_USER_*` (may be blank after an account exists)
-- SMTP: optional email delivery settings
+- App identity and URL: `PORT`, `NUXT_PUBLIC_BASE_URL`, `NUXT_PUBLIC_SITE_TITLE`, `NUXT_PUBLIC_SITE_TITLE_SHORT`
+- Media storage path: `NUXT_DATA_PATH`
+- Surreal connection: `NUXT_SURREAL_INFO_TYPE`, `NUXT_SURREAL_INFO_URL`, namespace/database, credentials
+- Required first default account: `NUXT_SURREAL_ADMIN_*` (may be blank after an account exists)
+- SMTP: optional `NUXT_SMTP_*` email delivery settings
+
+The production installer loads canonical `NUXT_*` values from the shared `.env` and uses the same launch path for systemd and foreground runs. Nuxt reads runtime values on each process start, so changing deployment settings and restarting does not require rebuilding the release. This setup targets fresh deployments; migration of prior environment files is out of scope.
 
 `AppSettings` runtime configuration is persisted in DB and exposed through settings APIs and admin settings UI.
 
@@ -228,9 +230,9 @@ For every new write endpoint, review rate limits, replay protection, authorizati
 
 ## 11. Startup, Migrations, and Default Account
 
-`server/plugins/01.migrations.server.ts` handles startup setup:
-- Reads schema + migrations from server assets storage
-- Executes both before normal runtime activity
+`server/plugins/01.startup.server.ts` handles startup setup:
+- Reads the fresh schema or pending versioned migrations from server assets storage
+- Completes database setup before normal runtime activity
 - Creates the required default account when the account table is empty
 - Throws a blocking startup error if migrations fail or an empty database lacks complete `DEFAULT_USER_*` values
 - Reports startup failures through `/api/health` when Nitro starts far enough to serve it. Earlier failures stop the process before health checks are available.

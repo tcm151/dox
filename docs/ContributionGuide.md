@@ -19,7 +19,7 @@ ClassicForum supports two SurrealDB modes:
 - **remote**: connect to an external SurrealDB server over RPC.
 - **embedded**: run SurrealDB from inside the app process via a local engine.
 
-Choose one mode and set `SURREAL_TYPE` accordingly.
+Choose one mode and set `NUXT_SURREAL_INFO_TYPE` accordingly.
 
 ## 3. Environment Variables
 
@@ -27,45 +27,47 @@ Create a `.env` file with these parameters:
 
 ```bash
 PORT= # the port of your running Nuxt instance. Ex: 3000
-BASE_URL= # the address of your running Nuxt instance. Ex: http://localhost
+NUXT_PUBLIC_BASE_URL= # the public address of your running Nuxt instance. Ex: http://localhost:3000
 
-SITE_TITLE= # the title you'd like to be displayed in the browser tab
-SITE_TITLE_SHORT= # the shortened title used when space is limited
+NUXT_PUBLIC_SITE_TITLE= # the title you'd like to be displayed in the browser tab
+NUXT_PUBLIC_SITE_TITLE_SHORT= # the shortened title used when space is limited
 
-SURREAL_TYPE= # the SurrealDB instance type. Ex: remote or embedded
+NUXT_SURREAL_INFO_TYPE= # the SurrealDB instance type. Ex: remote or embedded
 # remote example: http://localhost:8000/rpc
 # embedded example: rocksdb://./database/default.db
-SURREAL_URL=
-SURREAL_NAMESPACE= # the namespace you'd like to use. Ex: example
-SURREAL_DATABASE= # the database you'd like to use. Ex: development
-SURREAL_USERNAME= # your SurrealDB root username, when SURREAL_TYPE=remote
-SURREAL_PASSWORD= # your SurrealDB root password, when SURREAL_TYPE=remote
+NUXT_SURREAL_INFO_URL=
+NUXT_SURREAL_INFO_NAMESPACE= # the namespace you'd like to use. Ex: example
+NUXT_SURREAL_INFO_DATABASE= # the database you'd like to use. Ex: development
+NUXT_SURREAL_INFO_USERNAME= # your SurrealDB root username, when remote
+NUXT_SURREAL_INFO_PASSWORD= # your SurrealDB root password, when remote
 
-DEFAULT_USER_EMAIL= # required on an empty database; email for the default account
-DEFAULT_USER_NAME= # required on an empty database; name for the default account
-DEFAULT_USER_PASSWORD= # required on an empty database; password for the default account
+NUXT_SURREAL_ADMIN_EMAIL= # required on an empty database; email for the default account
+NUXT_SURREAL_ADMIN_NAME= # required on an empty database; name for the default account
+NUXT_SURREAL_ADMIN_PASSWORD= # required on an empty database; password for the default account
 
-DATA_PATH= # the path where media and embedded databases are saved
+NUXT_DATA_PATH= # the path where media and embedded databases are saved
 
 # OPTIONAL, only supply if needing to send emails
 # You can use your personal gmail account as an SMTP server
 # https://support.google.com/a/answer/176600?
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USER=
-SMTP_PASS=
-SMTP_SENDER_TITLE=
+NUXT_SMTP_HOST=
+NUXT_SMTP_PORT=
+NUXT_SMTP_USER=
+NUXT_SMTP_PASS=
+NUXT_SMTP_TITLE=
 ```
+
+Use these canonical `NUXT_*` names in `.env`. Nuxt reads them at runtime; restart the app after changing a value. No rebuild is needed.
 
 ## 4. Start SurrealDB (Remote Mode Only)
 
-If `SURREAL_TYPE=remote`, start SurrealDB separately:
+If `NUXT_SURREAL_INFO_TYPE=remote`, start SurrealDB separately:
 
 ```bash
 surreal start --user <username> --pass <password> <protocol>://<path_to_database_file>
 ```
 
-If `SURREAL_TYPE=embedded`, skip this step.
+If `NUXT_SURREAL_INFO_TYPE=embedded`, skip this step.
 
 ## 5. Run the App
 
@@ -129,13 +131,13 @@ If the database already contains an account, leave all three `DEFAULT_USER_*` va
 ## 10. Troubleshooting
 
 - **`Database URL was [...] Check environment variables.`**
-    - Verify `SURREAL_TYPE` and `SURREAL_URL` are set correctly.
-    - If `SURREAL_TYPE=remote`, ensure `SURREAL_URL` points to an RPC endpoint.
+    - Verify `NUXT_SURREAL_INFO_TYPE` and `NUXT_SURREAL_INFO_URL` are set correctly.
+    - If `NUXT_SURREAL_INFO_TYPE=remote`, ensure `NUXT_SURREAL_INFO_URL` points to an RPC endpoint.
 
 - **`Application startup failed.`**
-    - Confirm database connectivity and credentials (`SURREAL_USERNAME`, `SURREAL_PASSWORD`) for remote mode.
-    - Confirm namespace/database values match your target (`SURREAL_NAMESPACE`, `SURREAL_DATABASE`).
-    - If no accounts exist, set all three `DEFAULT_USER_*` values so startup can create the required default account.
+    - Confirm database connectivity and credentials (`NUXT_SURREAL_INFO_USERNAME`, `NUXT_SURREAL_INFO_PASSWORD`) for remote mode.
+    - Confirm namespace/database values match your target (`NUXT_SURREAL_INFO_NAMESPACE`, `NUXT_SURREAL_INFO_DATABASE`).
+    - If no accounts exist, set all three `NUXT_SURREAL_ADMIN_*` values so startup can create the required default account.
 
 - **Cannot access `/developer/query`**
     - The active account must include the `developer` role in all environments.

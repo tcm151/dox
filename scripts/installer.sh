@@ -73,7 +73,12 @@ ensure_environment_file() {
 }
 
 require_runtime() {
-    if ! command -v node >/dev/null 2>&1; then
+    if [ -n "${NODE_BIN:-}" ]; then
+        if [ ! -x "$NODE_BIN" ]; then
+            echo "Configured Node.js executable is unavailable: $NODE_BIN"
+            exit 1
+        fi
+    elif ! command -v node >/dev/null 2>&1; then
         echo "Node.js is required. Install a current Node.js LTS release, then run this script again."
         exit 1
     fi
@@ -83,45 +88,98 @@ require_runtime() {
         echo "Use a staged release artifact that includes server/index.mjs."
         exit 1
     fi
+
+    if [ ! -d "$ROOT_DIR/server/node_modules" ]; then
+        echo "Missing bundled runtime dependencies. Use the release artifact built for this platform."
+        exit 1
+    fi
 }
 
 load_environment() {
     set -a
     . "$ENV_FILE"
     set +a
+
+    export PORT="${PORT:-8001}"
+}
+
+validate_runtime_config() {
+    for name in \
+        NUXT_DATA_PATH \
+        NUXT_PUBLIC_BASE_URL \
+        NUXT_PUBLIC_SITE_TITLE \
+        NUXT_PUBLIC_SITE_TITLE_SHORT \
+        NUXT_SURREAL_INFO_TYPE \
+        NUXT_SURREAL_INFO_URL \
+        NUXT_SURREAL_INFO_NAMESPACE \
+        NUXT_SURREAL_INFO_DATABASE; do
+        if [ -z "${!name:-}" ]; then
+            echo "Set $name in $ENV_FILE."
+            exit 1
+        fi
+    done
+
+    case "$NUXT_SURREAL_INFO_TYPE" in
+        embedded)
+            case "$NUXT_SURREAL_INFO_URL" in
+                rocksdb://*) ;;
+                *)
+                    echo "NUXT_SURREAL_INFO_URL must use the rocksdb:// scheme for embedded mode."
+                    exit 1
+                    ;;
+            esac
+            ;;
+        remote)
+            for name in NUXT_SURREAL_INFO_USERNAME NUXT_SURREAL_INFO_PASSWORD; do
+                if [ -z "${!name:-}" ]; then
+                    echo "Set $name in $ENV_FILE for remote SurrealDB mode."
+                    exit 1
+                fi
+            done
+
+            case "$NUXT_SURREAL_INFO_URL" in
+                */rpc) ;;
+                *)
+                    echo "NUXT_SURREAL_INFO_URL must point to a SurrealDB RPC endpoint in remote mode."
+                    exit 1
+                    ;;
+            esac
+            ;;
+        *)
+            echo "NUXT_SURREAL_INFO_TYPE must be either embedded or remote."
+            exit 1
+            ;;
+    esac
 }
 
 validate_default_account_credentials() {
-    ADMIN_EMAIL="${DEFAULT_USER_EMAIL:-}"
-    ADMIN_NAME="${DEFAULT_USER_NAME:-}"
-    ADMIN_PASSWORD="${DEFAULT_USER_PASSWORD:-}"
+    ADMIN_EMAIL="${NUXT_SURREAL_ADMIN_EMAIL:-}"
+    ADMIN_NAME="${NUXT_SURREAL_ADMIN_NAME:-}"
+    ADMIN_PASSWORD="${NUXT_SURREAL_ADMIN_PASSWORD:-}"
 
     if [ -z "$ADMIN_EMAIL" ] && [ -z "$ADMIN_NAME" ] && [ -z "$ADMIN_PASSWORD" ]; then
         return
     fi
 
     if [ -z "$ADMIN_EMAIL" ] || [ -z "$ADMIN_NAME" ] || [ -z "$ADMIN_PASSWORD" ]; then
-        echo "Set all DEFAULT_USER_* values for the default account, or leave all three blank when an account already exists."
+        echo "Set all NUXT_SURREAL_ADMIN_* values for the default account, or leave all three blank when an account already exists."
         exit 1
     fi
 
     case "$ADMIN_PASSWORD" in
-        admin123|change-this-password)
-            echo "Replace the placeholder DEFAULT_USER_PASSWORD before starting the service."
+            admin123|change-this-password)
+            echo "Replace the placeholder NUXT_SURREAL_ADMIN_PASSWORD before starting the service."
             exit 1
             ;;
     esac
 }
 
 prepare_data_paths() {
-    DATA_PATH="${DATA_PATH:-../data}"
-    mkdir -p "$DATA_PATH"
+    mkdir -p "$NUXT_DATA_PATH"
 
-    if [ "${SURREAL_TYPE:-}" = "embedded" ] && [ -n "${SURREAL_URL:-}" ]; then
-        DATABASE_PATH="${SURREAL_URL#rocksdb://}"
-        if [ "$DATABASE_PATH" != "$SURREAL_URL" ]; then
-            mkdir -p "$(dirname "$DATABASE_PATH")"
-        fi
+    if [ "$NUXT_SURREAL_INFO_TYPE" = "embedded" ]; then
+        DATABASE_PATH="${NUXT_SURREAL_INFO_URL#rocksdb://}"
+        mkdir -p "$(dirname "$DATABASE_PATH")"
     fi
 }
 
@@ -129,7 +187,7 @@ install_service() {
     SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
     require_service_access
 
-    NODE_BIN="$(command -v node)"
+    NODE_BIN="${NODE_BIN:-$(command -v node)}"
 
     cat >"$SERVICE_FILE" <<SERVICE
 [Unit]
@@ -140,8 +198,9 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=$ROOT_DIR
-EnvironmentFile=$ENV_FILE
-ExecStart=$NODE_BIN $SERVER_ENTRY
+Environment=NODE_BIN=$NODE_BIN
+Environment=ENV_FILE=$ENV_FILE
+ExecStart=$ROOT_DIR/installer.sh run
 Restart=on-failure
 RestartSec=5
 
@@ -158,8 +217,9 @@ SERVICE
 }
 
 run_foreground() {
-    echo "Starting forum on ${BASE_URL:-http://localhost:${PORT:-8001}}"
-    exec node "$SERVER_ENTRY"
+    echo "Starting forum on ${NUXT_PUBLIC_BASE_URL}"
+    NODE_BIN="${NODE_BIN:-$(command -v node)}"
+    exec "$NODE_BIN" "$SERVER_ENTRY"
 }
 
 COMMAND="${1:-install}"
@@ -170,6 +230,7 @@ case "$COMMAND" in
         ensure_environment_file
         require_runtime
         load_environment
+        validate_runtime_config
         validate_default_account_credentials
         prepare_data_paths
         install_service
@@ -178,6 +239,7 @@ case "$COMMAND" in
         ensure_environment_file
         require_runtime
         load_environment
+        validate_runtime_config
         validate_default_account_credentials
         prepare_data_paths
         run_foreground

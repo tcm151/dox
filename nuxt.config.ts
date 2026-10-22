@@ -63,7 +63,6 @@ export default defineNuxtConfig({
         pageTransition: { name: "swap", mode: "out-in" },
         layoutTransition: { name: "swap", mode: "out-in" },
         head: {
-            title: process.env.SITE_TITLE,
             link: [
                 { rel: "preconnect", href: "https://fonts.googleapis.com" },
                 { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "anonymous" },
@@ -90,36 +89,36 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         smtp: {
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-            title: process.env.SMTP_SENDER_TITLE,
+            host: "",
+            port: "",
+            user: "",
+            pass: "",
+            title: "",
         },
         data: {
-            path: process.env.DATA_PATH,
+            path: "",
         },
         surreal: {
             info: {
-                type: process.env.SURREAL_TYPE,
-                url: process.env.SURREAL_URL,
-                username: process.env.SURREAL_USERNAME,
-                password: process.env.SURREAL_PASSWORD,
-                namespace: process.env.SURREAL_NAMESPACE,
-                database: process.env.SURREAL_DATABASE,
+                type: "",
+                url: "",
+                username: "",
+                password: "",
+                namespace: "",
+                database: "",
             },
             admin: {
-                email: process.env.DEFAULT_USER_EMAIL,
-                name: process.env.DEFAULT_USER_NAME,
-                password: process.env.DEFAULT_USER_PASSWORD,
+                email: "",
+                name: "",
+                password: "",
             }
         },
         public: {
             version: packageJson.version,
-            baseUrl: process.env.BASE_URL,
+            baseUrl: "",
             site: {
-                title: process.env.SITE_TITLE,
-                titleShort: process.env.SITE_TITLE_SHORT,
+                title: "",
+                titleShort: "",
             },
         },
     },
