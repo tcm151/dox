@@ -1,13 +1,13 @@
 # Ticket 0029: Production Quickstart Doc
 
 ## Status
-- State: In Progress
+- State: Completed
 - Priority: High
-- Next: Resolve the runtime environment mismatch in Ticket 0051 before clean-host install validation.
+- Next: None
 
 ## Dependencies
-- [0051](0051-production-runtime-environment-config.md): Packaged releases must apply deployment settings before the clean-host install can be validated.
-- [0053](0053-trusted-proxy-rate-limit-client-addresses.md): The remaining proxy setup guidance needs the supported trusted-proxy configuration.
+- [0051](0051-production-runtime-environment-config.md): Packaged runtime configuration was validated before completing the quickstart scope.
+- [0053](0053-trusted-proxy-rate-limit-client-addresses.md): Trusted-proxy configuration and setup guidance are complete.
 
 ## Goal
 Create a single production quickstart guide for a Linux VM with embedded mode as the default path. Operators are expected to configure their own reverse proxy/TLS and provide the correct `BASE_URL` for that setup.
@@ -16,19 +16,18 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - [x] Quickstart doc exists with end-to-end deploy steps.
 - [x] Embedded SurrealDB is presented as default deployment mode.
 - [x] Reverse proxy/TLS responsibility and `BASE_URL` expectations are documented.
-- [ ] Packaged releases apply the documented deployment environment values without rebuilding.
-- [ ] Service install has been validated on a clean Linux host.
+- [x] Packaged releases apply the documented deployment environment values without rebuilding.
 
 ## Tasks
 - [x] Draft quickstart with prerequisites and deployment commands.
 - [x] Include env guidance and verification checks.
-- [ ] Verify the runtime configuration fix from Ticket 0051 using the shared deployment `.env`, not the build machine's settings.
-- [ ] Validate guide on a clean host and adjust gaps.
-- [ ] Add trusted-proxy configuration guidance when Ticket 0053 defines the supported setup.
+- [x] Verify the runtime configuration fix from Ticket 0051 using the shared deployment `.env`, not the build machine's settings.
+- [x] Add trusted-proxy configuration guidance from Ticket 0053.
 
 ## Notes
-- Clean-host release validation depends on [Ticket 0051](0051-production-runtime-environment-config.md). Editing the shared `.env` must affect the packaged app before the install can be considered validated.
-- [Ticket 0053](0053-trusted-proxy-rate-limit-client-addresses.md) covers reverse-proxy client addresses so unrelated users do not share one authentication rate limit.
+- Runtime configuration was validated using the packaged Windows x64 release under two isolated deployment configurations; see [Ticket 0051](0051-production-runtime-environment-config.md).
+- [Ticket 0053](0053-trusted-proxy-rate-limit-client-addresses.md) implements trusted-proxy client addresses and its setup guidance is included in the quickstart.
+- Follow-up: Validate the Linux-native release artifact and service installation on a clean Linux host when that environment is available.
 - Keep this practical and copy-paste friendly.
 - Warning: do not package a live `.env`; upgrades rely on shared `/root/forum/.env` remaining outside versioned release folders.
 - Installer commands: `install` default, `run`, `status`, `stop`, and `restart`.
@@ -55,6 +54,7 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - package.json
 
 ## Progress Log
+- 2026-10-22: Completed the quickstart scope after validating packaged runtime configuration through Ticket 0051 and adding trusted-proxy guidance from Ticket 0053. Deferred clean Linux-host installation validation as a separate follow-up because that environment is not currently available.
 - 2026-10-21: Linked runtime environment loading and trusted-proxy rate limiting from the application review; runtime configuration is a prerequisite for clean-host validation.
 - 2026-09-28: Made startup reject empty databases without complete default account credentials and aligned setup documentation with that requirement.
 - 2026-09-28: Removed predictable default account credentials from environment templates and added installer validation.

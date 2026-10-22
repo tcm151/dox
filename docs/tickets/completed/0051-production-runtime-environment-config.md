@@ -30,7 +30,7 @@ Make installed releases use the operator's environment configuration at startup 
 - Release staging installs production dependencies from `yarn.lock` into `server/node_modules`; archives are named for the build OS and architecture. Build a separate artifact for each target platform.
 - Linux-native artifact execution was explicitly deferred by the operator and remains a separate follow-up; Windows x64 packaged runtime checks were completed.
 - [Nuxt runtime config documentation](https://nuxt.com/docs/4.x/guide/going-further/runtime-config#environment-variables) describes this distinction.
-- [Ticket 0029](../0029-production-quickstart-doc.md) needs this fixed before clean-host release validation can be completed.
+- [Ticket 0029](0029-production-quickstart-doc.md) documents the packaged deployment workflow; clean Linux-host validation remains a follow-up.
 
 ## Relevant Files
 - nuxt.config.ts
