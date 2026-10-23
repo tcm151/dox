@@ -9,19 +9,31 @@ type CreateThreadRequest = {
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const thread = await readBody<CreateThreadRequest>(event)
+    const imageIds = thread.images ?? []
 
     return await new DatabaseQuery()
         .addSql(`
-            CREATE thread SET
-            user = $user,
-            content = $content,
-            topics = $topics,
-            images = $images,
-            votes.positive = [$user]
+            RETURN {
+                LET $attachableImages = SELECT VALUE id
+                    FROM image
+                    WHERE id IN $images
+                    AND (user = $user OR public = true);
+
+                IF array::len($attachableImages) != array::len($images) {
+                    THROW "You are not allowed to attach these images.";
+                };
+
+                RETURN CREATE thread SET
+                    user = $user,
+                    content = $content,
+                    topics = $topics,
+                    images = $images,
+                    votes.positive = [$user];
+            };
         `)
         .addRecord('user', auth.id)
         .addParameter('content', thread.content)
         .addRecords('topics', thread.topics)
-        .addRecords('images', thread.images ?? [])
+        .addRecords('images', imageIds)
         .queryOne<Thread>()
 })

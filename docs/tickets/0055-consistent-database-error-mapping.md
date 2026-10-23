@@ -24,7 +24,7 @@ Map database errors to stable HTTP statuses and safe user-facing messages consis
 ## Notes
 - `DatabaseQuery.execute()` currently wraps query failures as HTTP 500.
 - The image-delete route and post-creation route contain local message matching for expected errors.
-- Related cleanup behavior is tracked in [Ticket 0001](completed/0001-media-delete-atomicity.md).
+- Related cleanup behavior is tracked in [Ticket 0001](completed/0001-media-delete-atomicity.md) and [Ticket 0052](completed/0052-image-attachment-ownership-and-refunds.md).
 
 ## Relevant Files
 - server/utils/database.ts

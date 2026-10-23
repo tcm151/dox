@@ -6,7 +6,7 @@
 - Next: None
 
 ## Dependencies
-- [0052](../0052-image-attachment-ownership-and-refunds.md): Defines image ownership, shared-reference, and refund rules used by post cleanup.
+- [0052](0052-image-attachment-ownership-and-refunds.md): Defines image ownership, shared-reference, and refund rules used by post cleanup.
 - [0054](0054-general-purpose-automated-test-harness.md): Provides the shared harness for deferred cleanup coverage.
 
 ## Goal
@@ -34,7 +34,7 @@ Keep image files, database records, and token refunds consistent across direct i
 - Post deletion queues eligible image files for the same scheduled `mediaTrash` cleanup used by direct image deletion.
 - Retry behavior was reviewed in code but not covered by automated tests. Tests were deferred per user request.
 - Clear and consistent error mapping is tracked separately in [Ticket 0055](../0055-consistent-database-error-mapping.md).
-- [Ticket 0052](../0052-image-attachment-ownership-and-refunds.md) covers ownership, shared references, and refund eligibility.
+- [Ticket 0052](0052-image-attachment-ownership-and-refunds.md) covers ownership, shared references, and refund eligibility.
 
 ## Relevant Files
 - server/api/image/[id]/delete.ts
