@@ -11,11 +11,14 @@ interface RegistrationRequest {
 export const registerUser = async (event: H3Event) => {
     try {
         const { username, email, password, referral } = await readBody<RegistrationRequest>(event)
+        if (referral) {
+            await ReferralManager.validateReferral(referral)
+        }
         const { user, account } = await UserManager.create(email, username, password)
-        const session = await SessionManager.add(account)
         if (referral) {
             await ReferralManager.claimReferral(user, referral)
         }
+        const session = await SessionManager.add(account)
         return session.id
     }
     catch (error: any) {

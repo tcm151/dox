@@ -21,6 +21,37 @@ function copyReferralLink() {
     hints.addSuccess('Copied link to clipboard.')
     hints.addSuccess('Share with another someone to get 1024 free tokens when they create their account.')
 }
+
+const loading = ref(false)
+const referralCode = ref("")
+async function redeemReferral() {
+    const code = referralCode.value.trim()
+    if (!code) {
+        hints.addError("Enter a referral code.")
+        return
+    }
+
+    try {
+        loading.value = true
+        const result = await useApi<string>("/api/profile/referral", {
+            body: { referral: code },
+        })
+        if (result === "claimed") {
+            await session.refreshProfile()
+            hints.addSuccess("Referral redeemed. 1024 tokens were added.")
+            referralCode.value = ""
+        }
+        else {
+            hints.addWarning("A referral has already been redeemed for this account.")
+        }
+    }
+    catch (error: any) {
+        hints.addError(error.data?.message ?? "Unable to redeem this referral.")
+    }
+    finally {
+        loading.value = false
+    }
+}
 </script>
 
 <template>
@@ -54,10 +85,14 @@ function copyReferralLink() {
                     <i class="fa-solid fa-handshake-simple"></i>
                     <span>Refer a Friend</span>
                 </button>
-                <button class="link px-6 py-4" @click="hints.addWarning('We are still working on this...')">
-                    <i class="fa-solid fa-barcode"></i>
-                    <span>Enter Referral</span>
-                </button>
+                <form class="column g-2" @submit.prevent="redeemReferral">
+                    <label for="referral-code">Enter referral</label>
+                    <input id="referral-code" v-model="referralCode" type="text" autocomplete="off" :disabled="loading" />
+                    <button class="link px-6 py-4" type="submit" :disabled="loading">
+                        <i class="fa-solid fa-barcode"></i>
+                        <span>{{ loading ? "Redeeming..." : "Redeem" }}</span>
+                    </button>
+                </form>
             </div>
         </section>
         <!-- <section>
@@ -99,7 +134,6 @@ div.welcome {
 
 div.referrals {
     flex-basis: 10%;
-    white-space: nowrap;
 }
 
 div.box.banner {

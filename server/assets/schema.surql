@@ -424,8 +424,8 @@ DEFINE FIELD claimant ON referralClaim
     TYPE record<user>;
 DEFINE FIELD recipient ON referralClaim
     TYPE record<user>;
-DEFINE INDEX claimant_recipient ON referralClaim
-    FIELDS claimant, recipient UNIQUE;
+DEFINE INDEX claimant ON referralClaim
+    FIELDS claimant UNIQUE;
 DEFINE FIELD time ON referralClaim
     TYPE datetime DEFAULT ALWAYS time::now();
 

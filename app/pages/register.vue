@@ -48,7 +48,7 @@ async function register() {
         navigateTo('/profile')
     }
     catch (error: any) {
-        hints.addError("Failed to register your account.")
+        hints.addError(error.data?.message ?? "Failed to register your account.")
     }
     finally {
         submitting.value = false

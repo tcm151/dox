@@ -9,5 +9,5 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    await ReferralManager.claimReferral(auth, referral)
+    return await ReferralManager.claimReferral(auth, referral)
 })
