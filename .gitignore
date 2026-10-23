@@ -10,4 +10,5 @@ releases/
 
 data/*
 logs/*
+tools/*
 node_modules/*

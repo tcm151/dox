@@ -1,5 +1,6 @@
 {
     "private": true,
+    "type": "module",
     "version": "2026.5.3",
     "scripts": {
         "predev": "yarn install",
