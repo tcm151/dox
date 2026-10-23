@@ -12,13 +12,19 @@ const allowedExtensions: Record<string, Set<string>> = {
     audio: new Set(["mp3"]),
 }
 
-export async function trashImage(imageId: string, userId: string) {
+export async function trashImage(imageId: string) {
     await new DatabaseQuery()
         .addSql(`
             BEGIN TRANSACTION;
+            LET $usages = SELECT VALUE id
+                FROM post, thread, draft
+                WHERE images CONTAINS $image;
+            IF array::len($usages) > 0 {
+                THROW "Image is still attached to content.";
+            };
             LET $deletedImage = DELETE ONLY $image RETURN BEFORE;
             IF $deletedImage != NONE {
-                UPDATE $user SET
+                UPDATE $deletedImage.user SET
                     tokens += $deletedImage.tokens;
                 CREATE $media SET
                     type = "image",
@@ -28,7 +34,6 @@ export async function trashImage(imageId: string, userId: string) {
         `)
         .addRecord("media", `mediaTrash:${imageId}`)
         .addRecord("image", `image:${imageId}`)
-        .addRecord("user", userId)
         .execute()
 }
 

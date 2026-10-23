@@ -6,7 +6,7 @@
 - Next: Define the public audio query shape shared by detail and preview rendering.
 
 ## Dependencies
-- [0001](0001-media-delete-atomicity.md): Audio deletion must use the shared media cleanup and retry approach.
+- [0001](completed/0001-media-delete-atomicity.md): Audio deletion must use the shared media cleanup and retry approach.
 - [0042](0042-audio-publication-lifecycle.md): Playback, discovery, and deletion need the audio publication model and file state.
 
 ## Goal

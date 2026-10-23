@@ -13,17 +13,30 @@ export default defineEventHandler(async (event) => {
                     UPDATE $topic SET
                         posts -= $post;
                 };
-                FOR $image IN $post.images {
-                    UPDATE $post.user SET
-                        tokens += $image.tokens;
-                    DELETE $image;
-                };
                 IF array::len($post.comments) > 0 {
                     UPDATE $post SET
                         content = "[deleted]",
                         deleted = true;
                 }
                 ELSE {
+                    FOR $image IN $post.images {
+                        IF $image.user = $post.user AND $image.public = false {
+                            LET $usages = SELECT VALUE id
+                                FROM post, thread, draft
+                                WHERE images CONTAINS $image
+                                AND id != $post.id;
+                            IF array::len($usages) = 0 {
+                                LET $deletedImage = DELETE ONLY $image RETURN BEFORE;
+                                IF $deletedImage != NONE {
+                                    UPDATE $post.user SET
+                                        tokens += $deletedImage.tokens;
+                                    CREATE type::record("mediaTrash", $deletedImage.id) SET
+                                        type = "image",
+                                        extension = $deletedImage.type;
+                                };
+                            };
+                        };
+                    };
                     DELETE $post;
                 };
             };
