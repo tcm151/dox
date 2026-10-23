@@ -15,7 +15,7 @@ export const useValidation = () => {
     }
 
     const record = {
-        id: (v: string) => /^\w+:\w+$/.test(v),
+        id: (v: string) => parseRecordId(v) !== undefined,
     }
 
     return {
@@ -32,7 +32,7 @@ const regex = {
     "post.title": (v: string) => /.{4,128}/.test(v),
     
     "topic.id": (v: string) => /^\b[A-Za-z]{3,24}\b$/.test(v),
-    "record.id": (v: string) => /^\w+:\w+$/.test(v),
+    "record.id": (v: string) => /^\w+:[\w-]+$/.test(v),
 }
 
 export class Validator {

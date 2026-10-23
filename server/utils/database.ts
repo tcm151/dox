@@ -4,6 +4,24 @@ import { createNodeEngines } from '@surrealdb/node';
 const config = useRuntimeConfig()
 let SurrealInstance: Surreal | undefined
 
+function normalizeRecordIds<T>(value: T): T {
+    if (value instanceof RecordId) {
+        return `${value.table.name}:${value.id}` as T
+    }
+    if (Array.isArray(value)) {
+        return value.map(normalizeRecordIds) as T
+    }
+    if (value && typeof value === "object") {
+        const prototype = Object.getPrototypeOf(value)
+        if (prototype === Object.prototype || prototype === null) {
+            return Object.fromEntries(
+                Object.entries(value).map(([key, nested]) => [key, normalizeRecordIds(nested)])
+            ) as T
+        }
+    }
+    return value
+}
+
 export async function shutdownDatabase() {
     return await SurrealInstance?.close()
 }
@@ -68,14 +86,14 @@ export class DatabaseQuery {
     }
 
     private parseRecord(record: string) {
-        const [table, id] = record.toString().split(":", 2)
-        if (!table || !id || !useValidation().record.id(record)) {
+        const parsed = parseRecordId(record)
+        if (!parsed) {
             throw createError({
                 status: 400,
                 statusText: "Invalid record ID."
             })
         }
-        return new RecordId(table, id)
+        return new RecordId(parsed.table, parsed.id)
     }
 
     addSql(sql: string) {
@@ -115,7 +133,8 @@ export class DatabaseQuery {
         try {
             const connection = this.#connection ?? await initializeDatabase()
             await connection.ready
-            return await connection.query(this.#sql.join("\n"), this.#parameters).collect()
+            const responses = await connection.query(this.#sql.join("\n"), this.#parameters).collect()
+            return normalizeRecordIds(responses)
         }
         catch (error: any) {
             throw createError({
