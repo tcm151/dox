@@ -6,16 +6,16 @@
 - Next: None
 
 ## Goal
-Keep migrations compatible with the current schema and run versioned changes once, in order. The project is starting from a fresh database; adopting older databases is out of scope.
+Keep migrations compatible with the fresh schema and supported database upgrades, and run versioned changes in order. Importing databases older than the previous supported schema remains out of scope.
 
 ## Requirements
 - [x] Fresh installs retain `post.deleted`; the former destructive migration is no longer in the install path.
 - [x] Each versioned migration has an ordered identifier and records it in its transaction.
 - [x] Startup applies only newer migrations in deterministic order.
 - [x] Failed migrations are transactional and their attempted versions are exposed through startup health diagnostics.
-- [x] Fresh installs use the schema as their baseline; older database adoption is out of scope.
+- [x] Fresh installs use the schema as their baseline; the consolidated release migration upgrades the previous supported schema directly.
 - [x] Fresh install and migration order are documented.
-- [x] Applied migration drift is explicitly prevented by the contributor rule against editing released migration files; automated drift detection remains open.
+- [x] Recent migrations can be safely replayed, and refreshing their version marker lets startup apply only the later suffix; automated drift detection remains open.
 
 ## Tasks
 - [x] Remove the former monolithic migration bundle containing `REMOVE FIELD IF EXISTS deleted ON TABLE post` from the install path.
@@ -26,27 +26,28 @@ Keep migrations compatible with the current schema and run versioned changes onc
 - [x] Define the fresh-install baseline in `schema.surql`.
 - [x] Apply pending migration files sequentially; each file records its version in its transaction.
 - [x] Expose the failed migration version through startup health diagnostics.
-- [x] Document how contributors add, test, and avoid modifying applied migrations.
+- [x] Document how contributors add, test, replay, and revise recent migrations.
 
 ## Notes
-- Use individually versioned files under `server/assets/migrations/`.
+- Use versioned files under `server/assets/migrations/`, grouping related database changes that ship together into one release migration.
 - Each migration records its version and commits it with its changes in one transaction.
 - Fresh installs use `schema.surql` and record the current app version as the baseline.
-- Do not build a legacy database adoption or repair path for this fresh start.
+- The `2026.6.0` migration is validated against the previous supported schema, including a database without migration metadata. Importing databases older than that schema remains out of scope.
 - Do not restore the former monolithic `migrations.surql` bundle; the fresh schema and versioned migration files are the supported paths.
 - `schema.surql` defines `post.deleted`, and post deletion sets it when comments must be retained. The former monolithic bundle containing its removal was deleted from the install path.
-- `2026.5.2.surql` is the only active versioned migration, and `package.json` is at `2026.5.2`. Its `CREATE ONLY` version insert makes it unsafe to replay for the same version; the migration table and index definitions must precede that insert. The former monolithic migration bundle is deleted.
-- Migration files must not be edited after release. Add a new versioned file for later changes.
+- Migration version markers use an upsert with a fresh timestamp. Replaying a recent migration moves the current version back so startup applies only the later suffix.
+- Unreleased migration changes may be consolidated into the current release migration. Once deployed, leave a migration unchanged and add later changes under the next release version.
+- The `2026.6.0` release consolidated the previously pending `2026.5.2`–`2026.5.4` migration work into one migration.
 - Fresh and repeated embedded startups were verified against a disposable test database: the schema baseline completed, the second startup read version `2026.5.2` from the migration record, `/api/health` reported `app` and `database` as `ready`, and `/feed` returned HTTP 200. No pending versioned migration was available to exercise.
 - Failure handling was accepted by source review: each migration and its version insert run in one transaction; on an execution error the runner reports the attempted version, and startup marks the app failed. No forced failure was injected.
-- Automated drift detection is open; released-file immutability is currently a contributor policy, not an automated check. Concurrent migration execution is out of scope.
+- Automated drift detection is open; no release-immutability check is enforced. Concurrent migration execution is out of scope.
 
 ## Relevant Files
 - server/plugins/01.startup.server.ts
 - server/middleware/00.startup.ts
 - server/utils/migrations.ts
 - server/assets/schema.surql
-- server/assets/migrations/2026.5.2.surql
+- server/assets/migrations/2026.6.0.surql
 - server/api/post/[id]/delete.ts
 - server/utils/database.ts
 - server/utils/health.ts

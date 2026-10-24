@@ -34,7 +34,7 @@ Allow users to answer polls safely and show accurate results under concurrent re
 ## Relevant Files
 - shared/types/index.ts
 - server/assets/schema.surql
-- server/assets/migrations.surql
+- server/assets/migrations/
 - server/api/vote/[id]/positive.ts
 - server/middleware/protection.ts
 

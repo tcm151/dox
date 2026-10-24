@@ -88,7 +88,7 @@ Typical API request lifecycle:
 
 Core interfaces live in `shared/types/index.ts` and include:
 - `User`, `Account`, `Session`
-- `Post`, `Comment`, `Thread`, `Draft`
+- `Post`, `Comment`, `Thread`, `Draft`, `Gallery`
 - `Topic`, `Pin`, `Notification`, `Feedback`, `Report`
 - `Image`, `Audio`
 - `AppSettings`
@@ -107,16 +107,17 @@ Design pattern:
 
 Fresh installs use `server/assets/schema.surql` and record the current app version in the migration version table.
 
-Subsequent starts read `server/assets/migrations/<version>.surql`, apply files newer than the latest applied migration in numeric order, and record each version in its migration transaction. New migration files should wrap their changes and final version record in a transaction.
+Subsequent starts read `server/assets/migrations/<version>.surql`, apply files newer than the latest applied migration in numeric order, and record each version in its migration transaction. Each migration must be safe to replay. Its version marker must be upserted with a fresh timestamp so replaying an earlier migration moves the database version back and startup reapplies only the later suffix. New migration files should wrap their changes and version upsert in a transaction.
 
 ### 4.3 Core Entities and Relationships
 
 - `user` owns authored entities and links to account records
 - `account` stores credentials and links identity to a `user`
 - `session` links auth token identity to an `account`
-- `topic` connects to `post` and `thread` for taxonomy/discovery
+- `topic` connects to posts, threads, and galleries for taxonomy/discovery
 - `post` contains title/content and may include comments/images
 - `thread` supports chain/reply patterns and quoting
+- `gallery` publishes a group of uploaded image assets as one feed item
 - `report` references moderation targets
 - `feedback` captures product input
 - `appSettings` controls runtime behavior toggles
@@ -147,7 +148,7 @@ Role checks are applied in route handlers and page middleware as needed.
 
 ### 6.1 Content flows
 
-- Posts, comments, threads, and drafts have dedicated API endpoints under `server/api/`.
+- Posts, comments, threads, galleries, and drafts have dedicated API endpoints under `server/api/`.
 - Voting endpoints operate per target ID (`/api/vote/[id]/*`).
 - Discovery/feed endpoints aggregate content for major browse views.
 
@@ -185,7 +186,7 @@ Flow:
 2. Server validates/processes media.
 3. DB record is created/updated.
 4. File is written to filesystem.
-5. Standalone image publication stores description/topics and makes the image public for feed discovery.
+5. The image editor publishes selected image assets together as one gallery. Galleries own publication descriptions, topics, and feed engagement; images remain reusable media assets.
 6. CDN route serves file and associated metadata/visit flows.
 
 Media changes must keep filesystem cleanup and database deletion consistent.

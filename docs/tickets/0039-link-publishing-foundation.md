@@ -32,7 +32,7 @@ Make links a first-class persisted content type so the existing link editor can 
 - shared/types/index.ts
 - shared/utils/validation.ts
 - server/assets/schema.surql
-- server/assets/migrations.surql
+- server/assets/migrations/
 - server/api/post/add.ts
 
 ## Progress Log

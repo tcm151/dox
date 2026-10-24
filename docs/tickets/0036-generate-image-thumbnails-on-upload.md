@@ -32,7 +32,7 @@ Generate a small thumbnail derivative when an image is uploaded so preview-only 
 - server/api/image/upload.ts
 - server/api/image/[id]/delete.ts
 - server/assets/schema.surql
-- server/assets/migrations.surql
+- server/assets/migrations/
 - shared/types/index.ts
 - app/components/system/previews/ImagePreview.vue
 - app/components/system/previews/PostPreview.vue

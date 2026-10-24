@@ -34,7 +34,7 @@ Turn the existing raw audio upload into a complete publication flow that persist
 - shared/types/index.ts
 - server/api/audio/upload.ts
 - server/assets/schema.surql
-- server/assets/migrations.surql
+- server/assets/migrations/
 - server/utils/media.ts
 
 ## Progress Log

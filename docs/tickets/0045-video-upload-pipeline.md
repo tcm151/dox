@@ -33,7 +33,7 @@ Provide a secure, observable video upload pipeline that validates media, records
 ## Relevant Files
 - shared/types/index.ts
 - server/assets/schema.surql
-- server/assets/migrations.surql
+- server/assets/migrations/
 - server/utils/media.ts
 - server/api/image/upload.ts
 - server/api/audio/upload.ts

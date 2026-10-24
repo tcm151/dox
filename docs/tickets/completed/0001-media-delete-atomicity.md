@@ -43,7 +43,7 @@ Keep image files, database records, and token refunds consistent across direct i
 - server/utils/scheduledTasks.ts
 - server/plugins/01.startup.server.ts
 - server/plugins/cleanup.ts
-- server/assets/migrations/2026.5.3.surql
+- server/assets/migrations/2026.6.0.surql
 - server/assets/schema.surql
 - server/utils/media.ts
 - shared/types/index.ts

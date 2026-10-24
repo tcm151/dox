@@ -27,7 +27,7 @@ Harden referral redemption for idempotency and abuse resistance while keeping us
 - server/utils/auth.ts
 - server/utils/repos/ReferralManager.ts
 - server/assets/schema.surql
-- server/assets/migrations/2026.5.4.surql
+- server/assets/migrations/2026.6.0.surql
 - shared/types/index.ts
 
 ## Progress Log

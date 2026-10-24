@@ -33,7 +33,7 @@ Define and implement a durable poll contract so the existing poll editor can pub
 - shared/types/index.ts
 - shared/utils/validation.ts
 - server/assets/schema.surql
-- server/assets/migrations.surql
+- server/assets/migrations/
 - docs/Roadmap.md
 
 ## Progress Log

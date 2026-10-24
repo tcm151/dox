@@ -107,20 +107,21 @@ If startup fails, check the app logs and `/api/health`. A failed migration repor
 
 ## 7. Add a Database Migration
 
-Create a new `YYYY.M.patch.surql` file in `server/assets/migrations/` using the next version after the latest migration. Do not edit a migration after release.
+Group related database changes that ship together into one `YYYY.M.patch.surql` migration rather than creating a new migration for every small schema change. Before a migration is deployed, consolidate its release's pending changes into that migration. After deployment, leave it unchanged and create a migration for the next release. Migrations must be safe to run repeatedly; when revising an undeployed migration, rerun it and the later migration suffix because the refreshed version timestamp controls startup ordering.
 
-Wrap the migration and its version record in one transaction. Record the file version only after its changes succeed:
+Wrap the migration and its version record in one transaction. Use idempotent schema operations, make data backfills update only rows that still need them, and upsert the file version only after its changes succeed:
 
 ```sql
 BEGIN TRANSACTION;
 
 -- Schema or data changes go here.
 
-CREATE ONLY migration SET version = 'YYYY.minor.patch';
+UPSERT migration SET version = 'YYYY.minor.patch', time = time::now()
+WHERE version = 'YYYY.minor.patch';
 COMMIT;
 ```
 
-Test fresh startup, the upgrade from the previous version, and a repeated startup. For changes to post deletion, also verify that `post.deleted` remains defined and works when a post with comments is deleted.
+Test fresh startup, upgrade from the previous release, replay the consolidated migration, and replay a short migration suffix when one exists. Confirm replay does not duplicate version records or overwrite existing data. For changes to post deletion, also verify that `post.deleted` remains defined and works when a post with comments is deleted.
 
 ## 8. In-App Query Portal
 
