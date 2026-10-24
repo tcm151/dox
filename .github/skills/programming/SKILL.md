@@ -1,6 +1,6 @@
 ---
 name: programming
-description: "Use for programming work in this repository: implementing features, fixing bugs, refactoring, debugging, or reviewing code. Favor small changes, clear contracts, direct paths, and practical refactoring."
+description: "Use for programming work in this repository: implementing features, fixing bugs, refactoring, debugging, reviewing code, or validating SurrealDB schema and migrations. Favor small changes, clear contracts, direct paths, and practical refactoring."
 argument-hint: "Optional focus: feature, bug, refactor, debugging, or review"
 ---
 
@@ -34,3 +34,4 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 - Test what the code does, not only whether the request returned successfully. Include useful success and failure cases, and check the resulting state when a status code is not enough.
 - Keep test data isolated and predictable or unique. Clean up what a test creates unless another test step needs it.
 - Start with the smallest useful check. Run broader checks when the change's risk or reach calls for them.
+- For disposable SurrealDB schema, migration, or query probes, use `node scripts/surreal-explore.mjs -` with inline code on stdin. The runner supplies a fresh embedded database plus `db` and `assert`, then closes and removes the sandbox. Do not recreate the connection and temporary-database bootstrap in ad hoc scripts or run probes against the app database.
