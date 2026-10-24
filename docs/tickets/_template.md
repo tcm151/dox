@@ -2,8 +2,8 @@
 <!-- Read this template before every ticket edit. Keep guidance comments and placeholder instructions here; real tickets contain ticket-specific content only -->
 
 ## Status
-<!-- Choose one state and priority; use Next: None for completed work -->
-- State: `Planned | In Progress | Blocked | Completed`
+<!-- Use Paused when work is intentionally on hold; keep Next as the resumption step. Use Next: None for completed work. -->
+- State: `Planned | In Progress | Paused | Blocked | Completed`
 - Priority: `High | Medium | Low`
 - Next: `single immediate next step`
 

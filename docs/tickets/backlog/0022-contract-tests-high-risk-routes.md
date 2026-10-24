@@ -6,7 +6,7 @@
 - Next: Select first 5 endpoints for contract coverage
 
 ## Dependencies
-- [0026](0026-ci-pipeline-baseline.md): Completion requires CI to run the contract tests reliably.
+- [0026](../0026-ci-pipeline-baseline.md): Completion requires CI to run the contract tests reliably.
 
 ## Goal
 Add tests around critical API contracts to catch regressions in auth, moderation, media, and vote/report flows.

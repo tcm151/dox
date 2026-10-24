@@ -1,19 +1,12 @@
 # Ticket 0050: Versioned Sequential Database Migrations
 
 ## Status
-- State: Closed
+- State: Completed
 - Priority: High
-- Next: None. Failed-migration rollback was accepted based on source review; no forced failure was injected.
+- Next: None
 
 ## Goal
 Keep migrations compatible with the current schema and run versioned changes once, in order. The project is starting from a fresh database; adopting older databases is out of scope.
-
-## Decisions
-- Use individually versioned files under `server/assets/migrations/`.
-- Each migration records its version and commits it with its changes in one transaction.
-- Fresh installs use `schema.surql` and record the current app version as the baseline.
-- Do not build a legacy database adoption or repair path for this fresh start.
-- Do not restore the former monolithic `migrations.surql` bundle; the fresh schema and versioned migration files are the supported paths.
 
 ## Requirements
 - [x] Fresh installs retain `post.deleted`; the former destructive migration is no longer in the install path.
@@ -36,6 +29,11 @@ Keep migrations compatible with the current schema and run versioned changes onc
 - [x] Document how contributors add, test, and avoid modifying applied migrations.
 
 ## Notes
+- Use individually versioned files under `server/assets/migrations/`.
+- Each migration records its version and commits it with its changes in one transaction.
+- Fresh installs use `schema.surql` and record the current app version as the baseline.
+- Do not build a legacy database adoption or repair path for this fresh start.
+- Do not restore the former monolithic `migrations.surql` bundle; the fresh schema and versioned migration files are the supported paths.
 - `schema.surql` defines `post.deleted`, and post deletion sets it when comments must be retained. The former monolithic bundle containing its removal was deleted from the install path.
 - `2026.5.2.surql` is the only active versioned migration, and `package.json` is at `2026.5.2`. Its `CREATE ONLY` version insert makes it unsafe to replay for the same version; the migration table and index definitions must precede that insert. The former monolithic migration bundle is deleted.
 - Migration files must not be edited after release. Add a new versioned file for later changes.

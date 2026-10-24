@@ -23,6 +23,8 @@ Use this to summarize ticket status from `docs/tickets/` as a concise standup re
    - requirements, tasks, and the newest dated progress entry
 4. Assign lanes by state, using the folder to distinguish planned work from backlog:
    - `In Progress`: `State: In Progress`
+   - `Paused`: `State: Paused`
+   - `Blocked`: `State: Blocked`
    - `Planned`: root ticket with `State: Planned`
    - `Backlog`: ticket in `docs/tickets/backlog/` with `State: Planned`
    - `Completed`: `State: Completed`
@@ -41,9 +43,11 @@ Keep the report concise and useful for planning. Use these sections:
 
 1. `Overview`: counts by lane and a short description of each lane.
 2. `In Progress`: links, priority, and `Next` step.
-3. `Next Work`: high-priority planned tickets in root; if none, use medium-priority planned tickets in root.
-4. `Priorities`: high, medium, and low counts by active/root, backlog, and completed.
-5. `Cleanup`: state/folder mismatches and missing metadata.
+3. `Paused`: links, priority, and the step needed to resume.
+4. `Blocked`: links, priority, and the blocking dependency or issue.
+5. `Next Work`: high-priority planned tickets in root; if none, use medium-priority planned tickets in root.
+6. `Priorities`: high, medium, and low counts by active/root, paused, blocked, backlog, and completed.
+7. `Cleanup`: state/folder mismatches and missing metadata.
 
 ## Conventions
 
@@ -51,6 +55,7 @@ Keep the report concise and useful for planning. Use these sections:
 - Link tickets with workspace-relative paths.
 - Keep titles readable; avoid repeating long paths when a table is clearer.
 - Treat root tickets as the active work pool, not proof that every ticket is in progress.
+- Use `Paused` for work deliberately put on hold; preserve a concrete `Next` action for resumption.
 - A missing `Dependencies` section means no prerequisites are recorded. Flag unfinished prerequisites; the ticket may have work available but cannot be completed yet. Prefer unblocked tickets when recommending next work.
 - Recommend high-priority active/root work before backlog items.
 - Say that counts come from ticket files, not an external tracker.

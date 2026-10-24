@@ -1,7 +1,7 @@
 # Ticket 0023: Structured Request Logging
 
 ## Status
-- State: In Progress
+- State: Paused
 - Priority: Medium
 - Next: Add request correlation fields and explicit redaction rules to the existing error logging path
 
@@ -54,5 +54,6 @@ Add structured request logging for key API actions to improve debugging and inci
 - server/api/developer/error/index.ts
 
 ## Progress Log
+- 2026-10-23: Paused while other work is prioritized; resume with request correlation fields and explicit redaction rules.
 - 2026-07-21: Reviewed current developer errors page and error persistence path. Existing implementation already provides developer-only persisted error inspection with basic request context; remaining work should be scoped as small structured logging and correlation improvements.
 - 2026-04-13: Ticket created.

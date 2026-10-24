@@ -3,7 +3,7 @@
 ## Status
 - State: Completed
 - Priority: High
-- Next: None. Linux-native artifact execution is deferred to a later operator run.
+- Next: None
 
 ## Goal
 Make installed releases use the operator's environment configuration at startup instead of retaining build-machine defaults. The same release archive must work with different database, storage, email, and default account settings without rebuilding.

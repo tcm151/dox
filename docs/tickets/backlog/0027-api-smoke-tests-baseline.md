@@ -6,7 +6,7 @@
 - Next: Pick first critical flows for smoke coverage
 
 ## Dependencies
-- [0026](0026-ci-pipeline-baseline.md): Completion requires CI to run the API smoke tests with deterministic setup and teardown.
+- [0026](../0026-ci-pipeline-baseline.md): Completion requires CI to run the API smoke tests with deterministic setup and teardown.
 - [0054](../completed/0054-general-purpose-automated-test-harness.md): Provides the shared test runner and reusable setup/fixtures.
 
 ## Goal
