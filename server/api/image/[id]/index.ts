@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, votes, type, tokens, time, url, description, topics
+            SELECT id, user.id, user.name, votes, type, tokens, time, url, description
             FROM $image
             FETCH user
         `)

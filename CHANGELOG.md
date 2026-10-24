@@ -6,6 +6,18 @@ Older entries group related work from periods when no release tag was created.
 
 ## [Unreleased]
 
+## [2026.6.0] - 2026-10-24
+
+### Changed
+- Moved the home-feed Hot score calculation into a shared SurrealDB function so it can be sorted and paginated server-side.
+- Added a shared `feed` table view so New, Hot, and Top pagination sort globally before selected records are hydrated.
+- Replaced home-feed cursor tokens with bounded numeric page pagination.
+- Added galleries as first-class publications and feed items; migrated legacy public images into gallery records.
+- Consolidated pending database updates into one versioned `2026.6.0` migration.
+
+### Fixed
+- Corrected thread deletion to remove topic back-references from `topic.threads`; the migration also rebuilds topic back-references from active content records.
+
 ## [2026.5.1] - 2026-09-28
 
 ### Added

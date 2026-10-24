@@ -17,9 +17,6 @@ const props = defineProps<{
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="image.visits" />
                     <DurationTag class="f-1" :time="image.time" />
                 </div>
-                <div v-if="image.topics.length > 0" class="row wrap f-1 g-1">
-                    <TopicTag v-for="topic in image.topics" :topic="topic" />
-                </div>
             </header>
             <div class="image">
                 <img :src="image.url">

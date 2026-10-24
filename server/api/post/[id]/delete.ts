@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
                     FOR $image IN $post.images {
                         IF $image.user = $post.user AND $image.public = false {
                             LET $usages = SELECT VALUE id
-                                FROM post, thread, draft
+                                FROM post, thread, draft, gallery
                                 WHERE images CONTAINS $image
                                 AND id != $post.id;
                             IF array::len($usages) = 0 {

@@ -13,6 +13,15 @@ CREATE ONLY migration SET version = $version;
 
 
 -- ------------------------------
+-- FUNCTIONS
+-- ------------------------------
+DEFINE FUNCTION fn::sort_hot($score: number, $created_at: datetime, $as_of: datetime) -> number {
+    LET $age_hours = math::max([1, (time::unix($as_of) - time::unix($created_at)) / 3600]);
+    RETURN <float>$score / math::pow($age_hours, 2);
+};
+
+
+-- ------------------------------
 -- TABLE: account
 -- ------------------------------
 DEFINE TABLE account SCHEMAFULL;
@@ -88,6 +97,8 @@ DEFINE FIELD posts ON topic
     TYPE array<record<post>> DEFAULT ALWAYS [];
 DEFINE FIELD threads ON topic
     TYPE array<record<thread>> DEFAULT ALWAYS [];
+DEFINE FIELD galleries ON topic
+    TYPE array<record<gallery>> DEFAULT ALWAYS [];
 DEFINE FIELD visits ON topic
     TYPE number DEFAULT ALWAYS 0;
 DEFINE FIELD followers ON topic
@@ -95,7 +106,7 @@ DEFINE FIELD followers ON topic
 DEFINE FIELD moderators ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD firstUsed ON topic
-    COMPUTED time::min(array::union(posts.time, threads.time));
+    COMPUTED time::min(array::filter(array::union(array::union(posts.time ?? [], threads.time ?? []), galleries.time ?? []), |$value| $value != NONE));
 DEFINE FIELD votes.positive ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON topic
@@ -105,7 +116,7 @@ DEFINE FIELD votes.negative ON topic
 DEFINE FIELD score ON topic
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
-    IF array::len($after.posts) = 0 AND array::len($after.threads) = 0 {
+    IF $after.posts.len() = 0 AND $after.threads.len() = 0 AND $after.galleries.len() = 0 {
         DELETE $after.id;
     };
 };
@@ -304,8 +315,6 @@ DEFINE FIELD public ON image
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD description ON image
     TYPE string DEFAULT ALWAYS "";
-DEFINE FIELD topics ON image
-    TYPE array<record<topic>> DEFAULT ALWAYS [];
 DEFINE FIELD visits ON image
     TYPE number DEFAULT ALWAYS 0;
 DEFINE FIELD votes.positive ON image
@@ -316,6 +325,62 @@ DEFINE FIELD votes.negative ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON image
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+
+
+-- ------------------------------
+-- TABLE: gallery
+-- ------------------------------
+DEFINE TABLE gallery SCHEMAFULL;
+DEFINE FIELD user ON gallery
+    TYPE record<user>;
+DEFINE FIELD description ON gallery
+    TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD time ON gallery
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD topics ON gallery
+    TYPE array<record<topic>> DEFAULT ALWAYS [];
+DEFINE FIELD images ON gallery
+    TYPE array<record<image>> DEFAULT ALWAYS [];
+DEFINE FIELD archived ON gallery
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD visits ON gallery
+    TYPE number DEFAULT ALWAYS 0;
+DEFINE FIELD votes.positive ON gallery
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.misleading ON gallery
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.negative ON gallery
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.awards ON gallery
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.saves ON gallery
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD score ON gallery
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+DEFINE EVENT updateTopics ON gallery WHEN $event = 'CREATE' THEN {
+    FOR $topic IN $after.topics {
+        IF !record::exists($topic) {
+            CREATE $topic SET galleries = [$after.id];
+        }
+        ELSE {
+            UPDATE $topic SET galleries += $after.id;
+        }
+    };
+};
+
+
+-- ------------------------------
+-- TABLE: feed
+-- ------------------------------
+DEFINE TABLE feed AS
+SELECT id AS sourceId, time, score, user, topics
+FROM post, thread, gallery
+WHERE (record::tb(id) = 'post' AND archived != true)
+OR (record::tb(id) = 'thread' AND replyTo = NONE)
+OR (record::tb(id) = 'gallery' AND archived != true)
+GROUP BY sourceId, time, score, user, topics;
+DEFINE FIELD hot ON feed
+    COMPUTED fn::sort_hot(score, time, time::now());
 
 
 -- ------------------------------

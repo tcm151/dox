@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
                 };
                 FOR $topic IN $thread.topics {
                     UPDATE $topic SET
-                        posts -= $thread;
+                        threads -= $thread;
                 };
                 IF array::len($thread.replies) > 0 || $thread.replyTo != NONE || $thread.quote != NONE {
                     UPDATE $thread SET

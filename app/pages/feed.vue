@@ -23,7 +23,8 @@ const tabs = ref<TabItem[]>([
     { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
     { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts', hide: () => !settings.app.feeds.posts },
     { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
-    { route: '/feed/images', icon: 'fa-image', label: 'Images', hide: () => !settings.app.feeds.images },
+    // TODO the route should be /feed/galleries
+    { route: '/feed/images', icon: 'fa-images', label: 'Galleries', hide: () => !settings.app.feeds.images },
     { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: () => !settings.app.feeds.audio },
 ])
 

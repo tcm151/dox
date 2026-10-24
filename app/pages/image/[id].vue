@@ -54,9 +54,6 @@ async function reportImage() {
                     />
                 </ClientOnly>
             </header>
-            <div v-if="image.topics.length > 0" class="row wrap g-1 mb-2">
-                <TopicTag v-for="topic in image.topics" :topic="topic" />
-            </div>
             <Markdown v-if="image.description" class="content mb-3" :content="image.description" />
             <figure class="image">
                 <img :src="image.url">

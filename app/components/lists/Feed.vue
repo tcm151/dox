@@ -4,7 +4,7 @@ import type { AsyncData } from "#app";
 import type { Sortable } from "@@/shared/types"
 
 const props = defineProps<{
-    items: AsyncData<T[] | undefined, FetchError<any> | undefined>
+    items: Pick<AsyncData<T[] | undefined, FetchError<any> | undefined>, "data" | "status" | "refresh">
     sorting?: boolean
 }>()
 

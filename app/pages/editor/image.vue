@@ -21,7 +21,7 @@ async function submit() {
 
     try {
         submitting.value = true
-        await useApi("/api/image/publish", {
+        await useApi("/api/gallery/publish", {
             body: {
                 images: images.uploaded.map(image => image.id),
                 description: description.value,

@@ -1,4 +1,4 @@
-import type { Post } from "@@/shared/types"
+import type { Gallery, Post, Thread } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
@@ -30,7 +30,20 @@ export default defineEventHandler(async (event) => {
             FETCH user, quote, quote.user
         `)
         .addRecord("user", `user:${id}`)
-        .queryAll<Post>()
+        .queryAll<Thread>()
 
-    return sortList([...posts, ...threads], query.sortBy)
+    let galleries = await new DatabaseQuery()
+        .addSql(`
+            SELECT id, user.id, user.name, description, time,
+                topics, images.{id, url} AS images, votes, score, visits, archived
+            FROM gallery
+            WHERE user = $user
+            AND archived != true
+            ORDER BY time DESC
+            FETCH user
+        `)
+        .addRecord("user", `user:${id}`)
+        .queryAll<Gallery>()
+
+    return sortList([...posts, ...threads, ...galleries], query.sortBy)
 })

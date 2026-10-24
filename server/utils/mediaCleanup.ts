@@ -17,9 +17,9 @@ export async function trashImage(imageId: string) {
         .addSql(`
             BEGIN TRANSACTION;
             LET $usages = SELECT VALUE id
-                FROM post, thread, draft
+                FROM post, thread, draft, gallery
                 WHERE images CONTAINS $image;
-            IF array::len($usages) > 0 {
+            IF $usages.len() > 0 {
                 THROW "Image is still attached to content.";
             };
             LET $deletedImage = DELETE ONLY $image RETURN BEFORE;

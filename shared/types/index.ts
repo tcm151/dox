@@ -21,6 +21,12 @@ export interface Sortable extends Record, Voteable {
     // archived: boolean
 }
 
+export interface FeedPage<T extends Sortable> {
+    items: T[]
+    offset: number
+    more: boolean
+}
+
 export interface Account extends Record {
     email: string
     password: string
@@ -60,9 +66,10 @@ export interface Topic extends Sortable {
     description?: string
     posts: Post[]
     threads: Thread[]
+    galleries: Gallery[]
     followers: (User & string)[]
     moderators: (User & string)[]
-    firstUsed: string
+    firstUsed?: string
 }
 
 export interface Post extends Sortable {
@@ -123,7 +130,14 @@ export interface Media extends Sortable {
 
 export interface Image extends Media {
     description: string
+}
+
+export interface Gallery extends Sortable {
+    user: User & string
+    description: string
     topics: string[]
+    images: Attachment[]
+    archived: boolean
 }
 
 export interface Attachment extends Record {

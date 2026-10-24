@@ -1,4 +1,4 @@
-type PublishImagesRequest = {
+type PublishGalleryRequest = {
     images: string[]
     description: string
     topics: string[]
@@ -8,7 +8,11 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireTrait(auth, "confirmed")
 
-    const body = await readBody<PublishImagesRequest>(event)
+    const body = await readBody<PublishGalleryRequest>(event)
+    if (!Array.isArray(body.images) || body.images.length === 0) {
+        throw createError({ statusCode: 400, statusMessage: "A gallery must contain at least one image." })
+    }
+
     await new DatabaseQuery()
         .addSql(`
             BEGIN TRANSACTION;
@@ -19,11 +23,14 @@ export default defineEventHandler(async (event) => {
                 IF $image.user != $user {
                     THROW "You can only publish your own images.";
                 };
-                UPDATE $image SET
-                    description = $description,
-                    topics = $topics,
-                    public = true;
+                UPDATE $image SET public = true;
             };
+            CREATE gallery SET
+                user = $user,
+                description = $description,
+                topics = $topics,
+                images = $images,
+                votes.positive = [$user];
             COMMIT TRANSACTION;
         `)
         .addRecords("images", body.images)

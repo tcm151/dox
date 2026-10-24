@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { Image } from '@@/shared/types'
+import type { Gallery } from '@@/shared/types'
 
-const { data: images } = await useDatasource<Image[]>("/api/image")
+const { data: galleries } = await useDatasource<Gallery[]>("/api/gallery")
 </script>
 
 <template>
     <article class="column g-2 p-4">
-        <template v-if="images && images.length > 0">
-            <template v-for="image in images" :key="image.id">
-                <ImagePreview :image="image" />
+        <template v-if="galleries && galleries.length > 0">
+            <template v-for="gallery in galleries" :key="gallery.id">
+                <GalleryPreview :gallery="gallery" />
             </template>
         </template>
         <template v-else>
