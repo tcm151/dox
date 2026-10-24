@@ -27,10 +27,17 @@ export interface Account extends Record {
     user: User & string
 }
 
-export interface User extends Sortable {
+export interface User extends Record {
     name: string
     link?: string
     description?: string
+    score: number
+    votes: {
+        positive: string[]
+        misleading: string[]
+        negative: string[]
+    }
+    visits: number
     topics: string[]
     followers: string[]
     following: string[]

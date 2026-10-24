@@ -15,7 +15,7 @@ export class SessionManager {
                     FETCH account, account.user;
                 }
             `)
-            .addParameter("account", account.id)
+            .addRecord("account", account.id)
             .queryOne<Session>()
     }
 

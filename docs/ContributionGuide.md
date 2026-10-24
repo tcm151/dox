@@ -93,9 +93,9 @@ yarn install
 yarn test
 ```
 
-The test command builds and starts its own Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder.
+The test command builds and starts one Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder.
 
-Add HTTP integration tests under `tests/` and use `@nuxt/test-utils/e2e` to start the test server and make requests. Startup failures include the captured server logs. The same `yarn test` command can be used in CI.
+Add HTTP integration tests under `tests/` and import `fetch` from `tests/test-server.ts` to make requests against the shared server. The runner executes `health.test.ts` first, then `.test.ts` files in `tests/sequential/` one at a time in filename order, then tests in `tests/parallel/` if the earlier phases pass. Use numeric filename prefixes for dependent setup flows, such as schema, default user, login, and publishing. Sequential tests can store and retrieve named user sessions with `stashUser` and `grabUser`; each named user is stored separately under the temporary test-data folder and removed at teardown. Assert status and response data; clean up records created for a test unless later sequential checks intentionally depend on them. Parallel tests should use independent or unique test data and session keys.
 
 ## 6. Sync Database Schema
 

@@ -24,6 +24,7 @@ Add minimal API smoke tests for auth and core content/moderation flows.
 
 ## Notes
 - Prioritize confidence over full route coverage.
+- Ticket 0056 covers minimal post publication and unauthenticated rejection as the sequential test-suite baseline. Keep this ticket's post coverage within the broader auth/content/moderation smoke workflow rather than duplicating that standalone check.
 
 ## Relevant Files
 - server/api/profile/login.ts

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             RETURN {
-                IF $post.user != $user.id AND $user.roles CONTAINSNOT "admin" {
+                IF $post.user != $user AND $user.roles CONTAINSNOT "admin" {
                     THROW "You are not allowed to do this.";
                 };
                 FOR $topic IN $post.topics {
@@ -42,6 +42,6 @@ export default defineEventHandler(async (event) => {
             };
         `)
         .addRecord("post", `post:${id}`)
-        .addParameter("user", auth.id)
+        .addRecord("user", auth.id)
         .execute()
 })
