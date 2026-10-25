@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch, grabExampleServer, testAdminCredentials } from "../test-server"
+import { fetch, grabExampleServer, grabUser, testAdminCredentials } from "../test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Notification, User } from "../../shared/types"
 
@@ -9,10 +9,48 @@ const awardTarget = exampleServer.users.awardTarget
 const subscriber = exampleServer.users.subscriber
 const follower = exampleServer.users.sampleUser01
 const followedUser = exampleServer.users.sampleUser02
+const concurrentAwarder = exampleServer.users.sampleUser03
+const concurrentTarget = exampleServer.users.sampleUser04
+const insufficientAwarder = follower
+const insufficientTarget = followedUser
+const admin = await grabUser("admin")
 
 type UserSummary = {
     name: string
     roles: string[]
+}
+
+async function getProfile(accessToken: string) {
+    const response = await fetch("/api/profile/authenticate", {
+        headers: { Authorization: accessToken },
+    })
+    expect(response.status).toBe(200)
+    return await response.json() as User
+}
+
+async function restoreAwardState(sender: User, target: User, senderTokens: number, targetTokens: number) {
+    const message = `**${sender.name}** awarded you 256 tokens. Don't forget to thank them!`
+    const response = await fetch("/api/developer/database/query", {
+        method: "POST",
+        headers: {
+            Authorization: admin.accessToken,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            query: `
+                UPDATE ${sender.id} SET tokens = ${senderTokens};
+                UPDATE ${target.id} SET tokens = ${targetTokens};
+                IF ${target.id}.votes.awards CONTAINS ${sender.id} {
+                    UPDATE ${target.id} SET
+                        votes.awards = array::difference(votes.awards, [${sender.id}]);
+                };
+                DELETE notification WHERE recipient = ${target.id}
+                    AND context = ${target.id}
+                    AND message = "${message}";
+            `,
+        }),
+    })
+    expect(response.status, await response.clone().text()).toBe(200)
 }
 
 it("lists users and returns the configured admin", async () => {
@@ -144,4 +182,82 @@ it("awards users and saves or removes saved subscriptions", async () => {
     const notifications = await notificationsResponse.json() as { notifications: Notification[] }
     expect(notifications.notifications[0]?.context).toBe(awardTarget.user.id)
     expect(notifications.notifications[0]?.message).toContain("awarded you 256 tokens")
+})
+
+it("allows only one of two concurrent awards and records one notification", async () => {
+    const senderBefore = await getProfile(concurrentAwarder.accessToken)
+    const targetBefore = await getProfile(concurrentTarget.accessToken)
+    const award = () => fetch(`/api/user/${extractId(concurrentTarget.user.id)}/award`, {
+        method: "POST",
+        headers: { Authorization: concurrentAwarder.accessToken },
+    })
+
+    try {
+        const responses = await Promise.all([award(), award()])
+        const statuses = responses.map(response => response.status).sort()
+        const responseDetails = await Promise.all(responses.map(async response =>
+            `${response.status}: ${await response.clone().text()}`,
+        ))
+        expect(statuses, responseDetails.join("\n")).toEqual([200, 409])
+
+        const senderAfter = await getProfile(concurrentAwarder.accessToken)
+        const targetAfter = await getProfile(concurrentTarget.accessToken)
+        expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
+        expect(targetAfter.tokens).toBe(targetBefore.tokens + 256)
+        expect(targetAfter.votes.awards.filter(id => id === concurrentAwarder.user.id)).toHaveLength(1)
+
+        const notificationsResponse = await fetch("/api/profile/notifications?dismissed=false&amount=20", {
+            headers: { Authorization: concurrentTarget.accessToken },
+        })
+        expect(notificationsResponse.status).toBe(200)
+        const notifications = await notificationsResponse.json() as { notifications: Notification[] }
+        expect(notifications.notifications.filter(notification =>
+            notification.context === concurrentTarget.user.id
+                && notification.message === `**${concurrentAwarder.user.name}** awarded you 256 tokens. Don't forget to thank them!`,
+        )).toHaveLength(1)
+    }
+    finally {
+        await restoreAwardState(concurrentAwarder.user, concurrentTarget.user, senderBefore.tokens, targetBefore.tokens)
+    }
+})
+
+it("rejects awards from an empty balance without changing either account", async () => {
+    const senderBefore = await getProfile(insufficientAwarder.accessToken)
+    const targetBefore = await getProfile(insufficientTarget.accessToken)
+    const emptyBalanceResponse = await fetch("/api/developer/database/query", {
+        method: "POST",
+        headers: {
+            Authorization: admin.accessToken,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: `UPDATE ${senderBefore.id} SET tokens = 0;` }),
+    })
+    expect(emptyBalanceResponse.status, await emptyBalanceResponse.clone().text()).toBe(200)
+
+    try {
+        const awardResponse = await fetch(`/api/user/${extractId(insufficientTarget.user.id)}/award`, {
+            method: "POST",
+            headers: { Authorization: insufficientAwarder.accessToken },
+        })
+        expect(awardResponse.status).toBe(409)
+
+        const senderAfter = await getProfile(insufficientAwarder.accessToken)
+        const targetAfter = await getProfile(insufficientTarget.accessToken)
+        expect(senderAfter.tokens).toBe(0)
+        expect(targetAfter.tokens).toBe(targetBefore.tokens)
+        expect(targetAfter.votes.awards).not.toContain(insufficientAwarder.user.id)
+
+        const notificationsResponse = await fetch("/api/profile/notifications?dismissed=false&amount=20", {
+            headers: { Authorization: insufficientTarget.accessToken },
+        })
+        expect(notificationsResponse.status).toBe(200)
+        const notifications = await notificationsResponse.json() as { notifications: Notification[] }
+        expect(notifications.notifications.some(notification =>
+            notification.context === insufficientTarget.user.id
+                && notification.message === `**${insufficientAwarder.user.name}** awarded you 256 tokens. Don't forget to thank them!`,
+        )).toBe(false)
+    }
+    finally {
+        await restoreAwardState(insufficientAwarder.user, insufficientTarget.user, senderBefore.tokens, targetBefore.tokens)
+    }
 })

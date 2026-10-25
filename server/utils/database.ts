@@ -141,7 +141,26 @@ export class DatabaseQuery {
             await connection.ready
             const sql = this.#sql.join("\n")
             const query = this.#transaction ? `RETURN { ${sql} };` : sql
-            const responses = await connection.query(query, this.#parameters).collect() as T[][]
+            const maxAttempts = this.#transaction ? 3 : 1
+
+            let responses: T[][] | undefined
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                try {
+                    responses = await connection.query(query, this.#parameters).collect() as T[][]
+                    break
+                }
+                catch (error) {
+                    const isFinalAttempt = attempt === maxAttempts - 1
+                    const isConflict = error instanceof Error && error.message.includes("Transaction conflict:")
+                    if (!this.#transaction || !isConflict || isFinalAttempt) {
+                        throw error
+                    }
+                }
+            }
+
+            if (!responses) {
+                throw new Error("Database query did not return a response.")
+            }
             return normalizeRecordIds(responses)
         }
         catch (error: any) {

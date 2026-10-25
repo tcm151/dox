@@ -1,9 +1,9 @@
 # Ticket 0022: Contract Tests For High-Risk Routes
 
 ## Status
-- State: In Progress
+- State: Completed
 - Priority: High
-- Next: Add baseline media and moderation contract tests
+- Next: None
 
 ## Dependencies
 - [0026](../0026-ci-pipeline-baseline.md): Completion requires CI to run the contract tests reliably.
@@ -12,7 +12,7 @@
 Add tests around critical API contracts to catch regressions in auth, moderation, media, and vote/report flows.
 
 ## Requirements
-- [ ] High-risk routes have baseline contract tests.
+- [x] High-risk routes have baseline contract tests.
 - [x] Tests validate status codes, auth gates, and key response fields.
 - [x] CI runs contract tests reliably.
 
@@ -20,11 +20,11 @@ Add tests around critical API contracts to catch regressions in auth, moderation
 - [x] Define initial high-risk endpoint areas.
 - [x] Implement example-user data and helpers.
 - [x] Add initial contract assertions for success and failure cases.
-- [ ] Add baseline media and moderation contract tests.
+- [x] Add baseline media and moderation contract tests.
 
 ## Notes
-- Current coverage: authentication/session reuse, posts, threads, galleries, reports, votes, feedback, user engagement, and topic resilience.
-- Remaining high-risk areas for this ticket: media uploads and moderation actions.
+- Coverage includes authentication/session revocation, posts, threads, galleries, reports, votes, feedback, user engagement, topic resilience, image uploads, and moderation requests.
+- Migration coverage remains out of scope because it is specific to the migration version under test.
 
 ## Relevant Files
 - package.json
@@ -34,11 +34,20 @@ Add tests around critical API contracts to catch regressions in auth, moderation
 - server/api/report/send.ts
 - server/api/vote/[id]/positive.ts
 - server/api/feedback/submit.ts
-- server/api/topic/[topic]/reports.ts
 - server/api/image/upload.ts
+- server/api/moderator/request/[id]/approve.ts
+- server/api/moderator/request/[id]/deny.ts
+- server/api/topic/[topic]/reports.ts
+- server/utils/database.ts
+- tests/parallel/feedback.test.ts
+- tests/parallel/media.test.ts
+- tests/parallel/moderation.test.ts
+- tests/parallel/user-engagement.test.ts
+- tests/parallel/votes.test.ts
 - tests/parallel/
 - tests/sequential/
 
 ## Progress Log
+- 2026-10-25: Added concurrent and insufficient-balance award checks, session revocation, image upload/attachment cleanup, and moderation request authorization/decision coverage. Centralized bounded transaction conflict retries in DatabaseQuery; full test suite and typecheck pass.
 - 2026-10-25: Added area-focused vote and feedback contract tests; follow-up coverage targets media and moderation routes.
 - 2026-04-13: Ticket created.

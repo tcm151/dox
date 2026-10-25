@@ -99,7 +99,7 @@ Goal: improve async interactions and make the project easier to contribute to.
 
 ### C3. Contributor and Contract Stability
 - 🟥 Publish API endpoint inventory with auth requirements and response contracts. (`M`)
-- 🟦 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`L`)
+- 🟩 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`L`)
 - 🟦 Add structured request logging for API and error contexts. (`M`)
 - 🟥 Define baseline metrics and operational SLOs (latency, error rate, migration success). (`M`)
 

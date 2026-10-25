@@ -28,7 +28,7 @@ Make a group of uploaded images publish as one first-class gallery content item,
 - One publish operation creates one gallery; it is not a persistent user-managed collection.
 - Keep the image table focused on uploaded media and attachment references. Gallery records own publication topics and feed engagement.
 - Coordinate mixed-feed changes with [Ticket 0003](0003-feed-home-pagination.md); that ticket already tracks stable pagination and mixed-content sorting.
-- Reuse the media cleanup and high-risk route coverage work in [Ticket 0001](completed/0001-media-delete-atomicity.md), [Ticket 0052](completed/0052-image-attachment-ownership-and-refunds.md), and [Ticket 0022](backlog/0022-contract-tests-high-risk-routes.md) rather than creating overlapping tickets.
+- Reuse the media cleanup and high-risk route coverage work in [Ticket 0001](completed/0001-media-delete-atomicity.md), [Ticket 0052](completed/0052-image-attachment-ownership-and-refunds.md), and [Ticket 0022](completed/0022-contract-tests-high-risk-routes.md) rather than creating overlapping tickets.
 - Image thumbnail work remains separately tracked in [Ticket 0036](0036-generate-image-thumbnails-on-upload.md).
 
 ## Relevant Files
