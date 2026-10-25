@@ -59,7 +59,6 @@ function useTopic(topic: string | undefined) {
     }
 }
 
-// REFACTOR extract shared searchable dropdown component used by topic and mention pickers.
 </script>
 
 <template>
