@@ -1,9 +1,9 @@
 # Ticket 0026: CI Pipeline Baseline
 
 ## Status
-- State: In Progress
+- State: Completed
 - Priority: High
-- Next: Require CI / Validate in GitHub branch protection
+- Next: None
 
 ## Goal
 Add a baseline CI pipeline that validates install, type-check, build, and core smoke checks on every PR.
@@ -11,13 +11,13 @@ Add a baseline CI pipeline that validates install, type-check, build, and core s
 ## Requirements
 - [x] CI runs on pull requests and default branch pushes.
 - [x] Pipeline includes install, type-check, build, and smoke checks.
-- [ ] Failed checks block merge by policy.
+- [x] Failed checks block merge by policy.
 
 ## Tasks
 - [x] Add a GitHub Actions workflow for baseline checks.
 - [x] Wire package scripts for CI-friendly execution.
 - [x] Document CI expectations in contribution docs.
-- [ ] Require the CI check in GitHub branch protection settings.
+- [x] Require the CI check in GitHub branch protection settings.
 
 ## Notes
 - Keep first pass reliable and fast before expanding matrix coverage.
@@ -33,5 +33,6 @@ Add a baseline CI pipeline that validates install, type-check, build, and core s
 - docs/ContributionGuide.md
 
 ## Progress Log
+- 2026-10-25: Configured GitHub branch protection rules to require CI; all ticket requirements are complete.
 - 2026-10-25: Added the PR and `dev` push workflow with install, Golar and Nuxt typechecks, build, and integration health/test checks. Branch protection remains to be enabled in GitHub settings.
 - 2026-04-13: Ticket created.
