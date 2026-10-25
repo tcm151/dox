@@ -6,7 +6,7 @@
 - Next: Test representative video files against the current single-process deployment and filesystem media model.
 
 ## Goal
-Choose and document a video ingestion and playback design that fits OpenForum's deployment model before exposing uploads or committing to a record contract.
+Choose and document a video ingestion and playback design that fits ClassicForum's deployment model before exposing uploads or committing to a record contract.
 
 ## Requirements
 - [ ] Supported containers, codecs, maximum size, and validation strategy are documented.

@@ -1,6 +1,6 @@
 ---
 name: new-ticket
-description: "Use when creating or editing an OpenForum ticket or work item in docs/tickets. Guides ticket numbering, filenames, dependencies, and the project template."
+description: "Use when creating or editing an ClassicForum ticket or work item in docs/tickets. Guides ticket numbering, filenames, dependencies, and the project template."
 argument-hint: "Short ticket title or problem statement"
 ---
 

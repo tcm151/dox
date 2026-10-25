@@ -1,4 +1,4 @@
-# OpenForum Project Guide
+# ClassicForum Project Guide
 
 - **Architecture and code boundaries:** Start with [docs/Architecture.md](../docs/Architecture.md).
 - **Plans and existing work:** Use [docs/Roadmap.md](../docs/Roadmap.md) and [docs/tickets/](../docs/tickets/). Check the relevant active, backlog, or completed ticket before changing related behavior.

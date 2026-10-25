@@ -1,6 +1,6 @@
 ---
 name: standup
-description: "Use for an OpenForum standup or a summary of ticket status, active work, backlog, priorities, or completed tickets. Scans docs/tickets and returns a concise status report."
+description: "Use for an ClassicForum standup or a summary of ticket status, active work, backlog, priorities, or completed tickets. Scans docs/tickets and returns a concise status report."
 argument-hint: "Optional focus: active, backlog, priority, or cleanup"
 ---
 
