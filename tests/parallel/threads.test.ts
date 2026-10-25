@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { extractId } from "../../shared/utils/records"
-import type { Thread, Topic } from "../../shared/types"
+import type { Thread, Topic, User } from "../../shared/types"
 import { fetch, grabExampleServer, grabUser } from "../test-server"
 
 const admin = await grabUser("admin")
@@ -22,6 +22,14 @@ async function removeRecords(statements: string[]) {
     if (!response.ok) {
         throw new Error(`Failed to clean up thread test records: ${await response.text()}`)
     }
+}
+
+async function getProfile(accessToken: string) {
+    const response = await fetch("/api/profile/authenticate", {
+        headers: { Authorization: accessToken },
+    })
+    expect(response.status).toBe(200)
+    return await response.json() as User
 }
 
 it("rejects thread replies without authentication", async () => {
@@ -84,6 +92,105 @@ it("creates a thread reply and notifies the thread author", async () => {
             ...(replyId ? [`DELETE notification WHERE context = thread:${replyId};`] : []),
             ...(replyId ? [`DELETE thread:${replyId};`] : []),
             ...(parentId ? [`DELETE thread:${parentId};`] : []),
+        ])
+    }
+})
+
+it("rejects thread awards when the sender has insufficient tokens", async () => {
+    const senderBefore = await getProfile(replyAuthor.accessToken)
+    const targetBefore = await getProfile(threadAuthor.accessToken)
+    const content = `Award balance regression ${Date.now()}`
+    let threadId: string | undefined
+
+    try {
+        const emptyBalanceResponse = await fetch("/api/developer/database/query", {
+            method: "POST",
+            headers: {
+                Authorization: admin.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query: `UPDATE ${replyAuthor.user.id} SET tokens = 0;` }),
+        })
+        expect(emptyBalanceResponse.status, await emptyBalanceResponse.clone().text()).toBe(200)
+
+        const createResponse = await fetch("/api/thread/add", {
+            method: "POST",
+            headers: {
+                Authorization: threadAuthor.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content, topics: [], images: [] }),
+        })
+        expect(createResponse.status, await createResponse.clone().text()).toBe(200)
+        const thread = await createResponse.json() as Thread
+        threadId = extractId(thread.id)
+
+        const awardResponse = await fetch(`/api/thread/${threadId}/award`, {
+            method: "POST",
+            headers: { Authorization: replyAuthor.accessToken },
+        })
+        expect(awardResponse.status).toBe(409)
+
+        const senderAfter = await getProfile(replyAuthor.accessToken)
+        const targetAfter = await getProfile(threadAuthor.accessToken)
+        expect(senderAfter.tokens).toBe(0)
+        expect(targetAfter.tokens).toBe(targetBefore.tokens)
+
+        const threadResponse = await fetch(`/api/thread/${threadId}`)
+        expect(threadResponse.status).toBe(200)
+        const threadAfter = await threadResponse.json() as Thread
+        expect(threadAfter.votes.awards).not.toContain(replyAuthor.user.id)
+    }
+    finally {
+        await removeRecords([
+            `UPDATE ${replyAuthor.user.id} SET tokens = ${senderBefore.tokens};`,
+            ...(threadId ? [`DELETE notification WHERE context = thread:${threadId};`, `DELETE thread:${threadId};`] : []),
+        ])
+    }
+})
+
+it("allows only one of two concurrent awards to the same thread", async () => {
+    const senderBefore = await getProfile(replyAuthor.accessToken)
+    const targetBefore = await getProfile(threadAuthor.accessToken)
+    const content = `Concurrent award regression ${Date.now()}`
+    let threadId: string | undefined
+
+    try {
+        const createResponse = await fetch("/api/thread/add", {
+            method: "POST",
+            headers: {
+                Authorization: threadAuthor.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content, topics: [], images: [] }),
+        })
+        expect(createResponse.status, await createResponse.clone().text()).toBe(200)
+        const thread = await createResponse.json() as Thread
+        threadId = extractId(thread.id)
+
+        const award = () => fetch(`/api/thread/${threadId}/award`, {
+            method: "POST",
+            headers: { Authorization: replyAuthor.accessToken },
+        })
+        const responses = await Promise.all([award(), award()])
+        const statuses = responses.map(response => response.status).sort()
+        expect(statuses).toEqual([200, 409])
+
+        const senderAfter = await getProfile(replyAuthor.accessToken)
+        const targetAfter = await getProfile(threadAuthor.accessToken)
+        expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
+        expect(targetAfter.tokens).toBe(targetBefore.tokens + 256)
+
+        const threadResponse = await fetch(`/api/thread/${threadId}`)
+        expect(threadResponse.status).toBe(200)
+        const threadAfter = await threadResponse.json() as Thread
+        expect(threadAfter.votes.awards.filter(id => id === replyAuthor.user.id)).toHaveLength(1)
+    }
+    finally {
+        await removeRecords([
+            `UPDATE ${replyAuthor.user.id} SET tokens = ${senderBefore.tokens};`,
+            `UPDATE ${threadAuthor.user.id} SET tokens = ${targetBefore.tokens};`,
+            ...(threadId ? [`DELETE notification WHERE context = thread:${threadId};`, `DELETE thread:${threadId};`] : []),
         ])
     }
 })

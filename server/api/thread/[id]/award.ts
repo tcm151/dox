@@ -12,6 +12,9 @@ export default defineEventHandler(async (event) => {
             IF $thread.votes.awards CONTAINS $awarder {
                 fn::http(409, "You have already awarded this thread.");
             };
+            IF $awarder.tokens < 256 {
+                fn::http(409, "You don't have enough tokens.");
+            };
 
             UPDATE $thread SET
                 votes.awards = array::union(votes.awards, [$awarder]);
