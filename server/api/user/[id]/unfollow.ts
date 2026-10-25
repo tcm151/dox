@@ -4,11 +4,15 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            UPDATE $user SET
-                following = array::difference(following, [$follower]);
+            IF $user.following CONTAINS $follower {
+                UPDATE $user SET
+                    following = array::difference(following, [$follower]);
+            };
 
-            UPDATE $follower SET
-                followers = array::difference(followers, [$user]);
+            IF $follower.followers CONTAINS $user {
+                UPDATE $follower SET
+                    followers = array::difference(followers, [$user]);
+            };
 
             RETURN true;
         `)

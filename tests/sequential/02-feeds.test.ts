@@ -157,7 +157,7 @@ it("paginates popular feed results for each sort mode", async () => {
         })
         expect(scoreSetupResponse.status, await scoreSetupResponse.clone().text()).toBe(200)
 
-        const fixtureIds = new Set(expectedSourceIds)
+        const expectedSourceIdSet = new Set(expectedSourceIds)
         const sortOrders = {
             new: "time DESC, sourceId ASC",
             hot: "hot DESC, time DESC, sourceId ASC",
@@ -187,7 +187,7 @@ it("paginates popular feed results for each sort mode", async () => {
                 const page = await response.json() as FeedPage<Sortable>
                 expect(page.offset).toBe(offset)
                 expect(page.items.length).toBeLessThanOrEqual(2)
-                actualOrder.push(...page.items.map(item => item.id).filter(id => fixtureIds.has(id)))
+                actualOrder.push(...page.items.map(item => item.id).filter(id => expectedSourceIdSet.has(id)))
                 if (!page.more) break
             }
 
@@ -203,7 +203,7 @@ it("paginates popular feed results for each sort mode", async () => {
             const page = await response.json() as FeedPage<Post | Thread | Gallery>
             expect(page.offset).toBe(offset)
             expect(page.items.length).toBeLessThanOrEqual(2)
-            expect(page.items.every(item => fixtureIds.has(item.id))).toBe(true)
+            expect(page.items.every(item => expectedSourceIdSet.has(item.id))).toBe(true)
             expect(page.items.every(item => item.topics.includes(`topic:${topicId}`))).toBe(true)
             followingOrder.push(...page.items.map(item => item.id))
             expect(page.more).toBe(offset + 2 < expectedSourceIds.length)

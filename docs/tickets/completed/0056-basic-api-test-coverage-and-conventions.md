@@ -17,7 +17,7 @@ Expand the starter integration suite beyond health checks with a few representat
 
 ## Tasks
 - [x] Select a small baseline that complements broader coverage planned in Tickets 0022 and 0027.
-- [x] Add focused tests and only the reusable setup or fixtures needed for those operations.
+- [x] Add focused tests and only the reusable setup or example data needed for those operations.
 - [x] Keep `health.test.ts` focused on startup and readiness checks.
 - [x] Document test organization, setup, cleanup, and assertion conventions.
 - [x] Add keyed user-session storage for sequential tests.

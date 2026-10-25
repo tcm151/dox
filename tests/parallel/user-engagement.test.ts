@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch, grabExampleServer } from "../test-server"
+import { fetch, grabExampleServer, testAdminCredentials } from "../test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Notification, User } from "../../shared/types"
 
@@ -7,8 +7,70 @@ const exampleServer = await grabExampleServer("default")
 const awardSender = exampleServer.users.awardSender
 const awardTarget = exampleServer.users.awardTarget
 const subscriber = exampleServer.users.subscriber
+const follower = exampleServer.users.sampleUser01
+const followedUser = exampleServer.users.sampleUser02
 
-it("awards users and saves or removes user subscriptions", async () => {
+type UserSummary = {
+    name: string
+    roles: string[]
+}
+
+it("lists users and returns the configured admin", async () => {
+    const response = await fetch("/api/user")
+    expect(response.status).toBe(200)
+
+    const users = await response.json() as UserSummary[]
+    const admin = users.find(user => user.name === testAdminCredentials.name)
+    expect(admin).toBeDefined()
+    expect(admin?.roles).toEqual(expect.arrayContaining(["admin", "moderator", "developer"]))
+})
+
+it("follows and unfollows a user with idempotent state updates", async () => {
+    const followerId = extractId(follower.user.id)
+    const followedUserId = extractId(followedUser.user.id)
+    const follow = () => fetch(`/api/user/${followedUserId}/follow`, {
+        method: "POST",
+        headers: { Authorization: follower.accessToken },
+    })
+    const unfollow = () => fetch(`/api/user/${followedUserId}/unfollow`, {
+        method: "POST",
+        headers: { Authorization: follower.accessToken },
+    })
+
+    try {
+        const unauthenticatedFollow = await fetch(`/api/user/${followedUserId}/follow`, { method: "POST" })
+        expect(unauthenticatedFollow.status).toBe(401)
+
+        expect((await follow()).status).toBe(200)
+        expect((await follow()).status).toBe(200)
+
+        const followerProfileResponse = await fetch(`/api/user/${followerId}`)
+        expect(followerProfileResponse.status).toBe(200)
+        const followerProfile = await followerProfileResponse.json() as User
+        expect(followerProfile.following).toContain(followedUser.user.id)
+
+        const followedProfileResponse = await fetch(`/api/user/${followedUserId}`)
+        expect(followedProfileResponse.status).toBe(200)
+        const followedProfile = await followedProfileResponse.json() as User
+        expect(followedProfile.followers).toContain(follower.user.id)
+
+        expect((await unfollow()).status).toBe(200)
+        expect((await unfollow()).status).toBe(200)
+
+        const unfollowedFollowerResponse = await fetch(`/api/user/${followerId}`)
+        const unfollowedFollower = await unfollowedFollowerResponse.json() as User
+        expect(unfollowedFollower.following).not.toContain(followedUser.user.id)
+
+        const unfollowedProfileResponse = await fetch(`/api/user/${followedUserId}`)
+        const unfollowedProfile = await unfollowedProfileResponse.json() as User
+        expect(unfollowedProfile.followers).not.toContain(follower.user.id)
+    }
+    finally {
+        await unfollow()
+    }
+})
+
+it("awards users and saves or removes saved subscriptions", async () => {
     const awardTargetId = extractId(awardTarget.user.id)
     const subscriberId = extractId(subscriber.user.id)
 

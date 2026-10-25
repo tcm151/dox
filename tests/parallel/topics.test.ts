@@ -6,7 +6,7 @@ type LoginResponse = {
     tokens: { access: string }
 }
 
-it("loads topics when a related post is missing", async () => {
+it("loads a topic when a related post is missing", async () => {
     const loginResponse = await fetch("/api/profile/login", {
         headers: {
             Authorization: btoa(`${testAdminCredentials.name}:${testAdminCredentials.password}`),

@@ -8,8 +8,8 @@ Effort legend: `S` (1-2 days), `M` (3-5 days), `L` (1-2 weeks)
 Goal: make self-hosting reliable, with embedded SurrealDB as the default and remote mode available for larger deployments.
 
 ### A1. CI + Test Baseline
-- 🟥 Add GitHub Actions pipeline for install, type-check, build, and smoke tests. (`M`)
-- 🟥 Add minimal server/API smoke tests for auth, post create, thread reply, and report flow. (`L`)
+- 🟩 Add GitHub Actions pipeline for install, type-check, build, and smoke tests. (`M`)
+- 🟩 Add minimal server/API smoke tests for auth, post create, thread reply, and report flow. (`L`)
 - 🟩 Add PR template + contribution checks (tests/docs checklist). (`S`)
 
 **Success metric**: every PR is validated by CI and critical flows have automated smoke coverage.
@@ -99,7 +99,7 @@ Goal: improve async interactions and make the project easier to contribute to.
 
 ### C3. Contributor and Contract Stability
 - 🟥 Publish API endpoint inventory with auth requirements and response contracts. (`M`)
-- 🟥 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`L`)
+- 🟦 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`L`)
 - 🟦 Add structured request logging for API and error contexts. (`M`)
 - 🟥 Define baseline metrics and operational SLOs (latency, error rate, migration success). (`M`)
 

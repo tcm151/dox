@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { fetch, grabUser, stashExampleServer, type TSession, type TExampleServer } from "../test-server"
 
-const fixtureUsers = [
+const exampleUserKeys = [
     "awardSender",
     "awardTarget",
     "subscriber",
@@ -65,11 +65,11 @@ async function createTestUser(username: string): Promise<TSession> {
     }
 }
 
-it("seeds reusable users and representative content fixtures", async () => {
+it("seeds reusable example users", async () => {
     const users: Record<string, TSession> = {}
 
-    for (const [index, key] of fixtureUsers.entries()) {
-        const username = `Fixture${suffix}${index}`
+    for (const [index, key] of exampleUserKeys.entries()) {
+        const username = `Example${suffix}${index}`
         users[key] = {
             ...await createTestUser(username),
         }

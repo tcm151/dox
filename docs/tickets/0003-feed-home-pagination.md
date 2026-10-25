@@ -27,7 +27,7 @@ Add paged loading behavior to home feed so users can load more content predictab
 ## Notes
 - The shared feed view pages posts, top-level threads, and galleries before hydrating feed records.
 - Offset pagination does not provide snapshot consistency. Inserts, deletions, or sort-field changes between requests may cause items to repeat or be omitted.
-- Tests use unchanged fixtures to verify deterministic per-request ordering, bounded pages, following-topic filtering, and end-of-list metadata; they do not promise continuity across concurrent feed changes.
+- Tests use unchanged seeded records to verify deterministic per-request ordering, bounded pages, following-topic filtering, and end-of-list metadata; they do not promise continuity across concurrent feed changes.
 
 ## Relevant Files
 - app/pages/feed/home.vue
@@ -39,7 +39,7 @@ Add paged loading behavior to home feed so users can load more content predictab
 - tests/sequential/05-home-feed-pagination.test.ts
 
 ## Progress Log
-- 2026-10-24: Clarified offset pagination's non-snapshot tradeoff and completed controlled sort-order, following-topic pagination, score, bounds, and stable-fixture end-of-list coverage.
+- 2026-10-24: Clarified offset pagination's non-snapshot tradeoff and completed controlled sort-order, following-topic pagination, score, bounds, and stable-record-set end-of-list coverage.
 - 2026-10-24: Implemented bounded shared-feed pagination and home-feed load more; mixed post/thread/gallery traversal, page-size limits, and terminal-page checks pass. Exact ordering and following-feed pagination coverage remain.
 - 2026-10-21: Added bounded database queries, server-side page-size limits, and mixed-feed ordering checks from the application review.
 - 2026-04-13: Ticket created.

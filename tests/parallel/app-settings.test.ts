@@ -5,7 +5,7 @@ import { fetch, grabUser } from "../test-server"
 
 const admin = await grabUser("admin")
 
-it("saves and reads back the About summary setting", async () => {
+it("persists and restores the About summary setting", async () => {
     const settingsResponse = await fetch("/api/settings/default")
     expect(settingsResponse.status).toBe(200)
     const originalSettings = await settingsResponse.json() as AppSettings
