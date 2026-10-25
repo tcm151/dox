@@ -13,7 +13,6 @@ const props = defineProps<{
                 <Votes :target="gallery" />
                 <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="gallery.user" />
-                    <Tag class="f-1" type="info" icon="fa-image" :label="`${gallery.images.length} images`" />
                     <Tag class="f-1" type="info" icon="fa-chart-simple" :label="gallery.visits" />
                     <DurationTag class="f-1" :time="gallery.time" />
                 </div>
@@ -21,11 +20,11 @@ const props = defineProps<{
                     <TopicTag v-for="topic in gallery.topics" :key="topic" :topic="topic" />
                 </div>
             </header>
-            <Markdown v-if="gallery.description" class="content preview" :content="gallery.description" />
             <div v-if="gallery.images.length > 0" class="gallery-images" :class="{ single: gallery.images.length === 1 }">
                 <img v-for="image in gallery.images.slice(0, 4)" :key="image.id" :src="image.url">
             </div>
             <p v-if="gallery.images.length > 4" class="more-images">+ {{ gallery.images.length - 4 }} more</p>
+            <Markdown v-if="gallery.description" class="content preview" :content="gallery.description" />
         </div>
     </div>
 </template>
@@ -44,7 +43,7 @@ const props = defineProps<{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
-    max-height: 24rem;
+    max-height: 30rem;
     overflow: hidden;
 
     img {
@@ -59,8 +58,8 @@ const props = defineProps<{
         grid-template-columns: minmax(0, 1fr);
 
         img {
-            max-height: 24rem;
-            object-fit: contain;
+            max-height: 30rem;
+            object-fit: cover;
         }
     }
 }

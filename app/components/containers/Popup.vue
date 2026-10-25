@@ -19,10 +19,10 @@ const props = defineProps<{
                 <slot />
             </div>
             <div class="row wrap g-2">
-                <ButtonSpinner class="success f-1 b-0" :loading="loading" @click="accept.action()">
+                <ButtonSpinner class="success f-2 b-0" :loading="loading" @click="accept.action()">
                     {{ accept.label ?? "Yes" }}
                 </ButtonSpinner>
-                <button class="danger" @click="decline.action()">
+                <button class="danger f-1" @click="decline.action()">
                     {{ decline.label ?? "No" }}
                 </button>
             </div>

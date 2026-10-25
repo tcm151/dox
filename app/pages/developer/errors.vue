@@ -3,7 +3,7 @@ import type { Error } from '@@/shared/types'
 
 const cache = useCache()
 
-const limit = cache.get<number>("errors.limit", () => 25)
+const limit = cache.get<number>("errors.limit", () => 10)
 const codes = cache.get<number[]>("errors.codes", () => [500])
 const start = cache.get<string>("errors.start", () => "")
 const end = cache.get<string>("errors.end", () => "")
@@ -75,6 +75,7 @@ function toggle(id: string) {
                     <div class="field row">
                         <label>Results</label>
                         <select v-model.number="limit">
+                            <option>10</option>
                             <option>25</option>
                             <option>50</option>
                             <option>100</option>
