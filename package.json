@@ -6,6 +6,8 @@
         "predev": "yarn install",
         "dev": "nuxt dev",
         "build": "nuxt build",
+        "typecheck:golar": "golar typecheck",
+        "typecheck": "nuxt typecheck",
         "test": "node scripts/test-server.mjs",
         "postinstall": "nuxt prepare",
         "deploy": "ssh root@tcmdev.ca \"cd dox && ./deploy.sh --build\"",
@@ -14,6 +16,7 @@
         "stage:release": "yarn build && node scripts/stage-release.mjs"
     },
     "devDependencies": {
+        "@golar/vue": "^0.1.11",
         "@nuxt/test-utils": "^4.3.4",
         "@types/luxon": "^3.7.1",
         "@types/node": "^25.5.0",
@@ -21,6 +24,7 @@
         "@types/sanitize-html": "^2.16.0",
         "@vueuse/core": "^14.2.1",
         "@vueuse/nuxt": "^14.2.1",
+        "golar": "^0.1.11",
         "nuxt": "^4.2.1",
         "vite": "^8.3.4",
         "vitest": "^5.0.5"

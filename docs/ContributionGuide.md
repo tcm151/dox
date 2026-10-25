@@ -167,6 +167,22 @@ If the database already contains an account, leave all three `DEFAULT_USER_*` va
 
 Keep pull requests focused and use the repository template. It asks for a short summary, test status, and documentation impact.
 
+### CI Checks
+
+GitHub Actions runs on pull requests and pushes to `dev`. The `CI / Validate` job installs dependencies, runs Golar's app/shared typecheck, Nuxt's full typecheck, the production build, and the integration suite. The suite starts an isolated embedded database and checks application health before running its tests.
+
+Run the same checks locally:
+
+```bash
+yarn install --frozen-lockfile
+yarn typecheck:golar
+yarn typecheck
+yarn build
+yarn test
+```
+
+Repository branch protection must require `CI / Validate` before merging; workflow files cannot enable that GitHub setting themselves.
+
 ## 12. Release And Versioning
 
 ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a steady release and deployment cadence.

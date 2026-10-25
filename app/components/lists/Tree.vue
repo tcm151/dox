@@ -5,6 +5,10 @@ const props = defineProps<{
     getChildren: Function
 }>()
 
+defineSlots<{
+    item(props: { item: any }): any
+}>()
+
 const hiddenChildren = ref<string[]>([])
 function toggleChildren(id: string) {
     if (hiddenChildren.value.includes(id)) {
@@ -24,9 +28,8 @@ function toggleChildren(id: string) {
                 <div class="item f-1">
                     <slot name="item" :item="item" />
                     <Tree v-if="!hiddenChildren.includes(item.id)" class="ml-2" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
-                        <template v-for="(_, slot) in $slots" v-slot:[slot]="scope">
-                            <slot :name="slot" v-bind="scope ?? {}">
-                            </slot>
+                        <template #item="slotProps">
+                            <slot name="item" v-bind="slotProps" />
                         </template>
                     </Tree>
                 </div>

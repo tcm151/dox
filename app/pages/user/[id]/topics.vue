@@ -17,7 +17,7 @@ const { data: topics } = await useDatasource<Topic[]>(`/api/user/${id}/topics`)
             <div class="row g-1" v-for="topic in topics">
                 <Votes :target="topic" />
                 <Tag class="f-1 b-0" type="link" :label="extractId(topic.id)" />
-                <DurationTag width="6rem" :time="topic.firstUsed" />
+                <DurationTag v-if="topic.firstUsed" width="6rem" :time="topic.firstUsed" />
             </div>
         </section>
         <footer v-else class="box p-3 text center">

@@ -12,7 +12,7 @@ const { data: topics } = await useDatasource<Topic[]>(`/api/moderator/topics`)
             <div class="row g-1" v-for="topic in topics">
                 <Votes :target="topic" />
                 <TopicTag :topic="topic.id" />
-                <DurationTag width="6rem" :time="topic.firstUsed" />
+                <DurationTag v-if="topic.firstUsed" width="6rem" :time="topic.firstUsed" />
             </div>
         </section>
         <footer v-else class="box p-3 text center">
