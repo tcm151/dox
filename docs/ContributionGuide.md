@@ -22,6 +22,7 @@ ClassicForum supports two SurrealDB modes:
 - **embedded**: run SurrealDB from inside the app process via a local engine.
 
 Choose one mode and set `NUXT_SURREAL_INFO_TYPE` accordingly.
+For SurrealDB documentation and ClassicForum-specific database configuration, see the [SurrealDB guide](SurrealDB.md).
 
 ## 3. Environment Variables
 

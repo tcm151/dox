@@ -16,21 +16,21 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 
 ### A2. Install/Deploy Simplicity
 - 🟩 Add `.env.example` with embedded defaults and remote-mode advanced examples. (`S`)
-- 🟦 Add single “Production Quickstart” doc for a Linux VM service install, with embedded as the default and operator-managed reverse proxy/TLS. Clean-host validation remains. (`M`)
-- 🟥 Add a separate “Remote SurrealDB at Scale” operations guide (networking, credentials, failure modes). (`M`)
+- 🟩 Add single “Production Quickstart” doc for a Linux VM service install, with embedded as the default and operator-managed reverse proxy/TLS. Windows x64 packaged setup is validated; Linux-native VPS validation remains a follow-up. (`M`)
+- 🟩 Add a SurrealDB user guide linking upstream documentation and documenting ClassicForum-specific database configuration. (`M`)
 
 **Success metric**: clean machine setup to running app in <= 30 minutes.
 
 ### A3. Security Hardening (Critical Paths)
-- 🟦 Expand rate limiting coverage beyond current auth endpoints. (`M`)
-- 🟦 Fix award flow token validation + anti-double-spend guardrails. (`M`)
-- 🟥 Add referral abuse limits (cooldown/one-time constraints). (`M`)
+- 🟩 Expand rate limiting coverage beyond auth endpoints to referral, reporting, and media uploads. (`M`)
+- 🟩 Fix award flow token validation + anti-double-spend guardrails across user, post, and thread awards. (`M`)
+- 🟩 Add referral abuse limits (cooldown/one-time constraints). (`M`)
 - 🟩 Add security policy + responsible disclosure doc. (`S`)
 
 **Success metric**: no known P0 abuse paths in auth/economy endpoints.
 
 ### A4. Ops Essentials
-- 🟥 Add backup/restore runbook for both remote and embedded SurrealDB modes. (`M`)
+- 🟦 Add [backup/restore runbook](Backups.md) for embedded and remote SurrealDB modes. Live Linux deployment validation remains. (`M`)
 - 🟩 Add health/readiness endpoint docs and operator checks for embedded and remote profiles. (`S`)
 - 🟩 Add release versioning + changelog process. (`S`)
 

@@ -16,7 +16,7 @@ High-level architecture:
 Deployment model:
 - Single process app serving UI + API
 - SurrealDB mode can be:
-  - `remote` via RPC
+  - `remote` via RPC (see [SurrealDB](SurrealDB.md))
   - `embedded` via node engines in-process
 
 ## 2. Repository Boundaries

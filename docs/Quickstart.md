@@ -142,6 +142,8 @@ Check the health endpoint:
 curl http://127.0.0.1:8001/api/health
 ```
 
+For backup and restore procedures covering embedded and remote databases, see [Backups](Backups.md).
+
 Follow logs if startup fails:
 
 ```bash
