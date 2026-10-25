@@ -9,15 +9,32 @@ async function syncDatabase() {
     await useApi("/api/developer/database/sync")
     hints.addSuccess("Database synced.")
 }
+
+const loading = ref(false)
+async function replayMigration() {
+    loading.value = true
+    try {
+        const result = await useApi<{ version: string }>("/api/developer/database/replay")
+        await refresh()
+        hints.addSuccess(`Migration ${result.version} replayed.`)
+    }
+    finally {
+        loading.value = false
+    }
+}
 </script>
 
 <template>
     <article class="p-4">
         <section class="box column g-2 p-4">
-            <header class="row g-2">
+            <header class="row wrap g-2">
                 <button class="danger f-1" @click="syncDatabase">
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Sync Database</span>
+                </button>
+                <button class="danger f-1" :disabled="loading" @click="replayMigration">
+                    <i class="fa-solid fa-rotate-right" />
+                    <span>{{ loading ? "Replaying Migration..." : "Replay Migration" }}</span>
                 </button>
                 <button class="link f-1" @click="refresh()">
                     <i class="fa-solid fa-cloud-arrow-down" />

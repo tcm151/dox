@@ -19,6 +19,14 @@ DEFINE FUNCTION fn::sort_hot($score: number, $created_at: datetime, $as_of: date
     LET $age_hours = math::max([1, (time::unix($as_of) - time::unix($created_at)) / 3600]);
     RETURN <float>$score / math::pow($age_hours, 2);
 };
+DEFINE FUNCTION fn::calculate_score(
+    $positive: array<record<user>>,
+    $misleading: array<record<user>>,
+    $negative: array<record<user>>,
+    $visits: number
+) -> number {
+    RETURN ($positive.len() - (<float>$misleading.len()/2) - $negative.len()) * $visits;
+};
 
 
 -- ------------------------------
@@ -72,7 +80,7 @@ DEFINE FIELD votes.misleading ON user
 DEFINE FIELD votes.negative ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON user
-    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
 
 -- ------------------------------
@@ -114,7 +122,7 @@ DEFINE FIELD votes.misleading ON topic
 DEFINE FIELD votes.negative ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON topic
-    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
     IF $after.posts.len() = 0 AND $after.threads.len() = 0 AND $after.galleries.len() = 0 {
         DELETE $after.id;
@@ -162,6 +170,8 @@ DEFINE FIELD votes.awards ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes ON post
+    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON post
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 DEFINE EVENT updateTopics ON post WHEN $event = 'CREATE' THEN {
@@ -223,7 +233,7 @@ DEFINE FIELD votes.misleading ON comment
 DEFINE FIELD votes.negative ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON comment
-    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len());
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, 1);
 DEFINE EVENT updatePost ON comment WHEN $event = 'CREATE' THEN {
     UPDATE $after.post SET comments += $after.id;
 };
@@ -271,8 +281,10 @@ DEFINE FIELD votes.awards ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes ON thread
+    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON thread
-    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 DEFINE EVENT updateTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
@@ -324,7 +336,7 @@ DEFINE FIELD votes.misleading ON image
 DEFINE FIELD votes.negative ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON image
-    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
 
 -- ------------------------------
@@ -355,8 +367,10 @@ DEFINE FIELD votes.awards ON gallery
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON gallery
     TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes ON gallery
+    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON gallery
-    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 DEFINE EVENT updateTopics ON gallery WHEN $event = 'CREATE' THEN {
     FOR $topic IN $after.topics {
         IF !record::exists($topic) {
@@ -373,12 +387,15 @@ DEFINE EVENT updateTopics ON gallery WHEN $event = 'CREATE' THEN {
 -- TABLE: feed
 -- ------------------------------
 DEFINE TABLE feed AS
-SELECT id AS sourceId, time, score, user, topics
+SELECT id, id AS sourceId, time,
+    fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits) AS score,
+    user, topics
 FROM post, thread, gallery
-WHERE (record::tb(id) = 'post' AND archived != true)
-OR (record::tb(id) = 'thread' AND replyTo = NONE)
-OR (record::tb(id) = 'gallery' AND archived != true)
-GROUP BY sourceId, time, score, user, topics;
+WHERE IF id IS NONE THEN false ELSE (
+    (record::tb(id) = 'post' AND archived != true)
+    OR (record::tb(id) = 'thread' AND replyTo = NONE)
+    OR (record::tb(id) = 'gallery' AND archived != true)
+) END;
 DEFINE FIELD hot ON feed
     COMPUTED fn::sort_hot(score, time, time::now());
 

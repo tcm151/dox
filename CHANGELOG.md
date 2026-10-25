@@ -17,6 +17,7 @@ Older entries group related work from periods when no release tag was created.
 
 ### Fixed
 - Corrected thread deletion to remove topic back-references from `topic.threads`; the migration also rebuilds topic back-references from active content records.
+- Removed feed-view aggregation so source score and visit updates do not depend on stale aggregate-group records.
 
 ## [2026.5.1] - 2026-09-28
 

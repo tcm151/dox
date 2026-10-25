@@ -15,6 +15,7 @@ export default defineNitroPlugin(async () => {
     }
     catch (error: unknown) {
         health.setStatus("failed")
+        health.setFailureReason(error)
         console.error("Application startup failed.", error)
     }
 })

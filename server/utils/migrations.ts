@@ -47,6 +47,26 @@ export async function runMigrations() {
     health.setVersion(applicationVersion)
 }
 
+export async function replayCurrentMigration(): Promise<string> {
+    const applicationVersion = useRuntimeConfig().public.version
+    const databaseVersion = await getCurrentVersion()
+    if (databaseVersion !== applicationVersion) {
+        throw new Error(`Cannot replay migration ${applicationVersion} while the database is at ${databaseVersion}.`)
+    }
+
+    const storage = useStorage("assets:server")
+    const migration = Buffer.from(await storage.getItem<string>(`migrations/${applicationVersion}.surql`) ?? "").toString().trim()
+    if (!migration) {
+        throw new Error(`Migration ${applicationVersion} is missing or empty.`)
+    }
+
+    await new DatabaseQuery()
+        .addSql(migration)
+        .execute()
+
+    return applicationVersion
+}
+
 async function getCurrentVersion(): Promise<string> {
     const hasTables = await new DatabaseQuery()
         .addSql(`
