@@ -8,21 +8,20 @@ export default defineEventHandler(async (event) => {
     
     const image = await new DatabaseQuery()
         .addSql(`
-            RETURN {
-                IF $user.tokens < $tokens {
-                    THROW "You do not have enough tokens to upload this image.";
-                };
-
-                UPDATE $user SET
-                    tokens -= $tokens;
-
-                RETURN CREATE image SET
-                    user = $user,
-                    type = $type,
-                    tokens = $tokens,
-                    origin = $origin;
+            IF $user.tokens < $tokens {
+                fn::http(409, "You do not have enough tokens to upload this image.");
             };
+
+            UPDATE $user SET
+                tokens -= $tokens;
+
+            RETURN CREATE image SET
+                user = $user,
+                type = $type,
+                tokens = $tokens,
+                origin = $origin;
         `)
+        .addTransaction()
         .addRecord('user', auth.id)
         .addParameter('tokens', media.tokens)
         .addParameter('type', media.type)

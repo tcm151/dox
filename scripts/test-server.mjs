@@ -23,6 +23,14 @@ try {
     process.env.CLASSICFORUM_TEST_ADMIN_NAME = testAdminName
     process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD = testAdminPassword
     testApp = createTest({
+        logLevel: 0,
+        nuxtConfig: {
+            vite: { logLevel: "warn" },
+            nitro: {
+                logLevel: 0,
+                logging: { buildSuccess: false },
+            },
+        },
         rootDir: projectRoot,
         env: {
             NUXT_DATA_PATH: `${testRoot}/media`,
@@ -43,18 +51,37 @@ try {
     process.env.CLASSICFORUM_TEST_SERVER_URL = serverUrl
     await waitForAppReady(serverUrl, testApp.ctx.serverLogs)
 
-    const phases = ["tests/health.test.ts", ...await getSequentialTestFiles()]
-    for (const testPath of phases) {
-        const status = await runVitest(testPath, true)
-        if (status !== 0) {
-            process.exitCode = status
-            break
-        }
+    const phases = [
+        ...["tests/health.test.ts", ...await getSequentialTestFiles()].map(testPath => ({ testPath, sequential: true })),
+    ]
+    if (existsSync(join(projectRoot, "tests", "parallel"))) {
+        phases.push({ testPath: "tests/parallel", sequential: false })
     }
 
-    if (!process.exitCode && existsSync(join(projectRoot, "tests", "parallel"))) {
-        process.exitCode = await runVitest("tests/parallel", false)
+    let passedPhases = 0
+    let failedPhase
+    let failedExitCode
+    let failedOutput = ""
+    for (const [index, phase] of phases.entries()) {
+        const result = await runVitest(phase.testPath, phase.sequential)
+        if (result.exitCode !== 0) {
+            process.exitCode = result.exitCode
+            failedPhase = phase.testPath
+            failedExitCode = result.exitCode
+            failedOutput = `${result.stdout}${result.stderr}`
+            break
+        }
+        passedPhases++
     }
+
+    if (failedOutput) {
+        process.stderr.write(`\n--- Failure output: ${failedPhase} ---\n`)
+        process.stderr.write(failedOutput)
+        if (!failedOutput.endsWith("\n")) process.stderr.write("\n")
+    }
+
+    const outcome = failedPhase ? `FAIL at ${failedPhase} (exit ${failedExitCode})` : "PASS"
+    console.log(`\n[tests] ${outcome}; ${passedPhases}/${phases.length} phases passed`)
 }
 finally {
     if (testApp) await testApp.afterAll()
@@ -95,11 +122,15 @@ function runVitest(testPath, sequential) {
     return new Promise((resolve, reject) => {
         const testProcess = spawn(process.execPath, args, {
             cwd: projectRoot,
-            stdio: "inherit",
+            stdio: ["ignore", "pipe", "pipe"],
         })
 
+        let stdout = ""
+        let stderr = ""
+        testProcess.stdout.setEncoding("utf8").on("data", chunk => stdout += chunk)
+        testProcess.stderr.setEncoding("utf8").on("data", chunk => stderr += chunk)
         testProcess.once("error", reject)
-        testProcess.once("exit", code => resolve(code ?? 1))
+        testProcess.once("exit", code => resolve({ exitCode: code ?? 1, stdout, stderr }))
     })
 }
 

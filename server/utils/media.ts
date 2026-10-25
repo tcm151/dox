@@ -130,13 +130,12 @@ export async function writeMedia(user: User, media: Media, buffer: Buffer, type:
     catch (error: any) {
         await new DatabaseQuery()
             .addSql(`
-                RETURN {
-                    UPDATE $user SET
-                        tokens += $media.tokens;
-                    
-                    DELETE $media;
-                };
+                UPDATE $user SET
+                    tokens += $media.tokens;
+
+                DELETE $media;
             `)
+            .addTransaction()
             .addRecord("media", media.id)
             .addRecord("user", user.id)
             .execute()

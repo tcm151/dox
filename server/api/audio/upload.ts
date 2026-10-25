@@ -8,22 +8,21 @@ export default defineEventHandler(async (event) => {
 
     const audio = await new DatabaseQuery()
         .addSql(`
-            RETURN {
-                IF $user.tokens < $tokens {
-                    THROW "You do not have enough tokens to upload this audio.";
-                };
-
-                UPDATE $user SET
-                    tokens -= $tokens;
-
-                RETURN CREATE audio SET
-                    user = $user,
-                    type = $type,
-                    tokens = $tokens,
-                    time = time::now(),
-                    origin = $origin;
+            IF $user.tokens < $tokens {
+                fn::http(409, "You do not have enough tokens to upload this audio.");
             };
+
+            UPDATE $user SET
+                tokens -= $tokens;
+
+            RETURN CREATE audio SET
+                user = $user,
+                type = $type,
+                tokens = $tokens,
+                time = time::now(),
+                origin = $origin;
         `)
+        .addTransaction()
         .addRecord('user', auth.id)
         .addParameter('type', media.type)
         .addParameter('tokens', media.tokens)

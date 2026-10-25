@@ -2,19 +2,21 @@ export class SessionManager {
     static async add(account: Account) {
         return await new DatabaseQuery()
             .addSql(`
-                RETURN {
-                    LET $sesh = (CREATE ONLY session SET account = $account);
+                LET $sesh = (
+                    CREATE ONLY session SET
+                        account = $account
+                );
     
-                    DELETE session
-                    WHERE account = $account
-                    AND (invalidated = true OR time::now()-time > 14d);
+                DELETE session
+                WHERE account = $account
+                AND (invalidated = true OR time::now()-time > 14d);
     
-                    RETURN SELECT *
-                    FROM session
-                    WHERE id = $sesh.id
-                    FETCH account, account.user;
-                }
+                RETURN SELECT *
+                FROM session
+                WHERE id = $sesh.id
+                FETCH account, account.user;
             `)
+            .addTransaction()
             .addRecord("account", account.id)
             .queryOne<Session>()
     }

@@ -15,14 +15,17 @@ const allowedExtensions: Record<string, Set<string>> = {
 export async function trashImage(imageId: string) {
     await new DatabaseQuery()
         .addSql(`
-            BEGIN TRANSACTION;
-            LET $usages = SELECT VALUE id
+            LET $usages = (
+                SELECT VALUE id
                 FROM post, thread, draft, gallery
-                WHERE images CONTAINS $image;
+                WHERE images CONTAINS $image
+            );
             IF $usages.len() > 0 {
-                THROW "Image is still attached to content.";
+                fn::http(409, "Image is still attached to content.");
             };
-            LET $deletedImage = DELETE ONLY $image RETURN BEFORE;
+            LET $deletedImage = (
+                DELETE ONLY $image RETURN BEFORE
+            );
             IF $deletedImage != NONE {
                 UPDATE $deletedImage.user SET
                     tokens += $deletedImage.tokens;
@@ -30,8 +33,8 @@ export async function trashImage(imageId: string) {
                     type = "image",
                     extension = $deletedImage.type;
             };
-            COMMIT TRANSACTION;
         `)
+        .addTransaction()
         .addRecord("media", `mediaTrash:${imageId}`)
         .addRecord("image", `image:${imageId}`)
         .execute()

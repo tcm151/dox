@@ -4,17 +4,16 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            RETURN {
-                UPDATE $user SET
+            UPDATE $user SET
                 following = array::union(following, [$follower]);
-                
-                UPDATE $follower SET
+
+            UPDATE $follower SET
                 followers = array::union(followers, [$user]);
-                
-                RETURN true;
-            };
+
+            RETURN true;
         `)
+        .addTransaction()
         .addRecord("user", auth.id)
         .addRecord("follower", `user:${id}`)
-        .queryAll<boolean>()
+        .queryValue<boolean>()
 })

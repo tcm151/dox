@@ -11,28 +11,27 @@ export class UserManager {
         
         return await new DatabaseQuery()
             .addSql(`
-                RETURN {
-                    LET $user = (
-                        CREATE ONLY user SET
-                            name = $name
-                    );
+                LET $user = (
+                    CREATE ONLY user SET
+                        name = $name
+                );
     
-                    let $account = (
-                        CREATE ONLY account SET
-                            user = $user.id,
-                            email = $email,
-                            password = crypto::argon2::generate($password);
-                    );
+                let $account = (
+                    CREATE ONLY account SET
+                        user = $user.id,
+                        email = $email,
+                        password = crypto::argon2::generate($password)
+                );
 
-                    RETURN {
-                        user: $user,
-                        account: $account
-                    };
-                }
+                RETURN {
+                    user: $user,
+                    account: $account
+                };
             `)
+            .addTransaction()
             .addParameter("email", email)
             .addParameter("name", name)
             .addParameter("password", password)
-            .queryOne<{ user: User, account: Account }>()
+            .queryValue<{ user: User, account: Account }>()
     }
 }

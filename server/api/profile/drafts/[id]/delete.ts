@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     await new DatabaseQuery()
         .addSql(`
             IF $draft.user != $user {
-                THROW "You are not allowed to do this.";
+                fn::http(403, "You are not allowed to do this.");
             }
             ELSE {
                 DELETE $draft;

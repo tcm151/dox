@@ -13,28 +13,27 @@ export default defineEventHandler(async (event) => {
         await new DatabaseQuery()
             .addSql(`
                 IF $passwordReset.expired {
-                    THROW "Reset period has expired, please try again and complete within 15 minutes."
+                    fn::http(410, "Reset period has expired, please try again and complete within 15 minutes.");
                 };
                 IF $passwordReset.used {
-                    THROW "This password reset has already been used.";
+                    fn::http(409, "This password reset has already been used.");
                 };
                 IF $passwordReset.account.email != $email {
-                    THROW "Email does not match with reset request.";
+                    fn::http(400, "Email does not match with reset request.");
                 };
 
-                RETURN {
-                    UPDATE account SET
-                        password = crypto::argon2::generate($password)
-                    WHERE id = $passwordReset.account.id;
+                UPDATE account SET
+                    password = crypto::argon2::generate($password)
+                WHERE id = $passwordReset.account.id;
 
-                    UPDATE $passwordReset SET
-                        used = true;
+                UPDATE $passwordReset SET
+                    used = true;
 
-                    UPDATE session SET
-                        invalidated = true
-                    WHERE account.id = $passwordReset.account.id;
-                };
+                UPDATE session SET
+                    invalidated = true
+                WHERE account.id = $passwordReset.account.id;
             `)
+            .addTransaction()
             .addParameter("email", body.email)
             .addParameter("password", body.password)
             .addRecord("passwordReset", `passwordReset:${body.id}`)

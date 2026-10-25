@@ -26,12 +26,14 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 
 - Put UI and route composition in `app/`, HTTP behavior in `server/api/`, backend services in `server/utils/`, and shared contracts and helpers in `shared/`.
 - Use `DatabaseQuery` for database access. Bind Surreal record IDs with `addRecord` or `addRecords`; use `addParameter` for ordinary values.
-- Treat `shared/types/` and `server/assets/schema.surql` as one data contract. When stored data changes, update the types and schema together, and add a versioned migration when existing databases need it.
+- Treat `shared/types/` and `server/assets/schema.surql` as one data contract. When stored data changes, update the types and schema together, and add a versioned migration when existing databases need it. Before creating a migration, inspect the current in-progress migration: consolidate related schema/data changes into it when the user confirms that version is still the target. If the change is materially different, ask whether to include it or create a new migration. Do not rewrite a released migration by default; use a forward migration unless the user explicitly requests consolidation and confirms replay is appropriate.
 - Follow the Nuxt conventions and nearby code. Reuse a pattern when it makes the code clearer; do not introduce another way to do the same thing without a good reason.
 
 ## Check That It Works
 
 - Test what the code does, not only whether the request returned successfully. Include useful success and failure cases, and check the resulting state when a status code is not enough.
 - Keep test data isolated and predictable or unique. Clean up what a test creates unless another test step needs it.
-- Start with the smallest useful check. Run broader checks when the change's risk or reach calls for them.
+- When the repository provides a full test command, run it as the primary integration check. Do not replace it with a hand-built or selectively filtered harness just to reach later tests; let the standard runner expose its first failure, then use a focused follow-up only to diagnose or validate that failure.
+- Before creating an ad hoc test runner, check whether the repository's test command already covers the behavior. Do not duplicate its bootstrap or sequencing unless the standard runner cannot express the needed check; if a focused runner is necessary, state why.
+- Start with the smallest useful check for an edit, then run the repository's broader test command when the change's risk or reach calls for it.
 - For disposable SurrealDB schema, migration, or query probes, use `node scripts/surreal-explore.mjs -` with inline code on stdin. The runner supplies a fresh embedded database plus `db` and `assert`, then closes and removes the sandbox. Do not recreate the connection and temporary-database bootstrap in ad hoc scripts or run probes against the app database.

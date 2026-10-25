@@ -15,24 +15,24 @@ export default defineEventHandler(async (event) => {
 
     await new DatabaseQuery()
         .addSql(`
-            BEGIN TRANSACTION;
             FOR $image IN $images {
                 IF !record::exists($image) {
-                    THROW "One or more images do not exist.";
+                    fn::http(404, "One or more images do not exist.");
                 };
                 IF $image.user != $user {
-                    THROW "You can only publish your own images.";
+                    fn::http(403, "You can only publish your own images.");
                 };
                 UPDATE $image SET public = true;
             };
+
             CREATE gallery SET
                 user = $user,
                 description = $description,
                 topics = $topics,
                 images = $images,
                 votes.positive = [$user];
-            COMMIT TRANSACTION;
         `)
+            .addTransaction()
         .addRecords("images", body.images)
         .addRecords("topics", body.topics)
         .addParameter("description", body.description)

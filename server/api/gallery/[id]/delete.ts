@@ -4,18 +4,18 @@ export default defineEventHandler(async (event) => {
 
     await new DatabaseQuery()
         .addSql(`
-            BEGIN TRANSACTION;
             IF $gallery.user != $user AND $user.roles CONTAINSNOT "admin" {
-                THROW "You are not allowed to do this.";
+                fn::http(403, "You are not allowed to do this.");
             };
+
             FOR $topic IN $gallery.topics {
                 IF record::exists($topic) {
                     UPDATE $topic SET galleries = array::difference(galleries, [$gallery.id]);
                 };
             };
             DELETE ONLY $gallery;
-            COMMIT TRANSACTION;
         `)
+        .addTransaction()
         .addRecord("gallery", `gallery:${id}`)
         .addRecord("user", auth.id)
         .execute()

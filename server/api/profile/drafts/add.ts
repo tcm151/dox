@@ -7,25 +7,26 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            RETURN {
-                LET $attachableImages = SELECT VALUE id
-                    FROM image
-                    WHERE id IN $images
-                    AND (user = $user OR public = true);
+            LET $attachableImages = (
+                SELECT VALUE id
+                FROM image
+                WHERE id IN $images
+                AND (user = $user OR public = true)
+            );
 
-                IF array::len($attachableImages) != array::len($images) {
-                    THROW "You are not allowed to attach these images.";
-                };
-
-                RETURN CREATE draft SET
-                    user = $user,
-                    title = $title,
-                    content = $content,
-                    replyTo = $replyTo ?? NONE,
-                    topics = $topics,
-                    images = $images;
+            IF array::len($attachableImages) != array::len($images) {
+                fn::http(403, "You are not allowed to attach these images.");
             };
+
+            RETURN CREATE draft SET
+                user = $user,
+                title = $title,
+                content = $content,
+                replyTo = $replyTo ?? NONE,
+                topics = $topics,
+                images = $images;
         `)
+        .addTransaction()
         .addRecord('user', auth.id)
         .addParameter('title', draft.title)
         .addParameter('content', draft.content)

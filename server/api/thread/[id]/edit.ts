@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
                     timeEdited = time::now();
             }
             ELSE {
-                THROW "You are not the author of this thread."
+                fn::http(403, "You are not the author of this thread.");
             }
         `)
         .addRecord("thread", `thread:${id}`)

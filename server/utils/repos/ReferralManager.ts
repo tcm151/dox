@@ -61,7 +61,6 @@ export class ReferralManager {
         try {
             await new DatabaseQuery()
                 .addSql(`
-                    BEGIN TRANSACTION;
                     IF record::exists($recipient) AND $recipient != $claimant {
                         CREATE referralClaim SET
                             claimant = $claimant,
@@ -75,8 +74,8 @@ export class ReferralManager {
                             context = $context,
                             message = $message;
                     };
-                    COMMIT;
                 `)
+                .addTransaction()
                 .addRecord("recipient", recipient)
                 .addRecord("claimant", user.id)
                 .addRecord("context", user.id)
