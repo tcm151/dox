@@ -80,6 +80,7 @@ export class DatabaseQuery {
     #sql: string[] = []
     #parameters: Record<string, any> = { }
     #connection: Surreal | undefined
+    #transaction = false
 
     constructor(connection?: Surreal) {
         this.#connection = connection ?? SurrealInstance
@@ -99,6 +100,11 @@ export class DatabaseQuery {
     addSql(sql: string) {
         const trimmed = sql.split("\n").map(line => line.trim()).join("\n")
         this.#sql.push(trimmed)
+        return this
+    }
+
+    addTransaction() {
+        this.#transaction = true
         return this
     }
 
@@ -133,10 +139,26 @@ export class DatabaseQuery {
         try {
             const connection = this.#connection ?? await initializeDatabase()
             await connection.ready
-            const responses = await connection.query(this.#sql.join("\n"), this.#parameters).collect()
+            const sql = this.#sql.join("\n")
+            const query = this.#transaction ? `RETURN { ${sql} };` : sql
+            const responses = await connection.query(query, this.#parameters).collect() as T[][]
             return normalizeRecordIds(responses)
         }
         catch (error: any) {
+            const applicationError = error.kind === "Thrown" && typeof error.message === "string"
+                ? /^An error occurred: APP_ERROR:(\d{3}):([\s\S]*)$/.exec(error.message)
+                : null
+
+            const applicationStatusCode = Number(applicationError?.[1])
+            if (applicationError && applicationStatusCode >= 400 && applicationStatusCode <= 599) {
+                throw createError({
+                    statusCode: applicationStatusCode,
+                    statusMessage: applicationError[2],
+                    message: applicationError[2],
+                    stack: error.stack,
+                })
+            }
+
             throw createError({
                 status: 500,
                 statusText: "Failed to execute query.",
@@ -176,6 +198,6 @@ export class DatabaseQuery {
                 statusText: "This queryValue returns nothing.",
             })
         }
-        return responses[0]
+        return responses[0] as T
     }
 }

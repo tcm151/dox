@@ -28,6 +28,8 @@ it("logs in with the configured default account", async () => {
 
     const profile = await profileResponse.json() as User
     expect(profile.id).toBe(result.user.id)
+    expect(profile.votes.awards).toEqual([])
+    expect(profile.votes.saves).toEqual([])
 
     await stashUser("admin", {
         user: result.user,

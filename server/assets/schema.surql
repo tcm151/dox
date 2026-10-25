@@ -27,6 +27,9 @@ DEFINE FUNCTION fn::calculate_score(
 ) -> number {
     RETURN ($positive.len() - (<float>$misleading.len()/2) - $negative.len()) * $visits;
 };
+DEFINE FUNCTION fn::http($status: int, $message: string) {
+    THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
+};
 
 
 -- ------------------------------
@@ -79,6 +82,12 @@ DEFINE FIELD votes.misleading ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.negative ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.awards ON user
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.saves ON user
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes ON user
+    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON user
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 

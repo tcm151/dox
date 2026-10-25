@@ -33,21 +33,15 @@ export interface Account extends Record {
     user: User & string
 }
 
-export interface User extends Record {
+export interface User extends Voteable {
     name: string
     link?: string
     description?: string
-    score: number
-    votes: {
-        positive: string[]
-        misleading: string[]
-        negative: string[]
-    }
-    visits: number
     topics: string[]
     followers: string[]
     following: string[]
     dateJoined: string
+    visits: number
     tokens: number
     roles: Role[]
     traits: Trait[]

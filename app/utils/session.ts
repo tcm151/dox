@@ -95,7 +95,6 @@ export const getSession = defineStore("session", () => {
                 topics: [],
                 followers: [],
                 following: [],
-                time: "",
                 visits: 0,
                 dateJoined: '',
                 tokens: 0,

@@ -1,11 +1,16 @@
 import { fetch, setup } from "@nuxt/test-utils/e2e"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import type { User } from "../shared/types"
+import { isObject, isValidUser } from "../shared/utils/validation"
 
 export type TSession = {
     user: User
     accessToken: string
+}
+
+export type TExampleServer = {
+    users: Record<string, TSession>
 }
 
 const testDataDirectory = process.env.CLASSICFORUM_TEST_DATA_DIRECTORY
@@ -23,6 +28,7 @@ await setup({
 })
 
 const userSessionDirectory = join(testDataDirectory, "state", "users")
+const exampleServerDirectory = join(testDataDirectory, "state", "example-servers")
 
 function getUserPath(key: string) {
     if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(key)) {
@@ -30,6 +36,14 @@ function getUserPath(key: string) {
     }
 
     return join(userSessionDirectory, `${key.toLowerCase()}.json`)
+}
+
+function getExampleServerPath(key: string) {
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(key)) {
+        throw new Error("Example server keys must be 1-64 letters, numbers, underscores, or hyphens.")
+    }
+
+    return join(exampleServerDirectory, `${key.toLowerCase()}.json`)
 }
 
 export async function stashUser(key: string, session: TSession): Promise<void> {
@@ -57,54 +71,47 @@ export async function grabUser(key: string): Promise<TSession> {
     return session as TSession
 }
 
+export async function stashExampleServer(key: string, exampleServer: TExampleServer): Promise<void> {
+    const exampleServerPath = getExampleServerPath(key)
+    await mkdir(dirname(exampleServerPath), { recursive: true })
+    await writeFile(exampleServerPath, JSON.stringify(exampleServer), "utf8")
+}
+
+export async function grabExampleServer(key: string): Promise<TExampleServer> {
+    const exampleServerPath = getExampleServerPath(key)
+    let contents: string
+    try {
+        contents = await readFile(exampleServerPath, "utf8")
+    }
+    catch (error) {
+        if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+            throw new Error(`The example server "${key}" has not been seeded yet.`)
+        }
+        throw error
+    }
+
+    const exampleServer: unknown = JSON.parse(contents)
+    if (!isValidExampleServer(exampleServer)) {
+        throw new Error(`The example server "${key}" has an invalid shape.`)
+    }
+
+    return exampleServer
+}
+
+function isValidExampleServer(value: unknown): value is TExampleServer {
+    if (!isObject(value)) return false
+
+    const users = value.users
+    return isObject(users)
+        && Object.values(users).length > 0
+        && Object.values(users).every(isValidSession)
+}
+
 function isValidSession(value: unknown): value is TSession {
-    if (typeof value !== "object" || value === null) return false
+    if (!isObject(value)) return false
 
     const session = value as Record<string, unknown>
     return typeof session.accessToken === "string" && isValidUser(session.user)
-}
-
-function isValidUser(value: unknown): value is User {
-    if (typeof value !== "object" || value === null) return false
-
-    const user = value as Record<string, unknown>
-    return typeof user.id === "string"
-        && typeof user.name === "string"
-        && typeof user.score === "number"
-        && typeof user.visits === "number"
-        && typeof user.dateJoined === "string"
-        && typeof user.tokens === "number"
-        && isStringArray(user.topics)
-        && isStringArray(user.followers)
-        && isStringArray(user.following)
-        && isVoteCounts(user.votes)
-        && isRoleArray(user.roles)
-        && isTraitArray(user.traits)
-        && (user.link === undefined || typeof user.link === "string")
-        && (user.description === undefined || typeof user.description === "string")
-}
-
-function isStringArray(value: unknown): value is string[] {
-    return Array.isArray(value) && value.every(item => typeof item === "string")
-}
-
-function isVoteCounts(value: unknown): value is User["votes"] {
-    if (typeof value !== "object" || value === null) return false
-
-    const votes = value as Record<string, unknown>
-    return isStringArray(votes.positive)
-        && isStringArray(votes.misleading)
-        && isStringArray(votes.negative)
-}
-
-function isRoleArray(value: unknown): value is User["roles"] {
-    return Array.isArray(value)
-        && value.every(role => role === "admin" || role === "developer" || role === "moderator")
-}
-
-function isTraitArray(value: unknown): value is User["traits"] {
-    return Array.isArray(value)
-        && value.every(trait => trait === "confirmed" || trait === "verified")
 }
 
 export { fetch }

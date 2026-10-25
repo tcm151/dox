@@ -42,6 +42,9 @@ DEFINE FUNCTION OVERWRITE fn::calculate_score(
 ) -> number {
 	RETURN ($positive.len() - (<float>$misleading.len()/2) - $negative.len()) * $visits;
 };
+DEFINE FUNCTION OVERWRITE fn::http($status: int, $message: string) {
+	THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
+};
 
 REMOVE FIELD IF EXISTS score ON post;
 REMOVE FIELD IF EXISTS score ON thread;
@@ -50,6 +53,20 @@ DEFINE FIELD OVERWRITE votes ON post
 	TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD OVERWRITE votes ON thread
 	TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
+DEFINE FIELD OVERWRITE votes.awards ON user
+	TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE votes.saves ON user
+	TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE votes ON user
+	TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
+
+UPDATE user SET votes = {
+	positive: votes.positive ?? [],
+	misleading: votes.misleading ?? [],
+	negative: votes.negative ?? [],
+	awards: votes.awards ?? [],
+	saves: votes.saves ?? []
+} WHERE votes IS NONE OR votes.positive IS NONE OR votes.misleading IS NONE OR votes.negative IS NONE OR votes.awards IS NONE OR votes.saves IS NONE;
 
 DEFINE TABLE OVERWRITE gallery SCHEMAFULL;
 REMOVE FIELD IF EXISTS score ON gallery;

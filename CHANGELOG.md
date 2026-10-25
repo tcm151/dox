@@ -4,9 +4,10 @@ ClassicForum uses `year.major.patch` versions. The current version is defined in
 
 Older entries group related work from periods when no release tag was created.
 
-## [Unreleased]
+## [2026.6.0][Unreleased] - 2026-10-24
 
-## [2026.6.0] - 2026-10-24
+### Added
+- Added user awards and saved subscriptions with profile controls and integration coverage.
 
 ### Changed
 - Moved the home-feed Hot score calculation into a shared SurrealDB function so it can be sorted and paginated server-side.
