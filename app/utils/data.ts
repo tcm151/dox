@@ -6,13 +6,19 @@ export function useDatasource<T>(
     options: UseFetchOptions<T> = {}
 ) {
     const session = getSession()
-    return useFetch(url, {
+    const datasource = useFetch(url, {
         deep: true,
         headers: computed(() => ({
             Authorization: session.tokens.access
         })),
         ...options
     })
+
+    if (options.watch !== false) {
+        watch(() => session.user.id, () => datasource.clear(), { flush: "sync" })
+    }
+
+    return datasource
 }
 
 export function useApi<T>(
