@@ -2,7 +2,7 @@
 import type { User } from '@@/shared/types'
 
 const props = defineProps<{
-    user: User
+    user: Pick<User, "id" | "name" | "roles">
     label?: string
     disable?: boolean
 }>()

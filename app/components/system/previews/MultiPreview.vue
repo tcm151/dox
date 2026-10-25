@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import type { Sortable, Post, Thread, Gallery } from '@@/shared/types'
+import type { SearchComment, Sortable, Post, Thread, Gallery } from '@@/shared/types'
 
 const props = defineProps<{
-    item: Sortable
+    item: Sortable | SearchComment
 }>()
 
 
 </script>
 
 <template>
-    <template v-if="item.id?.split(':')[0] == 'post'">
+    <template v-if="item.id?.split(':')[0] == 'comment'">
+        <SearchCommentPreview :comment="(item as SearchComment)" />
+    </template>
+    <template v-else-if="item.id?.split(':')[0] == 'post'">
         <PostPreview :post="(item as Post)" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'gallery'">

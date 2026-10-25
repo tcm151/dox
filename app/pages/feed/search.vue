@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Sortable } from '@@/shared/types'
+import type { SearchResult } from '@@/shared/types'
 
 const cache = useCache()
 
 const text = cache.get<string>("search.text", () => "")
-const feed = useDatasource<Sortable[]>("/api/feed/search", {
+const feed = useDatasource<SearchResult[]>("/api/feed/search", {
     watch: false,
     query: {
         text: text

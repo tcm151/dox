@@ -1,7 +1,6 @@
-<script setup lang="ts" generic="T extends Sortable">
+<script setup lang="ts" generic="T extends { id: string }">
 import type { FetchError } from "ofetch"
 import type { AsyncData } from "#app";
-import type { Sortable } from "@@/shared/types"
 
 const props = defineProps<{
     items: Pick<AsyncData<T[] | undefined, FetchError<any> | undefined>, "data" | "status" | "refresh">

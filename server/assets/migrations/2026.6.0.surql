@@ -10,6 +10,21 @@ DEFINE FIELD IF NOT EXISTS time ON migration
 DEFINE INDEX IF NOT EXISTS version ON migration
 	FIELDS version UNIQUE;
 
+DEFINE ANALYZER IF NOT EXISTS relevanceSearch
+	TOKENIZERS camel, class
+	FILTERS lowercase, ascii, snowball(english);
+
+DEFINE INDEX IF NOT EXISTS postTitleSearch ON TABLE post
+	FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS postContentSearch ON TABLE post
+	FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
+	FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
+	FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
+	FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+
 DEFINE TABLE OVERWRITE mediaTrash SCHEMAFULL;
 DEFINE FIELD OVERWRITE type ON mediaTrash
 	TYPE string;

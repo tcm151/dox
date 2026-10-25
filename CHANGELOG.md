@@ -8,6 +8,7 @@ Older entries group related work from periods when no release tag was created.
 
 ### Added
 - Added user awards and saved subscriptions with profile controls and integration coverage.
+- Added indexed full-text search for posts, threads, comments, and galleries, with exact phrase ranking and separate comment previews.
 
 ### Changed
 - Moved the home-feed Hot score calculation into a shared SurrealDB function so it can be sorted and paginated server-side.

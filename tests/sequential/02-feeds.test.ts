@@ -194,21 +194,23 @@ it("paginates popular feed results for each sort mode", async () => {
             expect(actualOrder).toEqual(expectedOrder)
         }
 
-        const followingOrder: string[] = []
-        for (let offset = 0; offset < expectedSourceIds.length; offset += 2) {
-            const response = await fetch(`/api/feed/following?sortBy=new&pageSize=2&offset=${offset}`, {
-                headers: { Authorization: admin.accessToken },
-            })
-            expect(response.status, await response.clone().text()).toBe(200)
-            const page = await response.json() as FeedPage<Post | Thread | Gallery>
-            expect(page.offset).toBe(offset)
-            expect(page.items.length).toBeLessThanOrEqual(2)
-            expect(page.items.every(item => expectedSourceIdSet.has(item.id))).toBe(true)
-            expect(page.items.every(item => item.topics.includes(`topic:${topicId}`))).toBe(true)
-            followingOrder.push(...page.items.map(item => item.id))
-            expect(page.more).toBe(offset + 2 < expectedSourceIds.length)
+        for (const sortBy of ["new", "hot", "top"] as const) {
+            const followingOrder: string[] = []
+            for (let offset = 0; offset < expectedSourceIds.length; offset += 2) {
+                const response = await fetch(`/api/feed/following?sortBy=${sortBy}&pageSize=2&offset=${offset}`, {
+                    headers: { Authorization: admin.accessToken },
+                })
+                expect(response.status, await response.clone().text()).toBe(200)
+                const page = await response.json() as FeedPage<Post | Thread | Gallery>
+                expect(page.offset).toBe(offset)
+                expect(page.items.length).toBeLessThanOrEqual(2)
+                expect(page.items.every(item => expectedSourceIdSet.has(item.id))).toBe(true)
+                expect(page.items.every(item => item.topics.includes(`topic:${topicId}`))).toBe(true)
+                followingOrder.push(...page.items.map(item => item.id))
+                expect(page.more).toBe(offset + 2 < expectedSourceIds.length)
+            }
+            expect(followingOrder).toEqual(expectedOrders.get(sortBy))
         }
-        expect(followingOrder).toEqual(expectedOrders.get("new"))
 
         const oversizedResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=9999")
         expect(oversizedResponse.status).toBe(200)

@@ -31,6 +31,10 @@ DEFINE FUNCTION fn::http($status: int, $message: string) {
     THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
 };
 
+DEFINE ANALYZER IF NOT EXISTS relevanceSearch
+    TOKENIZERS camel, class
+    FILTERS lowercase, ascii, snowball(english);
+
 
 -- ------------------------------
 -- TABLE: account
@@ -147,8 +151,12 @@ DEFINE FIELD user ON post
     TYPE record<user>;
 DEFINE FIELD title ON post
     TYPE string ASSERT $value = /.{4,128}/;
+DEFINE INDEX IF NOT EXISTS postTitleSearch ON TABLE post
+    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD content ON post
     TYPE string;
+DEFINE INDEX IF NOT EXISTS postContentSearch ON TABLE post
+    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON post
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON post
@@ -225,6 +233,8 @@ DEFINE FIELD post ON comment
     TYPE record<post>;
 DEFINE FIELD content ON comment
     TYPE string;
+DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
+    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON comment
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON comment
@@ -256,6 +266,8 @@ DEFINE FIELD user ON thread
     TYPE record<user>;
 DEFINE FIELD content ON thread
     TYPE string ASSERT $value = /.{4,512}/;
+DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
+    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON thread
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD quote ON thread
@@ -356,6 +368,8 @@ DEFINE FIELD user ON gallery
     TYPE record<user>;
 DEFINE FIELD description ON gallery
     TYPE string DEFAULT ALWAYS "";
+DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
+    FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON gallery
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD topics ON gallery

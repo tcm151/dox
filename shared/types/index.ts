@@ -134,6 +134,23 @@ export interface Gallery extends Sortable {
     archived: boolean
 }
 
+export interface SearchComment extends Voteable {
+    user: Pick<User, "id" | "name" | "roles">
+    post: Pick<Post, "id" | "title">
+    content: string
+    time: string
+    edited: boolean
+    deleted: boolean
+    timeEdited?: string
+}
+
+export type SearchResult = (Post | Thread | Gallery | SearchComment) & {
+    search: {
+        exact: boolean
+        score: number
+    }
+}
+
 export interface Attachment extends Record {
     url: string
 }

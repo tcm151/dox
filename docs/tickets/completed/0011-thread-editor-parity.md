@@ -31,7 +31,7 @@ Bring thread editor capabilities in line with post editor where the product mode
 	- Post editor supports server-backed draft load/save/update and Ctrl+S save.
 	- Existing `draft` records are post-shaped: they require `title`, allow `replyTo` only for posts, and do not carry a `kind`/`type` field.
 	- Do not show Drafts actions on thread, link, poll, image, or audio editors until those variants have concrete persistence needs.
-- Link, poll, and audio editors still show unavailable-publishing notices where no create API exists. The image editor initially published standalone images; that publication model has since been replaced by galleries (see [Ticket 0057](../0057-gallery-publishing-and-feed-integration.md)).
+- Link, poll, and audio editors still show unavailable-publishing notices where no create API exists. The image editor initially published standalone images; that publication model has since been replaced by galleries (see [Ticket 0057](0057-gallery-publishing-and-feed-integration.md)).
 - Reusable dropdown/autocomplete work has been split into Ticket 0038 so mention infrastructure does not block this parity ticket.
 
 ### Watch-outs

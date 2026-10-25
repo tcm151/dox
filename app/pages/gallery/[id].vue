@@ -7,6 +7,7 @@ definePageMeta({
 
 const route = useRoute()
 const hints = useHints()
+const events = useEvents()
 const session = getSession()
 const id = route.params.id?.toString()
 
@@ -35,6 +36,21 @@ async function archiveGallery() {
     hints.addSuccess(gallery.value.archived ? "Gallery unarchived." : "Gallery archived.")
     await refresh()
 }
+
+function deleteGallery() {
+    if (!gallery.value) return
+    const galleryId = extractId(gallery.value.id)
+
+    events.publish(Trigger.showPopup, {
+        title: "Confirm Deletion",
+        message: "Are you sure you want to delete your gallery?",
+        accept: async () => {
+            await useApi(`/api/gallery/${galleryId}/delete`)
+            hints.addSuccess("Successfully deleted gallery.")
+            return navigateTo("/feed")
+        },
+    })
+}
 </script>
 
 <template>
@@ -48,6 +64,13 @@ async function archiveGallery() {
                 <Tag type="info" icon="fa-chart-simple" :label="gallery.visits" />
                 <Tag type="danger" icon="fa-flag" label="Report" @click="reportGallery" />
                 <ClientOnly>
+                    <Tag
+                        v-if="session.isAuthenticated && (gallery.user.id === session.user.id || hasRole(session.user, 'admin'))"
+                        type="danger"
+                        icon="fa-trash-can"
+                        label="Delete"
+                        @click="deleteGallery"
+                    />
                     <Tag
                         v-if="hasRole(session.user, 'admin') || hasRole(session.user, 'developer')"
                         type="warning"

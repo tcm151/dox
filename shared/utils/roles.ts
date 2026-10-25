@@ -1,6 +1,6 @@
 import type { User, Role } from "@@/shared/types"
 
-export function hasRole(user: User, role: Role | Role[]) {
+export function hasRole(user: Pick<User, "roles">, role: Role | Role[]) {
     if (Array.isArray(role)) {
         return user.roles.some(r => role.includes(r))
     }
