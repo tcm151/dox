@@ -25,7 +25,7 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 - 🟦 Expand rate limiting coverage beyond current auth endpoints. (`M`)
 - 🟦 Fix award flow token validation + anti-double-spend guardrails. (`M`)
 - 🟥 Add referral abuse limits (cooldown/one-time constraints). (`M`)
-- 🟥 Add security policy + responsible disclosure doc. (`S`)
+- 🟩 Add security policy + responsible disclosure doc. (`S`)
 
 **Success metric**: no known P0 abuse paths in auth/economy endpoints.
 

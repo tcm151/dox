@@ -2,6 +2,8 @@
 
 Follow these steps to build and run the site on your local machine.
 
+For suspected vulnerabilities, use the private reporting process in [SECURITY.md](../SECURITY.md); do not report them in public issues.
+
 ## 1. Setup Repository
 
 Clone the repo from GitHub into your development environment. You should use a recent Node.js LTS release and yarn.
