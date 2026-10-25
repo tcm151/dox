@@ -78,7 +78,12 @@ async function redeemReferral() {
                     <span>Store</span>
                 </h2>
                 <p>You can buy additional tokens here. You need tokens to upload images and award posts. You start with some tokens for free, and can gain more by referring new users.</p>
-                <p>You currently have <strong>{{ session.user.tokens }}</strong> tokens.</p>
+                <ClientOnly>
+                    <p>You currently have <strong>{{ session.user.tokens }}</strong> tokens.</p>
+                    <template #fallback>
+                        <p>You currently have <strong>0</strong> tokens.</p>
+                    </template>
+                </ClientOnly>
             </div>
             <div class="referrals box f-1 grid center g-4 p-5">
                 <button class="link px-6 py-4" @click="copyReferralLink">
