@@ -6,17 +6,19 @@
 - Next: Split into rename/archive/moderator-assignment sub-features
 
 ## Goal
-Deliver moderator topic governance controls for lifecycle and safety management.
+Deliver moderator topic governance controls for lifecycle, safety, and content curation. Rules and summary history are tracked separately in Ticket 0017.
 
 ## Requirements
 - [ ] Moderators can perform approved topic governance actions.
 - [ ] Actions are role-gated and validated server-side.
 - [ ] Topic UI clearly shows governance state where relevant.
+- [ ] Moderators can feature or pin supported topic content, and those selections are visible to users.
 
 ## Tasks
 - [ ] Implement topic rename request/approval flow.
 - [ ] Implement archive/lock controls and enforcement.
 - [ ] Add moderator assignment management in topic tools.
+- [ ] Add moderator controls and user-facing display for featured/pinned topic content.
 
 ## Notes
 

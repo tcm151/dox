@@ -4,7 +4,12 @@ ClassicForum uses `year.major.patch` versions. The current version is defined in
 
 Older entries group related work from periods when no release tag was created.
 
-## [2026.6.0][Unreleased] - 2026-10-24
+## [2026.6.1]- [Unreleased]
+
+### Added
+- Opened the Phase B moderation and community-trust work as tickets 0063-0069 and linked all Phase B roadmap items to their tickets.
+
+## [2026.6.0] - 2026-10-24
 
 ### Added
 - Added user awards and saved subscriptions with profile controls and integration coverage.

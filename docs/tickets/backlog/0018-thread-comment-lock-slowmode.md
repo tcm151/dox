@@ -1,4 +1,4 @@
-# Ticket 0018: Thread/Comment Lock And Slow Mode
+# Ticket 0018: Thread/Comment Lock, Slow Mode, And Reporting
 
 ## Status
 - State: Planned
@@ -12,11 +12,13 @@ Give moderators targeted controls to reduce escalation and spam during active mo
 - [ ] Moderators can lock threads/comments where supported.
 - [ ] Slow mode enforcement limits posting frequency as configured.
 - [ ] UI indicates locked/slow-mode states clearly.
+- [ ] Moderators can review and handle reports against threads and comments.
 
 ## Tasks
 - [ ] Define state fields and constraints in contracts/schema.
 - [ ] Enforce checks in write endpoints.
 - [ ] Add moderator controls in relevant UI surfaces.
+- [ ] Connect thread/comment reports to the moderation review workflow.
 
 ## Notes
 
