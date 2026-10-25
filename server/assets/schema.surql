@@ -577,6 +577,8 @@ DEFINE FIELD data ON error
 -- TABLE: appSettings
 -- ------------------------------
 DEFINE TABLE appSettings SCHEMAFULL;
+DEFINE FIELD about ON appSettings
+    TYPE object FLEXIBLE;
 DEFINE FIELD email ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD moderation ON appSettings
@@ -608,6 +610,9 @@ DEFINE FIELD misc.feedback ON appSettings
 
 IF !record::exists(appSettings:default) {
     CREATE appSettings:default CONTENT {
+        about: {
+            summary: "",
+        },
         email: {
             support: "",
             additional: "",

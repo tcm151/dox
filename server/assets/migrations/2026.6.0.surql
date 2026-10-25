@@ -46,6 +46,11 @@ DEFINE FUNCTION OVERWRITE fn::http($status: int, $message: string) {
 	THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
 };
 
+DEFINE FIELD OVERWRITE about ON appSettings
+	TYPE object FLEXIBLE;
+UPDATE appSettings SET about = { summary: "" } WHERE about IS NONE;
+UPDATE appSettings SET about.summary = "" WHERE about.summary IS NONE;
+
 REMOVE FIELD IF EXISTS score ON post;
 REMOVE FIELD IF EXISTS score ON thread;
 

@@ -16,6 +16,9 @@ export const useSettings = defineStore("user.settings", () => {
 
     const app = ref<AppSettings>({
         id: "appSettings:default", 
+        about: {
+            summary: "",
+        },
         email: {
             support: "",
             additional: "",

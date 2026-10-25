@@ -14,6 +14,7 @@ export class SettingsManager {
         return await new DatabaseQuery()
             .addSql(`
                 UPDATE appSettings SET
+                    about = $about,
                     email = $email,
                     moderation = $moderation,
                     voting = $voting,
@@ -28,6 +29,7 @@ export class SettingsManager {
                 WHERE id = $id
             `)
             .addRecord("id", id)
+            .addParameter("about", settings.about)
             .addParameter("email", settings.email)
             .addParameter("moderation", settings.moderation)
             .addParameter("voting", settings.voting)

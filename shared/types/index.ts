@@ -207,6 +207,9 @@ export interface Error extends Record {
 }
 
 export interface AppSettings extends Record {
+    about: {
+        summary: string
+    }
     email: {
         support: string
         additional: string

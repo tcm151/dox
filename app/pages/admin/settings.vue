@@ -29,7 +29,7 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
-const tabs = ['contact', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
+const tabs = ['about', 'contact', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
 
 const topicInput = useTemplateRef("topic")
 function addTopic() {
@@ -104,6 +104,12 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                 </template>
             </aside>
             <section class="column f-1">
+                <div v-if="section == 'about'">
+                    <div class="field">
+                        <label>About summary</label>
+                        <textarea rows="12" v-model="settings.about.summary"></textarea>
+                    </div>
+                </div>
                 <div v-if="section == 'contact'">
                     <div class="field">
                         <label>support email</label>
