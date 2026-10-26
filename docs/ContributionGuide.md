@@ -197,7 +197,7 @@ ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a 
 - The third number increments for fixes, docs, and small follow-up deployments within that release line.
 - At the start of a new year, begin again at `<year>.1.0`.
 
-When preparing a release or deployment, update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. If work was not tagged at the time, group it into a clear release entry. Tagging and a full release checklist will be added when the release process needs them.
+Do not add changelog entries while a patch is in progress. After the patch is complete and verified, prepare the changelog when choosing the next application version. Find the latest release tag, then review the commits and tracked diff since that tag, along with intended untracked files, to summarize the finished changes. Update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. Tagging and a full release checklist will be added when the release process needs them.
 
 ## It's Running
 

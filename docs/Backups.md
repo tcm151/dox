@@ -4,68 +4,49 @@ Use this runbook to protect and restore ClassicForum application data. Test each
 
 ## Embedded SurrealDB
 
-In the packaged Linux quickstart, the shared configuration is `/root/forum/.env`, and `NUXT_DATA_PATH=../data` resolves from the versioned app directory to `/root/forum/data`. That directory contains the embedded RocksDB database and uploaded image/audio files. If the deployment uses a different `NUXT_DATA_PATH` or database URL, adapt the commands to include the configured locations.
+In the packaged Linux quickstart, the shared configuration is `/root/forum/.env`, and `NUXT_DATA_PATH=../data` resolves from the versioned app directory to `/root/forum/data`. That directory contains the embedded RocksDB database and uploaded image/audio files. The installer backup command includes only the configured RocksDB database directory; it does not include `.env`, media, or other files. Back up uploaded media separately if the recovery plan requires it. If the deployment uses a different database URL, adapt the restore path accordingly.
 
 ### Create A Backup
 
-Stop the service before copying embedded database files so the backup does not capture a changing RocksDB store. Run as root:
+Run as root from the versioned release directory:
 
 ```bash
 cd /root/forum/<current-version>
-./installer.sh stop
-
-backup_dir=/root/forum/backups
-timestamp=$(date -u +%Y%m%dT%H%M%SZ)
-install -d -m 700 "$backup_dir"
-tar -czf "$backup_dir/classicforum-$timestamp.tar.gz" -C /root/forum data .env
-chmod 600 "$backup_dir/classicforum-$timestamp.tar.gz"
-gzip -t "$backup_dir/classicforum-$timestamp.tar.gz"
-tar -tzf "$backup_dir/classicforum-$timestamp.tar.gz"
-sha256sum "$backup_dir/classicforum-$timestamp.tar.gz" > "$backup_dir/classicforum-$timestamp.tar.gz.sha256"
+./installer.sh backup
 ```
 
-Restart the service after the archive has been verified. The installer accepts `install` (the default), `run`, `status`, `stop`, and `restart`:
+The command supports embedded SurrealDB deployments only. It stops the service before copying a live RocksDB store, then restores its prior active/inactive state. It writes a timestamped archive containing only the configured RocksDB database directory, plus a SHA-256 checksum. By default, backups go in a `backups/` directory beside the shared `.env`; set `BACKUP_DIR` to choose another directory. The archive and checksum are mode `600`, and the backup directory is mode `700`. Treat the archive as sensitive because it contains database contents.
+
+Verify the checksum and archive using the paths printed by the command:
 
 ```bash
-./installer.sh restart
+cd /root/forum/backups
+sha256sum -c classicforum-db-<timestamp>-<pid>.tar.gz.sha256
+gzip -t classicforum-db-<timestamp>-<pid>.tar.gz
+tar -tzf classicforum-db-<timestamp>-<pid>.tar.gz
 ```
 
-Copy the archive and checksum to protected storage on another host. Keep the matching release artifact available; a data backup does not include application binaries or bundled dependencies.
+Remote SurrealDB is not included. Use the [remote database backup procedure](#remote-surrealdb) instead. Copy the archive and checksum to protected storage on another host. Keep the matching release artifact available; a data backup does not include application binaries or bundled dependencies.
 
 ### Restore A Backup
 
-Choose the release version intended to open the backup and stop the service. Extract to a staging directory first and verify the archive before replacing live data:
+Choose a compatible release. Run the restore command as root from its versioned directory. With no archive argument, it restores the newest timestamped backup in `BACKUP_DIR` or the default `backups/` directory beside the shared `.env`. An archive path can be supplied to select a specific restore point:
 
 ```bash
 cd /root/forum/<restore-version>
-./installer.sh stop
-
-archive=/root/forum/backups/classicforum-<timestamp>.tar.gz
-sha256sum -c "$archive.sha256"
-gzip -t "$archive"
-restore_dir=$(mktemp -d /root/forum-restore.XXXXXX)
-tar -xzf "$archive" -C "$restore_dir"
-test -d "$restore_dir/data/database"
-test -f "$restore_dir/.env"
+./installer.sh restore
+# Or: ./installer.sh restore /root/forum/backups/classicforum-db-<timestamp>-<pid>.tar.gz
 ```
 
-Keep the current state so the restore can be rolled back if verification fails, then install the archived data and configuration:
-
-```bash
-timestamp=$(date -u +%Y%m%dT%H%M%SZ)
-mv /root/forum/data "/root/forum/data.before-restore-$timestamp"
-cp -a "$restore_dir/data" /root/forum/data
-cp -a /root/forum/.env "/root/forum/.env.before-restore-$timestamp"
-install -o root -g root -m 600 "$restore_dir/.env" /root/forum/.env
-
-./installer.sh restart
-./installer.sh status
-curl --fail-with-body http://127.0.0.1:8001/api/health
-```
+Before changing the database, the command verifies the SHA-256 checksum, gzip stream, archive paths, and configured database directory. It stops an active service for the restore and starts it again only if it was active beforehand. It does not install or enable a systemd service. The restored database takes the ownership of the existing database, or its parent directory if the database does not yet exist. The existing `.env` and media remain in place. If a database already exists, it is preserved as `<database-path>.before-restore-<timestamp>-<pid>` for rollback.
 
 Confirm the health response reports the app and database as `ready`. Then sign in and check representative records and uploaded media. Startup applies pending app migrations, so use a release compatible with the restored database and review its migrations before starting it.
 
-If verification fails, stop the service. Move the failed restored data aside, move `data.before-restore-<timestamp>` back to `/root/forum/data`, restore `.env.before-restore-<timestamp>` to `/root/forum/.env`, and restart. Preserve the failed restore and logs for diagnosis; do not delete migration records or modify the only backup.
+If verification fails, stop the service. Move the failed database directory aside, move the preserved `.before-restore-<timestamp>-<pid>` directory back to the configured database path, then restart the service. Preserve the failed restore and logs for diagnosis; do not delete migration records or modify the only backup.
+
+### Test A Restore In Isolation
+
+Test restores with a temporary copy of the database and a copied release, never the live data directory. For the WSL-specific setup, see the [WSL environment skill](../.github/skills/wsl-environment/SKILL.md).
 
 ## Remote SurrealDB
 

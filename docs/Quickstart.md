@@ -88,17 +88,12 @@ Nuxt reads the `NUXT_*` settings when the server starts, so changing them and re
 Run the packaged installer from `/root/forum/<version>`:
 
 ```bash
-./installer.sh
+./installer.sh install
 ```
 
-The installer stops a running `forum` service if one exists, loads `.env`, creates the configured embedded database directories, writes `/etc/systemd/system/forum.service`, and runs:
+The installer creates and starts `forum.service`, which starts automatically when the server boots.
 
-```bash
-systemctl daemon-reload
-systemctl enable --now forum
-```
-
-The app now starts automatically when the server boots.
+For a disposable release copy that should not create or manage a systemd service, use `./installer.sh install --no-service`. This still validates the configuration and prepares data paths; start the copy in the foreground with `./installer.sh run`.
 
 ## Upgrade
 
@@ -121,6 +116,7 @@ The installer also wraps common service operations:
 
 ```bash
 ./installer.sh status
+./installer.sh start
 ./installer.sh stop
 ./installer.sh restart
 ./installer.sh run
@@ -144,10 +140,14 @@ curl http://127.0.0.1:8001/api/health
 
 For backup and restore procedures covering embedded and remote databases, see [Backups](Backups.md).
 
-Follow logs if startup fails:
+The installer and app logs are stored beside the shared `.env` and append across runs. Installer commands also keep output in the terminal and systemd journal:
 
 ```bash
-journalctl -u forum -f
+# App logs
+tail -f ../logs/forum.log
+
+# Installer logs
+tail -f ../logs/installer.log
 ```
 
 After changing `.env`, restart the service:
