@@ -30,7 +30,7 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 **Success metric**: no known P0 abuse paths in auth/economy endpoints.
 
 ### A4. Ops Essentials
-- 🟦 Add [backup/restore runbook](Backups.md) for embedded and remote SurrealDB modes. Live Linux deployment validation remains. (`M`)
+- 🟩 Add [backup/restore runbook](Backups.md) for embedded and remote SurrealDB modes; isolated WSL restore validation is complete. (`M`)
 - 🟩 Add health/readiness endpoint docs and operator checks for embedded and remote profiles. (`S`)
 - 🟩 Add release versioning + changelog process. (`S`)
 
@@ -48,8 +48,8 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 **Success metric**: moderation decisions are traceable end-to-end and can be appealed with predictable outcomes.
 
 ### B2. Abuse Controls and Safety Defaults
-- 🟦 Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
-- 🟦 Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
+- 🟩 Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
+- 🟩 Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
 - 🟥 Add shadow-quarantine flow for suspicious first-time users with limited visibility and interaction. (`M`)
 - 🟥 Add configurable per-community moderation defaults with documented recommended presets. (`M`)
 - 🟥 Add admin controls for content visibility policy (NSFW/spoiler/sensitive content defaults). (`M`)

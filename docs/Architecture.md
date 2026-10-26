@@ -154,8 +154,11 @@ Role checks are applied in route handlers and page middleware as needed.
 
 ### 6.2 Moderation/reporting
 
-- Reports are created through report endpoints and surfaced in admin and moderator-facing routes.
+- Reports are created through report endpoints and surfaced in admin and moderator-facing routes. There is one report record per subject; each submission is appended to its `complaints` array with its reporter, reason, and timestamp.
 - Topic-scoped reporting views exist for moderators (for example, topic report queues under `app/pages/topic/[topic]/reports.vue` backed by `server/api/topic/[topic]/reports.ts`).
+- Report statuses are `pending`, `resolved`, and `removed`, with one status and optional resolution per subject. A new complaint appends to the existing report and reopens a resolved/removed report by clearing its resolution. Review navigates to the subject without changing status; moderators can resolve with an optional note, mark removed content, or reopen a resolved/removed report to pending.
+- Global report APIs are admin-only. Topic-scoped report APIs allow admins and assigned topic moderators, and verify that the report subject belongs to the topic.
+- Reports whose subject no longer exists are omitted from both queues and deleted by a scheduled cleanup task.
 - Topic moderation/request features exist and are evolving.
 - Some moderation workflows are incomplete. Check existing behavior before building on them.
 
@@ -231,6 +234,15 @@ Present controls:
 - Developer query audit integrity is protected by blocking direct queries against the `developerQuery` table
 
 For every new write endpoint, review rate limits, replay protection, authorization, idempotency, and state constraints.
+
+### Recommended Anti-Spam Defaults
+
+For a small community, use these as site-wide starting recommendations, not as a description of all current enforcement:
+- Posting: allow at most one new post or thread per account per minute; edits do not count. This limits bursts while leaving normal discussion usable.
+- Media: use a 10 MB image limit and a 100 MB audio limit when audio is enabled. Keep video disabled until its publishing flow is supported; lower limits when storage or processing capacity is constrained.
+- Reports: put the first report into the moderator queue and prioritize a subject after reports from two distinct accounts. Never hide or delete content automatically based only on report counts.
+
+The current in-memory rate limiter allows five requests per minute per client address on selected exact routes. Generic and content-specific report submissions share one budget; post/thread creation is not currently limited. Media upload limits are configurable; current defaults are 10 MB for images and 100 MB for audio, while video defaults to 500 MB but is disabled. The existing `moderation.threshold` setting applies to moderator requests, not reports. Broader write-path protections are tracked separately from the report-submission limit.
 
 ## 11. Startup, Migrations, and Default Account
 

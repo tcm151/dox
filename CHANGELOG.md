@@ -2,12 +2,22 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
-Older entries group related work from periods when no release tag was created.
-
 ## [2026.6.1]- [Unreleased]
 
 ### Added
-- Opened the Phase B moderation and community-trust work as tickets 0063-0069 and linked all Phase B roadmap items to their tickets.
+- Added `installer.sh backup` for embedded database restore points.
+- Added `installer.sh restore` to restore the latest verified embedded database backup.
+- Added `installer.sh start` to start the configured app service.
+- Added human-readable `installer.log` and `forum.log` files beside the shared `.env`.
+- Added documented small-community anti-spam baseline recommendations.
+- Added `install --no-service` for preparing disposable releases without systemd.
+- Added a shared five-per-minute client-address limit across report submission routes.
+- Added one report record per subject, retaining individual complaints and a shared moderation decision.
+- Added the `2026.6.1` migration to consolidate existing report submissions into complaint arrays.
+- Opened tickets 0063-0069 for Phase B moderation and community-trust work.
+
+### Changed
+- Restored embedded databases now match the target database ownership.
 
 ## [2026.6.0] - 2026-10-24
 
