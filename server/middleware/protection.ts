@@ -48,6 +48,14 @@ class RateLimiter {
 const MAX_REQUESTS = 5
 const REQUEST_WINDOW = 60_000 // 1 minute
 
+function getRateLimitPath(path: string) {
+    if (path === "/api/report/send" || /^\/api\/(post|gallery|image)\/[^/]+\/report$/.test(path)) {
+        return "/api/report"
+    }
+
+    return path
+}
+
 // Clean up every 10 minutes
 const limiter = new RateLimiter(10 * 60 * 1000, {
     "/api/user/register": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
@@ -56,22 +64,23 @@ const limiter = new RateLimiter(10 * 60 * 1000, {
     "/api/profile/password/confirm": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/profile/confirm": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/profile/referral": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
-    "/api/report/send": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
+    "/api/report": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/image/upload": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/audio/upload": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
 }) 
 
 export default defineEventHandler(async (event) => {
     const path = event.path.split("?").at(0) ?? ""
+    const rateLimitPath = getRateLimitPath(path)
     const ipAddress = getClientAddress(event)
-    const bucketKey = `${path}:${ipAddress}`
+    const bucketKey = `${rateLimitPath}:${ipAddress}`
 
-    if (limiter.limitExceeded(bucketKey, path)) {
+    if (limiter.limitExceeded(bucketKey, rateLimitPath)) {
         throw createError({
             status: 429,
             statusText: "Too Many Requests. Please try again later.",
             data: {
-                retryAfter: limiter.retryAfter(bucketKey, path)
+                retryAfter: limiter.retryAfter(bucketKey, rateLimitPath)
             }
         })
     }
