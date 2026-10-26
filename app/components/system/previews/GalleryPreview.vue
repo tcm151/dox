@@ -8,8 +8,8 @@ const props = defineProps<{
 
 <template>
     <div class="gallery box background">
-        <div class="main box column g-2 p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
-            <header class="row wrap g-1">
+        <div class="main box column px-3 pt-3 pb-0" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
+            <header class="row wrap g-1 mb-2">
                 <Votes :target="gallery" />
                 <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="gallery.user" />

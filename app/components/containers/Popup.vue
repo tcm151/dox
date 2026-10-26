@@ -15,7 +15,7 @@ const props = defineProps<{
             <header v-if="title">
                 <h1>{{ title }}</h1>
             </header>
-            <div class="slot column py-4">
+            <div class="slot field column g-2 py-4">
                 <slot />
             </div>
             <div class="row wrap g-2">

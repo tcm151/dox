@@ -1,16 +1,6 @@
-import type { Post } from "@@/shared/types"
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const report = await readBody<{ subject: string }>(event)
+    const report = await readBody<{ subject: string, reason: string }>(event)
 
-    return await new DatabaseQuery()
-        .addSql(`
-            CREATE report SET
-            subject = $subject,
-            reporter = $reporter;
-        `)
-        .addRecord("subject", report.subject)
-        .addRecord("reporter", auth.id)
-        .queryOne<Post>()
+    return await createReport(report.subject, auth.id, report.reason)
 })

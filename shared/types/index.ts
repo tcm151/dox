@@ -179,10 +179,18 @@ export interface Feedback extends Record {
     dismissed: boolean
 }
 
-export interface Report extends Record {
+export interface ReportComplaint {
     reporter: User & string
-    subject: Voteable & string
+    reason: string
     time: string
+}
+
+export interface Report extends Record {
+    subject: Record & string
+    complaints: ReportComplaint[]
+    status: "pending" | "resolved" | "removed"
+    time: string
+    resolution?: string
 }
 
 export interface AccountConfirmation extends Record {

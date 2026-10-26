@@ -9,6 +9,7 @@ export default defineNitroPlugin(async () => {
         await setupDefaultAccount(config.surreal.admin)
         await scheduledTaskManager.start(manager => {
             manager.add(emptyTrash, 60_000)
+            manager.add(cleanReports, 60_000)
         })
 
         health.setStatus("ready")

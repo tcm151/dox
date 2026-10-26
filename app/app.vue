@@ -3,6 +3,7 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const events = useEvents()
 const settings = useSettings()
+const hints = useHints()
 
 useSeoMeta({
     title: config.public.site.title,
@@ -31,7 +32,7 @@ let showPopup = ref(false)
 const popupTitle = ref<string>("")
 const popupMessage = ref<string>("")
 const handlingPopup = ref(false)
-const popupOnAccept = ref<($event?: undefined) => any>(() => {})
+const popupOnAccept = ref<() => any>(() => {})
 
 events.subscribe(Trigger.showPopup, (payload: any) => {
     popupTitle.value = payload.title
@@ -72,6 +73,7 @@ if (ENV.isClient()) {
         <NuxtLoadingIndicator />
         <Navbar />
         <Login v-show="showLogin" />
+        <Reporter />
         <Popup v-if="showPopup" :loading="handlingPopup" :title="popupTitle" :accept="{ action: popupAccept }" :decline="{ action: closePopup }">
             {{ popupMessage }}
         </Popup>

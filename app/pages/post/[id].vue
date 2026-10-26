@@ -158,8 +158,8 @@ function writePostReply() {
 }
 
 async function reportPost() {
-    await useApi(`/api/post/${id}/report`)
-    hints.addError("This post has been reported to the development team.")
+    if (!post.value) return
+    submitReport(post.value.id)
 }
 
 async function archivePost() {

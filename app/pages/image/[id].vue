@@ -29,8 +29,7 @@ async function reportImage() {
         return
     }
 
-    await useApi(`/api/image/${extractId(image.value.id)}/report`)
-    hints.addWarning("This image has been reported to the development team.")
+    submitReport(image.value.id)
 }
 </script>
 

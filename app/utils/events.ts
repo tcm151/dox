@@ -14,6 +14,7 @@ export enum Trigger {
     // system
     addHint,
     showPopup,
+    reportContent,
     // hooks
     clientStarted,
     pageFinishedLoading,

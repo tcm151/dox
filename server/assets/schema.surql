@@ -485,12 +485,24 @@ DEFINE FIELD dismissed ON feedback
 -- TABLE: report
 -- ------------------------------
 DEFINE TABLE report SCHEMAFULL;
-DEFINE FIELD reporter ON report
-    TYPE record<user>;
 DEFINE FIELD subject ON report
     TYPE record;
+DEFINE INDEX reportSubject ON TABLE report
+    FIELDS subject UNIQUE;
+DEFINE FIELD complaints ON report
+    TYPE array<object> DEFAULT ALWAYS [];
+DEFINE FIELD complaints.*.reporter ON report
+    TYPE record<user>;
+DEFINE FIELD complaints.*.reason ON report
+    TYPE string;
+DEFINE FIELD complaints.*.time ON report
+    TYPE datetime;
 DEFINE FIELD time ON report
     TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD status ON report
+    TYPE string ASSERT $value IN ["pending", "resolved", "removed"] DEFAULT ALWAYS "pending";
+DEFINE FIELD resolution ON report
+    TYPE option<string> ASSERT $value = NONE OR $value.len() >= 3;
 
 
 -- ------------------------------

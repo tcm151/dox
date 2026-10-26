@@ -26,8 +26,7 @@ useSeoMeta({
 
 async function reportGallery() {
     if (!gallery.value) return
-    await useApi(`/api/gallery/${extractId(gallery.value.id)}/report`)
-    hints.addWarning("This gallery has been reported to the development team.")
+    submitReport(gallery.value.id)
 }
 
 async function archiveGallery() {
