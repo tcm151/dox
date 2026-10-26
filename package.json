@@ -9,6 +9,7 @@
         "typecheck:golar": "golar typecheck",
         "typecheck": "nuxt typecheck",
         "test": "node scripts/test-server.mjs",
+        "standup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/standup.ps1",
         "postinstall": "nuxt prepare",
         "deploy": "ssh root@tcmdev.ca \"cd dox && ./deploy.sh --build\"",
         "start:local": "node .output/server/index.mjs",

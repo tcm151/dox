@@ -37,6 +37,16 @@ Use this to summarize ticket status from `docs/tickets/` as a concise standup re
 6. Use the user's requested focus, but keep enough context to make the report useful.
 7. Do not edit ticket files unless the user asks for cleanup or reorganization. Before editing a ticket, read `docs/tickets/_template.md` and follow it without copying its comments or placeholders.
 
+## Commands
+
+Run the read-only audit from the repository root with Yarn and PowerShell 5.1 or newer:
+
+```powershell
+yarn standup
+```
+
+The script locates the repository from its own path, so it can also be run directly from another directory. For custom options, invoke it from PowerShell as `./scripts/standup.ps1 -Limit 10` to show more next-work candidates or `./scripts/standup.ps1 -RepositoryRoot C:\path\to\repo` to select a checkout explicitly. It reports lane and priority counts, current work, unblocked root-planned candidates, template/folder issues, unfinished dependencies, and dependency cycles. It is read-only. Treat its output as an inventory aid: read ticket requirements, tasks, dependency reasons, and progress entries before recommending work.
+
 ## Recommended Output
 
 Keep the report concise and useful for planning. Use these sections:
