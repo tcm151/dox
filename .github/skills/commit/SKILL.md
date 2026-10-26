@@ -18,6 +18,10 @@ argument-hint: "Optional scope: files, ticket, or commit to review"
 4. Follow recent commit messages. Use one concise subject for one logical change. Do not impose Conventional Commits if the repository uses another style. Include a ticket identifier when the project convention calls for one.
 5. Commit only after explicit approval. Then verify the commit and worktree, and report the hash, scope, checks, and any remaining changes.
 
+## Changelog Timing
+- Do not update the changelog during patch implementation. Prepare it only after the patch is complete and verified, when a new application version is being prepared.
+- Derive the release entry by reviewing commits and tracked changes since the latest release tag, plus intended untracked files. Update `package.json` and `CHANGELOG.md` together.
+
 ## Commit Message Guidance
 - Say what changed; avoid vague subjects.
 - Keep separate concerns in separate commits, even when they belong to one ticket.

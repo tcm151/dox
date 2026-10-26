@@ -37,3 +37,9 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 - Before creating an ad hoc test runner, check whether the repository's test command already covers the behavior. Do not duplicate its bootstrap or sequencing unless the standard runner cannot express the needed check; if a focused runner is necessary, state why.
 - Start with the smallest useful check for an edit, then run the repository's broader test command when the change's risk or reach calls for it.
 - For disposable SurrealDB schema, migration, or query probes, use `node scripts/surreal-explore.mjs -` with inline code on stdin. The runner supplies a fresh embedded database plus `db` and `assert`, then closes and removes the sandbox. Do not recreate the connection and temporary-database bootstrap in ad hoc scripts or run probes against the app database.
+
+## Changelog Timing
+
+- Do not add changelog entries while a patch is still in progress.
+- After the patch is complete and verified, prepare the changelog when choosing the next application version. Review commits and tracked changes since the latest release tag, plus intended untracked files, and summarize the finished patch set.
+- Update `package.json` and `CHANGELOG.md` together as part of release preparation; do not maintain a rolling unreleased section during implementation.
