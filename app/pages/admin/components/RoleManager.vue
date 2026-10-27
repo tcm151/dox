@@ -31,7 +31,7 @@ async function toggleRole(role: Role) {
         }
     }
     catch (error: any) {
-        hints.addError("Failed to update user with role.")
+        hints.addError("Failed to update user with role.", error)
     }
 }
 </script>

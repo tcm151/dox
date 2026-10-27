@@ -28,7 +28,7 @@ async function updateProfile() {
         hints.addSuccess("Updated topic profile successfully.")
     }
     catch (error: any) {
-        hints.addError("Failed to update topic profile.")
+        hints.addError("Failed to update topic profile.", error)
     }
     finally {
         loading.value = false

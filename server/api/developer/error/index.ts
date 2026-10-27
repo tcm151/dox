@@ -4,7 +4,8 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, "developer")
 
-    const query = getQuery<{ limit: number, codes: number[], start: string, end: string }>(event)
+    const query = getQuery<{ limit: number, codes: number[], start: string, end: string, requestId: string }>(event)
+    const requestId = typeof query.requestId === "string" ? query.requestId : ""
 
     if (query.codes && !Array.isArray(query.codes)) {
         query.codes = [query.codes]
@@ -15,12 +16,17 @@ export default defineEventHandler(async (event) => {
             SELECT id, status, description, request, time, stack, data,
                 user.id, user.name
             FROM error
-            WHERE ($codes.len() = 0 OR $codes CONTAINS status)
-            AND ($start = "" OR time >= <datetime>$start)
-            AND ($end = "" OR time <= <datetime>$end)
+            WHERE ($requestId != "" AND request.id = $requestId)
+            OR (
+                $requestId = ""
+                AND ($codes.len() = 0 OR $codes CONTAINS status)
+                AND ($start = "" OR time >= <datetime>$start)
+                AND ($end = "" OR time <= <datetime>$end)
+            )
             ORDER BY time DESC
             LIMIT $limit
         `)
+        .addParameter("requestId", requestId)
         .addParameter("codes", query.codes?.map(s => Number(s)) ?? [])
         .addParameter("start", query.start)
         .addParameter("end", query.end)

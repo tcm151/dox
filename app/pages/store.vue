@@ -19,7 +19,7 @@ function copyReferralLink() {
     const referralLink = `${baseUrl}/register?referral=${extractId(session.user.id)}`
     navigator.clipboard.writeText(referralLink)
     hints.addSuccess('Copied link to clipboard.')
-    hints.addSuccess('Share with another someone to get 1024 free tokens when they create their account.')
+    hints.addMessage('Share with another someone to get 1024 free tokens when they create their account.')
 }
 
 const loading = ref(false)
@@ -27,7 +27,7 @@ const referralCode = ref("")
 async function redeemReferral() {
     const code = referralCode.value.trim()
     if (!code) {
-        hints.addError("Enter a referral code.")
+        hints.addWarning("Enter a referral code.")
         return
     }
 
@@ -46,7 +46,7 @@ async function redeemReferral() {
         }
     }
     catch (error: any) {
-        hints.addError(error.data?.message ?? "Unable to redeem this referral.")
+        hints.addError(error.data?.message || "Unable to redeem this referral.", error)
     }
     finally {
         loading.value = false
@@ -63,7 +63,7 @@ async function redeemReferral() {
             </div>
         </section> -->
         <section class="box row wrap g-4 p-5">
-            <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addWarning('We are still working on this...')">
+            <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addMessage('We are still working on this...')">
                 <h2 class="tokens row g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
                     <i class="fa-solid fa-cube"></i>

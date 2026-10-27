@@ -8,8 +8,8 @@ const { data: account } = await useDatasource<Account>("/api/profile/account")
 try {
     await userSettings.refresh()
 }
-catch {
-    hints.addError("Failed to load notification preference.")
+catch (error: any) {
+    hints.addError("Failed to load notification preference.", error)
 }
 
 async function savePreferences() {
@@ -17,8 +17,8 @@ async function savePreferences() {
         await userSettings.save()
         hints.addSuccess("Preferences saved successfully.")
     }
-    catch {
-        hints.addError("Failed to save preferences.")
+    catch (error: any) {
+        hints.addError("Failed to save preferences.", error)
     }
 }
 
@@ -26,8 +26,8 @@ async function resetPreferences() {
     try {
         await userSettings.refresh()
     }
-    catch {
-        hints.addError("Failed to reload preferences.")
+    catch (error: any) {
+        hints.addError("Failed to reload preferences.", error)
     }
 }
 
@@ -60,8 +60,8 @@ async function invalidateSessions() {
                 await useApi('/api/profile/sessions/invalidate')
                 hints.addSuccess('All other sessions signed out successfully.')
             }
-            catch {
-                hints.addError('Failed to sign out other sessions.')
+            catch (error: any) {
+                hints.addError('Failed to sign out other sessions.', error)
             }
         },
     })

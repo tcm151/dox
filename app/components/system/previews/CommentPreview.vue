@@ -40,13 +40,13 @@ async function updateComment(comment: Comment) {
         emit("refresh")
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.message, error)
     }
 }
 
 async function submitComment(replyId: Post | Comment, content: string) {
     if (!session.isAuthenticated) {
-        hints.addError("You must be logged in to interact with others.")
+        hints.addWarning("You must be logged in to interact with others.")
         return
     }
     try {
@@ -69,7 +69,7 @@ async function submitComment(replyId: Post | Comment, content: string) {
         emit("refresh")
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.message, error)
     }
 }
 
@@ -79,7 +79,7 @@ async function deleteComment(commentId: string) {
         emit("refresh")
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.message, error)
     }
 }
 </script>

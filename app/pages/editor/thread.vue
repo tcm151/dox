@@ -41,11 +41,11 @@ const images = useImageUploader('editorImages')
 const submitting = ref<boolean>(false)
 async function submit() {
     if (!validContent()) {
-        hints.addError("Thread content must be 4-512 characters.")
+        hints.addWarning("Thread content must be 4-512 characters.")
         return
     }
     if (topics.items.length == 0) {
-        hints.addError("You must include at least one topic.")
+        hints.addWarning("You must include at least one topic.")
         return
     }
 
@@ -69,7 +69,7 @@ async function submit() {
         return navigateTo(`/thread/${extractId(thread.id)}`)
     }
     catch (error: any) {
-        hints.addError("Failed to submit thread.")
+        hints.addError("Failed to submit thread.", error)
     }
     finally {
         submitting.value = false

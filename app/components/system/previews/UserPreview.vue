@@ -72,8 +72,8 @@ async function toggleSaved() {
         hints.addSuccess(wasSaved ? "User removed from saved subscriptions." : "User saved as a subscription.")
         emit("refresh")
     }
-    catch {
-        hints.addError("Unable to update this saved subscription.")
+    catch (error: any) {
+        hints.addError("Unable to update this saved subscription.", error)
     }
     finally {
         loading.value = false
@@ -105,8 +105,8 @@ function awardUser() {
                 hints.addSuccess("Successfully awarded user.")
                 emit("refresh")
             }
-            catch {
-                hints.addError("Unable to award this user.")
+            catch (error: any) {
+                hints.addError("Unable to award this user.", error)
             }
             finally {
                 loading.value = false

@@ -29,20 +29,20 @@ function validUrl() {
 const submitting = ref<boolean>(false)
 async function submit() {
     if (!validTitle()) {
-        hints.addError("Title is invalid.")
+        hints.addWarning("Title is invalid.")
         return
     }
     if (!validUrl()) {
-        hints.addError("Link URL is invalid.")
+        hints.addWarning("Link URL is invalid.")
         return
     }
     if (topics.items.length == 0) {
-        hints.addError("You must include at least one topic.")
+        hints.addWarning("You must include at least one topic.")
         return
     }
 
     submitting.value = true
-    hints.addWarning("Link publishing is not available yet.")
+    hints.addMessage("Link publishing is not available yet.")
     submitting.value = false
 }
 </script>

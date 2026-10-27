@@ -16,11 +16,11 @@ const confirmation = ref("")
 
 async function resetPassword() {
     if (!valid.user.email(email.value)) {
-        hints.addError("Invalid email.")
+        hints.addWarning("Invalid email.")
         return
     }
     if (!valid.user.password(password.value) || !valid.user.password(confirmation.value)) {
-        hints.addError("Invalid password.")
+        hints.addWarning("Invalid password.")
         return
     }
     if (password.value !== confirmation.value) {

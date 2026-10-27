@@ -38,20 +38,20 @@ function validResponses() {
 const submitting = ref<boolean>(false)
 async function submit() {
     if (!validQuestion()) {
-        hints.addError("Question must be 4-256 characters.")
+        hints.addWarning("Question must be 4-256 characters.")
         return
     }
     if (!validResponses()) {
-        hints.addError("Polls need at least two responses.")
+        hints.addWarning("Polls need at least two responses.")
         return
     }
     if (topics.items.length == 0) {
-        hints.addError("You must include at least one topic.")
+        hints.addWarning("You must include at least one topic.")
         return
     }
 
     submitting.value = true
-    hints.addWarning("Poll publishing is not available yet.")
+    hints.addMessage("Poll publishing is not available yet.")
     submitting.value = false
 }
 </script>

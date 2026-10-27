@@ -24,7 +24,7 @@ async function approveRequest(id: string) {
         await refresh()
     }
     catch (error: any) {
-        hints.addError("Failed to approve moderation request.")
+        hints.addError("Failed to approve moderation request.", error)
     }
 }
 
@@ -35,7 +35,7 @@ async function denyRequest(id: string) {
         await refresh()
     }
     catch (error: any) {
-        hints.addError("Failed to deny moderation request.")
+        hints.addError("Failed to deny moderation request.", error)
     }
 }
 </script>

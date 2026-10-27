@@ -28,7 +28,7 @@ async function checkUsernameTaken() {
 const loading = ref<boolean>(false)
 async function updateProfile() {
     if (usernameTaken.value) {
-        hints.addError("That username is already taken")
+        hints.addWarning("That username is already taken")
         return
     }
     if (!validDescription()) {
@@ -48,7 +48,7 @@ async function updateProfile() {
         await session.refreshProfile()
     }
     catch (error: any) {
-        hints.addError("Failed to update your profile.")
+        hints.addError("Failed to update your profile.", error)
     }
     finally {
         loading.value = false

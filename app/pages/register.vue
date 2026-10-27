@@ -18,17 +18,17 @@ const confirmation = ref("")
 const submitting = ref<boolean>(false)
 async function register() {
     if (!valid.user.email(email.value)) {
-        hints.addError("Invalid email.")
+        hints.addWarning("Invalid email.")
         return
     }
 
     if (!valid.user.name(username.value)) {
-        hints.addError("Invalid username.")
+        hints.addWarning("Invalid username.")
         return
     } 
 
     if (!valid.user.password(password.value) || !valid.user.password(confirmation.value)) {
-        hints.addError("Invalid password.")
+        hints.addWarning("Invalid password.")
         return
     } 
 
@@ -48,7 +48,7 @@ async function register() {
         navigateTo('/profile')
     }
     catch (error: any) {
-        hints.addError(error.data?.message ?? "Failed to register your account.")
+        hints.addError(error.data?.message ?? "Failed to register your account.", error)
     }
     finally {
         submitting.value = false

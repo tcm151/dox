@@ -1,18 +1,32 @@
 <script setup lang="ts">
 import type { Error } from '@@/shared/types'
 
+const route = useRoute()
 const cache = useCache()
 
 const limit = cache.get<number>("errors.limit", () => 10)
 const codes = cache.get<number[]>("errors.codes", () => [500])
 const start = cache.get<string>("errors.start", () => "")
 const end = cache.get<string>("errors.end", () => "")
+const requestId = computed(() => typeof route.query.requestId === "string" ? route.query.requestId : "")
+const lookupId = ref(requestId.value)
     
 const { data: errors, pending, refresh } = await useDatasource<Error[]>("/api/developer/error", {
     query: {
-        limit, codes, start, end 
+        limit, codes, start, end, requestId,
     }
 })
+
+watch(requestId, value => lookupId.value = value)
+
+function findRequest() {
+    const query = { ...route.query }
+    const value = lookupId.value.trim()
+    if (value) query.requestId = value
+    else delete query.requestId
+
+    return navigateTo({ path: route.path, query })
+}
 
 function toggleStatus(code: number) {
     if (codes.value.includes(code)) {
@@ -28,6 +42,16 @@ function selectStatus(code: number) {
 }
 
 const expanded = ref<string[]>([])
+watch([requestId, errors], ([id, currentErrors]) => {
+    if (!id) {
+        expanded.value = []
+        return
+    }
+
+    const matchingError = currentErrors?.find(error => error.request.id === id)
+    expanded.value = matchingError ? [matchingError.id] : []
+}, { immediate: true })
+
 function toggle(id: string) {
     if (expanded.value.includes(id)) {
         expanded.value = expanded.value.filter(e => e != id)
@@ -46,51 +70,50 @@ function toggle(id: string) {
                     <i class="fa-solid fa-refresh"></i>
                     Refresh
                 </ButtonSpinner>
-                <div class="row g-4">
-                    <div class="field row">
-                        <label>Codes</label>
-                        <div class="row g-1">
-                            <template v-for="code in [400, 401, 403, 404, 429, 500, 503]">
-                                <Tag
-                                    type="danger"
-                                    :class="{ active: codes.includes(code) }"
-                                    @click="toggleStatus(code)"
-                                    @click.ctrl="selectStatus(code)"
-                                >
-                                    {{ code }}
-                                </Tag>
-                            </template>
-                        </div>
-                    </div>
+                <div class="field row">
+                    <label>Results</label>
+                    <select v-model.number="limit">
+                        <option>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                        <option>250</option>
+                    </select>
                 </div>
-                <div class="row g-4">
-                    <div class="field row">
-                        <label>Start</label>
-                        <input type="date" v-model="start">
-                    </div>
-                    <div class="field row">
-                        <label>End</label>
-                        <input type="date" v-model="end">
-                    </div>
-                    <div class="field row">
-                        <label>Results</label>
-                        <select v-model.number="limit">
-                            <option>10</option>
-                            <option>25</option>
-                            <option>50</option>
-                            <option>100</option>
-                            <option>250</option>
-                        </select>
+                <div class="field row">
+                    <label>Start</label>
+                    <input type="date" v-model="start">
+                </div>
+                <div class="field row">
+                    <label>End</label>
+                    <input type="date" v-model="end">
+                </div>
+                <form class="field row request-lookup" @submit.prevent="findRequest">
+                    <label for="request-id">ID</label>
+                    <input id="request-id" v-model="lookupId" type="search" autocomplete="off" spellcheck="false">
+                </form>
+                <div class="field row">
+                    <label>Codes</label>
+                    <div class="row g-1">
+                        <template v-for="code in [400, 401, 403, 404, 429, 500, 503]">
+                            <Tag
+                                type="danger"
+                                :class="{ active: codes.includes(code) }"
+                                @click="toggleStatus(code)"
+                                @click.ctrl="selectStatus(code)"
+                            >
+                                {{ code }}
+                            </Tag>
+                        </template>
                     </div>
                 </div>
             </header>
             <template v-if="errors && errors.length > 0">
                 <template v-for="error in errors" :key="error.id">
                     <div class="column g-1">
-                        <div class="row g-1">
+                        <div class="row wrap g-1">
                             <Tag type="danger" :label="error.status" />
                             <Tag class="text truncate f-1" type="link" :label="error.description" @click="toggle(error.id)" />
-                            <!-- <UserTag :user="error.user" label="unknown" /> -->
                             <DurationTag width="4rem" :time="error.time" />
                         </div>
                         <CollapseTransition>
@@ -101,6 +124,7 @@ function toggle(id: string) {
                     </div>
                 </template>
             </template>
+            <p v-else-if="requestId && errors" class="p-2">No matching error was found.</p>
         </section>
     </article>
 </template>
@@ -119,6 +143,12 @@ div.field {
     .danger.active {
         background-color: $red;
         color: $red-light;
+    }
+}
+
+form.request-lookup {
+    input {
+        width: min(24rem, 45vw);
     }
 }
 </style>

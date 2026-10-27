@@ -25,7 +25,7 @@ function toggleEditThread() {
 
 async function updateThread() {
     if (!thread.value) {
-        hints.addError("You can't edit something that doesn't exist.")
+        hints.addWarning("You can't edit something that doesn't exist.")
         return
     }
     try {
@@ -40,7 +40,7 @@ async function updateThread() {
         await refresh()
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.message, error)
     }
     finally {
         submitting.value = false
@@ -59,7 +59,7 @@ function quoteThread() {
 const submitting = ref<boolean>(false)
 async function submitThread() {
     if (!session.isAuthenticated) {
-        hints.addError("You must be logged in to interact with others.")
+        hints.addWarning("You must be logged in to interact with others.")
         return
     }
     
@@ -103,7 +103,7 @@ async function deleteThread() {
 
 async function awardThread() {
     if (thread.value?.user.id == session.user.id) {
-        hints.addError("You can't award your own threads.")
+        hints.addWarning("You can't award your own threads.")
         return
     }
     if (thread.value?.votes.awards?.includes(session.user.id)) {

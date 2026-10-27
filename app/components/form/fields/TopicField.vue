@@ -32,23 +32,23 @@ const matchingResults = computed(() => {
 
 function addTopic() {
     if (props.topics.items.length >= settings.app.topics.perSubmission) {
-        hints.addError(`You can only add ${settings.app.topics.perSubmission} topics per submission.`)
+        hints.addWarning(`You can only add ${settings.app.topics.perSubmission} topics per submission.`)
         props.topics.text = ""
         return
     }
     if (settings.app.topics.restrict && !settings.app.topics.allowed.includes(`topic:${props.topics.text}`)) {
-        hints.addError("You must use one of the predefined topics.")
+        hints.addWarning("You must use one of the predefined topics.")
         return
     }
     if (props.topics.items.includes(`topic:${props.topics.text}`)) {
-        hints.addError("You have already added this topic.")
+        hints.addWarning("You have already added this topic.")
         return
     }
     if (props.topics.text && validTopic()) {
         props.topics.add(props.topics.text)
     }
     else {
-        hints.addError("That is an invalid topic.")
+        hints.addWarning("That is an invalid topic.")
     }
 }
 

@@ -11,11 +11,11 @@ const description = ref<string>("")
 const submitting = ref<boolean>(false)
 async function submit() {
     if (images.uploaded.length == 0) {
-        hints.addError("You must upload at least one image.")
+        hints.addWarning("You must upload at least one image.")
         return
     }
     if (topics.items.length == 0) {
-        hints.addError("You must include at least one topic.")
+        hints.addWarning("You must include at least one topic.")
         return
     }
 
@@ -35,8 +35,8 @@ async function submit() {
         hints.addSuccess("Images published.")
         await navigateTo("/feed/images")
     }
-    catch {
-        hints.addError("Failed to publish images.")
+    catch (error: any) {
+        hints.addError("Failed to publish images.", error)
     }
     finally {
         submitting.value = false

@@ -10,7 +10,7 @@ export const useVoting = () => {
 
     async function submit(type: Vote, item: Voteable) {
         if (!session.isAuthenticated) {
-            hints.addError("You must be logged in to interact with others.")
+            hints.addWarning("You must be logged in to interact with others.")
             return
         }
 

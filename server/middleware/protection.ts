@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto"
+
 class RateLimiter {
     #routes: Record<string, { ms: number, max: number }>
     #buckets: Record<string, { requests: number[], windowMs: number }> = {}
@@ -71,6 +73,11 @@ const limiter = new RateLimiter(10 * 60 * 1000, {
 }) 
 
 export default defineEventHandler(async (event) => {
+    const requestId = randomUUID()
+    event.context.requestId = requestId
+    event.context.requestStartedAt = Date.now()
+    setResponseHeader(event, "x-request-id", requestId)
+
     const path = event.path.split("?").at(0) ?? ""
     const rateLimitPath = getRateLimitPath(path)
     const ipAddress = getClientAddress(event)

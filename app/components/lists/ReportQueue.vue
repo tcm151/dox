@@ -82,7 +82,7 @@ function cancelResolution() {
 async function submitResolution(report: Report) {
     const note = resolution.value.trim()
     if (note.length > 0 && note.length < 3) {
-        hints.addError("Resolution notes must be at least 3 characters.")
+        hints.addWarning("Resolution notes must be at least 3 characters.")
         return
     }
 

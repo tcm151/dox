@@ -21,7 +21,7 @@ async function saveSettings() {
         hints.addSuccess("Settings saved successfully.")
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.message, error)
     }
     finally {
         loading.value = false

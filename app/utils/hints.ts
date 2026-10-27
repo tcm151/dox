@@ -3,6 +3,7 @@ export interface Hint {
     number: number
     message: string
     type: "message" | "success" | "warning" | "error"
+    requestId?: string
 }
 
 export const useHints = defineStore("hints", () => {
@@ -11,10 +12,19 @@ export const useHints = defineStore("hints", () => {
     
     let count = ref(0)
     let items = ref<Hint[]>([])
-    
+
+    function getRequestId(error?: unknown) {
+        if (!error || typeof error !== "object") return undefined
+
+        const response = (error as { response?: { headers?: { get?: (name: string) => string | null } } }).response
+        return response?.headers?.get?.("x-request-id") ?? undefined
+    }
+
     function addHint(payload: Hint) {
         items.value.push(payload)
-        setTimeout(() => remove(payload), userSettings.preferences.ui.hintDuration)
+        if (payload.type !== "error") {
+            setTimeout(() => remove(payload), userSettings.preferences.ui.hintDuration)
+        }
     }
     
     function remove(hint: Hint) {
@@ -25,7 +35,8 @@ export const useHints = defineStore("hints", () => {
         addHint({
             number: count.value += 1,
             message: payload.message,
-            type: payload.type
+            type: payload.type,
+            requestId: payload.requestId,
         })
     })
 
@@ -53,11 +64,12 @@ export const useHints = defineStore("hints", () => {
         })
     }
 
-    function addError(message: string) {
+    function addError(message: string, error?: unknown) {
         addHint({
             number: count.value += 1,
             message: message,
-            type: "error"
+            type: "error",
+            requestId: getRequestId(error),
         })
     }
 

@@ -235,7 +235,19 @@ export interface ModerationRequest extends Record {
 export interface Error extends Record {
     status: number
     description: string
-    request: any
+    request: {
+        id?: string
+        path?: string
+        method?: string
+        durationMs?: number
+        headers?: {
+            ip?: string
+            origin?: string
+            host?: string
+            refererOrigin?: string
+            userAgent?: string
+        }
+    }
     time: string
     user: User & string
     stack: string

@@ -49,7 +49,7 @@ function toggleEditPost() {
 
 async function updatePost(changedPost: Post | null) {
     if (!changedPost) {
-        hints.addError("You can't edit something that doesn't exist.")
+        hints.addWarning("You can't edit something that doesn't exist.")
         return
     }
 
@@ -64,7 +64,7 @@ async function updatePost(changedPost: Post | null) {
         toggleEditPost()
     }
     catch (error: any) {
-        hints.addError(error.message)
+        hints.addError(error.message, error)
     }
     finally {
         submitting.value = false
@@ -92,7 +92,7 @@ let comment = ref("")
 const submitting = ref<boolean>(false)
 async function submitComment(replyTo: Post | Comment, content: string) {
     if (!session.isAuthenticated) {
-        hints.addError("You must be logged in to interact with others.")
+        hints.addWarning("You must be logged in to interact with others.")
         return
     }
 
@@ -126,7 +126,7 @@ function copyLink() {
 
 async function awardPost() {
     if (post.value?.user.id == session.user.id) {
-        hints.addError("You can't award your own posts.")
+        hints.addWarning("You can't award your own posts.")
         return
     }
     if (post.value?.votes.awards?.includes(session.user.id)) {
@@ -151,7 +151,7 @@ async function awardPost() {
 
 function writePostReply() {
     if (!session.isAuthenticated) {
-        hints.addError("You must be logged in to interact with others.")
+        hints.addWarning("You must be logged in to interact with others.")
         return
     }
     return navigateTo(`/editor/post?replyTo=${extractId(post.value!.id)}`)

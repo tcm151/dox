@@ -46,11 +46,11 @@ function viewDraft(existingDraft: Draft) {
 const submitting = ref<boolean>(false)
 async function submit() {
     if (!validTitle()) {
-        hints.addError("Title is invalid.")
+        hints.addWarning("Title is invalid.")
         return
     }
     if (topics.items.length == 0) {
-        hints.addError("You must include at least one topic.")
+        hints.addWarning("You must include at least one topic.")
         return
     }
     try {
@@ -77,7 +77,7 @@ async function submit() {
         navigateTo(`/post/${extractId(post.id)}`)
     }
     catch (error: any) {
-        hints.addError("Failed to submit post.")
+        hints.addError("Failed to submit post.", error)
     }
     finally {
         submitting.value = false
@@ -94,7 +94,7 @@ onKeyStroke(["s", "S"], async (event) => {
 const saving = ref<boolean>(false)
 async function saveDraft() {
     if (!validTitle()) {
-        hints.addError("Title is invalid.")
+        hints.addWarning("Title is invalid.")
         return
     }
     try {
@@ -128,7 +128,7 @@ async function saveDraft() {
         }
     }
     catch (error: any) {
-        hints.addError("Failed to save/update draft.")
+        hints.addError("Failed to save/update draft.", error)
     }
     finally {
         saving.value = false

@@ -45,7 +45,7 @@ function copyAudioUrl() {
 
 function clearAudio() {
     uploadedAudio.value = null
-    hints.addWarning("Audio removed from this editor.")
+    hints.addSuccess("Audio removed from this editor.")
 }
 
 const topics = useTopicManager()
@@ -53,20 +53,20 @@ const topics = useTopicManager()
 const submitting = ref<boolean>(false)
 async function submit() {
     if (title.value.trim().length < 4) {
-        hints.addError("Title must be at least 4 characters.")
+        hints.addWarning("Title must be at least 4 characters.")
         return
     }
     if (!uploadedAudio.value) {
-        hints.addError("You must upload an audio file.")
+        hints.addWarning("You must upload an audio file.")
         return
     }
     if (topics.items.length == 0) {
-        hints.addError("You must include at least one topic.")
+        hints.addWarning("You must include at least one topic.")
         return
     }
 
     submitting.value = true
-    hints.addWarning("Audio publishing is not available yet.")
+    hints.addMessage("Audio publishing is not available yet.")
     submitting.value = false
 }
 </script>

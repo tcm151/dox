@@ -11,7 +11,7 @@ const errorMessage = cache.get<string>("query.error", () => "")
 
 function removeFromHistory(query: string) {
     history.value = history.value.filter(h => h !== query)
-    hints.addWarning("Query removed from history")
+    hints.addSuccess("Query removed from history")
 }
 
 const loading = ref<boolean>(false)
@@ -39,7 +39,7 @@ async function submitQuery() {
         }
     }
     catch (error: any) {
-        hints.addError(error.statusText)
+        hints.addError(error.statusText, error)
         errorMessage.value = error.data.message
         tab.value = "Error"
         results.value = []

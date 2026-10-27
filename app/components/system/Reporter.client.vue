@@ -22,7 +22,7 @@ function closeReporter() {
 async function submitReport() {
     const normalizedReason = reason.value.trim()
     if (!normalizedReason) {
-        hints.addError("Enter a reason for this report.")
+        hints.addWarning("Enter a reason for this report.")
         return
     }
 

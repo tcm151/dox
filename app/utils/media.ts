@@ -24,11 +24,11 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
     const settings = useSettings()
 
     if (mediaType == "image" && !settings.app.media.images.enabled) {
-        hints.addError("Image uploads are not enabled.")
+        hints.addMessage("Image uploads are not enabled.")
         return
     }
     if (mediaType == "audio" && !settings.app.media.audio.enabled) {
-        hints.addError("Audio uploads are not enabled.")
+        hints.addMessage("Audio uploads are not enabled.")
         return
     }
     
@@ -47,7 +47,7 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
 
     const fileSize = files[0].size / 1_048_576
     if (fileSize > maxSize) {
-        hints.addError(`File is ${fileSize}MB, the upload limit is ${maxSize}MB.`)
+        hints.addWarning(`File is ${fileSize}MB, the upload limit is ${maxSize}MB.`)
         return
     }
 
@@ -59,7 +59,7 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
         return result.media
     }
     catch (error: any) {
-        hints.addError(`Failed to upload file "${files[0].name}"`)
+        hints.addError(`Failed to upload file "${files[0].name}"`, error)
         return
     }
 }
