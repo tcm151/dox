@@ -36,19 +36,25 @@
 }
 
 .misleading, .misleading.inverted:hover,
-.warning, .warning.inverted:hover {
+.warning, .warning.inverted:hover, .box.warning {
     color: $yellow;
     background-color: $yellow-light;
 }
 
 .misleading:hover, .misleading.inverted,
-.warning:hover, .warning.inverted {
+.warning:hover, .warning.inverted, .box.warning:hover {
     color: $yellow-light;
     background-color: $yellow;
 }
 
 .misleading.voted {
     outline: 1px solid $yellow;
+}
+
+.unavailable {
+    color: $yellow-dark;
+    border: 1px solid $yellow;
+    background-color: $yellow-light;
 }
 
 .negative, .negative.inverted:hover,
@@ -105,12 +111,20 @@
     background-color: $white-0;
 }
 
+.border-subtle {
+    border: 1px solid $white-2;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
 .tag {
     cursor: pointer;
     box-sizing: border-box;
     white-space: nowrap;
     text-align: center;
-    font-weight: 700;
+    font-weight: var(--fw-bold);
     outline: 1px transparent;
     border-radius: 0.25rem;
 }
@@ -124,6 +138,18 @@
     background-color: $white-3;
 }
 
+.empty-state {
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.empty-state.stacked {
+    @include flex-v;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
 .animate {
     transition:
         transform var(--motion-duration-fast) var(--motion-easing-standard),
@@ -131,7 +157,11 @@
 }
 
 .animate:hover {
-    transform: scale(101%, 101%);
+    transform: translate(-1px, -1px);
+}
+
+.hover-shadow:hover {
+    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
 }
 
 html[data-hover-animations="false"] .animate {
@@ -150,7 +180,7 @@ html[data-hover-animations="false"] .animate:hover {
 }
 
 .text.bold {
-    font-weight: 700;
+    font-weight: var(--fw-bold);
 }
 .text.truncate {
     overflow-x: hidden;
@@ -182,7 +212,7 @@ nav.tabstrip {
     button, a {
         min-height: 19px;
         padding: 0.5rem 0.75rem;
-        font-weight: 700;
+        font-weight: var(--fw-bold);
         font-size: 1.1rem;
         color: $white-2;
         border-radius: 0;

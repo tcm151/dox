@@ -48,7 +48,7 @@ function toggleUserManager() {
             </NuxtLink>
         </section>
         <Transition name="slide">
-            <section v-if="session.isAuthenticated" class="right row authenticated">
+            <section v-if="session.isAuthenticated" class="right row">
                 <button v-if="config.app.misc.feedback.enabled" title="Feedback" @click="events.publish(Trigger.toggleFeedback)">
                     <i class="fa-solid fa-keyboard"></i>
                 </button>
@@ -68,7 +68,7 @@ function toggleUserManager() {
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </section>
-            <section class="right row anonymous" v-else>
+            <section class="right row" v-else>
                 <NuxtLink @click="login">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Login</span>

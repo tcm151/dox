@@ -37,6 +37,17 @@
     align-items: center;
 }
 
+.tabbed-shell {
+    width: stretch;
+    overflow-y: hidden;
+}
+
+.tabbed-content {
+    width: stretch;
+    height: stretch;
+    overflow-y: auto;
+}
+
 .column.block {
     justify-content: center;
 }
@@ -79,6 +90,10 @@
 
 .grid.center {
     place-content: center;
+}
+
+.content-width {
+    @include fit-width(60rem, 1rem);
 }
 
 .f-0 { flex-grow: 0; }

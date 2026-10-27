@@ -55,8 +55,8 @@ async function submit() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <div v-if="images.uploaded.length > 0" class="image-preview">
-                <img v-for="image in images.uploaded" :src="image.url">
+            <div v-if="images.uploaded.length > 0" class="image-preview g-2">
+                <img v-for="image in images.uploaded" class="br-small" :src="image.url">
             </div>
             <Markdown class="content mt-3" :content="description" />
         </template>
@@ -70,13 +70,10 @@ async function submit() {
 div.image-preview {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-    gap: 0.5rem;
-
     img {
         width: 100%;
         aspect-ratio: 1;
         object-fit: cover;
-        border-radius: 0.25rem;
         background-color: $white-1;
     }
 }

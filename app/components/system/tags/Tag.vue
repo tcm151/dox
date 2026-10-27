@@ -22,11 +22,15 @@ const props = defineProps<{
     transition:
         color var(--motion-duration-quick) var(--motion-easing-standard),
         background-color var(--motion-duration-quick) var(--motion-easing-standard);
-    font-weight: 800;
+    font-weight: var(--fw-heavy);
 }
 
 .tag.default:hover {
     color: $white-0;
     background-color: $white-3;
+}
+
+.tag.fw-normal {
+    font-weight: var(--fw-normal);
 }
 </style>

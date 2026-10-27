@@ -38,10 +38,10 @@ async function updateProfile() {
 </script>
 
 <template>
-    <article class="column g-2 m-4">
+    <article class="content-width column g-2 m-4">
         <header class="row g-2">
             <button class="dark" @click="navigateTo(`/topic/${id}`)">
-                <i class="fa solid fa-arrow-left"></i>
+                <i class="fa-solid fa-arrow-left"></i>
                 View Topic
             </button>
         </header>
@@ -70,9 +70,3 @@ async function updateProfile() {
         </section>
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width (60rem, 1rem);
-}
-</style>

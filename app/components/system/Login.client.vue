@@ -53,7 +53,7 @@ function forgetPassword() {
 
 <template>
     <Popup title="Login" width="20rem" :loading="loading" :accept="{ label: 'Login', action: attemptLogin }" :decline="{ label: 'Cancel', action: closeLogin }">
-        <main class="login form">
+        <main class="form">
             <div class="field">
                 <label>Username</label>
                 <input v-model="username" type="text" ref="usernameInput" />
@@ -78,7 +78,6 @@ label.forgot {
     a {
         color: $red;
         text-decoration: underline;
-        cursor: pointer;
     }
 }
 </style>

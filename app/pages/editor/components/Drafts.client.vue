@@ -56,7 +56,7 @@ section.drafts {
 
 section.empty-drafts {
     p {
-        font-weight: 700;
+        font-weight: var(--fw-bold);
     }
 }
 </style>

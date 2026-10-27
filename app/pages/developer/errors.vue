@@ -138,7 +138,7 @@ article {
 
 div.field {
     label {
-        font-weight: 700;
+        font-weight: var(--fw-bold);
     }
     .danger.active {
         background-color: $red;

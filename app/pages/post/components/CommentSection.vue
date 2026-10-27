@@ -24,7 +24,7 @@ watch(() => props.loading, (status) => {
 </script>
 
 <template>
-    <section v-if="post && post.comments.length > 0" class="comments p-5">
+    <section v-if="post && post.comments.length > 0" class="comments br-medium p-5">
         <header class="sorting row g-1 mb-3">
             <button class="refresh dark" @click="emit('refresh', sortType)">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
@@ -56,7 +56,6 @@ watch(() => props.loading, (status) => {
 
 <style scoped lang="scss">
 section.comments {
-    border-radius: 0.5rem;
     background-color: $white-0;
 
     @media (max-width: $bp-tablet) {

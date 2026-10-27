@@ -12,7 +12,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div v-if="settings.app.voting.enabled" class="fit row g-1">
+    <div v-if="settings.app.voting.enabled" class="row g-1">
         <ClientOnly>
             <Tag
                 type="positive"

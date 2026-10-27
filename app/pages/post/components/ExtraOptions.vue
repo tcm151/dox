@@ -35,7 +35,7 @@ function emitAndClose(event: string) {
                 <i class="fa-solid fa-box-archive"></i>
                 <span>Save</span>
             </button> -->
-            <button class="award" @click="emitAndClose('award')">
+            <button @click="emitAndClose('award')">
                 <i class="fa-solid fa-crown"></i>
                 <span>Award</span>
             </button>

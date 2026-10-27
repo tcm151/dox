@@ -34,7 +34,7 @@ function toggleRoleManager(user?: User) {
 </script>
     
 <template>
-    <article class="column g-2 p-4">
+    <article class="content-width column g-2 p-4">
         <header class="row g-2">
             <button class="link" @click="refresh()">
                 <i class="fa-solid fa-rotate"></i>
@@ -67,9 +67,3 @@ function toggleRoleManager(user?: User) {
         </OverlayTransition>
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-</style>

@@ -98,7 +98,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
         <div class="box row g-6 p-5">
             <aside class="tabs column g-2 pr-6">
                 <template v-for="tab in tabs">
-                    <h3 :class="{ active: section == tab }" @click="section = tab">
+                    <h3 class="clickable" :class="{ active: section == tab }" @click="section = tab">
                         {{ tab }}
                     </h3>    
                 </template>
@@ -124,11 +124,11 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                 <div v-if="section == 'moderation'">
                     <div class="field row">
                         <label class="f-1">expected moderators per topic</label>
-                        <input type="number" v-model="settings.moderation.perTopic">
+                        <input class="py-1 px-2" type="number" v-model="settings.moderation.perTopic">
                     </div>
                     <div class="field row">
                         <label class="f-1">moderation request threshold</label>
-                        <input type="number" v-model="settings.moderation.threshold">
+                        <input class="py-1 px-2" type="number" v-model="settings.moderation.threshold">
                     </div>
                 </div>
                 <div v-if="section == 'voting'">
@@ -222,6 +222,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                     <div class="field row">
                         <label class="f-1">topics per submission</label>
                         <input
+                            class="py-1 px-2"
                             type="number"
                             min="0" step="1" max="5"
                             v-model="settings.topics.perSubmission"
@@ -256,7 +257,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                     </div>
                 </div>
                 <div v-if="section == 'links'">
-                    <p class="unavailable row inline g-2 p-3 mb-3">
+                    <p class="unavailable br-small row inline g-2 p-3 mb-3">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span>Link publishing is unfinished. Enabling it exposes a preview-only editor.</span>
                     </p>
@@ -286,6 +287,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                     <div class="field row">
                         <label class="f-1">image upload limit (megabytes)</label>
                         <input
+                            class="py-1 px-2"
                             type="number"
                             min="0" step="5" max="100"
                             :disabled="!settings.media.images.enabled"
@@ -293,7 +295,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         >
                     </div>
                     <hr>
-                    <p class="unavailable row inline g-2 p-3 mb-3">
+                    <p class="unavailable br-small row inline g-2 p-3 mb-3">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span>Audio and video publishing are unfinished. Enabling them exposes preview-only editors.</span>
                     </p>
@@ -305,6 +307,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                     <div class="field row">
                         <label class="f-1">audio upload limit (megabytes)</label>
                         <input
+                            class="py-1 px-2"
                             type="number"
                             min="0" step="10" max="500"
                             :disabled="!settings.media.audio.enabled"
@@ -317,7 +320,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                     </div>
                 </div>
                 <div v-if="section == 'polls'">
-                    <p class="unavailable row inline g-2 p-3 mb-3">
+                    <p class="unavailable br-small row inline g-2 p-3 mb-3">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span>Poll publishing is unfinished. Enabling it exposes a preview-only editor.</span>
                     </p>
@@ -363,16 +366,8 @@ aside.tabs {
     border-right: 2px solid $white-2;
 
     h3:hover, h3.active {
-        cursor: pointer;
         color: $purple;
     }
-}
-
-p.unavailable {
-    color: $yellow-dark;
-    border: 1px solid $yellow;
-    border-radius: 0.25rem;
-    background-color: $yellow-light;
 }
 
 div.field {
@@ -382,7 +377,6 @@ div.field {
         margin-right: 1rem;
     }    
     input[type="number"] {
-        padding: 0.25rem 0.5rem;
         width: stretch;
         max-width: 4rem;
         text-align: center;

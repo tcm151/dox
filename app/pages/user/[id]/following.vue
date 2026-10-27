@@ -9,7 +9,7 @@ const { data: following } = await useDatasource<User[]>(`/api/user/${id}/followi
 </script>
 
 <template>
-    <article class="column g-2 p-4">
+    <article class="content-width column g-2 p-4">
         <template v-if="user">
             <UserPreview :user="user" />
         </template>
@@ -20,14 +20,8 @@ const { data: following } = await useDatasource<User[]>(`/api/user/${id}/followi
                 <DurationTag width="6rem" :time="user.dateJoined" />
             </div>
         </section>
-        <footer v-else class="box p-3 text center">
+        <footer v-else class="box empty-state">
             <p>This user isn't following anyone.</p>
         </footer>
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-</style>

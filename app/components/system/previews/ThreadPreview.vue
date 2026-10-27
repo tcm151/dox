@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="thread box background animate">
+    <div class="thread clickable box background animate hover-shadow">
         <div class="main box column px-3 pt-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
             <div class="row wrap g-1">
                 <Votes :target="thread" />
@@ -26,9 +26,9 @@ const props = defineProps<{
             </div>
             <Markdown class="content preview" :content="thread.content" />
             <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
-                <img v-for="image in thread.images" :src="image.url">
+                <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
             </aside>
-            <aside v-if="thread.quote" class="quote br-medium mb-3 px-3 pt-3">
+            <aside v-if="thread.quote" class="br-medium border-subtle mb-3 px-3 pt-3">
                 <div class="row wrap g-1">
                     <Votes :target="thread.quote" />
                     <div class="row wrap f-1 g-1">
@@ -56,22 +56,11 @@ const props = defineProps<{
     }
 }
 
-.thread:hover {
-    cursor: pointer;
-    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-}
-
-aside.quote {
-    border: 1px solid $white-2;
-}
-
 aside.thread-images {
     img {
         width: 6rem;
         height: 6rem;
         object-fit: cover;
-        border-radius: 0.25rem;
-        border: 1px solid $white-2;
         background-color: $white-1;
     }
 }

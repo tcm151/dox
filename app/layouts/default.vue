@@ -4,7 +4,7 @@
 <template>
     <main class="page column inline">
         <slot />
-        <footer class="row inline between px-6 m-5">
+        <footer class="content-width row inline between px-6 m-5">
                 <div class="links column g-1">
                     <NuxtLink to="/about">About</NuxtLink>
                     <NuxtLink to="/contact">Contact</NuxtLink>
@@ -20,11 +20,10 @@ main.page {
 }
 
 footer.row {
-    @include fit-width (60rem, 1rem);
     order: 9999;
 
     .links {
-        font-weight: 700;
+        font-weight: var(--fw-bold);
 
         a:hover {
             color: #777;

@@ -19,7 +19,7 @@ async function deletePin(pin: Pin) {
 </script>
 
 <template>
-    <article class="p-4">
+    <article class="content-width p-4">
         <section v-if="pins!.length > 0" class="column g-4">
             <div class="box" v-for="pin in pins" :key="pin.id">
                 <MultiPreview :item="pin.item" />
@@ -35,17 +35,13 @@ async function deletePin(pin: Pin) {
                 </header>
             </div>
         </section>
-        <section v-else class="box p-3 text center">
+        <section v-else class="box empty-state">
             <p>There are currently no pins.</p>
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-
 header {
     border-top: 1px solid $white-2;
 }

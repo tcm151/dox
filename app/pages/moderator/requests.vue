@@ -67,7 +67,7 @@ async function denyRequest(id: string) {
                 <Tag class="f-max b-0" type="danger" label="Denied" icon="fa-x" />
             </div>
         </section>
-        <footer v-if="!requests || requests.length == 0" class="box p-3 text center">
+        <footer v-if="!requests || requests.length == 0" class="box empty-state">
             <p>There aren't any moderation requests.</p>
         </footer>
     </article>

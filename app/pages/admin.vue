@@ -35,23 +35,13 @@ const tabs = ref<TabItem[]>([
 </script>
 
 <template>
-    <article class="admin column inline">
+    <article class="admin column inline tabbed-shell">
         <PagedTabstrip :tabs="tabs" />
-        <section class="page column inline">
+        <section class="page column inline tabbed-content">
             <NuxtPage :key="route.path" />
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article.admin {
-    width: stretch;
-    overflow-y: hidden;
-}
-
-section.page {
-    width: stretch;
-    height: stretch;
-    overflow-y: auto;
-}
 </style>

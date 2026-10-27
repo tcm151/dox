@@ -44,7 +44,7 @@ function loadMore() {
 </script>
 
 <template>
-    <article class="p-4">
+    <article class="content-width p-4">
         <header class="row end g-2 mb-2">
             <ButtonSpinner class="dark f-1" :loading="pending" @click="refresh">
                 <i class="fa-solid fa-refresh"></i>
@@ -60,8 +60,8 @@ function loadMore() {
         </header>
         <section v-if="result && result.total > 0" class="column g-2">
             <TransitionGroup name="notifications">
-                <div class="notification box p-4" v-for="notification in result.notifications" :key="notification.id">
-                    <Markdown class="message column" :content="notification.message" />
+                <div class="box p-4" v-for="notification in result.notifications" :key="notification.id">
+                    <Markdown class="column" :content="notification.message" />
                     <div class="row g-1 mt-3">
                         <DurationTag :time="notification.time" />
                         <Tag type="link" icon="fa-eye" label="Context" @click="viewContext(notification)" />
@@ -78,17 +78,13 @@ function loadMore() {
                 </button>
             </template>
         </section>
-        <section class="column center box p-4" v-else>
+        <section class="box empty-state stacked" v-else>
             <p>You have no unread notifications.</p>
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width (60rem, 1rem);
-}
-
 .notifications-move {
     transition: transform var(--motion-duration-standard) var(--motion-easing-standard);
 }

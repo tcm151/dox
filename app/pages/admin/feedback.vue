@@ -17,7 +17,7 @@ async function dismissFeedback(feedback: Feedback) {
 </script>
 
 <template>
-    <article class="column g-2 p-4">
+    <article class="content-width column g-2 p-4">
         <header class="row g-2">
             <button class="link f-1" @click="refresh()">
                 <i class="fa-solid fa-rotate"></i>
@@ -37,20 +37,16 @@ async function dismissFeedback(feedback: Feedback) {
                 </div>
             </div>
         </section>
-        <section v-else class="empty box p-3 text center">
+        <section v-else class="box empty-state">
             <p>There is currently no feedback.</p>
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-
 section.feedback {
     p {
-        font-weight: 600;
+        font-weight: var(--fw-bold);
     }
 
     div.tags {

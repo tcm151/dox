@@ -8,8 +8,8 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="post box background animate" :class="{'pinned': pinned }">
-        <div v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
+    <div class="post clickable box background animate hover-shadow" :class="{'pinned': pinned }">
+        <div v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2 py-1 px-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p class="text truncate bold">{{ post.replyTo.title }}</p>
         </div>
@@ -43,14 +43,6 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="scss">
-.post:hover {
-    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-}
-
-.post {
-    cursor: pointer;
-}
-
 .post:has(.reply-to:hover)  {
     background-color: $white-4;
 }
@@ -85,7 +77,6 @@ img {
 }
 
 .reply-to {
-    padding: 0.25rem 0.5rem 0.25rem 0.5rem;
     color: $white-0;
     
     p {

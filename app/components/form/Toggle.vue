@@ -89,6 +89,6 @@ div.row.disabled {
 }
 
 span.label {
-    font-weight: 600;
+    font-weight: var(--fw-bold);
 }
 </style>

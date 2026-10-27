@@ -58,7 +58,7 @@ function sortFeed(type: string) {
                 <div v-for="item in props.items.data.value" :key="item.id" class="feed-item">
                     <slot name="item" v-bind="(item as T)" />
                 </div>
-                <div v-if="!props.items.data.value?.length" key="empty" class="column center box p-4">
+                <div v-if="!props.items.data.value?.length" key="empty" class="box empty-state stacked">
                     There is nothing here currently.
                 </div>
             </TransitionGroup>

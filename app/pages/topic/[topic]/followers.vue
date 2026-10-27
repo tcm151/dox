@@ -9,7 +9,7 @@ const { data: followers } = await useDatasource<User[]>(`/api/topic/${id}/follow
 </script>
 
 <template>
-    <article class="p-4">
+    <article class="content-width p-4">
         <template v-if="topic">
             <TopicPreview :topic="topic" />
         </template>
@@ -22,14 +22,8 @@ const { data: followers } = await useDatasource<User[]>(`/api/topic/${id}/follow
                 </div>
             </template>
         </section>
-        <footer v-else class="box p-3 text center">
+        <footer v-else class="box empty-state">
             <p>This doesn't have any followers.</p>
         </footer>
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-</style>

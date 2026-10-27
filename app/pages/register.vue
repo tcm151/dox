@@ -77,7 +77,7 @@ function differentPasswords() {
         <div v-if="referrer" class="text center">
             <p>Referral: {{ referrer }}</p>
         </div>
-        <div class="register box br-medium p-5">
+        <div class="box br-medium p-5">
             <h1 class="mb-4">Register</h1>
             <div class="form">
                 <div class="field" :class="{ invalid: invalidEmail() }">

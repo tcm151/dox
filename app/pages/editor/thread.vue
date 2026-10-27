@@ -88,7 +88,7 @@ async function submit() {
         <template #preview>
             <Markdown class="content" :content="newThread.content" />
             <aside v-if="images.uploaded.length > 0" class="preview-images row wrap g-2 mt-3">
-                <img v-for="image in images.uploaded" :src="image.url">
+                <img v-for="image in images.uploaded" class="br-small border-subtle" :src="image.url">
             </aside>
         </template>
         <template #footer-actions>
@@ -109,8 +109,6 @@ aside.preview-images {
         max-height: 12rem;
         max-width: 100%;
         object-fit: contain;
-        border-radius: 0.25rem;
-        border: 1px solid $white-2;
         background-color: $white-1;
     }
 }

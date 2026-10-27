@@ -109,11 +109,11 @@ const tabTitles = computed(() => {
             <section v-if="tab == 'Results'" class="results column">
                 <header v-if="results.length > 0" class="tabs row" ref="result-tabs">
                     <template v-for="(label, index) in tabTitles">
-                        <div class="result px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
+                        <div class="result clickable px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
                             {{ label }}
                         </div>
                     </template>
-                    <div class="clear px-4 py-2" @click="results = []">
+                    <div class="clear clickable px-4 py-2" @click="results = []">
                         <i class="fa-solid fa-eraser"></i>
                     </div>
                 </header>
@@ -153,29 +153,30 @@ article {
         overflow: hidden;
     }
     
-    @media (max-width: 1200px) {
-        @include flex-v;
-    }
-
     div.left { flex: 5 1 }
     div.right { flex: 5 1 }
-
-    @media (max-width: 1200px) {
-        div.left { flex: 1 1 }
-        div.right { flex: 10 1 }
-    }
 }
 
 section.editor {
     textarea {
         resize: none;
-        font-weight: 500;
+        font-weight: var(--fw-normal);
         font-family: "Source Code Pro", monospace;
         
-        @media (max-width: 1200px) {
-            flex: none;
-            resize: vertical;
-        }
+    }
+}
+
+@media (max-width: 1200px) {
+    article {
+        @include flex-v;
+
+        div.left { flex: 1 1 }
+        div.right { flex: 10 1 }
+    }
+
+    section.editor textarea {
+        flex: none;
+        resize: vertical;
     }
 }
 
@@ -215,8 +216,7 @@ section.results {
         }
 
         div.result {
-            cursor: pointer;
-            font-weight: 500;
+            font-weight: var(--fw-normal);
             font-family: "Source Code Pro", monospace;
             white-space: nowrap;
             border-right: 1px solid $white-1;
@@ -232,7 +232,6 @@ section.results {
         }
 
         div.clear {
-            cursor: pointer;
             background-color: $white-2;
             border-radius: 0 0.25rem 0 0;
         }

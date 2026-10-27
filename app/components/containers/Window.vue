@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </header>
-            <section class="window-slot column p-4">
+            <section class="window-slot border-subtle column p-4">
                 <slot />
             </section>
         </main>
@@ -94,7 +94,6 @@ header.title-bar {
         place-items: center;
         color: $white-0;
         background-color: transparent;
-        cursor: pointer;
 
         i {
             font-size: 1.5rem;
@@ -110,7 +109,6 @@ header.title-bar {
 
 section.window-slot {
     border-radius: 0 0 0.5rem 0.5rem;
-    border: 1px solid $white-2;
     background-color: $white-0;
     overflow-y: auto;
 }

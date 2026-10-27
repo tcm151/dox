@@ -55,7 +55,7 @@ async function redeemReferral() {
 </script>
 
 <template>
-    <article class="grid center g-2 py-4">
+    <article class="content-width grid center g-2 py-4">
         <!-- <section class="mb-4">
             <div class="box banner">
                 <h2>This could be your ad.</h2>
@@ -63,7 +63,7 @@ async function redeemReferral() {
             </div>
         </section> -->
         <section class="box row wrap g-4 p-5">
-            <div class="offer box f-1 p-5" v-for="offer in offers" @click="hints.addMessage('We are still working on this...')">
+            <div class="offer clickable box warning f-1 p-5" v-for="offer in offers" @click="hints.addMessage('We are still working on this...')">
                 <h2 class="tokens row g-2">
                     <span>{{ offer.tokens.toLocaleString() }}</span>
                     <i class="fa-solid fa-cube"></i>
@@ -111,25 +111,15 @@ async function redeemReferral() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(60rem, 1rem);
 }
 
 div.offer {
     text-align: right;
-    color: $yellow;
-    // border: 2px solid $yellow;
-    background-color: $yellow-light;
-    cursor: pointer;
 
     .tokens {
         justify-content: flex-end;
         align-items: center;
     }
-}
-
-div.offer:hover {
-    color: $yellow-light;
-    background-color: $yellow;
 }
 
 div.welcome {

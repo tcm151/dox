@@ -80,7 +80,7 @@ function useTopic(topic: string | undefined) {
             />
             <aside v-if="matchingResults.length > 0">
                 <template v-for="topic in matchingResults.slice(0, 10)">
-                    <div class="match px-3 py-2" tabindex="0"
+                    <div class="match clickable px-3 py-2" tabindex="0"
                         @mousedown.prevent="useTopic(extractId(topic.id))"
                         @keyup.enter.prevent="useTopic(extractId(topic.id))"
                         
@@ -118,11 +118,10 @@ aside {
 
     .match {
         font-size: 0.8rem;
-        font-weight: 500;
+        font-weight: var(--fw-normal);
     }
     
     .match:hover {
-        cursor: pointer;
         background-color: $white-2;
     }
 }

@@ -36,7 +36,7 @@ function getMediaUrl(image: File) {
         <template v-for="item in media">
             <div v-if="selectedItem == item" class="media row g-4">
                 <section v-if="item.type.startsWith('image/')" class="f-1 b-0">
-                    <figure class="image">
+                    <figure class="image br-small border-subtle">
                         <img :src="getMediaUrl(item)" alt="">
                     </figure>
                 </section>
@@ -77,9 +77,6 @@ div.media {
 }
 
 figure {
-    border-radius: 0.25rem;
-    border: 1px solid $white-2;
-    
     img {
         max-height: 60vh;
         object-fit: contain;

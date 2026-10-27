@@ -25,7 +25,7 @@ async function replayMigration() {
 </script>
 
 <template>
-    <article class="p-4">
+    <article class="content-width p-4">
         <section class="box column g-2 p-4">
             <header class="row wrap g-2">
                 <button class="danger f-1" @click="syncDatabase">
@@ -45,9 +45,3 @@ async function replayMigration() {
         </section>
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-</style>

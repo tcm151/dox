@@ -86,7 +86,7 @@ async function submit() {
         </template>
         <template #preview>
             <h1 class="mb-3">{{ question }}</h1>
-            <div class="poll-preview column g-2">
+            <div class="column g-2">
                 <label v-for="response in filledResponses()" class="row inline g-2">
                     <input v-if="responseType === 'radio'" type="radio" disabled>
                     <input v-else-if="responseType === 'checkbox'" type="checkbox" disabled>

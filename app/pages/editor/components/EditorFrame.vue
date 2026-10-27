@@ -17,16 +17,16 @@ function togglePreview() {
 </script>
 
 <template>
-    <article class="column p-4">
-        <div class="container box column g-3 p-5">
+    <article class="content-width column p-4">
+        <div class="box column g-3 p-5">
             <div class="editor-stage">
                 <Transition name="editor-mode">
-                    <section class="editor form column" v-show="!preview" :inert="preview" :aria-hidden="preview">
+                    <section class="editor form" v-show="!preview" :inert="preview" :aria-hidden="preview">
                         <header class="row inline between g-4">
                             <h1>{{ title }}</h1>
                             <slot name="header-actions" />
                         </header>
-                        <aside v-if="unavailable" class="unavailable row inline g-2 p-3">
+                        <aside v-if="unavailable" class="unavailable br-small row inline g-2 p-3">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                             <span>Publishing is not available yet. This editor is preview-only.</span>
                         </aside>
@@ -59,7 +59,6 @@ function togglePreview() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width (60rem, 1rem);
     flex: 1 1 auto;
     min-height: 0;
     box-sizing: border-box;
@@ -98,13 +97,6 @@ footer.row {
     flex: 0 0 auto;
 }
 
-aside.unavailable {
-    color: $yellow-dark;
-    border: 1px solid $yellow;
-    border-radius: 0.25rem;
-    background-color: $yellow-light;
-}
-
 section.preview {
     position: relative;
     min-height: 0;
@@ -124,7 +116,7 @@ section.preview {
         left: 50%;
         position: absolute;
         font-size: 5rem;
-        font-weight: 900;
+        font-weight: var(--fw-heavy);
         opacity: 0.05;
         color: $purple;
         text-align: center;

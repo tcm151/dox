@@ -55,7 +55,7 @@ async function reportImage() {
             </header>
             <Markdown v-if="image.description" class="content mb-3" :content="image.description" />
             <figure class="image">
-                <img :src="image.url">
+                <img class="br-small" :src="image.url">
             </figure>
         </section>
     </article>
@@ -70,7 +70,6 @@ figure {
     img {
         height: 100%;
         max-height: calc(100vh - 40px - 6rem);
-        border-radius: 0.25rem;
         object-fit: contain;
     }
 }

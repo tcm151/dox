@@ -21,7 +21,7 @@ const props = defineProps<{
                 </div>
             </header>
             <div class="image">
-                <img :src="image.url">
+                <img class="br-small" :src="image.url">
             </div>
         </div>
     </main>
@@ -32,7 +32,6 @@ div.image {
     img {
         width: stretch;
         max-height: 80vh;
-        border-radius: 0.25rem;
         object-fit: cover;
     }
 }

@@ -83,8 +83,8 @@ function deleteGallery() {
                 <TopicTag v-for="topic in gallery.topics" :key="topic" :topic="topic" />
             </div>
             <Markdown v-if="gallery.description" class="content mb-3" :content="gallery.description" />
-            <div class="gallery-images">
-                <img v-for="image in gallery.images" :key="image.id" :src="image.url">
+            <div class="gallery-images g-3">
+                <img v-for="image in gallery.images" :key="image.id" class="br-small" :src="image.url">
             </div>
         </section>
     </article>
@@ -98,12 +98,9 @@ article {
 .gallery-images {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
-    gap: 0.75rem;
-
     img {
         width: 100%;
         aspect-ratio: 4 / 3;
-        border-radius: 0.25rem;
         background-color: $white-1;
         object-fit: contain;
     }

@@ -87,7 +87,7 @@ async function invalidateSessions() {
                 <label class="f-1">hint duration (ms)</label>
                 <input type="number" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration">
             </div>
-            <div class="row g-2">
+            <div class="row g-2 mt-2">
                 <ButtonSpinner class="success f-2" :loading="userSettings.saving" :disabled="userSettings.loading || !userSettings.loaded" @click="savePreferences">
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Save</span>

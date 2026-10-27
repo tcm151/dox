@@ -5,15 +5,9 @@ const summary = computed(() => settings.app.about.summary.trim() || defaultSumma
 </script>
 
 <template>
-    <article class="m-4">
+    <article class="content-width m-4">
         <section class="box px-5 py-3">
             <Markdown class="content" :content="summary" />
         </section>
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width (60rem, 1rem);
-}
-</style>

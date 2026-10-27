@@ -21,11 +21,11 @@ function toggleChildren(id: string) {
 </script>
 
 <template>
-    <main v-if="children.length > 0" class="tree">
+    <main v-if="children.length > 0">
         <template v-for="item in children" :key="item.id">
             <div class="outside row" :class="{ 'collapsed': hiddenChildren.includes(item.id) }">
-                <aside class="indent-line mb-1 mr-4" @click="toggleChildren(item.id)" />
-                <div class="item f-1">
+                <aside class="indent-line clickable br-small mb-1 mr-4" @click="toggleChildren(item.id)" />
+                <div class="f-1">
                     <slot name="item" :item="item" />
                     <CollapseTransition>
                         <Tree v-if="!hiddenChildren.includes(item.id)" class="ml-2" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
@@ -42,9 +42,7 @@ function toggleChildren(id: string) {
 
 <style scoped lang="scss">
 .indent-line {
-    border-radius: 0.25rem;
     background-color: $white-1;
-    cursor: pointer;
     flex: 0 0 8px;
 }
 

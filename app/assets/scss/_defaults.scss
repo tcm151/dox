@@ -2,14 +2,37 @@
 @use "mixins" as *;
 
 //> DEFAULT STYLING
+:root {
+    --fw-thin: 400;
+    --fw-normal: 500;
+    --fw-bold: 600;
+    --fw-heavy: 800;
+}
+
 html {
     overflow: hidden;
     font-size: 12pt;
-    font-weight: 500;
+    font-weight: var(--fw-normal);
     font-family: "Montserrat", sans-serif;
     text-size-adjust: 100%;
     background-color: $white-1;
     color: $black-0;
+}
+
+.fw-thin {
+    font-weight: var(--fw-thin);
+}
+
+.fw-normal {
+    font-weight: var(--fw-normal);
+}
+
+.fw-bold {
+    font-weight: var(--fw-bold);
+}
+
+.fw-heavy {
+    font-weight: var(--fw-heavy);
 }
 
 body, figure {
@@ -30,7 +53,7 @@ button {
 
     font-size: 1rem;
     font-family: inherit;
-    font-weight: 700;
+    font-weight: var(--fw-bold);
 
     background-color: $white-2;
     transition:
@@ -112,14 +135,14 @@ hr {
     label {
         margin-bottom: 0.5rem;
         font-size: 0.95rem;
-        font-weight: 600;
+        font-weight: var(--fw-bold);
     }
 
     input, textarea, select {
         padding: 0.5rem 0.75rem;
         font-size: 1rem;
         font-family: inherit;
-        font-weight: 500;
+        font-weight: var(--fw-normal);
         background-color: $white-1;
         outline: none;
         border: 2px solid transparent;
@@ -163,9 +186,8 @@ hr {
     span.tip {
         margin-top: 0.25rem;
         font-size: 0.8rem;
-        font-weight: 600;
         color: $white-4;
-        font-weight: 500;
+        font-weight: var(--fw-normal);
         // font-style: italic;
     }
 }
@@ -192,7 +214,7 @@ hr {
 
 code {
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: var(--fw-normal);
     font-family: 'Source Code Pro', monospace;
     border-radius: 0.5rem;
     background-color: $white-1;
@@ -226,14 +248,14 @@ a:has(i, span), button:has(i, span) {
 
 h1 {
     font-size: 2rem;
-    font-weight: 800;
+    font-weight: var(--fw-heavy);
     letter-spacing: -1px;
     word-spacing: -2px;
 }
 
 h2 {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: var(--fw-bold);
     letter-spacing: -0.5px;
     word-spacing: -1.5px;
 }
@@ -246,7 +268,7 @@ h3 {
 
 h4, h5, h6, p {
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: var(--fw-normal);
 }
 
 :not(.content) > {
@@ -294,7 +316,7 @@ pre {
 
     a {
         color: $blue;
-        font-weight: 600;
+        font-weight: var(--fw-bold);
         text-decoration: underline;
     }
     

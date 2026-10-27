@@ -277,7 +277,7 @@ div.markdown-editor {
 
         span {
             font-size: 0.75rem;
-            font-weight: 800;
+            font-weight: var(--fw-heavy);
             line-height: 1rem;
         }
     }

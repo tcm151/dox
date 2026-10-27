@@ -68,7 +68,7 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                 </aside>
             </div>
         </template>
-        <section v-else class="box p-3 text center">
+        <section v-else class="box empty-state">
             <p>This topic hasn't been used yet.</p>
         </section>
     </article>

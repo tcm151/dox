@@ -15,7 +15,7 @@ const { data: topics } = await useDatasource<Topic[]>(`/api/moderator/topics`)
                 <Tag type="danger" icon="fa-flag" @click="navigateTo(`/topic/${extractId(topic.id)}/reports`)" />
             </div>
         </section>
-        <footer v-else class="box p-3 text center">
+        <footer v-else class="box empty-state">
             <p>You aren't moderating any topics.</p>
         </footer>
     </article>

@@ -17,7 +17,7 @@ defineProps<{
     <aside v-if="button || images.uploaded.length > 0" class="field uploaded-images">
         <div class="row g-2" :class="size">
             <template v-for="image in images.uploaded">
-                <img :src="image.url" @click="images.copy" @contextmenu.prevent="images.remove(image)">
+                <img class="clickable" :src="image.url" @click="images.copy" @contextmenu.prevent="images.remove(image)">
             </template>
             <button v-if="button" class="square" @click="images.select">
                 <i class="fa-solid fa-images"></i> Browse
@@ -46,7 +46,6 @@ defineProps<{
     }
 
     img:hover {
-        cursor: pointer;
         border: 2px solid $blue;
     }
 

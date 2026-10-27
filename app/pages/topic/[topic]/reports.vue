@@ -20,17 +20,10 @@ const { data: reports, refresh } = await useDatasource<Report[]>(`/api/topic/${i
 </script>
     
 <template>
-    <article class="p-4">
+    <article class="content-width p-4">
         <template v-if="topic">
             <TopicPreview :topic="topic" />
         </template>
         <ReportQueue v-if="reports" class="mt-2" :reports="reports" :refresh="refresh" :topic="id" />
     </article>
 </template>
-
-<style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-
-</style>

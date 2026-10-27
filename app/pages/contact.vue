@@ -12,16 +12,16 @@ const additionalEmails = computed(() => {
             <div>
                 <h1>Contact</h1>
                 <ul class="content">
-                    <li v-if="settings.app.email.support != ''">
+                    <li v-if="settings.app.email.support != ''" class="mb-2">
                         <a :href="`mailto:${settings.app.email.support}`">
                             {{ settings.app.email.support }}
                         </a>
                     </li>
-                    <li v-else>
+                    <li v-else class="mb-2">
                         No contact emails have been configured yet.
                     </li>
                     <template v-for="email in additionalEmails">
-                        <li>
+                        <li class="mb-2">
                             <a :href="`mailto:${email}`">
                                 {{ email }}
                             </a>
@@ -45,9 +45,5 @@ article.column {
 
 ul {
     margin-left: -1rem;
-
-    li {
-        margin-bottom: 0.5rem;
-    }
 }
 </style>

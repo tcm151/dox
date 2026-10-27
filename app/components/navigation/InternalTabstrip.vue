@@ -20,7 +20,7 @@ const emit = defineEmits<{
                 @click="emit('switch', tab.label)"
                 :key="tab.label"
             >
-                <i v-if="tab.icon" :class="`fa solid ${tab.icon}`"></i>
+                <i v-if="tab.icon" :class="`fa-solid ${tab.icon}`"></i>
                 <span>{{ tab.label }}</span>
             </button>
         </TransitionGroup>

@@ -121,7 +121,7 @@ function awardUser() {
     <main class="box column g-3 p-5">
         <section class="row g-2">
             <figure class="image is-64x64">
-                <img src="https://bulma.io/assets/images/placeholders/64x64.png">
+                <img class="br-small" src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
             <div class="name-follow row inline between f-1 g-4">
                 <div>
@@ -156,21 +156,21 @@ function awardUser() {
         </section>
         <section class="row wrap g-1">
             <Votes :target="user" />
-            <Tag class="f-1" type="info" icon="fa-crown" :label="awardCount.toString()" />
-            <Tag class="f-1" type="info" icon="fa-box-archive" :label="saveCount.toString()" />
-            <Tag class="f-1" type="link">
+            <Tag class="f-1 fw-normal" type="info" icon="fa-crown" :label="awardCount.toString()" />
+            <Tag class="f-1 fw-normal" type="info" icon="fa-box-archive" :label="saveCount.toString()" />
+            <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ user.visits }}</strong> visits
             </Tag>
-            <Tag class="f-1" type="link" @click="navigateTo(`/user/${extractId(user.id)}/topics`)">
+            <Tag class="f-1 fw-normal" type="link" @click="navigateTo(`/user/${extractId(user.id)}/topics`)">
                 <strong>{{ user.topics.length }}</strong> topics
             </Tag>
-            <Tag class="f-1" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
+            <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
                 <strong>{{ user.followers.length }}</strong> followers
             </Tag>
-            <Tag class="f-1" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
+            <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
                 <strong>{{ user.following.length }}</strong> following
             </Tag>
-            <Tag class="f-1" type="info">
+            <Tag class="f-1 fw-normal" type="info">
                 joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong> ago
             </Tag>
         </section>
@@ -186,7 +186,7 @@ function awardUser() {
 
     a {
         color: $purple;
-        font-weight: 600;
+        font-weight: var(--fw-bold);
     }
 
     a:hover {
@@ -206,13 +206,4 @@ div.buttons {
     }
 }
 
-.image {
-    img {
-        border-radius: 0.25rem;
-    }
-}
-
-.tag.info, .tag.link {
-    font-weight: 500;
-}
 </style>

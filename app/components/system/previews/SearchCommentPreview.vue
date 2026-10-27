@@ -6,7 +6,7 @@ const postUrl = computed(() => `/post/${extractId(props.comment.post.id)}#${enco
 </script>
 
 <template>
-    <div class="search-comment box background animate">
+    <div class="search-comment clickable box background animate hover-shadow">
         <div class="main box column px-3 pt-3" @click="navigateTo(postUrl)">
             <div class="row wrap g-1">
                 <Votes :target="comment" />
@@ -32,11 +32,6 @@ const postUrl = computed(() => `/post/${extractId(props.comment.post.id)}#${enco
 <style scoped lang="scss">
 .search-comment .main {
     overflow: hidden;
-}
-
-.search-comment:hover {
-    cursor: pointer;
-    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
 }
 
 </style>

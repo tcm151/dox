@@ -141,7 +141,7 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article v-if="thread" class="column p-4">
+    <article v-if="thread" class="content-width column p-4">
         <section v-if="thread.replyTo" class="mb-2">
             <ThreadReply :thread="thread.replyTo" />
         </section>
@@ -166,9 +166,9 @@ function toggleOptions() {
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
                 <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
-                    <img v-for="image in thread.images" :src="image.url">
+                    <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
                 </aside>
-                <aside v-if="thread.quote" class="quote br-medium mb-3 px-3 pt-3">
+                <aside v-if="thread.quote" class="br-medium border-subtle mb-3 px-3 pt-3">
                     <div class="row wrap g-1">
                         <Votes :target="thread.quote" />
                         <UserTag :user="thread.quote.user" />
@@ -259,7 +259,7 @@ function toggleOptions() {
             </template>
         </section>
     </article>
-    <article v-else class="column p-4">
+    <article v-else class="content-width column p-4">
         <footer class="box text center p-4">
             There is nothing here.
         </footer>
@@ -267,25 +267,11 @@ function toggleOptions() {
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-
-section.reply-to:hover {
-    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-}
-
-aside.quote {
-    border: 1px solid $white-2;
-}
-
 aside.thread-images {
     img {
         max-width: 100%;
         max-height: 20rem;
         object-fit: contain;
-        border-radius: 0.25rem;
-        border: 1px solid $white-2;
         background-color: $white-1;
     }
 }

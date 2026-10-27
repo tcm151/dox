@@ -33,10 +33,10 @@ function getColor(hint: Hint) {
 </script>
 
 <template>
-    <aside class="background">
+    <aside class="background g-2">
         <TransitionGroup name="hints">
         <template v-for="hint in hints.items" :key="hint.number">
-            <div class="hint text bold break px-4 py-2" :class="getColor(hint)">
+            <div class="hint row inline g-3 text bold break br-small px-4 py-2" :class="getColor(hint)">
                 <NuxtLink
                     v-if="canViewError(hint)"
                     class="hint-message"
@@ -47,7 +47,7 @@ function getColor(hint: Hint) {
                 <span v-else class="hint-message">{{ hint.message }}</span>
                 <button
                     v-if="hint.type === 'error'"
-                    class="hint-dismiss"
+                    class="hint-dismiss p-1"
                     type="button"
                     title="Dismiss error"
                     :aria-label="`Dismiss error: ${hint.message}`"
@@ -74,28 +74,23 @@ aside.background {
         top: 0;
         display: flex;
         flex-direction: column-reverse;
-        gap: 0.5rem;
         margin-top: 10rem;
     }
     
     @media only screen and (min-aspect-ratio: 1/1) {
         bottom: 0;
-        @include flex-v (0.5rem);
+        @include flex-v;
         margin-bottom: 10rem;
     }
 }
 
 
 .hint {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     pointer-events: all;
     position: relative;
     width: fit-content;
     max-width: 60rem;
     
-    border-radius: 0.25rem;
     box-shadow: 0.25rem 0.25rem 1rem -0.25rem $white-3,
                 0 0 0.33rem 1px $white-3;
 }
@@ -109,17 +104,11 @@ aside.background {
     flex: 1;
 }
 
-a.hint-message {
-    cursor: pointer;
-}
-
 button.hint-dismiss {
     flex: none;
     border: 0;
-    padding: 0.25rem;
     color: inherit;
     background: transparent;
-    cursor: pointer;
 }
 
 .hints-move, .hints-enter-active, .hints-leave-active {

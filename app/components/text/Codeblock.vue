@@ -14,13 +14,12 @@ const markdown = computed(() => {
 </script>
 
 <template>
-    <div class="codeblock p-4" v-html="renderMarkdown(markdown)"></div>
+    <div class="codeblock br-small p-4" v-html="renderMarkdown(markdown)"></div>
 </template>
 
 <style scoped lang="scss">
     div.codeblock {
         background-color: $white-1;
-        border-radius: 0.25rem;
         overflow-x: auto;
     }
     

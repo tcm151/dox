@@ -63,7 +63,7 @@ async function submit() {
         </template>
         <template #preview>
             <h1 class="mb-2">{{ title }}</h1>
-            <a v-if="validUrl()" class="link-preview row inline g-2 mb-3" :href="url" target="_blank" rel="noopener noreferrer">
+            <a v-if="validUrl()" class="link-preview mb-3" :href="url" target="_blank" rel="noopener noreferrer">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 <span class="text truncate">{{ url }}</span>
             </a>
@@ -76,7 +76,7 @@ async function submit() {
 a.link-preview {
     min-width: 0;
     color: $blue;
-    font-weight: 700;
+    font-weight: var(--fw-bold);
     text-decoration: none;
 }
 </style>

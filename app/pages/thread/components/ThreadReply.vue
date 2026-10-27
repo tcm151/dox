@@ -9,8 +9,8 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="thread box row">
-        <aside class="indent-line ml-4 my-4" />
+    <div class="thread box row hover-shadow">
+        <aside class="indent-line br-small ml-4 my-4" />
         <div class="main column f-1 px-4 pt-4">
             <section>
                 <div class="row wrap g-1">
@@ -49,9 +49,7 @@ const props = defineProps<{
 
 .thread {
     .indent-line {
-        border-radius: 0.25rem;
         background-color: $white-1;
-        cursor: pointer;
         flex: 0 0 8px;
     }
 
@@ -64,7 +62,4 @@ const props = defineProps<{
     }
 }
 
-.thread:hover {
-     @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-}
 </style>

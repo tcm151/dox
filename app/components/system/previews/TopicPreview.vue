@@ -35,13 +35,13 @@ let showFollow = computed(() => {
 </script>
 
 <template>
-    <main class="box column g-3 p-5">
+    <main class="box column g-3 p-5 hover-shadow">
         <section class="row g-2">
             <figure class="image is-64x64">
-                <img src="https://bulma.io/assets/images/placeholders/64x64.png">
+                <img class="br-small" src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
             <div class="row inline between f-1 g-4">
-                <h2 @click="navigateTo(`/topic/${extractId(topic.id)}`)">
+                <h2 class="clickable" @click="navigateTo(`/topic/${extractId(topic.id)}`)">
                     {{ extractId(topic.id) }}
                 </h2>
                 <Authenticated>
@@ -58,19 +58,19 @@ let showFollow = computed(() => {
         </section>
         <section class="row wrap g-1">
             <Votes :target="topic" />
-            <Tag class="f-1" type="link">
+            <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ topic.visits }}</strong> visits
             </Tag>
-            <Tag class="f-1" type="link">
+            <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ topic.posts.length }}</strong> posts
             </Tag>
-            <Tag class="f-1" type="link">
+            <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ topic.threads.length }}</strong> threads
             </Tag>
-            <Tag class="f-1" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
+            <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
                 <strong>{{ topic.followers.length }}</strong> followers
             </Tag>
-            <Tag class="f-1" type="info">
+            <Tag class="f-1 fw-normal" type="info">
                 first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
             </Tag>
         </section>
@@ -81,27 +81,10 @@ let showFollow = computed(() => {
 </template>
 
 <style scoped lang="scss">
-div.box:hover {
-    @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-}
-
-h2 {
-    cursor: pointer;
-}
-
 div.follow {
     button {
         width: 6rem;
     }
 }
 
-.image {
-    img {
-        border-radius: 0.25rem;
-    }
-}
-
-.tag.info, .tag.link {
-    font-weight: 500;
-}
 </style>

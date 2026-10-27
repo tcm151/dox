@@ -180,9 +180,9 @@ function toggleOptions() {
 </script>
 
 <template>
-    <article v-if="post" class="column g-2 p-4">
-        <div class="container box background br-medium column">
-            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
+    <article v-if="post" class="content-width column g-2 p-4">
+        <div class="box background br-medium column">
+            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to clickable row inline g-2 py-2 px-3" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p class="text truncate bold">{{ post.replyTo.title }}</p>
             </aside>
@@ -291,7 +291,7 @@ function toggleOptions() {
             @refresh="refreshPost"
         />
     </article>
-    <article v-else class="column p-4">
+    <article v-else class="content-width column p-4">
         <footer class="box text center p-4">
             There is nothing here.
         </footer>
@@ -299,14 +299,8 @@ function toggleOptions() {
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(60rem, 1rem);
-}
-
 aside.reply-to {
-    padding: 0.5rem 0.75rem;
     color: $white-0;
-    cursor: pointer;
 }
 
 aside.reply-to + section.post {

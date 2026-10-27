@@ -56,7 +56,7 @@ function differentPasswords() {
 
 <template>
     <article class="column g-4 p-6">
-        <section class="box form column g-4 p-5">
+        <section class="box form g-4 p-5">
             <h2>Reset Password</h2>
             <div class="field mt-2" :class="{ invalid: invalidEmail() }">
                 <label>Email</label>
