@@ -14,8 +14,10 @@ const props = defineProps<{
                 <Votes :target="image" />
                 <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="image.user" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="image.visits" />
-                    <DurationTag class="f-1" :time="image.time" />
+                </div>
+                <div class="row wrap g-1">
+                    <Tag class="meta" icon="fa-chart-simple" :label="image.visits" />
+                    <DurationTag class="meta" :time="image.time" />
                 </div>
             </header>
             <div class="image">

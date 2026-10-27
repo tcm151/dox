@@ -7,17 +7,19 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="gallery box background">
+    <div class="gallery box background animate">
         <div class="main box column px-3 pt-3 pb-0" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
             <header class="row wrap g-1 mb-2">
                 <Votes :target="gallery" />
                 <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="gallery.user" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="gallery.visits" />
-                    <DurationTag class="f-1" :time="gallery.time" />
+                    <div v-if="gallery.topics.length > 0" class="row wrap f-1 g-1">
+                        <TopicTag v-for="topic in gallery.topics" :key="topic" :topic="topic" />
+                    </div>
                 </div>
-                <div v-if="gallery.topics.length > 0" class="row wrap f-1 g-1">
-                    <TopicTag v-for="topic in gallery.topics" :key="topic" :topic="topic" />
+                <div class="row wrap g-1">
+                    <Tag class="meta" icon="fa-chart-simple" :label="gallery.visits" />
+                    <DurationTag class="meta" :time="gallery.time" />
                 </div>
             </header>
             <div v-if="gallery.images.length > 0" class="gallery-images" :class="{ single: gallery.images.length === 1 }">

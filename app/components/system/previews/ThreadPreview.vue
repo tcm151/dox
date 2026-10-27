@@ -7,19 +7,21 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="thread box background">
+    <div class="thread box background animate">
         <div class="main box column px-3 pt-3" @click="navigateTo(`/thread/${extractId(thread.id)}`)">
             <div class="row wrap g-1">
                 <Votes :target="thread" />
                 <div class="row wrap f-1 g-1">
                     <UserTag class="f-1" :user="thread.user" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits" />
-                    <Tag class="f-1" type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
-                    <DurationTag class="f-1" :time="thread.time" />
-                    <!-- <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" /> -->
+                    <div v-if="props.thread.topics.length > 0" class="row wrap f-1 g-1">
+                        <TopicTag v-for="topic in thread.topics" :topic="topic" />
+                    </div>
                 </div>
-                <div v-if="props.thread.topics.length > 0" class="row wrap f-1 g-1">
-                    <TopicTag v-for="topic in thread.topics" :topic="topic" />
+                <div class="row wrap g-1">
+                    <Tag class="meta" icon="fa-chart-simple" :label="thread.visits" />
+                    <Tag class="meta" icon="fa-comment" :label="thread.replies.length.toString()" />
+                    <DurationTag class="meta" :time="thread.time" />
+                    <!-- <Tag v-if="thread.timeEdited" class="meta" icon="fa-eraser" :label="formatDate(thread.timeEdited)" /> -->
                 </div>
             </div>
             <Markdown class="content preview" :content="thread.content" />
@@ -31,12 +33,14 @@ const props = defineProps<{
                     <Votes :target="thread.quote" />
                     <div class="row wrap f-1 g-1">
                         <UserTag class="f-1" :user="thread.quote.user" />
-                        <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
-                        <Tag class="f-1" type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
-                        <DurationTag class="f-1" :time="thread.quote.time" />
+                        <div v-if="thread.quote.topics.length > 0" class="row wrap f-1 g-1">
+                            <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
+                        </div>
                     </div>
-                    <div v-if="thread.quote.topics.length > 0" class="row wrap f-1 g-1">
-                        <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
+                    <div class="row wrap g-1">
+                        <Tag class="meta" icon="fa-chart-simple" :label="thread.quote.visits" />
+                        <Tag class="meta" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
+                        <DurationTag class="meta" :time="thread.quote.time" />
                     </div>
                 </div>
                 <Markdown class="content preview" :content="thread.quote.content" />

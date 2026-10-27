@@ -90,11 +90,13 @@
 }
 
 .positive, .success, .misleading, .negative, .danger, .topic, .info {
-    transition: color 256ms, background-color 256ms;
+    transition:
+        color var(--motion-duration-quick) var(--motion-easing-standard),
+        background-color var(--motion-duration-quick) var(--motion-easing-standard);
 }
 
 .voted {
-    animation: voted 256ms ease-in-out;
+    animation: voted var(--motion-duration-quick) ease-in-out;
 }
 
 .box {
@@ -113,16 +115,38 @@
     border-radius: 0.25rem;
 }
 
+.tag.meta {
+    color: $white-0;
+    background-color: $white-3;
+}
+
 .box.background {
     background-color: $white-3;
 }
 
 .animate {
-    transition: transform 128ms;
+    transition:
+        transform var(--motion-duration-fast) var(--motion-easing-standard),
+        box-shadow var(--motion-duration-fast) var(--motion-easing-standard);
 }
 
 .animate:hover {
-    transform: scale(102%, 105%);
+    transform: scale(101%, 101%);
+}
+
+html[data-hover-animations="false"] .animate {
+    transition: none;
+}
+
+html[data-hover-animations="false"] .animate:hover {
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate, .animate:hover {
+        transition: none;
+        transform: none;
+    }
 }
 
 .text.bold {

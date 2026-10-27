@@ -6,21 +6,23 @@ const postUrl = computed(() => `/post/${extractId(props.comment.post.id)}#${enco
 </script>
 
 <template>
-    <div class="search-comment box background">
+    <div class="search-comment box background animate">
         <div class="main box column px-3 pt-3" @click="navigateTo(postUrl)">
             <div class="row wrap g-1">
                 <Votes :target="comment" />
                 <div class="row wrap f-2 g-1">
                     <UserTag class="f-1" :user="comment.user" />
-                    <Tag v-if="comment.edited" class="f-1" type="info">
+                    <Tag class="f-2" type="link" icon="fa-comment" :label="`Comment From: ${comment.post.title}`" />
+                </div>
+                <div class="row wrap g-1">
+                    <Tag v-if="comment.edited" class="meta">
                         <i class="fa-solid fa-stopwatch"></i>
                         {{ formatDate(comment.time) }}
                         <i class="fa-solid fa-eraser"></i>
                         {{ formatDate(comment.timeEdited) }}
                     </Tag>
-                    <DurationTag v-else class="f-1" :time="comment.time" />
+                    <DurationTag v-else class="meta" :time="comment.time" />
                 </div>
-                <Tag class="f-2" type="link" icon="fa-comment" :label="`Comment From: ${comment.post.title}`" />
             </div>
             <Markdown class="content preview" :content="comment.content" />
         </div>

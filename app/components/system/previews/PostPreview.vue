@@ -8,7 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="post box background" :class="{'pinned': pinned }">
+    <div class="post box background animate" :class="{'pinned': pinned }">
         <div v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
             <p class="text truncate bold">{{ post.replyTo.title }}</p>
@@ -19,16 +19,18 @@ const props = defineProps<{
                     <Votes :target="post" />
                     <div class="f-1 row wrap g-1">
                         <UserTag class="f-1" :user="post.user" />
-                        <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits ?? 0" />
-                        <Tag class="f-1" type="info" icon="fa-comment" :label="post.comments.length.toString()" />
-                        <DurationTag class="f-1" :time="post.time" />
+                        <div v-if="props.post.topics.length > 0" class="row wrap f-1 g-1">
+                            <TopicTag v-for="topic in post.topics" :topic="topic" />
+                        </div>
                     </div>
                     <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
                     <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
                     <Tag v-if="post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
                     <Tag v-if="post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
-                    <div v-if="props.post.topics.length > 0" class="f-1 row wrap g-1">
-                        <TopicTag v-for="topic in post.topics" :topic="topic" />
+                    <div class="row wrap g-1">
+                        <Tag class="meta" icon="fa-chart-simple" :label="post.visits ?? 0" />
+                        <Tag class="meta" icon="fa-comment" :label="post.comments.length.toString()" />
+                        <DurationTag class="meta" :time="post.time" />
                     </div>
                 </div>
                 <h3 class="title mt-2">
