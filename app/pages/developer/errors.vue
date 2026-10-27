@@ -81,11 +81,11 @@ function toggle(id: string) {
                     </select>
                 </div>
                 <div class="field row">
-                    <label>Start</label>
+                    <label>Since</label>
                     <input type="date" v-model="start">
                 </div>
                 <div class="field row">
-                    <label>End</label>
+                    <label>Until</label>
                     <input type="date" v-model="end">
                 </div>
                 <form class="field row request-lookup" @submit.prevent="findRequest">

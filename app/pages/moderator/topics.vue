@@ -10,9 +10,9 @@ const { data: topics } = await useDatasource<Topic[]>(`/api/moderator/topics`)
     <article class="column g-2 p-4">
         <section v-if="topics && topics.length > 0" class="box column g-2 p-3">
             <div class="row g-1" v-for="topic in topics">
-                <Votes :target="topic" />
                 <TopicTag :topic="topic.id" />
-                <DurationTag v-if="topic.firstUsed" width="6rem" :time="topic.firstUsed" />
+                <Tag type="default" icon="fa-address-card" @click="navigateTo(`/topic/${extractId(topic.id)}/profile`)" />
+                <Tag type="danger" icon="fa-flag" @click="navigateTo(`/topic/${extractId(topic.id)}/reports`)" />
             </div>
         </section>
         <footer v-else class="box p-3 text center">
