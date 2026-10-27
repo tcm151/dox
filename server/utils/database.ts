@@ -82,6 +82,9 @@ export class DatabaseQuery {
     #connection: Surreal | undefined
     #transaction = false
 
+    /**
+     * @param connection Optional existing connection; defaults to the shared database connection.
+     */
     constructor(connection?: Surreal) {
         this.#connection = connection ?? SurrealInstance
     }
@@ -97,17 +100,28 @@ export class DatabaseQuery {
         return new RecordId(parsed.table, parsed.id)
     }
 
+    /**
+     * Adds SQL to the query in execution order.
+     * @param sql SQL statement or statement block to append.
+     */
     addSql(sql: string) {
         const trimmed = sql.split("\n").map(line => line.trim()).join("\n")
         this.#sql.push(trimmed)
         return this
     }
 
+    /** Wraps the composed SQL in a transaction and retries transaction conflicts. */
     addTransaction() {
         this.#transaction = true
         return this
     }
 
+    /**
+     * Binds a record ID as a SurrealDB record; use for record-valued fields and parameters.
+     * @param key Parameter name referenced by the SQL.
+     * @param record Record ID in `table:id` form.
+     * @param optional When true, invalid record IDs bind as null instead of throwing.
+     */
     addRecord(key: string, record: string, optional: boolean = false) {
         try {
             this.#parameters[key] = this.parseRecord(record)
@@ -121,6 +135,11 @@ export class DatabaseQuery {
         return this
     }
 
+    /**
+     * Binds an array of record IDs as SurrealDB records.
+     * @param key Parameter name referenced by the SQL.
+     * @param records Record IDs in `table:id` form.
+     */
     addRecords(key: string, records: string[]) {
         let results: RecordId[] = []
         for (let record of records) {
@@ -130,11 +149,17 @@ export class DatabaseQuery {
         return this
     }
 
+    /**
+     * Binds a regular value; use addRecord or addRecords for record IDs.
+     * @param key Parameter name referenced by the SQL.
+     * @param value Value to bind.
+     */
     addParameter(key: string, value: any) {
         this.#parameters[key] = value
         return this
     }
 
+    /** Executes the query and returns each statement's rows, normalizing record IDs. */
     async execute<T>(): Promise<T[][]> {
         try {
             const connection = this.#connection ?? await initializeDatabase()
@@ -187,6 +212,7 @@ export class DatabaseQuery {
         }
     }
 
+    /** Returns the first row from the first statement, or throws 404 if no row was returned. */
     async queryOne<T>(): Promise<T> {
         let responses = await this.execute<T>()
         if (responses[0] == undefined || responses[0][0] == undefined) {
@@ -198,6 +224,7 @@ export class DatabaseQuery {
         return responses[0][0]
     }
 
+    /** Returns all rows from the first statement; an empty row set remains an empty array. */
     async queryAll<T>(): Promise<T[]> {
         let responses = await this.execute<T>()
         if (responses[0] == undefined) {
@@ -209,6 +236,7 @@ export class DatabaseQuery {
         return responses[0]
     }
 
+    /** Returns a scalar or structured value returned by the query without unwrapping it as a row. */
     async queryValue<T>(): Promise<T> {
         let responses = await this.execute<T>()
         if (responses[0] == undefined) {
