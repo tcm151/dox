@@ -6,8 +6,8 @@
 - Next: Inventory moderation states and affected-user surfaces
 
 ## Dependencies
-- [0018](backlog/0018-thread-comment-lock-slowmode.md): Locked and slow-mode states must be available to display.
-- [0033](backlog/0033-moderation-appeals-mvp.md): Appeal status and resolution notes must be available to display.
+- [0018](0018-thread-comment-lock-slowmode.md): Locked and slow-mode states must be available to display.
+- [0033](0033-moderation-appeals-mvp.md): Appeal status and resolution notes must be available to display.
 
 ## Goal
 Make relevant moderation outcomes understandable to affected users without exposing private moderator information.

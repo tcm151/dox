@@ -1,7 +1,7 @@
 # Ticket 0061: Account Switch Data Refresh
 
 ## Status
-- State: In Progress
+- State: Paused
 - Priority: Medium
 - Next: Resume browser regression validation after Ticket 0062 provides the shared browser test suite.
 
@@ -35,6 +35,7 @@ Refresh account-dependent views when a user logs in or switches profiles, withou
 - app/pages/inbox.vue
 
 ## Progress Log
+- 2026-10-27: Paused pending the low-priority browser validation suite in Ticket 0062.
 - 2026-10-25: Deferred durable browser regression coverage until the generic browser validation test suite in Ticket 0062 is available.
 - 2026-10-25: Confirmed reactive auth headers refetch mounted data but leave old inbox items visible while pending. `useDatasource` now clears on account identity changes; browser checks confirmed stale items disappear during pending and failed requests, then restore after refresh. Automated browser regression coverage remains.
 - 2026-10-25: Ticket created.
