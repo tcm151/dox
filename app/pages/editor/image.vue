@@ -60,7 +60,9 @@ async function submit() {
             </div>
             <Markdown class="content mt-3" :content="description" />
         </template>
-        <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+        <OverlayTransition>
+            <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+        </OverlayTransition>
     </EditorFrame>
 </template>
 

@@ -57,7 +57,9 @@ label.toggle {
         height: 0.8rem;
         border-radius: 0.5rem;
         background-color: $white-0;
-        transition: all 256ms;
+        transition:
+            background-color var(--motion-duration-quick) var(--motion-easing-standard),
+            transform var(--motion-duration-quick) var(--motion-easing-standard);
     }
 
     input:checked + span.slider {
@@ -69,7 +71,7 @@ label.toggle {
 
 label.toggle:has(input:checked) {
     background-color: $green;
-    transition: all 256ms;
+    transition: background-color var(--motion-duration-quick) var(--motion-easing-standard);
 }
 
 div.row.disabled {

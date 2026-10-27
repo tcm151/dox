@@ -113,10 +113,10 @@ section.right {
 }
 
 .slide-enter-active {
-    animation: slide 256ms ease-out backwards 128ms;
+    animation: slide var(--motion-duration-quick) var(--motion-easing-out) backwards var(--motion-duration-fast);
 }
 
 .slide-leave-active {
-    animation: slide 128ms ease-in reverse;
+    animation: slide var(--motion-duration-fast) var(--motion-easing-in) reverse;
 }
 </style>

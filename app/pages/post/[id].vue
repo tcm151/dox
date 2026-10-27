@@ -187,22 +187,24 @@ function toggleOptions() {
                 <p class="text truncate bold">{{ post.replyTo.title }}</p>
             </aside>
             <section class="post box br-medium p-5">
-                <header class="tags row wrap g-1">
+                <header class="row wrap g-1">
                     <Votes :target="post" />
-                    <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
-                    <UserTag class="f-1" :user="post.user" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
-                    <Tag class="f-1" type="info">
-                        <i class="fa-solid fa-stopwatch"></i>
-                        {{ formatDate(post.time) }}
-                        <template v-if="post.edited">
-                            <i class="fa-solid fa-eraser"></i>
-                            {{ formatDate(post.timeEdited) }}
-                        </template>
-                    </Tag>
-                    <template v-if="post.topics.length > 0" class="row wrap f-1 g-1">
+                    <div class="f-1 row wrap g-1">
+                        <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
+                        <UserTag class="f-1" :user="post.user" />
+                        <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
+                        <Tag class="f-1" type="info">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            {{ formatDate(post.time) }}
+                            <template v-if="post.edited">
+                                <i class="fa-solid fa-eraser"></i>
+                                {{ formatDate(post.timeEdited) }}
+                            </template>
+                        </Tag>
+                    </div>
+                    <div v-if="post.topics.length > 0" class="row wrap f-1 g-1">
                         <TopicTag v-for="topic in post.topics" :topic="topic" />
-                    </template>
+                    </div>
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}
@@ -217,42 +219,44 @@ function toggleOptions() {
                     </div>
                 </ClientOnly>
                 <footer class="column g-2">
-                    <div v-if="!showCommentBox && !editingPost" class="interactions row wrap g-1">
-                        <button class="comment" @click="toggleCommentBox">
-                            <i class="fa-solid fa-comment"></i>
-                            <span>Comment</span>
-                        </button>
-                        <button class="reply" @click="writePostReply">
-                            <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                            <span>Reply</span>
-                        </button>
-                        <button class="share" @click="copyLink">
-                            <i class="fa-solid fa-copy"></i>
-                            <span>Share</span>
-                        </button>
-                        <ClientOnly>
-                            <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
-                                <i class="fa-solid fa-ellipsis"></i>
+                    <div v-if="!editingPost" class="interactions row wrap g-1">
+                            <button class="comment" @click="toggleCommentBox">
+                                <i class="fa-solid fa-comment"></i>
+                                <span>Comment</span>
                             </button>
-                            <ExtraOptions
-                                v-if="showOptions"
-                                :post="post"
-                                @edit="toggleEditPost"
-                                @award="awardPost"
-                                @report="reportPost"
-                                @delete="deletePost"
-                                @archive="archivePost"
-                                @pin="pinPost"
-                                @close="showOptions = false"
-                            />
-                        </ClientOnly>
+                            <button class="reply" @click="writePostReply">
+                                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                                <span>Reply</span>
+                            </button>
+                            <button class="share" @click="copyLink">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Share</span>
+                            </button>
+                            <ClientOnly>
+                                <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
+                                    <i class="fa-solid fa-ellipsis"></i>
+                                </button>
+                                <OverlayTransition>
+                                    <ExtraOptions
+                                        v-if="showOptions"
+                                        :post="post"
+                                        @edit="toggleEditPost"
+                                        @award="awardPost"
+                                        @report="reportPost"
+                                        @delete="deletePost"
+                                        @archive="archivePost"
+                                        @pin="pinPost"
+                                        @close="showOptions = false"
+                                    />
+                                </OverlayTransition>
+                            </ClientOnly>
                     </div>
-                    <div class="row g-1" v-else-if="editingPost">
+                    <div v-else class="row g-1">
                         <ButtonSpinner class="success f-1" :loading="submitting" @click="updatePost(post)">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Save</span>
                         </ButtonSpinner>
-                        <!-- <button class="info f-1" @click="togglePreview">
+                        <!-- <button class="info" @click="togglePreview">
                             <i v-if="!showPreview" class="fa-solid fa-eye"></i>
                             <i v-else class="fa-solid fa-eye-slash"></i>
                             <span>Preview</span>
@@ -262,19 +266,21 @@ function toggleOptions() {
                             <span>Cancel</span>
                         </button>
                     </div>
-                    <div class="field" v-else-if="showCommentBox">
-                        <textarea rows="5" v-model="comment"></textarea>
-                        <div class="row g-2 mt-2">
-                            <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(post, comment)">
-                                <i class="fa-solid fa-comment"></i>
-                                <span>Submit</span>
-                            </ButtonSpinner>
-                            <button class="danger" @click="toggleCommentBox">
-                                <i class="fa-solid fa-ban"></i>
-                                <span>Cancel</span>
-                            </button>
+                    <CollapseTransition>
+                        <div v-if="showCommentBox && !editingPost" class="field">
+                            <textarea rows="5" v-model="comment"></textarea>
+                            <div class="row g-2 mt-2">
+                                <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(post, comment)">
+                                    <i class="fa-solid fa-comment"></i>
+                                    <span>Submit</span>
+                                </ButtonSpinner>
+                                <button class="danger" @click="toggleCommentBox">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span>Cancel</span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </CollapseTransition>
                 </footer>
             </section>
         </div>
@@ -329,10 +335,4 @@ div.interactions {
         }
     }
 }
-
-header.tags {
-    .topic { flex: 10 1 1rem }
-    .info { flex: 1 1 }
-}
-
 </style>

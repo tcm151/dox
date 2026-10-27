@@ -51,7 +51,9 @@ function viewAudio(audio: Audio) {
                     <i class="fa-solid fa-microphone"></i>
                     <span>Upload</span>
                 </button>
-                <MediaUploader v-if="confirmUpload && files" :loading="uploading" :media="files" @accept="beginUpload" @close="reset" />
+                <OverlayTransition>
+                    <MediaUploader v-if="confirmUpload && files" :loading="uploading" :media="files" @accept="beginUpload" @close="reset" />
+                </OverlayTransition>
             </ClientOnly>
         </header>
         <section class="column g-2">

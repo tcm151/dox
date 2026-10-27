@@ -189,64 +189,68 @@ function toggleOptions() {
                 </div>
             </ClientOnly>
             <footer>
-                <div v-if="!thread.deleted && !editingThread && !showReplyBox" class="f-1 row wrap g-1 mb-4">
-                    <button class="f-1" @click="showReplyBox = true">
-                        <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                        <span>Reply</span>
-                    </button>
-                    <button class="f-1" @click="quoteThread()">
-                        <i class="fa-solid fa-quote-left"></i>
-                        <span>Quote</span>
-                    </button>
-                    <button class="f-1" @click="copyLink">
-                        <i class="fa-solid fa-copy"></i>
-                        <span>Share</span>
-                    </button>
-                    <ClientOnly>
-                        <button v-if="session.isAuthenticated" @click="toggleOptions">
-                            <i class="fa-solid fa-ellipsis"></i>
+                <div v-if="!thread.deleted && !editingThread" class="f-1 row wrap g-1 mb-4">
+                        <button class="f-1" @click="showReplyBox = !showReplyBox">
+                            <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                            <span>Reply</span>
                         </button>
-                        <ExtraOptions 
-                            v-if="showOptions"
-                            :thread="thread"
-                            @edit="toggleEditThread"
-                            @award="awardThread"
-                            @report="submitReport(thread.id)"
-                            @delete="deleteThread"
-                            @archive="archiveThread"
-                            @pin="pinThread"
-                            @close="showOptions = false"
-                        />
-                    </ClientOnly>
-                </div>
-                <div v-else-if="editingThread" class="row wrap f-1 g-1 mb-4">
-                    <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Save</span>
-                    </ButtonSpinner>
-                    <!-- <button class="info f-1" @click="togglePreview">
-                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
-                        <i v-else class="fa-solid fa-eye-slash"></i>
-                        <span>Preview</span>
-                    </button> -->
-                    <button class="danger" @click="toggleEditThread">
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
-                </div>
-                <div class="field mb-4" v-else-if="showReplyBox">
-                    <textarea rows="5" v-model="replyText"></textarea>
-                    <div class="row g-2 mt-2">
-                        <ButtonSpinner class="success f-1" :loading="submitting" @click="submitThread">
-                            <i class="fa-solid fa-comment"></i>
-                            <span>Submit</span>
+                        <button class="f-1" @click="quoteThread()">
+                            <i class="fa-solid fa-quote-left"></i>
+                            <span>Quote</span>
+                        </button>
+                        <button class="f-1" @click="copyLink">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Share</span>
+                        </button>
+                        <ClientOnly>
+                            <button v-if="session.isAuthenticated" @click="toggleOptions">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button>
+                            <OverlayTransition>
+                                <ExtraOptions
+                                    v-if="showOptions"
+                                    :thread="thread"
+                                    @edit="toggleEditThread"
+                                    @award="awardThread"
+                                    @report="submitReport(thread.id)"
+                                    @delete="deleteThread"
+                                    @archive="archiveThread"
+                                    @pin="pinThread"
+                                    @close="showOptions = false"
+                                />
+                            </OverlayTransition>
+                        </ClientOnly>
+                    </div>
+                    <div v-else-if="editingThread" key="edit-actions" class="row wrap f-1 g-1 mb-4">
+                        <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>Save</span>
                         </ButtonSpinner>
-                        <button class="danger" @click="showReplyBox = false">
+                        <!-- <button class="info f-1" @click="togglePreview">
+                            <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                            <i v-else class="fa-solid fa-eye-slash"></i>
+                            <span>Preview</span>
+                        </button> -->
+                        <button class="danger" @click="toggleEditThread">
                             <i class="fa-solid fa-ban"></i>
                             <span>Cancel</span>
                         </button>
                     </div>
-                </div>
+                    <CollapseTransition>
+                    <div v-if="showReplyBox && !thread.deleted && !editingThread" class="field mb-4">
+                        <textarea rows="5" v-model="replyText"></textarea>
+                        <div class="row g-2 mt-2">
+                            <ButtonSpinner class="success f-1" :loading="submitting" @click="submitThread">
+                                <i class="fa-solid fa-comment"></i>
+                                <span>Submit</span>
+                            </ButtonSpinner>
+                            <button class="danger" @click="showReplyBox = false">
+                                <i class="fa-solid fa-ban"></i>
+                                <span>Cancel</span>
+                            </button>
+                        </div>
+                    </div>
+                </CollapseTransition>
             </footer>
         </section>
         <section class="column g-2 mt-2">

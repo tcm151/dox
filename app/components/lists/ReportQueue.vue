@@ -99,19 +99,21 @@ async function submitResolution(report: Report) {
                     <Tag v-else-if="report.status === 'resolved'" class="f-1" type="success" label="Resolved" />
                     <Tag v-else class="f-1" type="warning" label="Removed" />
                     <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject(report)" />
-                    <Tag v-if="report.complaints.length > 1" class="f-1" type="info" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
+                    <Tag class="f-1" type="info" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
                 </div>
-                <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="column g-2">
-                    <div v-for="(complaint, index) in report.complaints" :key="index">
-                        <div class="mb-2">
-                                <p>{{ complaint.reason === "NONE" ? "No reason provided." : complaint.reason }}</p>
-                        </div>
-                        <div class="row g-1">
-                            <DurationTag :time="complaint.time" />
-                            <UserTag :user="complaint.reporter" />
+                <CollapseTransition>
+                    <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="column g-2">
+                        <div v-for="(complaint, index) in report.complaints" :key="index">
+                            <div class="mb-2">
+                                    <p>{{ complaint.reason === "NONE" ? "No reason provided." : complaint.reason }}</p>
+                            </div>
+                            <div class="row g-1">
+                                <DurationTag :time="complaint.time" />
+                                <UserTag :user="complaint.reporter" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </CollapseTransition>
                 <p v-if="report.resolution" class="resolution">{{ report.resolution }}</p>
                 <label v-if="isResolving(report)" class="field column g-1 mb-2">
                     <textarea v-model="resolution" placeholder="Provide a resolution decision..." rows="3" />

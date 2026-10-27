@@ -89,8 +89,13 @@ article {
     @include fit-width (60rem, 1rem);
 }
 
-.notifications-move, .notifications-enter-active, .notifications-leave-active {
-    transition: all 256ms ease;
+.notifications-move {
+    transition: transform var(--motion-duration-standard) var(--motion-easing-standard);
+}
+
+.notifications-enter-active,
+.notifications-leave-active {
+    transition: opacity var(--motion-duration-standard) var(--motion-easing-standard);
 }
 
 .notifications-enter-from,

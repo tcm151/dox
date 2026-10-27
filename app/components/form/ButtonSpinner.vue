@@ -8,7 +8,7 @@ const spinning = ref<Boolean>(false)
 
 watch(() => props.loading, (loading) => {
     (!loading)
-        ? setTimeout(() => spinning.value = false, 256)
+        ? setTimeout(() => spinning.value = false, 200)
         : spinning.value = true
 })
 </script>
@@ -23,8 +23,6 @@ watch(() => props.loading, (loading) => {
 <style scoped lang="scss">
 i.fa-spinner {
     color: $red;
-    animation: spin 1s linear infinite;
-    transition: all 128ms;
-
+    animation: spin var(--motion-duration-slow) linear infinite;
 }
 </style>

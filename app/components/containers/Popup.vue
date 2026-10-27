@@ -39,12 +39,11 @@ aside.background {
     width: 100vw;
     height: 100vh;
     z-index: 9999;
-    animation: blur 64ms forwards;
+    backdrop-filter: blur(0.5rem);
 }
 
 main.window {
     box-shadow: 0.25rem 0.5rem 1rem -0.25rem $white-3, 0 0 0.33rem 1px $white-3;
-    animation: fade-in 256ms;
 
     h1 {
         font-size: 1.5rem;
@@ -59,4 +58,5 @@ aside.filler {
     max-height: 100%;
     overflow-y: hidden;
 }
+
 </style>

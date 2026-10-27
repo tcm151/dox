@@ -97,7 +97,9 @@ async function submit() {
                 <span>Upload</span>
             </button>
         </template>
-        <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+        <OverlayTransition>
+            <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+        </OverlayTransition>
     </EditorFrame>
 </template>
 

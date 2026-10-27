@@ -27,11 +27,13 @@ function toggleChildren(id: string) {
                 <aside class="indent-line mb-1 mr-4" @click="toggleChildren(item.id)" />
                 <div class="item f-1">
                     <slot name="item" :item="item" />
-                    <Tree v-if="!hiddenChildren.includes(item.id)" class="ml-2" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
-                        <template #item="slotProps">
-                            <slot name="item" v-bind="slotProps" />
-                        </template>
-                    </Tree>
+                    <CollapseTransition>
+                        <Tree v-if="!hiddenChildren.includes(item.id)" class="ml-2" :items="items" :children="getChildren(item, items)" :get-children="getChildren">
+                            <template #item="slotProps">
+                                <slot name="item" v-bind="slotProps" />
+                            </template>
+                        </Tree>
+                    </CollapseTransition>
                 </div>
             </div>
         </template>
@@ -54,24 +56,4 @@ function toggleChildren(id: string) {
     background-color: $white-2;
 }
 
-:deep(.outside.collapsed) {
-    header {
-        margin-bottom: 1rem;
-    }
-    .markdown {
-        display: none;
-    }
-}
-
-.items-move, .items-enter-active, .items-leave-active {
-    transition: all 512ms ease-in-out;
-}
-
-.items-enter-from, .items-leave-to {
-    opacity: 0;
-}
-
-.items-leave-active {
-    position: absolute;
-}
 </style>

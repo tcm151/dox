@@ -19,21 +19,27 @@ function togglePreview() {
 <template>
     <article class="column p-4">
         <div class="container box column g-3 p-5">
-            <section class="editor form column" v-show="!preview">
-                <header class="row inline between g-4">
-                    <h1>{{ title }}</h1>
-                    <slot name="header-actions" />
-                </header>
-                <aside v-if="unavailable" class="unavailable row inline g-2 p-3">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Publishing is not available yet. This editor is preview-only.</span>
-                </aside>
-                <slot name="form" />
-            </section>
-            <section v-if="$slots.preview" class="preview f-1" v-show="preview">
-                <slot name="preview" />
-                <span class="watermark">Preview</span>
-            </section>
+            <div class="editor-stage">
+                <Transition name="editor-mode">
+                    <section class="editor form column" v-show="!preview" :inert="preview" :aria-hidden="preview">
+                        <header class="row inline between g-4">
+                            <h1>{{ title }}</h1>
+                            <slot name="header-actions" />
+                        </header>
+                        <aside v-if="unavailable" class="unavailable row inline g-2 p-3">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Publishing is not available yet. This editor is preview-only.</span>
+                        </aside>
+                        <slot name="form" />
+                    </section>
+                </Transition>
+                <Transition name="editor-mode">
+                    <section v-if="$slots.preview" class="preview f-1" v-show="preview" :inert="!preview" :aria-hidden="!preview">
+                        <slot name="preview" />
+                        <span class="watermark">Preview</span>
+                    </section>
+                </Transition>
+            </div>
             <footer class="row wrap g-2 mt-3">
                 <ButtonSpinner class="success f-2 b-0" :loading="submitting" :disabled="unavailable" @click="emit('submit')">
                     <i class="fa-solid fa-share"></i>
@@ -64,6 +70,27 @@ section.editor,
 section.form {
     flex: 1 1 auto;
     min-height: 0;
+}
+
+div.editor-stage {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1 1 auto;
+    min-height: 0;
+
+    > section {
+        grid-area: 1 / 1;
+    }
+}
+
+.editor-mode-enter-active,
+.editor-mode-leave-active {
+    transition: opacity var(--motion-duration-standard) var(--motion-easing-standard);
+}
+
+.editor-mode-enter-from,
+.editor-mode-leave-to {
+    opacity: 0;
 }
 
 section.editor > header,
@@ -105,4 +132,5 @@ section.preview {
         transform: translate(-50%, -50%);
     }
 }
+
 </style>

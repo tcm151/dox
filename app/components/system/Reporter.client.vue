@@ -41,15 +41,17 @@ async function submitReport() {
 </script>
 
 <template>
-    <Popup
-        v-if="visible"
-        title="Report Content"
-        width="30rem"
-        :loading="loading"
-        :accept="{ label: 'Submit', action: submitReport }"
-        :decline="{ label: 'Cancel', action: closeReporter }"
-    >
-        <p>This will be sent to the moderators for review.</p>
-        <textarea rows="4" required v-model="reason" />
-    </Popup>
+    <OverlayTransition>
+        <Popup
+            v-if="visible"
+            title="Report Content"
+            width="30rem"
+            :loading="loading"
+            :accept="{ label: 'Submit', action: submitReport }"
+            :decline="{ label: 'Cancel', action: closeReporter }"
+        >
+            <p>This will be sent to the moderators for review.</p>
+            <textarea rows="4" required v-model="reason" />
+        </Popup>
+    </OverlayTransition>
 </template>

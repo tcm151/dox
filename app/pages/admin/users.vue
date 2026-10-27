@@ -62,7 +62,9 @@ function toggleRoleManager(user?: User) {
                 <Tag type="link" icon="fa-ellipsis" @click="toggleRoleManager(user)" />
             </div>
         </section>
-        <RoleManager v-if="showRoleManager && currentUser" :user="currentUser" @close="toggleRoleManager" />
+        <OverlayTransition>
+            <RoleManager v-if="showRoleManager && currentUser" :user="currentUser" @close="toggleRoleManager" />
+        </OverlayTransition>
     </article>
 </template>
 

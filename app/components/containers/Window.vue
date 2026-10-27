@@ -69,12 +69,11 @@ aside.background {
     height: 100vh;
     z-index: 9999;
     overflow: hidden;
-    animation: blur 64ms forwards;
+    backdrop-filter: blur(0.5rem);
 }
 
 main.window {
     width: min-content;
-    animation: fade-in 256ms;
 }
 
 header.title-bar {

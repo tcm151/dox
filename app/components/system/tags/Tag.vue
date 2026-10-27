@@ -19,7 +19,9 @@ const props = defineProps<{
 <style scoped lang="scss">
 .tag.default {
     background-color: $white-2;
-    transition: color 256ms, background-color 256ms;
+    transition:
+        color var(--motion-duration-quick) var(--motion-easing-standard),
+        background-color var(--motion-duration-quick) var(--motion-easing-standard);
     font-weight: 800;
 }
 

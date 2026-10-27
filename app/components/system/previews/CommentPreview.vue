@@ -21,7 +21,7 @@ let commentBox = useTemplateRef("comment-box")
 async function replyToComment() {
     replyTo.value = true
     await nextTick()
-    commentBox.value?.focus()
+    commentBox.value?.focus({ preventScroll: true })
 }
 
 function cancelComment() {
@@ -106,13 +106,15 @@ async function deleteComment(commentId: string) {
             </ClientOnly>
         </header>
         <Markdown v-if="!editComment" class="body p-3" :content="comment.content" />
-        <div v-if="replyTo" class="comment-reply field px-3 pb-3">
-            <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
-            <div class="row g-1 pt-2">
-                <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />
-                <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
+        <CollapseTransition>
+            <div v-if="replyTo" class="comment-reply field px-3 pb-3">
+                <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
+                <div class="row g-1 pt-2">
+                    <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />
+                    <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
+                </div>
             </div>
-        </div>
+        </CollapseTransition>
         <div class="comment-edit field px-3 pb-3 mt-2" v-if="editComment">
             <textarea rows="5" v-model="comment.content"></textarea>
             <div class="row g-1 pt-2">

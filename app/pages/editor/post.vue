@@ -175,8 +175,12 @@ async function saveDraft() {
                 <span>Save</span>
             </ButtonSpinner>
         </template>
-        <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
-        <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+        <OverlayTransition>
+            <Drafts v-if="showDrafts" @view="viewDraft" @close="showDrafts = false" />
+        </OverlayTransition>
+        <OverlayTransition>
+            <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
+        </OverlayTransition>
     </EditorFrame>
 </template>
 

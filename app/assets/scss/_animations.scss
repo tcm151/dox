@@ -1,3 +1,26 @@
+:root {
+    --motion-duration-fast: 100ms;
+    --motion-duration-quick: 200ms;
+    --motion-duration-standard: 400ms;
+    --motion-duration-lazy: 600ms;
+    --motion-duration-slow: 1000ms;
+    --motion-easing-standard: ease;
+    --motion-easing-in: ease-in;
+    --motion-easing-out: ease-out;
+    --motion-easing-overlay: ease-in-out;
+    --motion-easing-expand: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-duration-fast: 0ms;
+        --motion-duration-quick: 0ms;
+        --motion-duration-standard: 0ms;
+        --motion-duration-lazy: 0ms;
+        --motion-duration-slow: 0ms;
+    }
+}
+
 // CSS Animations
 @keyframes spin {
     from {
@@ -5,15 +28,6 @@
     }
     to {
         transform: rotateZ(360deg);
-    }
-}
-
-@keyframes blur {
-    from {
-        backdrop-filter: none;
-    }
-    to {
-        backdrop-filter: blur(0.5rem);
     }
 }
 
@@ -27,37 +41,10 @@
 }
 
 .spin {
-    animation: spin 512ms linear infinite;
+    animation: spin var(--motion-duration-slow) linear infinite;
 }
 
 // Transition Group Animations
-.scale-up-move,
-.scale-up-enter-active,
-.scale-up-leave-active {
-  transition: all 512ms ease;
-}
-
-.scale-up-enter-from {
-    transform: translateY(-50%) scaleY(0);
-}
-
-.scale-up-leave-to {
-    opacity: 0;
-    transform: translateY(-50%) scaleY(0);
-}
-
-.scale-up-leave-to:not(:first-child, :last-child) {
-    opacity: 0;
-    transform: scaleY(0);
-}
-
-// .scale-up-leave-active {
-.scale-up-leave-active:not(:last-child) {
-    position: absolute;
-}
-
-.tabs-move,
-.tabs-enter-active,
-.tabs-leave-active {
-    transition: all 128ms ease;
+.tabs-move {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
 }

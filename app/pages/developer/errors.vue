@@ -93,9 +93,11 @@ function toggle(id: string) {
                             <!-- <UserTag :user="error.user" label="unknown" /> -->
                             <DurationTag width="4rem" :time="error.time" />
                         </div>
-                        <footer v-if="expanded.includes(error.id)" class="column g-2">
-                            <Codeblock :code="`${error.stack}\n\n${JSON.stringify({ ...error.request, data: error.data }, undefined, 4)}`" />
-                        </footer>
+                        <CollapseTransition>
+                            <footer v-if="expanded.includes(error.id)" class="column g-2">
+                                <Codeblock :code="`${error.stack}\n\n${JSON.stringify({ ...error.request, data: error.data }, undefined, 4)}`" />
+                            </footer>
+                        </CollapseTransition>
                     </div>
                 </template>
             </template>

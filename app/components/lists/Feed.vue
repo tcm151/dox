@@ -54,16 +54,14 @@ function sortFeed(type: string) {
             </ClientOnly>
         </header>
         <ClientOnly>
-            <template v-if="props.items.data.value && props.items.data.value.length > 0">
-                <template v-for="item in props.items.data.value" :key="item.id">
+            <TransitionGroup name="feed" tag="div" class="feed-items column g-2">
+                <div v-for="item in props.items.data.value" :key="item.id" class="feed-item">
                     <slot name="item" v-bind="(item as T)" />
-                </template>
-            </template>
-            <template v-else>
-                <div class="column center box p-4">
+                </div>
+                <div v-if="!props.items.data.value?.length" key="empty" class="column center box p-4">
                     There is nothing here currently.
                 </div>
-            </template>
+            </TransitionGroup>
         </ClientOnly>
     </section>
 </template>
@@ -87,11 +85,32 @@ header.sorting {
     }
 }
 
-.feed-move, .feed-enter-active, .feed-leave-active {
-    transition: all 512ms ease;
+.feed-items {
+    position: relative;
 }
 
-.feed-enter-from, .feed-leave-to {
+.feed-item {
+    width: 100%;
+}
+
+.feed-move {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.feed-enter-active,
+.feed-leave-active {
+    transition: opacity var(--motion-duration-fast) var(--motion-easing-standard), transform var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.feed-enter-from,
+.feed-leave-to {
     opacity: 0;
+    transform: translateY(0.25rem);
+}
+
+.feed-leave-active {
+    position: absolute;
+    right: 0;
+    left: 0;
 }
 </style>

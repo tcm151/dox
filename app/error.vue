@@ -26,11 +26,13 @@ let complain = ref(false)
                 </button>
             </div>
         </section>
-        <Window v-if="complain" title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" @close="complain = false">
-            <section class="p-2">
-                <Feedback placeholder="Tell us what happened..." @submit="clearError({ redirect: '/feed' })" />
-            </section>
-        </Window>
+        <OverlayTransition>
+            <Window v-if="complain" title="Submit Feedback" icon="fa-solid fa-keyboard" width="40rem" @close="complain = false">
+                <section class="p-2">
+                    <Feedback placeholder="Tell us what happened..." @submit="clearError({ redirect: '/feed' })" />
+                </section>
+            </Window>
+        </OverlayTransition>
     </article>
 </template>
 

@@ -64,7 +64,9 @@ span.hint {
 }
 
 .hints-move, .hints-enter-active, .hints-leave-active {
-    transition: all 128ms ease;
+    transition:
+        opacity var(--motion-duration-fast) var(--motion-easing-standard),
+        transform var(--motion-duration-fast) var(--motion-easing-standard);
 }
 
 .hints-enter-from {

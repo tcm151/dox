@@ -15,7 +15,7 @@ const props = defineProps<{
 span {
     i.fa-spinner {
         color: inherit;
-        animation: spin 1s linear infinite;
+        animation: spin var(--motion-duration-slow) linear infinite;
     }
 }
 </style>
