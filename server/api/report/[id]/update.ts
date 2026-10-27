@@ -18,11 +18,13 @@ export default defineEventHandler(async (event) => {
 
             RETURN UPDATE $report SET
                 status = $status,
-                resolution = $resolution
+                resolution = $resolution,
+                moderator = $user
             ;
         `)
         .addTransaction()
         .addRecord("report", `report:${id}`)
+        .addRecord("user", auth.id)
         .addParameter("status", body.status)
         .addParameter("resolution", body.resolution)
         .queryValue<Report[]>()

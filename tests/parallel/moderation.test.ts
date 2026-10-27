@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { Topic, User } from "../../shared/types"
+import type { ModeratorLog, Topic, User } from "../../shared/types"
 import { fetch, grabExampleServer, grabUser } from "../test-server"
 
 const admin = await grabUser("admin")
@@ -41,6 +41,7 @@ async function removeModerationRequests(items: Array<{ topicId: string, requestI
     if (items.length === 0) return
 
     const statements = items.flatMap(({ topicId, requestId }) => [
+        `DELETE moderatorLog WHERE target = moderationRequest:${requestId};`,
         `DELETE moderationRequest:${requestId};`,
         `DELETE topic:${topicId};`,
     ])
@@ -53,6 +54,22 @@ async function removeModerationRequests(items: Array<{ topicId: string, requestI
         body: JSON.stringify({ query: statements.join("\n") }),
     })
     expect(response.status, await response.clone().text()).toBe(200)
+}
+
+async function getModeratorLogs(requestId: string) {
+    const response = await fetch("/api/developer/database/query", {
+        method: "POST",
+        headers: {
+            Authorization: admin.accessToken,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            query: `SELECT * FROM moderatorLog WHERE target = moderationRequest:${requestId};`,
+        }),
+    })
+    expect(response.status, await response.clone().text()).toBe(200)
+    const results = await response.json() as ModeratorLog[][]
+    return results[0] ?? []
 }
 
 async function getModerationRequest(requestId: string) {
@@ -92,6 +109,14 @@ it("records approvals and rejects duplicate approvals", async () => {
         expect(request?.approvals).toContain(admin.user.id)
         expect(request?.denials).toEqual([])
         expect(request?.closed).toBe(false)
+        const logs = await getModeratorLogs(testRequest.requestId)
+        expect(logs).toHaveLength(1)
+        expect(logs[0]).toMatchObject({
+            actor: admin.user.id,
+            action: "moderation_request.approved",
+            target: `moderationRequest:${testRequest.requestId}`,
+            details: { topic: `topic:${testRequest.topicId}`, applicant: member.user.id },
+        })
     }
     finally {
         await removeModerationRequests([testRequest])
@@ -113,6 +138,14 @@ it("records denials and rejects duplicate denials", async () => {
         expect(request?.approvals).toEqual([])
         expect(request?.denials).toContain(admin.user.id)
         expect(request?.closed).toBe(false)
+        const logs = await getModeratorLogs(testRequest.requestId)
+        expect(logs).toHaveLength(1)
+        expect(logs[0]).toMatchObject({
+            actor: admin.user.id,
+            action: "moderation_request.denied",
+            target: `moderationRequest:${testRequest.requestId}`,
+            details: { topic: `topic:${testRequest.topicId}`, applicant: member.user.id },
+        })
     }
     finally {
         await removeModerationRequests([testRequest])

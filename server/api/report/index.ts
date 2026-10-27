@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, subject.id, time, status, resolution, complaints
+            SELECT id, subject.id, time, status, resolution, complaints, moderator
             FROM report
             WHERE record::exists(subject)
             ORDER BY time DESC
-            FETCH subject, complaints.reporter
+            FETCH subject, complaints.reporter, moderator
         `)
         .queryAll<Report>()
 })

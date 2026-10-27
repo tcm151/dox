@@ -202,6 +202,7 @@ export interface Report extends Record {
     status: "pending" | "resolved" | "removed"
     time: string
     resolution?: string
+    moderator?: User & string
 }
 
 export interface AccountConfirmation extends Record {
@@ -230,6 +231,14 @@ export interface ModerationRequest extends Record {
     approvals: string[]
     denials: string[]
     closed: boolean
+}
+
+export interface ModeratorLog extends Record {
+    actor: User & string
+    action: string
+    target: Record & string
+    details: { [key: string]: unknown }
+    time: string
 }
 
 export interface Error extends Record {

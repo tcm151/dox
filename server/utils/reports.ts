@@ -21,9 +21,7 @@ export async function createReport(subject: string, reporter: string, reason: un
                 UPSERT report SET
                     subject = $subject,
                     complaints += { reporter: $reporter, reason: $reason, time: time::now() },
-                    time = time::now(),
-                    status = "pending",
-                    resolution = NONE
+                    time = time::now()
                 WHERE subject = $subject
                 RETURN AFTER;
             `)

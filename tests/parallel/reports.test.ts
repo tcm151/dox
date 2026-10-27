@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { fetch, grabExampleServer, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Thread } from "../../shared/types"
+import type { ModeratorLog, Thread } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
@@ -20,6 +20,22 @@ async function removeRecords(statements: string[]) {
     if (!response.ok) {
         throw new Error(`Failed to clean up report test records: ${await response.text()}`)
     }
+}
+
+async function getModeratorLogs(target: string) {
+    const response = await fetch("/api/developer/database/query", {
+        method: "POST",
+        headers: {
+            Authorization: admin.accessToken,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: `SELECT * FROM moderatorLog WHERE target = ${target};` }),
+    })
+    if (!response.ok) {
+        throw new Error(`Failed to read moderator log test records: ${await response.text()}`)
+    }
+    const results = await response.json() as ModeratorLog[][]
+    return results[0] ?? []
 }
 
 it("rejects report submissions without authentication", async () => {
@@ -75,6 +91,7 @@ it("lists a report in administrator and topic queues", async () => {
         expect(reportId).toBeDefined()
         expect(firstReport!.complaints).toHaveLength(1)
         expect(firstReport!.complaints[0]!.reporter.id).toBe(reporter.user.id)
+        expect(await getModeratorLogs(`report:${reportId}`)).toEqual([])
 
         const topicReportsResponse = await fetch(`/api/topic/${topicId}/reports`, {
             headers: { Authorization: admin.accessToken },
@@ -138,10 +155,58 @@ it("lists a report in administrator and topic queues", async () => {
         })
         const resolutionResponseBody = await resolutionResponse.text()
         expect(resolutionResponse.status, `report resolution stage: ${resolutionResponseBody}`).toBe(200)
-        const resolvedReports = JSON.parse(resolutionResponseBody) as Array<{ resolution?: string, status: string }>
+        const resolvedReports = JSON.parse(resolutionResponseBody) as Array<{
+            resolution?: string
+            status: string
+            moderator?: string
+        }>
         expect(resolvedReports).toHaveLength(1)
         expect(resolvedReports[0]!.resolution).toBe("Reviewed and resolved.")
         expect(resolvedReports[0]!.status).toBe("resolved")
+        expect(resolvedReports[0]!.moderator).toBe(admin.user.id)
+        expect(resolvedReports[0]).not.toHaveProperty("moderatorEvent")
+        const firstModeratorLog = await getModeratorLogs(`report:${reportId}`)
+        expect(firstModeratorLog).toHaveLength(1)
+        expect(firstModeratorLog[0]).toMatchObject({
+            actor: admin.user.id,
+            action: "report.updated",
+            target: `report:${reportId}`,
+            details: {
+                before: { status: "pending" },
+                after: { status: "resolved", resolution: "Reviewed and resolved." },
+            },
+        })
+
+        const laterReportResponse = await fetch("/api/report/send", {
+            method: "POST",
+            headers: {
+                Authorization: reporter.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ subject: thread.id, reason: "Additional context after resolution." }),
+        })
+        expect(laterReportResponse.status, "later complaint does not reopen report stage").toBe(204)
+        const afterLaterReportResponse = await fetch("/api/report", {
+            headers: { Authorization: admin.accessToken },
+        })
+        expect(afterLaterReportResponse.status, "report state after later complaint stage").toBe(200)
+        const afterLaterReports = await afterLaterReportResponse.json() as Array<{
+            id: string
+            subject: { id: string }
+            status: string
+            resolution?: string
+            moderator?: { id: string }
+            complaints: Array<{ reason: string }>
+        }>
+        const afterLaterReport = afterLaterReports.find(item => item.subject.id === thread.id)
+        expect(afterLaterReport).toMatchObject({
+            id: `report:${reportId}`,
+            status: "resolved",
+            resolution: "Reviewed and resolved.",
+            moderator: { id: admin.user.id },
+        })
+        expect(afterLaterReport!.complaints).toHaveLength(3)
+        expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(1)
 
         const clearResolutionResponse = await fetch(`/api/report/${reportId}/update`, {
             method: "PUT",
@@ -169,6 +234,17 @@ it("lists a report in administrator and topic queues", async () => {
         expect(removedReports).toHaveLength(1)
         expect(removedReports[0]!.status).toBe("removed")
 
+        const topicUpdateResponse = await fetch(`/api/topic/${topicId}/reports/${reportId}/update`, {
+            method: "PUT",
+            headers: {
+                Authorization: admin.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "resolved", resolution: "Topic report reviewed." }),
+        })
+        expect(topicUpdateResponse.status, "topic report update stage").toBe(200)
+        expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(4)
+
         const reopenedResponse = await fetch("/api/report/send", {
             method: "POST",
             headers: {
@@ -177,27 +253,31 @@ it("lists a report in administrator and topic queues", async () => {
             },
             body: JSON.stringify({ subject: thread.id, reason: "New evidence after the decision." }),
         })
-        expect(reopenedResponse.status, "new complaint reopening stage").toBe(204)
+        expect(reopenedResponse.status, "new complaint does not reopen stage").toBe(204)
         const reopenedReportsResponse = await fetch("/api/report", {
             headers: { Authorization: admin.accessToken },
         })
-        expect(reopenedReportsResponse.status, "reopened report list stage").toBe(200)
+        expect(reopenedReportsResponse.status, "report after later complaint stage").toBe(200)
         const reopenedReports = await reopenedReportsResponse.json() as Array<{
             id: string
             subject: { id: string }
             status: string
             resolution?: string
+            moderator?: { id: string }
             complaints: Array<{ reason: string }>
         }>
-        const reopened = reopenedReports.find(item => item.subject.id === thread.id)
-        if (!reopened) throw new Error("Reopened report should remain in the admin queue.")
-        expect(extractId(reopened.id)).toBe(reportId)
-        expect(reopened.status).toBe("pending")
-        expect(reopened.resolution).toBeUndefined()
-        expect(reopened.complaints).toHaveLength(3)
+        const reportAfterComplaint = reopenedReports.find(item => item.subject.id === thread.id)
+        if (!reportAfterComplaint) throw new Error("Report should remain in the admin queue.")
+        expect(extractId(reportAfterComplaint.id)).toBe(reportId)
+        expect(reportAfterComplaint.status).toBe("resolved")
+        expect(reportAfterComplaint.resolution).toBe("Topic report reviewed.")
+        expect(reportAfterComplaint.moderator?.id).toBe(admin.user.id)
+        expect(reportAfterComplaint.complaints).toHaveLength(4)
+        expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(4)
     }
     finally {
         await removeRecords([
+            ...(reportId ? [`DELETE moderatorLog WHERE target = report:${reportId};`] : []),
             ...(reportId ? [`DELETE report:${reportId};`] : []),
             ...(threadId ? [`DELETE thread:${threadId};`] : []),
             `DELETE topic:${topicId};`,

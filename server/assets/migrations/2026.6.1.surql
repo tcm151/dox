@@ -16,6 +16,59 @@ DEFINE FIELD OVERWRITE status ON report
 	TYPE string ASSERT $value IN ["pending", "resolved", "removed"] DEFAULT ALWAYS "pending";
 DEFINE FIELD OVERWRITE resolution ON report
 	TYPE option<string> ASSERT $value = NONE OR $value.len() >= 3;
+DEFINE FIELD IF NOT EXISTS moderator ON report
+	TYPE option<record<user>>;
+
+DEFINE TABLE IF NOT EXISTS moderatorLog SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS actor ON moderatorLog
+	TYPE record<user>;
+DEFINE FIELD IF NOT EXISTS action ON moderatorLog
+	TYPE string;
+DEFINE FIELD IF NOT EXISTS target ON moderatorLog
+	TYPE record;
+DEFINE FIELD IF NOT EXISTS details ON moderatorLog
+	TYPE object FLEXIBLE DEFAULT {};
+DEFINE FIELD IF NOT EXISTS time ON moderatorLog
+	TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE INDEX IF NOT EXISTS moderatorLogTime ON TABLE moderatorLog
+	FIELDS time;
+DEFINE INDEX IF NOT EXISTS moderatorLogActor ON TABLE moderatorLog
+	FIELDS actor;
+DEFINE INDEX IF NOT EXISTS moderatorLogTarget ON TABLE moderatorLog
+	FIELDS target;
+
+DEFINE EVENT OVERWRITE moderatorLogReportUpdate ON report
+	WHEN $event = 'UPDATE' AND $after.moderator != NONE
+	THEN {
+		IF $before.status != $after.status OR $before.resolution != $after.resolution {
+			CREATE moderatorLog SET
+				actor = $after.moderator,
+				action = 'report.updated',
+				target = $after.id,
+				details = {
+					before: { status: $before.status, resolution: $before.resolution },
+					after: { status: $after.status, resolution: $after.resolution }
+				};
+		};
+	};
+DEFINE EVENT OVERWRITE moderatorLogRequestApproval ON moderationRequest
+	WHEN $event = 'UPDATE' AND $after.approvals.len() > $before.approvals.len()
+	THEN {
+		CREATE moderatorLog SET
+			actor = array::last($after.approvals),
+			action = 'moderation_request.approved',
+			target = $after.id,
+			details = { topic: $after.topic, applicant: $after.user };
+	};
+DEFINE EVENT OVERWRITE moderatorLogRequestDenial ON moderationRequest
+	WHEN $event = 'UPDATE' AND $after.denials.len() > $before.denials.len()
+	THEN {
+		CREATE moderatorLog SET
+			actor = array::last($after.denials),
+			action = 'moderation_request.denied',
+			target = $after.id,
+			details = { topic: $after.topic, applicant: $after.user };
+	};
 
 UPDATE report SET resolution = NONE WHERE resolution = "NONE";
 

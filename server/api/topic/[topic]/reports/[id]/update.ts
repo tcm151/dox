@@ -24,7 +24,8 @@ export default defineEventHandler(async (event) => {
 
             RETURN UPDATE $report SET
                 status = $status,
-                resolution = $resolution
+                resolution = $resolution,
+                moderator = $user
             ;
         `)
         .addTransaction()
