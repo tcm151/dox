@@ -23,36 +23,24 @@ async function createTestUser(username: string): Promise<TSession> {
     const admin = await grabUser("admin")
     const email = `${username.toLowerCase()}@example.invalid`
     const accessToken = `session:test_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    const seedResponse = await fetch("/api/developer/database/query", {
-        method: "POST",
-        headers: {
-            Authorization: admin.accessToken,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            query: `
-                RETURN {
-                    LET $user = (
-                        CREATE ONLY user SET
-                            name = "${username}"
-                    );
-                    CREATE ONLY userSettings SET
-                        user = $user.id;
-                    LET $account = (
-                        CREATE ONLY account SET
-                            user = $user.id,
-                            email = "${email}",
-                            password = crypto::argon2::generate("integration-test-password")
-                    );
-                    CREATE ONLY ${accessToken} SET
-                        account = $account.id;
-                };
-            `,
-        }),
-    })
-    if (!seedResponse.ok) {
-        throw new Error(`Failed to create test user: ${await seedResponse.text()}`)
-    }
+    await admin.query(`
+        RETURN {
+            LET $user = (
+                CREATE ONLY user SET
+                    name = "${username}"
+            );
+            CREATE ONLY userSettings SET
+                user = $user.id;
+            LET $account = (
+                CREATE ONLY account SET
+                    user = $user.id,
+                    email = "${email}",
+                    password = crypto::argon2::generate("integration-test-password")
+            );
+            CREATE ONLY ${accessToken} SET
+                account = $account.id;
+        };
+    `)
 
     const profileResponse = await fetch("/api/profile/authenticate", {
         headers: { Authorization: accessToken },

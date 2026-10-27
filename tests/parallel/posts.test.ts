@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch, grabUser } from "../test-server"
+import { expectStatus, fetch, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Post } from "../../shared/types"
 
@@ -20,21 +20,17 @@ it("rejects post publishing without authentication", async () => {
         body: JSON.stringify(postRequest),
     })
 
-    expect(response.status).toBe(401)
+    expectStatus(response, 401)
 })
 
 it("publishes and deletes an authenticated post", async () => {
-    const response = await fetch("/api/post/add", {
+    const response = await admin.fetchRaw<Post>("/api/post/add", {
         method: "POST",
-        headers: {
-            Authorization: admin.accessToken,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postRequest),
+        body: postRequest,
     })
-    expect(response.status).toBe(200)
+    expectStatus(response, 200)
 
-    const post = await response.json() as Post
+    const post = response._data!
     expect(post.id).toMatch(/^post:/)
     expect(post.title).toBe(title)
     expect(post.content).toBe(content)
@@ -43,8 +39,6 @@ it("publishes and deletes an authenticated post", async () => {
     const postId = extractId(post.id)
     expect(postId).toBeDefined()
 
-    const deleteResponse = await fetch(`/api/post/${postId}/delete`, {
-        headers: { Authorization: admin.accessToken },
-    })
-    expect(deleteResponse.status).toBe(200)
+    const deleteResponse = await admin.fetchRaw(`/api/post/${postId}/delete`)
+    expectStatus(deleteResponse, 200)
 })

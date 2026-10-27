@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch } from "../test-server"
+import { expectStatus, fetch } from "../test-server"
 
 it("rate limits referral claims outside the authentication routes", async () => {
     for (let attempt = 0; attempt < 5; attempt++) {
@@ -8,7 +8,7 @@ it("rate limits referral claims outside the authentication routes", async () => 
             headers: { "Content-Type": "application/json" },
             body: "{}",
         })
-        expect(response.status).toBe(401)
+        expectStatus(response, 401)
     }
 
     const limitedResponse = await fetch("/api/profile/referral", {
@@ -16,5 +16,5 @@ it("rate limits referral claims outside the authentication routes", async () => 
         headers: { "Content-Type": "application/json" },
         body: "{}",
     })
-    expect(limitedResponse.status).toBe(429)
+    expectStatus(limitedResponse, 429)
 })

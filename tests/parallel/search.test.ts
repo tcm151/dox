@@ -1,23 +1,10 @@
 import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
-import type { Gallery, Post, SearchResult, Thread } from "../../shared/types"
+import { expectStatus, fetch, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
-import { fetch, grabUser } from "../test-server"
+import type { Gallery, Post, SearchResult, Thread } from "../../shared/types"
 
 const admin = await grabUser("admin")
-
-async function runAdminQuery(query: string) {
-    const response = await fetch("/api/developer/database/query", {
-        method: "POST",
-        headers: {
-            Authorization: admin.accessToken,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query }),
-    })
-    expect(response.status, await response.clone().text()).toBe(200)
-    return await response.json() as unknown[][]
-}
 
 it("searches posts, threads, galleries, and comments in global relevance order", async () => {
     const searchTerm = `pomegranate${randomUUID().replaceAll("-", "")}`
@@ -33,21 +20,17 @@ it("searches posts, threads, galleries, and comments in global relevance order",
     let commentId: string | undefined
 
     try {
-        const postResponse = await fetch("/api/post/add", {
+        const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ title: postTitle, content: "Search test content", topics: [], images: [] }),
+            body: { title: postTitle, content: "Search test content", topics: [], images: [] },
         })
-        expect(postResponse.status, await postResponse.clone().text()).toBe(200)
-        const post = await postResponse.json() as Post
+        expectStatus(postResponse, 200)
+        const post = postResponse._data!
         postId = extractId(post.id)
         expect(postId).toBeDefined()
 
         commentId = `searchComment${Date.now()}`
-        await runAdminQuery(`
+        await admin.query(`
             CREATE ONLY comment:${commentId} SET
                 user = ${admin.user.id},
                 post = post:${postId},
@@ -55,49 +38,41 @@ it("searches posts, threads, galleries, and comments in global relevance order",
                 replyTo = post:${postId};
         `)
 
-        const threadResponse = await fetch("/api/thread/add", {
+        const threadResponse = await admin.fetchRaw<Thread>("/api/thread/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content: threadContent, topics: [], images: [] }),
+            body: { content: threadContent, topics: [], images: [] },
         })
-        expect(threadResponse.status, await threadResponse.clone().text()).toBe(200)
-        const thread = await threadResponse.json() as Thread
+        expectStatus(threadResponse, 200)
+        const thread = threadResponse._data!
         threadId = extractId(thread.id)
         expect(threadId).toBeDefined()
 
-        await runAdminQuery(`
+        await admin.query(`
             CREATE ONLY image:${imageId} SET
                 user = ${admin.user.id},
                 type = "jpeg",
                 origin = "https://example.invalid",
                 tokens = 0;
         `)
-        const publishResponse = await fetch("/api/gallery/publish", {
+        const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+            body: {
                 images: [`image:${imageId}`],
                 description: galleryDescription,
                 topics: [],
-            }),
+            },
         })
-        expect(publishResponse.status, await publishResponse.clone().text()).toBe(200)
+        expectStatus(publishResponse, 200)
 
         const galleriesResponse = await fetch("/api/gallery")
-        expect(galleriesResponse.status, await galleriesResponse.clone().text()).toBe(200)
+        expectStatus(galleriesResponse, 200, await galleriesResponse.clone().text())
         const galleries = await galleriesResponse.json() as Gallery[]
         const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
         const searchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(searchResponse.status, await searchResponse.clone().text()).toBe(200)
+        expectStatus(searchResponse, 200, await searchResponse.clone().text())
         const results = await searchResponse.json() as SearchResult[]
         const orderedResults = [...results].sort((left, right) =>
             Number(right.search.exact) - Number(left.search.exact)
@@ -118,7 +93,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         })
 
         const commentSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
-        expect(commentSearchResponse.status, await commentSearchResponse.clone().text()).toBe(200)
+        expectStatus(commentSearchResponse, 200, await commentSearchResponse.clone().text())
         const commentResults = await commentSearchResponse.json() as SearchResult[]
         expect(commentResults.map(item => item.id)).toEqual([`comment:${commentId}`])
         expect(commentResults[0]).toMatchObject({
@@ -126,14 +101,14 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             post: { id: `post:${postId}`, title: postTitle },
         })
 
-        await runAdminQuery(`UPDATE post:${postId} SET archived = true;`)
+        await admin.query(`UPDATE post:${postId} SET archived = true;`)
         const archivedCommentResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
-        expect(archivedCommentResponse.status, await archivedCommentResponse.clone().text()).toBe(200)
+        expectStatus(archivedCommentResponse, 200, await archivedCommentResponse.clone().text())
         expect(await archivedCommentResponse.json()).toEqual([])
-        await runAdminQuery(`UPDATE post:${postId} SET archived = false;`)
+        await admin.query(`UPDATE post:${postId} SET archived = false;`)
 
-        await runAdminQuery(`UPDATE comment:${commentId} SET deleted = true;`)
-        const deletedCommentState = await runAdminQuery(`
+        await admin.query(`UPDATE comment:${commentId} SET deleted = true;`)
+        const deletedCommentState = await admin.query<unknown[][]>(`
             SELECT id, deleted FROM comment WHERE id = comment:${commentId};
         `)
         expect(deletedCommentState[0]).toMatchObject([{
@@ -141,28 +116,29 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             deleted: true,
         }])
         const deletedCommentResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
-        expect(deletedCommentResponse.status, await deletedCommentResponse.clone().text()).toBe(200)
+        expectStatus(deletedCommentResponse, 200, await deletedCommentResponse.clone().text())
         expect(await deletedCommentResponse.json()).toEqual([])
 
-        await runAdminQuery(`
+        await admin.query(`
             UPDATE post:${postId} SET archived = true;
             UPDATE thread:${threadId} SET archived = true;
             UPDATE gallery:${galleryId} SET archived = true;
         `)
 
         const archivedSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(archivedSearchResponse.status, await archivedSearchResponse.clone().text()).toBe(200)
+        expectStatus(archivedSearchResponse, 200, await archivedSearchResponse.clone().text())
         const archivedResults = await archivedSearchResponse.json() as SearchResult[]
         expect(archivedResults).toEqual([])
     }
     finally {
-        await runAdminQuery([
-            ...(commentId ? [`DELETE comment:${commentId};`] : []),
-            ...(postId ? [`DELETE post:${postId};`] : []),
-            ...(threadId ? [`DELETE thread:${threadId};`] : []),
-            ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
-            `DELETE image:${imageId};`,
-        ].join("\n"))
+        const recordIds = [
+            ...(commentId ? [`comment:${commentId}`] : []),
+            ...(postId ? [`post:${postId}`] : []),
+            ...(threadId ? [`thread:${threadId}`] : []),
+            ...(galleryId ? [`gallery:${galleryId}`] : []),
+            `image:${imageId}`,
+        ]
+        await admin.query(`DELETE [${recordIds.join(", ")}];`)
     }
 })
 
@@ -173,44 +149,36 @@ it("prioritizes an exact title match over a partial body-only match", async () =
     let bodyPostId: string | undefined
 
     try {
-        const titlePostResponse = await fetch("/api/post/add", {
+        const titlePostResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+            body: {
                 title: `Specific match ${searchTerm}`,
                 content: "No matching words in this body.",
                 topics: [],
                 images: [],
-            }),
+            },
         })
-        expect(titlePostResponse.status, await titlePostResponse.clone().text()).toBe(200)
-        const titlePost = await titlePostResponse.json() as Post
+        expectStatus(titlePostResponse, 200)
+        const titlePost = titlePostResponse._data!
         titlePostId = extractId(titlePost.id)
         expect(titlePostId).toBeDefined()
 
-        const bodyPostResponse = await fetch("/api/post/add", {
+        const bodyPostResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+            body: {
                 title: "A body-only search match",
                 content: `This body contains priority split ${identifier} phrase.`,
                 topics: [],
                 images: [],
-            }),
+            },
         })
-        expect(bodyPostResponse.status, await bodyPostResponse.clone().text()).toBe(200)
-        const bodyPost = await bodyPostResponse.json() as Post
+        expectStatus(bodyPostResponse, 200)
+        const bodyPost = bodyPostResponse._data!
         bodyPostId = extractId(bodyPost.id)
         expect(bodyPostId).toBeDefined()
 
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(response.status, await response.clone().text()).toBe(200)
+        expectStatus(response, 200, await response.clone().text())
         const results = await response.json() as SearchResult[]
         const titleIndex = results.findIndex(item => item.id === `post:${titlePostId}`)
         expect(titleIndex).toBeGreaterThanOrEqual(0)
@@ -222,10 +190,11 @@ it("prioritizes an exact title match over a partial body-only match", async () =
         }
     }
     finally {
-        await runAdminQuery([
-            ...(titlePostId ? [`DELETE post:${titlePostId};`] : []),
-            ...(bodyPostId ? [`DELETE post:${bodyPostId};`] : []),
-        ].join("\n"))
+        const recordIds = [
+            ...(titlePostId ? [`post:${titlePostId}`] : []),
+            ...(bodyPostId ? [`post:${bodyPostId}`] : []),
+        ]
+        if (recordIds.length) await admin.query(`DELETE [${recordIds.join(", ")}];`)
     }
 })
 
@@ -244,21 +213,17 @@ it("prioritizes a full exact phrase match over partial token matches", async () 
     let commentId: string | undefined
 
     try {
-        const postResponse = await fetch("/api/post/add", {
+        const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ title: postTitle, content: "Comment search context.", topics: [], images: [] }),
+            body: { title: postTitle, content: "Comment search context.", topics: [], images: [] },
         })
-        expect(postResponse.status, await postResponse.clone().text()).toBe(200)
-        const post = await postResponse.json() as Post
+        expectStatus(postResponse, 200)
+        const post = postResponse._data!
         postId = extractId(post.id)
         expect(postId).toBeDefined()
 
         commentId = `exactSearchComment${Date.now()}`
-        await runAdminQuery(`
+        await admin.query(`
             CREATE ONLY comment:${commentId} SET
                 user = ${admin.user.id},
                 post = post:${postId},
@@ -266,26 +231,22 @@ it("prioritizes a full exact phrase match over partial token matches", async () 
                 replyTo = post:${postId};
         `)
 
-        const partialPostResponse = await fetch("/api/post/add", {
+        const partialPostResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+            body: {
                 title: partialPostTitle,
                 content: partialPostContent,
                 topics: [],
                 images: [],
-            }),
+            },
         })
-        expect(partialPostResponse.status, await partialPostResponse.clone().text()).toBe(200)
-        const partialPost = await partialPostResponse.json() as Post
+        expectStatus(partialPostResponse, 200)
+        const partialPost = partialPostResponse._data!
         partialPostId = extractId(partialPost.id)
         expect(partialPostId).toBeDefined()
 
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(response.status, await response.clone().text()).toBe(200)
+        expectStatus(response, 200, await response.clone().text())
         const results = await response.json() as SearchResult[]
         expect(results[0]?.id).toBe(`comment:${commentId}`)
         expect(results[0]?.search.exact).toBe(true)
@@ -293,12 +254,13 @@ it("prioritizes a full exact phrase match over partial token matches", async () 
         expect(results.some(item => item.id === `post:${partialPostId}`)).toBe(false)
     }
     finally {
-        await runAdminQuery([
-            ...(commentId ? [`DELETE comment:${commentId};`] : []),
-            ...(postId ? [`DELETE post:${postId};`] : []),
-            ...(partialPostId ? [`DELETE post:${partialPostId};`] : []),
-            `DELETE image:${imageId};`,
-        ].join("\n"))
+        const recordIds = [
+            ...(commentId ? [`comment:${commentId}`] : []),
+            ...(postId ? [`post:${postId}`] : []),
+            ...(partialPostId ? [`post:${partialPostId}`] : []),
+            `image:${imageId}`,
+        ]
+        await admin.query(`DELETE [${recordIds.join(", ")}];`)
     }
 })
 
@@ -311,34 +273,26 @@ it("filters low-relevance matches while preserving exact phrase matches", async 
     let partialPostId: string | undefined
 
     try {
-        const exactResponse = await fetch("/api/post/add", {
+        const exactResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ title: "Exact threshold fixture", content: exactContent, topics: [], images: [] }),
+            body: { title: "Exact threshold fixture", content: exactContent, topics: [], images: [] },
         })
-        expect(exactResponse.status, await exactResponse.clone().text()).toBe(200)
-        const exactPost = await exactResponse.json() as Post
+        expectStatus(exactResponse, 200)
+        const exactPost = exactResponse._data!
         exactPostId = extractId(exactPost.id)
         expect(exactPostId).toBeDefined()
 
-        const partialResponse = await fetch("/api/post/add", {
+        const partialResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ title: "Partial threshold fixture", content: partialContent, topics: [], images: [] }),
+            body: { title: "Partial threshold fixture", content: partialContent, topics: [], images: [] },
         })
-        expect(partialResponse.status, await partialResponse.clone().text()).toBe(200)
-        const partialPost = await partialResponse.json() as Post
+        expectStatus(partialResponse, 200)
+        const partialPost = partialResponse._data!
         partialPostId = extractId(partialPost.id)
         expect(partialPostId).toBeDefined()
 
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(response.status, await response.clone().text()).toBe(200)
+        expectStatus(response, 200, await response.clone().text())
         const results = await response.json() as SearchResult[]
         const exactResult = results.find(item => item.id === `post:${exactPostId}`)
         expect(exactResult?.search.exact).toBe(true)
@@ -346,17 +300,18 @@ it("filters low-relevance matches while preserving exact phrase matches", async 
         expect(results.some(item => item.id === `post:${partialPostId}`)).toBe(false)
     }
     finally {
-        await runAdminQuery([
-            ...(exactPostId ? [`DELETE post:${exactPostId};`] : []),
-            ...(partialPostId ? [`DELETE post:${partialPostId};`] : []),
-        ].join("\n"))
+        const recordIds = [
+            ...(exactPostId ? [`post:${exactPostId}`] : []),
+            ...(partialPostId ? [`post:${partialPostId}`] : []),
+        ]
+        if (recordIds.length) await admin.query(`DELETE [${recordIds.join(", ")}];`)
     }
 })
 
 it("returns empty results for unmatched and empty search terms", async () => {
     for (const text of [`neverfound${randomUUID().replaceAll("-", "")}`, ""]) {
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(text)}`)
-        expect(response.status, await response.clone().text()).toBe(200)
+        expectStatus(response, 200, await response.clone().text())
         expect(await response.json()).toEqual([])
     }
 })

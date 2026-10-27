@@ -1,40 +1,36 @@
 import { expect, it } from "vitest"
 import { extractId } from "../../shared/utils/records"
 import type { AppSettings } from "../../shared/types"
-import { fetch, grabUser } from "../test-server"
+import { expectStatus, fetch, grabUser } from "../test-server"
 
 const admin = await grabUser("admin")
 
 it("persists and restores the About summary setting", async () => {
     const settingsResponse = await fetch("/api/settings/default")
-    expect(settingsResponse.status).toBe(200)
+    expectStatus(settingsResponse, 200)
     const originalSettings = await settingsResponse.json() as AppSettings
     expect(originalSettings.about.summary).toBe("")
     const updatedSettings: AppSettings = {
         ...originalSettings,
         about: { summary: "## About summary test\n\nThis content was saved by the integration test." },
     }
-    const updateSettings = (settings: AppSettings) => fetch(
+    const updateSettings = (settings: AppSettings) => admin.fetchRaw(
         `/api/admin/settings/${extractId(settings.id)}/update`,
         {
             method: "POST",
-            headers: {
-                Authorization: admin.accessToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(settings),
+            body: settings,
         },
     )
 
     try {
-        expect((await updateSettings(updatedSettings)).status).toBe(200)
+        expectStatus((await updateSettings(updatedSettings)), 200)
 
         const updatedResponse = await fetch("/api/settings/default")
-        expect(updatedResponse.status).toBe(200)
+        expectStatus(updatedResponse, 200)
         const savedSettings = await updatedResponse.json() as AppSettings
         expect(savedSettings.about.summary).toBe(updatedSettings.about.summary)
     }
     finally {
-        expect((await updateSettings(originalSettings)).status).toBe(200)
+        expectStatus((await updateSettings(originalSettings)), 200)
     }
 })

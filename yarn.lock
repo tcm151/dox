@@ -3942,7 +3942,7 @@ obug@^3.0.0:
   resolved "https://registry.yarnpkg.com/obug/-/obug-3.0.0.tgz#2ddfc17d1c1dd8c825eebd127099da307c919299"
   integrity sha512-5vvB5+W7ePv+p3uqxi+RcW1XAzLW0/hxt3/4X4Lc4qHudzOhmBiBwOY6DRob4WnanAEGvNcLjF+KNOufrUoEQw==
 
-ofetch@^1.5.1:
+ofetch@1.5.1, ofetch@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/ofetch/-/ofetch-1.5.1.tgz#5c43cc56e03398b273014957060344254505c5c7"
   integrity sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==

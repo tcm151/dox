@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch, stashUser, testAdminCredentials } from "../test-server"
+import { expectStatus, fetch, stashUser, testAdminCredentials } from "../test-server"
 import type { User } from "../../shared/types"
 
 type LoginResponse = {
@@ -24,7 +24,7 @@ it("logs in with the configured default account", async () => {
     const profileResponse = await fetch("/api/profile/authenticate", {
         headers: { Authorization: result.tokens.access },
     })
-    expect(profileResponse.status).toBe(200)
+    expectStatus(profileResponse, 200)
 
     const profile = await profileResponse.json() as User
     expect(profile.id).toBe(result.user.id)

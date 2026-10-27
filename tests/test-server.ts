@@ -1,4 +1,7 @@
 import { fetch, setup } from "@nuxt/test-utils/e2e"
+import { $fetch, type FetchOptions, type FetchRequest, type ResponseType } from "ofetch"
+import { inspect } from "node:util"
+import { expect } from "vitest"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { dirname, join } from "node:path"
 import type { User } from "../shared/types"
@@ -27,6 +30,8 @@ await setup({
     host: testServerUrl,
 })
 
+const apiFetch = $fetch.create({ baseURL: testServerUrl })
+
 const userSessionDirectory = join(testDataDirectory, "state", "users")
 const exampleServerDirectory = join(testDataDirectory, "state", "example-servers")
 
@@ -51,7 +56,7 @@ export async function stashUser(key: string, session: TSession): Promise<void> {
     await writeFile(getUserPath(key), JSON.stringify(session), "utf8")
 }
 
-export async function grabUser(key: string): Promise<TSession> {
+export async function grabUser(key: string) {
     let contents: string
     try {
         contents = await readFile(getUserPath(key), "utf8")
@@ -68,7 +73,7 @@ export async function grabUser(key: string): Promise<TSession> {
         throw new Error(`Stored test user session "${key}" has an invalid shape.`)
     }
 
-    return session as TSession
+    return withSessionMethods(session as TSession)
 }
 
 export async function stashExampleServer(key: string, exampleServer: TExampleServer): Promise<void> {
@@ -77,7 +82,7 @@ export async function stashExampleServer(key: string, exampleServer: TExampleSer
     await writeFile(exampleServerPath, JSON.stringify(exampleServer), "utf8")
 }
 
-export async function grabExampleServer(key: string): Promise<TExampleServer> {
+export async function grabExampleServer(key: string) {
     const exampleServerPath = getExampleServerPath(key)
     let contents: string
     try {
@@ -95,7 +100,32 @@ export async function grabExampleServer(key: string): Promise<TExampleServer> {
         throw new Error(`The example server "${key}" has an invalid shape.`)
     }
 
-    return exampleServer
+    return {
+        users: Object.fromEntries(
+            Object.entries(exampleServer.users).map(([userKey, session]) => [userKey, withSessionMethods(session)]),
+        ),
+    }
+}
+
+function withSessionMethods(session: TSession) {
+    const fetch = apiFetch.create({ headers: { Authorization: session.accessToken } })
+    const fetchRaw = <T = unknown, R extends ResponseType = "json">(
+        request: FetchRequest,
+        options: FetchOptions<R> = {},
+    ) => fetch.raw<T, R>(request, {
+        ...options,
+        ignoreResponseError: options.ignoreResponseError ?? true,
+    })
+
+    return {
+        ...session,
+        fetch,
+        fetchRaw,
+        query: <T = unknown>(sql: string) => fetch<T>("/api/developer/database/query", {
+            method: "POST",
+            body: { query: sql },
+        }),
+    }
 }
 
 function isValidExampleServer(value: unknown): value is TExampleServer {
@@ -116,3 +146,14 @@ function isValidSession(value: unknown): value is TSession {
 
 export { fetch }
 export const testAdminCredentials = { name: adminName, password: adminPassword }
+
+export function expectStatus(
+    response: { status: number, _data?: unknown },
+    expectedStatus: number,
+    message?: string,
+) {
+    const details = response.status === expectedStatus
+        ? message
+        : message ?? (response._data === undefined ? undefined : inspect(response._data, { colors: false, depth: 5 }))
+    expect(response.status, details).toBe(expectedStatus)
+}
