@@ -92,8 +92,19 @@ async function submitResolution(report: Report) {
 
 <template>
     <section v-if="reports.length" class="column g-2">
-        <article v-for="report in reports" :key="report.id" class="report box background">
+        <article v-for="report in reports" :key="report.id" class="report box background hover-shadow">
             <div class="main box column g-2 p-3">
+                <CollapseTransition>
+                    <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="column g-2">
+                        <div v-for="(complaint, index) in report.complaints" :key="index">
+                            <div class="row g-1">
+                                <UserTag :user="complaint.reporter" />
+                                <DurationTag :time="complaint.time" />
+                                <Tag class="default fw-normal" :label="complaint.reason" />
+                            </div>
+                        </div>
+                    </div>
+                </CollapseTransition>
                 <div class="row wrap g-1">
                     <Tag v-if="isPending(report)" class="f-1" type="danger" label="Pending" />
                     <Tag v-else-if="report.status === 'resolved'" class="f-1" type="success" label="Resolved" />
@@ -101,24 +112,14 @@ async function submitResolution(report: Report) {
                     <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject(report)" />
                     <Tag class="f-1" type="info" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
                 </div>
-                <CollapseTransition>
-                    <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="column g-2">
-                        <div v-for="(complaint, index) in report.complaints" :key="index">
-                            <div class="mb-2">
-                                    <p>{{ complaint.reason === "NONE" ? "No reason provided." : complaint.reason }}</p>
-                            </div>
-                            <div class="row g-1">
-                                <DurationTag :time="complaint.time" />
-                                <UserTag :user="complaint.reporter" />
-                            </div>
-                        </div>
-                    </div>
-                </CollapseTransition>
-                <p v-if="report.resolution" class="resolution">{{ report.resolution }}</p>
-                <label v-if="isResolving(report)" class="field column g-1 mb-2">
+                <div v-if="report.resolution" class="row g-1">
+                    <UserTag v-if="report.moderator" :user="report.moderator" />
+                    <Tag class="default fw-normal" :label="report.resolution" />
+                </div>
+                <label v-if="isResolving(report)" class="field g-1 mb-2">
                     <textarea v-model="resolution" placeholder="Provide a resolution decision..." rows="3" />
                 </label>
-                <div class="actions row wrap g-1">
+                <div class="row wrap g-1">
                     <button v-if="isPending(report)" type="button" class="small" @click="viewSubject(report)">
                         <i class="fa fa-eye"></i>
                         <span>Review</span>
@@ -158,23 +159,15 @@ async function submitResolution(report: Report) {
             </div>
         </article>
     </section>
-    <section v-else class="box p-3 text center">
+    <section v-else class="box empty-state">
         <p>There are currently no reports.</p>
     </section>
 </template>
 
 <style scoped lang="scss">
 article.report {
-    &:hover {
-        @include shadow(1px, $blur: 0.25rem, $spread: 0.25rem, $color: #CCC1);
-    }
-
     .main {
         overflow: hidden;
-    }
-
-    p.resolution {
-        font-style: italic;
     }
 }
 </style>
