@@ -63,7 +63,7 @@ export const getSession = defineStore("session", () => {
     }
 
     async function login(id: string, password: string): Promise<void> {
-        let result = await useApi("/api/profile/login", {
+        let result = await useApi<{ user: User, tokens: Tokens }>("/api/profile/login", {
             headers: {
                 Authorization: btoa(`${id}:${password}`),
             }

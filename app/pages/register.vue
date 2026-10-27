@@ -34,7 +34,7 @@ async function register() {
 
     try {
         submitting.value = true
-        const result = await useApi("/api/user/register", {
+        const result = await useApi<string>("/api/user/register", {
             body: {
                 email: email.value,
                 username: username.value,
