@@ -41,7 +41,7 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 Goal: make moderation outcomes consistent, reviewable, and fair for small niche communities.
 
 ### B1. Moderation Workflow Completeness
-- 🟦 Ensure moderation queue/report triage is complete and documented. (`M`)
+- 🟩 Ensure moderation queue/report triage is complete and documented. (`M`)
 - 🟥 Add moderation action log/audit trail MVP (who, what, when, reason, target). (`L`)
 - 🟥 Add appeal workflow MVP with status transitions and resolution notes. (`L`)
 
