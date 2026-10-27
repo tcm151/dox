@@ -53,6 +53,24 @@ export class Validator {
         return this
     }
 
+    object(value: unknown, label: string, validate: (validator: this) => void): this {
+        if (!isObject(value)) {
+            this.#messages.push(`${label} must be an object`)
+            return this
+        }
+
+        validate(this)
+        return this
+    }
+
+    boolean(value: unknown, field: string) {
+        return this.test(value, input => typeof input === "boolean", `${field} must be a boolean`)
+    }
+
+    number(value: unknown, field: string) {
+        return this.test(value, input => typeof input === "number", `${field} must be a number`)
+    }
+
     match(value: string, type: keyof typeof regex) {
         if (!regex[type](value)) {
             this.#messages.push(`Invalid ${type}`)
@@ -60,7 +78,7 @@ export class Validator {
         return this
     }
 
-    confirm() {
+    confirm(): void {
         if (this.#messages.length > 0) {
             throw createError({
                 status: 400,

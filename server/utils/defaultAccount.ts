@@ -30,6 +30,9 @@ export async function setupDefaultAccount(config: DefaultAccount) {
                             traits = ["confirmed", "verified"]
                     );
 
+                    CREATE ONLY userSettings SET
+                        user = $user.id;
+
                     CREATE account SET
                         user = $user.id,
                         email = $email,

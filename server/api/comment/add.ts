@@ -1,35 +1,36 @@
 import type { Comment } from "@@/shared/types"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    let comment = await readBody(event)
+    const body = await readBody(event)
     
-    comment = await new DatabaseQuery()
+    const { comment, recipient } = await new DatabaseQuery()
         .addSql(`
-            CREATE comment SET
-            user = $user,
-            post = $post,
-            content = $content,
-            replyTo = $replyTo,
-            votes.positive = [$user]
+            LET $recipient = (SELECT VALUE user FROM ONLY $replyTo);
+            LET $comment = (
+                CREATE ONLY comment SET
+                    user = $user,
+                    post = $post,
+                    content = $content,
+                    replyTo = $replyTo,
+                    votes.positive = [$user]
+            );
+
+            RETURN { comment: $comment, recipient: $recipient };
         `)
+        .addTransaction()
         .addRecord("user", auth.id)
-        .addRecord("post", comment.post)
-        .addParameter("content", comment.content)
-        .addRecord("replyTo", comment.replyTo)
-        .queryOne<Comment>()
+        .addRecord("post", body.post)
+        .addParameter("content", body.content)
+        .addRecord("replyTo", body.replyTo)
+        .queryValue<{ comment: Comment, recipient: string }>()
     
-    await new DatabaseQuery()
-        .addSql(`
-            CREATE notification SET
-            recipient = $recipient.user,
-            context = $context,
-            message = $message    
-        `)
-        .addRecord("recipient", comment.replyTo)
-        .addRecord("context", comment.post)
-        .addParameter("message", `**${auth.name}** replied to you\n> ${comment.content}\n`)
-        .execute()
+    await NotificationManager.send({
+        recipient,
+        context: comment.post,
+        message: `**${auth.name}** replied to you\n> ${comment.content}\n`,
+    })
 
     return comment
 })

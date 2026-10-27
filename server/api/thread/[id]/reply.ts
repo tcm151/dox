@@ -1,4 +1,5 @@
 import type { Thread } from "@@/shared/types"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -6,30 +7,29 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     let thread = await readBody<Thread>(event)
 
-    const reply = await new DatabaseQuery()
+    const { reply, recipient } = await new DatabaseQuery()
         .addSql(`
-            CREATE thread SET
-            user = $user,
-            content = $content,
-            replyTo = $replyTo,
-            votes.positive = [$user]
+            LET $reply = (
+                CREATE ONLY thread SET
+                    user = $user,
+                    content = $content,
+                    replyTo = $replyTo,
+                    votes.positive = [$user]
+            );
+            LET $recipient = (SELECT VALUE user FROM ONLY $replyTo);
+            RETURN { reply: $reply, recipient: $recipient };
         `)
+        .addTransaction()
         .addRecord('user', auth.id)
         .addRecord('replyTo', `thread:${id}`)
         .addParameter('content', thread.content)
-        .queryOne<Thread>()
+        .queryValue<{ reply: Thread, recipient: string }>()
 
-    await new DatabaseQuery()
-        .addSql(`
-            CREATE notification SET
-            recipient = $thread.user,
-            context = $context,
-            message = $message    
-        `)
-        .addRecord("thread", `thread:${id}`)
-        .addRecord("context", reply.id)
-        .addParameter("message", `**${auth.name}** replied to you\n> ${reply.content}\n`)
-        .execute()
+    await NotificationManager.send({
+        recipient,
+        context: reply.id,
+        message: `**${auth.name}** replied to you\n> ${reply.content}\n`,
+    })
 
     return reply
 })

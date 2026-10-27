@@ -15,6 +15,9 @@ export class UserManager {
                     CREATE ONLY user SET
                         name = $name
                 );
+
+                CREATE ONLY userSettings SET
+                    user = $user.id;
     
                 let $account = (
                     CREATE ONLY account SET

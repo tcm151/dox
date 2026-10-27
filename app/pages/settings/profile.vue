@@ -3,18 +3,12 @@ import type { Account } from "@@/shared/types"
 
 const hints = useHints()
 const valid = useValidation()
-const events = useEvents()
 const session = getSession()
 
 const { data: account } = await useDatasource<Account>("/api/profile/account")
 
 function validDescription() {
     return session.user.description !== '' ? valid.user.description(session.user.description!) : true
-}
-
-async function sendConfirmation() {
-    await useApi("/api/profile/confirm/send")
-    hints.addSuccess("Confirmation sent! Expires in 15 minutes...")
 }
 
 const username = ref<string>(session.user.name)
@@ -67,55 +61,13 @@ async function resetProfile() {
     usernameTaken.value = false
 }
 
-async function resetPassword() {
-    events.publish(Trigger.showPopup, {
-        title: 'Confirm Password Reset',
-        message: 'Are you sure you want to reset your password?',
-        accept: async () => {
-            await useApi(`/api/profile/password/reset`, {
-                body: {
-                    id: account.value?.email
-                }
-            })
-            hints.addSuccess("Password reset link sent to your email.")
-        },
-    })
-}
 
-async function invalidateSessions() {
-    events.publish(Trigger.showPopup, {
-        title: 'Sign Out Everywhere?',
-        message: 'This will sign you out of all other devices. This session will remain active.',
-        accept: async () => {
-            try {
-                await useApi('/api/profile/sessions/invalidate')
-                hints.addSuccess('All other sessions signed out successfully.')
-            }
-            catch {
-                hints.addError('Failed to sign out other sessions.')
-            }
-        },
-    })
-}
 </script>
 
 <template>
     <article class="m-4">
         <section class="box column g-4 p-5">
-            <div class="column g-2">
-                <button v-if="!hasTrait(session.user, 'confirmed')" class="f-1 danger" @click="sendConfirmation">
-                    Confirm Account
-                </button>
-                <button class="f-1 success" v-else>
-                    Account Confirmed
-                </button>
-                <button class="link" @click="resetPassword">
-                    Reset Password
-                </button>
-                <button class="danger" @click="invalidateSessions">
-                    Sign Out Everywhere
-                </button>
-            </div>
+            <h2>User Information</h2>
             <div class="form">
                 <div v-if="account" class="field">
                     <label>Email</label>
@@ -132,17 +84,17 @@ async function invalidateSessions() {
                 </div>
                 <div class="field" :class="{ invalid: !validDescription() }">
                     <label>Description</label>
-                    <textarea rows="6" v-model="session.user.description"/>
+                    <MarkdownEditor bounded :rows="6" v-model="session.user.description" />
                 </div>
             </div>
             <div class="row g-2">
-                <ButtonSpinner class="success f-1" :loading="loading" @click="updateProfile">
+                <ButtonSpinner class="success f-2" :loading="loading" @click="updateProfile">
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Update</span>
                 </ButtonSpinner>
-                <button class="dark" @click="resetProfile">
+                <button class="f-1" @click="resetProfile">
                     <i class="fa-solid fa-refresh"></i>
-                    <span>Reset</span>
+                    <span>Cancel</span>
                 </button>
             </div>
         </section>
@@ -151,7 +103,7 @@ async function invalidateSessions() {
 
 <style scoped lang="scss">
 article {
-    @include fit-width(40rem, 1rem);
+    @include fit-width(50rem, 1rem);
 }
 
 textarea {

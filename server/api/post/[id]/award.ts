@@ -1,10 +1,11 @@
 import type { Post } from "@@/shared/types"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
-    await new DatabaseQuery()
+    const recipient = await new DatabaseQuery()
         .addSql(`
             IF $post.user = $awarder {
                 fn::http(400, "You cannot award your own posts...");
@@ -25,14 +26,16 @@ export default defineEventHandler(async (event) => {
             UPDATE $post.user SET
                 tokens += 256;
 
-            CREATE notification SET
-                recipient = $post.user,
-                context = $post,
-                message = $message;
+            RETURN $post.user;
         `)
         .addTransaction()
         .addRecord("post", `post:${id}`)
         .addRecord("awarder", auth.id)
-        .addParameter("message", `**${auth.name}** awarded your post\n> You gained 256 tokens. Don't forget to thank them!\n`)
-        .execute()
+        .queryValue<string>()
+
+    await NotificationManager.send({
+        recipient,
+        context: `post:${id}`,
+        message: `**${auth.name}** awarded your post\n> You gained 256 tokens. Don't forget to thank them!\n`,
+    })
 })

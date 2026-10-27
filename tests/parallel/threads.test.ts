@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { extractId } from "../../shared/utils/records"
-import type { Thread, Topic, User } from "../../shared/types"
+import { type Thread, type Topic, type User, type UserSettings } from "../../shared/types"
 import { fetch, grabExampleServer, grabUser } from "../test-server"
 
 const admin = await grabUser("admin")
@@ -32,6 +32,28 @@ async function getProfile(accessToken: string) {
     return await response.json() as User
 }
 
+async function saveUserSettings(settings: UserSettings) {
+    const response = await fetch("/api/profile/settings/update", {
+        method: "PUT",
+        headers: {
+            Authorization: threadAuthor.accessToken,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(settings),
+    })
+    expect(response.status, await response.clone().text()).toBe(200)
+}
+
+async function setNotificationPreference(enabled: boolean) {
+    const settingsResponse = await fetch("/api/profile/settings", {
+        headers: { Authorization: threadAuthor.accessToken },
+    })
+    expect(settingsResponse.status, "user settings load stage").toBe(200)
+    const settings = await settingsResponse.json() as UserSettings
+    settings.notifications.inApp = enabled
+    await saveUserSettings(settings)
+}
+
 it("rejects thread replies without authentication", async () => {
     const response = await fetch("/api/thread/missing/reply", {
         method: "POST",
@@ -46,6 +68,13 @@ it("creates a thread reply and notifies the thread author", async () => {
     const replyContent = `API smoke reply ${Date.now()}`
     let parentId: string | undefined
     let replyId: string | undefined
+    let disabledReplyId: string | undefined
+    let resumedReplyId: string | undefined
+    const originalSettingsResponse = await fetch("/api/profile/settings", {
+        headers: { Authorization: threadAuthor.accessToken },
+    })
+    expect(originalSettingsResponse.status, "initial user settings stage").toBe(200)
+    const originalSettings = await originalSettingsResponse.json() as UserSettings
 
     try {
         const parentResponse = await fetch("/api/thread/add", {
@@ -86,10 +115,66 @@ it("creates a thread reply and notifies the thread author", async () => {
         }
         const notification = notificationResult.notifications.find(item => item.context === reply.id)
         expect(notification?.message).toContain(replyContent)
+
+        await setNotificationPreference(false)
+        const savedSettingsResponse = await fetch("/api/profile/settings", {
+            headers: { Authorization: threadAuthor.accessToken },
+        })
+        expect(savedSettingsResponse.status, "saved user settings load stage").toBe(200)
+        const savedSettings = await savedSettingsResponse.json() as UserSettings
+        expect(savedSettings.ui).toEqual({ hoverAnimations: true, hintDuration: 2500 })
+
+        const disabledReplyResponse = await fetch(`/api/thread/${parentId}/reply`, {
+            method: "POST",
+            headers: {
+                Authorization: replyAuthor.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: `API smoke disabled reply ${Date.now()}` }),
+        })
+        expect(disabledReplyResponse.status, "reply with notifications disabled").toBe(200)
+        const disabledReply = await disabledReplyResponse.json() as Thread
+        disabledReplyId = extractId(disabledReply.id)
+
+        const disabledNotificationsResponse = await fetch("/api/profile/notifications?dismissed=false&amount=20", {
+            headers: { Authorization: threadAuthor.accessToken },
+        })
+        expect(disabledNotificationsResponse.status).toBe(200)
+        const disabledNotifications = await disabledNotificationsResponse.json() as {
+            notifications: Array<{ context: string, message: string }>
+        }
+        expect(disabledNotifications.notifications.some(item => item.context === disabledReply.id)).toBe(false)
+
+        await setNotificationPreference(true)
+        const resumedReplyResponse = await fetch(`/api/thread/${parentId}/reply`, {
+            method: "POST",
+            headers: {
+                Authorization: replyAuthor.accessToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: `API smoke resumed reply ${Date.now()}` }),
+        })
+        expect(resumedReplyResponse.status, "reply after notifications are re-enabled").toBe(200)
+        const resumedReply = await resumedReplyResponse.json() as Thread
+        resumedReplyId = extractId(resumedReply.id)
+
+        const resumedNotificationsResponse = await fetch("/api/profile/notifications?dismissed=false&amount=20", {
+            headers: { Authorization: threadAuthor.accessToken },
+        })
+        expect(resumedNotificationsResponse.status).toBe(200)
+        const resumedNotifications = await resumedNotificationsResponse.json() as {
+            notifications: Array<{ context: string, message: string }>
+        }
+        expect(resumedNotifications.notifications.some(item => item.context === resumedReply.id)).toBe(true)
     }
     finally {
+        await saveUserSettings(originalSettings)
         await removeRecords([
+            ...(resumedReplyId ? [`DELETE notification WHERE context = thread:${resumedReplyId};`] : []),
+            ...(disabledReplyId ? [`DELETE notification WHERE context = thread:${disabledReplyId};`] : []),
             ...(replyId ? [`DELETE notification WHERE context = thread:${replyId};`] : []),
+            ...(resumedReplyId ? [`DELETE thread:${resumedReplyId};`] : []),
+            ...(disabledReplyId ? [`DELETE thread:${disabledReplyId};`] : []),
             ...(replyId ? [`DELETE thread:${replyId};`] : []),
             ...(parentId ? [`DELETE thread:${parentId};`] : []),
         ])

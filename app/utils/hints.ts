@@ -7,14 +7,14 @@ export interface Hint {
 
 export const useHints = defineStore("hints", () => {
     const events = useEvents()
-    const settings = useSettings()
+    const userSettings = useUserSettings()
     
     let count = ref(0)
     let items = ref<Hint[]>([])
     
     function addHint(payload: Hint) {
         items.value.push(payload)
-        setTimeout(() => remove(payload), settings.user.hintDuration)
+        setTimeout(() => remove(payload), userSettings.preferences.ui.hintDuration)
     }
     
     function remove(hint: Hint) {

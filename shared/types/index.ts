@@ -172,6 +172,17 @@ export interface Notification extends Record {
     viewed: boolean
 }
 
+export interface UserSettings extends Record {
+    user: User & string
+    ui: {
+        hoverAnimations: boolean
+        hintDuration: number
+    }
+    notifications: {
+        inApp: boolean
+    }
+}
+
 export interface Feedback extends Record {
     user: User & string
     content: string

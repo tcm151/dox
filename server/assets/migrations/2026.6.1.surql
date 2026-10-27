@@ -39,12 +39,38 @@ DEFINE FIELD OVERWRITE complaints ON report
 	TYPE array<object> DEFAULT ALWAYS [];
 UPDATE report SET status = "pending" WHERE status IS NONE;
 
+DEFINE TABLE OVERWRITE userSettings SCHEMAFULL;
+DEFINE FIELD OVERWRITE user ON userSettings
+	TYPE record<user>;
+DEFINE INDEX OVERWRITE userSettingsUser ON TABLE userSettings
+	FIELDS user UNIQUE;
+DEFINE FIELD OVERWRITE ui ON userSettings
+	TYPE object DEFAULT ALWAYS { hoverAnimations: true, hintDuration: 2500 };
+DEFINE FIELD OVERWRITE ui.hoverAnimations ON userSettings
+	TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD OVERWRITE ui.hintDuration ON userSettings
+	TYPE number DEFAULT ALWAYS 2500;
+DEFINE FIELD OVERWRITE notifications ON userSettings
+	TYPE object DEFAULT ALWAYS { inApp: true };
+DEFINE FIELD OVERWRITE notifications.inApp ON userSettings
+	TYPE bool DEFAULT ALWAYS true;
+
 COMMIT;
 
 DEFINE INDEX IF NOT EXISTS reportSubject ON TABLE report
 	FIELDS subject UNIQUE;
 
 BEGIN TRANSACTION;
+FOR $user IN (SELECT VALUE id FROM user) {
+	UPSERT userSettings SET
+		user = $user,
+		ui = {
+			hoverAnimations: ui.hoverAnimations ?? true,
+			hintDuration: ui.hintDuration ?? 2500
+		}
+	WHERE user = $user;
+};
+
 UPSERT migration SET version = '2026.6.1', time = time::now()
 WHERE version = '2026.6.1';
 COMMIT;

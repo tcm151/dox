@@ -36,6 +36,8 @@ async function createTestUser(username: string): Promise<TSession> {
                         CREATE ONLY user SET
                             name = "${username}"
                     );
+                    CREATE ONLY userSettings SET
+                        user = $user.id;
                     LET $account = (
                         CREATE ONLY account SET
                             user = $user.id,

@@ -468,6 +468,26 @@ DEFINE FIELD viewed ON notification
 
 
 -- ------------------------------
+-- TABLE: userSettings
+-- ------------------------------
+DEFINE TABLE userSettings SCHEMAFULL;
+DEFINE FIELD user ON userSettings
+    TYPE record<user>;
+DEFINE INDEX userSettingsUser ON TABLE userSettings
+    FIELDS user UNIQUE;
+DEFINE FIELD ui ON userSettings
+    TYPE object DEFAULT ALWAYS { hoverAnimations: true, hintDuration: 2500 };
+DEFINE FIELD ui.hoverAnimations ON userSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD ui.hintDuration ON userSettings
+    TYPE number DEFAULT ALWAYS 2500;
+DEFINE FIELD notifications ON userSettings
+    TYPE object DEFAULT ALWAYS { inApp: true };
+DEFINE FIELD notifications.inApp ON userSettings
+    TYPE bool DEFAULT ALWAYS true;
+
+
+-- ------------------------------
 -- TABLE: feedback
 -- ------------------------------
 DEFINE TABLE feedback SCHEMAFULL;

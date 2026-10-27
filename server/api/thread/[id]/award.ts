@@ -1,10 +1,11 @@
 import type { Thread } from "@@/shared/types"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
 
-    return await new DatabaseQuery()
+    const thread = await new DatabaseQuery()
         .addSql(`
             IF $thread.user = $awarder {
                 fn::http(400, "You cannot award your own threads...");
@@ -25,17 +26,19 @@ export default defineEventHandler(async (event) => {
             UPDATE $thread.user SET
                 tokens += 256;
 
-            CREATE notification SET
-                recipient = $thread.user,
-                context = $thread.id,
-                message = $message;
-
             RETURN SELECT *
             FROM $thread;
         `)
         .addTransaction()
         .addRecord("thread", `thread:${id}`)
         .addRecord("awarder", auth.id)
-        .addParameter("message", `**${auth.name}** awarded your thread\n> You gained 256 tokens. Don't forget to thank them!\n`)
         .queryOne<Thread>()
+
+    await NotificationManager.send({
+        recipient: thread.user,
+        context: thread.id,
+        message: `**${auth.name}** awarded your thread\n> You gained 256 tokens. Don't forget to thank them!\n`,
+    })
+
+    return thread
 })

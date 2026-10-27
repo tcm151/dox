@@ -1,19 +1,6 @@
-import { skipHydrate } from "pinia"
 import type { AppSettings } from "@@/shared/types"
 
-interface UserSettings {
-    hintDuration: number
-    hoverAnimations: boolean
-}
-
-export const useSettings = defineStore("user.settings", () => {
-    const cache = useCache()
-
-    const user = cache.get<UserSettings>("user.settings", () => ({
-        hintDuration: 2500,
-        hoverAnimations: true,
-    }))
-
+export const useSettings = defineStore("app.settings", () => {
     const app = ref<AppSettings>({
         id: "appSettings:default", 
         about: {
@@ -92,5 +79,5 @@ export const useSettings = defineStore("user.settings", () => {
         })
     }
 
-    return { user: skipHydrate(user), app, refresh }
+    return { app, refresh }
 })

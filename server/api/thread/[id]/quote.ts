@@ -1,4 +1,5 @@
 import type { Thread } from "@@/shared/types"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -6,32 +7,32 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     let thread = await readBody<Thread>(event)
 
-    const quote = await new DatabaseQuery()
+    const { quote, recipient } = await new DatabaseQuery()
         .addSql(`
-            CREATE thread SET
-            user = $user,
-            content = $content,
-            topics = $topics,
-            quote = $quote,
-            votes.positive = [$user]
+            LET $recipient = $quote.user;
+            LET $quoted = (
+                CREATE ONLY thread SET
+                    user = $user,
+                    content = $content,
+                    topics = $topics,
+                    quote = $quote,
+                    votes.positive = [$user]
+            );
+
+            RETURN { quote: $quoted, recipient: $recipient };
         `)
+        .addTransaction()
         .addRecord('user', auth.id)
         .addParameter('content', thread.content)
         .addRecords('topics', thread.topics ?? [])
         .addRecord('quote', `thread:${id}`)
-        .queryOne<Thread>()
+        .queryValue<{ quote: Thread, recipient: string }>()
 
-    await new DatabaseQuery()
-        .addSql(`
-            CREATE notification SET
-            recipient = $thread.user,
-            context = $context,
-            message = $message    
-        `)
-        .addRecord("thread", `thread:${id}`)
-        .addRecord("context", quote.id)
-        .addParameter("message", `**${auth.name}** quoted you\n> ${quote.content}\n`)
-        .execute()
+    await NotificationManager.send({
+        recipient,
+        context: quote.id,
+        message: `**${auth.name}** quoted you\n> ${quote.content}\n`,
+    })
 
     return quote
 })

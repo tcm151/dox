@@ -1,4 +1,5 @@
 import type { User } from "@@/shared/types"
+import { NotificationManager } from "./NotificationManager"
 
 export class ReferralManager {
     static async validateReferral(referral: string) {
@@ -68,21 +69,12 @@ export class ReferralManager {
     
                         UPDATE $recipient SET
                             tokens += 1024;
-    
-                        CREATE notification SET
-                            recipient = $recipient,
-                            context = $context,
-                            message = $message;
                     };
                 `)
                 .addTransaction()
                 .addRecord("recipient", recipient)
                 .addRecord("claimant", user.id)
-                .addRecord("context", user.id)
-                .addParameter("message", `**${user.name}** used your referral\n> You gained 1024 free tokens. Don't forget to thank them!\n`)
                 .execute()
-
-            return "claimed"
         }
         catch (error: any) {
             if (error.message?.includes("index `claimant` already contains")) {
@@ -95,5 +87,13 @@ export class ReferralManager {
                 stack: error.stack,
             })
         }
+
+        await NotificationManager.send({
+            recipient,
+            context: user.id,
+            message: `**${user.name}** used your referral\n> You gained 1024 free tokens. Don't forget to thank them!\n`,
+        })
+
+        return "claimed"
     }                
 }
