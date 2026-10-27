@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
             ORDER BY time DESC
             FETCH subject, complaints.reporter
         `)
+        .addTransaction()
         .addRecord("topic", `topic:${topic}`)
         .addRecord("user", auth.id)
         .queryAll<Report>()

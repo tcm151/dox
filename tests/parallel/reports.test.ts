@@ -31,8 +31,9 @@ it("rejects report submissions without authentication", async () => {
     expect(response.status).toBe(401)
 })
 
-it("creates a report visible to administrators", async () => {
+it("lists a report in administrator and topic queues", async () => {
     const content = `Report test subject ${Date.now()}`
+    const topicId = `reportQueue${Date.now()}`
     let threadId: string | undefined
     let reportId: string | undefined
 
@@ -43,7 +44,7 @@ it("creates a report visible to administrators", async () => {
                 Authorization: threadAuthor.accessToken,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ content, topics: [], images: [] }),
+            body: JSON.stringify({ content, topics: [`topic:${topicId}`], images: [] }),
         })
         expect(threadResponse.status, "report subject creation stage").toBe(200)
         const thread = await threadResponse.json() as Thread
@@ -74,6 +75,13 @@ it("creates a report visible to administrators", async () => {
         expect(reportId).toBeDefined()
         expect(firstReport!.complaints).toHaveLength(1)
         expect(firstReport!.complaints[0]!.reporter.id).toBe(reporter.user.id)
+
+        const topicReportsResponse = await fetch(`/api/topic/${topicId}/reports`, {
+            headers: { Authorization: admin.accessToken },
+        })
+        expect(topicReportsResponse.status, "topic report-list stage").toBe(200)
+        const topicReports = await topicReportsResponse.json() as Array<{ subject: { id: string } }>
+        expect(topicReports.some(item => item.subject.id === thread.id)).toBe(true)
 
         const secondReportResponse = await fetch("/api/report/send", {
             method: "POST",
@@ -192,6 +200,7 @@ it("creates a report visible to administrators", async () => {
         await removeRecords([
             ...(reportId ? [`DELETE report:${reportId};`] : []),
             ...(threadId ? [`DELETE thread:${threadId};`] : []),
+            `DELETE topic:${topicId};`,
         ])
     }
 })
