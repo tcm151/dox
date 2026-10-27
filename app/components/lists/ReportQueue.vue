@@ -95,26 +95,26 @@ async function submitResolution(report: Report) {
         <article v-for="report in reports" :key="report.id" class="report box background hover-shadow">
             <div class="main box column g-2 p-3">
                 <CollapseTransition>
-                    <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="column g-2">
-                        <div v-for="(complaint, index) in report.complaints" :key="index">
-                            <div class="row g-1">
+                    <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="f-1 column g-1">
+                        <template v-for="(complaint, index) in report.complaints" :key="index">
+                            <div class="f-1 row g-1">
+                                <Tag class="default fw-normal f-1" :label="complaint.reason" />
                                 <UserTag :user="complaint.reporter" />
                                 <DurationTag :time="complaint.time" />
-                                <Tag class="default fw-normal" :label="complaint.reason" />
                             </div>
-                        </div>
+                        </template>
                     </div>
                 </CollapseTransition>
+                <div v-if="report.resolution" class="row g-1">
+                    <Tag class="default fw-normal f-1" :label="report.resolution" />
+                    <UserTag v-if="report.moderator" :user="report.moderator" />
+                </div>
                 <div class="row wrap g-1">
                     <Tag v-if="isPending(report)" class="f-1" type="danger" label="Pending" />
                     <Tag v-else-if="report.status === 'resolved'" class="f-1" type="success" label="Resolved" />
                     <Tag v-else class="f-1" type="warning" label="Removed" />
                     <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject(report)" />
-                    <Tag class="f-1" type="info" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
-                </div>
-                <div v-if="report.resolution" class="row g-1">
-                    <UserTag v-if="report.moderator" :user="report.moderator" />
-                    <Tag class="default fw-normal" :label="report.resolution" />
+                    <Tag class="f-1" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
                 </div>
                 <label v-if="isResolving(report)" class="field g-1 mb-2">
                     <textarea v-model="resolution" placeholder="Provide a resolution decision..." rows="3" />

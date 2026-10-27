@@ -30,6 +30,7 @@ const tabs = ref<TabItem[]>([
     { route: '/admin/reports', icon: 'fa-flag', label: 'Reports' },
     { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
     { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
+    { route: '/admin/logs', icon: 'fa-clipboard-list', label: 'Logs' },
 ])
 
 </script>

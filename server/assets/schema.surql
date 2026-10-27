@@ -552,9 +552,19 @@ DEFINE EVENT moderatorLogReportUpdate ON report
     WHEN $event = 'UPDATE' AND $after.moderator != NONE
     THEN {
         IF $before.status != $after.status OR $before.resolution != $after.resolution {
+            LET $action = IF $before.status = $after.status THEN
+                'report.resolution_updated'
+            ELSE IF $after.status = 'resolved' THEN
+                'report.resolved'
+            ELSE IF $after.status = 'removed' THEN
+                'report.removed'
+            ELSE
+                'report.reopened'
+            END;
+
             CREATE moderatorLog SET
                 actor = $after.moderator,
-                action = 'report.updated',
+                action = $action,
                 target = $after.id,
                 details = {
                     before: { status: $before.status, resolution: $before.resolution },
