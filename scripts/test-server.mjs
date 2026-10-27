@@ -34,6 +34,7 @@ try {
         rootDir: projectRoot,
         env: {
             NUXT_DATA_PATH: `${testRoot}/media`,
+            NUXT_TRUSTED_PROXIES: "127.0.0.1,::1",
             NUXT_SURREAL_INFO_TYPE: "embedded",
             NUXT_SURREAL_INFO_URL: `rocksdb://${testRoot}/database/default.db`,
             NUXT_SURREAL_INFO_NAMESPACE: "classicforum_test",

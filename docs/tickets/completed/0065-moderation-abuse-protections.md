@@ -38,6 +38,7 @@ Apply appropriate rate limits and abuse protections to moderation-adjacent write
 - server/assets/migrations/2026.6.1.surql
 
 ## Progress Log
+- 2026-10-26: Separated report-submission rate limits from admin queue reads so refreshing `/api/report` no longer consumes the submission budget. Regression coverage verifies queue visibility, repeated-subject aggregation, and cross-route limiting; `yarn test` passes all seven phases and `yarn typecheck` passes.
 - 2026-10-25: Unified report submissions under one client-address rate limit and added cross-route regression coverage. The `2026.6.1` migration consolidates existing submissions for replay testing; `yarn test` passes all seven phases and `yarn typecheck` passes.
 - 2026-10-25: Audited report and moderation routes; report queues are read-only, while moderator request actions already enforce roles and reject duplicate votes.
 - 2026-10-25: Ticket created.

@@ -47,10 +47,11 @@ class RateLimiter {
 
 const MAX_REQUESTS = 5
 const REQUEST_WINDOW = 60_000 // 1 minute
+const REPORT_SUBMISSION_RATE_LIMIT = "/api/report-submission"
 
 function getRateLimitPath(path: string) {
     if (path === "/api/report/send" || /^\/api\/(post|gallery|image)\/[^/]+\/report$/.test(path)) {
-        return "/api/report"
+        return REPORT_SUBMISSION_RATE_LIMIT
     }
 
     return path
@@ -64,7 +65,7 @@ const limiter = new RateLimiter(10 * 60 * 1000, {
     "/api/profile/password/confirm": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/profile/confirm": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/profile/referral": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
-    "/api/report": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
+    [REPORT_SUBMISSION_RATE_LIMIT]: { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/image/upload": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
     "/api/audio/upload": { ms: REQUEST_WINDOW, max: MAX_REQUESTS },
 }) 

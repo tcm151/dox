@@ -58,17 +58,22 @@ it("creates a report visible to administrators", async () => {
             },
             body: JSON.stringify({ subject: thread.id, reason: "This thread violates the community rules." }),
         })
-        expect(reportResponse.status, "report submission stage").toBe(200)
-        const report = await reportResponse.json() as {
+        expect(reportResponse.status, "report submission stage").toBe(204)
+        const firstReportsResponse = await fetch("/api/report", {
+            headers: { Authorization: admin.accessToken },
+        })
+        expect(firstReportsResponse.status, "first report list stage").toBe(200)
+        const firstReports = await firstReportsResponse.json() as Array<{
             id: string
-            subject: string
-            complaints: Array<{ reporter: string, reason: string }>
-        }
-        reportId = extractId(report.id)
+            subject: { id: string }
+            complaints: Array<{ reporter: { id: string }, reason: string }>
+        }>
+        const firstReport = firstReports.find(item => item.subject.id === thread.id)
+        expect(firstReport, "first report appears in the admin queue").toBeDefined()
+        reportId = extractId(firstReport!.id)
         expect(reportId).toBeDefined()
-        expect(report.subject).toBe(thread.id)
-        expect(report.complaints).toHaveLength(1)
-        expect(report.complaints[0]!.reporter).toBe(reporter.user.id)
+        expect(firstReport!.complaints).toHaveLength(1)
+        expect(firstReport!.complaints[0]!.reporter.id).toBe(reporter.user.id)
 
         const secondReportResponse = await fetch("/api/report/send", {
             method: "POST",
@@ -78,15 +83,7 @@ it("creates a report visible to administrators", async () => {
             },
             body: JSON.stringify({ subject: thread.id, reason: "A second report for this same thread." }),
         })
-        expect(secondReportResponse.status, "second report submission stage").toBe(200)
-        const secondReport = await secondReportResponse.json() as {
-            id: string
-            subject: string
-            complaints: Array<{ reporter: string, reason: string }>
-        }
-        expect(extractId(secondReport.id)).toBe(reportId)
-        expect(secondReport.subject).toBe(thread.id)
-        expect(secondReport.complaints).toHaveLength(2)
+        expect(secondReportResponse.status, "second report submission stage").toBe(204)
 
         const reportsResponse = await fetch("/api/report", {
             headers: { Authorization: admin.accessToken },
@@ -99,6 +96,7 @@ it("creates a report visible to administrators", async () => {
         }>
         const listedReports = reports.filter(item => item.subject.id === thread.id)
         expect(listedReports).toHaveLength(1)
+        expect(extractId(listedReports[0]!.id)).toBe(reportId)
         expect(listedReports[0]!.complaints).toHaveLength(2)
         expect(listedReports[0]!.complaints.every(item => item.reporter.id === reporter.user.id)).toBe(true)
 
@@ -171,13 +169,20 @@ it("creates a report visible to administrators", async () => {
             },
             body: JSON.stringify({ subject: thread.id, reason: "New evidence after the decision." }),
         })
-        expect(reopenedResponse.status, "new complaint reopening stage").toBe(200)
-        const reopened = await reopenedResponse.json() as {
+        expect(reopenedResponse.status, "new complaint reopening stage").toBe(204)
+        const reopenedReportsResponse = await fetch("/api/report", {
+            headers: { Authorization: admin.accessToken },
+        })
+        expect(reopenedReportsResponse.status, "reopened report list stage").toBe(200)
+        const reopenedReports = await reopenedReportsResponse.json() as Array<{
             id: string
+            subject: { id: string }
             status: string
             resolution?: string
             complaints: Array<{ reason: string }>
-        }
+        }>
+        const reopened = reopenedReports.find(item => item.subject.id === thread.id)
+        if (!reopened) throw new Error("Reopened report should remain in the admin queue.")
         expect(extractId(reopened.id)).toBe(reportId)
         expect(reopened.status).toBe("pending")
         expect(reopened.resolution).toBeUndefined()
@@ -192,17 +197,20 @@ it("creates a report visible to administrators", async () => {
 })
 
 it("shares the report rate limit across report submission routes", async () => {
-    let limitReached = false
+    const headers = { "X-Forwarded-For": "198.51.100.42" }
     for (let attempt = 0; attempt < 5; attempt++) {
-        const response = await fetch("/api/report/send", { method: "POST" })
-        if (response.status === 429) {
-            limitReached = true
-            break
-        }
+        const response = await fetch("/api/report/send", { method: "POST", headers })
         expect(response.status).toBe(401)
     }
-    expect(limitReached).toBe(true)
 
-    const limitedResponse = await fetch("/api/post/missing/report", { method: "POST" })
+    const reportQueueResponse = await fetch("/api/report", {
+        headers: { Authorization: admin.accessToken },
+    })
+    expect(reportQueueResponse.status, "report queue reads do not consume submission quota").toBe(200)
+
+    const limitedSubmission = await fetch("/api/report/send", { method: "POST", headers })
+    expect(limitedSubmission.status, "sixth report submission is rate limited").toBe(429)
+
+    const limitedResponse = await fetch("/api/post/missing/report", { method: "POST", headers })
     expect(limitedResponse.status).toBe(429)
 })
