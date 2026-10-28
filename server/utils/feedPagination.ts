@@ -29,7 +29,7 @@ const FEED_FIELDS = [
     "comments",
     "votes",
     "score",
-    "archived",
+    "status",
     "images.{id, url} AS images",
     "visits",
     "quote.{id, content, time, replies, topics, votes, visits, user.{id, name}} AS quote",
