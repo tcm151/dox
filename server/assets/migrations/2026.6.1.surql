@@ -13,13 +13,25 @@ DEFINE FIELD IF NOT EXISTS complaints.*.reason ON report
 DEFINE FIELD IF NOT EXISTS complaints.*.time ON report
 	TYPE datetime;
 DEFINE FIELD OVERWRITE status ON report
-	TYPE string ASSERT $value IN ["pending", "resolved", "removed"] DEFAULT ALWAYS "pending";
+	TYPE string ASSERT $value IN ["pending", "approved", "removed", "appealed"] DEFAULT ALWAYS "pending";
 DEFINE FIELD OVERWRITE resolution ON report
 	TYPE option<string> ASSERT $value = NONE OR $value.len() >= 3;
 DEFINE FIELD IF NOT EXISTS moderator ON report
 	TYPE option<record<user>>;
+
+DEFINE FIELD IF NOT EXISTS appeal ON report
+	TYPE option<object>;
+DEFINE FIELD OVERWRITE appeal.reason ON report
+	TYPE string;
+DEFINE FIELD OVERWRITE appeal.time ON report
+	TYPE datetime;
+DEFINE FIELD IF NOT EXISTS appeal.moderator ON report
+	TYPE option<record<user>>;
+DEFINE FIELD IF NOT EXISTS author ON report
+	COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
+
 DEFINE FIELD OVERWRITE context ON notification
-	TYPE record<post|comment|user|thread|gallery|image>;
+	TYPE record<post|comment|user|thread|gallery|image|report>;
 
 DEFINE TABLE IF NOT EXISTS moderatorLog SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS actor ON moderatorLog
@@ -42,11 +54,13 @@ DEFINE INDEX IF NOT EXISTS moderatorLogTarget ON TABLE moderatorLog
 DEFINE EVENT OVERWRITE moderatorLogReportUpdate ON report
 	WHEN $event = 'UPDATE' AND $after.moderator != NONE
 	THEN {
-		IF $before.status != $after.status OR $before.resolution != $after.resolution {
+		IF ($before.status != $after.status OR $before.resolution != $after.resolution)
+			AND $before.appeal.moderator = $after.appeal.moderator
+			AND $after.status != 'appealed' {
 			LET $action = IF $before.status = $after.status THEN
 				'report.resolution_updated'
-			ELSE IF $after.status = 'resolved' THEN
-				'report.resolved'
+			ELSE IF $after.status = 'approved' THEN
+				'report.approved'
 			ELSE IF $after.status = 'removed' THEN
 				'report.removed'
 			ELSE
@@ -141,38 +155,46 @@ DEFINE FIELD OVERWRITE hot ON feed
     COMPUTED fn::sort_hot(score, time, time::now());
 
 LET $postFields = (INFO FOR TABLE post).fields;
+DEFINE FIELD OVERWRITE archived ON post TYPE option<bool>;
 IF $postFields.archived != NONE {
 	DEFINE FIELD OVERWRITE status ON post TYPE option<string>;
 	UPDATE post SET status = IF archived = true THEN "archived" ELSE "active" END;
-	REMOVE FIELD archived ON post;
 };
+UPDATE post UNSET archived;
+REMOVE FIELD archived ON post;
 DEFINE FIELD OVERWRITE status ON post
 	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 
 LET $threadFields = (INFO FOR TABLE thread).fields;
+DEFINE FIELD OVERWRITE archived ON thread TYPE option<bool>;
 IF $threadFields.archived != NONE {
 	DEFINE FIELD OVERWRITE status ON thread TYPE option<string>;
 	UPDATE thread SET status = IF archived = true THEN "archived" ELSE "active" END;
-	REMOVE FIELD archived ON thread;
 };
+UPDATE thread UNSET archived;
+REMOVE FIELD archived ON thread;
 DEFINE FIELD OVERWRITE status ON thread
 	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 
 LET $galleryFields = (INFO FOR TABLE gallery).fields;
+DEFINE FIELD OVERWRITE archived ON gallery TYPE option<bool>;
 IF $galleryFields.archived != NONE {
 	DEFINE FIELD OVERWRITE status ON gallery TYPE option<string>;
 	UPDATE gallery SET status = IF archived = true THEN "archived" ELSE "active" END;
-	REMOVE FIELD archived ON gallery;
 };
+UPDATE gallery UNSET archived;
+REMOVE FIELD archived ON gallery;
 DEFINE FIELD OVERWRITE status ON gallery
 	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 
 LET $imageFields = (INFO FOR TABLE image).fields;
+DEFINE FIELD OVERWRITE public ON image TYPE option<bool>;
 IF $imageFields.public != NONE {
 	DEFINE FIELD OVERWRITE status ON image TYPE option<string>;
 	UPDATE image SET status = "active";
-	REMOVE FIELD public ON image;
 };
+UPDATE image UNSET public;
+REMOVE FIELD public ON image;
 DEFINE FIELD OVERWRITE status ON image
 	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 

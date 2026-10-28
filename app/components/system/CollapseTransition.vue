@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
     mode?: "default" | "in-out" | "out-in"
+    speed?: number
 }>()
 
 function getHeight(panel: HTMLElement) {
@@ -13,8 +14,15 @@ function getHeight(panel: HTMLElement) {
     return Math.max(0, renderedHeight - verticalPadding - verticalBorder)
 }
 
+function applySpeed(panel: HTMLElement) {
+    if (props.speed !== undefined) {
+        panel.style.setProperty("--collapse-transition-speed", `${props.speed}ms`)
+    }
+}
+
 function beforeEnter(element: Element) {
     const panel = element as HTMLElement
+    applySpeed(panel)
     panel.style.height = "0px"
     panel.style.overflow = "hidden"
     void panel.offsetHeight
@@ -36,10 +44,12 @@ function afterEnter(element: Element) {
     const panel = element as HTMLElement
     panel.style.height = ""
     panel.style.overflow = ""
+    panel.style.removeProperty("--collapse-transition-speed")
 }
 
 function beforeLeave(element: Element) {
     const panel = element as HTMLElement
+    applySpeed(panel)
     panel.style.height = `${getHeight(panel)}px`
     panel.style.overflow = "hidden"
     void panel.offsetHeight
@@ -54,6 +64,7 @@ function afterLeave(element: Element) {
     const panel = element as HTMLElement
     panel.style.height = ""
     panel.style.overflow = ""
+    panel.style.removeProperty("--collapse-transition-speed")
 }
 </script>
 
@@ -77,6 +88,6 @@ function afterLeave(element: Element) {
 <style scoped lang="scss">
 :global(.collapse-height-enter-active),
 :global(.collapse-height-leave-active) {
-    transition: height var(--motion-duration-lazy) var(--motion-easing-expand);
+    transition: height var(--collapse-transition-speed, var(--motion-duration-lazy)) var(--motion-easing-expand);
 }
 </style>

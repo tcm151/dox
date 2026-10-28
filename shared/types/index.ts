@@ -168,7 +168,7 @@ export interface Pin extends Record {
 
 export interface Notification extends Record {
     recipient: User & string
-    context: (Post | Comment | User | Thread | Gallery | Image) & string
+    context: (Post | Comment | User | Thread | Gallery | Image | Report) & string
     message: string
     time: string
     viewed: boolean
@@ -198,13 +198,24 @@ export interface ReportComplaint {
     time: string
 }
 
+export interface ReportAppeal {
+    reason: string
+    time: string
+    moderator?: User & string
+}
+
 export interface Report extends Record {
-    subject: Record & string
+    subject: Record & string & {
+        user?: User & string
+        name?: string
+    }
+    author: Pick<User, "id" | "name">
     complaints: ReportComplaint[]
-    status: "pending" | "resolved" | "removed"
+    status: "pending" | "approved" | "removed" | "appealed"
     time: string
     resolution?: string
     moderator?: User & string
+    appeal?: ReportAppeal
 }
 
 export interface AccountConfirmation extends Record {
@@ -330,7 +341,7 @@ export interface AppSettings extends Record {
     },
     misc: {
         feedback: {
-            enabled: true
+            enabled: true,
             allowAnonymous: false
         }
     }

@@ -29,7 +29,15 @@ async function dismissAll() {
 }
 
 function viewContext(notification: Notification) {
-    return navigateTo(`/${(notification.context as string).replace(':', '/')}`)
+    const context = notification.context as string
+    const reportId = context.startsWith("report:") ? extractId(context) : undefined
+    if (reportId) return navigateTo(`/appeal/${reportId}`)
+
+    return navigateTo(`/${context.replace(':', '/')}`)
+}
+
+function contextLabel(notification: Notification) {
+    return (notification.context as string).startsWith("report:") ? "Appeal" : "Context"
 }
 
 async function dismiss(notification: Notification) {
@@ -64,9 +72,9 @@ function loadMore() {
                     <Markdown class="column" :content="notification.message" />
                     <div class="row g-1 mt-3">
                         <DurationTag :time="notification.time" />
-                        <Tag type="link" icon="fa-eye" label="Context" @click="viewContext(notification)" />
+                        <Tag type="link" icon="fa-eye" :label="contextLabel(notification)" @click="viewContext(notification)" />
                         <template v-if="!notification.viewed">
-                            <Tag type="danger" icon="fa-angle-right" label="Dismiss" @click="dismiss(notification)" />
+                            <Tag type="danger" icon="fa-angles-right" label="Dismiss" @click="dismiss(notification)" />
                         </template>
                     </div>
                 </div>

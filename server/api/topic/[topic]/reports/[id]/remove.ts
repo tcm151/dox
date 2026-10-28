@@ -8,5 +8,6 @@ export default defineEventHandler(async (event) => {
     const topicScope = hasRole(auth, "admin") ? undefined : topic
     if (!id) throw createError({ status: 400, statusMessage: "Report ID is required." })
 
-    return await ReportManager.remove({ id, user: auth.id, topic: topicScope })
+    const body = await readBody<{ resolution?: unknown }>(event) ?? {}
+    return await ReportManager.remove({ id, user: auth.id, topic: topicScope, resolution: body.resolution })
 })

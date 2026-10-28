@@ -8,10 +8,33 @@ const props = defineProps<{
 }>()
 
 const hints = useHints()
+const session = getSession()
 const updatingSubjectId = ref<string>()
 const resolvingSubjectId = ref<string>()
+const resolutionAction = ref<"resolve" | "remove">()
 const resolution = ref("")
+const appealResolutions = ref<Record<string, string>>({})
 const reasonVisibility = ref<Record<string, boolean>>({})
+
+const reportStages = [
+    { status: "pending", label: "Pending", type: "danger" },
+    { status: "appealed", label: "Appealed", type: "info" },
+    { status: "removed", label: "Removed", type: "warning" },
+    { status: "approved", label: "Approved", type: "success" },
+] satisfies { status: Report["status"], label: string, type: string }[]
+
+const selectedStatus = ref<Report["status"] | "">("")
+const filteredReports = computed(() => selectedStatus.value
+    ? props.reports.filter(report => report.status === selectedStatus.value)
+    : props.reports)
+
+function countReports(status: Report["status"]) {
+    return props.reports.filter(report => report.status === status).length
+}
+
+function toggleStatus(status: Report["status"]) {
+    selectedStatus.value = selectedStatus.value === status ? "" : status
+}
 
 function showReasons(report: Report) {
     return reasonVisibility.value[report.id] ?? !report.resolution
@@ -36,8 +59,20 @@ function isPending(report: Report) {
     return report.status === "pending"
 }
 
+function canActOnReport(report: Report) {
+    return report.author.id !== session.user.id
+}
+
 function canReopen(report: Report) {
-    return report.status === "resolved" || report.status === "removed"
+    return report.status === "approved" || report.status === "removed"
+}
+
+function canReviewAppeal(report: Report) {
+    return report.status === "appealed"
+        && !!report.appeal
+        && !report.appeal.moderator
+        && canActOnReport(report)
+        && report.moderator?.id !== session.user.id
 }
 
 function viewSubject(report: Report) {
@@ -45,7 +80,7 @@ function viewSubject(report: Report) {
 }
 
 async function resolveReport(report: Report, resolutionNote?: string) {
-    if (updatingSubjectId.value) return false
+    if (updatingSubjectId.value || !canActOnReport(report)) return
 
     updatingSubjectId.value = report.id
     const reportId = extractId(report.id)
@@ -56,13 +91,12 @@ async function resolveReport(report: Report, resolutionNote?: string) {
 
     try {
         await useApi(endpoint, {
-            method: "PUT",
+            method: "POST",
             body: { ...(normalizedResolution ? { resolution: normalizedResolution } : {}) },
         })
         await props.refresh()
-        hints.addSuccess(`Report for ${report.subject.id} resolved.`)
+        hints.addSuccess(`Report for ${report.subject.id} approved.`)
         if (isResolving(report)) cancelResolution()
-        return true
     }
     finally {
         updatingSubjectId.value = undefined
@@ -70,7 +104,7 @@ async function resolveReport(report: Report, resolutionNote?: string) {
 }
 
 async function removeReport(report: Report) {
-    if (updatingSubjectId.value) return false
+    if (updatingSubjectId.value || !canActOnReport(report)) return
 
     updatingSubjectId.value = report.id
     const reportId = extractId(report.id)
@@ -79,10 +113,10 @@ async function removeReport(report: Report) {
         : `/api/report/${reportId}/remove`
 
     try {
-        await useApi(endpoint, { method: "PUT" })
+        await useApi(endpoint, { method: "POST", body: { resolution: resolution.value.trim() } })
         await props.refresh()
         hints.addSuccess(`Report for ${report.subject.id} removed.`)
-        return true
+        cancelResolution()
     }
     finally {
         updatingSubjectId.value = undefined
@@ -90,7 +124,7 @@ async function removeReport(report: Report) {
 }
 
 async function reopenReport(report: Report) {
-    if (updatingSubjectId.value) return false
+    if (updatingSubjectId.value || !canActOnReport(report)) return
 
     updatingSubjectId.value = report.id
     const reportId = extractId(report.id)
@@ -99,10 +133,9 @@ async function reopenReport(report: Report) {
         : `/api/report/${reportId}/reopen`
 
     try {
-        await useApi(endpoint, { method: "PUT" })
+        await useApi(endpoint, { method: "POST" })
         await props.refresh()
         hints.addSuccess(`Report for ${report.subject.id} reopened.`)
-        return true
     }
     finally {
         updatingSubjectId.value = undefined
@@ -110,104 +143,180 @@ async function reopenReport(report: Report) {
 }
 
 function startResolution(report: Report) {
+    if (!canActOnReport(report)) return
     resolution.value = ""
     resolvingSubjectId.value = report.id
+    resolutionAction.value = "resolve"
+}
+
+function startRemoval(report: Report) {
+    if (!canActOnReport(report)) return
+    resolution.value = ""
+    resolvingSubjectId.value = report.id
+    resolutionAction.value = "remove"
 }
 
 function cancelResolution() {
     resolution.value = ""
     resolvingSubjectId.value = undefined
+    resolutionAction.value = undefined
 }
 
 async function submitResolution(report: Report) {
+    if (!canActOnReport(report)) return
     const note = resolution.value.trim()
+    if (resolutionAction.value === "remove" && note.length < 3) {
+        hints.addWarning("Removal notes must be at least 3 characters.")
+        return
+    }
     if (note.length > 0 && note.length < 3) {
         hints.addWarning("Resolution notes must be at least 3 characters.")
         return
     }
 
-    await resolveReport(report, note)
+    if (resolutionAction.value === "remove") {
+        await removeReport(report)
+    }
+    else {
+        await resolveReport(report, note)
+    }
+}
+
+async function reviewAppeal(report: Report, decision: "accept" | "reject") {
+    if (updatingSubjectId.value || !canReviewAppeal(report)) return
+
+    const note = appealResolutions.value[report.id]?.trim() ?? ""
+    if (note.length < 3) {
+        hints.addWarning("Appeal resolution notes must be at least 3 characters.")
+        return
+    }
+
+    updatingSubjectId.value = report.id
+    const reportId = extractId(report.id)
+    const endpoint = props.topic
+        ? `/api/topic/${encodeURIComponent(props.topic)}/reports/${reportId}/appeal/${decision}`
+        : `/api/report/${reportId}/appeal/${decision}`
+
+    try {
+        await useApi(endpoint, { method: "POST", body: { resolution: note } })
+        await props.refresh()
+        hints.addSuccess(`Appeal for ${report.subject.id} ${decision}ed.`)
+    }
+    finally {
+        updatingSubjectId.value = undefined
+    }
 }
 </script>
 
 <template>
-    <section v-if="reports.length" class="column g-2">
-        <article v-for="report in reports" :key="report.id" class="report box background hover-shadow">
-            <div class="main box column g-2 p-3">
-                <CollapseTransition>
-                    <div v-show="showReasons(report)" :id="`report-reasons-${report.id}`" class="f-1 column g-1">
-                        <template v-for="(complaint, index) in report.complaints" :key="index">
-                            <div class="f-1 row g-1">
-                                <Tag class="default fw-normal f-1" :label="complaint.reason" />
-                                <UserTag :user="complaint.reporter" />
-                                <DurationTag :time="complaint.time" />
-                            </div>
-                        </template>
-                    </div>
-                </CollapseTransition>
-                <div v-if="report.resolution" class="row g-1">
-                    <Tag class="default fw-normal f-1" :label="report.resolution" />
-                    <UserTag v-if="report.moderator" :user="report.moderator" />
-                </div>
-                <div class="row wrap g-1">
-                    <Tag v-if="isPending(report)" class="f-1" type="danger" label="Pending" />
-                    <Tag v-else-if="report.status === 'resolved'" class="f-1" type="success" label="Resolved" />
-                    <Tag v-else class="f-1" type="warning" label="Removed" />
+    <article class="column g-3">
+        <header class="row wrap g-2">
+            <button
+                v-for="stage in reportStages"
+                :key="stage.status"
+                type="button"
+                class="f-1"
+                :class="{ selected: selectedStatus === stage.status }"
+                :aria-pressed="selectedStatus === stage.status"
+                @click="toggleStatus(stage.status)"
+            >
+                <span>{{ stage.label }}</span>
+                <span>{{ countReports(stage.status) }}</span>
+            </button>
+        </header>
+        <section v-if="filteredReports.length" class="column g-2">
+            <div v-for="report in filteredReports" :key="report.id" class="report box hover-shadow column g-2 p-3">
+                <section class="row wrap g-1">
+                    <template v-for="stage in reportStages" :key="stage.status">
+                        <Tag v-if="report.status === stage.status" class="f-1" :type="stage.type" :label="stage.label" />
+                    </template>
                     <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject(report)" />
                     <Tag class="f-1" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
-                </div>
-                <label v-if="isResolving(report)" class="field g-1 mb-2">
-                    <textarea v-model="resolution" placeholder="Provide a resolution decision..." rows="3" />
-                </label>
-                <div class="row wrap g-1">
-                    <button v-if="isPending(report)" type="button" class="small" @click="viewSubject(report)">
-                        <i class="fa fa-eye"></i>
-                        <span>Review</span>
-                    </button>
-                    <button v-if="isPending(report) && !isResolving(report)" type="button" class="small" :disabled="isUpdating(report)" @click="startResolution(report)">
-                        <i class="fa fa-feather"></i>
-                        <span>Resolve</span>
-                    </button>
-                    <ButtonSpinner v-if="isPending(report) && !isResolving(report)" class="small" :loading="isUpdating(report)" @click="removeReport(report)">
-                        <i class="fa fa-trash"></i>
-                        Remove
-                    </ButtonSpinner>
-                    <ButtonSpinner v-if="isResolving(report)" class="small" :loading="isUpdating(report)" @click="submitResolution(report)">
-                        <i class="fa fa-check"></i>
-                        <span>Submit</span>
-                    </ButtonSpinner>
-                    <button v-if="isResolving(report)" type="button" class="small" :disabled="isUpdating(report)" @click="cancelResolution">
-                        <i class="fa fa-times"></i>
-                        <span>Cancel</span>
-                    </button>
-                    <ButtonSpinner v-if="canReopen(report) && !isResolving(report)" class="small" :loading="isUpdating(report)" @click="reopenReport(report)">
-                        <i class="fa fa-undo"></i>
-                        <span>Reopen</span>
-                    </ButtonSpinner>
-                    <button
-                        v-if="report.complaints.length > 0"
-                        type="button"
-                        class="small"
-                        :aria-label="showReasons(report) ? 'Hide reasons' : 'Show reasons'"
-                        :aria-expanded="showReasons(report)"
-                        :aria-controls="`report-reasons-${report.id}`"
-                        @click="toggleReasons(report)"
-                    >
-                        <i class="fa" :class="showReasons(report) ? 'fa-angles-up' : 'fa-angles-down'"></i>
-                    </button>
-                </div>
+                    <template v-if="report.complaints.length > 0">
+                        <Tag class="danger" @click="toggleReasons(report)">
+                            <i class="fa" :class="showReasons(report) ? 'fa-angles-up' : 'fa-angles-down'"></i>
+                        </Tag>
+                    </template>
+                </section>
+                <CollapseTransition>
+                    <section v-show="showReasons(report)" class="f-1 column g-2">
+                        <template v-for="(complaint, index) in report.complaints" :key="index">
+                            <blockquote>
+                                <strong>{{ complaint.reporter.name }}:</strong>
+                                {{ complaint.reason }}
+                            </blockquote>
+                        </template>
+                    </section>
+                </CollapseTransition>
+                <CollapseTransition mode="out-in" :speed="200">
+                    <section v-if="isResolving(report) && canActOnReport(report)" class="field g-2">
+                        <textarea v-model="resolution" :placeholder="resolutionAction === 'remove' ? 'Provide an removal reason...' : 'Provide an approval reason...'" rows="3" />
+                        <div class="row g-2">
+                            <ButtonSpinner class="small f-1" :loading="isUpdating(report)" @click="submitResolution(report)">
+                                <i class="fa fa-check"></i>
+                                <span>{{ resolutionAction === "remove" ? "Remove" : "Submit" }}</span>
+                            </ButtonSpinner>
+                            <button type="button" class="small f-1" :disabled="isUpdating(report)" @click="cancelResolution">
+                                <i class="fa fa-ban"></i>
+                                <span>Cancel</span>
+                            </button>
+                        </div>
+                    </section>
+                    <section v-if="report.appeal" class="column g-2">
+                        <blockquote>
+                            <strong>Appeal ({{ report.author }}):</strong>
+                            {{ report.appeal.reason }}
+                        </blockquote>
+                        <blockquote v-if="report.resolution">
+                            <strong>Resolution ({{ report.moderator?.name }}):</strong>
+                            {{ report.resolution }}
+                        </blockquote>
+                        <template v-if="canReviewAppeal(report)">
+                            <label class="field">
+                                <textarea
+                                    :value="appealResolutions[report.id] ?? ''"
+                                    placeholder="Provide an appeal decision reason..."
+                                    rows="3"
+                                    @input="appealResolutions[report.id] = ($event.target as HTMLTextAreaElement).value"
+                                />
+                            </label>
+                            <div class="row g-2">
+                                <button type="button" class="small f-1" @click="viewSubject(report)">
+                                    <i class="fa fa-eye"></i>
+                                    <span>View</span>
+                                </button>
+                                <ButtonSpinner class="small f-1" :loading="isUpdating(report)" @click="reviewAppeal(report, 'accept')">
+                                    <i class="fa-solid fa-check"></i>
+                                    <span>Accept</span>
+                                </ButtonSpinner>
+                                <ButtonSpinner class="small f-1" :loading="isUpdating(report)" @click="reviewAppeal(report, 'reject')">
+                                    <i class="fa-solid fa-xmark"></i>
+                                    <span>Reject</span>
+                                </ButtonSpinner>
+                            </div>
+                        </template>
+                    </section>
+                    <section v-if="canActOnReport(report) && isPending(report) && !isResolving(report)" class="row wrap g-1">
+                        <button type="button" class="small f-1" :disabled="isUpdating(report)" @click="startResolution(report)">
+                            <i class="fa fa-feather"></i>
+                            <span>Approve</span>
+                        </button>
+                        <button type="button" class="small f-1" :disabled="isUpdating(report)" @click="startRemoval(report)">
+                            <i class="fa fa-trash"></i>
+                            Remove
+                        </button>
+                    </section>
+                    <section v-if="canActOnReport(report) && canReopen(report) && !isResolving(report)" class="row">
+                        <ButtonSpinner class="small f-1" :loading="isUpdating(report)" @click="reopenReport(report)">
+                            <i class="fa fa-undo"></i>
+                            <span>Reopen</span>
+                        </ButtonSpinner>
+                    </section>
+                </CollapseTransition>
             </div>
-        </article>
-    </section>
-    <section v-else class="box empty-state">
-        <p>There are currently no reports.</p>
-    </section>
+        </section>
+        <section v-else class="box empty-state">
+            <p>{{ selectedStatus ? "There are no reports in this stage." : "There are currently no reports." }}</p>
+        </section>
+    </article>
 </template>
-
-<style scoped lang="scss">
-article.report {
-    .main {
-        overflow: hidden;
-    }
-}
-</style>

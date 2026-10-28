@@ -43,7 +43,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 ### B1. Moderation Workflow Completeness
 - 🟩 Ensure moderation queue/report triage is complete and documented. (`M`)
 - 🟩 Add moderation action log/audit trail MVP (who, what, when, reason, target). (`L`)
-- 🟦 Add appeal workflow MVP with status transitions and resolution notes. (`L`)
+- 🟩 Add appeal workflow MVP with status transitions and resolution notes. (`L`)
 
 **Success metric**: moderation decisions are traceable end-to-end and can be appealed with predictable outcomes.
 

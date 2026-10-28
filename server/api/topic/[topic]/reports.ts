@@ -12,12 +12,20 @@ export default defineEventHandler(async (event) => {
                 fn::http(403, "You cannot moderate this topic.");
             };
 
-            SELECT id, subject.id, time, status, resolution, complaints, moderator
+            SELECT id, subject.id, time, status, resolution, complaints, moderator, appeal, author
             FROM report
             WHERE record::exists(subject)
             AND subject.topics CONTAINS $topic
+            AND (
+                $user.roles CONTAINS "admin"
+                OR (
+                    subject != $user
+                    AND subject.user != $user
+                    AND (status != "appealed" OR moderator != $user)
+                )
+            )
             ORDER BY time DESC
-            FETCH subject, complaints.reporter, moderator
+            FETCH subject, subject.user, complaints.reporter, moderator, appeal.moderator
         `)
         .addTransaction()
         .addRecord("topic", `topic:${topic}`)

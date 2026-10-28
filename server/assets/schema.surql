@@ -458,7 +458,7 @@ DEFINE TABLE notification SCHEMAFULL;
 DEFINE FIELD recipient ON notification
     TYPE record<user>;
 DEFINE FIELD context ON notification
-    TYPE record<post|comment|user|thread|gallery|image>;
+    TYPE record<post|comment|user|thread|gallery|image|report>;
 DEFINE FIELD message ON notification
     TYPE string;
 DEFINE FIELD time ON notification
@@ -520,11 +520,21 @@ DEFINE FIELD complaints.*.time ON report
 DEFINE FIELD time ON report
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD status ON report
-    TYPE string ASSERT $value IN ["pending", "resolved", "removed"] DEFAULT ALWAYS "pending";
+    TYPE string ASSERT $value IN ["pending", "approved", "removed", "appealed"] DEFAULT ALWAYS "pending";
 DEFINE FIELD resolution ON report
     TYPE option<string> ASSERT $value = NONE OR $value.len() >= 3;
 DEFINE FIELD moderator ON report
     TYPE option<record<user>>;
+DEFINE FIELD appeal ON report
+    TYPE option<object>;
+DEFINE FIELD appeal.reason ON report
+    TYPE string;
+DEFINE FIELD appeal.time ON report
+    TYPE datetime;
+DEFINE FIELD appeal.moderator ON report
+    TYPE option<record<user>>;
+DEFINE FIELD author ON report
+    COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
 
 
 -- ------------------------------
@@ -551,11 +561,13 @@ DEFINE INDEX moderatorLogTarget ON TABLE moderatorLog
 DEFINE EVENT moderatorLogReportUpdate ON report
     WHEN $event = 'UPDATE' AND $after.moderator != NONE
     THEN {
-        IF $before.status != $after.status OR $before.resolution != $after.resolution {
+        IF ($before.status != $after.status OR $before.resolution != $after.resolution)
+            AND $before.appeal.moderator = $after.appeal.moderator
+            AND $after.status != 'appealed' {
             LET $action = IF $before.status = $after.status THEN
                 'report.resolution_updated'
-            ELSE IF $after.status = 'resolved' THEN
-                'report.resolved'
+            ELSE IF $after.status = 'approved' THEN
+                'report.approved'
             ELSE IF $after.status = 'removed' THEN
                 'report.removed'
             ELSE

@@ -9,7 +9,7 @@
 Make moderator report triage complete, predictable, and documented for the existing report surfaces.
 
 ## Requirements
-- [x] Moderators can distinguish pending, resolved, and removed reports.
+- [x] Moderators can distinguish pending, approved, and removed reports.
 - [x] Review navigates to the reported content without changing report status.
 - [x] Report actions and their authorization rules are documented.
 - [x] The documented workflow matches the behavior exposed by the moderator UI and API.

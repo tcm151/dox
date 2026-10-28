@@ -156,7 +156,7 @@ Role checks are applied in route handlers and page middleware as needed.
 
 - Reports are created through report endpoints and surfaced in admin and moderator-facing routes. There is one report record per subject; each submission is appended to its `complaints` array with its reporter, reason, and timestamp.
 - Topic-scoped reporting views exist for moderators (for example, topic report queues under `app/pages/topic/[topic]/reports.vue` backed by `server/api/topic/[topic]/reports.ts`).
-- Report statuses are `pending`, `resolved`, and `removed`, with one status and optional resolution per subject. A new complaint appends to the existing report and reopens a resolved/removed report by clearing its resolution. Review navigates to the subject without changing status; moderators can resolve with an optional note, mark removed content, or reopen a resolved/removed report to pending.
+- Report statuses are `pending`, `approved`, `removed`, and `appealed`, with one status and optional resolution per subject. A new complaint appends to the existing report and reopens an approved/removed report by clearing its resolution. Review navigates to the subject without changing status; moderators can approve with an optional note, mark removed content, or reopen an approved/removed report to pending. Submitting an appeal moves a removed report to `appealed`; only appeal review can accept it to `approved` or reject it back to `removed`.
 - Global report APIs are admin-only. Topic-scoped report APIs allow admins and assigned topic moderators, and verify that the report subject belongs to the topic.
 - Reports whose subject no longer exists are omitted from both queues and deleted by a scheduled cleanup task.
 - Topic moderation/request features exist and are evolving.

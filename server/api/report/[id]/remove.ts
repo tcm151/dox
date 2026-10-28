@@ -5,5 +5,6 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, "admin")
 
     const id = event.context.params!.id!
-    return await ReportManager.remove({ id, user: auth.id })
+    const body = await readBody<{ resolution?: unknown }>(event) ?? {}
+    return await ReportManager.remove({ id, user: auth.id, resolution: body.resolution })
 })
