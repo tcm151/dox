@@ -26,9 +26,14 @@ Make moderator report triage complete, predictable, and documented for the exist
 - app/pages/moderator.vue
 - app/components/lists/ReportQueue.vue
 - app/pages/topic/[topic]/reports.vue
-- server/api/report/[id]/update.ts
+- server/api/report/[id]/resolve.ts
+- server/api/report/[id]/reopen.ts
+- server/api/report/[id]/remove.ts
 - server/api/topic/[topic]/reports.ts
-- server/api/topic/[topic]/reports/[id]/update.ts
+- server/api/topic/[topic]/reports/[id]/resolve.ts
+- server/api/topic/[topic]/reports/[id]/reopen.ts
+- server/api/topic/[topic]/reports/[id]/remove.ts
+- server/utils/ReportManager.ts
 - docs/Architecture.md
 
 ## Progress Log

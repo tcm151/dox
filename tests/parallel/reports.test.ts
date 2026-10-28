@@ -76,15 +76,9 @@ it("lists a report in administrator and topic queues", async () => {
         expect(listedReports[0]!.complaints).toHaveLength(2)
         expect(listedReports[0]!.complaints.every(item => item.reporter.id === reporter.user.id)).toBe(true)
 
-        const invalidStatusResponse = await admin.fetchRaw(`/api/report/${reportId}/update`, {
+        const shortResolutionResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
             method: "PUT",
-            body: { status: "closed", resolution: "Reviewed and resolved." },
-        })
-        expectStatus(invalidStatusResponse, 400, "invalid report status stage")
-
-        const shortResolutionResponse = await admin.fetchRaw(`/api/report/${reportId}/update`, {
-            method: "PUT",
-            body: { status: "resolved", resolution: "No" },
+            body: { resolution: "No" },
         })
         expectStatus(shortResolutionResponse, 400, "short report resolution stage")
 
@@ -92,9 +86,9 @@ it("lists a report in administrator and topic queues", async () => {
             resolution?: string
             status: string
             moderator?: string
-        }>>(`/api/report/${reportId}/update`, {
+        }>>(`/api/report/${reportId}/resolve`, {
             method: "PUT",
-            body: { status: "resolved", resolution: "Reviewed and resolved." },
+            body: { resolution: "Reviewed and resolved." },
         })
         expectStatus(resolutionResponse, 200, "report resolution stage")
         const resolvedReports = resolutionResponse._data!
@@ -115,9 +109,9 @@ it("lists a report in administrator and topic queues", async () => {
             },
         })
 
-        const resolutionEditResponse = await admin.fetchRaw(`/api/report/${reportId}/update`, {
+        const resolutionEditResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
             method: "PUT",
-            body: { status: "resolved", resolution: "Updated decision note." },
+            body: { resolution: "Updated decision note." },
         })
         expectStatus(resolutionEditResponse, 200, "report resolution edit stage")
         const resolutionEditLogs = await getModeratorLogs(`report:${reportId}`)
@@ -151,9 +145,8 @@ it("lists a report in administrator and topic queues", async () => {
         expect(afterLaterReport!.complaints).toHaveLength(3)
         expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(2)
 
-        const clearResolutionResponse = await admin.fetchRaw<Array<{ resolution?: string }>>(`/api/report/${reportId}/update`, {
+        const clearResolutionResponse = await admin.fetchRaw<Array<{ resolution?: string }>>(`/api/report/${reportId}/reopen`, {
             method: "PUT",
-            body: { status: "pending" },
         })
         expectStatus(clearResolutionResponse, 200, "report resolution clear stage")
         const clearedReports = clearResolutionResponse._data!
@@ -163,26 +156,52 @@ it("lists a report in administrator and topic queues", async () => {
         expect(reopenedLogs).toHaveLength(3)
         expect(reopenedLogs[2]).toMatchObject({ action: "report.reopened" })
 
-        const removedResponse = await admin.fetchRaw<Array<{ status: string }>>(`/api/report/${reportId}/update`, {
+        const removedResponse = await admin.fetchRaw<Array<{ status: string }>>(`/api/report/${reportId}/remove`, {
             method: "PUT",
-            body: { status: "removed" },
         })
         expectStatus(removedResponse, 200, "report removal status stage")
         const removedReports = removedResponse._data!
         expect(removedReports).toHaveLength(1)
         expect(removedReports[0]!.status).toBe("removed")
+        const quarantinedThread = await admin.fetch<{ status: string }>(`/api/thread/${threadId}`)
+        expect(quarantinedThread.status).toBe("quarantined")
+        const authorNotifications = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
+        expect(authorNotifications.notifications.some(notification => notification.context === thread.id && /quarantin|removed/i.test(notification.message))).toBe(true)
+        const reporterNotifications = await reporter.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
+        expect(reporterNotifications.notifications.some(notification => notification.context === thread.id && /quarantin|removed/i.test(notification.message))).toBe(true)
         const removedLogs = await getModeratorLogs(`report:${reportId}`)
         expect(removedLogs).toHaveLength(4)
         expect(removedLogs[3]).toMatchObject({ action: "report.removed" })
 
-        const topicUpdateResponse = await admin.fetchRaw(`/api/topic/${topicId}/reports/${reportId}/update`, {
+        const restoreResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
             method: "PUT",
-            body: { status: "resolved", resolution: "Topic report reviewed." },
+            body: { resolution: "Appeal accepted." },
+        })
+        expectStatus(restoreResponse, 200, "reopen quarantined report stage")
+        const restoredThread = await admin.fetch<{ status: string }>(`/api/thread/${threadId}`)
+        expect(restoredThread.status).toBe("active")
+        const authorNotificationsAfterRestore = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
+        expect(authorNotificationsAfterRestore.notifications.some(notification => notification.context === thread.id && /restor|reopen/i.test(notification.message))).toBe(true)
+        const restoredLogs = await getModeratorLogs(`report:${reportId}`)
+        expect(restoredLogs).toHaveLength(5)
+        expect(restoredLogs[4]).toMatchObject({ action: "report.resolved" })
+
+        const reopenAgainResponse = await admin.fetchRaw(`/api/report/${reportId}/reopen`, {
+            method: "PUT",
+        })
+        expectStatus(reopenAgainResponse, 200, "resolved report can be reopened stage")
+        const reopenedAgainLogs = await getModeratorLogs(`report:${reportId}`)
+        expect(reopenedAgainLogs).toHaveLength(6)
+        expect(reopenedAgainLogs[5]).toMatchObject({ action: "report.reopened" })
+
+        const topicUpdateResponse = await admin.fetchRaw(`/api/topic/${topicId}/reports/${reportId}/resolve`, {
+            method: "PUT",
+            body: { resolution: "Topic report reviewed." },
         })
         expectStatus(topicUpdateResponse, 200, "topic report update stage")
         const topicUpdateLogs = await getModeratorLogs(`report:${reportId}`)
-        expect(topicUpdateLogs).toHaveLength(5)
-        expect(topicUpdateLogs[4]).toMatchObject({ action: "report.resolved" })
+        expect(topicUpdateLogs).toHaveLength(7)
+        expect(topicUpdateLogs[6]).toMatchObject({ action: "report.resolved" })
 
         const reopenedResponse = await reporter.fetchRaw("/api/report/send", {
             method: "POST",
@@ -205,7 +224,7 @@ it("lists a report in administrator and topic queues", async () => {
         expect(reportAfterComplaint.resolution).toBe("Topic report reviewed.")
         expect(reportAfterComplaint.moderator?.id).toBe(admin.user.id)
         expect(reportAfterComplaint.complaints).toHaveLength(4)
-        expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(5)
+        expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(7)
     }
     finally {
         await admin.query([

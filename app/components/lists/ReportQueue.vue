@@ -44,24 +44,64 @@ function viewSubject(report: Report) {
     navigateTo(`/${report.subject.id.replace(":", "/")}`)
 }
 
-async function updateStatus(report: Report, status: Report["status"], resolutionNote?: string) {
+async function resolveReport(report: Report, resolutionNote?: string) {
     if (updatingSubjectId.value) return false
 
     updatingSubjectId.value = report.id
     const reportId = extractId(report.id)
     const endpoint = props.topic
-        ? `/api/topic/${encodeURIComponent(props.topic)}/reports/${reportId}/update`
-        : `/api/report/${reportId}/update`
+        ? `/api/topic/${encodeURIComponent(props.topic)}/reports/${reportId}/resolve`
+        : `/api/report/${reportId}/resolve`
     const normalizedResolution = resolutionNote?.trim()
 
     try {
         await useApi(endpoint, {
             method: "PUT",
-            body: { status, ...(normalizedResolution ? { resolution: normalizedResolution } : {}) },
+            body: { ...(normalizedResolution ? { resolution: normalizedResolution } : {}) },
         })
         await props.refresh()
-        hints.addSuccess(`Report for ${report.subject.id} marked ${status}.`)
+        hints.addSuccess(`Report for ${report.subject.id} resolved.`)
         if (isResolving(report)) cancelResolution()
+        return true
+    }
+    finally {
+        updatingSubjectId.value = undefined
+    }
+}
+
+async function removeReport(report: Report) {
+    if (updatingSubjectId.value) return false
+
+    updatingSubjectId.value = report.id
+    const reportId = extractId(report.id)
+    const endpoint = props.topic
+        ? `/api/topic/${encodeURIComponent(props.topic)}/reports/${reportId}/remove`
+        : `/api/report/${reportId}/remove`
+
+    try {
+        await useApi(endpoint, { method: "PUT" })
+        await props.refresh()
+        hints.addSuccess(`Report for ${report.subject.id} removed.`)
+        return true
+    }
+    finally {
+        updatingSubjectId.value = undefined
+    }
+}
+
+async function reopenReport(report: Report) {
+    if (updatingSubjectId.value) return false
+
+    updatingSubjectId.value = report.id
+    const reportId = extractId(report.id)
+    const endpoint = props.topic
+        ? `/api/topic/${encodeURIComponent(props.topic)}/reports/${reportId}/reopen`
+        : `/api/report/${reportId}/reopen`
+
+    try {
+        await useApi(endpoint, { method: "PUT" })
+        await props.refresh()
+        hints.addSuccess(`Report for ${report.subject.id} reopened.`)
         return true
     }
     finally {
@@ -86,7 +126,7 @@ async function submitResolution(report: Report) {
         return
     }
 
-    await updateStatus(report, "resolved", note)
+    await resolveReport(report, note)
 }
 </script>
 
@@ -128,7 +168,7 @@ async function submitResolution(report: Report) {
                         <i class="fa fa-feather"></i>
                         <span>Resolve</span>
                     </button>
-                    <ButtonSpinner v-if="isPending(report) && !isResolving(report)" class="small" :loading="isUpdating(report)" @click="updateStatus(report, 'removed')">
+                    <ButtonSpinner v-if="isPending(report) && !isResolving(report)" class="small" :loading="isUpdating(report)" @click="removeReport(report)">
                         <i class="fa fa-trash"></i>
                         Remove
                     </ButtonSpinner>
@@ -140,7 +180,7 @@ async function submitResolution(report: Report) {
                         <i class="fa fa-times"></i>
                         <span>Cancel</span>
                     </button>
-                    <ButtonSpinner v-if="canReopen(report) && !isResolving(report)" class="small" :loading="isUpdating(report)" @click="updateStatus(report, 'pending')">
+                    <ButtonSpinner v-if="canReopen(report) && !isResolving(report)" class="small" :loading="isUpdating(report)" @click="reopenReport(report)">
                         <i class="fa fa-undo"></i>
                         <span>Reopen</span>
                     </ButtonSpinner>
