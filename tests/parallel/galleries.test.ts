@@ -7,6 +7,11 @@ const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
 const member = exampleServer.users.sampleUser01
 
+it("does not expose standalone image discovery", async () => {
+    const response = await fetch("/api/image")
+    expect(response.ok).toBe(false)
+})
+
 it("rejects publishing an image owned by another user", async () => {
     const imageId = `foreignGalleryImage${Date.now()}`
 
@@ -21,6 +26,46 @@ it("rejects publishing an image owned by another user", async () => {
     }
     finally {
         await admin.query(`DELETE image:${imageId};`)
+    }
+})
+
+it("allows other users to attach an image only after gallery publication", async () => {
+    const imageId = `galleryAttachment${Date.now()}`
+    let galleryId: string | undefined
+    let postId: string | undefined
+
+    try {
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+
+        const unpublishedPostResponse = await member.fetchRaw("/api/post/add", {
+            method: "POST",
+            body: { title: "Unpublished image", content: "This should be rejected.", topics: [], images: [`image:${imageId}`] },
+        })
+        expectStatus(unpublishedPostResponse, 403)
+
+        const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
+            method: "POST",
+            body: { images: [`image:${imageId}`], description: "", topics: [] },
+        })
+        expectStatus(publishResponse, 200)
+        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
+        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        expect(gallery).toBeDefined()
+        galleryId = extractId(gallery!.id)
+
+        const publishedPostResponse = await member.fetchRaw("/api/post/add", {
+            method: "POST",
+            body: { title: "Published image", content: "This attachment is allowed.", topics: [], images: [`image:${imageId}`] },
+        })
+        expectStatus(publishedPostResponse, 200)
+        postId = extractId(publishedPostResponse._data!.id)
+    }
+    finally {
+        await admin.query([
+            ...(postId ? [`DELETE post:${postId};`] : []),
+            ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
+            `DELETE image:${imageId};`,
+        ].join("\n"))
     }
 })
 

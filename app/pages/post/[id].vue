@@ -190,7 +190,7 @@ function toggleOptions() {
                 <header class="row wrap g-1">
                     <Votes :target="post" />
                     <div class="f-1 row wrap g-1">
-                        <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
+                        <Tag v-if="post.status === 'archived'" type="link" icon="fa-folder-closed" />
                         <UserTag class="f-1" :user="post.user" />
                         <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
                         <Tag class="f-1" type="info">

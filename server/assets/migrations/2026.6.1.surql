@@ -18,6 +18,8 @@ DEFINE FIELD OVERWRITE resolution ON report
 	TYPE option<string> ASSERT $value = NONE OR $value.len() >= 3;
 DEFINE FIELD IF NOT EXISTS moderator ON report
 	TYPE option<record<user>>;
+DEFINE FIELD OVERWRITE context ON notification
+	TYPE record<post|comment|user|thread|gallery|image>;
 
 DEFINE TABLE IF NOT EXISTS moderatorLog SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS actor ON moderatorLog
@@ -124,6 +126,56 @@ DEFINE INDEX IF NOT EXISTS reportSubject ON TABLE report
 	FIELDS subject UNIQUE;
 
 BEGIN TRANSACTION;
+
+DEFINE TABLE OVERWRITE feed AS
+SELECT id, id AS sourceId, time,
+    fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits) AS score,
+    user, topics
+FROM post, thread, gallery
+WHERE IF id IS NONE THEN false ELSE (
+    (record::tb(id) = 'post' AND status = 'active')
+    OR (record::tb(id) = 'thread' AND replyTo = NONE AND status = 'active')
+    OR (record::tb(id) = 'gallery' AND status = 'active')
+) END;
+DEFINE FIELD OVERWRITE hot ON feed
+    COMPUTED fn::sort_hot(score, time, time::now());
+
+LET $postFields = (INFO FOR TABLE post).fields;
+IF $postFields.archived != NONE {
+	DEFINE FIELD OVERWRITE status ON post TYPE option<string>;
+	UPDATE post SET status = IF archived = true THEN "archived" ELSE "active" END;
+	REMOVE FIELD archived ON post;
+};
+DEFINE FIELD OVERWRITE status ON post
+	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
+
+LET $threadFields = (INFO FOR TABLE thread).fields;
+IF $threadFields.archived != NONE {
+	DEFINE FIELD OVERWRITE status ON thread TYPE option<string>;
+	UPDATE thread SET status = IF archived = true THEN "archived" ELSE "active" END;
+	REMOVE FIELD archived ON thread;
+};
+DEFINE FIELD OVERWRITE status ON thread
+	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
+
+LET $galleryFields = (INFO FOR TABLE gallery).fields;
+IF $galleryFields.archived != NONE {
+	DEFINE FIELD OVERWRITE status ON gallery TYPE option<string>;
+	UPDATE gallery SET status = IF archived = true THEN "archived" ELSE "active" END;
+	REMOVE FIELD archived ON gallery;
+};
+DEFINE FIELD OVERWRITE status ON gallery
+	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
+
+LET $imageFields = (INFO FOR TABLE image).fields;
+IF $imageFields.public != NONE {
+	DEFINE FIELD OVERWRITE status ON image TYPE option<string>;
+	UPDATE image SET status = "active";
+	REMOVE FIELD public ON image;
+};
+DEFINE FIELD OVERWRITE status ON image
+	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
+
 FOR $user IN (SELECT VALUE id FROM user) {
 	UPSERT userSettings SET
 		user = $user,

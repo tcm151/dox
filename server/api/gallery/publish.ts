@@ -19,10 +19,9 @@ export default defineEventHandler(async (event) => {
                 IF !record::exists($image) {
                     fn::http(404, "One or more images do not exist.");
                 };
-                IF $image.user != $user {
-                    fn::http(403, "You can only publish your own images.");
+                IF $image.user != $user OR $image.status != "active" {
+                    fn::http(403, "You can only publish your own available images.");
                 };
-                UPDATE $image SET public = true;
             };
 
             CREATE gallery SET

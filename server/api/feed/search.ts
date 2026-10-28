@@ -20,20 +20,20 @@ export default defineEventHandler(async (event) => {
                 FROM comment
                 WHERE content @1@ $text
                 AND deleted != true
-                AND post.archived != true
+                AND post.status = "active"
                 AND post.deleted != true
             );
 
             LET $posts = (
                 SELECT id, user.id, user.name, title, time, edited, timeEdited,
                     replyTo.id, replyTo.title, topics, comments, votes,
-                    archived, images.{id, url} AS images, visits,
+                    status, images.{id, url} AS images, visits,
                     (string::contains(string::lowercase(title), string::lowercase($text))
                         OR string::contains(string::lowercase(content), string::lowercase($text))) AS search.exact,
                     (search::score(1) * 2 + search::score(2)) AS search.score
                 FROM post
                 WHERE (title @1@ $text OR content @2@ $text)
-                AND archived != true
+                AND status = "active"
                 AND deleted != true
                 FETCH user, replyTo
             );
@@ -46,19 +46,19 @@ export default defineEventHandler(async (event) => {
                     search::score(1) AS search.score
                 FROM thread
                 WHERE content @1@ $text
-                AND archived != true
+                AND status = "active"
                 AND deleted != true
                 FETCH user, replyTo
             );
 
             LET $galleries = (
                 SELECT id, user.id, user.name, description, time,
-                    topics, images.{id, url} AS images, votes, score, visits,
+                    topics, images.{id, url} AS images, votes, score, visits, status,
                     string::contains(string::lowercase(description), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
                 FROM gallery
                 WHERE description @1@ $text
-                AND archived != true
+                AND status = "active"
                 FETCH user
             );
 

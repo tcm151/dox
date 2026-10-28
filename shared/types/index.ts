@@ -49,6 +49,7 @@ export interface User extends Voteable {
 
 export type Role = "admin" | "developer" | "moderator"
 export type Trait = "confirmed" | "verified"
+export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
 
 export interface Session extends Record {
     account: Account & string
@@ -74,7 +75,7 @@ export interface Post extends Sortable {
     topics: string[]
     comments: (Comment & string)[]
     images: Attachment[]
-    archived: boolean
+    status: ContentStatus
     edited: boolean
     timeEdited?: string
 }
@@ -108,7 +109,7 @@ export interface Thread extends Sortable {
     replies: (Thread & string)[]
     images: Attachment[]
     chain?: Thread[]
-    archived: boolean
+    status: ContentStatus
     deleted: boolean
     edited: boolean
     timeEdited?: string
@@ -124,6 +125,7 @@ export interface Media extends Sortable {
 
 export interface Image extends Media {
     description: string
+    status: ContentStatus
 }
 
 export interface Gallery extends Sortable {
@@ -131,7 +133,7 @@ export interface Gallery extends Sortable {
     description: string
     topics: string[]
     images: Attachment[]
-    archived: boolean
+    status: ContentStatus
 }
 
 export interface SearchComment extends Voteable {
@@ -166,7 +168,7 @@ export interface Pin extends Record {
 
 export interface Notification extends Record {
     recipient: User & string
-    context: (Post | Comment) & string
+    context: (Post | Comment | User | Thread | Gallery | Image) & string
     message: string
     time: string
     viewed: boolean

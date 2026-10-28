@@ -24,7 +24,7 @@ const props = defineProps<{
                         </div>
                     </div>
                     <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
-                    <Tag v-if="post.archived" type="link" icon="fa-folder-closed" />
+                    <Tag v-if="post.status === 'archived'" type="link" icon="fa-folder-closed" />
                     <Tag v-if="post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
                     <Tag v-if="post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
                     <div class="row wrap g-1">

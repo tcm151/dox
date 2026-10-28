@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const post = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, title, content, time,
-            replyTo.id, replyTo.title, topics, votes, archived, edited, timeEdited, visits,
+            replyTo.id, replyTo.title, topics, votes, status, edited, timeEdited, visits,
             images.{id, url} AS images,
             (
                 SELECT id, time, user.id, user.name, post,

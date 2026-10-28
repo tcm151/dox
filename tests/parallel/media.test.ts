@@ -47,6 +47,7 @@ it("uploads an image, charges tokens, and refunds them on deletion", async () =>
         expect(imageId).toBeDefined()
         expect(uploaded.media.user).toBe(admin.user.id)
         expect(uploaded.media.type).toBe("png")
+        expect(uploaded.media.status).toBe("active")
         expect(uploaded.tokens).toBe(uploaded.media.tokens)
         expect(uploaded.tokens).toBeGreaterThan(0)
 

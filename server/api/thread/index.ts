@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
             edited, timeEdited, visits, images.{id, url} AS images
             FROM thread
             WHERE replyTo = NONE
+            AND status = "active"
             ORDER BY time DESC
             FETCH user, quote, quote.user
         `)

@@ -8,10 +8,10 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
                 replyTo.id, replyTo.title, topics, comments, votes, score,
-                archived, images.{id, url} AS images, visits
+                status, images.{id, url} AS images, visits
             FROM post
             WHERE user = $user
-            AND archived != true
+            AND status = "active"
             ORDER BY time DESC
             FETCH user, replyTo
         `)
@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
             FROM thread
             WHERE user = $user
             AND replyTo = NONE
+            AND status = "active"
             ORDER BY time DESC
             FETCH user, quote, quote.user
         `)
@@ -35,10 +36,10 @@ export default defineEventHandler(async (event) => {
     let galleries = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, description, time,
-                topics, images.{id, url} AS images, votes, score, visits, archived
+                topics, images.{id, url} AS images, votes, score, visits, status
             FROM gallery
             WHERE user = $user
-            AND archived != true
+            AND status = "active"
             ORDER BY time DESC
             FETCH user
         `)

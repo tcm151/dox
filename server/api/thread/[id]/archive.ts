@@ -8,8 +8,11 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
+            IF $thread.status NOT IN ["active", "archived"] {
+                fn::http(409, "This thread cannot be archived in its current state.");
+            };
             UPDATE $thread SET
-                archived = !archived
+                status = IF status = "archived" THEN "active" ELSE "archived" END
         `)
         .addRecord("thread", `thread:${id}`)
         .queryOne<Thread>()

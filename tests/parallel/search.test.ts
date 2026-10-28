@@ -101,11 +101,11 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             post: { id: `post:${postId}`, title: postTitle },
         })
 
-        await admin.query(`UPDATE post:${postId} SET archived = true;`)
+        await admin.query(`UPDATE post:${postId} SET status = "archived";`)
         const archivedCommentResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
         expectStatus(archivedCommentResponse, 200, await archivedCommentResponse.clone().text())
         expect(await archivedCommentResponse.json()).toEqual([])
-        await admin.query(`UPDATE post:${postId} SET archived = false;`)
+        await admin.query(`UPDATE post:${postId} SET status = "active";`)
 
         await admin.query(`UPDATE comment:${commentId} SET deleted = true;`)
         const deletedCommentState = await admin.query<unknown[][]>(`
@@ -120,9 +120,9 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(await deletedCommentResponse.json()).toEqual([])
 
         await admin.query(`
-            UPDATE post:${postId} SET archived = true;
-            UPDATE thread:${threadId} SET archived = true;
-            UPDATE gallery:${galleryId} SET archived = true;
+            UPDATE post:${postId} SET status = "archived";
+            UPDATE thread:${threadId} SET status = "archived";
+            UPDATE gallery:${galleryId} SET status = "archived";
         `)
 
         const archivedSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)

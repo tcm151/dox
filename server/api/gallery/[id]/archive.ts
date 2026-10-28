@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            UPDATE $gallery SET archived = !archived
+            IF $gallery.status NOT IN ["active", "archived"] {
+                fn::http(409, "This gallery cannot be archived in its current state.");
+            };
+            UPDATE $gallery SET status = IF status = "archived" THEN "active" ELSE "archived" END
         `)
         .addRecord("gallery", `gallery:${id}`)
         .queryOne<Gallery>()

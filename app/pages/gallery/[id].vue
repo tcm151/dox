@@ -32,7 +32,7 @@ async function reportGallery() {
 async function archiveGallery() {
     if (!gallery.value) return
     await useApi(`/api/gallery/${extractId(gallery.value.id)}/archive`)
-    hints.addSuccess(gallery.value.archived ? "Gallery unarchived." : "Gallery archived.")
+    hints.addSuccess(gallery.value.status === "archived" ? "Gallery unarchived." : "Gallery archived.")
     await refresh()
 }
 
@@ -73,8 +73,8 @@ function deleteGallery() {
                     <Tag
                         v-if="hasRole(session.user, 'admin') || hasRole(session.user, 'developer')"
                         type="warning"
-                        :icon="gallery.archived ? 'fa-box-open' : 'fa-box-archive'"
-                        :label="gallery.archived ? 'Unarchive' : 'Archive'"
+                        :icon="gallery.status === 'archived' ? 'fa-box-open' : 'fa-box-archive'"
+                        :label="gallery.status === 'archived' ? 'Unarchive' : 'Archive'"
                         @click="archiveGallery"
                     />
                 </ClientOnly>

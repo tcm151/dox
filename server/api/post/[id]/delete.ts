@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
             }
             ELSE {
                 FOR $image IN $post.images {
-                    IF $image.user = $post.user AND $image.public = false {
+                    IF $image.user = $post.user AND $image.status = "active" {
                         LET $usages = (
                             SELECT VALUE id
                             FROM post, thread, draft, gallery

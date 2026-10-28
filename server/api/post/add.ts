@@ -15,15 +15,20 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            LET $attachableImages = (
-                SELECT VALUE id
-                FROM image
-                WHERE id IN $images
-                AND (user = $user OR public = true)
-            );
-
-            IF array::len($attachableImages) != array::len($images) {
-                fn::http(403, "You are not allowed to attach these images.");
+            FOR $image IN $images {
+                IF $image.status != "active" {
+                    fn::http(403, "You are not allowed to attach these images.");
+                };
+                IF $image.user != $user {
+                    LET $publishedGalleries = (
+                        SELECT VALUE id
+                        FROM gallery
+                        WHERE status = "active" AND images CONTAINS $image
+                    );
+                    IF array::len($publishedGalleries) = 0 {
+                        fn::http(403, "You are not allowed to attach these images.");
+                    };
+                };
             };
 
             RETURN CREATE post SET

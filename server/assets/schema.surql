@@ -167,8 +167,8 @@ DEFINE FIELD comments ON post
     TYPE array<record<comment>> DEFAULT ALWAYS [];
 DEFINE FIELD images ON post
     TYPE array<record<image>> DEFAULT ALWAYS [];
-DEFINE FIELD archived ON post
-    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD status ON post
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD deleted ON post
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD edited ON post
@@ -282,8 +282,8 @@ DEFINE FIELD topics ON thread
     TYPE array<record<topic>> DEFAULT ALWAYS [];
 DEFINE FIELD images ON thread
     TYPE array<record<image>> DEFAULT ALWAYS [];
-DEFINE FIELD archived ON thread
-    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD status ON thread
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD deleted ON thread
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD edited ON thread
@@ -344,8 +344,8 @@ DEFINE FIELD url ON image
     COMPUTED string::concat(origin, "/cdn/image/", record::id(id));
 DEFINE FIELD tokens ON image
     TYPE number DEFAULT ALWAYS 25000;
-DEFINE FIELD public ON image
-    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD status ON image
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD description ON image
     TYPE string DEFAULT ALWAYS "";
 DEFINE FIELD visits ON image
@@ -376,8 +376,8 @@ DEFINE FIELD topics ON gallery
     TYPE array<record<topic>> DEFAULT ALWAYS [];
 DEFINE FIELD images ON gallery
     TYPE array<record<image>> DEFAULT ALWAYS [];
-DEFINE FIELD archived ON gallery
-    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD status ON gallery
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD visits ON gallery
     TYPE number DEFAULT ALWAYS 0;
 DEFINE FIELD votes.positive ON gallery
@@ -415,9 +415,9 @@ SELECT id, id AS sourceId, time,
     user, topics
 FROM post, thread, gallery
 WHERE IF id IS NONE THEN false ELSE (
-    (record::tb(id) = 'post' AND archived != true)
-    OR (record::tb(id) = 'thread' AND replyTo = NONE)
-    OR (record::tb(id) = 'gallery' AND archived != true)
+    (record::tb(id) = 'post' AND status = 'active')
+    OR (record::tb(id) = 'thread' AND replyTo = NONE AND status = 'active')
+    OR (record::tb(id) = 'gallery' AND status = 'active')
 ) END;
 DEFINE FIELD hot ON feed
     COMPUTED fn::sort_hot(score, time, time::now());
@@ -458,7 +458,7 @@ DEFINE TABLE notification SCHEMAFULL;
 DEFINE FIELD recipient ON notification
     TYPE record<user>;
 DEFINE FIELD context ON notification
-    TYPE record<post|comment|user|thread>;
+    TYPE record<post|comment|user|thread|gallery|image>;
 DEFINE FIELD message ON notification
     TYPE string;
 DEFINE FIELD time ON notification

@@ -25,7 +25,7 @@ let newThread = ref<Thread>({
     visits: 0,
     edited: false,
     deleted: false,
-    archived: false,
+    status: "active",
 })
 
 const topics = useTopicManager()

@@ -8,8 +8,11 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
+            IF $post.status NOT IN ["active", "archived"] {
+                fn::http(409, "This post cannot be archived in its current state.");
+            };
             UPDATE $post SET
-            archived = !archived
+                status = IF status = "archived" THEN "active" ELSE "archived" END
         `)
         .addRecord("post", `post:${id}`)
         .queryOne<Post>()

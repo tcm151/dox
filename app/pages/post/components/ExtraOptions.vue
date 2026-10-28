@@ -45,7 +45,7 @@ function emitAndClose(event: string) {
             </button>
             <button v-if="hasRole(session.user, 'admin')" @click="emitAndClose('archive')">
                 <i class="fa-solid fa-box"></i>
-                <span v-if="!post.archived">Archive</span>
+                <span v-if="post.status !== 'archived'">Archive</span>
                 <span v-else>Unarchive</span>
             </button>
             <button v-if="post.user.id === session.user.id" @click="emitAndClose('delete')">
