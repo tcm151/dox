@@ -1,95 +1,96 @@
-import { createRemoteEngines, Surreal, RecordId } from 'surrealdb'
+import { createRemoteEngines, RecordId, Surreal } from 'surrealdb'
 import { createNodeEngines } from '@surrealdb/node';
 
-const config = useRuntimeConfig()
-let SurrealInstance: Surreal | undefined
-
-function normalizeRecordIds<T>(value: T): T {
-    if (value instanceof RecordId) {
-        return `${value.table.name}:${value.id}` as T
-    }
-    if (Array.isArray(value)) {
-        return value.map(normalizeRecordIds) as T
-    }
-    if (value && typeof value === "object") {
-        const prototype = Object.getPrototypeOf(value)
-        if (prototype === Object.prototype || prototype === null) {
-            return Object.fromEntries(
-                Object.entries(value).map(([key, nested]) => [key, normalizeRecordIds(nested)])
-            ) as T
-        }
-    }
-    return value
-}
-
-export async function shutdownDatabase() {
-    return await SurrealInstance?.close()
-}
-
-async function initializeDatabase() {
-    if (SurrealInstance && SurrealInstance.status != "disconnected") {
-        return Promise.resolve(SurrealInstance)
-    }
-    if (config.surreal.info.type == "remote") {
-        if (config.surreal.info.url == "" || !config.surreal.info.url.includes("/rpc")) {
-            throw createError({
-                status: 500,
-                statusText: `Database URL was [${config.surreal.info.url ?? "empty"}]. Check environment variables.`
-            })
-        }
-        SurrealInstance = new Surreal();
-        console.log("Connecting to remote instance...")
-        await SurrealInstance.connect(config.surreal.info.url, {
-            namespace: config.surreal.info.namespace,
-            database: config.surreal.info.database,
-            authentication: {
-                username: config.surreal.info.username,
-                password: config.surreal.info.password,
-            }
-        })
-        await SurrealInstance.ready
-        console.log(`Connected to ${config.surreal.info.namespace}:${config.surreal.info.database} @ ${config.surreal.info.url}`)
-        return SurrealInstance
-    }
-    else if (config.surreal.info.type == "embedded") {
-        console.log("Starting embedded instance...")
-        SurrealInstance = new Surreal({
-            engines: {
-                ...createRemoteEngines(),
-                ...createNodeEngines(),
-            },
-        });
-        console.log("Connecting to embedded instance...")
-        await SurrealInstance.connect(config.surreal.info.url, {
-            namespace: config.surreal.info.namespace,
-            database: config.surreal.info.database,
-        })
-        await SurrealInstance.ready
-        console.log(`Connected to ${config.surreal.info.namespace}:${config.surreal.info.database} @ ${config.surreal.info.url}`)
-        return SurrealInstance
-    }
-    else {
-        throw createError({
-            status: 500,
-            statusText: `Database type was [${config.surreal.info.type ?? "empty"}].`
-        })
-    }
-}
-
 export class DatabaseQuery {
+    static #config = useRuntimeConfig()
+    static #instance: Surreal | undefined
+
     #sql: string[] = []
     #parameters: Record<string, any> = { }
     #connection: Surreal | undefined
     #transaction = false
 
+    static async shutdown() {
+        return await DatabaseQuery.#instance?.close()
+    }
+
+    private static async initializeDatabase() {
+        const { info } = DatabaseQuery.#config.surreal
+        if (DatabaseQuery.#instance && DatabaseQuery.#instance.status != "disconnected") {
+            return DatabaseQuery.#instance
+        }
+        if (info.type == "remote") {
+            if (info.url == "" || !info.url.includes("/rpc")) {
+                throw createError({
+                    status: 500,
+                    statusText: `Database URL was [${info.url ?? "empty"}]. Check environment variables.`
+                })
+            }
+            DatabaseQuery.#instance = new Surreal();
+            console.log("Connecting to remote instance...")
+            await DatabaseQuery.#instance.connect(info.url, {
+                namespace: info.namespace,
+                database: info.database,
+                authentication: {
+                    username: info.username,
+                    password: info.password,
+                }
+            })
+            await DatabaseQuery.#instance.ready
+            console.log(`Connected to ${info.namespace}:${info.database} @ ${info.url}`)
+            return DatabaseQuery.#instance
+        }
+        else if (info.type == "embedded") {
+            console.log("Starting embedded instance...")
+            DatabaseQuery.#instance = new Surreal({
+                engines: {
+                    ...createRemoteEngines(),
+                    ...createNodeEngines(),
+                },
+            });
+            console.log("Connecting to embedded instance...")
+            await DatabaseQuery.#instance.connect(info.url, {
+                namespace: info.namespace,
+                database: info.database,
+            })
+            await DatabaseQuery.#instance.ready
+            console.log(`Connected to ${info.namespace}:${info.database} @ ${info.url}`)
+            return DatabaseQuery.#instance
+        }
+        else {
+            throw createError({
+                status: 500,
+                statusText: `Database type was [${info.type ?? "empty"}].`
+            })
+        }
+    }
+
+    private static normalizeRecordIds<T>(value: T): T {
+        if (value instanceof RecordId) {
+            return `${value.table.name}:${value.id}` as T
+        }
+        if (Array.isArray(value)) {
+            return value.map(nested => DatabaseQuery.normalizeRecordIds(nested)) as T
+        }
+        if (value && typeof value === "object") {
+            const prototype = Object.getPrototypeOf(value)
+            if (prototype === Object.prototype || prototype === null) {
+                return Object.fromEntries(
+                    Object.entries(value).map(([key, nested]) => [key, DatabaseQuery.normalizeRecordIds(nested)])
+                ) as T
+            }
+        }
+        return value
+    }
+
     /**
      * @param connection Optional existing connection; defaults to the shared database connection.
      */
     constructor(connection?: Surreal) {
-        this.#connection = connection ?? SurrealInstance
+        this.#connection = connection ?? DatabaseQuery.#instance
     }
 
-    private parseRecord(record: string) {
+    private static parseRecord(record: string) {
         const parsed = parseRecordId(record)
         if (!parsed) {
             throw createError({
@@ -124,7 +125,7 @@ export class DatabaseQuery {
      */
     addRecord(key: string, record: string, optional: boolean = false) {
         try {
-            this.#parameters[key] = this.parseRecord(record)
+            this.#parameters[key] = DatabaseQuery.parseRecord(record)
         }
         catch (error: any) {
             if (!optional) {
@@ -143,7 +144,7 @@ export class DatabaseQuery {
     addRecords(key: string, records: string[]) {
         let results: RecordId[] = []
         for (let record of records) {
-            results.push(this.parseRecord(record))
+            results.push(DatabaseQuery.parseRecord(record))
         }
         this.#parameters[key] = results
         return this
@@ -162,7 +163,7 @@ export class DatabaseQuery {
     /** Executes the query and returns each statement's rows, normalizing record IDs. */
     async execute<T>(): Promise<T[][]> {
         try {
-            const connection = this.#connection ?? await initializeDatabase()
+            const connection = this.#connection ?? await DatabaseQuery.initializeDatabase()
             await connection.ready
             const sql = this.#sql.join("\n")
             const query = this.#transaction ? `RETURN { ${sql} };` : sql
@@ -186,7 +187,7 @@ export class DatabaseQuery {
             if (!responses) {
                 throw new Error("Database query did not return a response.")
             }
-            return normalizeRecordIds(responses)
+            return DatabaseQuery.normalizeRecordIds(responses)
         }
         catch (error: any) {
             const applicationError = error.kind === "Thrown" && typeof error.message === "string"

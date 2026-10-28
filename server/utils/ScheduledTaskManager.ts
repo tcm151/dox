@@ -5,7 +5,7 @@ type ScheduledTask = {
     running?: Promise<void>
 }
 
-class ScheduledTaskManager {
+export class ScheduledTaskManager {
     private started = false
     private configured = false
     private readonly tasks: ScheduledTask[] = []
@@ -31,11 +31,11 @@ class ScheduledTaskManager {
 
         this.started = true
 
-        await Promise.all(this.tasks.map(task => this.run(task)))
+        await Promise.all(this.tasks.map(task => ScheduledTaskManager.run(task)))
         if (!this.started) return
 
         for (const task of this.tasks) {
-            task.pointer = setInterval(() => { void this.run(task)}, task.interval)
+            task.pointer = setInterval(() => { void ScheduledTaskManager.run(task)}, task.interval)
             const timer = task.pointer as unknown as { unref?: () => void }
             timer.unref?.()
         }
@@ -54,7 +54,7 @@ class ScheduledTaskManager {
         await Promise.allSettled(runningTasks)
     }
 
-    private run(task: ScheduledTask) {
+    private static run(task: ScheduledTask) {
         if (task.running) return task.running
 
         task.running = Promise.resolve()

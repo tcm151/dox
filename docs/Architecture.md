@@ -254,7 +254,7 @@ The current in-memory rate limiter allows five requests per minute per client ad
 - Throws a blocking startup error if migrations fail or an empty database lacks complete `DEFAULT_USER_*` values
 - Reports startup failures through `/api/health` when Nitro starts far enough to serve it. Earlier failures stop the process before health checks are available.
 
-Startup registers scheduled tasks with `server/utils/scheduledTasks.ts` and starts the manager after migrations and account setup. The manager runs each task once before its interval begins, prevents overlapping executions, and clears intervals and waits for in-flight work before the database closes.
+Startup registers scheduled tasks with `server/utils/ScheduledTaskManager.ts` and starts the manager after migrations and account setup. The manager runs each task once before its interval begins, prevents overlapping executions, and clears intervals and waits for in-flight work before the database closes.
 
 Schema changes must update TypeScript contracts and Surreal schema or migrations together.
 
@@ -289,7 +289,7 @@ If you change data entities:
 
 If you change settings behavior:
 - Update settings APIs under `server/api/settings/**` or `server/api/admin/settings/**`
-- Update `server/utils/settings.ts`
+- Update `server/utils/SettingsManager.ts`
 - Update `app/utils/settings.ts` and admin settings pages
 
 If you change media:
@@ -329,7 +329,7 @@ Recommended order for new contributors:
 4. Trace one end-to-end flow:
    - UI page in `app/pages/**`
    - API endpoint in `server/api/**`
-   - Query logic in `server/utils/database.ts`
+   - Query logic in `server/utils/DatabaseQuery.ts`
    - Schema fields in `server/assets/schema.surql`
 5. Make smallest safe change first, then expand.
 

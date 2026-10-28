@@ -1,5 +1,8 @@
 import { H3Event } from "h3"
 import type { User } from '@@/shared/types'
+import { ReferralManager } from "@@/server/utils/repos/ReferralManager"
+import { SessionManager } from "@@/server/utils/repos/SessionManager"
+import { UserManager } from "@@/server/utils/repos/UserManager"
 
 interface RegistrationRequest {
     email: string

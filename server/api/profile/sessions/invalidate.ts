@@ -1,3 +1,5 @@
+import { SessionManager } from "@@/server/utils/repos/SessionManager"
+
 export default defineEventHandler(async (event) => {
     await authenticateRequest(event)
 

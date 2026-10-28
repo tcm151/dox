@@ -1,6 +1,6 @@
 ---
 name: programming
-description: "Use for programming work in this repository: implementing features, fixing bugs, refactoring, debugging, reviewing code, or validating SurrealDB schema and migrations. Favor small changes, clear contracts, direct paths, and practical refactoring."
+description: "Use for programming work in this repository: implementing features, fixing bugs, refactoring, debugging, reviewing code, validating SurrealDB schema and migrations, or designing API workflow routes and manager methods. Favor small changes, clear contracts, direct paths, and practical refactoring."
 argument-hint: "Optional focus: feature, bug, refactor, debugging, or review"
 ---
 
@@ -25,10 +25,20 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 ## Keep Code Where Its Job Belongs
 
 - Put UI and route composition in `app/`, HTTP behavior in `server/api/`, backend services in `server/utils/`, and shared contracts and helpers in `shared/`.
+- Keep each class in a same-named file within its existing domain directory and use a named export so Nuxt auto-imports can resolve it. Move class-owned stateless helpers into private static members, but keep shared helpers separate.
 - Use `DatabaseQuery` for database access. Bind Surreal record IDs with `addRecord` or `addRecords`; use `addParameter` for ordinary values.
 - When one `DatabaseQuery.addSql()` block contains multiple SurrealQL statements, always add `.addTransaction()` before execution so the block runs atomically and is handled as one query. A SQL block being formatted across multiple lines is not itself the criterion; count statements. In particular, do not put an authorization `IF` before a result `SELECT` in an unwrapped block: `queryAll()` reads the first statement's rows and will not skip ahead to the `SELECT` result. Use separate queries when the operations should not be atomic.
 - Treat `shared/types/` and `server/assets/schema.surql` as one data contract. When stored data changes, update the types and schema together, and add a versioned migration when existing databases need it. Before creating a migration, inspect the current in-progress migration: consolidate related schema/data changes into it when the user confirms that version is still the target. If the change is materially different, ask whether to include it or create a new migration. Do not rewrite a released migration by default; use a forward migration unless the user explicitly requests consolidation and confirms replay is appropriate.
 - Follow the Nuxt conventions and nearby code. Reuse a pattern when it makes the code clearer; do not introduce another way to do the same thing without a good reason.
+
+## Map Routes To Workflows
+
+- When user-facing operations have distinct behavior or side effects, give each operation a named API route and a matching domain-manager method. For reports, `report/[id]/resolve` maps to `ReportManager.resolve`, `reopen` to `ReportManager.reopen`, and `remove` to `ReportManager.remove`; topic-scoped routes use the same action names.
+- Keep route handlers focused on HTTP concerns: authenticate, enforce broad role requirements, parse the request, collect route IDs, and call the matching manager method. Keep the workflow's database transaction and its state-dependent side effects together in that method.
+- Use route guards such as `requireRole` for role-based authorization; do not repeat role checks in SQL. Put additional data-scoped checks in the transaction when they depend on database state. For topic reports, moderator routes pass topic scope and SQL verifies the moderator assignment and report membership. An authorized admin can use the global scope without a topic assignment check.
+- Avoid one generic `update` endpoint that accepts a status/action to select among materially different workflows. Avoid a generic manager `updateStatus`/`persistDecision` method or generated SQL fragments when those workflows have different validation, transitions, or notifications. Prefer named methods with explicit, self-contained SQL blocks, even if some authorization or SQL is repeated.
+- Keep this mapping tied to external workflows, not every manager method. `SettingsManager.update` is called by a settings route; `UserManager.create` is called by registration orchestration; `NotificationManager.send` is a cross-cutting side effect called by domain handlers and does not need its own route.
+- Follow the existing domain boundary for manager placement. Report workflows live in `server/utils/ReportManager.ts`; reusable session, user, and notification managers live under `server/utils/repos/`. Do not move a manager solely to make every class follow one location or route shape.
 
 ## Check That It Works
 

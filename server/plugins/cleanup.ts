@@ -1,9 +1,10 @@
-import { scheduledTaskManager } from "../utils/scheduledTasks"
+import { scheduledTaskManager } from "@@/server/utils/ScheduledTaskManager"
+import { DatabaseQuery } from "@@/server/utils/DatabaseQuery"
 
 export default defineNitroPlugin((nitroApp) => {
     nitroApp.hooks.hook('close', async () => {
         await scheduledTaskManager.stop()
-        await shutdownDatabase()
+        await DatabaseQuery.shutdown()
         console.log("Closed connection to database.")
     })
 })

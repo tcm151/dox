@@ -1,5 +1,5 @@
 import type { User } from "@@/shared/types"
-import { NotificationManager } from "./NotificationManager"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
 export class ReferralManager {
     static async validateReferral(referral: string) {

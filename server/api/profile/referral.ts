@@ -1,3 +1,5 @@
+import { ReferralManager } from "@@/server/utils/repos/ReferralManager"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)    
     const { referral } = await readBody<{ referral?: string }>(event)
