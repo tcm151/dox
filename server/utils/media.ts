@@ -2,6 +2,7 @@ import fs from "node:fs"
 import sharp from "sharp"
 import type { H3Event, MultiPartData } from "h3"
 import type { User, Media } from "@@/shared/types"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 type MediaType = "image" | "audio"
 

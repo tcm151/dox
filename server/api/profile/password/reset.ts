@@ -1,4 +1,5 @@
 import type { PasswordReset, Account } from "@@/shared/types"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 
 export default defineEventHandler(async (event) => {

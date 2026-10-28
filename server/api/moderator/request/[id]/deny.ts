@@ -1,3 +1,5 @@
+import { SettingsManager } from "@@/server/utils/SettingsManager"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, ["moderator", "admin"])
