@@ -1,4 +1,5 @@
 import type { User, Account } from "@@/shared/types"
+import { Validator } from "@@/shared/utils/Validator"
 
 export class UserManager {
     static async create(email: string, name: string, password: string): Promise<{ user: User, account: Account }> {

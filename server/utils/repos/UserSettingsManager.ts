@@ -1,5 +1,5 @@
 import type { UserSettings } from "@@/shared/types"
-import { Validator } from "@@/shared/utils/validation"
+import { Validator } from "@@/shared/utils/Validator"
 
 export class UserSettingsManager {
     static async get(user: string): Promise<UserSettings> {
