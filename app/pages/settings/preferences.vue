@@ -4,7 +4,7 @@ const events = useEvents()
 const session = getSession()
 const userSettings = useUserSettings()
 
-const { data: account } = await useDatasource<Account>("/api/profile/account")
+const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
 try {
     await userSettings.refresh()
 }

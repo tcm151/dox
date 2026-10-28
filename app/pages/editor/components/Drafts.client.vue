@@ -6,7 +6,7 @@ const emit = defineEmits<{
     (event: 'view', draft: Draft): void
 }>()
 
-let { data: drafts, status, refresh } = await useDatasource<Draft[]>("/api/profile/drafts")
+let { data: drafts, status, refresh } = await useAuthenticatedDatasource<Draft[]>("/api/profile/drafts")
 onMounted(() => refresh)
 
 const loading = computed(() => {

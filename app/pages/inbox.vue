@@ -16,7 +16,7 @@ const pageAmount = ref<number>(5)
 
 const showDismissed = ref<boolean>(false)
 const notificationAmount = ref<number>(pageAmount.value)
-const { data: result, pending, refresh } = await useDatasource<{ total: number, notifications: Notification[] }>("/api/profile/notifications", {
+const { data: result, pending, refresh } = await useAuthenticatedDatasource<{ total: number, notifications: Notification[] }>("/api/profile/notifications", {
     query: {
         dismissed: showDismissed,
         amount: notificationAmount,

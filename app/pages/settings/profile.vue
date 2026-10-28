@@ -5,7 +5,7 @@ const hints = useHints()
 const valid = useValidation()
 const session = getSession()
 
-const { data: account } = await useDatasource<Account>("/api/profile/account")
+const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
 
 function validDescription() {
     return session.user.description !== '' ? valid.user.description(session.user.description!) : true

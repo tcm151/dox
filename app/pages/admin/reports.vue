@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Report } from '@@/shared/types'
 
-const { data: reports, refresh } = await useDatasource<Report[]>("/api/report")
+const { data: reports, refresh } = await useAuthenticatedDatasource<Report[]>("/api/report")
 </script>
     
 <template>

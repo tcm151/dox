@@ -3,7 +3,7 @@ import type { Topic } from "@@/shared/types"
 
 const route = useRoute()
 
-const { data: topics } = await useDatasource<Topic[]>(`/api/moderator/topics`)
+const { data: topics } = await useAuthenticatedDatasource<Topic[]>(`/api/moderator/topics`)
 </script>
 
 <template>

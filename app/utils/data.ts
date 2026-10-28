@@ -21,6 +21,16 @@ export function useDatasource<T>(
     return datasource
 }
 
+export function useAuthenticatedDatasource<T>(
+    url: string | Ref<string> | (() => string),
+    options: Omit<UseFetchOptions<T>, "server"> = {}
+) {
+    return useDatasource<T>(url, {
+        ...options,
+        server: false,
+    })
+}
+
 export function useApi<T>(
     url: NitroFetchRequest,
     options: NitroFetchOptions<NitroFetchRequest> = {}

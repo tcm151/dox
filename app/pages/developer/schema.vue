@@ -3,7 +3,7 @@ const hints = useHints()
 const events = useEvents()
 const session = getSession()
 
-const { data: schema, refresh } = await useDatasource<string>("/api/developer/database/schema")
+const { data: schema, refresh } = await useAuthenticatedDatasource<string>("/api/developer/database/schema")
 
 async function syncDatabase() {
     await useApi("/api/developer/database/sync")

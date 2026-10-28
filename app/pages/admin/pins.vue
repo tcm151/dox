@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Pin } from '@@/shared/types'
 
-const { data: pins, refresh } = await useDatasource<Pin[]>("/api/admin/pin")
+const { data: pins, refresh } = await useAuthenticatedDatasource<Pin[]>("/api/admin/pin")
 
 async function updatePin(pin: Pin) {
     await useApi<Pin>(`/api/admin/pin/${extractId(pin.id)}/update`, {

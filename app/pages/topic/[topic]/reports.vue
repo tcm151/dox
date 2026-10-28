@@ -16,7 +16,7 @@ const route = useRoute()
 
 const id = route.params.topic?.toString()
 const { data: topic } = useNuxtData<Topic>(`topic:${id}`)
-const { data: reports, refresh } = await useDatasource<Report[]>(`/api/topic/${id}/reports`)
+const { data: reports, refresh } = await useAuthenticatedDatasource<Report[]>(`/api/topic/${id}/reports`)
 </script>
     
 <template>

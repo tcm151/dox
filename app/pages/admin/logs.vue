@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModeratorLog } from "@@/shared/types"
 
-const { data: logs, pending, refresh } = await useDatasource<ModeratorLog[]>("/api/admin/logs/moderator")
+const { data: logs, pending, refresh } = await useAuthenticatedDatasource<ModeratorLog[]>("/api/admin/logs/moderator")
 const expanded = ref<string[]>([])
 
 function toggle(id: string) {

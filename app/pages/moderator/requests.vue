@@ -3,7 +3,7 @@ import type { ModerationRequest } from "@@/shared/types"
 
 const hints = useHints()
 
-const { data: requests, refresh } = await useDatasource<ModerationRequest[]>("/api/moderator/request")
+const { data: requests, refresh } = await useAuthenticatedDatasource<ModerationRequest[]>("/api/moderator/request")
 
 const openRequests = computed(() => {
     return requests.value?.filter(r => !r.closed) ?? []

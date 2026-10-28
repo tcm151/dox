@@ -3,7 +3,7 @@ import type { Feedback } from '@@/shared/types'
 
 const cache = useCache()
 
-const { data: feedback, refresh } = await useDatasource<Feedback[]>("/api/feedback")
+const { data: feedback, refresh } = await useAuthenticatedDatasource<Feedback[]>("/api/feedback")
 
 const activeFeedback = computed(() => {
     return feedback.value?.filter(f => (showDismissed.value) ? f : !f.dismissed)

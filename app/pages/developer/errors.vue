@@ -11,7 +11,7 @@ const end = cache.get<string>("errors.end", () => "")
 const requestId = computed(() => typeof route.query.requestId === "string" ? route.query.requestId : "")
 const lookupId = ref(requestId.value)
     
-const { data: errors, pending, refresh } = await useDatasource<Error[]>("/api/developer/error", {
+const { data: errors, pending, refresh } = await useAuthenticatedDatasource<Error[]>("/api/developer/error", {
     query: {
         limit, codes, start, end, requestId,
     }
