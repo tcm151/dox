@@ -223,10 +223,13 @@ code {
 blockquote {
     margin: 0;
     padding: 0.5rem 1rem;
-    font-style: italic;
     border-left: 3px solid $white-2;
     border-radius: 0.5rem;
     background-color: $white-1;
+}
+
+blockquote.italic {
+    font-style: italic;
 }
 
 a, a:hover, a:active, a:visited {

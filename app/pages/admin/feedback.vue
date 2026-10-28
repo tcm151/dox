@@ -31,9 +31,9 @@ async function dismissFeedback(feedback: Feedback) {
             <div class="box p-3" v-for="item in activeFeedback">
                 <p>{{ item.content }}</p>
                 <div class="tags row g-1 pt-1">
-                    <UserTag :user="item.user" />
                     <DurationTag :time="item.time" />
-                    <Tag v-if="!item.dismissed" type="danger" label="Dismiss" @click="dismissFeedback(item)" />
+                    <UserTag class="f-1" :user="item.user" />
+                    <Tag v-if="!item.dismissed" type="danger" icon="fa-angles-right" label="Dismiss" @click="dismissFeedback(item)" />
                 </div>
             </div>
         </section>
@@ -42,15 +42,3 @@ async function dismissFeedback(feedback: Feedback) {
         </section>
     </article>
 </template>
-
-<style scoped lang="scss">
-section.feedback {
-    p {
-        font-weight: var(--fw-bold);
-    }
-
-    div.tags {
-        width: min-content;
-    }
-}
-</style>

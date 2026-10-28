@@ -30,6 +30,10 @@ const props = defineProps<{
     background-color: $white-3;
 }
 
+.tag.inline {
+    display: inline-block;
+}
+
 .tag.fw-normal {
     font-weight: var(--fw-normal);
 }
