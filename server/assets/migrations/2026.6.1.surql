@@ -82,7 +82,7 @@ DEFINE EVENT OVERWRITE moderatorLogRequestApproval ON moderationRequest
 	THEN {
 		CREATE moderatorLog SET
 			actor = array::last($after.approvals),
-			action = 'moderation_request.approved',
+			action = 'moderation.request.approved',
 			target = $after.id,
 			details = { topic: $after.topic, applicant: $after.user };
 	};
@@ -91,7 +91,7 @@ DEFINE EVENT OVERWRITE moderatorLogRequestDenial ON moderationRequest
 	THEN {
 		CREATE moderatorLog SET
 			actor = array::last($after.denials),
-			action = 'moderation_request.denied',
+			action = 'moderation.request.denied',
 			target = $after.id,
 			details = { topic: $after.topic, applicant: $after.user };
 	};

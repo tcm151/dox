@@ -80,7 +80,7 @@ it("records approvals and rejects duplicate approvals", async () => {
         expect(logs).toHaveLength(1)
         expect(logs[0]).toMatchObject({
             actor: admin.user.id,
-            action: "moderation_request.approved",
+            action: "moderation.request.approved",
             target: `moderationRequest:${testRequest.requestId}`,
             details: { topic: `topic:${testRequest.topicId}`, applicant: member.user.id },
         })
@@ -179,7 +179,7 @@ it("records denials and rejects duplicate denials", async () => {
         expect(logs).toHaveLength(1)
         expect(logs[0]).toMatchObject({
             actor: admin.user.id,
-            action: "moderation_request.denied",
+            action: "moderation.request.denied",
             target: `moderationRequest:${testRequest.requestId}`,
             details: { topic: `topic:${testRequest.topicId}`, applicant: member.user.id },
         })

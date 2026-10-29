@@ -4,6 +4,12 @@ import type { ModeratorLog } from "@@/shared/types"
 const { data: logs, pending, refresh } = await useAuthenticatedDatasource<ModeratorLog[]>("/api/admin/logs/moderator")
 const expanded = ref<string[]>([])
 
+function actionLabel(action: string) {
+    if (action === "moderation_request.approved") return "moderation.request.approved"
+    if (action === "moderation_request.denied") return "moderation.request.denied"
+    return action
+}
+
 function toggle(id: string) {
     if (expanded.value.includes(id)) {
         expanded.value = expanded.value.filter(value => value !== id)
@@ -27,7 +33,7 @@ function toggle(id: string) {
             <section class="box column g-2 p-2">
                 <div v-for="log in logs" :key="log.id" class="column g-1">
                     <div class="row wrap g-1">
-                        <Tag type="danger f-1" :label="log.action" @click="toggle(log.id)" />
+                        <Tag type="danger f-1" :label="actionLabel(log.action)" @click="toggle(log.id)" />
                         <Tag class="link f-1" :label="log.target" />
                         <UserTag :user="log.actor" />
                         <DurationTag :time="log.time" />
