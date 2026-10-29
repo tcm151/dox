@@ -13,7 +13,7 @@ ClassicForum uses `year.major.patch` versions. The current version is defined in
 - Added `install --no-service` for preparing disposable releases without systemd.
 - Added a shared five-per-minute client-address limit across report submission routes.
 - Added one report record per subject, retaining individual complaints and a shared moderation decision.
-- Added the `2026.6.1` migration to consolidate existing report submissions into complaint arrays.
+- Added the `2026.6.1` migration for the history-based report schema.
 - Added in-app notifications when a user is approved to moderate a topic.
 - Opened tickets 0063-0069 for Phase B moderation and community-trust work.
 

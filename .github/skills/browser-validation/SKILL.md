@@ -18,11 +18,12 @@ Use this to check user-visible behavior in the running ClassicForum app with the
 
 1. Reuse the shared page when available; do not open a duplicate tab without a reason.
 2. Take a snapshot first. Note the route, account state, controls, and visible errors.
-3. Use accessible snapshot references for clicks. Use screenshots for layout and snapshots for elements and their state.
-4. Go straight to affected routes when that is clearer than navigating unrelated UI. Re-read the page after navigation or interaction.
-5. If a framework-driven target cannot be activated from the snapshot, use a stable selector with the Playwright `page` API. Then verify the URL and reread the snapshot.
-6. Use Playwright only when the browser's page, navigation, click, or dialog tools cannot do the check.
-7. Check `/api/health` before interpreting widespread `503` responses. If the app or database is not ready, stop feature checks until startup completes.
+3. On an authenticated ClassicForum page, right-click the navbar profile link to open UserManager and inspect locally saved profiles. Use it to switch among sessions already authenticated in this browser; `New Login` opens the normal login flow. Do not use the adjacent remove action unless intentionally invalidating that saved session.
+4. Use accessible snapshot references for clicks. Use screenshots for layout and snapshots for elements and their state.
+5. Go straight to affected routes when that is clearer than navigating unrelated UI. Re-read the page after navigation or interaction.
+6. If a framework-driven target cannot be activated from the snapshot, use a stable selector with the Playwright `page` API. Then verify the URL and reread the snapshot.
+7. Use Playwright only when the browser's page, navigation, click, or dialog tools cannot do the check.
+8. Check `/api/health` before interpreting widespread `503` responses. If the app or database is not ready, stop feature checks until startup completes.
 
 ## 3. Exercise Flows Safely
 
