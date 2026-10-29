@@ -3,7 +3,11 @@
 ## Status
 - State: Planned
 - Priority: High
-- Next: Define lock and slow-mode state fields for thread/comment surfaces
+- Next: Define lock and slow-mode state fields after Tickets 0072 and 0073 are complete
+
+## Dependencies
+- [0072](0072-gallery-comments.md): Establishes post and gallery comment support before comment controls are added.
+- [0073](0073-report-comments.md): Establishes comment reporting and moderation status behavior before this ticket adds conversation controls.
 
 ## Goal
 Give moderators targeted controls to reduce escalation and spam during active moderation.
@@ -12,13 +16,13 @@ Give moderators targeted controls to reduce escalation and spam during active mo
 - [ ] Moderators can lock threads/comments where supported.
 - [ ] Slow mode enforcement limits posting frequency as configured.
 - [ ] UI indicates locked/slow-mode states clearly.
-- [ ] Moderators can review and handle reports against threads and comments.
+- [ ] Moderators can review and handle reports against threads.
 
 ## Tasks
 - [ ] Define state fields and constraints in contracts/schema.
 - [ ] Enforce checks in write endpoints.
 - [ ] Add moderator controls in relevant UI surfaces.
-- [ ] Connect thread/comment reports to the moderation review workflow.
+- [ ] Connect thread reports to the moderation review workflow.
 
 ## Notes
 
