@@ -14,16 +14,23 @@ const hints = useHints()
 const session = getSession()
 
 const reportId = route.params.id?.toString() ?? ""
+type OwnerAppealView = Pick<Report, "id" | "subject" | "status" | "moderator" | "history">
 
-const { data: report, pending, refresh } = await useAuthenticatedDatasource<Report>(`/api/profile/appeals/${reportId}`)
+const { data: report, pending, refresh } = await useAuthenticatedDatasource<OwnerAppealView>(`/api/profile/appeals/${reportId}`)
+
+const submittedAppeal = computed(() => report.value?.history.findLast(entry => entry.action === "report.appeal.submitted"))
+const appealDecision = computed(() => report.value?.history.findLast(entry =>
+    entry.action === "report.appeal.accepted" || entry.action === "report.appeal.rejected"))
 
 const status = computed(() => {
-    if (!report.value?.appeal) return "Not Submitted"
-    if (!report.value.appeal.moderator) return "Pending"
-    return report.value.status === "approved" ? "Accepted" : "Rejected"
+    if (!submittedAppeal.value) return "Not Submitted"
+    if (report.value?.status === "appealed") return "Pending"
+    if (appealDecision.value?.action === "report.appeal.accepted") return "Accepted"
+    if (appealDecision.value?.action === "report.appeal.rejected") return "Rejected"
+    return "Closed"
 })
 
-const canSubmit = computed(() => report.value?.status === "removed" && !report.value.appeal)
+const canSubmit = computed(() => report.value?.status === "removed" && !submittedAppeal.value)
 
 const reason = ref("")
 const submitting = ref(false)
@@ -73,24 +80,24 @@ function viewContent() {
                         <span>View Content</span>
                     </button>
                 </header>
-                <template v-if="report.appeal">
+                <template v-if="submittedAppeal">
                     <div class="row g-1">
                         <Tag class="danger f-1" :label="status" />
-                        <DurationTag :time="report.appeal.time" />
+                        <DurationTag :time="submittedAppeal.time" />
                     </div>
-                    <blockquote v-if="report.resolution">
-                        <strong>{{ report.moderator?.name ?? "Moderator" }}:</strong>
-                        {{ report.resolution }}
+                    <blockquote v-if="appealDecision">
+                        <strong>{{ appealDecision.user.name ?? "Moderator" }}:</strong>
+                        {{ appealDecision.message }}
                     </blockquote>
                     <blockquote>
                         <strong>{{ session.user.name }}:</strong>
-                        {{ report.appeal.reason }}
+                        {{ submittedAppeal.message }}
                     </blockquote>
                 </template>
                 <template v-else-if="canSubmit">
-                    <blockquote v-if="report.resolution">
+                    <blockquote v-if="report.history.findLast(entry => entry.action === 'report.removed')">
                         <strong>{{ report.moderator?.name ?? "Moderator" }}:</strong>
-                        {{ report.resolution }}
+                        {{ report.history.findLast(entry => entry.action === 'report.removed')?.message }}
                     </blockquote>
                     <label class="field">
                         <textarea v-model="reason" rows="4" minlength="3" placeholder="Explain why this decision should be reviewed" />

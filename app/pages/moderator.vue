@@ -25,6 +25,7 @@ definePageMeta({
 
 const tabs = ref<TabItem[]>([
     { route: '/moderator/topics', icon: 'fa-tags', label: 'Topics' },
+    { route: '/moderator/reports', icon: 'fa-flag', label: 'Reports' },
     { route: '/moderator/requests', icon: 'fa-bell', label: 'Requests' },
 ])
 

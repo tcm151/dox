@@ -5,6 +5,6 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, "admin")
 
     const id = event.context.params!.id!
-    const body = await readBody<{ resolution?: string }>(event)
-    return await ReportManager.resolve({ id, user: auth.id, resolution: body.resolution })
+    const body = await readBody<{ message?: unknown }>(event)
+    return await ReportManager.resolve({ reportId: id, actorId: auth.id, message: body.message })
 })

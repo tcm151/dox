@@ -193,15 +193,17 @@ export interface Feedback extends Record {
 }
 
 export interface ReportComplaint {
-    reporter: User & string
+    user: User & string
     reason: string
     time: string
 }
 
-export interface ReportAppeal {
-    reason: string
+export interface ReportHistoryEntry {
+    action: string
+    message?: string
+    user: User & string
     time: string
-    moderator?: User & string
+    changes: { [key: string]: unknown }
 }
 
 export interface Report extends Record {
@@ -209,13 +211,13 @@ export interface Report extends Record {
         user?: User & string
         name?: string
     }
-    author: Pick<User, "id" | "name">
+    owner: Pick<User, "id" | "name">
+    topics: string[]
     complaints: ReportComplaint[]
-    status: "pending" | "approved" | "removed" | "appealed"
+    status: "pending" | "removed" | "appealed" | "denied" | "closed"
     time: string
-    resolution?: string
     moderator?: User & string
-    appeal?: ReportAppeal
+    history: ReportHistoryEntry[]
 }
 
 export interface AccountConfirmation extends Record {

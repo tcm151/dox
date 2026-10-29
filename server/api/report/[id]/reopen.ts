@@ -5,5 +5,6 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, "admin")
 
     const id = event.context.params!.id!
-    return await ReportManager.reopen({ id, user: auth.id })
+    const body = await readBody<{ message?: unknown }>(event)
+    return await ReportManager.reopen({ reportId: id, actorId: auth.id, message: body?.message })
 })

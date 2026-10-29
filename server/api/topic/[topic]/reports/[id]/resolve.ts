@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
     const { id, topic } = event.context.params!
     if (!id) throw createError({ status: 400, statusMessage: "Report ID is required." })
-    const body = await readBody<{ resolution?: string }>(event)
+    const body = await readBody<{ message?: unknown }>(event)
     const topicScope = hasRole(auth, "admin") ? undefined : topic
-    return await ReportManager.resolve({ id, user: auth.id, topic: topicScope, resolution: body.resolution })
+    return await ReportManager.resolve({ reportId: id, actorId: auth.id, topicId: topicScope, message: body.message })
 })

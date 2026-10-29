@@ -15,6 +15,7 @@ definePageMeta({
 const route = useRoute()
 
 const id = route.params.topic?.toString()
+const topicScope = id ? [{ id: `topic:${id}` }] : []
 const { data: topic } = useNuxtData<Topic>(`topic:${id}`)
 const { data: reports, refresh } = await useAuthenticatedDatasource<Report[]>(`/api/topic/${id}/reports`)
 </script>
@@ -24,6 +25,8 @@ const { data: reports, refresh } = await useAuthenticatedDatasource<Report[]>(`/
         <template v-if="topic">
             <TopicPreview :topic="topic" />
         </template>
-        <ReportQueue v-if="reports" class="mt-2" :reports="reports" :refresh="refresh" :topic="id" />
+        <template v-if="reports">
+            <ReportQueue class="mt-2" :reports="reports" :topics="topicScope" @refresh="refresh()" />
+        </template>
     </article>
 </template>

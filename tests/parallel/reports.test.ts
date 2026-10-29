@@ -22,6 +22,167 @@ it("rejects report submissions without authentication", async () => {
     expectStatus(response, 401)
 })
 
+it("keeps report creation time stable and stores complaints separately from history", async () => {
+    const suffix = Date.now()
+    const topicId = `reportHistory${suffix}`
+    const firstReason = "The thread needs moderator review."
+    const secondReason = "Additional context for the report."
+    let threadId: string | undefined
+    let reportId: string | undefined
+
+    try {
+        const threadResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Report history test ${suffix}`, topics: [`topic:${topicId}`], images: [] },
+        })
+        expectStatus(threadResponse, 200)
+        const thread = threadResponse._data!
+        threadId = extractId(thread.id)
+
+        const firstSubmission = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: thread.id, reason: firstReason },
+            headers: { "X-Forwarded-For": `192.0.2.${suffix % 200 + 1}` },
+        })
+        expectStatus(firstSubmission, 204)
+
+        type HistoryEntry = {
+            action: string
+            user: { id: string }
+            time: string
+            changes: Record<string, unknown>
+        }
+        type Complaint = {
+            user: { id: string }
+            reason: string
+            time: string
+        }
+        type ReportView = {
+            id: string
+            subject: { id: string }
+            owner: { id: string, name: string }
+            topics: string[]
+            moderator?: { id: string }
+            time: string
+            complaints: Complaint[]
+            status: string
+            history: HistoryEntry[]
+        }
+
+        const firstReports = await admin.fetch<ReportView[]>("/api/report")
+        const firstReport = firstReports.find(item => item.subject.id === thread.id)
+        expect(firstReport).toBeDefined()
+        reportId = extractId(firstReport!.id)
+        expect(firstReport).toMatchObject({
+            owner: { id: threadAuthor.user.id, name: threadAuthor.user.name },
+            topics: expect.arrayContaining([`topic:${topicId}`]),
+            status: "pending",
+            complaints: [{
+                user: { id: reporter.user.id },
+                reason: firstReason,
+                time: expect.any(String),
+            }],
+            history: [],
+        })
+        expect(firstReport!.moderator).toBeUndefined()
+        const createdAt = firstReport!.time
+        const originalHistory = structuredClone(firstReport!.history)
+
+        const secondSubmission = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: thread.id, reason: secondReason },
+            headers: { "X-Forwarded-For": `192.0.2.${suffix % 200 + 1}` },
+        })
+        expectStatus(secondSubmission, 204)
+
+        const updatedReports = await admin.fetch<ReportView[]>("/api/report")
+        const updatedReport = updatedReports.find(item => item.subject.id === thread.id)
+        expect(updatedReport).toBeDefined()
+        expect(updatedReport!.id).toBe(firstReport!.id)
+        expect(updatedReport!.time).toBe(createdAt)
+        expect(updatedReport!.complaints).toHaveLength(2)
+        expect(updatedReport!.history).toEqual(originalHistory)
+    }
+    finally {
+        await admin.query([
+            ...(reportId ? [`DELETE moderatorLog WHERE target = report:${reportId};`, `DELETE report:${reportId};`] : []),
+            ...(threadId ? [`DELETE thread:${threadId};`] : []),
+            `DELETE topic:${topicId};`,
+        ].join("\n"))
+    }
+})
+
+it("returns each moderator report once with its assigned topic associations", async () => {
+    const suffix = Date.now()
+    const content = `Moderator aggregate report ${suffix}`
+    const firstTopicId = `aggregateFirst${suffix}`
+    const secondTopicId = `aggregateSecond${suffix}`
+    const unassignedTopicId = `aggregateUnassigned${suffix}`
+    const originalRoles = JSON.stringify(reporter.user.roles)
+    let threadId: string | undefined
+    let reportId: string | undefined
+
+    try {
+        const threadResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: {
+                content,
+                topics: [`topic:${unassignedTopicId}`, `topic:${firstTopicId}`, `topic:${secondTopicId}`],
+                images: [],
+            },
+        })
+        expectStatus(threadResponse, 200)
+        const thread = threadResponse._data!
+        threadId = extractId(thread.id)
+        expect(threadId).toBeDefined()
+
+        await admin.query(`
+            UPDATE ${reporter.user.id} SET roles += "moderator";
+            UPDATE topic:${firstTopicId} SET moderators += ${reporter.user.id};
+            UPDATE topic:${secondTopicId} SET moderators += ${reporter.user.id};
+        `)
+
+        const reportResponse = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: thread.id, reason: "This thread should appear once in the aggregate queue." },
+            headers: { "X-Forwarded-For": "192.0.2.80" },
+        })
+        expectStatus(reportResponse, 204)
+
+        const adminReports = await admin.fetch<Array<{ id: string, subject: { id: string } }>>("/api/report")
+        const adminReport = adminReports.find(report => report.subject.id === thread.id)
+        expect(adminReport).toBeDefined()
+        reportId = extractId(adminReport!.id)
+
+        const moderatedTopics = await reporter.fetch<Array<{ id: string }>>("/api/moderator/topics")
+        expect(moderatedTopics.map(topic => topic.id)).toEqual(expect.arrayContaining([
+            `topic:${firstTopicId}`,
+            `topic:${secondTopicId}`,
+        ]))
+        expect(moderatedTopics.map(topic => topic.id)).not.toContain(`topic:${unassignedTopicId}`)
+
+        const moderatorReports = await reporter.fetch<Array<{ id: string, subject: { id: string }, topics: string[] }>>("/api/moderator/reports")
+        const matchedReports = moderatorReports.filter(report => report.subject.id === thread.id)
+        expect(matchedReports).toHaveLength(1)
+        expect(matchedReports[0]?.topics).toHaveLength(3)
+        expect(matchedReports[0]?.topics).toEqual(expect.arrayContaining([
+            `topic:${firstTopicId}`,
+            `topic:${secondTopicId}`,
+            `topic:${unassignedTopicId}`,
+        ]))
+    }
+    finally {
+        await admin.query([
+            `UPDATE ${reporter.user.id} SET roles = ${originalRoles};`,
+            ...(reportId ? [`DELETE moderatorLog WHERE target = report:${reportId};`, `DELETE report:${reportId};`] : []),
+            ...(threadId ? [`DELETE thread:${threadId};`] : []),
+            `DELETE topic:${firstTopicId};`,
+            `DELETE topic:${secondTopicId};`,
+            `DELETE topic:${unassignedTopicId};`,
+        ].join("\n"))
+    }
+})
+
 it("lists a report in administrator and topic queues", async () => {
     const content = `Report test subject ${Date.now()}`
     const topicId = `reportQueue${Date.now()}`
@@ -46,20 +207,20 @@ it("lists a report in administrator and topic queues", async () => {
         const firstReports = await admin.fetch<Array<{
             id: string
             subject: { id: string }
-            author: { id: string, name: string }
-            complaints: Array<{ reporter: { id: string }, reason: string }>
+            owner: { id: string, name: string }
+            complaints: Array<{ user: { id: string }, reason: string }>
         }>>("/api/report")
         const firstReport = firstReports.find(item => item.subject.id === thread.id)
         expect(firstReport, "first report appears in the admin queue").toBeDefined()
         reportId = extractId(firstReport!.id)
         expect(reportId).toBeDefined()
-        expect(firstReport!.author).toEqual({ id: threadAuthor.user.id, name: threadAuthor.user.name })
+        expect(firstReport!.owner).toEqual({ id: threadAuthor.user.id, name: threadAuthor.user.name })
         expect(firstReport!.complaints).toHaveLength(1)
-        expect(firstReport!.complaints[0]!.reporter.id).toBe(reporter.user.id)
+        expect(firstReport!.complaints[0]!.user.id).toBe(reporter.user.id)
         expect(await getModeratorLogs(`report:${reportId}`)).toEqual([])
 
-        const topicReports = await admin.fetch<Array<{ subject: { id: string }, author: { id: string, name: string } }>>(`/api/topic/${topicId}/reports`)
-        expect(topicReports.some(item => item.subject.id === thread.id && item.author.id === threadAuthor.user.id && item.author.name === threadAuthor.user.name)).toBe(true)
+        const topicReports = await admin.fetch<Array<{ subject: { id: string }, owner: { id: string, name: string } }>>(`/api/topic/${topicId}/reports`)
+        expect(topicReports.some(item => item.subject.id === thread.id && item.owner.id === threadAuthor.user.id && item.owner.name === threadAuthor.user.name)).toBe(true)
 
         const secondReportResponse = await reporter.fetchRaw("/api/report/send", {
             method: "POST",
@@ -70,35 +231,40 @@ it("lists a report in administrator and topic queues", async () => {
         const reports = await admin.fetch<Array<{
             id: string
             subject: { id: string }
-            complaints: Array<{ reporter: { id: string }, reason: string }>
+            complaints: Array<{ user: { id: string }, reason: string }>
         }>>("/api/report")
         const listedReports = reports.filter(item => item.subject.id === thread.id)
         expect(listedReports).toHaveLength(1)
         expect(extractId(listedReports[0]!.id)).toBe(reportId)
         expect(listedReports[0]!.complaints).toHaveLength(2)
-        expect(listedReports[0]!.complaints.every(item => item.reporter.id === reporter.user.id)).toBe(true)
+        expect(listedReports[0]!.complaints.every(item => item.user.id === reporter.user.id)).toBe(true)
 
-        const shortResolutionResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
+        const emptyMessageResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
             method: "POST",
-            body: { resolution: "No" },
+            body: { message: "  " },
         })
-        expectStatus(shortResolutionResponse, 400, "short report resolution stage")
+        expectStatus(emptyMessageResponse, 400, "empty report decision message stage")
 
-        const resolutionResponse = await admin.fetchRaw<Array<{
-            resolution?: string
+        const closeResponse = await admin.fetchRaw<Array<{
             status: string
             moderator?: string
+            history: Array<{ action: string, message?: string, changes: Record<string, unknown> }>
         }>>(`/api/report/${reportId}/resolve`, {
             method: "POST",
-            body: { resolution: "Reviewed and resolved." },
+            body: { message: "Reviewed and resolved." },
         })
-        expectStatus(resolutionResponse, 200, "report resolution stage")
-        const approvedReports = resolutionResponse._data!
-        expect(approvedReports).toHaveLength(1)
-        expect(approvedReports[0]!.resolution).toBe("Reviewed and resolved.")
-        expect(approvedReports[0]!.status).toBe("approved")
-        expect(approvedReports[0]!.moderator).toBe(admin.user.id)
-        expect(approvedReports[0]).not.toHaveProperty("moderatorEvent")
+        expectStatus(closeResponse, 200, "report close stage")
+        const closedReports = closeResponse._data!
+        expect(closedReports).toHaveLength(1)
+        expect(closedReports[0]!.status).toBe("closed")
+        expect(closedReports[0]!.moderator).toBe(admin.user.id)
+        expect(closedReports[0]!.history.at(-1)).toMatchObject({
+            action: "report.approved",
+            message: "Reviewed and resolved.",
+            user: admin.user.id,
+            changes: { status: { before: "pending", after: "closed" } },
+        })
+        const firstDecisionHistory = structuredClone(closedReports[0]!.history)
         const firstModeratorLog = await getModeratorLogs(`report:${reportId}`)
         expect(firstModeratorLog).toHaveLength(1)
         expect(firstModeratorLog[0]).toMatchObject({
@@ -107,22 +273,34 @@ it("lists a report in administrator and topic queues", async () => {
             target: `report:${reportId}`,
             details: {
                 before: { status: "pending" },
-                after: { status: "approved", resolution: "Reviewed and resolved." },
+                after: { status: "closed", message: "Reviewed and resolved." },
             },
         })
 
-        const resolutionEditResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
+        const laterCloseResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
             method: "POST",
-            body: { resolution: "Updated decision note." },
+            body: { message: "Updated decision note." },
         })
-        expectStatus(resolutionEditResponse, 200, "report resolution edit stage")
-        const resolutionEditLogs = await getModeratorLogs(`report:${reportId}`)
-        expect(resolutionEditLogs).toHaveLength(2)
-        expect(resolutionEditLogs[1]).toMatchObject({
-            actor: admin.user.id,
-            action: "report.resolution_updated",
-            target: `report:${reportId}`,
+        expectStatus(laterCloseResponse, 200, "repeated report decision stage")
+        expect(laterCloseResponse._data![0]!.history.at(-1)).toMatchObject({
+            action: "report.approved",
+            message: "Updated decision note.",
+            changes: { status: { before: "closed", after: "closed" } },
         })
+        expect(laterCloseResponse._data![0]!.history).toHaveLength(2)
+        expect(laterCloseResponse._data![0]!.history[0]).toEqual(firstDecisionHistory[0])
+        const closeLogs = await getModeratorLogs(`report:${reportId}`)
+        expect(closeLogs).toHaveLength(2)
+        expect(closeLogs[1]).toMatchObject({ actor: admin.user.id, action: "report.approved", target: `report:${reportId}` })
+
+        const reportsBeforeComplaint = await admin.fetch<Array<{
+            id: string
+            subject: { id: string }
+            history: Array<{ action: string, message?: string, user: { id: string }, changes: Record<string, unknown> }>
+        }>>("/api/report")
+        const reportBeforeComplaint = reportsBeforeComplaint.find(item => item.subject.id === thread.id)
+        expect(reportBeforeComplaint).toBeDefined()
+        const historyBeforeComplaint = structuredClone(reportBeforeComplaint!.history)
 
         const laterReportResponse = await reporter.fetchRaw("/api/report/send", {
             method: "POST",
@@ -133,51 +311,72 @@ it("lists a report in administrator and topic queues", async () => {
             id: string
             subject: { id: string }
             status: string
-            resolution?: string
             moderator?: { id: string }
             complaints: Array<{ reason: string }>
+            history: Array<{ action: string, message?: string, user: { id: string }, changes: Record<string, unknown> }>
         }>>("/api/report")
         const afterLaterReport = afterLaterReports.find(item => item.subject.id === thread.id)
         expect(afterLaterReport).toMatchObject({
             id: `report:${reportId}`,
-            status: "approved",
-            resolution: "Updated decision note.",
+            status: "closed",
             moderator: { id: admin.user.id },
         })
         expect(afterLaterReport!.complaints).toHaveLength(3)
+        expect(afterLaterReport!.complaints.at(-1)).toMatchObject({ reason: "Additional context after resolution." })
+        expect(afterLaterReport!.history).toEqual(historyBeforeComplaint)
         expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(2)
 
-        const clearResolutionResponse = await admin.fetchRaw<Array<{ resolution?: string }>>(`/api/report/${reportId}/reopen`, {
+        const missingReopenMessage = await admin.fetchRaw(`/api/report/${reportId}/reopen`, { method: "POST" })
+        expectStatus(missingReopenMessage, 400, "missing report reopen message stage")
+        const emptyReopenMessage = await admin.fetchRaw(`/api/report/${reportId}/reopen`, {
             method: "POST",
+            body: { message: " \t " },
         })
-        expectStatus(clearResolutionResponse, 200, "report resolution clear stage")
-        const clearedReports = clearResolutionResponse._data!
-        expect(clearedReports).toHaveLength(1)
-        expect(clearedReports[0]!.resolution).toBeUndefined()
+        expectStatus(emptyReopenMessage, 400, "empty report reopen message stage")
+
+        const reopenResponse = await admin.fetchRaw<Array<{ status: string, moderator?: string, history: Array<{ action: string, message?: string, changes: Record<string, unknown> }> }>>(`/api/report/${reportId}/reopen`, {
+            method: "POST",
+            body: { message: "R" },
+        })
+        expectStatus(reopenResponse, 200, "report reopen stage")
+        const reportAfterReopen = reopenResponse._data!
+        expect(reportAfterReopen).toHaveLength(1)
+        expect(reportAfterReopen[0]!.status).toBe("pending")
+        expect(reportAfterReopen[0]!.moderator).toBeUndefined()
+        expect(reportAfterReopen[0]!.history.at(-1)).toMatchObject({
+            action: "report.reopened",
+            message: "R",
+            user: admin.user.id,
+            changes: { status: { before: "closed", after: "pending" } },
+        })
         const reopenedLogs = await getModeratorLogs(`report:${reportId}`)
         expect(reopenedLogs).toHaveLength(3)
         expect(reopenedLogs[2]).toMatchObject({ action: "report.reopened" })
 
-        const missingRemovalNote = await admin.fetchRaw(`/api/report/${reportId}/remove`, {
+        const missingRemovalMessage = await admin.fetchRaw(`/api/report/${reportId}/remove`, {
             method: "POST",
         })
-        expectStatus(missingRemovalNote, 400, "missing report removal note stage")
+        expectStatus(missingRemovalMessage, 400, "missing report removal message stage")
 
-        const shortRemovalNote = await admin.fetchRaw(`/api/report/${reportId}/remove`, {
+        const emptyRemovalMessage = await admin.fetchRaw(`/api/report/${reportId}/remove`, {
             method: "POST",
-            body: { resolution: "No" },
+            body: { message: " " },
         })
-        expectStatus(shortRemovalNote, 400, "short report removal note stage")
+        expectStatus(emptyRemovalMessage, 400, "empty report removal message stage")
 
-        const removedResponse = await admin.fetchRaw<Array<{ status: string, resolution: string }>>(`/api/report/${reportId}/remove`, {
+        const removedResponse = await admin.fetchRaw<Array<{ status: string, history: Array<{ action: string, message?: string, changes: Record<string, unknown> }> }>>(`/api/report/${reportId}/remove`, {
             method: "POST",
-            body: { resolution: "The content violates community rules." },
+            body: { message: "R" },
         })
         expectStatus(removedResponse, 200, "report removal status stage")
         const removedReports = removedResponse._data!
         expect(removedReports).toHaveLength(1)
         expect(removedReports[0]!.status).toBe("removed")
-        expect(removedReports[0]!.resolution).toBe("The content violates community rules.")
+        expect(removedReports[0]!.history.at(-1)).toMatchObject({
+            action: "report.removed",
+            message: "R",
+            changes: { status: { before: "pending", after: "removed" } },
+        })
         const quarantinedThread = await admin.fetch<{ status: string }>(`/api/thread/${threadId}`)
         expect(quarantinedThread.status).toBe("quarantined")
         const authorNotifications = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
@@ -190,7 +389,7 @@ it("lists a report in administrator and topic queues", async () => {
 
         const restoreResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
             method: "POST",
-            body: { resolution: "Appeal accepted." },
+            body: { message: "The report was resolved in favor of the owner." },
         })
         expectStatus(restoreResponse, 200, "reopen quarantined report stage")
         const restoredThread = await admin.fetch<{ status: string }>(`/api/thread/${threadId}`)
@@ -203,15 +402,16 @@ it("lists a report in administrator and topic queues", async () => {
 
         const reopenAgainResponse = await admin.fetchRaw(`/api/report/${reportId}/reopen`, {
             method: "POST",
+            body: { message: "R" },
         })
-        expectStatus(reopenAgainResponse, 200, "approved report can be reopened stage")
+        expectStatus(reopenAgainResponse, 200, "closed report can be reopened stage")
         const reopenedAgainLogs = await getModeratorLogs(`report:${reportId}`)
         expect(reopenedAgainLogs).toHaveLength(6)
         expect(reopenedAgainLogs[5]).toMatchObject({ action: "report.reopened" })
 
         const topicUpdateResponse = await admin.fetchRaw(`/api/topic/${topicId}/reports/${reportId}/resolve`, {
             method: "POST",
-            body: { resolution: "Topic report reviewed." },
+            body: { message: "Topic report reviewed." },
         })
         expectStatus(topicUpdateResponse, 200, "topic report update stage")
         const topicUpdateLogs = await getModeratorLogs(`report:${reportId}`)
@@ -228,17 +428,17 @@ it("lists a report in administrator and topic queues", async () => {
             id: string
             subject: { id: string }
             status: string
-            resolution?: string
             moderator?: { id: string }
             complaints: Array<{ reason: string }>
+            history: Array<{ action: string, message?: string }>
         }>>("/api/report")
         const reportAfterComplaint = reopenedReports.find(item => item.subject.id === thread.id)
         if (!reportAfterComplaint) throw new Error("Report should remain in the admin queue.")
         expect(extractId(reportAfterComplaint.id)).toBe(reportId)
-        expect(reportAfterComplaint.status).toBe("approved")
-        expect(reportAfterComplaint.resolution).toBe("Topic report reviewed.")
+        expect(reportAfterComplaint.status).toBe("closed")
         expect(reportAfterComplaint.moderator?.id).toBe(admin.user.id)
         expect(reportAfterComplaint.complaints).toHaveLength(4)
+            expect(reportAfterComplaint.history.at(-1)).toMatchObject({ action: "report.approved" })
         expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(7)
     }
     finally {
@@ -251,7 +451,7 @@ it("lists a report in administrator and topic queues", async () => {
     }
 })
 
-it("keeps moderator-owned reports and original-moderator appeals out of their queue", async () => {
+it("keeps moderator-owned reports out of topic moderator queues", async () => {
         const content = `Owned report test ${Date.now()}`
         const topicId = `ownedReport${Date.now()}`
         const originalRoles = JSON.stringify(reporter.user.roles)
@@ -292,11 +492,11 @@ it("keeps moderator-owned reports and original-moderator appeals out of their qu
             })
             expectStatus(moderatorThreadReport, 204, "moderator-owned subject report stage")
 
-            const adminQueue = await admin.fetch<Array<{ id: string, subject: { id: string }, author: { id: string, name: string } }>>("/api/report")
+            const adminQueue = await admin.fetch<Array<{ id: string, subject: { id: string }, owner: { id: string, name: string } }>>("/api/report")
             const adminReport = adminQueue.find(report => report.subject.id === adminThread.id)
             const moderatorReport = adminQueue.find(report => report.subject.id === moderatorThread.id)
-            expect(adminReport?.author.id).toBe(admin.user.id)
-            expect(moderatorReport?.author.id).toBe(reporter.user.id)
+            expect(adminReport?.owner.id).toBe(admin.user.id)
+            expect(moderatorReport?.owner.id).toBe(reporter.user.id)
             const adminReportId = extractId(adminReport?.id)
             const moderatorReportId = extractId(moderatorReport?.id)
             expect(adminReportId).toBeDefined()
@@ -308,9 +508,9 @@ it("keeps moderator-owned reports and original-moderator appeals out of their qu
             expect(moderatorQueue.some(report => report.subject.id === moderatorThread.id)).toBe(false)
 
             for (const [action, body] of [
-                ["resolve", { resolution: "I own this content." }],
-                ["remove", { resolution: "I own this content." }],
-                ["reopen", undefined],
+                ["resolve", { message: "I own this content." }],
+                ["remove", { message: "I own this content." }],
+                ["reopen", { message: "R" }],
             ] as const) {
                 const response = await admin.fetchRaw(`/api/report/${adminReportId}/${action}`, { method: "POST", body })
                 expectStatus(response, 403, `admin cannot ${action} own content`)
@@ -318,33 +518,36 @@ it("keeps moderator-owned reports and original-moderator appeals out of their qu
 
             const moderatorOwnReport = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${moderatorReportId}/resolve`, {
                 method: "POST",
-                body: { resolution: "I own this content." },
+                body: { message: "I own this content." },
             })
             expectStatus(moderatorOwnReport, 403, "moderator cannot approve own content")
 
-            const removal = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${adminReportId}/remove`, {
+            const emptyTopicRemoval = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${adminReportId}/remove-topic`, {
                 method: "POST",
-                body: { resolution: "The content violates community rules." },
+                body: { message: " \t " },
             })
-            expectStatus(removal, 200, "moderator removes admin-owned content stage")
-            const appeal = await admin.fetchRaw(`/api/report/${adminReportId}/appeal`, {
-                method: "POST",
-                body: { reason: "Please review the moderation decision." },
-            })
-            expectStatus(appeal, 200, "admin submits appeal for owned content stage")
+            expectStatus(emptyTopicRemoval, 400, "empty topic removal message stage")
 
-            for (const decision of ["accept", "reject"] as const) {
-                const response = await admin.fetchRaw(`/api/report/${adminReportId}/appeal/${decision}`, {
-                    method: "POST",
-                    body: { resolution: "I own this content." },
-                })
-                expectStatus(response, 403, `admin cannot ${decision} own appeal`)
-            }
+            const topicReopen = await reporter.fetchRaw<Array<{ status: string, history: Array<{ action: string, message?: string }> }>>(`/api/topic/${topicId}/reports/${adminReportId}/reopen`, {
+                method: "POST",
+                body: { message: "R" },
+            })
+            expectStatus(topicReopen, 200, "topic-scoped report reopen stage")
+            expect(topicReopen._data![0]!.history.at(-1)).toMatchObject({ action: "report.reopened", message: "R" })
+
+            const removeTopic = await reporter.fetchRaw<Array<{ history: Array<{ action: string, message?: string }> }>>(`/api/topic/${topicId}/reports/${adminReportId}/remove-topic`, {
+                method: "POST",
+                body: { message: "R" },
+            })
+            expectStatus(removeTopic, 200, "moderator removes only the topic association")
+            expect(removeTopic._data![0]!.history.at(-1)).toMatchObject({ action: "report.topic.removed", message: "R" })
 
             const recusedQueue = await reporter.fetch<Array<{ subject: { id: string } }>>(`/api/topic/${topicId}/reports`)
             expect(recusedQueue.some(report => report.subject.id === adminThread.id)).toBe(false)
             const finalAdminQueue = await admin.fetch<Array<{ subject: { id: string } }>>("/api/report")
             expect(finalAdminQueue.some(report => report.subject.id === adminThread.id)).toBe(true)
+            const unchangedContent = await admin.fetch<Thread>(`/api/thread/${extractId(adminThread.id)}`)
+            expect(unchangedContent.status).toBe("active")
         }
         finally {
             await admin.query([
@@ -355,6 +558,107 @@ it("keeps moderator-owned reports and original-moderator appeals out of their qu
                 `DELETE topic:${topicId};`,
             ].join("\n"))
         }
+})
+
+it("lets a topic moderator remove one topic without removing the submission or report", async () => {
+    const content = `Topic removal test ${Date.now()}`
+    const removedTopicId = `removedTopic${Date.now()}`
+    const retainedTopicId = `retainedTopic${Date.now()}`
+    const originalRoles = JSON.stringify(reporter.user.roles)
+    const threadIds: string[] = []
+    const reportIds: string[] = []
+
+    try {
+        await admin.query(`UPDATE ${reporter.user.id} SET roles = ["moderator"];`)
+
+        const submissionResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content, topics: [`topic:${removedTopicId}`, `topic:${retainedTopicId}`], images: [] },
+        })
+        expectStatus(submissionResponse, 200, "multi-topic submission stage")
+        const submission = submissionResponse._data!
+        const submissionId = extractId(submission.id)!
+        threadIds.push(submissionId)
+
+        const anchorResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `${content} anchor`, topics: [`topic:${removedTopicId}`], images: [] },
+        })
+        expectStatus(anchorResponse, 200, "topic anchor stage")
+        threadIds.push(extractId(anchorResponse._data!.id)!)
+
+        await admin.query(`
+            UPDATE topic:${removedTopicId} SET moderators += ${reporter.user.id};
+            UPDATE topic:${retainedTopicId} SET moderators += ${reporter.user.id};
+        `)
+
+        const reportResponse = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: submission.id, reason: "This submission is unrelated to one topic." },
+            headers: { "X-Forwarded-For": "203.0.113.53" },
+        })
+        expectStatus(reportResponse, 204, "multi-topic report stage")
+
+        const beforeReports = await admin.fetch<Array<{ id: string, subject: { id: string } }>>("/api/report")
+        const beforeReport = beforeReports.find(report => report.subject.id === submission.id)
+        expect(beforeReport).toBeDefined()
+        const reportId = extractId(beforeReport!.id)!
+        reportIds.push(reportId)
+
+        const removeTopicResponse = await reporter.fetchRaw(`/api/topic/${removedTopicId}/reports/${reportId}/remove-topic`, {
+            method: "POST",
+            body: { message: "This submission does not belong in this topic." },
+        })
+        expectStatus(removeTopicResponse, 200, "moderator removes topic association stage")
+
+        const submissionAfterRemoval = await admin.fetch<Thread>(`/api/thread/${submissionId}`)
+        expect(submissionAfterRemoval.status).toBe("active")
+        expect(submissionAfterRemoval.topics).not.toContain(`topic:${removedTopicId}`)
+        expect(submissionAfterRemoval.topics).toContain(`topic:${retainedTopicId}`)
+
+        const removedTopicReports = await reporter.fetch<Array<{ id: string }>>(`/api/topic/${removedTopicId}/reports`)
+        expect(removedTopicReports.some(report => report.id === `report:${reportId}`)).toBe(false)
+        const retainedTopicReports = await reporter.fetch<Array<{ id: string }>>(`/api/topic/${retainedTopicId}/reports`)
+        expect(retainedTopicReports.filter(report => report.id === `report:${reportId}`)).toHaveLength(1)
+        const afterReports = await admin.fetch<Array<{ id: string, subject: { id: string }, status: string }>>("/api/report")
+        expect(afterReports.filter(report => report.subject.id === submission.id)).toMatchObject([
+            { id: `report:${reportId}`, status: "pending" },
+        ])
+        const reportAfterTopicRemoval = (await admin.fetch<Array<{ id: string, subject: { id: string }, history: Array<{ action: string, message?: string, user: { id: string }, changes: Record<string, unknown> }> }>>("/api/report"))
+            .find(report => report.subject.id === submission.id)
+        const topicRemovalHistory = reportAfterTopicRemoval?.history.at(-1)
+        expect(topicRemovalHistory).toMatchObject({
+            action: "report.topic.removed",
+            user: { id: reporter.user.id },
+        })
+        expect(topicRemovalHistory?.message).toBe("This submission does not belong in this topic.")
+        expect(topicRemovalHistory?.changes.topic).toBe(`topic:${removedTopicId}`)
+
+        const forbiddenContentRemoval = await reporter.fetchRaw(`/api/topic/${retainedTopicId}/reports/${reportId}/remove`, {
+            method: "POST",
+            body: { message: "This should require an administrator." },
+        })
+        expectStatus(forbiddenContentRemoval, 403, "moderator full-content removal authorization")
+
+        const moderatorLogs = await getModeratorLogs(`report:${reportId}`)
+        expect(moderatorLogs).toHaveLength(1)
+        expect(moderatorLogs[0]).toMatchObject({
+            actor: reporter.user.id,
+            action: "report.topic.removed",
+            target: `report:${reportId}`,
+            details: { topic: `topic:${removedTopicId}` },
+        })
+    }
+    finally {
+        await admin.query([
+            `UPDATE ${reporter.user.id} SET roles = ${originalRoles};`,
+            ...reportIds.map(reportId => `DELETE moderatorLog WHERE target = report:${reportId};`),
+            ...reportIds.map(reportId => `DELETE report:${reportId};`),
+            ...threadIds.map(threadId => `DELETE thread:${threadId};`),
+            `DELETE topic:${removedTopicId};`,
+            `DELETE topic:${retainedTopicId};`,
+        ].join("\n"))
+    }
 })
 
 it("allows content owners to appeal removal for distinct-moderator review", async () => {
@@ -401,11 +705,17 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
         expect(secondReportId).toBeDefined()
         reportIds.push(firstReportId!, secondReportId!)
 
-        const firstRemoval = await admin.fetchRaw(`/api/report/${firstReportId}/remove`, {
+        const firstRemoval = await admin.fetchRaw<Array<{
+            status: string
+            moderator: string
+            history: Array<{ action: string, message?: string, user: string, changes: Record<string, unknown> }>
+        }>>(`/api/report/${firstReportId}/remove`, {
             method: "POST",
-            body: { resolution: "The content violated community rules." },
+            body: { message: "The content violated community rules." },
         })
         expectStatus(firstRemoval, 200, "first report removal stage")
+        const originalRemovalHistory = structuredClone(firstRemoval._data![0]!.history)
+        expect(firstRemoval._data![0]!.moderator).toBe(admin.user.id)
 
         const ownerNotifications = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
         const removalNotification = ownerNotifications.notifications.find(notification => notification.context === `report:${firstReportId}` && /quarantin/i.test(notification.message))
@@ -414,36 +724,53 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
 
         const ownerAppealStatus = await threadAuthor.fetchRaw<{
             status: string
-            appeal?: { reason: string, time: string, moderator?: string }
+            moderator: { id: string }
+            history: Array<{ action: string, message?: string, user: string, changes: Record<string, unknown> }>
         }>(`/api/profile/appeals/${firstReportId}`)
         expectStatus(ownerAppealStatus, 200, "owner appeal status stage")
-        expect(ownerAppealStatus._data).toMatchObject({ status: "removed" })
+        expect(ownerAppealStatus._data).toMatchObject({
+            status: "removed",
+            moderator: { id: admin.user.id },
+        })
 
         const nonOwnerAppealStatus = await reporter.fetchRaw(`/api/profile/appeals/${firstReportId}`)
         expectStatus(nonOwnerAppealStatus, 204, "non-owner appeal status stage")
         expect(nonOwnerAppealStatus._data).toBeUndefined()
 
-        const firstAppealResponse = await threadAuthor.fetchRaw<Array<{ appeal: { reason: string, time: string, moderator?: string } }>>(
+        const emptyAppeal = await threadAuthor.fetchRaw(`/api/report/${firstReportId}/appeal`, {
+            method: "POST",
+            body: { reason: " \t " },
+        })
+        expectStatus(emptyAppeal, 400, "empty appeal reason stage")
+        const firstAppealResponse = await threadAuthor.fetchRaw<Array<{ moderator: string, history: Array<{ action: string, message?: string, user: string, changes: Record<string, unknown> }> }>>(
             `/api/report/${firstReportId}/appeal`,
-            { method: "POST", body: { reason: "Please reconsider this removal." } },
+            { method: "POST", body: { reason: "R" } },
         )
         expectStatus(firstAppealResponse, 200, "owner appeal submission stage")
         expect(firstAppealResponse._data![0]!.status).toBe("appealed")
-        expect(firstAppealResponse._data![0]!.appeal).toMatchObject({
-            reason: "Please reconsider this removal.",
-            time: expect.any(String),
+        expect(firstAppealResponse._data![0]!.moderator).toBe(admin.user.id)
+        expect(firstAppealResponse._data![0]!.history[0]).toEqual(originalRemovalHistory[0])
+        expect(firstAppealResponse._data![0]!.history.at(-1)).toMatchObject({
+            action: "report.appeal.submitted",
+            message: "R",
+            user: threadAuthor.user.id,
+            changes: { status: { before: "removed", after: "appealed" } },
         })
-        expect(firstAppealResponse._data![0]!.appeal).not.toHaveProperty("status")
-        expect(firstAppealResponse._data![0]!.appeal).not.toHaveProperty("moderator")
-        const submittedAppealStatus = await threadAuthor.fetch<{ appeal: { reason: string, time: string } }>(`/api/profile/appeals/${firstReportId}`)
-        expect(submittedAppealStatus.appeal).toMatchObject({ reason: "Please reconsider this removal." })
+        expect(firstAppealResponse._data![0]).not.toHaveProperty("appeal")
+        const duplicateAppeal = await threadAuthor.fetchRaw(`/api/report/${firstReportId}/appeal`, {
+            method: "POST",
+            body: { reason: "A second appeal should not be accepted." },
+        })
+        expectStatus(duplicateAppeal, 409, "one appeal per report stage")
+        const submittedAppealStatus = await threadAuthor.fetch<{ history: Array<{ action: string, message?: string }> }>(`/api/profile/appeals/${firstReportId}`)
+        expect(submittedAppealStatus.history.at(-1)).toMatchObject({ action: "report.appeal.submitted", message: "R" })
         expect(submittedAppealStatus.status).toBe("appealed")
         const bypassAppealResolution = await admin.fetchRaw(`/api/report/${firstReportId}/resolve`, {
             method: "POST",
-            body: { resolution: "Resolve without appeal review." },
+            body: { message: "Resolve without appeal review." },
         })
         expectStatus(bypassAppealResolution, 409, "pending appeal cannot be resolved through the generic route")
-        const bypassAppealReopen = await admin.fetchRaw(`/api/report/${firstReportId}/reopen`, { method: "POST" })
+        const bypassAppealReopen = await admin.fetchRaw(`/api/report/${firstReportId}/reopen`, { method: "POST", body: { message: "R" } })
         expectStatus(bypassAppealReopen, 409, "pending appeal cannot be reopened")
         const nonOwnerAppeal = await reporter.fetchRaw(`/api/report/${firstReportId}/appeal`, {
             method: "POST",
@@ -453,70 +780,81 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
 
         const originalModeratorReview = await admin.fetchRaw(`/api/report/${firstReportId}/appeal/reject`, {
             method: "POST",
-            body: { resolution: "The original decision-maker cannot review this appeal." },
+            body: { message: "The original decision-maker cannot review this appeal." },
         })
         expectStatus(originalModeratorReview, 403, "distinct moderator review stage")
+
+        const emptyAppealDecision = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${firstReportId}/appeal/reject`, {
+            method: "POST",
+            body: { message: " " },
+        })
+        expectStatus(emptyAppealDecision, 400, "empty appeal decision message stage")
         const rejectedAppeal = await reporter.fetchRaw<Array<{
             status: string
-            resolution: string
-            appeal: { reason: string, time: string, moderator: string }
+            moderator: string
+            history: Array<{ action: string, message?: string, user: string, changes: Record<string, unknown> }>
         }>>(`/api/topic/${topicId}/reports/${firstReportId}/appeal/reject`, {
             method: "POST",
-            body: { resolution: "The removal is consistent with the community rules." },
+            body: { message: "R" },
         })
         expectStatus(rejectedAppeal, 200, "appeal rejection stage")
         expect(rejectedAppeal._data![0]).toMatchObject({
-            status: "removed",
-            resolution: "The removal is consistent with the community rules.",
-            appeal: {
-                reason: "Please reconsider this removal.",
-                moderator: reporter.user.id,
-            },
+            status: "denied",
+            moderator: reporter.user.id,
+        })
+        expect(rejectedAppeal._data![0]!.history.at(-1)).toMatchObject({
+            action: "report.appeal.rejected",
+            message: "R",
+            user: reporter.user.id,
+            changes: { status: { before: "appealed", after: "denied" } },
         })
         const rejectedOwnerAppeal = await threadAuthor.fetch<{
             status: string
-            resolution: string
-            appeal: { reason: string, time: string, moderator: { id: string } }
+            moderator: { id: string }
+            history: Array<{ action: string, message?: string }>
         }>(`/api/profile/appeals/${firstReportId}`)
         expect(rejectedOwnerAppeal).toMatchObject({
-            status: "removed",
-            resolution: "The removal is consistent with the community rules.",
-            appeal: {
-                reason: "Please reconsider this removal.",
-                time: expect.any(String),
-                moderator: { id: reporter.user.id },
-            },
+            status: "denied",
+            moderator: { id: reporter.user.id },
         })
+        expect(rejectedOwnerAppeal.history.at(-1)).toMatchObject({ action: "report.appeal.rejected" })
         const stillQuarantined = await admin.fetch<{ status: string }>(`/api/thread/${threadIds[0]}`)
         expect(stillQuarantined.status).toBe("quarantined")
 
-        const secondRemoval = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${secondReportId}/remove`, {
+        const secondRemoval = await admin.fetchRaw(`/api/report/${secondReportId}/remove`, {
             method: "POST",
-            body: { resolution: "The report was confirmed by a moderator." },
+            body: { message: "The report was confirmed by a moderator." },
         })
-        expectStatus(secondRemoval, 200, "second report removal stage")
+        expectStatus(secondRemoval, 200, "administrator removes content stage")
         const secondAppealResponse = await threadAuthor.fetchRaw(`/api/report/${secondReportId}/appeal`, {
             method: "POST",
             body: { reason: "Please review the context of this thread." },
         })
         expectStatus(secondAppealResponse, 200, "second owner appeal submission stage")
 
-        const acceptedAppeal = await admin.fetchRaw<Array<{
-            status: string
-            resolution: string
-            appeal: { reason: string, time: string, moderator: string }
-        }>>(`/api/report/${secondReportId}/appeal/accept`, {
+        const emptyAcceptedAppealDecision = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${secondReportId}/appeal/accept`, {
             method: "POST",
-            body: { resolution: "The appeal is supported by the additional context." },
+            body: { message: " " },
         })
-        expectStatus(acceptedAppeal, 200, "appeal acceptance stage")
+        expectStatus(emptyAcceptedAppealDecision, 400, "empty accepted appeal decision message stage")
+        const acceptedAppeal = await reporter.fetchRaw<Array<{
+            status: string
+            moderator: string
+            history: Array<{ action: string, message?: string, user: string, changes: Record<string, unknown> }>
+        }>>(`/api/topic/${topicId}/reports/${secondReportId}/appeal/accept`, {
+            method: "POST",
+            body: { message: "R" },
+        })
+        expectStatus(acceptedAppeal, 200, "distinct topic moderator accepts appeal stage")
         expect(acceptedAppeal._data![0]).toMatchObject({
-            status: "approved",
-            resolution: "The appeal is supported by the additional context.",
-            appeal: {
-                reason: "Please review the context of this thread.",
-                moderator: admin.user.id,
-            },
+            status: "closed",
+            moderator: reporter.user.id,
+        })
+        expect(acceptedAppeal._data![0]!.history.at(-1)).toMatchObject({
+            action: "report.appeal.accepted",
+            message: "R",
+            user: reporter.user.id,
+            changes: { status: { before: "appealed", after: "closed" } },
         })
         const restoredThread = await admin.fetch<{ status: string }>(`/api/thread/${threadIds[1]}`)
         expect(restoredThread.status).toBe("active")

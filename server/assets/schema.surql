@@ -507,34 +507,38 @@ DEFINE FIELD dismissed ON feedback
 DEFINE TABLE report SCHEMAFULL;
 DEFINE FIELD subject ON report
     TYPE record;
-DEFINE INDEX reportSubject ON TABLE report
+DEFINE INDEX subject ON TABLE report
     FIELDS subject UNIQUE;
+DEFINE FIELD owner ON report
+    COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
+DEFINE FIELD topics ON report
+    COMPUTED IF subject.topics != NONE THEN subject.topics ELSE [] END;
+DEFINE FIELD moderator ON report
+    TYPE option<record<user>>;
+DEFINE FIELD time ON report
+    TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD complaints ON report
     TYPE array<object> DEFAULT ALWAYS [];
-DEFINE FIELD complaints.*.reporter ON report
+DEFINE FIELD complaints.*.user ON report
     TYPE record<user>;
 DEFINE FIELD complaints.*.reason ON report
     TYPE string;
 DEFINE FIELD complaints.*.time ON report
     TYPE datetime;
-DEFINE FIELD time ON report
-    TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD status ON report
-    TYPE string ASSERT $value IN ["pending", "approved", "removed", "appealed"] DEFAULT ALWAYS "pending";
-DEFINE FIELD resolution ON report
-    TYPE option<string> ASSERT $value = NONE OR $value.len() >= 3;
-DEFINE FIELD moderator ON report
-    TYPE option<record<user>>;
-DEFINE FIELD appeal ON report
-    TYPE option<object>;
-DEFINE FIELD appeal.reason ON report
+    TYPE string ASSERT $value IN ["pending", "removed", "appealed", "denied", "closed"] DEFAULT ALWAYS "pending";
+DEFINE FIELD history ON report
+    TYPE array<object> DEFAULT ALWAYS [];
+DEFINE FIELD history.*.action ON report
     TYPE string;
-DEFINE FIELD appeal.time ON report
-    TYPE datetime;
-DEFINE FIELD appeal.moderator ON report
-    TYPE option<record<user>>;
-DEFINE FIELD author ON report
-    COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
+DEFINE FIELD history.*.message ON report
+    TYPE option<string> ASSERT $value.len() > 0;
+DEFINE FIELD history.*.user ON report
+    TYPE record<user>;
+DEFINE FIELD history.*.time ON report
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD history.*.changes ON report
+    TYPE object FLEXIBLE;
 
 
 -- ------------------------------
@@ -559,30 +563,19 @@ DEFINE INDEX moderatorLogTarget ON TABLE moderatorLog
     FIELDS target;
 
 DEFINE EVENT moderatorLogReportUpdate ON report
-    WHEN $event = 'UPDATE' AND $after.moderator != NONE
+    WHEN $event = 'UPDATE' AND $after.history.len() > $before.history.len()
     THEN {
-        IF ($before.status != $after.status OR $before.resolution != $after.resolution)
-            AND $before.appeal.moderator = $after.appeal.moderator
-            AND $after.status != 'appealed' {
-            LET $action = IF $before.status = $after.status THEN
-                'report.resolution_updated'
-            ELSE IF $after.status = 'approved' THEN
-                'report.approved'
-            ELSE IF $after.status = 'removed' THEN
-                'report.removed'
-            ELSE
-                'report.reopened'
-            END;
-
-            CREATE moderatorLog SET
-                actor = $after.moderator,
-                action = $action,
-                target = $after.id,
-                details = {
-                    before: { status: $before.status, resolution: $before.resolution },
-                    after: { status: $after.status, resolution: $after.resolution }
-                };
-        };
+        LET $entry = array::last($after.history);
+        CREATE moderatorLog SET
+            actor = $entry.user,
+            action = $entry.action,
+            target = $after.id,
+            details = {
+                before: { status: $entry.changes.status.before },
+                after: { status: $entry.changes.status.after, message: $entry.message },
+                topic: $entry.changes.topic,
+                changes: $entry.changes
+            };
     };
 
 

@@ -154,13 +154,27 @@ Role checks are applied in route handlers and page middleware as needed.
 
 ### 6.2 Moderation/reporting
 
-- Reports are created through report endpoints and surfaced in admin and moderator-facing routes. There is one report record per subject; each submission is appended to its `complaints` array with its reporter, reason, and timestamp.
+- Reports are created through report endpoints and surfaced in admin and moderator-facing routes. There is one report record per subject; each submission appends `{ user, reason, time }` to `complaints`. Adding a complaint does not change report status, moderator, creation time, or history.
+- Report records expose the subject owner and topic associations as computed fields. The top-level `time` is report creation time; complaint and history entries have independent event times.
+- Report complaints, appeals, moderation decisions, reopen actions, and topic removals require nonempty text after trimming. Reasons and decision messages are preserved in complaints or history.
 - Topic-scoped reporting views exist for moderators (for example, topic report queues under `app/pages/topic/[topic]/reports.vue` backed by `server/api/topic/[topic]/reports.ts`).
-- Report statuses are `pending`, `approved`, `removed`, and `appealed`, with one status and optional resolution per subject. A new complaint appends to the existing report and reopens an approved/removed report by clearing its resolution. Review navigates to the subject without changing status; moderators can approve with an optional note, mark removed content, or reopen an approved/removed report to pending. Submitting an appeal moves a removed report to `appealed`; only appeal review can accept it to `approved` or reject it back to `removed`.
+- Report statuses are `pending`, `removed`, `appealed`, `denied`, and `closed`. Workflow actions append entries to `history`; its action string is intentionally unconstrained, and `changes` holds action-specific details.
+
+| Current status | Action | Next status | Content effect | Moderator effect |
+| --- | --- | --- | --- | --- |
+| Any status except `appealed` | Approve/update decision (`report.approved`) | `closed` | Active; restore if quarantined | Set to deciding moderator |
+| Any status except `appealed` | Remove content (`report.removed`) | `removed` | Quarantine active or archived content | Set to deciding moderator |
+| `removed` | Submit appeal (`report.appeal.submitted`) | `appealed` | Remains quarantined | Keep original moderator |
+| `appealed` | Accept appeal (`report.appeal.accepted`) | `closed` | Active | Set to appeal reviewer |
+| `appealed` | Reject appeal (`report.appeal.rejected`) | `denied` | Remains quarantined | Set to appeal reviewer |
+| Any status except `appealed` | Reopen (`report.reopened`) | `pending` | Active if quarantined | Clear moderator |
+| `pending` | Remove one topic (`report.topic.removed`) | `pending` | Remove only that topic association | No change |
+
+An appeal can be submitted once per report, only by the subject owner, and only while removed content is quarantined. A different moderator must decide it. Pending appeals cannot be approved, removed again, or reopened through the ordinary decision routes. Reopening an already-pending report is permitted and appends a pending-to-pending reopen entry. Topic removal is available only for pending reports and only to a moderator assigned to that topic.
+- Report audit records are generated from newly appended history entries in the same database action, avoiding a second manual audit write. Notifications go to the content owner and complainants when content is removed; appeal decisions and restoration notifications go to the owner.
 - Global report APIs are admin-only. Topic-scoped report APIs allow admins and assigned topic moderators, and verify that the report subject belongs to the topic.
 - Reports whose subject no longer exists are omitted from both queues and deleted by a scheduled cleanup task.
 - Topic moderation/request features exist and are evolving.
-- Some moderation workflows are incomplete. Check existing behavior before building on them.
 
 ### 6.3 Feedback
 

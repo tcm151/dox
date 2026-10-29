@@ -1,54 +1,37 @@
 import type { Report } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
-interface ReportModerationOptions {
-    id: string
-    user: string
-    topic?: string
+interface ReportMessageOptions {
+    reportId: string
+    actorId: string
+    topicId?: string
+    message: unknown
 }
 
-interface ReportResolutionOptions extends ReportModerationOptions {
-    resolution?: string
+interface ReportTopicMessageOptions extends ReportMessageOptions {
+    topicId: string
 }
 
-interface ReportRemovalOptions extends ReportModerationOptions {
-    resolution: unknown
-}
-
-interface ReportRemovalResult {
+interface ReportResult {
     report: Report
-    subjectAuthor: string
-    complaints: Array<{ reporter: string }>
-    wasRemoved: boolean
+    subjectOwnerId: string
 }
 
-interface ReportRestoreResult {
-    report: Report
-    subjectAuthor: string
-    wasRemoved: boolean
+interface ReportRestoreResult extends ReportResult {
+    subjectWasQuarantined: boolean
 }
 
-interface ReportAppealResult {
-    report: Report
-    subjectAuthor: string
-}
-
-interface ReportAppealSubmissionOptions {
-    id: string
-    user: string
-    reason: unknown
-}
-
-interface ReportAppealReviewOptions extends ReportModerationOptions {
-    resolution: unknown
+interface ReportRemovalResult extends ReportResult {
+    complaints: Array<{ user: string }>
+    newlyQuarantined: boolean
 }
 
 interface OwnerAppealStatus {
     id: string
     subject: { id: string }
     status: Report["status"]
-    resolution?: string
-    appeal?: Report["appeal"]
+    moderator?: Report["moderator"]
+    history: Report["history"]
 }
 
 export class ReportManager {
@@ -61,7 +44,7 @@ export class ReportManager {
             .execute()
     }
 
-    static async create(subject: string, reporter: string, reason: unknown): Promise<void> {
+    static async create(subjectId: string, reporterId: string, reason: unknown): Promise<void> {
         const normalizedReason = typeof reason === "string" ? reason.trim() : ""
         if (!normalizedReason) {
             throw createError({ status: 400, statusText: "A report reason is required." })
@@ -70,15 +53,19 @@ export class ReportManager {
         try {
             await new DatabaseQuery()
                 .addSql(`
-                    UPSERT report SET
-                        subject = $subject,
-                        complaints += { reporter: $reporter, reason: $reason, time: time::now() },
-                        time = time::now()
-                    WHERE subject = $subject
-                    RETURN AFTER;
+                    LET $existing = (SELECT VALUE id FROM report WHERE subject = $subject LIMIT 1)[0];
+                    IF $existing = NONE {
+                        CREATE report SET
+                            subject = $subject,
+                            complaints = [{ user: $reporter, reason: $reason, time: time::now() }];
+                    } ELSE {
+                        UPDATE $existing SET
+                            complaints += { user: $reporter, reason: $reason, time: time::now() };
+                    };
                 `)
-                .addRecord("subject", subject)
-                .addRecord("reporter", reporter)
+                .addTransaction()
+                .addRecord("subject", subjectId)
+                .addRecord("reporter", reporterId)
                 .addParameter("reason", normalizedReason)
                 .execute()
         }
@@ -88,13 +75,15 @@ export class ReportManager {
         }
     }
 
-    static async resolve(options: ReportResolutionOptions): Promise<Report[]> {
-        const { id, user, topic, resolution } = options
+    static async resolve(options: ReportMessageOptions): Promise<Report[]> {
+        const { reportId, actorId, topicId, message } = options
+        const normalizedMessage = typeof message === "string" ? message.trim() : ""
+        if (!normalizedMessage) {
+            throw createError({ status: 400, statusText: "A report decision message is required." })
+        }
+
         const result = await new DatabaseQuery()
             .addSql(`
-                IF $resolution != NONE AND string::len($resolution) < 3 {
-                    fn::http(400, "Must provide a report resolution note.");
-                };
                 IF $report.subject = $user OR $report.subject.user = $user {
                     fn::http(403, "You cannot moderate reports about your own content.");
                 };
@@ -110,33 +99,40 @@ export class ReportManager {
                     fn::http(409, "Pending appeals must be handled through appeal review.");
                 };
 
-                LET $wasRemoved = $report.status = "removed";
-                IF $wasRemoved {
+                LET $beforeStatus = $report.status;
+                LET $subjectWasQuarantined = $report.subject.status = "quarantined";
+                IF $subjectWasQuarantined {
                     UPDATE $report.subject SET status = "active";
                 };
 
                 UPDATE $report SET
-                    status = "approved",
-                    resolution = $resolution,
-                    moderator = $user;
+                    status = "closed",
+                    moderator = $user,
+                    history += {
+                        action: "report.approved",
+                        message: $message,
+                        user: $user,
+                        time: time::now(),
+                        changes: { status: { before: $beforeStatus, after: "closed" } }
+                    };
 
                 LET $updated = (SELECT * FROM $report)[0];
                 RETURN {
                     report: $updated,
-                    subjectAuthor: $report.subject.user,
-                    wasRemoved: $wasRemoved
+                    subjectOwnerId: $report.subject.user,
+                    subjectWasQuarantined: $subjectWasQuarantined
                 };
             `)
             .addTransaction()
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
-            .addRecord("topic", topic ?? "", true)
-            .addParameter("resolution", resolution)
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("user", actorId)
+            .addRecord("topic", topicId ?? "", true)
+            .addParameter("message", normalizedMessage)
             .queryValue<ReportRestoreResult>()
 
-        if (result.wasRemoved) {
+        if (result.subjectWasQuarantined) {
             await NotificationManager.send({
-                recipient: result.subjectAuthor,
+                recipient: result.subjectOwnerId,
                 context: result.report.subject,
                 message: "Your content was restored after the moderation decision changed.",
             })
@@ -145,8 +141,13 @@ export class ReportManager {
         return [result.report]
     }
 
-    static async reopen(options: ReportModerationOptions): Promise<Report[]> {
-        const { id, user, topic } = options
+    static async reopen(options: ReportMessageOptions): Promise<Report[]> {
+        const { reportId, actorId, topicId, message } = options
+        const normalizedMessage = typeof message === "string" ? message.trim() : ""
+        if (!normalizedMessage) {
+            throw createError({ status: 400, statusText: "A report reopen message is required." })
+        }
+
         const result = await new DatabaseQuery()
             .addSql(`
                 IF $report.subject = $user OR $report.subject.user = $user {
@@ -164,32 +165,40 @@ export class ReportManager {
                     fn::http(409, "Pending appeals cannot be reopened.");
                 };
 
-                LET $wasRemoved = $report.status = "removed";
-                IF $wasRemoved {
+                LET $beforeStatus = $report.status;
+                LET $subjectWasQuarantined = $report.subject.status = "quarantined";
+                IF $subjectWasQuarantined {
                     UPDATE $report.subject SET status = "active";
                 };
 
                 UPDATE $report SET
                     status = "pending",
-                    resolution = NONE,
-                    moderator = $user;
+                    moderator = NONE,
+                    history += {
+                        action: "report.reopened",
+                        message: $message,
+                        user: $user,
+                        time: time::now(),
+                        changes: { status: { before: $beforeStatus, after: "pending" } }
+                    };
 
                 LET $updated = (SELECT * FROM $report)[0];
                 RETURN {
                     report: $updated,
-                    subjectAuthor: $report.subject.user,
-                    wasRemoved: $wasRemoved
+                    subjectOwnerId: $report.subject.user,
+                    subjectWasQuarantined: $subjectWasQuarantined
                 };
             `)
             .addTransaction()
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
-            .addRecord("topic", topic ?? "", true)
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("user", actorId)
+            .addRecord("topic", topicId ?? "", true)
+            .addParameter("message", normalizedMessage)
             .queryValue<ReportRestoreResult>()
 
-        if (result.wasRemoved) {
+        if (result.subjectWasQuarantined) {
             await NotificationManager.send({
-                recipient: result.subjectAuthor,
+                recipient: result.subjectOwnerId,
                 context: result.report.subject,
                 message: "Your content was restored after the report was reopened.",
             })
@@ -198,11 +207,11 @@ export class ReportManager {
         return [result.report]
     }
 
-    static async remove(options: ReportRemovalOptions): Promise<Report[]> {
-        const { id, user, topic, resolution } = options
-        const normalizedResolution = typeof resolution === "string" ? resolution.trim() : ""
-        if (normalizedResolution.length < 3) {
-            throw createError({ status: 400, statusText: "A removal resolution note of at least 3 characters is required." })
+    static async remove(options: ReportMessageOptions): Promise<Report[]> {
+        const { reportId, actorId, topicId, message } = options
+        const normalizedMessage = typeof message === "string" ? message.trim() : ""
+        if (!normalizedMessage) {
+            throw createError({ status: 400, statusText: "A report removal message is required." })
         }
 
         const result = await new DatabaseQuery()
@@ -219,8 +228,13 @@ export class ReportManager {
                     };
                 };
 
-                LET $wasRemoved = $report.status != "removed";
-                IF $wasRemoved {
+                IF $report.status = "appealed" {
+                    fn::http(409, "Pending appeals must be handled through appeal review.");
+                };
+
+                LET $beforeStatus = $report.status;
+                LET $newlyQuarantined = $report.subject.status != "quarantined";
+                IF $newlyQuarantined {
                     IF NOT ($report.subject.status IN ["active", "archived"]) {
                         fn::http(409, "This content cannot be quarantined from its current status.");
                     };
@@ -229,30 +243,36 @@ export class ReportManager {
 
                 UPDATE $report SET
                     status = "removed",
-                    resolution = $resolution,
-                    moderator = $user;
+                    moderator = $user,
+                    history += {
+                        action: "report.removed",
+                        message: $message,
+                        user: $user,
+                        time: time::now(),
+                        changes: { status: { before: $beforeStatus, after: "removed" } }
+                    };
 
                 LET $updated = (SELECT * FROM $report)[0];
                 RETURN {
                     report: $updated,
-                    subjectAuthor: $report.subject.user,
+                    subjectOwnerId: $report.subject.user,
                     complaints: $report.complaints,
-                    wasRemoved: $wasRemoved
+                    newlyQuarantined: $newlyQuarantined
                 };
             `)
             .addTransaction()
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
-            .addRecord("topic", topic ?? "", true)
-            .addParameter("resolution", normalizedResolution)
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("user", actorId)
+            .addRecord("topic", topicId ?? "", true)
+            .addParameter("message", normalizedMessage)
             .queryValue<ReportRemovalResult>()
 
-        if (result.wasRemoved) {
-            const recipients = new Set([result.subjectAuthor, ...result.complaints.map(complaint => complaint.reporter)])
+        if (result.newlyQuarantined) {
+            const recipients = new Set([result.subjectOwnerId, ...result.complaints.map(complaint => complaint.user)])
             await Promise.all([...recipients].map(recipient => NotificationManager.send({
                 recipient,
-                context: recipient === result.subjectAuthor ? result.report.id : result.report.subject,
-                message: recipient === result.subjectAuthor
+                context: recipient === result.subjectOwnerId ? result.report.id : result.report.subject,
+                message: recipient === result.subjectOwnerId
                     ? "Your content was quarantined after a moderation review."
                     : "Moderators removed content you reported.",
             })))
@@ -261,33 +281,85 @@ export class ReportManager {
         return [result.report]
     }
 
-    static async getOwnerAppeal(id: string, user: string): Promise<OwnerAppealStatus | null> {
+    static async removeTopic(options: ReportTopicMessageOptions): Promise<Report[]> {
+        const { reportId, actorId, topicId, message } = options
+        const normalizedMessage = typeof message === "string" ? message.trim() : ""
+        if (!normalizedMessage) {
+            throw createError({ status: 400, statusMessage: "A topic removal message is required." })
+        }
+
+        const result = await new DatabaseQuery()
+            .addSql(`
+                IF $report.subject = $user OR $report.subject.user = $user {
+                    fn::http(403, "You cannot moderate reports about your own content.");
+                };
+                IF NOT ($topic.moderators CONTAINS $user) {
+                    fn::http(403, "You cannot moderate this topic.");
+                };
+                IF NOT ($report.subject.topics CONTAINS $topic) {
+                    fn::http(404, "This report is not part of this topic.");
+                };
+                IF $report.status != "pending" {
+                    fn::http(409, "Only pending reports can remove a topic from a submission.");
+                };
+
+                LET $subject = $report.subject;
+                UPDATE $subject SET
+                    topics -= $topic;
+
+                UPDATE $topic SET
+                    posts -= $subject,
+                    threads -= $subject,
+                    galleries -= $subject;
+
+                UPDATE $report SET
+                    history += {
+                        action: "report.topic.removed",
+                        message: $message,
+                        user: $user,
+                        time: time::now(),
+                        changes: { topic: $topic }
+                    };
+
+                RETURN { report: (SELECT * FROM $report)[0] };
+            `)
+            .addTransaction()
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("user", actorId)
+            .addRecord("topic", `topic:${topicId}`)
+            .addParameter("message", normalizedMessage)
+            .queryValue<{ report: Report }>()
+
+        return [result.report]
+    }
+
+    static async getOwnerAppeal(reportId: string, ownerId: string): Promise<OwnerAppealStatus | null> {
         const reports = await new DatabaseQuery()
             .addSql(`
-                SELECT id, subject.id, status, moderator.name, resolution, appeal
+                SELECT id, subject.id, status, moderator, history
                 FROM report
                 WHERE id = $report
-                AND subject.user = $user
+                AND subject.user = $owner
                 LIMIT 1
-                FETCH subject, appeal.moderator
+                FETCH subject, moderator, history.user
             `)
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("owner", ownerId)
             .queryAll<OwnerAppealStatus>()
 
         return reports[0] ?? null
     }
 
-    static async submitAppeal(options: ReportAppealSubmissionOptions): Promise<Report[]> {
-        const { id, user, reason } = options
+    static async submitAppeal(options: { reportId: string, ownerId: string, reason: unknown }): Promise<Report[]> {
+        const { reportId, ownerId, reason } = options
         const normalizedReason = typeof reason === "string" ? reason.trim() : ""
-        if (normalizedReason.length < 3) {
-            throw createError({ status: 400, statusText: "An appeal reason of at least 3 characters is required." })
+        if (!normalizedReason) {
+            throw createError({ status: 400, statusText: "An appeal reason is required." })
         }
 
         const result = await new DatabaseQuery()
             .addSql(`
-                IF $report.subject != $user AND $report.subject.user != $user {
+                IF $report.subject != $owner AND $report.subject.user != $owner {
                     fn::http(403, "Only the owner of the moderated content can appeal.");
                 };
                 IF $report.status != "removed" OR $report.subject.status != "quarantined" {
@@ -296,41 +368,39 @@ export class ReportManager {
                 IF $report.moderator = NONE {
                     fn::http(409, "The original moderation decision is unavailable.");
                 };
-                IF $report.appeal != NONE {
+                IF array::any($report.history, |$entry| $entry.action = "report.appeal.submitted") {
                     fn::http(409, "This report already has an appeal.");
                 };
 
                 UPDATE $report SET
                     status = "appealed",
-                    appeal = {
-                        reason: $reason,
-                        time: time::now()
+                    history += {
+                        action: "report.appeal.submitted",
+                        message: $reason,
+                        user: $owner,
+                        time: time::now(),
+                        changes: { status: { before: "removed", after: "appealed" } }
                     };
-                CREATE moderatorLog SET
-                    actor = $user,
-                    action = "report.appeal.submitted",
-                    target = $report,
-                    details = { reason: $reason };
 
                 RETURN {
                     report: (SELECT * FROM $report)[0],
-                    subjectAuthor: $report.subject.user
+                    subjectOwnerId: $report.subject.user
                 };
             `)
             .addTransaction()
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("owner", ownerId)
             .addParameter("reason", normalizedReason)
-            .queryValue<ReportAppealResult>()
+            .queryValue<ReportResult>()
 
         return [result.report]
     }
 
-    static async acceptAppeal(options: ReportAppealReviewOptions): Promise<Report[]> {
-        const { id, user, topic, resolution } = options
-        const normalizedResolution = typeof resolution === "string" ? resolution.trim() : ""
-        if (normalizedResolution.length < 3) {
-            throw createError({ status: 400, statusText: "An appeal resolution note of at least 3 characters is required." })
+    static async acceptAppeal(options: ReportMessageOptions): Promise<Report[]> {
+        const { reportId, actorId, topicId, message } = options
+        const normalizedMessage = typeof message === "string" ? message.trim() : ""
+        if (!normalizedMessage) {
+            throw createError({ status: 400, statusText: "An appeal decision message is required." })
         }
 
         const result = await new DatabaseQuery()
@@ -346,9 +416,6 @@ export class ReportManager {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };
-                IF $report.appeal = NONE OR $report.appeal.moderator != NONE {
-                    fn::http(409, "This report has no pending appeal.");
-                };
                 IF $report.status != "appealed" OR $report.subject.status != "quarantined" {
                     fn::http(409, "The appealed content is no longer removed.");
                 };
@@ -356,37 +423,35 @@ export class ReportManager {
                     fn::http(403, "A different moderator must review the appeal.");
                 };
 
-                LET $appeal = $report.appeal;
                 UPDATE $report.subject SET status = "active";
                 UPDATE $report SET
-                    status = "approved",
-                    resolution = $resolution,
+                    status = "closed",
                     moderator = $user,
-                    appeal = {
-                        reason: $appeal.reason,
-                        time: $appeal.time,
-                        moderator: $user
+                    history += {
+                        action: "report.appeal.accepted",
+                        message: $message,
+                        user: $user,
+                        time: time::now(),
+                        changes: {
+                            status: { before: "appealed", after: "closed" },
+                            subjectStatus: { before: "quarantined", after: "active" }
+                        }
                     };
-                CREATE moderatorLog SET
-                    actor = $user,
-                    action = "report.appeal.accepted",
-                    target = $report,
-                    details = { reason: $appeal.reason, resolution: $resolution };
 
                 RETURN {
                     report: (SELECT * FROM $report)[0],
-                    subjectAuthor: $report.subject.user
+                    subjectOwnerId: $report.subject.user
                 };
             `)
             .addTransaction()
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
-            .addRecord("topic", topic ?? "", true)
-            .addParameter("resolution", normalizedResolution)
-            .queryValue<ReportAppealResult>()
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("user", actorId)
+            .addRecord("topic", topicId ?? "", true)
+            .addParameter("message", normalizedMessage)
+            .queryValue<ReportResult>()
 
         await NotificationManager.send({
-            recipient: result.subjectAuthor,
+            recipient: result.subjectOwnerId,
             context: result.report.id,
             message: "Your moderation appeal was accepted and your content was restored.",
         })
@@ -394,11 +459,11 @@ export class ReportManager {
         return [result.report]
     }
 
-    static async rejectAppeal(options: ReportAppealReviewOptions): Promise<Report[]> {
-        const { id, user, topic, resolution } = options
-        const normalizedResolution = typeof resolution === "string" ? resolution.trim() : ""
-        if (normalizedResolution.length < 3) {
-            throw createError({ status: 400, statusText: "An appeal resolution note of at least 3 characters is required." })
+    static async rejectAppeal(options: ReportMessageOptions): Promise<Report[]> {
+        const { reportId, actorId, topicId, message } = options
+        const normalizedMessage = typeof message === "string" ? message.trim() : ""
+        if (!normalizedMessage) {
+            throw createError({ status: 400, statusText: "An appeal decision message is required." })
         }
 
         const result = await new DatabaseQuery()
@@ -414,9 +479,6 @@ export class ReportManager {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };
-                IF $report.appeal = NONE OR $report.appeal.moderator != NONE {
-                    fn::http(409, "This report has no pending appeal.");
-                };
                 IF $report.status != "appealed" OR $report.subject.status != "quarantined" {
                     fn::http(409, "The appealed content is no longer removed.");
                 };
@@ -424,37 +486,32 @@ export class ReportManager {
                     fn::http(403, "A different moderator must review the appeal.");
                 };
 
-                LET $appeal = $report.appeal;
                 UPDATE $report SET
-                    status = "removed",
+                    status = "denied",
                     moderator = $user,
-                    resolution = $resolution,
-                    appeal = {
-                        reason: $appeal.reason,
-                        time: $appeal.time,
-                        moderator: $user
+                    history += {
+                        action: "report.appeal.rejected",
+                        message: $message,
+                        user: $user,
+                        time: time::now(),
+                        changes: { status: { before: "appealed", after: "denied" } }
                     };
-                CREATE moderatorLog SET
-                    actor = $user,
-                    action = "report.appeal.rejected",
-                    target = $report,
-                    details = { reason: $appeal.reason, resolution: $resolution };
 
                 RETURN {
                     report: (SELECT * FROM $report)[0],
-                    subjectAuthor: $report.subject.user
+                    subjectOwnerId: $report.subject.user
                 };
             `)
             .addTransaction()
-            .addRecord("report", `report:${id}`)
-            .addRecord("user", user)
-            .addRecord("topic", topic ?? "", true)
-            .addParameter("resolution", normalizedResolution)
-            .queryValue<ReportAppealResult>()
+            .addRecord("report", `report:${reportId}`)
+            .addRecord("user", actorId)
+            .addRecord("topic", topicId ?? "", true)
+            .addParameter("message", normalizedMessage)
+            .queryValue<ReportResult>()
 
         await NotificationManager.send({
-            recipient: result.subjectAuthor,
-            context: result.report.id,
+            recipient: result.subjectOwnerId,
+            context: result.report.subject,
             message: "Your moderation appeal was rejected and the content remains removed.",
         })
 
