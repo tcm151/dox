@@ -31,7 +31,7 @@ DEFINE FIELD IF NOT EXISTS author ON report
 	COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
 
 DEFINE FIELD OVERWRITE context ON notification
-	TYPE record<post|comment|user|thread|gallery|image|report>;
+	TYPE record<post|comment|user|thread|gallery|image|report|topic>;
 
 DEFINE TABLE IF NOT EXISTS moderatorLog SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS actor ON moderatorLog

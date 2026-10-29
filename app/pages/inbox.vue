@@ -37,7 +37,10 @@ function viewContext(notification: Notification) {
 }
 
 function contextLabel(notification: Notification) {
-    return (notification.context as string).startsWith("report:") ? "Appeal" : "Context"
+    const context = notification.context as string
+    if (context.startsWith("report:")) return "Appeal"
+    if (context.startsWith("topic:")) return "Topic"
+    return "Context"
 }
 
 async function dismiss(notification: Notification) {

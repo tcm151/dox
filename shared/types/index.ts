@@ -168,7 +168,7 @@ export interface Pin extends Record {
 
 export interface Notification extends Record {
     recipient: User & string
-    context: (Post | Comment | User | Thread | Gallery | Image | Report) & string
+    context: (Post | Comment | User | Thread | Gallery | Image | Report | Topic) & string
     message: string
     time: string
     viewed: boolean

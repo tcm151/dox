@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { ModeratorLog, Topic, User } from "../../shared/types"
+import type { AppSettings, ModeratorLog, Topic, User } from "../../shared/types"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../test-server"
 
 const admin = await grabUser("admin")
@@ -30,6 +30,7 @@ async function removeModerationRequests(items: Array<{ topicId: string, requestI
     if (items.length === 0) return
 
     const statements = items.flatMap(({ topicId, requestId }) => [
+        `DELETE notification WHERE context = topic:${topicId};`,
         `DELETE moderatorLog WHERE target = moderationRequest:${requestId};`,
         `DELETE moderationRequest:${requestId};`,
         `DELETE topic:${topicId};`,
@@ -85,6 +86,78 @@ it("records approvals and rejects duplicate approvals", async () => {
         })
     }
     finally {
+        await removeModerationRequests([testRequest])
+    }
+})
+
+it("notifies the applicant when approved as a topic moderator", async () => {
+    const testRequest = await createModerationRequest(`ApprovalNotice${Date.now()}`)
+    const memberWasModerator = member.user.roles.includes("moderator")
+    const settingsResponse = await fetch("/api/settings/default")
+    expectStatus(settingsResponse, 200)
+    const settings = await settingsResponse.json() as AppSettings
+    const priorApprovals = Object.values(exampleServer.users)
+        .map(session => session.user.id)
+        .filter(userId => userId !== member.user.id)
+        .slice(0, settings.moderation.threshold - 1)
+
+    expect(priorApprovals).toHaveLength(settings.moderation.threshold - 1)
+
+    try {
+        await admin.query(`
+            UPDATE moderationRequest:${testRequest.requestId} SET
+                approvals = [${priorApprovals.join(", ")}];
+        `)
+
+        const response = await admin.fetchRaw(`/api/moderator/request/${testRequest.requestId}/approve`, { method: "POST" })
+        expectStatus(response, 200)
+
+        const notifications = await member.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
+        const notification = notifications.notifications.find(item => item.context === `topic:${testRequest.topicId}`)
+        expect(notification?.message).toContain("request to moderate this topic was approved")
+    }
+    finally {
+        if (!memberWasModerator) {
+            await admin.query(`UPDATE ${member.user.id} SET roles -= "moderator";`)
+        }
+        await removeModerationRequests([testRequest])
+    }
+})
+
+it("reconciles existing approvals when their threshold is met", async () => {
+    const testRequest = await createModerationRequest(`Reconcile${Date.now()}`)
+    const memberWasModerator = member.user.roles.includes("moderator")
+    const settingsResponse = await fetch("/api/settings/default")
+    expectStatus(settingsResponse, 200)
+    const settings = await settingsResponse.json() as AppSettings
+    const approvalIds = [
+        admin.user.id,
+        ...Object.values(exampleServer.users).map(session => session.user.id),
+    ]
+        .filter(userId => userId !== member.user.id)
+        .slice(0, settings.moderation.threshold)
+
+    expect(approvalIds).toHaveLength(settings.moderation.threshold)
+
+    try {
+        await admin.query(`
+            UPDATE moderationRequest:${testRequest.requestId} SET
+                approvals = [${approvalIds.join(", ")}];
+        `)
+
+        const requests = await admin.fetch<ModerationRequest[]>("/api/moderator/request")
+        const request = requests.find(item => item.id === `moderationRequest:${testRequest.requestId}`)
+        expect(request?.closed).toBe(true)
+        expect(request?.user.roles).toContain("moderator")
+
+        const notifications = await member.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
+        const notification = notifications.notifications.find(item => item.context === `topic:${testRequest.topicId}`)
+        expect(notification?.message).toContain("request to moderate this topic was approved")
+    }
+    finally {
+        if (!memberWasModerator) {
+            await admin.query(`UPDATE ${member.user.id} SET roles -= "moderator";`)
+        }
         await removeModerationRequests([testRequest])
     }
 })

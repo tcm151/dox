@@ -1,4 +1,11 @@
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { ModeratorRequestManager } from "@@/server/utils/ModeratorRequestManager"
+
+interface ApprovalResult {
+    approved: boolean
+    user: string
+    topic: string
+}
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -7,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     const settings = await SettingsManager.get()
 
-    return await new DatabaseQuery()
+    const result = await new DatabaseQuery()
         .addSql(`
             IF $request.closed {
                 fn::http(409, "This request has already been closed.");
@@ -24,7 +31,10 @@ export default defineEventHandler(async (event) => {
                     approvals += $user
             );
 
-            IF array::len($request.approvals) >= $threshold {
+            LET $approved = array::len($request.approvals) >= $threshold
+                AND array::len($request.approvals) > array::len($request.denials);
+
+            IF $approved {
                 UPDATE $request.topic SET
                     moderators += $request.user;
 
@@ -36,10 +46,22 @@ export default defineEventHandler(async (event) => {
                 UPDATE $request SET
                     closed = true;
             };
+
+            RETURN {
+                approved: $approved,
+                user: $request.user,
+                topic: $request.topic
+            };
         `)
         .addTransaction()
         .addRecord("request", `moderationRequest:${id}`)
         .addRecord("user", auth.id)
         .addParameter("threshold", settings.moderation.threshold)
-        .execute()
+        .queryValue<ApprovalResult>()
+
+    if (result.approved) {
+        await ModeratorRequestManager.sendApprovalNotification(result)
+    }
+
+    return result
 })

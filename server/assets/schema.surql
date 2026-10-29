@@ -458,7 +458,7 @@ DEFINE TABLE notification SCHEMAFULL;
 DEFINE FIELD recipient ON notification
     TYPE record<user>;
 DEFINE FIELD context ON notification
-    TYPE record<post|comment|user|thread|gallery|image|report>;
+    TYPE record<post|comment|user|thread|gallery|image|report|topic>;
 DEFINE FIELD message ON notification
     TYPE string;
 DEFINE FIELD time ON notification
