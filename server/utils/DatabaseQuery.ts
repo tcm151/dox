@@ -193,6 +193,9 @@ export class DatabaseQuery {
             const applicationError = error.kind === "Thrown" && typeof error.message === "string"
                 ? /^An error occurred: APP_ERROR:(\d{3}):([\s\S]*)$/.exec(error.message)
                 : null
+            const errorMessage = typeof error?.message === "string" && error.message.length > 0
+                ? error.message
+                : String(error)
 
             const applicationStatusCode = Number(applicationError?.[1])
             if (applicationError && applicationStatusCode >= 400 && applicationStatusCode <= 599) {
@@ -207,7 +210,8 @@ export class DatabaseQuery {
             throw createError({
                 status: 500,
                 statusText: "Failed to execute query.",
-                message: error.message,
+                message: "Failed to execute query.",
+                cause: error,
                 stack: error.stack,
             })
         }

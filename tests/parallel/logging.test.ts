@@ -1,8 +1,10 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabUser } from "../test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser } from "../test-server"
 import { redactLogData, redactLogText } from "../../server/utils/logRedaction"
 
 const admin = await grabUser("admin")
+const exampleServer = await grabExampleServer("default")
+const member = exampleServer.users.sampleUser03
 
 type LoggedError = {
     id: string
@@ -14,6 +16,41 @@ type LoggedError = {
     }
     data: Record<string, unknown>
 }
+
+it("keeps database errors generic for regular APIs and detailed for developers", async () => {
+    const requestIds: string[] = []
+
+    try {
+        const profileResponse = await member.fetchRaw("/api/profile/update", {
+            method: "POST",
+            body: { ...member.user, name: "x" },
+        })
+        expectStatus(profileResponse, 500)
+        const profileError = profileResponse._data as Record<string, unknown>
+        expect(profileError.statusMessage).toBe("Failed to execute query.")
+        expect(profileError.message).toBe("Failed to execute query.")
+        expect(JSON.stringify(profileError)).not.toContain("Assertion failed")
+        const profileRequestId = profileResponse.headers.get("x-request-id")
+        if (profileRequestId) requestIds.push(profileRequestId)
+
+        const developerResponse = await admin.fetchRaw("/api/developer/database/query", {
+            method: "POST",
+            body: { query: "SELECT * FROM" },
+        })
+        expectStatus(developerResponse, 500)
+        const developerError = developerResponse._data as Record<string, unknown>
+        expect(developerError.statusMessage).not.toBe("Failed to execute query.")
+        expect(developerError.message).not.toBe("Failed to execute query.")
+        expect(typeof developerError.statusMessage).toBe("string")
+        const developerRequestId = developerResponse.headers.get("x-request-id")
+        if (developerRequestId) requestIds.push(developerRequestId)
+    }
+    finally {
+        for (const requestId of requestIds) {
+            await admin.query(`DELETE error WHERE request.id = "${requestId}";`)
+        }
+    }
+})
 
 it("correlates an error response without persisting request secrets", async () => {
     const secret = `request-log-${Date.now()}`

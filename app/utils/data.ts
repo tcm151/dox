@@ -13,6 +13,13 @@ export function useDatasource<T>(
         })),
         ...options
     })
+    const hints = useHints()
+
+    watch(datasource.error, (error) => {
+        if (error && ENV.isClient()) {
+            hints.addError(error.statusMessage ?? error.message, error)
+        }
+    }, { immediate: true })
 
     if (options.watch !== false) {
         watch(() => session.user.id, () => datasource.clear(), { flush: "sync" })

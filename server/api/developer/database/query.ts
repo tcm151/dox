@@ -12,9 +12,26 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const results = await new DatabaseQuery()
-        .addSql(query)
-        .execute()
+    let results
+    try {
+        results = await new DatabaseQuery()
+            .addSql(query)
+            .execute()
+    }
+    catch (error: any) {
+        const cause = error?.cause
+        if (!(cause instanceof Error)) {
+            throw error
+        }
+
+        throw createError({
+            statusCode: error.statusCode ?? 500,
+            statusMessage: cause.message,
+            message: cause.message,
+            cause,
+            stack: error.stack,
+        })
+    }
 
     try {
         await new DatabaseQuery()
