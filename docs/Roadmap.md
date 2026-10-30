@@ -11,6 +11,7 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 - 🟩 Add GitHub Actions pipeline for install, type-check, build, and smoke tests. (`M`)
 - 🟩 Add minimal server/API smoke tests for auth, post create, thread reply, and report flow. (`L`)
 - 🟩 Add PR template + contribution checks (tests/docs checklist). (`S`)
+- 🟥 Add UI test suite for unit testing components and page layout. (`M`)
 
 **Success metric**: every PR is validated by CI and critical flows have automated smoke coverage.
 

@@ -2,7 +2,7 @@
 
 ## Status
 - State: Planned
-- Priority: Low
+- Priority: High
 - Next: Choose a browser runner and define how it fits into the existing test workflow.
 
 ## Goal
