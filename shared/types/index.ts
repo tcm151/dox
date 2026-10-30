@@ -92,9 +92,9 @@ export interface Draft extends Record {
 
 export interface Comment extends Sortable {
     user: User & string
-    post: Post & string
+    context: (Post | Gallery) & string
     content: string
-    replyTo: (Post | Comment) & string
+    replyTo: (Post | Gallery | Comment) & string
     deleted: boolean
     edited: boolean
     timeEdited?: string
@@ -104,6 +104,7 @@ export interface Thread extends Sortable {
     user: User & string
     content: string
     quote?: Thread & string
+    quotes: (Thread & string)[]
     replyTo?: Thread & string
     topics: string[]
     replies: (Thread & string)[]
@@ -132,13 +133,14 @@ export interface Gallery extends Sortable {
     user: User & string
     description: string
     topics: string[]
+    comments: (Comment & string)[]
     images: Attachment[]
     status: ContentStatus
 }
 
 export interface SearchComment extends Voteable {
     user: Pick<User, "id" | "name" | "roles">
-    post: Pick<Post, "id" | "title">
+    context: Pick<Post, "id" | "title"> | Pick<Gallery, "id" | "description">
     content: string
     time: string
     edited: boolean

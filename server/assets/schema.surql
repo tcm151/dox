@@ -115,11 +115,11 @@ DEFINE TABLE topic SCHEMAFULL;
 DEFINE FIELD description ON topic
     TYPE option<string>;
 DEFINE FIELD posts ON topic
-    TYPE array<record<post>> DEFAULT ALWAYS [];
+    COMPUTED <~(post FIELD topics);
 DEFINE FIELD threads ON topic
-    TYPE array<record<thread>> DEFAULT ALWAYS [];
+    COMPUTED <~(thread FIELD topics);
 DEFINE FIELD galleries ON topic
-    TYPE array<record<gallery>> DEFAULT ALWAYS [];
+    COMPUTED <~(gallery FIELD topics);
 DEFINE FIELD visits ON topic
     TYPE number DEFAULT ALWAYS 0;
 DEFINE FIELD followers ON topic
@@ -136,11 +136,6 @@ DEFINE FIELD votes.negative ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON topic
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
-DEFINE EVENT removeBlank ON topic WHEN $event = 'UPDATE' THEN {
-    IF $after.posts.len() = 0 AND $after.threads.len() = 0 AND $after.galleries.len() = 0 {
-        DELETE $after.id;
-    };
-};
 
 
 -- ------------------------------
@@ -162,9 +157,10 @@ DEFINE FIELD time ON post
 DEFINE FIELD replyTo ON post
     TYPE option<record<post>>;
 DEFINE FIELD topics ON post
-    TYPE array<record<topic>> DEFAULT ALWAYS [];
+    TYPE array<record<topic>> DEFAULT ALWAYS []
+    REFERENCE ON DELETE REJECT;
 DEFINE FIELD comments ON post
-    TYPE array<record<comment>> DEFAULT ALWAYS [];
+    COMPUTED <~(comment FIELD context);
 DEFINE FIELD images ON post
     TYPE array<record<image>> DEFAULT ALWAYS [];
 DEFINE FIELD status ON post
@@ -191,13 +187,10 @@ DEFINE FIELD votes ON post
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON post
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
-DEFINE EVENT updateTopics ON post WHEN $event = 'CREATE' THEN {
+DEFINE EVENT ensureTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
-            CREATE $topic SET posts = [$after.id];
-        }
-        ELSE {
-            UPDATE $topic SET posts += $after.id;
+            CREATE $topic;
         }
     };
 };
@@ -229,8 +222,9 @@ DEFINE FIELD images ON draft
 DEFINE TABLE comment SCHEMAFULL;
 DEFINE FIELD user ON comment
     TYPE record<user>;
-DEFINE FIELD post ON comment
-    TYPE record<post>;
+DEFINE FIELD context ON comment
+    TYPE record<post | gallery> ASSERT record::exists($value)
+    REFERENCE ON DELETE REJECT;
 DEFINE FIELD content ON comment
     TYPE string;
 DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
@@ -238,7 +232,7 @@ DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
 DEFINE FIELD time ON comment
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON comment
-    TYPE record<post | comment>;
+    TYPE record<post | gallery | comment>;
 DEFINE FIELD deleted ON comment
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD edited ON comment
@@ -253,11 +247,6 @@ DEFINE FIELD votes.negative ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON comment
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, 1);
-DEFINE EVENT updatePost ON comment WHEN $event = 'CREATE' THEN {
-    UPDATE $after.post SET comments += $after.id;
-};
-
-
 -- ------------------------------
 -- TABLE: thread
 -- ------------------------------
@@ -271,15 +260,18 @@ DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
 DEFINE FIELD time ON thread
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD quote ON thread
-    TYPE option<record<thread>>;
+    TYPE option<record<thread>> ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE UNSET;
 DEFINE FIELD quotes ON thread
-    TYPE array<record<thread>> DEFAULT ALWAYS [];
+    COMPUTED <~(thread FIELD quote);
 DEFINE FIELD replyTo ON thread
-    TYPE option<record<thread>>;
+    TYPE option<record<thread>> ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE REJECT;
 DEFINE FIELD replies ON thread
-    TYPE array<record<thread>> DEFAULT ALWAYS [];
+    COMPUTED <~(thread FIELD replyTo);
 DEFINE FIELD topics ON thread
-    TYPE array<record<topic>> DEFAULT ALWAYS [];
+    TYPE array<record<topic>> DEFAULT ALWAYS []
+    REFERENCE ON DELETE REJECT;
 DEFINE FIELD images ON thread
     TYPE array<record<image>> DEFAULT ALWAYS [];
 DEFINE FIELD status ON thread
@@ -306,26 +298,13 @@ DEFINE FIELD votes ON thread
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON thread
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
-DEFINE EVENT updateTopics ON thread WHEN $event = 'CREATE' THEN {
+DEFINE EVENT ensureTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
-            CREATE $topic SET threads = [$after.id];
-        }
-        ELSE {
-            UPDATE $topic SET threads += $after.id;
+            CREATE $topic;
         }
     };
 };
-DEFINE EVENT updateReplyTo ON thread WHEN $event = 'CREATE' THEN {
-    IF $after.replyTo != NONE {
-        UPDATE $after.replyTo SET replies += $after.id;
-    };
-    IF $after.quote != NONE {
-        UPDATE $after.quote SET quotes += $after.id;
-    };
-};
-
-
 -- ------------------------------
 -- TABLE: image
 -- ------------------------------
@@ -373,7 +352,10 @@ DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
 DEFINE FIELD time ON gallery
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD topics ON gallery
-    TYPE array<record<topic>> DEFAULT ALWAYS [];
+    TYPE array<record<topic>> DEFAULT ALWAYS []
+    REFERENCE ON DELETE REJECT;
+DEFINE FIELD comments ON gallery
+    COMPUTED <~(comment FIELD context);
 DEFINE FIELD images ON gallery
     TYPE array<record<image>> DEFAULT ALWAYS [];
 DEFINE FIELD status ON gallery
@@ -394,13 +376,10 @@ DEFINE FIELD votes ON gallery
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON gallery
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
-DEFINE EVENT updateTopics ON gallery WHEN $event = 'CREATE' THEN {
+DEFINE EVENT ensureTopics ON gallery WHEN $event = 'CREATE' THEN {
     FOR $topic IN $after.topics {
         IF !record::exists($topic) {
-            CREATE $topic SET galleries = [$after.id];
-        }
-        ELSE {
-            UPDATE $topic SET galleries += $after.id;
+            CREATE $topic;
         }
     };
 };

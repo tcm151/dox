@@ -307,10 +307,9 @@ export class ReportManager {
                 UPDATE $subject SET
                     topics -= $topic;
 
-                UPDATE $topic SET
-                    posts -= $subject,
-                    threads -= $subject,
-                    galleries -= $subject;
+                IF $topic.posts.len() = 0 AND $topic.threads.len() = 0 AND $topic.galleries.len() = 0 {
+                    DELETE $topic;
+                };
 
                 UPDATE $report SET
                     history += {

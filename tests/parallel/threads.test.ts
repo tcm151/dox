@@ -184,9 +184,10 @@ it("allows only one of two concurrent awards to the same thread", async () => {
     }
 })
 
-it("removes a thread-only topic after its thread is deleted", async () => {
+it("removes a thread-only topic after soft-deleting its reply-bearing thread", async () => {
     const topicId = `deletedThread${Date.now()}`
     let threadId: string | undefined
+    let replyId: string | undefined
 
     try {
         const response = await admin.fetchRaw<Thread>("/api/thread/add", {
@@ -202,8 +203,19 @@ it("removes a thread-only topic after its thread is deleted", async () => {
         threadId = extractId(thread.id)
         expect(threadId).toBeDefined()
 
+        const replyResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${threadId}/reply`, {
+            method: "POST",
+            body: { content: `Reply to topic thread ${Date.now()}` },
+        })
+        expectStatus(replyResponse, 200, "reply creation stage")
+        replyId = extractId(replyResponse._data!.id)
+
         const deleteResponse = await admin.fetchRaw(`/api/thread/${threadId}/delete`)
         expectStatus(deleteResponse, 200, "thread deletion stage")
+        const deletedThread = await admin.query<Array<Array<{ deleted: boolean, topics: string[] }>>>(
+            `SELECT deleted, topics FROM thread:${threadId};`,
+        )
+        expect(deletedThread[0]?.[0]).toMatchObject({ deleted: true, topics: [] })
 
         const topicsResponse = await fetch("/api/topic")
         expectStatus(topicsResponse, 200)
@@ -212,8 +224,83 @@ it("removes a thread-only topic after its thread is deleted", async () => {
     }
     finally {
         await admin.query([
+            ...(replyId ? [`DELETE notification WHERE context = thread:${replyId};`, `DELETE thread:${replyId};`] : []),
             ...(threadId ? [`DELETE thread:${threadId};`] : []),
             `DELETE topic:${topicId};`,
         ].join("\n"))
+    }
+})
+
+it("traverses replies and quotes and applies their target deletion policies", async () => {
+    const createdThreadIds: string[] = []
+    let quoteId: string | undefined
+
+    try {
+        const parentResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Reference parent ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(parentResponse, 200, "create reply parent")
+        const parent = parentResponse._data!
+        const parentId = extractId(parent.id)
+        createdThreadIds.push(parentId)
+        const replyContent = `Reference reply ${Date.now()}`
+
+        const replyResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${parentId}/reply`, {
+            method: "POST",
+            body: { content: replyContent },
+        })
+        expectStatus(replyResponse, 200, "create reply")
+        const reply = replyResponse._data!
+        createdThreadIds.push(extractId(reply.id))
+
+        const parentWithReplies = await threadAuthor.fetch<Thread>(`/api/thread/${parentId}`)
+        expect(parentWithReplies.replies.map(item => item.content)).toContain(replyContent)
+
+        const quoteTargetResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Reference quote target ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(quoteTargetResponse, 200, "create quote target")
+        const quoteTarget = quoteTargetResponse._data!
+        const quoteTargetId = extractId(quoteTarget.id)
+        createdThreadIds.push(quoteTargetId)
+
+        const quoteResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${quoteTargetId}/quote`, {
+            method: "POST",
+            body: { content: `Reference quote ${Date.now()}`, topics: [] },
+        })
+        expectStatus(quoteResponse, 200, "create quote")
+        const quote = quoteResponse._data!
+        quoteId = extractId(quote.id)
+        createdThreadIds.push(quoteId)
+
+        const targetWithQuotes = await threadAuthor.fetch<Thread>(`/api/thread/${quoteTargetId}`)
+        expect(targetWithQuotes.quotes).toHaveLength(1)
+
+        await expect(admin.query(`DELETE ONLY thread:${parentId};`)).rejects.toThrow()
+        const parentAfterRejectedDelete = await threadAuthor.fetch<Thread>(`/api/thread/${parentId}`)
+        expect(parentAfterRejectedDelete.replies.map(item => item.content)).toContain(replyContent)
+
+        const deleteQuoteTarget = await threadAuthor.fetchRaw(`/api/thread/${quoteTargetId}/delete`, {
+            method: "POST",
+        })
+        expectStatus(deleteQuoteTarget, 200, "delete quote target")
+        const quoteAfterTargetDelete = await replyAuthor.fetch<Thread>(`/api/thread/${quoteId}`)
+        expect(quoteAfterTargetDelete.quote).toBeUndefined()
+
+        const deleteReplyParent = await threadAuthor.fetchRaw(`/api/thread/${parentId}/delete`, {
+            method: "POST",
+        })
+        expectStatus(deleteReplyParent, 200, "delete reply parent")
+        const deletedParent = await threadAuthor.fetch<Thread>(`/api/thread/${parentId}`)
+        expect(deletedParent.deleted).toBe(true)
+        expect(deletedParent.replies.map(item => item.content)).toContain(replyContent)
+    }
+    finally {
+        if (quoteId) await admin.query(`DELETE notification WHERE context = thread:${quoteId};`)
+        for (const threadId of createdThreadIds.reverse()) {
+            await admin.query(`DELETE thread:${threadId};`)
+        }
     }
 })

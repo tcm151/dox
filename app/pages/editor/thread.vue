@@ -12,6 +12,7 @@ let newThread = ref<Thread>({
     content: '',
     time: '',
     topics: [],
+    quotes: [],
     replies: [],
     images: [],
     votes: {

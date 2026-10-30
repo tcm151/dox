@@ -13,15 +13,15 @@ export default defineEventHandler(async (event) => {
             LET $comments = (
                 SELECT id,
                     user.{id, name, roles} AS user,
-                    post.{id, title} AS post,
+                    context.{id, title, description} AS context,
                     content, time, edited, deleted, timeEdited, votes, score,
                     string::contains(string::lowercase(content), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
                 FROM comment
                 WHERE content @1@ $text
                 AND deleted != true
-                AND post.status = "active"
-                AND post.deleted != true
+                AND context.status = "active"
+                AND context.deleted != true
             );
 
             LET $posts = (

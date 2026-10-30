@@ -8,14 +8,12 @@ export default defineEventHandler(async (event) => {
             IF $post.user != $user AND $user.roles CONTAINSNOT "admin" {
                 fn::http(403, "You are not allowed to do this.");
             };
-            FOR $topic IN $post.topics {
-                UPDATE $topic SET
-                    posts -= $post;
-            };
+            LET $topics = $post.topics;
             IF array::len($post.comments) > 0 {
                 UPDATE $post SET
                     content = "[deleted]",
-                    deleted = true;
+                    deleted = true,
+                    topics = [];
             }
             ELSE {
                 FOR $image IN $post.images {
@@ -41,6 +39,13 @@ export default defineEventHandler(async (event) => {
                     };
                 };
                 DELETE $post;
+            };
+            FOR $topic IN $topics {
+                IF record::exists($topic) {
+                    IF $topic.posts.len() = 0 AND $topic.threads.len() = 0 AND $topic.galleries.len() = 0 {
+                        DELETE $topic;
+                    };
+                };
             };
         `)
         .addTransaction()

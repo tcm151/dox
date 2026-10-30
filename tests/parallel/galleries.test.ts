@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Gallery, Topic } from "../../shared/types"
+import type { Comment, Gallery, Topic } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
@@ -184,5 +184,88 @@ it("removes a gallery-only topic after its gallery is deleted", async () => {
             `DELETE topic:${topicId};`,
         ]
         await admin.query(statements.join(" "))
+    }
+})
+
+it("supports gallery comments, replies, retrieval, and reference-protected deletion", async () => {
+    const imageId = `galleryComments${Date.now()}`
+    const description = `Gallery comments ${Date.now()}`
+    let galleryId: string | undefined
+    let commentId: string | undefined
+    let replyId: string | undefined
+
+    try {
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+        const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
+            method: "POST",
+            body: { images: [`image:${imageId}`], description, topics: [] },
+        })
+        expectStatus(publishResponse, 200, "gallery publication stage")
+
+        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
+        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        expect(gallery).toBeDefined()
+        galleryId = extractId(gallery!.id)
+
+        const commentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: gallery!.id, replyTo: gallery!.id, content: `Gallery comment ${Date.now()}` },
+        })
+        expectStatus(commentResponse, 200, "gallery comment creation stage")
+        const comment = commentResponse._data!
+        commentId = extractId(comment.id)
+        expect(comment.user).toBe(admin.user.id)
+        expect(comment.context).toBe(gallery!.id)
+
+        const replyResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: gallery!.id, replyTo: comment.id, content: `Gallery reply ${Date.now()}` },
+        })
+        expectStatus(replyResponse, 200, "gallery comment reply stage")
+        const reply = replyResponse._data!
+        replyId = extractId(reply.id)
+        expect(reply.user).toBe(admin.user.id)
+        expect(reply.context).toBe(gallery!.id)
+        expect(reply.replyTo).toBe(comment.id)
+
+        await admin.query(`
+            UPDATE comment:${commentId} SET time = time::now() - 2s;
+            UPDATE comment:${replyId} SET time = time::now() - 1s;
+        `)
+        const detail = await admin.fetch<Gallery>(`/api/gallery/${galleryId}?sortBy=new`)
+        expect(detail.comments.map(item => item.id)).toEqual([reply.id, comment.id])
+        expect(detail.comments[0]?.user.id).toBe(admin.user.id)
+        expect(detail.comments[0]?.context).toBe(gallery!.id)
+        await expect(admin.query(`DELETE ONLY gallery:${galleryId};`)).rejects.toThrow()
+
+        const editedContent = `Edited gallery comment ${Date.now()}`
+        expectStatus(await admin.fetchRaw(`/api/comment/${commentId}/edit`, {
+            method: "POST",
+            body: { content: editedContent },
+        }), 200, "gallery comment edit stage")
+        const editedDetail = await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)
+        const editedComment = editedDetail.comments.find(item => item.id === comment.id)
+        expect(editedComment).toMatchObject({ content: editedContent, edited: true })
+        expect(editedComment?.timeEdited).toBeTruthy()
+
+        expectStatus(await admin.fetchRaw(`/api/comment/${commentId}/delete`), 200, "parent comment soft deletion stage")
+        const deletedComment = (await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)).comments.find(item => item.id === comment.id)
+        expect(deletedComment?.deleted).toBe(true)
+        expectStatus(await admin.fetchRaw(`/api/comment/${replyId}/delete`), 200, "reply deletion stage")
+        expectStatus(await admin.fetchRaw(`/api/comment/${commentId}/delete`), 200, "parent comment deletion stage")
+
+        const emptyDetail = await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)
+        expect(emptyDetail.comments).toHaveLength(0)
+        expectStatus(await admin.fetchRaw(`/api/gallery/${galleryId}/delete`), 200, "gallery deletion stage")
+    }
+    finally {
+        await admin.query([
+            ...(replyId ? [`DELETE comment:${replyId};`] : []),
+            ...(commentId ? [`DELETE comment:${commentId};`] : []),
+            ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
+            `DELETE image:${imageId};`,
+            `DELETE mediaTrash:${imageId};`,
+            ...(galleryId ? [`DELETE notification WHERE context = gallery:${galleryId};`] : []),
+        ].join("\n"))
     }
 })

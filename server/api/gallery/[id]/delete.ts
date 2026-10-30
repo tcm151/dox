@@ -8,12 +8,15 @@ export default defineEventHandler(async (event) => {
                 fn::http(403, "You are not allowed to do this.");
             };
 
-            FOR $topic IN $gallery.topics {
+            LET $topics = $gallery.topics;
+            DELETE ONLY $gallery;
+            FOR $topic IN $topics {
                 IF record::exists($topic) {
-                    UPDATE $topic SET galleries = array::difference(galleries, [$gallery.id]);
+                    IF $topic.posts.len() = 0 AND $topic.threads.len() = 0 AND $topic.galleries.len() = 0 {
+                        DELETE $topic;
+                    };
                 };
             };
-            DELETE ONLY $gallery;
         `)
         .addTransaction()
         .addRecord("gallery", `gallery:${id}`)

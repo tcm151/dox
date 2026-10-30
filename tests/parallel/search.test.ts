@@ -2,22 +2,25 @@ import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Gallery, Post, SearchResult, Thread } from "../../shared/types"
+import type { Comment, Gallery, Post, SearchResult, Thread } from "../../shared/types"
 
 const admin = await grabUser("admin")
 
 it("searches posts, threads, galleries, and comments in global relevance order", async () => {
     const searchTerm = `pomegranate${randomUUID().replaceAll("-", "")}`
     const commentTerm = `cobalt${randomUUID().replaceAll("-", "")}`
+    const galleryCommentTerm = `amber${randomUUID().replaceAll("-", "")}`
     const imageId = `searchImage${Date.now()}`
     const postTitle = `Searchable post ${searchTerm}`
     const threadContent = `Searchable thread ${searchTerm}`
     const galleryDescription = `Searchable gallery ${searchTerm}`
     const commentContent = `Unique marker ${commentTerm}`
+    const galleryCommentContent = `Unique gallery marker ${galleryCommentTerm}`
     let postId: string | undefined
     let threadId: string | undefined
     let galleryId: string | undefined
     let commentId: string | undefined
+    let galleryCommentId: string | undefined
 
     try {
         const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
@@ -33,7 +36,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         await admin.query(`
             CREATE ONLY comment:${commentId} SET
                 user = ${admin.user.id},
-                post = post:${postId},
+                context = post:${postId},
                 content = "${commentContent}",
                 replyTo = post:${postId};
         `)
@@ -71,6 +74,13 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
+        const galleryCommentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: gallery!.id, replyTo: gallery!.id, content: galleryCommentContent },
+        })
+        expectStatus(galleryCommentResponse, 200)
+        galleryCommentId = extractId(galleryCommentResponse._data!.id)
+
         const searchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(searchResponse, 200, await searchResponse.clone().text())
         const results = await searchResponse.json() as SearchResult[]
@@ -98,7 +108,16 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(commentResults.map(item => item.id)).toEqual([`comment:${commentId}`])
         expect(commentResults[0]).toMatchObject({
             content: commentContent,
-            post: { id: `post:${postId}`, title: postTitle },
+            context: { id: `post:${postId}`, title: postTitle },
+        })
+
+        const galleryCommentSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(galleryCommentTerm)}`)
+        expectStatus(galleryCommentSearchResponse, 200, await galleryCommentSearchResponse.clone().text())
+        const galleryCommentResults = await galleryCommentSearchResponse.json() as SearchResult[]
+        expect(galleryCommentResults.map(item => item.id)).toEqual([`comment:${galleryCommentId}`])
+        expect(galleryCommentResults[0]).toMatchObject({
+            content: galleryCommentContent,
+            context: { id: `gallery:${galleryId}`, description: galleryDescription },
         })
 
         await admin.query(`UPDATE post:${postId} SET status = "archived";`)
@@ -131,14 +150,21 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(archivedResults).toEqual([])
     }
     finally {
-        const recordIds = [
+        const commentIds = [
             ...(commentId ? [`comment:${commentId}`] : []),
+            ...(galleryCommentId ? [`comment:${galleryCommentId}`] : []),
+        ]
+        if (commentIds.length) await admin.query(`DELETE [${commentIds.join(", ")}];`)
+
+        const recordIds = [
             ...(postId ? [`post:${postId}`] : []),
             ...(threadId ? [`thread:${threadId}`] : []),
             ...(galleryId ? [`gallery:${galleryId}`] : []),
             `image:${imageId}`,
         ]
         await admin.query(`DELETE [${recordIds.join(", ")}];`)
+        if (postId) await admin.query(`DELETE notification WHERE context = post:${postId};`)
+        if (galleryId) await admin.query(`DELETE notification WHERE context = gallery:${galleryId};`)
     }
 })
 
@@ -226,7 +252,7 @@ it("prioritizes a full exact phrase match over partial token matches", async () 
         await admin.query(`
             CREATE ONLY comment:${commentId} SET
                 user = ${admin.user.id},
-                post = post:${postId},
+                context = post:${postId},
                 content = "${commentContent}",
                 replyTo = post:${postId};
         `)

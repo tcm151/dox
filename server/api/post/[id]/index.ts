@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
             replyTo.id, replyTo.title, topics, votes, status, edited, timeEdited, visits,
             images.{id, url} AS images,
             (
-                SELECT id, time, user.id, user.name, post,
+                SELECT id, time, user.id, user.name, context,
                     replyTo, content, votes, score, edited, deleted, timeEdited
                 FROM $post.comments
                 ORDER BY time DESC

@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
                     deleted = true;
             }
             ELSE {
-                UPDATE $comment.post SET comments -= $comment;
                 DELETE $comment;
             };
         `)

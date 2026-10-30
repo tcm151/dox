@@ -1,0 +1,190 @@
+BEGIN TRANSACTION;
+
+LET $replies = (SELECT id, replyTo FROM thread WHERE replyTo != NONE AND record::exists(replyTo));
+LET $quotes = (SELECT id, quote FROM thread WHERE quote != NONE AND record::exists(quote));
+LET $postTopics = (SELECT id, topics FROM post WHERE deleted = false);
+LET $threadTopics = (SELECT id, topics FROM thread WHERE deleted = false);
+LET $galleryTopics = (SELECT id, topics FROM gallery);
+
+UPDATE thread SET replyTo = NONE WHERE replyTo != NONE AND !record::exists(replyTo);
+UPDATE thread SET quote = NONE WHERE quote != NONE AND !record::exists(quote);
+
+REMOVE EVENT IF EXISTS updateReplyTo ON thread;
+REMOVE EVENT IF EXISTS updatePost ON comment;
+REMOVE EVENT IF EXISTS removeBlank ON topic;
+REMOVE EVENT IF EXISTS updateTopics ON post;
+REMOVE EVENT IF EXISTS updateTopics ON thread;
+REMOVE EVENT IF EXISTS updateTopics ON gallery;
+
+DEFINE FIELD OVERWRITE replyTo ON thread
+    TYPE option<record<thread>> ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE REJECT;
+DEFINE FIELD OVERWRITE quote ON thread
+    TYPE option<record<thread>> ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE UNSET;
+
+UPDATE thread SET replyTo = NONE WHERE replyTo != NONE;
+UPDATE thread SET quote = NONE WHERE quote != NONE;
+FOR $relation IN $replies {
+    UPDATE $relation.id SET replyTo = $relation.replyTo;
+};
+FOR $relation IN $quotes {
+    UPDATE $relation.id SET quote = $relation.quote;
+};
+
+DEFINE FIELD OVERWRITE posts ON topic
+    TYPE option<array<record<post>>>;
+DEFINE FIELD OVERWRITE threads ON topic
+    TYPE option<array<record<thread>>>;
+DEFINE FIELD OVERWRITE galleries ON topic
+    TYPE option<array<record<gallery>>>;
+UPDATE topic UNSET posts, threads, galleries;
+REMOVE FIELD posts.* ON topic;
+REMOVE FIELD threads.* ON topic;
+REMOVE FIELD galleries.* ON topic;
+REMOVE FIELD posts ON topic;
+REMOVE FIELD threads ON topic;
+REMOVE FIELD galleries ON topic;
+
+DEFINE FIELD OVERWRITE topics ON post
+    TYPE option<array<record<topic>>>;
+UPDATE post UNSET topics;
+REMOVE FIELD topics.* ON post;
+REMOVE FIELD topics ON post;
+DEFINE FIELD topics ON post
+    TYPE array<record<topic>> DEFAULT ALWAYS [] REFERENCE ON DELETE REJECT;
+
+DEFINE FIELD OVERWRITE topics ON thread
+    TYPE option<array<record<topic>>>;
+UPDATE thread UNSET topics;
+REMOVE FIELD topics.* ON thread;
+REMOVE FIELD topics ON thread;
+DEFINE FIELD topics ON thread
+    TYPE array<record<topic>> DEFAULT ALWAYS [] REFERENCE ON DELETE REJECT;
+
+DEFINE FIELD OVERWRITE topics ON gallery
+    TYPE option<array<record<topic>>>;
+UPDATE gallery UNSET topics;
+REMOVE FIELD topics.* ON gallery;
+REMOVE FIELD topics ON gallery;
+DEFINE FIELD topics ON gallery
+    TYPE array<record<topic>> DEFAULT ALWAYS [] REFERENCE ON DELETE REJECT;
+
+UPDATE post SET topics = [];
+UPDATE thread SET topics = [];
+UPDATE gallery SET topics = [];
+
+FOR $post IN $postTopics {
+    FOR $topic IN $post.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        };
+        UPDATE $post.id SET topics += $topic;
+    };
+};
+FOR $thread IN $threadTopics {
+    FOR $topic IN $thread.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        };
+        UPDATE $thread.id SET topics += $topic;
+    };
+};
+FOR $gallery IN $galleryTopics {
+    FOR $topic IN $gallery.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        };
+        UPDATE $gallery.id SET topics += $topic;
+    };
+};
+
+DEFINE FIELD posts ON topic
+    COMPUTED <~(post FIELD topics);
+DEFINE FIELD threads ON topic
+    COMPUTED <~(thread FIELD topics);
+DEFINE FIELD galleries ON topic
+    COMPUTED <~(gallery FIELD topics);
+
+LET $emptyTopics = SELECT VALUE id FROM topic
+    WHERE posts.len() = 0 AND threads.len() = 0 AND galleries.len() = 0;
+FOR $topic IN $emptyTopics {
+    DELETE $topic;
+};
+
+DEFINE EVENT OVERWRITE ensureTopics ON post WHEN $event = 'CREATE' THEN {
+    FOR $topic IN $after.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        };
+    };
+};
+DEFINE EVENT OVERWRITE ensureTopics ON thread WHEN $event = 'CREATE' THEN {
+    FOR $topic IN $after.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        };
+    };
+};
+DEFINE EVENT OVERWRITE ensureTopics ON gallery WHEN $event = 'CREATE' THEN {
+    FOR $topic IN $after.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        };
+    };
+};
+
+DEFINE FIELD OVERWRITE replies ON thread
+    TYPE option<array<record<thread>>>;
+DEFINE FIELD OVERWRITE quotes ON thread
+    TYPE option<array<record<thread>>>;
+UPDATE thread UNSET replies, quotes;
+REMOVE FIELD replies.* ON thread;
+REMOVE FIELD quotes.* ON thread;
+REMOVE FIELD replies ON thread;
+REMOVE FIELD quotes ON thread;
+
+DEFINE FIELD OVERWRITE comments ON post
+    TYPE option<array<record<comment>>>;
+UPDATE post UNSET comments;
+REMOVE FIELD comments.* ON post;
+REMOVE FIELD comments ON post;
+COMMIT;
+
+BEGIN TRANSACTION;
+UPDATE comment UNSET comments;
+DEFINE FIELD OVERWRITE post ON comment
+    TYPE option<record<post>>
+    ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE REJECT;
+DEFINE FIELD OVERWRITE gallery ON comment
+    TYPE option<record<gallery>> ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE REJECT;
+LET $commentTargets = (SELECT id, post, gallery FROM comment WHERE post != NONE OR gallery != NONE);
+DEFINE FIELD OVERWRITE context ON comment
+    TYPE option<record<post | gallery>> ASSERT $value = NONE OR record::exists($value)
+    REFERENCE ON DELETE REJECT;
+UPDATE comment UNSET post, gallery;
+FOR $target IN $commentTargets {
+    UPDATE $target.id SET context = $target.post ?? $target.gallery;
+};
+REMOVE FIELD post ON comment;
+REMOVE FIELD gallery ON comment;
+DEFINE FIELD OVERWRITE context ON comment
+    TYPE record<post | gallery> ASSERT record::exists($value)
+    REFERENCE ON DELETE REJECT;
+DEFINE FIELD OVERWRITE replyTo ON comment
+    TYPE record<post | gallery | comment>;
+DEFINE FIELD OVERWRITE comments ON post
+    COMPUTED <~(comment FIELD context);
+DEFINE FIELD OVERWRITE comments ON gallery
+    COMPUTED <~(comment FIELD context);
+
+DEFINE FIELD replies ON thread
+    COMPUTED <~(thread FIELD replyTo);
+DEFINE FIELD quotes ON thread
+    COMPUTED <~(thread FIELD quote);
+
+UPSERT migration SET version = '2026.6.2', time = time::now()
+WHERE version = '2026.6.2';
+COMMIT;

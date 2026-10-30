@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Post } from "../../shared/types"
+import type { Comment, Post } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const title = `Integration test post ${Date.now()}`
@@ -41,4 +41,58 @@ it("publishes and deletes an authenticated post", async () => {
 
     const deleteResponse = await admin.fetchRaw(`/api/post/${postId}/delete`)
     expectStatus(deleteResponse, 200)
+})
+
+it("traverses post comments and rejects hard deletion while comments remain", async () => {
+    const topicId = `commentReference${Date.now()}`
+    const response = await admin.fetchRaw<Post>("/api/post/add", {
+        method: "POST",
+        body: { ...postRequest, title: `Comment reference test ${Date.now()}`, topics: [`topic:${topicId}`] },
+    })
+    expectStatus(response, 200, "post creation stage")
+    const post = response._data!
+    const postId = extractId(post.id)
+    expect(postId).toBeDefined()
+
+    let commentId: string | undefined
+    try {
+        const commentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: {
+                context: post.id,
+                replyTo: post.id,
+                content: `Comment reference ${Date.now()}`,
+            },
+        })
+        expectStatus(commentResponse, 200, "comment creation stage")
+        const comment = commentResponse._data!
+        commentId = extractId(comment.id)
+
+        const postWithComments = await admin.fetch<Post>(`/api/post/${postId}`)
+        expect(postWithComments.comments.map(item => item.id)).toContain(comment.id)
+        await expect(admin.query(`DELETE ONLY post:${postId};`)).rejects.toThrow()
+
+        const deletePostResponse = await admin.fetchRaw(`/api/post/${postId}/delete`)
+        expectStatus(deletePostResponse, 200, "post soft deletion stage")
+        const deletedPost = await admin.query<Array<Array<{ deleted: boolean, topics: string[] }>>>(
+            `SELECT deleted, topics FROM post:${postId};`,
+        )
+        expect(deletedPost[0]?.[0]).toMatchObject({ deleted: true, topics: [] })
+        const remainingTopics = await admin.query<Array<Array<string>>>(`SELECT VALUE id FROM topic WHERE id = topic:${topicId};`)
+        expect(remainingTopics[0]).toHaveLength(0)
+
+        const deleteCommentResponse = await admin.fetchRaw(`/api/comment/${commentId}/delete`)
+        expectStatus(deleteCommentResponse, 200, "comment deletion stage")
+
+        const postWithoutComments = await admin.fetch<Post>(`/api/post/${postId}`)
+        expect(postWithoutComments.comments).toHaveLength(0)
+    }
+    finally {
+        await admin.query([
+            ...(commentId ? [`DELETE comment:${commentId};`] : []),
+            `DELETE post:${postId};`,
+            `DELETE notification WHERE context = post:${postId};`,
+            `DELETE topic:${topicId};`,
+        ].join("\n"))
+    }
 })
