@@ -14,6 +14,7 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 2. Say what you think is happening and find the smallest check that could prove you wrong.
 3. Make one coherent change. Run the closest useful test, typecheck, or lint check before moving on.
 4. Keep the change focused. Refactor when it makes the interface, call path, or next change easier. Do not refactor just to make code look different.
+5. Recheck files whenever live contents differ from the version you inspected. Treat small, coherent differences as likely developer or formatter edits: preserve them and adapt your patch to the current source; never undo them to recover stale context. If the content appears corrupted or structurally damaged, pause edits and notify the user rather than attempting an unverified repair.
 
 ## Make The Contract Clear
 

@@ -16,6 +16,8 @@ Use this to check user-visible behavior in the running ClassicForum app with the
 
 ## 2. Inspect the Browser
 
+Before any browser inspection or interaction, get explicit permission unless the user explicitly requested browser validation. This includes snapshots, screenshots, DOM or console inspection, page scripts, navigation, clicks, scrolling, and resizing. A shared, visible, or active tab is not permission. If permission is absent, ask first and continue with non-browser checks where possible.
+
 1. Reuse the shared page when available; do not open a duplicate tab without a reason.
 2. Take a snapshot first. Note the route, account state, controls, and visible errors.
 3. On an authenticated ClassicForum page, right-click the navbar profile link to open UserManager and inspect locally saved profiles. Use it to switch among sessions already authenticated in this browser; `New Login` opens the normal login flow. Do not use the adjacent remove action unless intentionally invalidating that saved session.
