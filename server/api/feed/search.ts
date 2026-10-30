@@ -14,12 +14,13 @@ export default defineEventHandler(async (event) => {
                 SELECT id,
                     user.{id, name, roles} AS user,
                     context.{id, title, description} AS context,
-                    content, time, edited, deleted, timeEdited, votes, score,
+                    content, time, edited, deleted, status, timeEdited, votes, score,
                     string::contains(string::lowercase(content), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
                 FROM comment
                 WHERE content @1@ $text
                 AND deleted != true
+                AND status = "active"
                 AND context.status = "active"
                 AND context.deleted != true
             );

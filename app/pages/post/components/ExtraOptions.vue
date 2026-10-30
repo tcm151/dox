@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { Gallery, Post } from '@@/shared/types'
+import type { Comment, Gallery, Post } from '@@/shared/types'
 
 const session = getSession()
 
 const props = defineProps<{
-    target: Post | Gallery
+    target: Post | Gallery | Comment
 }>()
 
 const isPost = computed(() => "title" in props.target)
+const isComment = computed(() => "context" in props.target)
 
 const emit = defineEmits<{
     (event: 'edit'): void
@@ -29,7 +30,7 @@ function emitAndClose(event: string) {
 <template>
     <Window title="Options" icon="fa-solid fa-list-ul" width="20rem" @close="emit('close')">
         <section class="column g-2">
-            <button v-if="isPost && target.user.id === session.user.id" @click="emitAndClose('edit')">
+            <button v-if="(isPost || isComment) && target.user.id === session.user.id" @click="emitAndClose('edit')">
                 <i class="fa-solid fa-eraser"></i>
                 <span>Edit</span>
             </button>
@@ -45,7 +46,7 @@ function emitAndClose(event: string) {
                 <i class="fa-solid fa-flag"></i>
                 <span>Report</span>
             </button>
-            <button v-if="hasRole(session.user, 'admin') || (!isPost && hasRole(session.user, 'developer'))" @click="emitAndClose('archive')">
+            <button v-if="!isComment && (hasRole(session.user, 'admin') || (!isPost && hasRole(session.user, 'developer')))" @click="emitAndClose('archive')">
                 <i class="fa-solid fa-box"></i>
                 <span v-if="target.status !== 'archived'">Archive</span>
                 <span v-else>Unarchive</span>

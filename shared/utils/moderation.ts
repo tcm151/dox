@@ -55,6 +55,7 @@ export const useModeration = () => {
     }
 
     function canRemoveTopic(report: Report, topic: string, topics?: TopicScope[]) {
+        if (report.subject.id.startsWith("comment:")) return false
         if (!hasRole(session.user, "moderator")) return false
         if (!canActOnReport(report) || !isPending(report)) return false
         return topics?.some(assignedTopic => assignedTopic.id === topic) ?? false

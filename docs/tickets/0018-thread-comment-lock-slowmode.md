@@ -7,7 +7,7 @@
 
 ## Dependencies
 - [0072](0072-gallery-comments.md): Establishes post and gallery comment support before comment controls are added.
-- [0073](0073-report-comments.md): Establishes comment reporting and moderation status behavior before this ticket adds conversation controls.
+- [0073](completed/0073-report-comments.md): Establishes comment reporting and moderation status behavior before this ticket adds conversation controls.
 
 ## Goal
 Give moderators targeted controls to reduce escalation and spam during active moderation.

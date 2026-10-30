@@ -20,6 +20,12 @@ const topicRemovalScope = ref<string>()
 const appealResolution = ref("")
 const reasonsVisible = computed(() => showReasons.value ?? props.report.status === "pending")
 const submittedAppeal = computed(() => [...props.report.history].reverse().find(entry => entry.action === "report.appeal.submitted"))
+const isComment = computed(() => props.report.subject.id.startsWith("comment:"))
+
+function commentContextId() {
+    const context = props.report.subject.context
+    return typeof context === "string" ? context : context?.id
+}
 
 function actionLabel(action: string) {
     const labels: Record<string, string> = {
@@ -56,7 +62,13 @@ function topicLabel(topic: string) {
 }
 
 function viewSubject() {
-    navigateTo(`/${props.report.subject.id.replace(":", "/")}`)
+    const subject = props.report.subject
+    const contextId = isComment.value ? commentContextId() : undefined
+    if (contextId) {
+        navigateTo(`/${contextId.replace(":", "/")}#${encodeURIComponent(subject.id)}`)
+        return
+    }
+    navigateTo(`/${subject.id.replace(":", "/")}`)
 }
 
 function startResolution() {

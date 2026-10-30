@@ -96,6 +96,7 @@ export interface Comment extends Sortable {
     content: string
     replyTo: (Post | Gallery | Comment) & string
     deleted: boolean
+    status: ContentStatus
     edited: boolean
     timeEdited?: string
 }
@@ -212,6 +213,8 @@ export interface Report extends Record {
     subject: Record & string & {
         user?: User & string
         name?: string
+        content?: string
+        context?: string | { id: string }
     }
     owner: Pick<User, "id" | "name">
     topics: string[]

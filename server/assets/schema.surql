@@ -235,6 +235,8 @@ DEFINE FIELD replyTo ON comment
     TYPE record<post | gallery | comment>;
 DEFINE FIELD deleted ON comment
     TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD status ON comment
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD edited ON comment
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD timeEdited ON comment
@@ -491,7 +493,7 @@ DEFINE INDEX subject ON TABLE report
 DEFINE FIELD owner ON report
     COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
 DEFINE FIELD topics ON report
-    COMPUTED IF subject.topics != NONE THEN subject.topics ELSE [] END;
+    COMPUTED array::union(subject.topics ?? [], subject.context.topics ?? []);
 DEFINE FIELD moderator ON report
     TYPE option<record<user>>;
 DEFINE FIELD time ON report

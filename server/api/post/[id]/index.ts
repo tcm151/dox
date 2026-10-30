@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
             images.{id, url} AS images,
             (
                 SELECT id, time, user.id, user.name, context,
-                    replyTo, content, votes, score, edited, deleted, timeEdited
+                    replyTo, content, votes, score, edited, deleted, status, timeEdited
                 FROM $post.comments
                 ORDER BY time DESC
                 FETCH user

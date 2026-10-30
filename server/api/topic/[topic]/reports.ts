@@ -12,10 +12,10 @@ export default defineEventHandler(async (event) => {
                 fn::http(403, "You cannot moderate this topic.");
             };
 
-            SELECT id, subject.id, owner, topics, time, status, complaints, moderator, history
+            SELECT id, subject.id, subject.content, subject.context.id, owner, topics, time, status, complaints, moderator, history
             FROM report
             WHERE record::exists(subject)
-            AND subject.topics CONTAINS $topic
+            AND topics CONTAINS $topic
             AND (
                 $user.roles CONTAINS "admin"
                 OR (

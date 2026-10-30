@@ -14,11 +14,11 @@ export default defineEventHandler(async (event) => {
             );
             LET $topicIds = $topics.id;
             LET $reports = (
-                SELECT id, subject.id, topics,
+                SELECT id, subject.id, subject.content, subject.context.id, topics,
                     time, status, complaints, moderator, history, owner
                 FROM report
                 WHERE record::exists(subject)
-                    AND subject.topics CONTAINSANY $topicIds
+                    AND topics CONTAINSANY $topicIds
                     AND (
                         $user.roles CONTAINS "admin"
                         OR (

@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../test-server"
 import { extractId } from "../../shared/utils/records"
-import type { ModeratorLog, Thread } from "../../shared/types"
+import type { Comment, Gallery, ModeratorLog, Post, Thread } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
@@ -870,6 +870,181 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
             ...reportIds.map(reportId => `DELETE moderatorLog WHERE target = report:${reportId};`),
             ...reportIds.map(reportId => `DELETE report:${reportId};`),
             ...threadIds.map(threadId => `DELETE thread:${threadId};`),
+            `DELETE topic:${topicId};`,
+        ].join("\n"))
+    }
+})
+
+it("reports comments in inherited topic queues and quarantines only the comment", async () => {
+    const suffix = Date.now()
+    const topicId = `commentReport${suffix}`
+    const originalRoles = JSON.stringify(reporter.user.roles)
+    let postId: string | undefined
+    let commentId: string | undefined
+    let replyId: string | undefined
+    let reportId: string | undefined
+    let imageId: string | undefined
+    let galleryId: string | undefined
+    let galleryCommentId: string | undefined
+    let galleryReportId: string | undefined
+
+    try {
+        const postResponse = await threadAuthor.fetchRaw<Post>("/api/post/add", {
+            method: "POST",
+            body: {
+                title: `Comment report ${suffix}`,
+                content: "Post context for the comment report.",
+                topics: [`topic:${topicId}`],
+                images: [],
+            },
+        })
+        expectStatus(postResponse, 200, "comment report post creation stage")
+        const post = postResponse._data!
+        postId = extractId(post.id)
+
+        const commentResponse = await threadAuthor.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: post.id, replyTo: post.id, content: `Reported comment ${suffix}` },
+        })
+        expectStatus(commentResponse, 200, "reported comment creation stage")
+        const comment = commentResponse._data!
+        commentId = extractId(comment.id)
+
+        const replyResponse = await reporter.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: post.id, replyTo: comment.id, content: `Reply to reported comment ${suffix}` },
+        })
+        expectStatus(replyResponse, 200, "reported comment reply creation stage")
+        const reply = replyResponse._data!
+        replyId = extractId(reply.id)
+
+        await admin.query(`
+            UPDATE ${reporter.user.id} SET roles += "moderator";
+            UPDATE topic:${topicId} SET moderators += ${reporter.user.id};
+        `)
+
+        const reportResponse = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: comment.id, reason: "This comment needs moderator review." },
+            headers: { "X-Forwarded-For": `203.0.113.${suffix % 200 + 1}` },
+        })
+        expectStatus(reportResponse, 204, "comment report submission stage")
+
+        type CommentReportView = {
+            id: string
+            subject: { id: string, content: string, context: string | { id: string } }
+            owner: { id: string, name: string }
+            topics: string[]
+            status: string
+        }
+        const adminReports = await admin.fetch<CommentReportView[]>("/api/report")
+        const report = adminReports.find(item => item.subject.id === comment.id)
+        expect(report).toBeDefined()
+        expect(report!.subject.content).toBe(comment.content)
+        expect(report!.owner).toEqual({ id: threadAuthor.user.id, name: threadAuthor.user.name })
+        expect(report!.topics).toEqual([`topic:${topicId}`])
+        expect(report!.status).toBe("pending")
+        reportId = extractId(report!.id)
+
+        const topicReports = await reporter.fetch<CommentReportView[]>(`/api/topic/${topicId}/reports`)
+        expect(topicReports.some(item => item.id === report!.id)).toBe(true)
+        const moderatorReports = await reporter.fetch<CommentReportView[]>("/api/moderator/reports")
+        expect(moderatorReports.some(item => item.id === report!.id)).toBe(true)
+
+        imageId = `commentReportImage${suffix}`
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+        const publishGallery = await admin.fetchRaw("/api/gallery/publish", {
+            method: "POST",
+            body: {
+                images: [`image:${imageId}`],
+                description: `Gallery for comment report ${suffix}`,
+                topics: [`topic:${topicId}`],
+            },
+        })
+        expectStatus(publishGallery, 200, "gallery comment report context stage")
+        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
+        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        expect(gallery).toBeDefined()
+        galleryId = extractId(gallery!.id)
+
+        const galleryCommentResponse = await threadAuthor.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: gallery!.id, replyTo: gallery!.id, content: `Reported gallery comment ${suffix}` },
+        })
+        expectStatus(galleryCommentResponse, 200, "gallery comment creation stage")
+        const galleryComment = galleryCommentResponse._data!
+        galleryCommentId = extractId(galleryComment.id)
+
+        const galleryReportResponse = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: galleryComment.id, reason: "This gallery comment needs moderator review." },
+            headers: { "X-Forwarded-For": `198.51.100.${suffix % 200 + 1}` },
+        })
+        expectStatus(galleryReportResponse, 204, "gallery comment report submission stage")
+        const galleryReports = await reporter.fetch<CommentReportView[]>(`/api/topic/${topicId}/reports`)
+        const galleryReport = galleryReports.find(item => item.subject.id === galleryComment.id)
+        expect(galleryReport?.owner).toEqual({ id: threadAuthor.user.id, name: threadAuthor.user.name })
+        expect(galleryReport?.topics).toEqual([`topic:${topicId}`])
+        galleryReportId = extractId(galleryReport?.id)
+
+        const removeTopicResponse = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${reportId}/remove-topic`, {
+            method: "POST",
+            body: { message: "This must not change the parent submission." },
+        })
+        expectStatus(removeTopicResponse, 409, "comment topic cannot be removed from its parent")
+
+        const removal = await admin.fetchRaw(`/api/report/${reportId}/remove`, {
+            method: "POST",
+            body: { message: "The comment violates community rules." },
+        })
+        expectStatus(removal, 200, "comment quarantine stage")
+        const moderatedPost = await admin.fetch<Post>(`/api/post/${postId}`)
+        expect(moderatedPost.status).toBe("active")
+        expect(moderatedPost.comments.map(item => item.id)).toEqual(expect.arrayContaining([comment.id, reply.id]))
+        expect(moderatedPost.comments.find(item => item.id === comment.id)?.status).toBe("quarantined")
+        expect(moderatedPost.topics).toContain(`topic:${topicId}`)
+        const quarantinedSearchResults = await admin.fetch<Array<{ id: string }>>(`/api/feed/search?text=${encodeURIComponent(comment.content)}`)
+        expect(quarantinedSearchResults.map(item => item.id)).not.toContain(comment.id)
+
+        const unauthorizedAppeal = await reporter.fetchRaw(`/api/report/${reportId}/appeal`, {
+            method: "POST",
+            body: { reason: "I am not the comment owner." },
+        })
+        expectStatus(unauthorizedAppeal, 403, "comment reporter cannot appeal for its owner")
+        const appeal = await threadAuthor.fetchRaw(`/api/report/${reportId}/appeal`, {
+            method: "POST",
+            body: { reason: "Please review the comment in context." },
+        })
+        expectStatus(appeal, 200, "comment owner appeal stage")
+        expect(appeal._data![0]!.status).toBe("appealed")
+
+        const acceptAppeal = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${reportId}/appeal/accept`, {
+            method: "POST",
+            body: { message: "The comment is acceptable in context." },
+        })
+        expectStatus(acceptAppeal, 200, "topic moderator restores comment stage")
+        const restoredPost = await admin.fetch<Post>(`/api/post/${postId}`)
+        expect(restoredPost.status).toBe("active")
+        expect(restoredPost.comments.find(item => item.id === comment.id)?.status).toBe("active")
+        expect(restoredPost.comments.some(item => item.id === reply.id)).toBe(true)
+        const restoredSearchResults = await admin.fetch<Array<{ id: string }>>(`/api/feed/search?text=${encodeURIComponent(comment.content)}`)
+        expect(restoredSearchResults.map(item => item.id)).toContain(comment.id)
+    }
+    finally {
+        await admin.query([
+            `UPDATE ${reporter.user.id} SET roles = ${originalRoles};`,
+            ...(reportId ? [`DELETE moderatorLog WHERE target = report:${reportId};`, `DELETE report:${reportId};`] : []),
+            ...(galleryReportId ? [`DELETE report:${galleryReportId};`] : []),
+            ...(reportId ? [`DELETE notification WHERE context = report:${reportId};`] : []),
+            ...(commentId ? [`DELETE notification WHERE context = comment:${commentId};`] : []),
+            ...(postId ? [`DELETE notification WHERE context = post:${postId};`] : []),
+            ...(galleryId ? [`DELETE notification WHERE context = gallery:${galleryId};`] : []),
+            ...(galleryCommentId ? [`DELETE comment:${galleryCommentId};`] : []),
+            ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
+            ...(imageId ? [`DELETE image:${imageId};`, `DELETE mediaTrash:${imageId};`] : []),
+            ...(replyId ? [`DELETE comment:${replyId};`] : []),
+            ...(commentId ? [`DELETE comment:${commentId};`] : []),
+            ...(postId ? [`DELETE post:${postId};`] : []),
             `DELETE topic:${topicId};`,
         ].join("\n"))
     }

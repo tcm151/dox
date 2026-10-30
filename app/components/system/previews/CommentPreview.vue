@@ -6,14 +6,16 @@ const session = getSession()
 
 const props = defineProps<{
     comment: Comment
+    editing: boolean
 }>()
 
 const emit = defineEmits<{
     (event: 'refresh'): void
+    (event: 'options', comment: Comment): void
+    (event: 'finish-edit'): void
 }>()
 
 let replyText = ref("")
-let editComment = ref(false)
 let replyTo = ref(false)
 
 let commentBox = useTemplateRef("comment-box")
@@ -36,7 +38,7 @@ async function updateComment(comment: Comment) {
                 content: comment.content
             }
         })
-        editComment.value = false
+        emit("finish-edit")
         emit("refresh")
     }
     catch (error: any) {
@@ -73,15 +75,6 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
     }
 }
 
-async function deleteComment(commentId: string) {
-    try {
-        await useApi(`/api/comment/${extractId(commentId)}/delete`)
-        emit("refresh")
-    }
-    catch (error: any) {
-        hints.addError(error.message, error)
-    }
-}
 </script>
 
 
@@ -97,15 +90,16 @@ async function deleteComment(commentId: string) {
                 {{ formatDate(comment.timeEdited) }}
             </Tag>
             <DurationTag v-else :time="comment.time" />
-            <Tag v-if="!comment.deleted" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
+            <Tag v-if="!comment.deleted && comment.status === 'active'" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
+            <Tag v-if="comment.status === 'quarantined'" type="danger" label="Removed" />
             <ClientOnly>
-                <template v-if="!comment.deleted && comment.user.id === session.user.id">
-                    <Tag type="link" icon="fa-eraser" title="Edit" @click="editComment = true" />
-                    <Tag type="link" icon="fa-trash-can" title="Delete" @click="deleteComment(comment.id)" />
+                <template v-if="session.isAuthenticated && !comment.deleted && comment.status === 'active'">
+                    <Tag class="link" icon="fa-ellipsis" title="Options" @click="emit('options', comment)" />
                 </template>
             </ClientOnly>
         </header>
-        <Markdown v-if="!editComment" class="p-3" :content="comment.content" />
+        <Markdown v-if="!editing && comment.status !== 'quarantined'" class="p-3" :content="comment.content" />
+        <p v-else-if="comment.status === 'quarantined'" class="p-3">[This comment was removed by moderators.]</p>
         <CollapseTransition>
             <div v-if="replyTo" class="comment-reply field px-3 pb-3">
                 <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
@@ -115,11 +109,11 @@ async function deleteComment(commentId: string) {
                 </div>
             </div>
         </CollapseTransition>
-        <div class="comment-edit field px-3 pb-3 mt-2" v-if="editComment">
+        <div class="comment-edit field px-3 pb-3 mt-2" v-if="editing">
             <textarea rows="5" v-model="comment.content"></textarea>
             <div class="row g-1 pt-2">
                 <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
-                <Tag type="danger" icon="fa-cancel" label="Cancel" @click="editComment = false" />
+                <Tag type="danger" icon="fa-cancel" label="Cancel" @click="emit('finish-edit')" />
             </div>
         </div>
     </main>

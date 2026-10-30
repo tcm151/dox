@@ -91,7 +91,7 @@ export class ReportManager {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
-                    IF NOT ($report.subject.topics CONTAINS $topic) {
+                    IF NOT ($report.topics CONTAINS $topic) {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };
@@ -157,7 +157,7 @@ export class ReportManager {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
-                    IF NOT ($report.subject.topics CONTAINS $topic) {
+                    IF NOT ($report.topics CONTAINS $topic) {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };
@@ -223,7 +223,7 @@ export class ReportManager {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
-                    IF NOT ($report.subject.topics CONTAINS $topic) {
+                    IF NOT ($report.topics CONTAINS $topic) {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };
@@ -296,8 +296,11 @@ export class ReportManager {
                 IF NOT ($topic.moderators CONTAINS $user) {
                     fn::http(403, "You cannot moderate this topic.");
                 };
-                IF NOT ($report.subject.topics CONTAINS $topic) {
+                IF NOT ($report.topics CONTAINS $topic) {
                     fn::http(404, "This report is not part of this topic.");
+                };
+                IF $report.subject.context != NONE {
+                    fn::http(409, "Comment report topics are inherited from the containing submission.");
                 };
                 IF $report.status != "pending" {
                     fn::http(409, "Only pending reports can remove a topic from a submission.");
@@ -411,7 +414,7 @@ export class ReportManager {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
-                    IF NOT ($report.subject.topics CONTAINS $topic) {
+                    IF NOT ($report.topics CONTAINS $topic) {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };
@@ -474,7 +477,7 @@ export class ReportManager {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
-                    IF NOT ($report.subject.topics CONTAINS $topic) {
+                    IF NOT ($report.topics CONTAINS $topic) {
                         fn::http(404, "This report is not part of this topic.");
                     };
                 };

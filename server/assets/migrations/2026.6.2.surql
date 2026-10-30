@@ -175,6 +175,9 @@ DEFINE FIELD OVERWRITE context ON comment
     REFERENCE ON DELETE REJECT;
 DEFINE FIELD OVERWRITE replyTo ON comment
     TYPE record<post | gallery | comment>;
+DEFINE FIELD IF NOT EXISTS status ON comment
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
+UPDATE comment SET status = "active" WHERE status = NONE;
 DEFINE FIELD OVERWRITE comments ON post
     COMPUTED <~(comment FIELD context);
 DEFINE FIELD OVERWRITE comments ON gallery
@@ -185,6 +188,8 @@ DEFINE FIELD replies ON thread
 DEFINE FIELD quotes ON thread
     COMPUTED <~(thread FIELD quote);
 
+DEFINE FIELD OVERWRITE topics ON report
+    COMPUTED array::union(subject.topics ?? [], subject.context.topics ?? []);
 UPSERT migration SET version = '2026.6.2', time = time::now()
 WHERE version = '2026.6.2';
 COMMIT;

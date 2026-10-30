@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Post, Gallery, Comment } from '@@/shared/types'
+import ExtraOptions from "./ExtraOptions.vue"
+
+const session = getSession()
+const events = useEvents()
+const hints = useHints()
 
 const props = defineProps<{
     target: Post | Gallery
@@ -10,6 +15,42 @@ const props = defineProps<{
 const emit = defineEmits<{
     (event: 'refresh', sortBy: string): void
 }>()
+
+const selectedComment = ref<Comment>()
+const editingCommentId = ref<string>()
+const canShowCommentOptions = computed(() => session.isAuthenticated
+    && selectedComment.value
+    && !selectedComment.value.deleted
+    && selectedComment.value.status === "active")
+
+function closeCommentOptions() {
+    selectedComment.value = undefined
+}
+
+function startEditingComment() {
+    if (selectedComment.value) editingCommentId.value = selectedComment.value.id
+}
+
+function finishEditingComment() {
+    editingCommentId.value = undefined
+}
+
+async function deleteSelectedComment() {
+    const comment = selectedComment.value
+    if (!comment) return
+
+    try {
+        await useApi(`/api/comment/${extractId(comment.id)}/delete`)
+        emit("refresh", props.sortType)
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
+}
+
+function reportSelectedComment() {
+    if (selectedComment.value) events.publish(Trigger.reportContent, selectedComment.value.id)
+}
 
 const spinRefresh = ref(false)
 watch(() => props.loading, (status) => {
@@ -48,9 +89,25 @@ watch(() => props.loading, (status) => {
             :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)"
         >
             <template #item="{ item: comment }">
-                <CommentPreview :comment="comment" @refresh="emit('refresh', sortType)" />
+                <CommentPreview
+                    :comment="comment"
+                    :editing="editingCommentId === comment.id"
+                    @refresh="emit('refresh', sortType)"
+                    @options="selectedComment = $event"
+                    @finish-edit="finishEditingComment"
+                />
             </template>
         </Tree>
+        <OverlayTransition>
+            <ExtraOptions
+                v-if="canShowCommentOptions && selectedComment"
+                :target="selectedComment"
+                @edit="startEditingComment"
+                @delete="deleteSelectedComment"
+                @report="reportSelectedComment"
+                @close="closeCommentOptions"
+            />
+        </OverlayTransition>
     </section>
 </template>
 
