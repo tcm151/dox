@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Image } from '@@/shared/types'
 
-defineProps<{
-    size: string
+const props = defineProps<{
+    size: "small" | "medium" | "large"
     button?: boolean
     images: {
         uploaded: Image[]
@@ -11,14 +11,32 @@ defineProps<{
         copy: (event: Event) => void
     }
 }>()
+
+const slides = computed(() => props.images.uploaded.map((image, index) => ({
+    id: image.id,
+    url: image.url,
+    alt: image.name || `Uploaded image ${index + 1}`,
+})))
+
+function removeImage(slide: { id: string }) {
+    const image = props.images.uploaded.find(uploaded => uploaded.id === slide.id)
+    if (image) props.images.remove(image)
+}
 </script>
 
 <template>
     <aside v-if="button || images.uploaded.length > 0" class="field uploaded-images">
         <div class="row g-2" :class="size">
-            <template v-for="image in images.uploaded">
-                <img class="clickable" :src="image.url" @click="images.copy" @contextmenu.prevent="images.remove(image)">
-            </template>
+            <ImageSlideshow
+                v-if="images.uploaded.length > 0"
+                class="f-1"
+                :images="slides"
+                label="Uploaded images"
+                :size="size"
+                interactive
+                @image-click="images.copy"
+                @image-contextmenu="removeImage"
+            />
             <button v-if="button" class="square" @click="images.select">
                 <i class="fa-solid fa-images"></i> Browse
             </button>
@@ -29,44 +47,28 @@ defineProps<{
 <style scoped lang="scss">
 .uploaded-images {
     div.row {
-        overflow-x: auto;
+        align-items: flex-start;
     }
 
     button.square {
         aspect-ratio: 1;
     }
 
-    img {
-        height: 8rem;
-        max-width: calc(8rem + 4rem);
-        object-fit: cover;
-        border-radius: 0.5rem;
-        border: 2px solid transparent;
-        background-color: $white-1;
-    }
-
-    img:hover {
-        border: 2px solid $blue;
-    }
-
     div.row.small {
-        img, button {
+        button {
             height: 8rem;
-            max-width: calc(8rem + 4rem);
         }
     }
 
     div.row.medium {
-        img, button {
+        button {
             height: 12rem;
-            max-width: calc(12rem + 6rem);
         }
     }
 
     div.row.large {
-        img, button {
+        button {
             height: 16rem;
-            max-width: calc(16rem + 8rem);
         }
     }
 }

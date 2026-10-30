@@ -69,13 +69,16 @@ section.editor,
 section.form {
     flex: 1 1 auto;
     min-height: 0;
+    min-width: 0;
 }
 
 div.editor-stage {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     flex: 1 1 auto;
     min-height: 0;
+    min-width: 0;
 
     > section {
         grid-area: 1 / 1;

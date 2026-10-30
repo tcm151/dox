@@ -7,6 +7,11 @@ const hints = useHints()
 const images = useImageUploader('editorImages')
 const topics = useTopicManager()
 const description = ref<string>("")
+const imageSlides = computed(() => images.uploaded.map((image, index) => ({
+    id: image.id,
+    url: image.url,
+    alt: `${description.value || "Gallery"} image ${index + 1}`,
+})))
 
 const submitting = ref<boolean>(false)
 async function submit() {
@@ -45,9 +50,15 @@ async function submit() {
 </script>
 
 <template>
-    <EditorFrame title="Upload Images" :submitting="submitting" @submit="submit">
+    <EditorFrame title="Upload Gallery" :submitting="submitting" @submit="submit">
+        <template #header-actions>
+            <button @click="images.select">
+                <i class="fa-solid fa-images"></i>
+                <span>Browse</span>
+            </button>
+        </template>
         <template #form>
-            <UploadedImages button size="large" :images="images" />
+            <UploadedImages size="large" :images="images" />
             <div class="field f-1">
                 <label>Description</label>
                 <MarkdownEditor bounded class="f-1" :rows="1" v-model="description" />
@@ -55,9 +66,7 @@ async function submit() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <div v-if="images.uploaded.length > 0" class="image-preview g-2">
-                <img v-for="image in images.uploaded" class="br-small" :src="image.url">
-            </div>
+            <ImageSlideshow :images="imageSlides" label="Uploaded images" />
             <Markdown class="content mt-3" :content="description" />
         </template>
         <OverlayTransition>
@@ -66,15 +75,3 @@ async function submit() {
     </EditorFrame>
 </template>
 
-<style scoped lang="scss">
-div.image-preview {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-    img {
-        width: 100%;
-        aspect-ratio: 1;
-        object-fit: cover;
-        background-color: $white-1;
-    }
-}
-</style>
