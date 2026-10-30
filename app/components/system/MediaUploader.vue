@@ -14,7 +14,13 @@ const emit = defineEmits<{
     (event: "close"): void
 }>()
 
-const selectedItem = ref<File>(props.media[0]!)
+const selectedIndex = ref(0)
+const selectedItem = computed(() => props.media[selectedIndex.value])
+const mediaUrls = new Map<File, string>()
+
+function moveSelection(direction: -1 | 1) {
+    selectedIndex.value = (selectedIndex.value + direction + props.media.length) % props.media.length
+}
 
 function getFileSize(bytes: number) {
     if (bytes >= 1_048_576) {
@@ -26,59 +32,97 @@ function getFileSize(bytes: number) {
 }
 
 function getMediaUrl(image: File) {
-    return URL.createObjectURL(image)
+    let url = mediaUrls.get(image)
+    if (!url) {
+        url = URL.createObjectURL(image)
+        mediaUrls.set(image, url)
+    }
+    return url
 }
+
+onBeforeUnmount(() => mediaUrls.forEach(url => URL.revokeObjectURL(url)))
 
 </script>
 
 <template>
-    <Window title="Media Uploader" width="85%" @close="emit('close')">
-        <template v-for="item in media">
-            <div v-if="selectedItem == item" class="media row g-4">
-                <section v-if="item.type.startsWith('image/')" class="f-1 b-0">
+    <Window title="Media Uploader" width="min(92vw, 96rem)" @close="emit('close')">
+        <div v-if="selectedItem" class="media row g-4" :class="{ 'has-image': selectedItem.type.startsWith('image/') }">
+                <section v-if="selectedItem.type.startsWith('image/')" class="preview">
                     <figure class="image br-small border-subtle">
-                        <img :src="getMediaUrl(item)" alt="">
+                        <img :src="getMediaUrl(selectedItem)" :alt="selectedItem.name">
                     </figure>
                 </section>
-                <section v-if="item.type.startsWith('audio/')">
-                    <audio controls :src="getMediaUrl(item)" />
+                <section v-if="selectedItem.type.startsWith('audio/')">
+                    <audio controls :src="getMediaUrl(selectedItem)" />
                 </section>
-                <section class="form f-1 b-0">
+                <section class="form">
                     <div class="field">
-                        <label>File - {{ getFileSize(item.size) }}</label>
-                        <input type="text" v-model="item.name">
+                        <label>File - {{ getFileSize(selectedItem.size) }}</label>
+                        <input type="text" v-model="selectedItem.name">
                     </div>
-                    <div class="field f-1">
+                    <div class="field">
                         <label>Description</label>
-                        <textarea class="f-1" resize="none" v-model="(item as MediaFile).description" />
+                        <textarea class="f-1" resize="none" v-model="(selectedItem as MediaFile).description" />
                     </div>
                 </section>
-            </div>
-            <footer class="row g-2 mt-4">
-                <button class="link">
-                    <i class="fa-solid fa-caret-left"></i>
-                </button>
-                <button class="link f-1" :disabled="loading" @click="emit('upload')">
-                    Upload
-                </button>
-                <button class="link">
-                    <i class="fa-solid fa-caret-right"></i>
-                </button>
-            </footer>
-        </template>
+        </div>
+        <footer class="row inline g-2 mt-4">
+            <button class="link" aria-label="Previous file" :disabled="media.length < 2" @click="moveSelection(-1)">
+                <i class="fa-solid fa-caret-left"></i>
+            </button>
+            <button class="link f-1" :disabled="loading" @click="emit('upload')">
+                <span>Upload <span v-if="media.length > 1">{{ media.length }} files</span></span>
+            </button>
+            <button class="link" aria-label="Next file" :disabled="media.length < 2" @click="moveSelection(1)">
+                <i class="fa-solid fa-caret-right"></i>
+            </button>
+        </footer>
     </Window>
 </template>
 
 <style scoped lang="scss">
 div.media {
+    align-items: flex-start;
+
+    .preview {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .form {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    &.has-image {
+        .form {
+            flex: 0 1 clamp(16rem, 25vw, 24rem);
+            align-self: flex-start;
+        }
+    }
+
     @media (max-aspect-ratio: 1/1) {
         @include flex-v;
+
+        .preview,
+        .form {
+            flex: 0 1 auto;
+            width: 100%;
+        }
     }
 }
 
-figure {
+figure.image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: min(75vh, 48rem);
+    overflow: hidden;
+    background-color: $white-1;
+
     img {
-        max-height: 60vh;
+        display: block;
+        width: 100%;
+        height: 100%;
         object-fit: contain;
     }
 }
@@ -86,6 +130,8 @@ figure {
 div.field {
     textarea {
         resize: none;
+        min-height: 10rem;
+        max-height: 25vh;
     }
 }
 </style>

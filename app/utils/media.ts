@@ -9,17 +9,15 @@ export const calculateTokens = (file: File | null) => {
     }
 }
 
-function packageFiles(files: FileList) {
+function packageFiles(file: File) {
     const data = new FormData()
-    for (const file of files) {
-        data.append(file.name, file)
-    }
+    data.append(file.name, file)
     return data
 }
 
 type MediaType = "image" | "audio"
 
-export const uploadMedia = async <T extends Media>(files: FileList, mediaType: MediaType) => {
+async function uploadMediaFile<T extends Media>(file: File | undefined, mediaType: MediaType) {
     const hints = useHints()
     const settings = useSettings()
 
@@ -32,7 +30,7 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
         return
     }
     
-    if (!files || !files[0]) {
+    if (!file) {
         hints.addWarning("Please select a file.")
         return
     }
@@ -45,7 +43,7 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
         maxSize = settings.app.media.audio.uploadLimit
     }
 
-    const fileSize = files[0].size / 1_048_576
+    const fileSize = file.size / 1_048_576
     if (fileSize > maxSize) {
         hints.addWarning(`File is ${fileSize}MB, the upload limit is ${maxSize}MB.`)
         return
@@ -53,15 +51,28 @@ export const uploadMedia = async <T extends Media>(files: FileList, mediaType: M
 
     try {
         const result = await useApi<{ media: T, tokens: number }>(`/api/${mediaType}/upload`, {
-            body: packageFiles(files)
+            body: packageFiles(file)
         })
-        hints.addSuccess(`Uploaded file "${files[0].name}" [${result.tokens} tokens]`)
+        hints.addSuccess(`Uploaded file "${file.name}" [${result.tokens} tokens]`)
         return result.media
     }
     catch (error: any) {
-        hints.addError(`Failed to upload file "${files[0].name}"`, error)
+        hints.addError(`Failed to upload file "${file.name}"`, error)
         return
     }
+}
+
+export const uploadMedia = async <T extends Media>(files: FileList, mediaType: MediaType) => {
+    return uploadMediaFile<T>(files?.[0], mediaType)
+}
+
+export const uploadMediaBatch = async <T extends Media>(files: FileList, mediaType: MediaType) => {
+    const uploaded: T[] = []
+    for (const file of Array.from(files)) {
+        const media = await uploadMediaFile<T>(file, mediaType)
+        if (media) uploaded.push(media)
+    }
+    return uploaded
 }
 
 export function useImageUploader(storageKey: string) {
@@ -69,7 +80,8 @@ export function useImageUploader(storageKey: string) {
     const session = getSession()
 
     const { files, open: openFileDialog, reset: cancel } = useFileDialog({
-        accept: "image/*"
+        accept: "image/*",
+        multiple: true,
     })
 
     const uploading = ref<boolean>(false)
@@ -91,10 +103,8 @@ export function useImageUploader(storageKey: string) {
 
         uploading.value = true
         try {
-            const image = await uploadMedia<Image>(files.value, "image")
-            if (image != null) {
-                uploaded.value.push(image)
-            }
+            const results = await uploadMediaBatch<Image>(files.value, "image")
+            uploaded.value.push(...results)
         }
         finally {
             uploading.value = false
