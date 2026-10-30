@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Comment, Post } from '@@/shared/types';
+import type { Comment, Post, Gallery } from '@@/shared/types';
 
 const hints = useHints()
 const session = getSession()
@@ -44,7 +44,7 @@ async function updateComment(comment: Comment) {
     }
 }
 
-async function submitComment(replyId: Post | Comment, content: string) {
+async function submitComment(replyId: Post | Gallery | Comment, content: string) {
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
         return
@@ -54,7 +54,7 @@ async function submitComment(replyId: Post | Comment, content: string) {
             body: {
                 time: new Date(),
                 user: session.user.id,
-                post: props.comment.post,
+                context: props.comment.context,
                 replyTo: replyId.id,
                 content: content,
                 votes: {

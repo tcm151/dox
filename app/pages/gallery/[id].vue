@@ -1,18 +1,56 @@
 <script setup lang="ts">
-import type { Gallery } from "@@/shared/types"
-
-definePageMeta({
-    layout: "middle",
-})
+import type { Comment, Gallery } from "@@/shared/types"
+import ExtraOptions from "../post/components/ExtraOptions.vue"
+import CommentSection from "../post/components/CommentSection.vue"
 
 const route = useRoute()
+const cache = useCache()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
 const id = route.params.id?.toString()
 
 await useDatasource(`/api/gallery/${id}/visit`)
-const { data: gallery, refresh } = await useDatasource<Gallery>(`/api/gallery/${id}`)
+const sortBy = cache.get<string>("comments.sort", () => "new")
+const { data: gallery, status, refresh } = await useDatasource<Gallery>(`/api/gallery/${id}`, {
+    query: { sortBy },
+})
+
+async function refreshGallery(sortType: string) {
+    if (sortType == sortBy.value) {
+        await refresh()
+    }
+    sortBy.value = sortType
+}
+
+const showCommentBox = ref(false)
+const showOptions = ref(false)
+const comment = ref("")
+const submitting = ref(false)
+
+async function submitComment(replyTo: Gallery | Comment, content: string) {
+    if (!session.isAuthenticated) {
+        hints.addWarning("You must be logged in to interact with others.")
+        return
+    }
+
+    submitting.value = true
+    try {
+        await useApi<Comment>("/api/comment/add", {
+            body: {
+                context: gallery.value?.id,
+                replyTo: replyTo.id,
+                content,
+            },
+        })
+        comment.value = ""
+        showCommentBox.value = false
+        await refresh()
+    }
+    finally {
+        submitting.value = false
+    }
+}
 
 useSeoMeta({
     ogType: "article",
@@ -50,59 +88,216 @@ function deleteGallery() {
         },
     })
 }
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href)
+    hints.addSuccess("Copied gallery URL")
+}
 </script>
 
 <template>
-    <article class="p-4">
-        <section v-if="gallery" class="box p-4">
-            <header class="row wrap g-1 mb-3">
+    <article v-if="gallery" class="column inline g-2 p-2">
+        <main class="gallery box column p-4">
+            <header class="header row wrap g-1">
                 <Votes :target="gallery" />
-                <UserTag class="f-1" :user="gallery.user" />
-                <DurationTag :time="gallery.time" />
-                <Tag type="info" icon="fa-image" :label="`${gallery.images.length} images`" />
-                <Tag type="info" icon="fa-chart-simple" :label="gallery.visits" />
-                <Tag type="danger" icon="fa-flag" label="Report" @click="reportGallery" />
-                <ClientOnly>
-                    <Tag
-                        v-if="session.isAuthenticated && (gallery.user.id === session.user.id || hasRole(session.user, 'admin'))"
-                        type="danger"
-                        icon="fa-trash-can"
-                        label="Delete"
-                        @click="deleteGallery"
-                    />
-                    <Tag
-                        v-if="hasRole(session.user, 'admin') || hasRole(session.user, 'developer')"
-                        type="warning"
-                        :icon="gallery.status === 'archived' ? 'fa-box-open' : 'fa-box-archive'"
-                        :label="gallery.status === 'archived' ? 'Unarchive' : 'Archive'"
-                        @click="archiveGallery"
-                    />
-                </ClientOnly>
+                <div class="meta row fill wrap g-1 f-1">
+                    <Tag v-if="gallery.status === 'archived'" type="link" icon="fa-folder-closed" />
+                    <UserTag :user="gallery.user" />
+                    <Tag type="info" icon="fa-chart-simple" :label="gallery.visits" />
+                    <Tag type="info">
+                        <i class="fa-solid fa-stopwatch"></i>
+                        {{ formatDate(gallery.time) }}
+                    </Tag>
+                    <Tag type="info" icon="fa-image" :label="`${gallery.images.length} images`" />
+                </div>
+                <div v-if="gallery.topics.length > 0" class="row wrap f-2 g-1">
+                    <TopicTag v-for="topic in gallery.topics" :topic="topic" />
+                </div>
             </header>
-            <div v-if="gallery.topics.length > 0" class="row wrap g-1 mb-3">
-                <TopicTag v-for="topic in gallery.topics" :key="topic" :topic="topic" />
-            </div>
-            <Markdown v-if="gallery.description" class="content mb-3" :content="gallery.description" />
-            <div class="gallery-images g-3">
-                <img v-for="image in gallery.images" :key="image.id" class="br-small" :src="image.url">
-            </div>
-        </section>
+            <section class="mosaic grid mt-3" :class="{
+                single: gallery.images.length === 1,
+                pair: gallery.images.length === 2,
+                trio: gallery.images.length === 3,
+            }">
+                <figure v-for="(image, index) in gallery.images" :key="image.id" class="tile m-0">
+                    <img
+                        class="br-small"
+                        :src="image.url"
+                        :alt="`${gallery.description || 'Gallery'} image ${index + 1}`"
+                        :loading="index === 0 ? 'eager' : 'lazy'"
+                        decoding="async"
+                    >
+                </figure>
+            </section>
+            <Markdown v-if="gallery.description" class="content" :content="gallery.description" />
+            <footer class="actions">
+                <div class="column g-2">
+                    <div class="interactions row wrap g-1">
+                        <button class="comment f-1" @click="showCommentBox = !showCommentBox">
+                            <i class="fa-solid fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="share f-1" @click="copyLink">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Share</span>
+                        </button>
+                        <ClientOnly>
+                            <button class="options" @click="showOptions = !showOptions">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button>
+                            <OverlayTransition>
+                                <ExtraOptions
+                                    v-if="showOptions"
+                                    :target="gallery"
+                                    @report="reportGallery"
+                                    @delete="deleteGallery"
+                                    @archive="archiveGallery"
+                                    @close="showOptions = false"
+                                />
+                            </OverlayTransition>
+                        </ClientOnly>
+                    </div>
+                    <CollapseTransition>
+                        <div v-if="showCommentBox" class="field">
+                            <textarea v-model="comment" rows="5"></textarea>
+                            <div class="row g-2 mt-2">
+                                <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(gallery, comment)">
+                                    <i class="fa-solid fa-comment"></i>
+                                    <span>Submit</span>
+                                </ButtonSpinner>
+                                <button class="danger" @click="showCommentBox = false">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span>Cancel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </CollapseTransition>
+                </div>
+            </footer>
+        </main>
+        <CommentSection class="content-width" :target="gallery" :sort-type="sortBy" :loading="status" @refresh="refreshGallery" />
+</article>
+    <article v-else class="content-width column p-4">
+        <footer class="box text center p-4">
+            There is nothing here.
+        </footer>
     </article>
 </template>
 
 <style scoped lang="scss">
 article {
-    max-width: 120rem;
+    @include fit-width(120rem, 0.5rem);
 }
+.gallery {
+    flex: 1 0 calc(100vh - 40px - 1rem);
+    width: 100%;
+    overflow: hidden;
 
-.gallery-images {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
-    img {
-        width: 100%;
-        aspect-ratio: 4 / 3;
+    .mosaic {
+        flex: 1 1 auto;
+        min-height: 0;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-auto-rows: minmax(0, 1fr);
+        grid-auto-flow: dense;
+        gap: 2px;
+
+        &:not(.single, .pair, .trio) {
+            .tile {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
+            .tile:nth-child(6n + 1) {
+                grid-row: span 2;
+            }
+
+            .tile:nth-child(6n + 2),
+            .tile:nth-child(6n + 3) {
+                grid-column: span 1;
+            }
+        }
+
+        &.single {
+            grid-template-columns: minmax(0, 1fr);
+            grid-auto-rows: minmax(0, 1fr);
+
+            .tile {
+                aspect-ratio: auto;
+            }
+        }
+
+        &.pair {
+            .tile {
+                grid-column: span 2;
+                grid-row: span 2;
+            }
+        }
+
+        &.trio {
+            .tile:first-child {
+                grid-column: span 2;
+                grid-row: span 2;
+            }
+
+            .tile:not(:first-child) {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+        }
+    }
+
+    .tile {
+        min-width: 0;
+        overflow: hidden;
         background-color: $white-1;
-        object-fit: contain;
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    @media (max-width: $bp-tablet) {
+        .mosaic {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-auto-rows: minmax(0, 1fr);
+
+            &:not(.single, .pair, .trio) {
+                .tile {
+                    grid-column: span 1;
+                }
+
+                .tile:nth-child(6n + 1) {
+                    grid-column: span 2;
+                    grid-row: span 2;
+                }
+
+                .tile:nth-child(6n + 4) {
+                    grid-column: span 2;
+                }
+            }
+
+            &.pair {
+                .tile {
+                    grid-column: span 1;
+                    grid-row: span 2;
+                }
+            }
+
+            &.trio {
+                .tile:first-child {
+                    grid-column: span 2;
+                    grid-row: span 2;
+                }
+
+                .tile:not(:first-child) {
+                    grid-column: span 1;
+                    grid-row: span 1;
+                }
+            }
+        }
     }
 }
 </style>

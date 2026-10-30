@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Post, Comment } from '@@/shared/types'
+import type { Post, Gallery, Comment } from '@@/shared/types'
 
 const props = defineProps<{
-    post: Post
+    target: Post | Gallery
     sortType: string
     loading: string
 }>()
@@ -24,7 +24,7 @@ watch(() => props.loading, (status) => {
 </script>
 
 <template>
-    <section v-if="post && post.comments.length > 0" class="comments br-medium p-5">
+    <section v-if="target && target.comments.length > 0" class="comments br-medium p-5">
         <header class="sorting row g-1 mb-3">
             <button class="refresh dark" @click="emit('refresh', sortType)">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
@@ -43,8 +43,8 @@ watch(() => props.loading, (status) => {
             </button>
         </header>
         <Tree
-            :items="post.comments ?? []"
-            :children="(post.comments as Comment[]).filter(c => c.replyTo === post!.id) ?? []"
+            :items="target.comments ?? []"
+            :children="(target.comments as Comment[]).filter(c => c.replyTo === target.id) ?? []"
             :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)"
         >
             <template #item="{ item: comment }">

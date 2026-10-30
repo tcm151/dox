@@ -101,7 +101,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
         body: {
             time: new Date(),
             user: session.user.id,
-            post: post.value?.id,
+            context: post.value?.id,
             replyTo: replyTo.id,
             content: content,
             votes: {
@@ -239,7 +239,7 @@ function toggleOptions() {
                                 <OverlayTransition>
                                     <ExtraOptions
                                         v-if="showOptions"
-                                        :post="post"
+                                        :target="post"
                                         @edit="toggleEditPost"
                                         @award="awardPost"
                                         @report="reportPost"
@@ -285,7 +285,7 @@ function toggleOptions() {
             </section>
         </div>
         <CommentSection
-            :post="post"
+            :target="post"
             :sort-type="sortBy"
             :loading="status"
             @refresh="refreshPost"

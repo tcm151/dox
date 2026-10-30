@@ -2,17 +2,24 @@
 import type { SearchComment } from '@@/shared/types'
 
 const props = defineProps<{ comment: SearchComment }>()
-const postUrl = computed(() => `/post/${extractId(props.comment.post.id)}#${encodeURIComponent(props.comment.id)}`)
+const contextUrl = computed(() => {
+    const context = props.comment.context
+    const table = "title" in context ? "post" : "gallery"
+    return `/${table}/${extractId(context.id)}#${encodeURIComponent(props.comment.id)}`
+})
+const contextName = computed(() => "title" in props.comment.context
+    ? props.comment.context.title
+    : props.comment.context.description)
 </script>
 
 <template>
     <div class="search-comment clickable box background animate hover-shadow">
-        <div class="main box column px-3 pt-3" @click="navigateTo(postUrl)">
+        <div class="main box column px-3 pt-3" @click="navigateTo(contextUrl)">
             <div class="row wrap g-1">
                 <Votes :target="comment" />
                 <div class="row wrap f-2 g-1">
                     <UserTag class="f-1" :user="comment.user" />
-                    <Tag class="f-2" type="link" icon="fa-comment" :label="`Comment From: ${comment.post.title}`" />
+                    <Tag class="f-2" type="link" icon="fa-comment" :label="`Comment On: ${contextName}`" />
                 </div>
                 <div class="row wrap g-1">
                     <Tag v-if="comment.edited" class="meta">

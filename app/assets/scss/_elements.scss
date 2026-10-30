@@ -152,12 +152,12 @@
 
 .animate {
     transition:
-        transform var(--motion-duration-fast) var(--motion-easing-standard),
-        box-shadow var(--motion-duration-fast) var(--motion-easing-standard);
+        transform var(--motion-duration-quick) var(--motion-easing-standard),
+        box-shadow var(--motion-duration-quick) var(--motion-easing-standard);
 }
 
 .animate:hover {
-    transform: translate(-1px, -1px);
+    transform: translate(-2px, -2px);
 }
 
 .hover-shadow:hover {
