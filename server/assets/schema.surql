@@ -79,7 +79,7 @@ DEFINE FIELD roles ON user
 DEFINE FIELD traits ON user
     TYPE array<string> DEFAULT ALWAYS [];
 DEFINE FIELD visits ON user
-    TYPE number DEFAULT ALWAYS 0;
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD votes.positive ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON user
@@ -121,7 +121,7 @@ DEFINE FIELD threads ON topic
 DEFINE FIELD galleries ON topic
     COMPUTED <~(gallery FIELD topics);
 DEFINE FIELD visits ON topic
-    TYPE number DEFAULT ALWAYS 0;
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD followers ON topic
     COMPUTED SELECT VALUE id FROM user WHERE topics CONTAINS $parent.id;
 DEFINE FIELD moderators ON topic
@@ -172,7 +172,7 @@ DEFINE FIELD edited ON post
 DEFINE FIELD timeEdited ON post
     TYPE option<datetime>;
 DEFINE FIELD visits ON post
-    TYPE number DEFAULT ALWAYS 0;
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD votes.positive ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON post
@@ -285,7 +285,7 @@ DEFINE FIELD edited ON thread
 DEFINE FIELD timeEdited ON thread
     TYPE option<datetime>;
 DEFINE FIELD visits ON thread
-    TYPE number DEFAULT ALWAYS 0;
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD votes.positive ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON thread
@@ -330,7 +330,7 @@ DEFINE FIELD status ON image
 DEFINE FIELD description ON image
     TYPE string DEFAULT ALWAYS "";
 DEFINE FIELD visits ON image
-    TYPE number DEFAULT ALWAYS 0;
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD votes.positive ON image
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON image
@@ -363,7 +363,7 @@ DEFINE FIELD images ON gallery
 DEFINE FIELD status ON gallery
     TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD visits ON gallery
-    TYPE number DEFAULT ALWAYS 0;
+    TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD votes.positive ON gallery
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON gallery

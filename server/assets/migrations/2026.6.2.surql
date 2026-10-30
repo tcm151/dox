@@ -188,8 +188,20 @@ DEFINE FIELD replies ON thread
 DEFINE FIELD quotes ON thread
     COMPUTED <~(thread FIELD quote);
 
+DEFINE FIELD OVERWRITE visits ON user
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD OVERWRITE visits ON post
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD OVERWRITE visits ON thread
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD OVERWRITE visits ON gallery
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD OVERWRITE visits ON image
+    TYPE number DEFAULT ALWAYS 1;
+
 DEFINE FIELD OVERWRITE topics ON report
     COMPUTED array::union(subject.topics ?? [], subject.context.topics ?? []);
+
 UPSERT migration SET version = '2026.6.2', time = time::now()
 WHERE version = '2026.6.2';
 COMMIT;
