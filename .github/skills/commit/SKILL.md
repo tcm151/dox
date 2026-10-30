@@ -14,7 +14,7 @@ argument-hint: "Optional scope: files, ticket, or commit to review"
 ## Workflow
 1. Check `git status`, staged and unstaged diffs, and untracked files. Preserve changes you did not make; do not assume everything belongs in this commit.
 2. Set the commit scope and relevant ticket. Split independent work into separate commits, and stage only the files in scope.
-3. Review the staged diff. Run relevant tests, checks, or builds, and check the patch for whitespace errors (don't worry about minor whitespace diffs).
+3. Review the staged diff. Run relevant tests, checks, or builds, and check the patch for whitespace errors. Do not delay a commit or make cleanup-only edits for harmless minor whitespace, such as a single blank line at EOF; address only substantial whitespace problems that add noise or affect behavior.
 4. Follow recent commit messages. Use one concise subject for one logical change. Do not impose Conventional Commits if the repository uses another style. Include a ticket identifier when the project convention calls for one.
 5. Commit only after explicit approval. Then verify the commit and worktree, and report the hash, scope, checks, and any remaining changes.
 
