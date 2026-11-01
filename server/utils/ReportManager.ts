@@ -53,7 +53,12 @@ export class ReportManager {
         try {
             await new DatabaseQuery()
                 .addSql(`
-                    LET $existing = (SELECT VALUE id FROM report WHERE subject = $subject LIMIT 1)[0];
+                    LET $existing = (
+                        SELECT VALUE id
+                        FROM ONLY report
+                        WHERE subject = $subject
+                        LIMIT 1
+                    );
                     IF $existing = NONE {
                         CREATE report SET
                             subject = $subject,
@@ -116,7 +121,7 @@ export class ReportManager {
                         changes: { status: { before: $beforeStatus, after: "closed" } }
                     };
 
-                LET $updated = (SELECT * FROM $report)[0];
+                LET $updated = (SELECT * FROM ONLY $report);
                 RETURN {
                     report: $updated,
                     subjectOwnerId: $report.subject.user,
@@ -182,7 +187,7 @@ export class ReportManager {
                         changes: { status: { before: $beforeStatus, after: "pending" } }
                     };
 
-                LET $updated = (SELECT * FROM $report)[0];
+                LET $updated = (SELECT * FROM ONLY $report);
                 RETURN {
                     report: $updated,
                     subjectOwnerId: $report.subject.user,
@@ -252,7 +257,7 @@ export class ReportManager {
                         changes: { status: { before: $beforeStatus, after: "removed" } }
                     };
 
-                LET $updated = (SELECT * FROM $report)[0];
+                LET $updated = (SELECT * FROM ONLY $report);
                 RETURN {
                     report: $updated,
                     subjectOwnerId: $report.subject.user,
@@ -323,7 +328,7 @@ export class ReportManager {
                         changes: { topic: $topic }
                     };
 
-                RETURN { report: (SELECT * FROM $report)[0] };
+                RETURN { report: (SELECT * FROM ONLY $report) };
             `)
             .addTransaction()
             .addRecord("report", `report:${reportId}`)
@@ -336,20 +341,23 @@ export class ReportManager {
     }
 
     static async getOwnerAppeal(reportId: string, ownerId: string): Promise<OwnerAppealStatus | null> {
-        const reports = await new DatabaseQuery()
+        // TODO return the the select directly, instead of wrapped in an object
+        const result = await new DatabaseQuery()
             .addSql(`
-                SELECT id, subject.id, status, moderator, history
-                FROM report
-                WHERE id = $report
-                AND subject.user = $owner
-                LIMIT 1
-                FETCH subject, moderator, history.user
+                RETURN {
+                    report: (SELECT id, subject.id, status, moderator, history
+                        FROM ONLY report
+                        WHERE id = $report
+                        AND subject.user = $owner
+                        LIMIT 1
+                        FETCH subject, moderator, history)
+                };
             `)
             .addRecord("report", `report:${reportId}`)
             .addRecord("owner", ownerId)
-            .queryAll<OwnerAppealStatus>()
+            .queryValue<{ report?: OwnerAppealStatus }>()
 
-        return reports[0] ?? null
+        return result.report ?? null
     }
 
     static async submitAppeal(options: { reportId: string, ownerId: string, reason: unknown }): Promise<Report[]> {
@@ -385,7 +393,7 @@ export class ReportManager {
                     };
 
                 RETURN {
-                    report: (SELECT * FROM $report)[0],
+                    report: (SELECT * FROM ONLY $report),
                     subjectOwnerId: $report.subject.user
                 };
             `)
@@ -441,7 +449,7 @@ export class ReportManager {
                     };
 
                 RETURN {
-                    report: (SELECT * FROM $report)[0],
+                    report: (SELECT * FROM ONLY $report),
                     subjectOwnerId: $report.subject.user
                 };
             `)
@@ -500,7 +508,7 @@ export class ReportManager {
                     };
 
                 RETURN {
-                    report: (SELECT * FROM $report)[0],
+                    report: (SELECT * FROM ONLY $report),
                     subjectOwnerId: $report.subject.user
                 };
             `)

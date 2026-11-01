@@ -144,10 +144,13 @@ function toggleReasons() {
                     <strong>{{ complaint.user.name }}:</strong>
                     {{ complaint.reason }}
                 </blockquote>
-                <blockquote v-for="entry in report.history" :key="`${entry.action}:${entry.time}`">
-                    <strong>{{ actionLabel(entry.action) }} · {{ entry.user.name }}:</strong>
-                    {{ entry.message }}
-                </blockquote>
+                <template v-for="entry in report.history" :key="`${entry.action}:${entry.time}`">
+                    <span class="timestamp my-1">{{ actionLabel(entry.action) }} • {{ formatDate(entry.time) }} ago</span>
+                    <blockquote>
+                        <strong>{{ entry.user.name }}</strong>:
+                        {{ entry.message }}
+                    </blockquote>
+                </template>
             </section>
         </CollapseTransition>
         <CollapseTransition mode="out-in" :speed="200">
@@ -219,3 +222,11 @@ function toggleReasons() {
         </CollapseTransition>
     </div>
 </template>
+
+<style scoped lang="scss">
+span.timestamp {
+    // font-style: italic;
+    font-weight: var(--fw-bold);
+    text-align: center;
+}
+</style>
