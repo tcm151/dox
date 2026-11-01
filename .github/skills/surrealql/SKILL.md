@@ -28,8 +28,8 @@ Use the application's existing database wrapper and verify syntax against the de
 ## Query Conventions
 
 - Use uppercase SurrealQL keywords and terminate statements with semicolons inside multi-statement blocks. Use `$camelCase` parameters.
-- Use `SELECT VALUE field` when only a projected field is needed. A normal table query returns an array, even with `LIMIT 1`.
-- For a query constrained to at most one result, use `SELECT VALUE field FROM ONLY table ... LIMIT 1`; it returns the scalar value or `NONE`. This is the verified form for the installed embedded engine. Do not write `SELECT VALUE ONLY field`; that form fails to parse here.
+- `VALUE` controls the projection shape; `ONLY` constrains the source to at most one record. Use `SELECT VALUE field FROM ONLY table ... LIMIT 1` for one scalar, which returns that value or `NONE`. This is the verified form for the installed embedded engine. Do not write `SELECT VALUE ONLY field`; that form fails to parse here.
+- For one matching record with several projected fields, use `SELECT field1, field2 FROM ONLY table ... LIMIT 1`; it returns an object or `NONE`. Do not wrap the fields in `SELECT VALUE { ... }` when a normal multi-field projection already gives the desired object.
 - `FROM ONLY $recordId` is the established pattern for fetching a specific record as a single object. `FROM ONLY table` with a predicate and `LIMIT 1` is used when a single matching row is expected. Keep the limit or an appropriate uniqueness constraint so the query has a single-result contract.
 - Do not unwrap a single-result SurrealQL subquery with `[0]` or `[0] ?? NONE`; use `FROM ONLY` to express its scalar result contract.
 - `NONE` represents an absent value. Use explicit `= NONE` checks for optional values and `??` when supplying a meaningful fallback such as `[]` or a default audit value. The embedded client's JSON output may display `NONE` as `null` or omit an object property.

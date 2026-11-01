@@ -29,6 +29,7 @@ const comment = ref("")
 const submitting = ref(false)
 
 async function submitComment(replyTo: Gallery | Comment, content: string) {
+    if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
         return
@@ -113,6 +114,7 @@ function copyLink() {
                 <div v-if="gallery.topics.length > 0" class="row wrap f-2 g-1">
                     <TopicTag v-for="topic in gallery.topics" :topic="topic" />
                 </div>
+                <ModerationState :moderation="gallery.moderation" content-type="discussion" />
             </header>
             <section class="mosaic grid mt-3" :class="{
                 single: gallery.images.length === 1,

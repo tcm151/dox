@@ -59,6 +59,7 @@ function emitAndClose(event: string) {
                 <i class="fa-solid fa-thumbtack"></i>
                 <span>Pin</span>
             </button>
+            <ModerationControls :id="target.id" />
         </section>
     </Window>
 </template>

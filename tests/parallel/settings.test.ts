@@ -36,6 +36,30 @@ it("persists and restores the About summary setting", async () => {
     }
 })
 
+it("persists slow-mode interval presets", async () => {
+    const originalSettings = await admin.fetch<AppSettings>("/api/settings/default")
+    const updateSettings = (settings: AppSettings) => admin.fetchRaw(
+        `/api/admin/settings/${extractId(settings.id)}/update`,
+        { method: "POST", body: settings },
+    )
+    const updatedSettings: AppSettings = {
+        ...originalSettings,
+        moderation: {
+            ...originalSettings.moderation,
+            slowModes: [30, 60, 300, 900],
+        },
+    }
+
+    try {
+        expectStatus(await updateSettings(updatedSettings), 200)
+        const savedSettings = await admin.fetch<AppSettings>("/api/settings/default")
+        expect(savedSettings.moderation.slowModes).toEqual(updatedSettings.moderation.slowModes)
+    }
+    finally {
+        expectStatus(await updateSettings(originalSettings), 200, "restore app settings")
+    }
+})
+
 it("rejects malformed notification preferences without changing saved settings", async () => {
     const originalSettings = await admin.fetch<UserSettings>("/api/profile/settings")
     const invalidSettings: UserSettings = {

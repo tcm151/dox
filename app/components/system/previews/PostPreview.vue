@@ -27,6 +27,7 @@ const props = defineProps<{
                     <Tag v-if="post.status === 'archived'" type="link" icon="fa-folder-closed" />
                     <Tag v-if="post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
                     <Tag v-if="post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
+                    <ModerationState :moderation="post.moderation" content-type="discussion" />
                     <div class="row wrap g-1">
                         <Tag class="meta" icon="fa-chart-simple" :label="post.visits ?? 0" />
                         <Tag class="meta" icon="fa-comment" :label="post.comments.length.toString()" />

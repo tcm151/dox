@@ -91,31 +91,36 @@ function toggleCommentBox() {
 let comment = ref("")
 const submitting = ref<boolean>(false)
 async function submitComment(replyTo: Post | Comment, content: string) {
+    if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
         return
     }
 
     submitting.value = true
-    await useApi<Comment>("/api/comment/add", {
-        body: {
-            time: new Date(),
-            user: session.user.id,
-            context: post.value?.id,
-            replyTo: replyTo.id,
-            content: content,
-            votes: {
-                positive: [session.user!.id],
-                misleading: [],
-                negative: [],
-            },
-        }
-    })
-    submitting.value = false
+    try {
+        await useApi<Comment>("/api/comment/add", {
+            body: {
+                time: new Date(),
+                user: session.user.id,
+                context: post.value?.id,
+                replyTo: replyTo.id,
+                content: content,
+                votes: {
+                    positive: [session.user!.id],
+                    misleading: [],
+                    negative: [],
+                },
+            }
+        })
 
-    await refresh()
-    comment.value = ""
-    showCommentBox.value = false
+        await refresh()
+        comment.value = ""
+        showCommentBox.value = false
+    }
+    finally {
+        submitting.value = false
+    }
 }
 
 function copyLink() {
@@ -205,6 +210,7 @@ function toggleOptions() {
                     <div v-if="post.topics.length > 0" class="row wrap f-1 g-1">
                         <TopicTag v-for="topic in post.topics" :topic="topic" />
                     </div>
+                    <ModerationState :moderation="post.moderation" content-type="discussion" />
                 </header>
                 <h1 class="mt-2">
                     {{ post.title }}

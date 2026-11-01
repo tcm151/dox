@@ -13,6 +13,7 @@ export const useSettings = defineStore("app.settings", () => {
         moderation: {
             perTopic: 3,
             threshold: 2,
+            slowModes: [30, 60, 300, 900],
         },
         voting: {
             enabled: true,

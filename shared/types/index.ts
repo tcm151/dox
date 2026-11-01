@@ -67,6 +67,11 @@ export interface Topic extends Sortable {
     firstUsed?: string
 }
 
+export interface ContentModerationState {
+    locked?: "item" | "chain"
+    slowed?: number
+}
+
 export interface Post extends Sortable {
     user: User & string
     title: string
@@ -78,6 +83,7 @@ export interface Post extends Sortable {
     status: ContentStatus
     edited: boolean
     timeEdited?: string
+    moderation?: ContentModerationState
 }
 
 export interface Draft extends Record {
@@ -99,6 +105,7 @@ export interface Comment extends Sortable {
     status: ContentStatus
     edited: boolean
     timeEdited?: string
+    moderation?: ContentModerationState
 }
 
 export interface Thread extends Sortable {
@@ -108,13 +115,14 @@ export interface Thread extends Sortable {
     quotes: (Thread & string)[]
     replyTo?: Thread & string
     topics: string[]
-    replies: (Thread & string)[]
+    replies: Thread[]
     images: Attachment[]
     chain?: Thread[]
     status: ContentStatus
     deleted: boolean
     edited: boolean
     timeEdited?: string
+    moderation?: ContentModerationState
 }
 
 export interface Media extends Sortable {
@@ -137,6 +145,7 @@ export interface Gallery extends Sortable {
     comments: (Comment & string)[]
     images: Attachment[]
     status: ContentStatus
+    moderation?: ContentModerationState
 }
 
 export interface SearchComment extends Voteable {
@@ -147,6 +156,7 @@ export interface SearchComment extends Voteable {
     edited: boolean
     deleted: boolean
     timeEdited?: string
+    moderation?: ContentModerationState
 }
 
 export type SearchResult = (Post | Thread | Gallery | SearchComment) & {
@@ -195,12 +205,6 @@ export interface Feedback extends Record {
     dismissed: boolean
 }
 
-export interface ReportComplaint {
-    user: User & string
-    reason: string
-    time: string
-}
-
 export interface ReportHistoryEntry {
     action: string
     message?: string
@@ -218,11 +222,21 @@ export interface Report extends Record {
     }
     owner: Pick<User, "id" | "name">
     topics: string[]
-    complaints: ReportComplaint[]
+    complaints: {
+        user: User & string
+        reason: string
+        time: string
+    }[]
     status: "pending" | "removed" | "appealed" | "denied" | "closed"
     time: string
     moderator?: User & string
     history: ReportHistoryEntry[]
+}
+
+export interface Moderation extends Record {
+    subject: (Post | Gallery | Comment | Thread) & string
+    locked?: "item" | "chain"
+    slowed?: number
 }
 
 export interface AccountConfirmation extends Record {
@@ -294,6 +308,7 @@ export interface AppSettings extends Record {
     moderation: {
         perTopic: number
         threshold: number
+        slowModes: number[]
     }
     voting: {
         enabled: boolean

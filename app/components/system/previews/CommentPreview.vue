@@ -17,13 +17,10 @@ const emit = defineEmits<{
 
 let replyText = ref("")
 let replyTo = ref(false)
+let submitting = ref(false)
 
-let commentBox = useTemplateRef("comment-box")
-
-async function replyToComment() {
+function replyToComment() {
     replyTo.value = true
-    await nextTick()
-    commentBox.value?.focus({ preventScroll: true })
 }
 
 function cancelComment() {
@@ -47,10 +44,12 @@ async function updateComment(comment: Comment) {
 }
 
 async function submitComment(replyId: Post | Gallery | Comment, content: string) {
+    if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
         return
     }
+    submitting.value = true
     try {
         await useApi<Comment>("/api/comment/add", {
             body: {
@@ -73,6 +72,9 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
     catch (error: any) {
         hints.addError(error.message, error)
     }
+    finally {
+        submitting.value = false
+    }
 }
 
 </script>
@@ -92,6 +94,7 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
             <DurationTag v-else :time="comment.time" />
             <Tag v-if="!comment.deleted && comment.status === 'active'" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
             <Tag v-if="comment.status === 'quarantined'" type="danger" label="Removed" />
+            <ModerationState :moderation="comment.moderation" content-type="comment" />
             <ClientOnly>
                 <template v-if="session.isAuthenticated && !comment.deleted && comment.status === 'active'">
                     <Tag class="link" icon="fa-ellipsis" title="Options" @click="emit('options', comment)" />
@@ -101,13 +104,15 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
         <Markdown v-if="!editing && comment.status !== 'quarantined'" class="p-3" :content="comment.content" />
         <p v-else-if="comment.status === 'quarantined'" class="p-3">[This comment was removed by moderators.]</p>
         <CollapseTransition>
-            <div v-if="replyTo" class="comment-reply field px-3 pb-3">
-                <textarea ref="comment-box" rows="2" v-model="replyText"></textarea>
-                <div class="row g-1 pt-2">
-                    <Tag type="success" icon="fa-comment" label="Submit" @click="submitComment(comment, replyText)" />
-                    <Tag type="danger" icon="fa-cancel" label="Cancel" @click="cancelComment" />
-                </div>
-            </div>
+            <ReplyComposer
+                v-if="replyTo"
+                class="comment-reply px-3 pb-3"
+                autofocus
+                :submitting="submitting"
+                @submit="submitComment(comment, replyText)"
+                @cancel="cancelComment"
+                v-model="replyText"
+            />
         </CollapseTransition>
         <div class="comment-edit field px-3 pb-3 mt-2" v-if="editing">
             <textarea rows="5" v-model="comment.content"></textarea>

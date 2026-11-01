@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
                 replyTo.id, replyTo.title, topics, comments, votes, score,
-                status, images.{id, url} AS images, visits
+                status, images.{id, url} AS images, visits, moderation
             FROM post
             WHERE topics CONTAINS $topic
             AND status = "active"
@@ -22,7 +22,8 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, content, time,
                 topics, quote, replies, votes, score,
-                edited, timeEdited, visits, images.{id, url} AS images
+                edited, timeEdited, visits, images.{id, url} AS images,
+                (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation
             FROM thread
             WHERE topics CONTAINS $topic
             AND replyTo = NONE
@@ -36,7 +37,7 @@ export default defineEventHandler(async (event) => {
     let galleries = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, description, time,
-                topics, images.{id, url} AS images, votes, score, visits, status
+                topics, images.{id, url} AS images, votes, score, visits, status, moderation
             FROM gallery
             WHERE topics CONTAINS $topic
             AND status = "active"

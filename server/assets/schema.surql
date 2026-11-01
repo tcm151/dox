@@ -161,6 +161,12 @@ DEFINE FIELD topics ON post
     REFERENCE ON DELETE REJECT;
 DEFINE FIELD comments ON post
     COMPUTED <~(comment FIELD context);
+DEFINE FIELD moderation ON post COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
 DEFINE FIELD images ON post
     TYPE array<record<image>> DEFAULT ALWAYS [];
 DEFINE FIELD status ON post
@@ -249,6 +255,12 @@ DEFINE FIELD votes.negative ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON comment
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, 1);
+DEFINE FIELD moderation ON comment COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
 -- ------------------------------
 -- TABLE: thread
 -- ------------------------------
@@ -358,6 +370,12 @@ DEFINE FIELD topics ON gallery
     REFERENCE ON DELETE REJECT;
 DEFINE FIELD comments ON gallery
     COMPUTED <~(comment FIELD context);
+DEFINE FIELD moderation ON gallery COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
 DEFINE FIELD images ON gallery
     TYPE array<record<image>> DEFAULT ALWAYS [];
 DEFINE FIELD status ON gallery
@@ -520,6 +538,65 @@ DEFINE FIELD history.*.time ON report
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD history.*.changes ON report
     TYPE object FLEXIBLE;
+
+
+-- ------------------------------
+-- TABLE: moderation
+-- ------------------------------
+DEFINE TABLE moderation SCHEMAFULL;
+DEFINE FIELD subject ON moderation
+    TYPE record<post | gallery | comment | thread>
+    ASSERT record::exists($value)
+    REFERENCE ON DELETE CASCADE;
+DEFINE INDEX subject ON TABLE moderation
+    FIELDS subject UNIQUE;
+DEFINE FIELD locked ON moderation
+    TYPE option<string> ASSERT $value = NONE OR $value IN ["item", "chain"];
+DEFINE FIELD slowed ON moderation
+    TYPE option<int> ASSERT $value = NONE OR $value > 0;
+
+DEFINE FUNCTION fn::thread_ancestors($threadId: record<thread>, $visited: array<record<thread>>, $remaining: int) -> array<record<thread>> {
+    IF $remaining <= 0 {
+        fn::http(409, "Thread reply chain exceeds the supported depth.");
+    };
+    IF $threadId IN $visited {
+        fn::http(500, "Invalid thread reply chain: cycle detected.");
+    };
+    LET $thread = SELECT * FROM ONLY $threadId;
+    IF $thread = NONE {
+        IF $visited.len() = 0 {
+            fn::http(404, "Thread not found.");
+        };
+        fn::http(500, "Invalid thread reply chain: ancestor not found.");
+    };
+    IF $thread.replyTo = NONE {
+        RETURN [];
+    };
+    LET $ancestors = fn::thread_ancestors($thread.replyTo, $visited.concat([$threadId]), $remaining - 1);
+    RETURN [$thread.replyTo].concat($ancestors);
+};
+
+DEFINE FUNCTION fn::thread_chain($parent: record<thread>, $remaining: int) -> object {
+    IF $remaining <= 0 {
+        LET $next = (
+            SELECT VALUE id FROM ONLY thread
+            WHERE replyTo = $parent
+            ORDER BY score DESC LIMIT 1
+        );
+        RETURN { items: [], more: $next != NONE };
+    };
+    LET $next = (
+        SELECT * FROM ONLY thread
+        WHERE replyTo = $parent
+        ORDER BY score DESC LIMIT 1
+        FETCH user
+    );
+    IF $next = NONE {
+        RETURN { items: [], more: false };
+    };
+    LET $tail = fn::thread_chain($next.id, $remaining - 1);
+    RETURN { items: [$next].concat($tail.items), more: $tail.more };
+};
 
 
 -- ------------------------------
@@ -719,6 +796,7 @@ IF !record::exists(appSettings:default) {
         moderation: {
             perTopic: 3,
             threshold: 2,
+            slowModes: [30, 60, 300, 900],
         },
         voting: {
             enabled: true,

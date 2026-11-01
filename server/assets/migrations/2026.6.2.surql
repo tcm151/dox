@@ -202,6 +202,84 @@ DEFINE FIELD OVERWRITE visits ON image
 DEFINE FIELD OVERWRITE topics ON report
     COMPUTED array::union(subject.topics ?? [], subject.context.topics ?? []);
 
+DEFINE TABLE IF NOT EXISTS moderation SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS subject ON moderation
+    TYPE record<post | gallery | comment | thread>
+    ASSERT record::exists($value)
+    REFERENCE ON DELETE CASCADE;
+DEFINE INDEX IF NOT EXISTS subject ON TABLE moderation
+    FIELDS subject UNIQUE;
+DEFINE FIELD IF NOT EXISTS locked ON moderation
+    TYPE option<string> ASSERT $value = NONE OR $value IN ["item", "chain"];
+DEFINE FIELD IF NOT EXISTS slowed ON moderation
+    TYPE option<int> ASSERT $value = NONE OR $value > 0;
+
+DEFINE FIELD IF NOT EXISTS moderation ON post COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
+DEFINE FIELD IF NOT EXISTS moderation ON gallery COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
+DEFINE FIELD IF NOT EXISTS moderation ON comment COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
+
+DEFINE FUNCTION OVERWRITE fn::thread_ancestors($threadId: record<thread>, $visited: array<record<thread>>, $remaining: int) -> array<record<thread>> {
+    IF $remaining <= 0 {
+        fn::http(409, "Thread reply chain exceeds the supported depth.");
+    };
+    IF $threadId IN $visited {
+        fn::http(500, "Invalid thread reply chain: cycle detected.");
+    };
+    LET $thread = SELECT * FROM ONLY $threadId;
+    IF $thread = NONE {
+        IF $visited.len() = 0 {
+            fn::http(404, "Thread not found.");
+        };
+        fn::http(500, "Invalid thread reply chain: ancestor not found.");
+    };
+    IF $thread.replyTo = NONE {
+        RETURN [];
+    };
+    LET $ancestors = fn::thread_ancestors($thread.replyTo, $visited.concat([$threadId]), $remaining - 1);
+    RETURN [$thread.replyTo].concat($ancestors);
+};
+
+DEFINE FUNCTION OVERWRITE fn::thread_chain($parent: record<thread>, $remaining: int) -> object {
+    IF $remaining <= 0 {
+        LET $next = (
+            SELECT VALUE id FROM ONLY thread
+            WHERE replyTo = $parent
+            ORDER BY score DESC LIMIT 1
+        );
+        RETURN { items: [], more: $next != NONE };
+    };
+    LET $next = (
+        SELECT * FROM ONLY thread
+        WHERE replyTo = $parent
+        ORDER BY score DESC LIMIT 1
+        FETCH user
+    );
+    IF $next = NONE {
+        RETURN { items: [], more: false };
+    };
+    LET $tail = fn::thread_chain($next.id, $remaining - 1);
+    RETURN { items: [$next].concat($tail.items), more: $tail.more };
+};
+
+UPDATE appSettings:default SET
+    moderation.slowModes = [30, 60, 300, 900]
+WHERE moderation.slowModes = NONE;
+
 UPSERT migration SET version = '2026.6.2', time = time::now()
 WHERE version = '2026.6.2';
 COMMIT;

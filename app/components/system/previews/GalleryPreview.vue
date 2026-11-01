@@ -24,6 +24,7 @@ const imageSlides = computed(() => props.gallery.images.map((image, index) => ({
                     </div>
                 </div>
                 <div class="row wrap g-1">
+                    <ModerationState :moderation="gallery.moderation" content-type="discussion" />
                     <Tag class="meta" icon="fa-chart-simple" :label="gallery.visits" />
                     <DurationTag class="meta" :time="gallery.time" />
                 </div>

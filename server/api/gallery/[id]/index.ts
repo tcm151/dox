@@ -7,10 +7,10 @@ export default defineEventHandler(async (event) => {
     const gallery = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.id, user.name, description, time, topics,
-                images.{id, url} AS images, votes, score, visits, status,
+                images.{id, url} AS images, votes, score, visits, status, moderation,
                 (
                     SELECT id, time, user.id, user.name, context,
-                        replyTo, content, votes, score, edited, deleted, status, timeEdited
+                        replyTo, content, votes, score, edited, deleted, status, timeEdited, moderation
                     FROM $gallery.comments
                     ORDER BY time DESC
                     FETCH user

@@ -81,6 +81,14 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expectStatus(galleryCommentResponse, 200)
         galleryCommentId = extractId(galleryCommentResponse._data!.id)
 
+        await admin.query(`
+            CREATE moderation SET subject = post:${postId}, locked = "item";
+            CREATE moderation SET subject = thread:${threadId}, locked = "chain";
+            CREATE moderation SET subject = gallery:${galleryId}, slowed = 30;
+            CREATE moderation SET subject = comment:${commentId}, locked = "item";
+            CREATE moderation SET subject = comment:${galleryCommentId}, slowed = 15;
+        `)
+
         const searchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(searchResponse, 200, await searchResponse.clone().text())
         const results = await searchResponse.json() as SearchResult[]
@@ -92,14 +100,17 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(results.find(item => item.id === `post:${postId}`)).toMatchObject({
             title: postTitle,
             user: { id: admin.user.id },
+            moderation: { locked: "item" },
         })
         expect(results.find(item => item.id === `thread:${threadId}`)).toMatchObject({
             content: threadContent,
             user: { id: admin.user.id },
+            moderation: { locked: "chain" },
         })
         expect(results.find(item => item.id === `gallery:${galleryId}`)).toMatchObject({
             description: galleryDescription,
             user: { id: admin.user.id },
+            moderation: { slowed: 30 },
         })
 
         const commentSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
@@ -109,6 +120,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(commentResults[0]).toMatchObject({
             content: commentContent,
             context: { id: `post:${postId}`, title: postTitle },
+            moderation: { locked: "item" },
         })
 
         const galleryCommentSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(galleryCommentTerm)}`)
@@ -118,6 +130,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(galleryCommentResults[0]).toMatchObject({
             content: galleryCommentContent,
             context: { id: `gallery:${galleryId}`, description: galleryDescription },
+            moderation: { slowed: 15 },
         })
 
         await admin.query(`UPDATE post:${postId} SET status = "archived";`)
@@ -162,6 +175,15 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             ...(galleryId ? [`gallery:${galleryId}`] : []),
             `image:${imageId}`,
         ]
+        const moderationSubjectIds = [
+            ...(postId ? [`post:${postId}`] : []),
+            ...(threadId ? [`thread:${threadId}`] : []),
+            ...(galleryId ? [`gallery:${galleryId}`] : []),
+            ...commentIds,
+        ]
+        if (moderationSubjectIds.length) {
+            await admin.query(`DELETE moderation WHERE subject IN [${moderationSubjectIds.join(", ")}];`)
+        }
         await admin.query(`DELETE [${recordIds.join(", ")}];`)
         if (postId) await admin.query(`DELETE notification WHERE context = post:${postId};`)
         if (galleryId) await admin.query(`DELETE notification WHERE context = gallery:${galleryId};`)

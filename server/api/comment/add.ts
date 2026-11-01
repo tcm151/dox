@@ -10,6 +10,31 @@ export default defineEventHandler(async (event) => {
 
     const { comment, recipient } = await new DatabaseQuery()
         .addSql(`
+            LET $moderation = (SELECT * FROM ONLY moderation WHERE subject = $context LIMIT 1);
+            IF $moderation.locked != NONE {
+                fn::http(409, "Comments are locked for this discussion.");
+            };
+
+            IF record::tb($replyTo) = "comment" {
+                LET $replyLock = (SELECT VALUE locked FROM ONLY moderation WHERE subject = $replyTo LIMIT 1);
+                IF $replyLock != NONE {
+                    fn::http(409, "Replies are locked for this comment.");
+                };
+            };
+
+            IF $moderation.slowed != NONE {
+                LET $lastSubmission = (
+                    SELECT VALUE time
+                    FROM ONLY comment
+                    WHERE context = $context AND user = $user
+                    ORDER BY time DESC
+                    LIMIT 1
+                );
+                IF $lastSubmission != NONE AND time::unix($lastSubmission) + $moderation.slowed > time::unix(time::now()) {
+                    fn::http(429, "Slow mode is active for this discussion.");
+                };
+            };
+
             LET $recipient = (SELECT VALUE user FROM ONLY $replyTo);
             LET $comment = (
                 CREATE ONLY comment SET

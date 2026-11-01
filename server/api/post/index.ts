@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, time, edited, timeEdited,
             replyTo.id, replyTo.title, topics, comments, votes, score,
-            status, images.{id, url} AS images, visits
+            status, images.{id, url} AS images, visits, moderation
             FROM post
             WHERE status = "active"
             ORDER BY time DESC

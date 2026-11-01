@@ -28,6 +28,7 @@ const FEED_FIELDS = [
     "topics",
     "comments",
     "votes",
+    "(SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation",
     "score",
     "status",
     "images.{id, url} AS images",

@@ -8,10 +8,10 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, user.id, user.name, title, content, time,
             replyTo.id, replyTo.title, topics, votes, status, edited, timeEdited, visits,
-            images.{id, url} AS images,
+            images.{id, url} AS images, moderation,
             (
                 SELECT id, time, user.id, user.name, context,
-                    replyTo, content, votes, score, edited, deleted, status, timeEdited
+                    replyTo, content, votes, score, edited, deleted, status, timeEdited, moderation
                 FROM $post.comments
                 ORDER BY time DESC
                 FETCH user

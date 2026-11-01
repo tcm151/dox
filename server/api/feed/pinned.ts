@@ -1,12 +1,15 @@
-import type { Post } from "@@/shared/types"
+import type { Pin } from "@@/shared/types"
+import { attachPinModeration } from "@@/server/utils/pinModeration"
 
 export default defineEventHandler(async (event) => {
-    return await new DatabaseQuery()
+    const pins = await new DatabaseQuery()
         .addSql(`
             SELECT *
             FROM pin
             WHERE active = true
             FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images.url;
         `)
-        .queryAll<Post>()
+        .queryAll<Pin>()
+
+    return await attachPinModeration(pins)
 })

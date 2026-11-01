@@ -22,6 +22,7 @@ const contextName = computed(() => "title" in props.comment.context
                     <Tag class="f-2" type="link" icon="fa-comment" :label="`Comment On: ${contextName}`" />
                 </div>
                 <div class="row wrap g-1">
+                    <ModerationState :moderation="comment.moderation" content-type="comment" />
                     <Tag v-if="comment.edited" class="meta">
                         <i class="fa-solid fa-stopwatch"></i>
                         {{ formatDate(comment.time) }}

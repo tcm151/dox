@@ -48,6 +48,24 @@ function removeTopic(topic: string) {
     settings.value.topics.allowed = settings.value.topics.allowed.filter(t => t != topic)
 }
 
+const slowModeIntervalInput = ref<number>()
+function addSlowModeInterval() {
+    const interval = slowModeIntervalInput.value
+    if (interval === undefined || !Number.isSafeInteger(interval) || interval <= 0) return
+    if (settings.value.moderation.slowModes.includes(interval)) return
+
+    settings.value.moderation.slowModes = [
+        ...settings.value.moderation.slowModes,
+        interval,
+    ].sort((left, right) => left - right)
+    slowModeIntervalInput.value = undefined
+}
+
+function removeSlowModeInterval(interval: number) {
+    settings.value.moderation.slowModes = settings.value.moderation.slowModes
+        .filter(value => value !== interval)
+}
+
 watch(() => settings.value.posts.enabled, (postsEnabled) => {
     if (!postsEnabled) {
         settings.value.feeds.posts = false
@@ -129,6 +147,31 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                     <div class="field row">
                         <label class="f-1">moderation request threshold</label>
                         <input class="py-1 px-2" type="number" v-model="settings.moderation.threshold">
+                    </div>
+                    <div class="field">
+                        <label>slow-mode intervals (seconds)</label>
+                        <div class="row g-2">
+                            <input
+                                class="f-1"
+                                type="number"
+                                min="1"
+                                step="1"
+                                v-model.number="slowModeIntervalInput"
+                                @keyup.enter="addSlowModeInterval"
+                            >
+                            <button class="small" @click="addSlowModeInterval">Add interval</button>
+                        </div>
+                        <div v-if="settings.moderation.slowModes.length" class="row wrap g-1 mt-2">
+                            <Tag
+                                v-for="interval in settings.moderation.slowModes"
+                                :key="interval"
+                                class="clickable"
+                                type="link"
+                                :label="`${interval}s`"
+                                @click="removeSlowModeInterval(interval)"
+                            />
+                        </div>
+                        <span class="tip">Moderators can apply one of these intervals to a discussion. Remove all values to disable slow-mode choices.</span>
                     </div>
                 </div>
                 <div v-if="section == 'voting'">
