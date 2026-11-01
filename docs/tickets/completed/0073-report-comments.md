@@ -6,7 +6,7 @@
 - Next: None
 
 ## Dependencies
-- [0072](../0072-gallery-comments.md): Establishes a consistent post-or-gallery comment target before reports are added for comments.
+- [0072](0072-gallery-comments.md): Establishes a consistent post-or-gallery comment target before reports are added for comments.
 
 ## Goal
 Allow users to report comments and let moderators review them through the existing report workflow, whether the comment belongs to a post or gallery discussion.

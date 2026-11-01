@@ -1,9 +1,9 @@
 # Ticket 0072: Add Comments to Galleries
 
 ## Status
-- State: In Progress
+- State: Completed
 - Priority: Medium
-- Next: Complete Ticket 0074's supported-version verification before closing the gallery comment relationship contract
+- Next: None
 
 ## Dependencies
 - [0074](0074-surrealdb-record-references.md): Verify record-reference behavior against supported SurrealDB versions before closing this ticket.
@@ -41,5 +41,5 @@ Give galleries the same commenting and reply capabilities as posts, using the ex
 - tests/parallel/search.test.ts
 
 ## Progress Log
-- 2026-10-29: Implemented gallery comments using the unified `comment.context` target and computed reverse traversal. Reused the post discussion and options UI, aligned gallery detail layout/actions with post detail, added gallery-aware comment search, and covered author/context, ordering, reply, edit, deletion, and reference protection. Browser checks passed at desktop and mobile widths; full integration suite passed 64/64. Remaining gate: Ticket 0074 supported-version verification.
+- 2026-10-29: Implemented gallery comments using the unified `comment.context` target and computed reverse traversal. Reused the post discussion and options UI, aligned gallery detail layout/actions with post detail, added gallery-aware comment search, and covered author/context, ordering, reply, edit, deletion, and reference protection. Browser checks passed at desktop and mobile widths; full integration suite passed 64/64.
 - 2026-10-29: Ticket created.
