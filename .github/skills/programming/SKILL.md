@@ -22,6 +22,8 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 - Keep the path from caller to behavior direct. Do not add layers or helpers just to move code somewhere else. Add them when they name repeated work, contain real complexity, or make the interface easier to use.
 - There is no one right programming style for every problem. Use functions, objects, or both. Functions work well for focused operations; objects make sense when state, identity, or lifecycle belong together.
 - Use names that are descriptive but short. Avoid abbreviations that make the reader guess.
+- Prefer established domain types for view-layer data. Reuse an existing type when a UI-only condition can be identified by a stable field; do not add a one-off interface or union just to describe an isolated sentinel or satisfy a local type check.
+- Add dedicated interfaces and types for meaningful, reusable domain or API contracts. Inline genuinely simple one-off shapes instead of promoting them into types with no broader value.
 
 ## Keep Code Where Its Job Belongs
 
