@@ -38,7 +38,7 @@ async function submit() {
         topics.clear()
         description.value = ""
         hints.addSuccess("Images published.")
-        await navigateTo("/feed/images")
+        await navigateTo("/feed/gallery")
     }
     catch (error: any) {
         hints.addError("Failed to publish images.", error)
