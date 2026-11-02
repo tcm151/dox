@@ -58,11 +58,11 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.
 
 ### B3. Moderator and User Experience Hardening
-- 🟦 Complete or hide unfinished moderation and messaging UI before production. (`M`)
+- 🟥 Complete or hide unfinished moderation and messaging UI before production. (`M`)
 - 🟥 Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`M`)
-- 🟦 Add empty/error/loading state consistency pass on moderation and report surfaces. (`M`)
+- 🟥 Add empty/error/loading state consistency pass on moderation and report surfaces. (`M`)
 - 🟥 Add topic governance tools (rename/archive/lock, moderator assignment, rules/summary history, and featured/pinned topic content). (`L`)
-- 🟥 Add conversation controls for lock/slow-mode/report handling across threads and comments. (`L`)
+- 🟩 Add conversation controls for lock/slow-mode/report handling across threads and comments. (`L`)
 
 **Success metric**: moderation UX is understandable for both moderators and affected users.
 
