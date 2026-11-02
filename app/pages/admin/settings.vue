@@ -142,11 +142,11 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                 <div v-if="section == 'moderation'">
                     <div class="field row">
                         <label class="f-1">expected moderators per topic</label>
-                        <input class="py-1 px-2" type="number" v-model="settings.moderation.perTopic">
+                        <input class="py-1 px-2" type="number" min="0" step="1" v-model="settings.moderation.perTopic">
                     </div>
                     <div class="field row">
                         <label class="f-1">moderation request threshold</label>
-                        <input class="py-1 px-2" type="number" v-model="settings.moderation.threshold">
+                        <input class="py-1 px-2" type="number" min="1" step="1" v-model="settings.moderation.threshold">
                     </div>
                     <div class="field">
                         <label>slow-mode intervals (seconds)</label>

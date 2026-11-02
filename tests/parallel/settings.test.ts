@@ -60,6 +60,68 @@ it("persists slow-mode interval presets", async () => {
     }
 })
 
+it("rejects invalid application settings without changing saved settings", async () => {
+    const originalSettings = await admin.fetch<AppSettings>("/api/settings/default")
+    const invalidSettings: AppSettings[] = [
+        {
+            ...originalSettings,
+            voting: {
+                ...originalSettings.voting,
+                enabled: "false" as unknown as boolean,
+            },
+        },
+        {
+            ...originalSettings,
+            moderation: {
+                ...originalSettings.moderation,
+                threshold: 0,
+            },
+        },
+        {
+            ...originalSettings,
+            media: {
+                ...originalSettings.media,
+                images: {
+                    ...originalSettings.media.images,
+                    uploadLimit: 101,
+                },
+            },
+        },
+        {
+            ...originalSettings,
+            moderation: {
+                ...originalSettings.moderation,
+                slowModes: [30, 0],
+            },
+        },
+    ]
+
+    for (const settings of invalidSettings) {
+        const response = await admin.fetchRaw(
+            `/api/admin/settings/${extractId(settings.id)}/update`,
+            { method: "POST", body: settings },
+        )
+        expectStatus(response, 400)
+        if (settings.moderation.slowModes[1] === 0) {
+            const error = response._data as { message?: string }
+            expect(error.message).toContain("moderation.slowModes[1]")
+        }
+    }
+
+    const savedSettings = await admin.fetch<AppSettings>("/api/settings/default")
+    expect(savedSettings).toEqual(originalSettings)
+})
+
+it("rejects a non-object application settings payload", async () => {
+    const originalSettings = await admin.fetch<AppSettings>("/api/settings/default")
+    const response = await admin.fetchRaw(
+        `/api/admin/settings/${extractId(originalSettings.id)}/update`,
+        { method: "POST", body: null },
+    )
+
+    expectStatus(response, 400)
+})
+
 it("rejects malformed notification preferences without changing saved settings", async () => {
     const originalSettings = await admin.fetch<UserSettings>("/api/profile/settings")
     const invalidSettings: UserSettings = {
