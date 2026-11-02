@@ -3,16 +3,16 @@
 ## Status
 - State: Planned
 - Priority: Low
-- Next: Resume API design after Ticket 0018 is complete.
+- Next: Define the server-owned initial response and continuation limits.
 
 ## Dependencies
-- [0018](../0018-thread-comment-lock-slowmode.md): Finish the active moderation controls and state work first, as prioritized by the user.
+- [0018](../0018-thread-comment-lock-slowmode.md): Complete item-level thread controls before adding paginated thread interactions.
 
 ## Goal
 Replace client-supplied thread depth and breadth values with server-owned pagination limits. Load additional direct replies and reply-chain segments through focused endpoints that append only the requested data.
 
 ## Requirements
-- [ ] Initial thread loading uses server-defined limits and does not accept client-supplied depth or breadth values.
+- [ ] Initial thread loading bounds both direct-reply breadth and reply-chain depth using server-defined limits, without accepting client-supplied values.
 - [ ] Separate endpoints return bounded continuation slices for direct replies and reply chains, with validated continuation state.
 - [ ] The client appends returned items without refetching or replacing already-loaded content.
 - [ ] Pagination metadata stays outside the domain `Thread` type, and load-more indicators disappear when no further items are available.
@@ -28,6 +28,7 @@ Replace client-supplied thread depth and breadth values with server-owned pagina
 ## Notes
 - Defer implementation until Ticket 0018 is complete.
 - Preserve the current reply-chain behavior of following the highest-scoring child at each step unless product requirements change.
+- The current detail response returns every direct reply, so high-fan-out threads remain unbounded despite the chain-depth limit; include initial breadth limits in the pagination design.
 - Prefer opaque, validated cursors over exposing numeric depth and breadth controls to the client; server limits remain authoritative regardless of cursor contents.
 - Keep the existing `thread:load_more` sentinel for list rendering; do not add pagination flags to `Thread` records.
 
@@ -40,4 +41,5 @@ Replace client-supplied thread depth and breadth values with server-owned pagina
 - tests/parallel/threads.test.ts
 
 ## Progress Log
+- 2026-11-01: Review confirmed direct-reply breadth is unbounded; include it in the initial response limits and continuation design.
 - 2026-10-30: Ticket created.
