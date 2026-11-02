@@ -283,6 +283,12 @@ DEFINE FIELD replyTo ON thread
     REFERENCE ON DELETE REJECT;
 DEFINE FIELD replies ON thread
     COMPUTED <~(thread FIELD replyTo);
+DEFINE FIELD moderation ON thread COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
 DEFINE FIELD topics ON thread
     TYPE array<record<topic>> DEFAULT ALWAYS []
     REFERENCE ON DELETE REJECT;
@@ -551,51 +557,58 @@ DEFINE FIELD subject ON moderation
 DEFINE INDEX subject ON TABLE moderation
     FIELDS subject UNIQUE;
 DEFINE FIELD locked ON moderation
-    TYPE option<string> ASSERT $value = NONE OR $value IN ["item", "chain"];
+    TYPE option<string> ASSERT $value = NONE OR $value = "item";
 DEFINE FIELD slowed ON moderation
     TYPE option<int> ASSERT $value = NONE OR $value > 0;
 
-DEFINE FUNCTION fn::thread_ancestors($threadId: record<thread>, $visited: array<record<thread>>, $remaining: int) -> array<record<thread>> {
+DEFINE FUNCTION fn::thread_ancestors($threadId: record<thread>, $remaining: int) -> array<object> {
     IF $remaining <= 0 {
-        fn::http(409, "Thread reply chain exceeds the supported depth.");
+        LET $parent = (SELECT VALUE replyTo FROM ONLY $threadId);
+        RETURN IF $parent != NONE { [{ id: "thread:load_more" }] } ELSE { [] };
     };
-    IF $threadId IN $visited {
-        fn::http(500, "Invalid thread reply chain: cycle detected.");
-    };
-    LET $thread = SELECT * FROM ONLY $threadId;
-    IF $thread = NONE {
-        IF $visited.len() = 0 {
-            fn::http(404, "Thread not found.");
-        };
-        fn::http(500, "Invalid thread reply chain: ancestor not found.");
-    };
+    LET $thread = SELECT id, replyTo FROM ONLY $threadId;
     IF $thread.replyTo = NONE {
         RETURN [];
     };
-    LET $ancestors = fn::thread_ancestors($thread.replyTo, $visited.concat([$threadId]), $remaining - 1);
-    RETURN [$thread.replyTo].concat($ancestors);
-};
-
-DEFINE FUNCTION fn::thread_chain($parent: record<thread>, $remaining: int) -> object {
-    IF $remaining <= 0 {
-        LET $next = (
-            SELECT VALUE id FROM ONLY thread
-            WHERE replyTo = $parent
-            ORDER BY score DESC LIMIT 1
-        );
-        RETURN { items: [], more: $next != NONE };
-    };
-    LET $next = (
-        SELECT * FROM ONLY thread
-        WHERE replyTo = $parent
-        ORDER BY score DESC LIMIT 1
+    LET $parent = (
+        SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
+        FROM ONLY $thread.replyTo
         FETCH user
     );
-    IF $next = NONE {
-        RETURN { items: [], more: false };
+    LET $ancestors = fn::thread_ancestors($thread.replyTo, $remaining - 1);
+    RETURN $ancestors.concat([$parent]);
+};
+
+DEFINE FUNCTION fn::thread_chain($parent: record<thread>, $remaining: int) -> array<object> {
+    LET $nextId = (
+        SELECT VALUE id FROM ONLY thread
+        WHERE replyTo = $parent
+        ORDER BY score DESC, id ASC LIMIT 1
+    );
+    IF $nextId = NONE {
+        RETURN [];
     };
-    LET $tail = fn::thread_chain($next.id, $remaining - 1);
-    RETURN { items: [$next].concat($tail.items), more: $tail.more };
+    IF $remaining <= 0 {
+        RETURN [{ id: "thread:load_more" }];
+    };
+    LET $next = (
+        SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+        FROM ONLY $nextId
+        FETCH user
+    );
+    LET $tail = fn::thread_chain($nextId, $remaining - 1);
+    RETURN [$next].concat($tail);
+};
+
+DEFINE FUNCTION fn::thread_replies($replies: array<object>, $remaining: int) -> array<object> {
+    IF $replies.len() = 0 {
+        RETURN [];
+    };
+    LET $reply = $replies[0];
+    LET $chain = fn::thread_chain($reply.id, $remaining);
+    LET $reply = object::extend($reply, { chain: $chain });
+    LET $tail = fn::thread_replies(array::slice($replies, 1, $replies.len()), $remaining);
+    RETURN [$reply].concat($tail);
 };
 
 

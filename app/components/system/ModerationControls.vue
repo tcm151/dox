@@ -16,7 +16,6 @@ const session = getSession()
 const settings = useSettings()
 
 type SubjectType = "post" | "gallery" | "comment" | "thread"
-type LockScope = "item" | "chain"
 type ControlState = Pick<Moderation, "locked" | "slowed">[]
 const subjectTypes: SubjectType[] = ["post", "gallery", "comment", "thread"]
 
@@ -27,10 +26,8 @@ const subject = computed(() => {
 })
 const canModerate = computed(() => session.isAuthenticated && (hasRole(session.user, "moderator") || hasRole(session.user, "admin")))
 const canSlow = computed(() => subject.value?.type !== "comment")
-const supportsChainLock = computed(() => subject.value?.type === "thread")
 const slowModes = computed(() => [...settings.app.moderation.slowModes].sort((left, right) => left - right))
 const state = ref<ControlState>()
-const selectedScope = ref<LockScope>("item")
 const selectedInterval = ref<number>()
 const loading = ref(false)
 const saving = ref(false)
@@ -74,7 +71,7 @@ async function updateLock() {
         else {
             await useApi(`/api/moderation/${currentSubject.type}/${currentSubject.id}/lock/apply`, {
                 method: "POST",
-                body: { scope: supportsChainLock.value ? selectedScope.value : "item" },
+                body: { scope: "item" },
             })
         }
         await refresh()
@@ -130,12 +127,6 @@ onMounted(refresh)
 
 <template>
     <section v-if="canModerate && subject && !forbidden" class="moderation-controls column g-2">
-        <label v-if="supportsChainLock" class="field">
-            <select v-model="selectedScope" :disabled="saving">
-                <option value="item">This thread</option>
-                <option value="chain">Thread and replies</option>
-            </select>
-        </label>
         <button :disabled="saving" @click="updateLock">
             <i class="fa-solid" :class="state?.[0]?.locked ? 'fa-lock-open' : 'fa-lock'"></i>
             <span>{{ state?.[0]?.locked ? "Unlock" : "Lock" }}</span>

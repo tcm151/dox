@@ -2,12 +2,14 @@
 import type { Comment, Gallery } from "@@/shared/types"
 import ExtraOptions from "../post/components/ExtraOptions.vue"
 import CommentSection from "../post/components/CommentSection.vue"
+import { useSlowMode } from "@@/app/utils/slow"
 
 const route = useRoute()
 const cache = useCache()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
+const slowMode = useSlowMode()
 const id = route.params.id?.toString()
 
 await useDatasource(`/api/gallery/${id}/visit`)
@@ -15,6 +17,8 @@ const sortBy = cache.get<string>("comments.sort", () => "new")
 const { data: gallery, status, refresh } = await useDatasource<Gallery>(`/api/gallery/${id}`, {
     query: { sortBy },
 })
+
+const commentState = slowMode.submissionState(() => gallery.value)
 
 async function refreshGallery(sortType: string) {
     if (sortType == sortBy.value) {
@@ -28,10 +32,19 @@ const showOptions = ref(false)
 const comment = ref("")
 const submitting = ref(false)
 
+function toggleCommentBox() {
+    if (!showCommentBox.value && commentState.value.disabled) return
+    showCommentBox.value = !showCommentBox.value
+}
+
 async function submitComment(replyTo: Gallery | Comment, content: string) {
     if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
+        return
+    }
+    if (commentState.value.disabled) {
+        if (commentState.value.warning) hints.addWarning(commentState.value.warning)
         return
     }
 
@@ -44,9 +57,15 @@ async function submitComment(replyTo: Gallery | Comment, content: string) {
                 content,
             },
         })
+        if (gallery.value) slowMode.recordSubmission(gallery.value.id)
         comment.value = ""
         showCommentBox.value = false
         await refresh()
+    }
+    catch (error: any) {
+        const status = error?.statusCode ?? error?.response?.status
+        if (status === 409 || status === 429) hints.addWarning(error.message)
+        else hints.addError(error.message, error)
     }
     finally {
         submitting.value = false
@@ -135,7 +154,7 @@ function copyLink() {
             <footer class="actions">
                 <div class="column g-2">
                     <div class="interactions row wrap g-1">
-                        <button class="comment f-1" @click="showCommentBox = !showCommentBox">
+                        <button class="comment f-1" :disabled="commentState.disabled" @click="toggleCommentBox">
                             <i class="fa-solid fa-comment"></i>
                             <span>Comment</span>
                         </button>
@@ -151,6 +170,7 @@ function copyLink() {
                                 <ExtraOptions
                                     v-if="showOptions"
                                     :target="gallery"
+                                    @updated="refresh"
                                     @report="reportGallery"
                                     @delete="deleteGallery"
                                     @archive="archiveGallery"
@@ -159,11 +179,13 @@ function copyLink() {
                             </OverlayTransition>
                         </ClientOnly>
                     </div>
+                    <p v-if="!showCommentBox && commentState.warning" class="warning br-small px-3 py-2" role="status">{{ commentState.warning }}</p>
                     <CollapseTransition>
                         <div v-if="showCommentBox" class="field">
                             <textarea v-model="comment" rows="5"></textarea>
+                            <p v-if="commentState.warning" class="warning mt-2" role="status">{{ commentState.warning }}</p>
                             <div class="row g-2 mt-2">
-                                <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(gallery, comment)">
+                                <ButtonSpinner class="success f-1" :loading="submitting" :disabled="commentState.disabled" @click="submitComment(gallery, comment)">
                                     <i class="fa-solid fa-comment"></i>
                                     <span>Submit</span>
                                 </ButtonSpinner>

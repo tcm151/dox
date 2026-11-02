@@ -9,9 +9,7 @@ const props = defineProps<{
 const lockLabel = computed(() => {
     if (!props.moderation?.locked) return ""
     if (props.contentType === "comment") return "Direct replies locked"
-    if (props.contentType === "thread") {
-        return props.moderation.locked === "chain" ? "Thread chain locked" : "Thread replies locked"
-    }
+    if (props.contentType === "thread") return "Thread replies locked"
     return "Comments locked"
 })
 
@@ -25,7 +23,7 @@ const slowModeLabel = computed(() => {
 
 <template>
     <div v-if="lockLabel || slowModeLabel" class="row wrap g-1 moderation-state" aria-live="polite">
-        <Tag v-if="lockLabel" type="danger" icon="fa-lock" />
+        <Tag v-if="lockLabel" type="danger" icon="fa-lock" :label="lockLabel" />
         <Tag v-if="slowModeLabel" type="warning" icon="fa-hourglass-half" :label="slowModeLabel" />
     </div>
 </template>

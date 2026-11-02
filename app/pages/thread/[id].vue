@@ -2,16 +2,22 @@
 import ThreadReply from './components/ThreadReply.vue'
 import ExtraOptions from './components/ExtraOptions.vue'
 import type { Thread } from '@@/shared/types'
+import { useSlowMode } from '@@/app/utils/slow'
 
 const route = useRoute()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
+const slowMode = useSlowMode()
 
 const id = route.params.id?.toString()
 await useDatasource(`/api/thread/${id}/visit`)
 
 const { data: thread, refresh } = await useDatasource<Thread>(`/api/thread/${id}`)
+
+function isThreadLoadMore(item: Thread): boolean {
+    return item.id === "thread:load_more"
+}
 
 let editingThread = ref(false)
 function toggleEditThread() {
@@ -51,36 +57,69 @@ const showReplyBox = ref<boolean>(false)
 const replyText = ref<string>("")
 
 const quoting = ref<boolean>(false)
+const replyState = slowMode.submissionState(() => thread.value)
+const quoteState = slowMode.submissionState(() => thread.value, { quote: true })
+const activeSubmissionState = computed(() => quoting.value ? quoteState.value : replyState.value)
+const actionWarning = computed(() => quoteState.value.warning ?? replyState.value.warning)
+
 function quoteThread() {
+    if (quoteState.value.disabled) return
     showReplyBox.value = true
     quoting.value = true
 }
 
+function toggleReplyBox() {
+    if (!showReplyBox.value && replyState.value.disabled) return
+    showReplyBox.value = !showReplyBox.value
+    if (showReplyBox.value) quoting.value = false
+}
+
+function cancelThreadReply() {
+    showReplyBox.value = false
+    quoting.value = false
+    replyText.value = ""
+}
+
 const submitting = ref<boolean>(false)
 async function submitThread() {
+    if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
+        return
+    }
+    if (activeSubmissionState.value.disabled) {
+        if (activeSubmissionState.value.warning) hints.addWarning(activeSubmissionState.value.warning)
         return
     }
     
     submitting.value = true
     const action = (quoting.value) ? "quote" : "reply"
-    await useApi<Thread>(`/api/thread/${id}/${action}`, {
-        body: {
-            user: session.user.id,
-            content: replyText.value,
-            votes: {
-                positive: [session.user.id],
-                misleading: [],
-                negative: [],
-            },
-        }
-    })
-    submitting.value = false
+    try {
+        await useApi<Thread>(`/api/thread/${id}/${action}`, {
+            body: {
+                user: session.user.id,
+                content: replyText.value,
+                votes: {
+                    positive: [session.user.id],
+                    misleading: [],
+                    negative: [],
+                },
+            }
+        })
 
-    replyText.value = ""
-    showReplyBox.value = false
-    refresh()
+        if (action === "reply" && thread.value) slowMode.recordSubmission(thread.value.id)
+        replyText.value = ""
+        showReplyBox.value = false
+        refresh()
+    }
+    catch (error: any) {
+        const status = error?.statusCode ?? error?.response?.status
+        if (status === 409 || status === 429) hints.addWarning(error.message)
+        else hints.addError(error.message, error)
+    }
+    finally {
+        submitting.value = false
+    }
 }
 
 function copyLink() {
@@ -142,9 +181,12 @@ function toggleOptions() {
 
 <template>
     <article v-if="thread" class="content-width column p-4">
-        <section v-if="thread.replyTo" class="mb-2">
-            <ThreadReply :thread="thread.replyTo" />
-        </section>
+        <template v-for="ancestor in thread.ancestors ?? []" :key="ancestor.id">
+            <Tag v-if="isThreadLoadMore(ancestor)" class="dark mb-2" icon="fa-ellipsis" label="Earlier context omitted" />
+            <section v-else class="mb-2">
+                <ThreadReply :thread="ancestor" />
+            </section>
+        </template>
         <section class="main box column px-4 pt-4">
             <header class="row wrap g-1">
                 <Votes :target="thread" />
@@ -162,6 +204,7 @@ function toggleOptions() {
                     </Tag>
                 </div>
                 <TopicTag v-for="topic in thread.topics" :topic="topic" />
+                <ModerationState :moderation="thread.moderation" content-type="thread" />
             </header>
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
@@ -190,11 +233,11 @@ function toggleOptions() {
             </ClientOnly>
             <footer>
                 <div v-if="!thread.deleted && !editingThread" class="f-1 row wrap g-1 mb-4">
-                        <button class="f-1" @click="showReplyBox = !showReplyBox">
+                        <button class="f-1" :disabled="replyState.disabled" @click="toggleReplyBox">
                             <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                             <span>Reply</span>
                         </button>
-                        <button class="f-1" @click="quoteThread()">
+                        <button class="f-1" :disabled="quoteState.disabled" @click="quoteThread">
                             <i class="fa-solid fa-quote-left"></i>
                             <span>Quote</span>
                         </button>
@@ -210,6 +253,7 @@ function toggleOptions() {
                                 <ExtraOptions
                                     v-if="showOptions"
                                     :thread="thread"
+                                    @updated="refresh"
                                     @edit="toggleEditThread"
                                     @award="awardThread"
                                     @report="submitReport(thread.id)"
@@ -221,7 +265,8 @@ function toggleOptions() {
                             </OverlayTransition>
                         </ClientOnly>
                     </div>
-                    <div v-else-if="editingThread" key="edit-actions" class="row wrap f-1 g-1 mb-4">
+                    <p v-if="!showReplyBox && !editingThread && actionWarning" class="warning mb-4" role="status">{{ actionWarning }}</p>
+                    <div v-if="editingThread" key="edit-actions" class="row wrap f-1 g-1 mb-4">
                         <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Save</span>
@@ -237,26 +282,25 @@ function toggleOptions() {
                         </button>
                     </div>
                     <CollapseTransition>
-                    <div v-if="showReplyBox && !thread.deleted && !editingThread" class="field mb-4">
-                        <textarea rows="5" v-model="replyText"></textarea>
-                        <div class="row g-2 mt-2">
-                            <ButtonSpinner class="success f-1" :loading="submitting" @click="submitThread">
-                                <i class="fa-solid fa-comment"></i>
-                                <span>Submit</span>
-                            </ButtonSpinner>
-                            <button class="danger" @click="showReplyBox = false">
-                                <i class="fa-solid fa-ban"></i>
-                                <span>Cancel</span>
-                            </button>
-                        </div>
-                    </div>
-                </CollapseTransition>
+                        <ReplyComposer
+                            v-if="showReplyBox && !thread.deleted && !editingThread"
+                            class="mb-4"
+                            :rows="5"
+                            autofocus
+                            :submitting="submitting"
+                            :submit-label="quoting ? 'Submit quote' : 'Reply'"
+                            :submit-icon="quoting ? 'fa-quote-left' : 'fa-reply'"
+                            :disabled="activeSubmissionState.disabled"
+                            :warning="activeSubmissionState.warning"
+                            @submit="submitThread"
+                            @cancel="cancelThreadReply"
+                            v-model="replyText"
+                        />
+                    </CollapseTransition>
             </footer>
         </section>
         <section class="column g-2 mt-2">
-            <template v-for="reply in thread.replies">
-                <ThreadReply :thread="reply" :chain="true" />
-            </template>
+            <ThreadReply v-for="reply in thread.replies" :key="reply.id" :thread="reply" :chain-items="reply.chain" @reply="refresh" />
         </section>
     </article>
     <article v-else class="content-width column p-4">

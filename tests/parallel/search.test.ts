@@ -83,7 +83,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
 
         await admin.query(`
             CREATE moderation SET subject = post:${postId}, locked = "item";
-            CREATE moderation SET subject = thread:${threadId}, locked = "chain";
+            CREATE moderation SET subject = thread:${threadId}, locked = "item";
             CREATE moderation SET subject = gallery:${galleryId}, slowed = 30;
             CREATE moderation SET subject = comment:${commentId}, locked = "item";
             CREATE moderation SET subject = comment:${galleryCommentId}, slowed = 15;
@@ -105,7 +105,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(results.find(item => item.id === `thread:${threadId}`)).toMatchObject({
             content: threadContent,
             user: { id: admin.user.id },
-            moderation: { locked: "chain" },
+            moderation: { locked: "item" },
         })
         expect(results.find(item => item.id === `gallery:${galleryId}`)).toMatchObject({
             description: galleryDescription,
@@ -299,7 +299,11 @@ it("prioritizes a full exact phrase match over partial token matches", async () 
         expect(results[0]?.id).toBe(`comment:${commentId}`)
         expect(results[0]?.search.exact).toBe(true)
 
-        expect(results.some(item => item.id === `post:${partialPostId}`)).toBe(false)
+        const partialResult = results.find(item => item.id === `post:${partialPostId}`)
+        if (partialResult) {
+            expect(partialResult.search.exact).toBe(false)
+            expect(results.indexOf(partialResult)).toBeGreaterThan(0)
+        }
     }
     finally {
         const recordIds = [

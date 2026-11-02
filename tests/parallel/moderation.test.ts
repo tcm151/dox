@@ -223,14 +223,20 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
         expectStatus(setThreadSlowMode, 200, "admin-global thread slow-mode stage")
         expect(setThreadSlowMode._data).toMatchObject({ subject: threadResponse._data!.id, slowed: 30 })
 
-        const lockThreadResponse = await admin.fetchRaw<Pick<Moderation, "subject" | "locked">>(`/api/moderation/thread/${threadId}/lock/apply`, {
+        const unsupportedThreadChainLock = await admin.fetchRaw(`/api/moderation/thread/${threadId}/lock/apply`, {
             method: "POST",
             body: { scope: "chain" },
         })
+        expectStatus(unsupportedThreadChainLock, 400, "deferred thread chain lock stage")
+
+        const lockThreadResponse = await admin.fetchRaw<Pick<Moderation, "subject" | "locked">>(`/api/moderation/thread/${threadId}/lock/apply`, {
+            method: "POST",
+            body: { scope: "item" },
+        })
         expectStatus(lockThreadResponse, 200, "admin global lock stage")
-        expect(lockThreadResponse._data).toMatchObject({ subject: threadResponse._data!.id, locked: "chain" })
+        expect(lockThreadResponse._data).toMatchObject({ subject: threadResponse._data!.id, locked: "item" })
         const lockedThread = await admin.fetch<Thread>(`/api/thread/${threadId}`)
-        expect(lockedThread.moderation).toMatchObject({ locked: "chain", slowed: 30 })
+        expect(lockedThread.moderation).toMatchObject({ locked: "item", slowed: 30 })
         expectStatus(await admin.fetchRaw(`/api/moderation/thread/${threadId}/lock/clear`, { method: "POST" }), 200)
         expectStatus(await admin.fetchRaw(`/api/moderation/thread/${threadId}/slow/clear`, { method: "POST" }), 200)
 
@@ -302,13 +308,13 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
                 actor: admin.user.id,
                 action: "moderation.locked",
                 target: threadResponse._data!.id,
-                details: { lock: { before: "unlocked", after: "chain" } },
+                details: { lock: { before: "unlocked", after: "item" } },
             }),
             expect.objectContaining({
                 actor: admin.user.id,
                 action: "moderation.unlocked",
                 target: threadResponse._data!.id,
-                details: { lock: { before: "chain", after: "unlocked" } },
+                details: { lock: { before: "item", after: "unlocked" } },
             }),
             expect.objectContaining({
                 actor: admin.user.id,

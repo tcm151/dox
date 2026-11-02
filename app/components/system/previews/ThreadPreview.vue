@@ -18,10 +18,10 @@ const props = defineProps<{
                     </div>
                 </div>
                 <div class="row wrap g-1">
+                    <ModerationState :moderation="thread.moderation" content-type="thread" />
                     <Tag class="meta" icon="fa-chart-simple" :label="thread.visits" />
                     <Tag class="meta" icon="fa-comment" :label="thread.replies.length.toString()" />
                     <DurationTag class="meta" :time="thread.time" />
-                    <ModerationState :moderation="thread.moderation" content-type="thread" />
                     <!-- <Tag v-if="thread.timeEdited" class="meta" icon="fa-eraser" :label="formatDate(thread.timeEdited)" /> -->
                 </div>
             </div>

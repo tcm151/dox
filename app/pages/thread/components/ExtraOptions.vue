@@ -16,6 +16,7 @@ const emit = defineEmits<{
     (event: 'archive'): void
     (event: 'pin'): void
     (event: 'close'): void
+    (event: 'updated'): void
 }>()
 
 function emitAndClose(event: string) {
@@ -56,6 +57,7 @@ function emitAndClose(event: string) {
                 <i class="fa-solid fa-thumbtack"></i>
                 <span>Pin</span>
             </button>
+            <ModerationControls :id="thread.id" @updated="emit('updated')" />
         </section>
     </Window>
 </template>

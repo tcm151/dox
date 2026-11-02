@@ -1,6 +1,6 @@
 import type { Moderation } from "@@/shared/types"
 
-type LockScope = "item" | "chain"
+type LockScope = "item"
 type LockResult = Pick<Moderation, "subject" | "locked">
 type UnlockResult = Pick<Moderation, "subject">
 
@@ -47,12 +47,9 @@ interface ControlStateOptions {
 type ControlState = Pick<Moderation, "locked" | "slowed">[]
 
 export class ModerationManager {
-    private static getSubject(subjectType: string, subjectId: string, scope?: LockScope): Moderation["subject"] {
+    private static getSubject(subjectType: string, subjectId: string): Moderation["subject"] {
         if (!["post", "gallery", "comment", "thread"].includes(subjectType) || !subjectId) {
             throw createError({ statusCode: 400, statusMessage: "A valid moderation subject is required." })
-        }
-        if (scope === "chain" && subjectType !== "thread") {
-            throw createError({ statusCode: 400, statusMessage: "Chain locks are only supported for threads." })
         }
 
         return `${subjectType}:${subjectId}` as Moderation["subject"]
@@ -88,11 +85,11 @@ export class ModerationManager {
 
     static async lock(options: LockOptions): Promise<LockResult> {
         const { subjectType, subjectId, actorId, isAdmin, scope } = options
-        if (scope !== "item" && scope !== "chain") {
+        if (scope !== "item") {
             throw createError({ statusCode: 400, statusMessage: "A valid lock scope is required." })
         }
 
-        const subject = this.getSubject(subjectType, subjectId, scope)
+        const subject = this.getSubject(subjectType, subjectId)
         await new DatabaseQuery()
             .addSql(`
                 LET $target = (SELECT * FROM ONLY $subject);
@@ -197,9 +194,6 @@ export class ModerationManager {
                 IF $target = NONE {
                     fn::http(404, "Moderation subject not found.");
                 };
-                IF record::tb($subject) = "thread" AND $target.replyTo != NONE {
-                    fn::http(400, "Slow mode must be configured on a root thread.");
-                };
                 IF !$isAdmin {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);
                     LET $authorizedTopics = SELECT VALUE id FROM topic WHERE id IN $topics AND moderators CONTAINS $actor;
@@ -253,9 +247,6 @@ export class ModerationManager {
                 LET $target = (SELECT * FROM ONLY $subject);
                 IF $target = NONE {
                     fn::http(404, "Moderation subject not found.");
-                };
-                IF record::tb($subject) = "thread" AND $target.replyTo != NONE {
-                    fn::http(400, "Slow mode must be configured on a root thread.");
                 };
                 IF !$isAdmin {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);

@@ -3,9 +3,11 @@ import type { Comment, Post, Gallery } from '@@/shared/types';
 
 const hints = useHints()
 const session = getSession()
+const slowMode = useSlowMode()
 
 const props = defineProps<{
     comment: Comment
+    discussion: Post | Gallery
     editing: boolean
 }>()
 
@@ -20,6 +22,11 @@ let replyTo = ref(false)
 let submitting = ref(false)
 
 function replyToComment() {
+    const state = replyState.value
+    if (state.disabled) {
+        if (state.warning) hints.addWarning(state.warning)
+        return
+    }
     replyTo.value = true
 }
 
@@ -27,6 +34,13 @@ function cancelComment() {
     replyTo.value = false
     replyText.value = ""
 }
+
+const replyState = slowMode.submissionState(
+    () => props.discussion,
+    {
+        additionalLocks: () => [props.comment],
+    },
+)
 
 async function updateComment(comment: Comment) {
     try {
@@ -49,6 +63,11 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
         hints.addWarning("You must be logged in to interact with others.")
         return
     }
+    const state = replyState.value
+    if (state.disabled) {
+        if (state.warning) hints.addWarning(state.warning)
+        return
+    }
     submitting.value = true
     try {
         await useApi<Comment>("/api/comment/add", {
@@ -65,12 +84,15 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
                 },
             }
         })
+        slowMode.recordSubmission(props.discussion.id)
         replyTo.value = false
         replyText.value = ""
         emit("refresh")
     }
     catch (error: any) {
-        hints.addError(error.message, error)
+        const status = error?.statusCode ?? error?.response?.status
+        if (status === 409 || status === 429) hints.addWarning(error.message)
+        else hints.addError(error.message, error)
     }
     finally {
         submitting.value = false
@@ -92,14 +114,17 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
                 {{ formatDate(comment.timeEdited) }}
             </Tag>
             <DurationTag v-else :time="comment.time" />
-            <Tag v-if="!comment.deleted && comment.status === 'active'" type="link" icon="fa-reply" label="Reply" @click="replyToComment" />
+            <button v-if="!comment.deleted && comment.status === 'active'" type="button" class="link small reply-action" :disabled="replyState.disabled" @click="replyToComment">
+                <i class="fa-solid fa-reply"></i>
+                <span>Reply</span>
+            </button>
             <Tag v-if="comment.status === 'quarantined'" type="danger" label="Removed" />
-            <ModerationState :moderation="comment.moderation" content-type="comment" />
             <ClientOnly>
                 <template v-if="session.isAuthenticated && !comment.deleted && comment.status === 'active'">
                     <Tag class="link" icon="fa-ellipsis" title="Options" @click="emit('options', comment)" />
                 </template>
             </ClientOnly>
+            <ModerationState :moderation="comment.moderation" content-type="comment" />
         </header>
         <Markdown v-if="!editing && comment.status !== 'quarantined'" class="p-3" :content="comment.content" />
         <p v-else-if="comment.status === 'quarantined'" class="p-3">[This comment was removed by moderators.]</p>
@@ -109,6 +134,8 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
                 class="comment-reply px-3 pb-3"
                 autofocus
                 :submitting="submitting"
+                :disabled="replyState.disabled"
+                :warning="replyState.warning"
                 @submit="submitComment(comment, replyText)"
                 @cancel="cancelComment"
                 v-model="replyText"
@@ -126,6 +153,11 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
 
 <style lang="scss">
 main.comment {
+    .reply-action {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+
     header.row {
         @media (max-width: $bp-tablet) {
             flex-wrap: wrap;

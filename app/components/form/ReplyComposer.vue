@@ -6,12 +6,15 @@ const props = withDefaults(defineProps<{
     autofocus?: boolean
     submitLabel?: string
     submitIcon?: string
+    disabled?: boolean
+    warning?: string
 }>(), {
     submitting: false,
     rows: 2,
     autofocus: false,
     submitLabel: "Submit",
     submitIcon: "fa-comment",
+    disabled: false,
 })
 
 const emit = defineEmits<{
@@ -25,6 +28,11 @@ const textarea = useTemplateRef<HTMLTextAreaElement>("reply-textarea")
 onMounted(() => {
     if (props.autofocus) textarea.value?.focus({ preventScroll: true })
 })
+
+function submit() {
+    if (props.submitting || props.disabled) return
+    emit("submit")
+}
 </script>
 
 <template>
@@ -35,17 +43,18 @@ onMounted(() => {
             :value="modelValue"
             :disabled="submitting"
             @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
-            @keydown.ctrl.enter.prevent="emit('submit')"
+            @keydown.ctrl.enter.prevent="submit"
         />
+        <p v-if="warning" class="warning mt-2" role="status">{{ warning }}</p>
         <div class="row g-1 pt-2">
-            <Tag class="success small" :loading="submitting" @click="emit('submit')">
+            <button type="button" class="success small" :disabled="submitting || disabled" @click="submit">
                 <i class="fa-solid" :class="submitIcon"></i>
                 <span>{{ submitLabel }}</span>
-            </Tag>
-            <Tag class="danger small" :disabled="submitting" @click="emit('cancel')">
+            </button>
+            <button type="button" class="danger small" :disabled="submitting" @click="emit('cancel')">
                 <i class="fa-solid fa-cancel"></i>
                 <span>Cancel</span>
-            </Tag>
+            </button>
         </div>
     </div>
 </template>

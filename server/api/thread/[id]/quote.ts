@@ -6,9 +6,15 @@ export default defineEventHandler(async (event) => {
 
     const { id } = event.context.params!
     let thread = await readBody<Thread>(event)
+    const quoteId = `thread:${id}`
 
     const { quote, recipient } = await new DatabaseQuery()
         .addSql(`
+            LET $locked = (SELECT VALUE locked FROM ONLY moderation WHERE subject = $quote LIMIT 1);
+            IF $locked != NONE {
+                fn::http(409, "This thread is locked and cannot be quoted.");
+            };
+
             LET $recipient = $quote.user;
             LET $quoted = (
                 CREATE ONLY thread SET
@@ -25,7 +31,7 @@ export default defineEventHandler(async (event) => {
         .addRecord('user', auth.id)
         .addParameter('content', thread.content)
         .addRecords('topics', thread.topics ?? [])
-        .addRecord('quote', `thread:${id}`)
+        .addRecord('quote', quoteId)
         .queryValue<{ quote: Thread, recipient: string }>()
 
     await NotificationManager.send({

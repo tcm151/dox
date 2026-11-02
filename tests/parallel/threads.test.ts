@@ -30,6 +30,14 @@ it("rejects thread replies without authentication", async () => {
     expectStatus(response, 401)
 })
 
+it("rejects replies to missing threads", async () => {
+    const response = await replyAuthor.fetchRaw("/api/thread/missing/reply", {
+        method: "POST",
+        body: { content: "Reply to a missing thread" },
+    })
+    expectStatus(response, 404)
+})
+
 it("creates a thread reply and notifies the thread author", async () => {
     const parentContent = `API smoke parent ${Date.now()}`
     const replyContent = `API smoke reply ${Date.now()}`
@@ -304,3 +312,279 @@ it("traverses replies and quotes and applies their target deletion policies", as
         }
     }
 })
+
+it("enforces local thread locks for replies and quotes", async () => {
+    const threadIds: string[] = []
+
+    try {
+        const parentResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Moderation lock parent ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(parentResponse, 200, "parent thread stage")
+        const parent = parentResponse._data!
+        const parentId = extractId(parent.id)
+        threadIds.push(parentId)
+
+        const childResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${parentId}/reply`, {
+            method: "POST",
+            body: { content: `Moderation lock child ${Date.now()}` },
+        })
+        expectStatus(childResponse, 200, "child thread stage")
+        const child = childResponse._data!
+        const childId = extractId(child.id)
+        threadIds.push(childId)
+
+        await admin.query(`CREATE moderation SET subject = thread:${childId}, locked = "item";`)
+        const blockedItemReply = await replyAuthor.fetchRaw(`/api/thread/${childId}/reply`, {
+            method: "POST",
+            body: { content: "This item-locked reply should be blocked." },
+        })
+        expectStatus(blockedItemReply, 409, "item-locked reply stage")
+
+        const blockedItemQuote = await replyAuthor.fetchRaw(`/api/thread/${childId}/quote`, {
+            method: "POST",
+            body: { content: "This item-locked quote should be blocked.", topics: [] },
+        })
+        expectStatus(blockedItemQuote, 409, "item-locked quote stage")
+    }
+    finally {
+        await admin.query([
+            `DELETE moderation WHERE subject IN [${threadIds.map(id => `thread:${id}`).join(", ")}];`,
+            `DELETE notification WHERE context IN [${threadIds.map(id => `thread:${id}`).join(", ")}];`,
+            ...threadIds.reverse().map(id => `DELETE thread:${id};`),
+        ].join("\n"))
+    }
+})
+
+it("enforces per-user item-thread slow mode without inheritance", async () => {
+    const threadIds: string[] = []
+
+    try {
+        const rootResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Slow mode root ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(rootResponse, 200, "root thread stage")
+        const root = rootResponse._data!
+        const rootId = extractId(root.id)
+        threadIds.push(rootId)
+        await admin.query(`CREATE moderation SET subject = thread:${rootId}, slowed = 30;`)
+
+        const firstReplyResponse = await admin.fetchRaw<Thread>(`/api/thread/${rootId}/reply`, {
+            method: "POST",
+            body: { content: `First admin reply ${Date.now()}` },
+        })
+        expectStatus(firstReplyResponse, 200, "first reply stage")
+        const firstReply = firstReplyResponse._data!
+        threadIds.push(extractId(firstReply.id))
+
+        const nestedReplyResponse = await admin.fetchRaw<Thread>(`/api/thread/${extractId(firstReply.id)}/reply`, {
+            method: "POST",
+            body: { content: `Nested admin reply ${Date.now()}` },
+        })
+        expectStatus(nestedReplyResponse, 200, "root slow mode does not inherit stage")
+        const nestedReply = nestedReplyResponse._data!
+        const nestedReplyId = extractId(nestedReply.id)
+        threadIds.push(nestedReplyId)
+
+        await admin.query(`CREATE moderation SET subject = thread:${extractId(firstReply.id)}, slowed = 30;`)
+        const firstNestedResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${extractId(firstReply.id)}/reply`, {
+            method: "POST",
+            body: { content: `First item-slowed reply ${Date.now()}` },
+        })
+        expectStatus(firstNestedResponse, 200, "first reply to slowed item stage")
+        threadIds.push(extractId(firstNestedResponse._data!.id))
+
+        const blockedItemReply = await replyAuthor.fetchRaw(`/api/thread/${extractId(firstReply.id)}/reply`, {
+            method: "POST",
+            body: { content: "This item cooldown should block." },
+        })
+        expectStatus(blockedItemReply, 429, "same-item cooldown stage")
+
+        const otherUserReply = await threadAuthor.fetchRaw<Thread>(`/api/thread/${extractId(firstReply.id)}/reply`, {
+            method: "POST",
+            body: { content: `Other user reply ${Date.now()}` },
+        })
+        expectStatus(otherUserReply, 200, "per-user cooldown isolation stage")
+        threadIds.push(extractId(otherUserReply._data!.id))
+
+        const concurrentRootResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Concurrent slow mode root ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(concurrentRootResponse, 200, "concurrent root stage")
+        const concurrentRootId = extractId(concurrentRootResponse._data!.id)
+        threadIds.push(concurrentRootId)
+        await admin.query(`CREATE moderation SET subject = thread:${concurrentRootId}, slowed = 30;`)
+
+        const concurrentResponses = await Promise.all([
+            admin.fetchRaw(`/api/thread/${concurrentRootId}/reply`, {
+                method: "POST",
+                body: { content: `Concurrent reply A ${Date.now()}` },
+            }),
+            admin.fetchRaw(`/api/thread/${concurrentRootId}/reply`, {
+                method: "POST",
+                body: { content: `Concurrent reply B ${Date.now()}` },
+            }),
+        ])
+        for (const response of concurrentResponses) {
+            if (response.status === 200) threadIds.push(extractId(response._data!.id))
+        }
+        expect(concurrentResponses.every(response => response.status === 200 || response.status === 429)).toBe(true)
+        expect(concurrentResponses.some(response => response.status === 200)).toBe(true)
+
+        const blockedAfterConcurrentReplies = await admin.fetchRaw(`/api/thread/${concurrentRootId}/reply`, {
+            method: "POST",
+            body: { content: "This reply is still within the cooldown." },
+        })
+        expectStatus(blockedAfterConcurrentReplies, 429, "thread-concurrency cooldown stage")
+    }
+    finally {
+        await admin.query([
+            `DELETE notification WHERE context IN [${threadIds.map(id => `thread:${id}`).join(", ")}];`,
+            `DELETE moderation WHERE subject IN [${threadIds.map(id => `thread:${id}`).join(", ")}];`,
+            ...threadIds.reverse().map(id => `DELETE thread:${id};`),
+        ].join("\n"))
+    }
+})
+
+it("returns all direct replies and complete chains with item moderation", async () => {
+    const threadIds: string[] = []
+
+    try {
+        const rootResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Bounded thread root ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(rootResponse, 200, "root thread stage")
+        const rootId = extractId(rootResponse._data!.id)
+        threadIds.push(rootId)
+
+        for (const content of ["First breadth reply", "Second breadth reply"]) {
+            const response = await replyAuthor.fetchRaw<Thread>(`/api/thread/${rootId}/reply`, {
+                method: "POST",
+                body: { content: `${content} ${Date.now()}` },
+            })
+            expectStatus(response, 200, "breadth reply stage")
+            threadIds.push(extractId(response._data!.id))
+        }
+
+        const initialReplies = await threadAuthor.fetch<Thread>(`/api/thread/${rootId}`)
+        expect(initialReplies.replies).toHaveLength(2)
+        const branchId = extractId(initialReplies.replies[0]!.id)
+        const otherBranchId = extractId(initialReplies.replies[1]!.id)
+
+        const childResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${branchId}/reply`, {
+            method: "POST",
+            body: { content: `Bounded chain child ${Date.now()}` },
+        })
+        expectStatus(childResponse, 200, "chain child stage")
+        const childId = extractId(childResponse._data!.id)
+        threadIds.push(childId)
+
+        const grandchildResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${childId}/reply`, {
+            method: "POST",
+            body: { content: `Bounded chain grandchild ${Date.now()}` },
+        })
+        expectStatus(grandchildResponse, 200, "chain grandchild stage")
+        const grandchildId = extractId(grandchildResponse._data!.id)
+        threadIds.push(grandchildId)
+
+        const otherChildResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${otherBranchId}/reply`, {
+            method: "POST",
+            body: { content: `Other branch child ${Date.now()}` },
+        })
+        expectStatus(otherChildResponse, 200, "other branch child stage")
+        threadIds.push(extractId(otherChildResponse._data!.id))
+
+        await admin.query(`
+            CREATE moderation SET subject = thread:${branchId}, locked = "item";
+            CREATE moderation SET subject = thread:${childId}, slowed = 30;
+        `)
+
+        const complete = await threadAuthor.fetch<Thread>(`/api/thread/${rootId}`)
+        const lockedBranch = complete.replies.find(reply => extractId(reply.id) === branchId)
+        const otherBranch = complete.replies.find(reply => extractId(reply.id) === otherBranchId)
+        expect(complete.replies).toHaveLength(2)
+        expect(lockedBranch?.chain).toHaveLength(2)
+        expect(otherBranch?.chain).toHaveLength(1)
+        expect(lockedBranch?.moderation).toMatchObject({ locked: "item" })
+        expect(lockedBranch?.moderation?.slowed).toBeUndefined()
+        expect(lockedBranch?.chain[0]?.moderation).toMatchObject({ slowed: 30 })
+        expect(lockedBranch?.chain[1]?.moderation?.slowed).toBeUndefined()
+        expect(otherBranch?.chain.some(reply => reply.id === "thread:load_more")).toBe(false)
+    }
+    finally {
+        if (threadIds.length > 0) {
+            await admin.query([
+                `DELETE notification WHERE context IN [${threadIds.map(id => `thread:${id}`).join(", ")}];`,
+                ...threadIds.slice().reverse().map(id => `DELETE thread:${id};`),
+            ].join("\n"))
+        }
+    }
+})
+
+it("truncates ancestor and best-reply chains with load-more stubs", async () => {
+    const threadIds: string[] = []
+
+    try {
+        const rootResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Truncated path root ${Date.now()}`, topics: [], images: [] },
+        })
+        expectStatus(rootResponse, 200, "truncation root stage")
+        const rootId = extractId(rootResponse._data!.id)
+        threadIds.push(rootId)
+
+        let parentId = rootId
+        let targetId = rootId
+        let nearestAncestorId = rootId
+        for (let index = 0; index < 11; index++) {
+            nearestAncestorId = parentId
+            const response = await replyAuthor.fetchRaw<Thread>(`/api/thread/${parentId}/reply`, {
+                method: "POST",
+                body: { content: `Ancestor path ${index} ${Date.now()}` },
+            })
+            expectStatus(response, 200, `ancestor ${index} stage`)
+            targetId = extractId(response._data!.id)
+            threadIds.push(targetId)
+            parentId = targetId
+        }
+
+        const directReplyResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${targetId}/reply`, {
+            method: "POST",
+            body: { content: `Best chain direct reply ${Date.now()}` },
+        })
+        expectStatus(directReplyResponse, 200, "best chain direct reply stage")
+        let chainParentId = extractId(directReplyResponse._data!.id)
+        threadIds.push(chainParentId)
+
+        for (let index = 0; index < 11; index++) {
+            const response = await replyAuthor.fetchRaw<Thread>(`/api/thread/${chainParentId}/reply`, {
+                method: "POST",
+                body: { content: `Best chain item ${index} ${Date.now()}` },
+            })
+            expectStatus(response, 200, `best chain item ${index} stage`)
+            chainParentId = extractId(response._data!.id)
+            threadIds.push(chainParentId)
+        }
+
+        const detailed = await threadAuthor.fetch<Thread>(`/api/thread/${targetId}`)
+        expect(detailed.ancestors).toHaveLength(11)
+        expect(detailed.ancestors?.[0]?.id).toBe("thread:load_more")
+        expect(extractId(detailed.ancestors?.at(-1)?.id)).toBe(nearestAncestorId)
+        expect(detailed.replies).toHaveLength(1)
+        expect(detailed.replies[0]?.chain).toHaveLength(11)
+        expect(detailed.replies[0]?.chain?.at(-1)?.id).toBe("thread:load_more")
+    }
+    finally {
+        if (threadIds.length > 0) {
+            await admin.query([
+                `DELETE notification WHERE context IN [${threadIds.map(id => `thread:${id}`).join(", ")}];`,
+                ...threadIds.slice().reverse().map(id => `DELETE thread:${id};`),
+            ].join("\n"))
+        }
+    }
+})
+

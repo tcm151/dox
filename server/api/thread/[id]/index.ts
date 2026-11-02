@@ -1,45 +1,40 @@
 import type { Thread } from "@@/shared/types"
+import { THREAD_DISPLAY_LIMIT } from "@@/server/utils/thread"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    let thread = await new DatabaseQuery()
+    const thread = await new DatabaseQuery()
         .addSql(`
-            SELECT *
-            FROM $thread
-            FETCH user, replyTo, replyTo.user, quote, quote.user, images.url, replies, replies.user
+            LET $thread = (
+                SELECT id, user, content, time, quote, replyTo, topics, images,
+                status, deleted, edited, timeEdited, visits, votes, score, moderation
+                FROM ONLY $thread
+                FETCH user, replyTo, replyTo.user, quote, quote.user, images.url
+            );
+            IF $thread = NONE {
+                fn::http(404, "Thread not found.");
+            };
+
+            LET $ancestors = fn::thread_ancestors($thread.id, $displayLimit);
+            LET $replyRows = (
+                SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+                FROM thread
+                WHERE replyTo = $thread.id
+                ORDER BY score DESC, id ASC
+                FETCH user
+            );
+            LET $replies = fn::thread_replies($replyRows, $displayLimit);
+            RETURN object::extend($thread, {
+                ancestors: $ancestors,
+                quotes: (SELECT VALUE id FROM thread WHERE quote = $thread.id),
+                replies: $replies
+            });
         `)
         .addRecord("thread", `thread:${id}`)
-        .queryOne<Thread>()
+        .addTransaction()
+        .addParameter("displayLimit", THREAD_DISPLAY_LIMIT)
+        .queryValue<Thread>()
 
-    for (let reply of thread.replies) {
-
-        reply.chain = []
-        let current = reply.id
-
-        for (let i = 0; i < 10; i++) {
-            try {
-                const next = await new DatabaseQuery()
-                    .addSql(`
-                        SELECT *
-                        FROM thread
-                        WHERE replyTo = $thread
-                        ORDER BY score DESC
-                        LIMIT 1
-                        FETCH user
-                    `)
-                    .addRecord("thread", current)
-                    .queryOne<Thread>()
-        
-                reply.chain.push(next)
-                current = next.id
-            }
-            catch (error: any) {
-                break
-            }
-        }
-    }
-
-    thread.replies = sortList(thread.replies as Thread[], "top") as (Thread & string)[]
     return thread
 })

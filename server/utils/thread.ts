@@ -1,0 +1,1 @@
+export const THREAD_DISPLAY_LIMIT = 10

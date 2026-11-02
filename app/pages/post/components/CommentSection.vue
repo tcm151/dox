@@ -91,6 +91,7 @@ watch(() => props.loading, (status) => {
             <template #item="{ item: comment }">
                 <CommentPreview
                     :comment="comment"
+                    :discussion="target"
                     :editing="editingCommentId === comment.id"
                     @refresh="emit('refresh', sortType)"
                     @options="selectedComment = $event"
@@ -102,6 +103,7 @@ watch(() => props.loading, (status) => {
             <ExtraOptions
                 v-if="canShowCommentOptions && selectedComment"
                 :target="selectedComment"
+                @updated="emit('refresh', sortType)"
                 @edit="startEditingComment"
                 @delete="deleteSelectedComment"
                 @report="reportSelectedComment"

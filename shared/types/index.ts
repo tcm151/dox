@@ -68,7 +68,7 @@ export interface Topic extends Sortable {
 }
 
 export interface ContentModerationState {
-    locked?: "item" | "chain"
+    locked?: "item"
     slowed?: number
 }
 
@@ -117,6 +117,7 @@ export interface Thread extends Sortable {
     topics: string[]
     replies: Thread[]
     images: Attachment[]
+    ancestors?: Thread[]
     chain?: Thread[]
     status: ContentStatus
     deleted: boolean
@@ -235,7 +236,7 @@ export interface Report extends Record {
 
 export interface Moderation extends Record {
     subject: (Post | Gallery | Comment | Thread) & string
-    locked?: "item" | "chain"
+    locked?: "item"
     slowed?: number
 }
 

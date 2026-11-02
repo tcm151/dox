@@ -2,12 +2,14 @@
 import ExtraOptions from "./components/ExtraOptions.vue"
 import CommentSection from "./components/CommentSection.vue"
 import type { Post, Comment } from '@@/shared/types'
+import { useSlowMode } from '@@/app/utils/slow'
 
 const route = useRoute()
 const cache = useCache()
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
+const slowMode = useSlowMode()
 
 const id = route.params.id?.toString()
 await useDatasource(`/api/post/${id}/visit`)
@@ -18,6 +20,9 @@ const { data: post, status, refresh } = await useDatasource<Post>(`/api/post/${i
         sortBy: sortBy
     }
 })
+const commentState = slowMode.submissionState(
+    () => post.value,
+)
 
 async function refreshPost(sortType: string) {
     if (sortType == sortBy.value) {
@@ -85,6 +90,7 @@ async function deletePost() {
 
 let showCommentBox = ref(false)
 function toggleCommentBox() {
+    if (!showCommentBox.value && commentState.value.disabled) return
     showCommentBox.value = !showCommentBox.value
 }
 
@@ -94,6 +100,10 @@ async function submitComment(replyTo: Post | Comment, content: string) {
     if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
+        return
+    }
+    if (commentState.value.disabled) {
+        if (commentState.value.warning) hints.addWarning(commentState.value.warning)
         return
     }
 
@@ -114,9 +124,15 @@ async function submitComment(replyTo: Post | Comment, content: string) {
             }
         })
 
+        if (post.value) slowMode.recordSubmission(post.value.id)
         await refresh()
         comment.value = ""
         showCommentBox.value = false
+    }
+    catch (error: any) {
+        const status = error?.statusCode ?? error?.response?.status
+        if (status === 409 || status === 429) hints.addWarning(error.message)
+        else hints.addError(error.message, error)
     }
     finally {
         submitting.value = false
@@ -226,7 +242,7 @@ function toggleOptions() {
                 </ClientOnly>
                 <footer class="column g-2">
                     <div v-if="!editingPost" class="interactions row wrap g-1">
-                            <button class="comment" @click="toggleCommentBox">
+                            <button class="comment" :disabled="commentState.disabled" @click="toggleCommentBox">
                                 <i class="fa-solid fa-comment"></i>
                                 <span>Comment</span>
                             </button>
@@ -246,6 +262,7 @@ function toggleOptions() {
                                     <ExtraOptions
                                         v-if="showOptions"
                                         :target="post"
+                                        @updated="refresh"
                                         @edit="toggleEditPost"
                                         @award="awardPost"
                                         @report="reportPost"
@@ -257,7 +274,8 @@ function toggleOptions() {
                                 </OverlayTransition>
                             </ClientOnly>
                     </div>
-                    <div v-else class="row g-1">
+                    <p v-if="!showCommentBox && !editingPost && commentState.warning" class="warning" role="status">{{ commentState.warning }}</p>
+                    <div v-if="editingPost" class="row g-1">
                         <ButtonSpinner class="success f-1" :loading="submitting" @click="updatePost(post)">
                             <i class="fa-solid fa-folder-open"></i>
                             <span>Save</span>
@@ -275,8 +293,9 @@ function toggleOptions() {
                     <CollapseTransition>
                         <div v-if="showCommentBox && !editingPost" class="field">
                             <textarea rows="5" v-model="comment"></textarea>
+                            <p v-if="commentState.warning" class="warning mt-2" role="status">{{ commentState.warning }}</p>
                             <div class="row g-2 mt-2">
-                                <ButtonSpinner class="success f-1" :loading="submitting" @click="submitComment(post, comment)">
+                                <ButtonSpinner class="success f-1" :loading="submitting" :disabled="commentState.disabled" @click="submitComment(post, comment)">
                                     <i class="fa-solid fa-comment"></i>
                                     <span>Submit</span>
                                 </ButtonSpinner>
