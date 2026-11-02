@@ -11,7 +11,7 @@ const props = defineProps<{
 <template>
     <div v-if="!hidden" class="tag" :class="type" :style="{ width }">
         <i v-if="icon" class="fa-solid" :class="icon"></i>
-        <span v-if="label">{{ label }}</span>
+        <span v-if="label !== undefined && label !== ''">{{ label }}</span>
         <slot />
     </div>
 </template>

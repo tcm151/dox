@@ -10,16 +10,7 @@ const props = defineProps<{
 <template>
     <main class="thread">
         <div class="main box column p-3" @click="navigateTo(`/image/${extractId(image.id)}`)">
-            <header class="row wrap g-1 mb-2">
-                <Votes :target="image" />
-                <div class="row wrap f-1 g-1">
-                    <UserTag class="f-1" :user="image.user" />
-                </div>
-                <div class="row wrap g-1">
-                    <Tag class="meta" icon="fa-chart-simple" :label="image.visits" />
-                    <DurationTag class="meta" :time="image.time" />
-                </div>
-            </header>
+            <ContentHeader class="mb-2" :content="image" context="preview" />
             <div class="image">
                 <img class="br-small" :src="image.url">
             </div>

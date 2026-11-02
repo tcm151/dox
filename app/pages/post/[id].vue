@@ -208,26 +208,7 @@ function toggleOptions() {
                 <p class="text truncate bold">{{ post.replyTo.title }}</p>
             </aside>
             <section class="post box br-medium p-5">
-                <header class="row wrap g-1">
-                    <Votes :target="post" />
-                    <div class="f-1 row wrap g-1">
-                        <Tag v-if="post.status === 'archived'" type="link" icon="fa-folder-closed" />
-                        <UserTag class="f-1" :user="post.user" />
-                        <Tag class="f-1" type="info" icon="fa-chart-simple" :label="post.visits" />
-                        <Tag class="f-1" type="info">
-                            <i class="fa-solid fa-stopwatch"></i>
-                            {{ formatDate(post.time) }}
-                            <template v-if="post.edited">
-                                <i class="fa-solid fa-eraser"></i>
-                                {{ formatDate(post.timeEdited) }}
-                            </template>
-                        </Tag>
-                    </div>
-                    <div v-if="post.topics.length > 0" class="row wrap f-1 g-1">
-                        <TopicTag v-for="topic in post.topics" :topic="topic" />
-                    </div>
-                    <ModerationState :moderation="post.moderation" content-type="discussion" />
-                </header>
+                <ContentHeader :content="post" context="detail" />
                 <h1 class="mt-2">
                     {{ post.title }}
                 </h1>

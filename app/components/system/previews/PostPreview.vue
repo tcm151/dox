@@ -15,25 +15,7 @@ const props = defineProps<{
         </div>
         <div class="main box row g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
             <div class="f-1">
-                <div class="row wrap g-1">
-                    <Votes :target="post" />
-                    <div class="f-1 row wrap g-1">
-                        <UserTag class="f-1" :user="post.user" />
-                        <div v-if="props.post.topics.length > 0" class="row wrap f-1 g-1">
-                            <TopicTag v-for="topic in post.topics" :topic="topic" />
-                        </div>
-                    </div>
-                    <Tag v-if="pinned" type="link" icon="fa-thumbtack" />
-                    <Tag v-if="post.status === 'archived'" type="link" icon="fa-folder-closed" />
-                    <Tag v-if="post.votes.awards.length > 0" type="link" :label="post.votes.awards.length" icon="fa-crown" />
-                    <Tag v-if="post.votes.saves.length > 0" type="link" :label="post.votes.saves.length" icon="fa-box-archive" />
-                    <ModerationState :moderation="post.moderation" content-type="discussion" />
-                    <div class="row wrap g-1">
-                        <Tag class="meta" icon="fa-chart-simple" :label="post.visits ?? 0" />
-                        <Tag class="meta" icon="fa-comment" :label="post.comments.length.toString()" />
-                        <DurationTag class="meta" :time="post.time" />
-                    </div>
-                </div>
+                <ContentHeader :content="post" context="preview" :pinned="pinned" />
                 <h3 class="title mt-2">
                     {{ post.title }}
                 </h3>

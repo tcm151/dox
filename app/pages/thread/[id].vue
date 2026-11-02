@@ -188,41 +188,18 @@ function toggleOptions() {
             </section>
         </template>
         <section class="main box column px-4 pt-4">
-            <header class="row wrap g-1">
-                <Votes :target="thread" />
-                <div class="row wrap f-1 g-1">
-                    <UserTag class="f-1" :user="thread.user" />
-                    <Tag class="f-1" type="info" icon="fa-chart-simple" :label="thread.visits.toString()" />
-                    <Tag class="f-1" type="info" icon="fa-comment" :label="thread.replies.length.toString()" />
-                    <Tag class="f-1" type="info">
-                        <i class="fa-solid fa-stopwatch"></i>
-                        {{ formatDate(thread.time) }}
-                        <template v-if="thread.edited">
-                            <i class="fa-solid fa-eraser"></i>
-                            {{ formatDate(thread.timeEdited) }}
-                        </template>
-                    </Tag>
-                </div>
-                <TopicTag v-for="topic in thread.topics" :topic="topic" />
-                <ModerationState :moderation="thread.moderation" content-type="thread" />
-            </header>
+            <ContentHeader :content="thread" context="detail" />
             <template v-if="!editingThread">
                 <Markdown class="content" :content="thread.content" />
                 <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
                     <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
                 </aside>
                 <aside v-if="thread.quote" class="br-medium border-subtle mb-3 px-3 pt-3">
-                    <div class="row wrap g-1">
-                        <Votes :target="thread.quote" />
-                        <UserTag :user="thread.quote.user" />
-                        <Tag type="info" icon="fa-chart-simple" :label="thread.quote.visits" />
-                        <Tag type="info" icon="fa-comment" :label="thread.quote.replies.length.toString()" />
-                        <DurationTag :time="thread.quote.time" />
-                        <div v-if="thread.quote.topics.length > 0" class="row wrap g-1">
-                            <TopicTag v-for="topic in thread.quote.topics" :topic="topic" />
-                        </div>
-                        <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
-                    </div>
+                    <ContentHeader :content="thread.quote" context="preview">
+                        <template #actions>
+                            <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
+                        </template>
+                    </ContentHeader>
                     <Markdown class="content preview" :content="thread.quote.content" />
                 </aside>
             </template>

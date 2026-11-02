@@ -36,23 +36,20 @@ async function reportImage() {
 <template v-if="id">
     <article class="p-4">
         <section v-if="image" class="box p-4">
-            <header class="row wrap g-1 mb-2">
-                <Votes :target="image" />
-                <UserTag class="f-1" :user="image.user" />
-                <DurationTag :time="image.time" />
-                <Tag type="info" icon="fa-image" :label="image.type" />
-                <Tag type="warning" icon="fa-cube" :label="`${image.tokens} tokens`" />
-                <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
-                <ClientOnly>
-                    <Tag
-                        v-if="session.user.id == image.user.id || hasRole(session.user, 'admin')"
-                        type="danger"
-                        icon="fa-trash-can"
-                        label="Delete"
-                        @click="deleteImage"
-                    />
-                </ClientOnly>
-            </header>
+            <ContentHeader class="mb-2" :content="image" context="detail">
+                <template #actions>
+                    <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
+                    <ClientOnly>
+                        <Tag
+                            v-if="session.user.id == image.user.id || hasRole(session.user, 'admin')"
+                            type="danger"
+                            icon="fa-trash-can"
+                            label="Delete"
+                            @click="deleteImage"
+                        />
+                    </ClientOnly>
+                </template>
+            </ContentHeader>
             <Markdown v-if="image.description" class="content mb-3" :content="image.description" />
             <figure class="image">
                 <img class="br-small" :src="image.url">

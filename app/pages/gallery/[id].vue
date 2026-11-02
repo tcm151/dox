@@ -118,23 +118,7 @@ function copyLink() {
 <template>
     <article v-if="gallery" class="column inline g-2 p-2">
         <main class="gallery box column p-4">
-            <header class="header row wrap g-1">
-                <Votes :target="gallery" />
-                <div class="meta row fill wrap g-1 f-1">
-                    <Tag v-if="gallery.status === 'archived'" type="link" icon="fa-folder-closed" />
-                    <UserTag :user="gallery.user" />
-                    <Tag type="info" icon="fa-chart-simple" :label="gallery.visits" />
-                    <Tag type="info">
-                        <i class="fa-solid fa-stopwatch"></i>
-                        {{ formatDate(gallery.time) }}
-                    </Tag>
-                    <Tag type="info" icon="fa-image" :label="`${gallery.images.length} images`" />
-                </div>
-                <div v-if="gallery.topics.length > 0" class="row wrap f-2 g-1">
-                    <TopicTag v-for="topic in gallery.topics" :topic="topic" />
-                </div>
-                <ModerationState :moderation="gallery.moderation" content-type="discussion" />
-            </header>
+            <ContentHeader class="header" :content="gallery" context="detail" />
             <section class="mosaic grid mt-3" :class="{
                 single: gallery.images.length === 1,
                 pair: gallery.images.length === 2,
