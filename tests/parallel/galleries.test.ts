@@ -110,20 +110,16 @@ it("returns gallery details, increments visits, and denies deletion by a non-own
 })
 
 it("rejects gallery publishing without images", async () => {
-    const beforeResponse = await fetch("/api/gallery")
-    expectStatus(beforeResponse, 200)
-    const before = await beforeResponse.json() as Gallery[]
+    const description = `empty gallery ${Date.now()}`
 
     const response = await admin.fetchRaw("/api/gallery/publish", {
         method: "POST",
-        body: { images: [], description: "", topics: [] },
+        body: { images: [], description, topics: [] },
     })
     expectStatus(response, 400)
 
-    const afterResponse = await fetch("/api/gallery")
-    expectStatus(afterResponse, 200)
-    const after = await afterResponse.json() as Gallery[]
-    expect(after.map(gallery => gallery.id)).toEqual(before.map(gallery => gallery.id))
+    const galleries = await admin.fetch<Gallery[]>("/api/gallery")
+    expect(galleries.some(gallery => gallery.description === description)).toBe(false)
 })
 
 it("removes a gallery-only topic after its gallery is deleted", async () => {
