@@ -93,12 +93,26 @@ Install the project dependencies, then run the integration smoke tests:
 
 ```bash
 yarn install
-yarn test
+yarn --silent test
 ```
 
 The test command builds and starts one Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder.
 
-Add HTTP integration tests under `tests/` and import `fetch` from `tests/test-server.ts` to make requests against the shared server. The runner executes `health.test.ts` first, then `.test.ts` files in `tests/sequential/` one at a time in filename order, then tests in `tests/parallel/` if the earlier phases pass. Keep only setup or shared-state checks sequential, such as default-account login, example-user seeding, schema migration replay, and feed pagination; group independent tests by feature area in `tests/parallel/`. Sequential tests can store and retrieve named user sessions with `stashUser` and `grabUser`; each named user is stored separately under the temporary test-data folder and removed at teardown. Assert status and response data; clean up records created for a test unless later sequential checks intentionally depend on them. Parallel tests should use independent or unique test data and session keys.
+The compiled test server is cached under the ignored `.nuxt/test-runner/` directory using a fingerprint of application, server, shared, public, and build configuration inputs. Source or dependency changes invalidate the cache; each run still gets a fresh database and media directory.
+
+Add sequential setup tests under `tests/sequential/` and parallel tests under `tests/`. Name server-only Vitest tests `*.server.test.ts`, browser-only Playwright tests `*.browser.test.ts`, and full-stack UI-to-server Playwright flows `*.integration.test.ts`. An integration test is run once in a real browser against the isolated server; it is not duplicated across runners. Keep shared helpers in `tests/utils/`; `test-server.ts` provides API access and named sessions, while `browser-fixtures.ts` provides authenticated pages and the seeded example server. The runner completes all sequential setup before starting parallel tests, using one isolated app, database, and media directory. Named users and the example server are persisted under the temporary test-data folder for either runner to use. Keep shared setup sequential; parallel tests should use unique test data, assert against their own markers, and clean up records they create.
+
+Run the full suite with `yarn --silent test`. To run one parallel server test or browser spec, pass its filename; the runner starts the isolated app and runs only the required `*.setup.server.test.ts` fixtures before the selected file:
+
+```bash
+yarn --silent test tests/parallel/posts.server.test.ts
+yarn --silent test tests/parallel/feed.browser.test.ts
+yarn --silent test tests/parallel/registration.integration.test.ts
+```
+
+Each run reports total, app startup (with cache status), setup, server tests, browser phase, and cleanup. Browser files appear only in a slow-file summary when a file takes at least five seconds.
+
+Playwright uses Chromium, installed locally with `yarn playwright install chromium` and in CI by the workflow. It runs tests serially within each file, with up to two files in parallel. The `authenticatedPage` fixture reuses the isolated admin session seeded by setup; tests of login behavior should use an unauthenticated `page` and exercise the UI. The `exampleServer` fixture exposes named user sessions and representative feed content. Assert visible markup, navigation, and user interactions rather than implementation-only component details. The app and temporary data are cleaned up after the run.
 
 ## 6. Sync Database Schema
 
@@ -181,7 +195,7 @@ yarn install --frozen-lockfile
 yarn typecheck:golar
 yarn typecheck
 yarn build
-yarn test
+yarn --silent test
 ```
 
 Repository branch protection must require `CI / Validate` before merging; workflow files cannot enable that GitHub setting themselves.

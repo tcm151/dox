@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Notification, User } from "../../shared/types"
 

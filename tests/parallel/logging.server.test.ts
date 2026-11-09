@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabExampleServer, grabUser } from "../test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { redactLogData, redactLogText } from "../../server/utils/logRedaction"
 
 const admin = await grabUser("admin")

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, grabUser } from "../test-server"
+import { expectStatus, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Post, Topic } from "../../shared/types"
 

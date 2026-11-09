@@ -19,6 +19,7 @@
     "devDependencies": {
         "@golar/vue": "^0.1.11",
         "@nuxt/test-utils": "^4.3.4",
+        "@playwright/test": "^1.65.0",
         "@types/luxon": "^3.7.1",
         "@types/node": "^26.6.6",
         "@types/nodemailer": "^8.0.2",

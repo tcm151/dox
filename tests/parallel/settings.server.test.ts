@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { extractId } from "../../shared/utils/records"
 import type { AppSettings, UserSettings } from "../../shared/types"
-import { expectStatus, fetch, grabExampleServer, grabUser } from "../test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 const otherUser = (await grabExampleServer("default")).users.commentAuthor

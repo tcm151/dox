@@ -1,8 +1,8 @@
 import { expect, it, vi } from "vitest"
 import type { AppSettings } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
-import { stubDatabaseQuery } from "../test-database-query"
-import { expectStatus, grabUser } from "../test-server"
+import { stubDatabaseQuery } from "../utils/test-database-query"
+import { expectStatus, grabUser } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 const { EmailSpool } = await import("../../server/utils/EmailSpool")

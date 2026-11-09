@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch, grabUser, stashExampleServer, type TSession, type TExampleServer } from "../test-server"
+import { fetch, grabUser, stashExampleServer, type TSession, type TExampleServer } from "../utils/test-server"
 
 const exampleUserKeys = [
     "awardSender",
