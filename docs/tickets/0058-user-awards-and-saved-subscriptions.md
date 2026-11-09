@@ -26,7 +26,7 @@ Give user records the same award and save engagement fields as other voteable re
 - Following currently affects inclusion in the authenticated following feed; saved-user behavior must add a distinct effect.
 - Decision: saved users' content should receive a sorting/popularity boost. Defer the exact ranking rules and feed integration until the engagement fundamentals are complete.
 - Content award handlers transfer 256 tokens and create a notification. The notification schema accepts user contexts, and inbox context navigation opens the corresponding profile.
-- `votes.saves` is present in content schemas but does not currently have an API action or UI.
+- Content-level save actions are separate from saved-user subscriptions and are tracked in [Ticket 0080](0080-content-save-actions.md).
 
 ## Relevant Files
 - shared/types/index.ts
