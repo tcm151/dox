@@ -58,7 +58,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.
 
 ### B3. Moderator and User Experience Hardening
-- 🟥 Complete or hide unfinished moderation and messaging UI before production. (`M`)
+- 🟥 Complete or hide unfinished moderation and messaging UI, including supported thread archive controls. (`M`)
 - 🟥 Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`M`)
 - 🟥 Add empty/error/loading state consistency pass on moderation and report surfaces. (`M`)
 - 🟥 Add topic governance tools (rename/archive/lock, moderator assignment, rules/summary history, and featured/pinned topic content). (`L`)
@@ -73,6 +73,7 @@ Goal: improve async interactions and make the project easier to contribute to.
 ### C1. User Control and Account Safety
 - 🟥 Add revoke-all-sessions capability and session management UI for account safety. (`M`)
 - 🟥 Add block/mute controls for users, topics, and keywords with clear UX. (`L`)
+- 🟥 Add save/unsave actions for eligible content with clear saved-state feedback. (`M`)
 - 🟥 Add privacy controls with documented defaults. (`M`)
 - 🟥 Add configurable email and in-app notification preference controls in user settings. (`M`)
 
@@ -82,6 +83,7 @@ Goal: improve async interactions and make the project easier to contribute to.
 - 🟥 Add saved/custom feed presets and URL-synced filter state for search/discovery. (`L`)
 - 🟦 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling). (`M`)
 - 🟦 Resolve high-visibility TODOs affecting trust in feed/search/settings core paths. (`M`)
+- 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`S`)
 - 🟥 Add optional realtime notification delivery mode (SSE/WebSocket) after polling baseline is stable. (`L`)
 
 **Success metric**: core browse and notification workflows feel modern without requiring full realtime infrastructure.
@@ -93,6 +95,7 @@ Goal: improve async interactions and make the project easier to contribute to.
 - 🟥 Add side-by-side markdown preview with debounced rendering controls. (`M`)
 - 🟥 Add series/collection grouping for related posts and threads. (`L`)
 - 🟥 Add revision history for posts/threads with moderator review and revert capabilities. (`L`)
+- 🟥 Add rendered Markdown preview to inline post/thread editing. (`S`)
 - 🟩 Complete thread editor parity with post editor for supported publishing, preview, validation, and upload workflows. (`M`)
 - 🟥 Extract reusable dropdown/autocomplete form component for topics and future mention workflows. (`M`)
 
