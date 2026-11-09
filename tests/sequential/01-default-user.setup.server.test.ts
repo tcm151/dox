@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, stashUser, testAdminCredentials } from "../test-server"
+import { expectStatus, fetch, stashUser, testAdminCredentials } from "../utils/test-server"
 import type { User } from "../../shared/types"
 
 type LoginResponse = {

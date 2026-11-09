@@ -1,18 +1,28 @@
 import { existsSync } from "node:fs"
+import { createHash } from "node:crypto"
 import { spawn } from "node:child_process"
-import { mkdtemp, mkdir, readFile, readdir, rm } from "node:fs/promises"
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises"
 import { join, relative, sep } from "node:path"
-import { createTest } from "@nuxt/test-utils/e2e"
+import { performance } from "node:perf_hooks"
+import { buildFixture, createTest, loadFixture, setTestContext, startServer } from "@nuxt/test-utils/e2e"
+import { formatFailureDetails } from "./test-reporting.mjs"
 
 const projectRoot = process.cwd()
-const parallelTestArgument = process.argv[2]
+const testBuildDirectory = join(projectRoot, ".nuxt", "test-runner")
+const testBuildManifestPath = join(testBuildDirectory, "build-inputs.sha256")
+const slowFileThresholdMs = 5_000
+const timings = []
+const runStartedAt = performance.now()
+let buildWasCached = false
+const testArgument = process.argv[2]
 if (process.argv.length > 3) {
-    throw new Error("Usage: yarn test [tests/parallel/<file>.test.ts]")
+    throw new Error("Usage: yarn --silent test [tests/parallel/<file>.server.test.ts|<file>.browser.test.ts|<file>.integration.test.ts]")
 }
-const selectedParallelTest = parallelTestArgument ? getParallelTestPath(parallelTestArgument) : undefined
+const selectedParallelTest = testArgument ? getParallelTestPath(testArgument) : undefined
 const testFolder = await mkdtemp(join(projectRoot, ".test-output-"))
 const testRoot = relative(projectRoot, testFolder).split(sep).join("/")
 const vitestPath = join(projectRoot, "node_modules", "vitest", "vitest.mjs")
+const playwrightPath = join(projectRoot, "node_modules", "@playwright", "test", "cli.js")
 const testAdminName = "TestAdmin"
 const testAdminPassword = "integration-test-password"
 let testApp
@@ -24,13 +34,24 @@ try {
 
     await mkdir(join(testFolder, "database"), { recursive: true })
     await mkdir(join(testFolder, "media"), { recursive: true })
+    await mkdir(testBuildDirectory, { recursive: true })
+    const buildFingerprint = await getBuildFingerprint()
+    const cachedBuildFingerprint = await readFile(testBuildManifestPath, "utf8").catch(() => undefined)
+    const hasBuiltServer = existsSync(join(testBuildDirectory, "output", "server", "index.mjs"))
+    const shouldBuild = !hasBuiltServer || cachedBuildFingerprint !== buildFingerprint
+    buildWasCached = !shouldBuild
     process.env.CLASSICFORUM_TEST_DATA_DIRECTORY = testRoot
     process.env.CLASSICFORUM_TEST_ADMIN_NAME = testAdminName
     process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD = testAdminPassword
     testApp = createTest({
+        build: shouldBuild,
+        buildDir: testBuildDirectory,
         logLevel: 0,
         nuxtConfig: {
-            vite: { logLevel: "warn" },
+            vite: {
+                logLevel: "error",
+                build: { rolldownOptions: { checks: { bundlerTimings: false } } },
+            },
             nitro: {
                 logLevel: 0,
                 logging: { buildSuccess: false },
@@ -50,57 +71,23 @@ try {
         },
     })
 
-    await testApp.beforeAll()
-    const serverUrl = testApp.ctx.url
-    if (!serverUrl) throw new Error("The test server did not provide a URL.")
+    await runTimed("app startup", async () => {
+        setTestContext(testApp.ctx)
+        await loadFixture()
+        if (shouldBuild) await buildFixture()
+        await startServer(testApp.ctx.options.env)
+        const serverUrl = testApp.ctx.url
+        if (!serverUrl) throw new Error("The test server did not provide a URL.")
 
-    process.env.CLASSICFORUM_TEST_SERVER_URL = serverUrl
-    await waitForAppReady(serverUrl, testApp.ctx.serverLogs)
+        process.env.CLASSICFORUM_TEST_SERVER_URL = serverUrl
+        await waitForAppReady(serverUrl, testApp.ctx.serverLogs)
+    })
+    if (shouldBuild) await writeFile(testBuildManifestPath, buildFingerprint, "utf8")
 
-    const phases = [
-        ...["tests/health.test.ts", ...await getSequentialTestFiles()].map(testPath => ({ testPath, sequential: true })),
-    ]
-    if (existsSync(join(projectRoot, "tests", "parallel"))) {
-        phases.push({ testPath: selectedParallelTest ?? "tests/parallel", sequential: false })
-    }
-
-    let failedPhase
-    let failedExitCode
-    let failedOutput = ""
-    let failedReport
-    const testSummaries = []
-    for (const [index, phase] of phases.entries()) {
-        const summaryPath = join(testFolder, `phase-${index}-summary.json`)
-        const result = await runVitest(phase.testPath, phase.sequential, summaryPath)
-        if (result.summary) testSummaries.push(result.summary)
-        if (result.exitCode !== 0) {
-            process.exitCode = result.exitCode
-            failedPhase = phase.testPath
-            failedExitCode = result.exitCode
-            failedOutput = `${result.stdout}${result.stderr}`
-            failedReport = result.report
-            break
-        }
-    }
-
-    const failureDetails = formatFailureDetails(failedReport)
-    if (failureDetails) {
-        process.stderr.write(`\n${failureDetails}\n`)
-    }
-    else if (failedOutput) {
-        process.stderr.write(`\n--- Failure output: ${failedPhase} ---\n`)
-        process.stderr.write(failedOutput)
-        if (!failedOutput.endsWith("\n")) process.stderr.write("\n")
-    }
-
-    const passedTests = testSummaries.reduce((total, summary) => total + summary.passedTests, 0)
-    const totalTests = testSummaries.reduce((total, summary) => total + summary.totalTests, 0)
-    const outcome = failedPhase
-        ? `${passedTests}/${totalTests} tests passed; failed at ${failedPhase} (exit ${failedExitCode})`
-        : `${passedTests}/${totalTests} tests passed`
-    console.log(`\n[tests] ${outcome}`)
+    process.exitCode = await runTestSuite(testFolder)
 }
 finally {
+    const cleanupStartedAt = performance.now()
     if (testApp) await testApp.afterAll()
 
     if (!testFolder.startsWith(`${projectRoot}${sep}.test-output-`)) {
@@ -108,6 +95,8 @@ finally {
     }
 
     await rm(testFolder, { recursive: true, force: true })
+    recordTiming("cleanup", cleanupStartedAt)
+    printTimingSummary()
 }
 
 async function waitForAppReady(serverUrl, serverLogs) {
@@ -134,7 +123,198 @@ async function waitForAppReady(serverUrl, serverLogs) {
     )
 }
 
+async function getBuildFingerprint() {
+    const buildInputs = [
+        "app",
+        "server",
+        "shared",
+        "public",
+        "nuxt.config.ts",
+        "package.json",
+        "yarn.lock",
+        "tsconfig.json",
+        "golar.config.ts",
+        "scripts/test-server.mjs",
+        ".env",
+    ]
+    const files = []
+    for (const input of buildInputs) {
+        files.push(...await collectBuildFiles(join(projectRoot, input)))
+    }
+    files.sort((left, right) => left.localeCompare(right))
+
+    const hash = createHash("sha256")
+    for (const file of files) {
+        hash.update(relative(projectRoot, file).split(sep).join("/"))
+        hash.update(await readFile(file))
+    }
+    return hash.digest("hex")
+}
+
+async function collectBuildFiles(path) {
+    let entries
+    try {
+        entries = await readdir(path, { withFileTypes: true })
+    }
+    catch {
+        return existsSync(path) ? [path] : []
+    }
+
+    const files = []
+    for (const entry of entries) {
+        const entryPath = join(path, entry.name)
+        if (entry.isDirectory()) files.push(...await collectBuildFiles(entryPath))
+        else if (entry.isFile()) files.push(entryPath)
+    }
+    return files
+}
+
+function runBrowserTests(testPath, summaryPath) {
+    return new Promise((resolve, reject) => {
+        const testProcess = spawn(process.execPath, [playwrightPath, "test", ...(testPath ? [testPath] : [])], {
+            cwd: projectRoot,
+            env: {
+                ...process.env,
+                CLASSICFORUM_TEST_REPORT_PATH: summaryPath,
+            },
+            stdio: "inherit",
+        })
+
+        testProcess.once("error", reject)
+        testProcess.once("exit", async (code) => {
+            resolve({
+                exitCode: code ?? 1,
+                summary: await readPlaywrightSummary(summaryPath),
+            })
+        })
+    })
+}
+
+async function runTestSuite(testFolder) {
+    let phaseIndex = 0
+    const testSummaries = []
+    const sequentialSuffixes = selectedParallelTest ? [".setup.server.test.ts"] : [".server.test.ts"]
+    const sequentialTestPaths = await getTestFiles("sequential", sequentialSuffixes)
+
+    const setupResult = await runTimed(selectedParallelTest ? "required fixtures" : "sequential tests", async () => {
+        for (const testPath of sequentialTestPaths) {
+            const summaryPath = join(testFolder, `phase-${phaseIndex++}-summary.json`)
+            const result = await runVitest(testPath, true, summaryPath)
+            if (result.summary) testSummaries.push(result.summary)
+            if (result.exitCode !== 0) {
+                const phaseName = selectedParallelTest ? "required setup" : "sequential tests"
+                return reportVitestFailure(result, testPath, phaseName)
+            }
+        }
+        return 0
+    })
+    if (setupResult !== 0) return setupResult
+
+    const isBrowserTest = selectedParallelTest?.endsWith(".browser.test.ts") || selectedParallelTest?.endsWith(".integration.test.ts")
+    if (isBrowserTest) {
+        const summaryPath = join(testFolder, `phase-${phaseIndex++}-browser-summary.json`)
+        const result = await runTimed(`browser test ${selectedParallelTest}`, () => runBrowserTests(selectedParallelTest, summaryPath))
+        recordBrowserFileTimings(result.summary)
+        if (result.summary) testSummaries.push(result.summary)
+        if (result.exitCode !== 0) return result.exitCode
+    }
+    else {
+        const serverParallelPaths = selectedParallelTest
+            ? [selectedParallelTest]
+            : await getTestFiles("parallel", [".server.test.ts"])
+        if (serverParallelPaths.length > 0) {
+            const summaryPath = join(testFolder, `phase-${phaseIndex++}-summary.json`)
+            const result = await runTimed("parallel server tests", () => runVitest(serverParallelPaths, false, summaryPath))
+            if (result.summary) testSummaries.push(result.summary)
+            if (result.exitCode !== 0) return reportVitestFailure(result, serverParallelPaths.join(", "), "parallel server tests")
+        }
+        if (!selectedParallelTest) {
+            const summaryPath = join(testFolder, `phase-${phaseIndex++}-browser-summary.json`)
+            const result = await runTimed("browser suite", () => runBrowserTests(undefined, summaryPath))
+            recordBrowserFileTimings(result.summary)
+            if (result.summary) testSummaries.push(result.summary)
+            if (result.exitCode !== 0) return result.exitCode
+        }
+    }
+
+    const passedTests = testSummaries.reduce((total, summary) => total + summary.passedTests, 0)
+    const totalTests = testSummaries.reduce((total, summary) => total + summary.totalTests, 0)
+    console.log(`\n[tests] ${passedTests}/${totalTests} tests passed`)
+    return 0
+}
+
+async function runTimed(label, operation) {
+    const startedAt = performance.now()
+    try {
+        return await operation()
+    }
+    finally {
+        recordTiming(label, startedAt)
+    }
+}
+
+function recordTiming(label, startedAt) {
+    recordDuration(label, performance.now() - startedAt)
+}
+
+function recordDuration(label, durationMs) {
+    timings.push({ label, durationMs })
+}
+
+function recordBrowserFileTimings(summary) {
+    if (!summary) return
+    for (const { file, durationMs } of summary.files) {
+        recordDuration(`browser file ${file} test time`, durationMs)
+    }
+}
+
+function printTimingSummary() {
+    const durationFor = predicate => timings
+        .filter(({ label }) => predicate(label))
+        .reduce((total, { durationMs }) => total + durationMs, 0)
+    const appStartupDuration = durationFor(label => label === "app startup")
+    const setupDuration = durationFor(label => label === "required fixtures" || label === "sequential tests")
+    const serverTestDuration = durationFor(label => label === "parallel server tests")
+    const browserDuration = durationFor(label => label === "browser suite" || label.startsWith("browser test "))
+    const cleanupDuration = durationFor(label => label === "cleanup")
+    const summary = [
+        `total ${formatDuration(performance.now() - runStartedAt)}`,
+        `startup ${formatDuration(appStartupDuration)}${buildWasCached ? " (cached)" : ""}`,
+        `${selectedParallelTest ? "fixtures" : "sequential"} ${formatDuration(setupDuration)}`,
+    ]
+    if (serverTestDuration > 0) summary.push(`server tests ${formatDuration(serverTestDuration)}`)
+    if (browserDuration > 0) summary.push(`browser ${formatDuration(browserDuration)}`)
+    summary.push(`cleanup ${formatDuration(cleanupDuration)}`)
+    console.log(`\n[test timing] ${summary.join(" | ")}`)
+
+    const slowFiles = timings
+        .filter(({ label, durationMs }) => label.startsWith("browser file ") && durationMs >= slowFileThresholdMs)
+        .sort((left, right) => right.durationMs - left.durationMs)
+        .slice(0, 5)
+    if (slowFiles.length > 0) {
+        const details = slowFiles.map(({ label, durationMs }) => `${label.replaceAll("\\", "/")}: ${formatDuration(durationMs)}`)
+        console.log(`[slow files >= ${formatDuration(slowFileThresholdMs)}] ${details.join(" | ")}`)
+    }
+}
+
+function formatDuration(durationMs) {
+    return `${(durationMs / 1000).toFixed(1)}s`
+}
+
+function reportVitestFailure(result, testPath, phaseName) {
+    const failureDetails = formatFailureDetails(result.report)
+    if (failureDetails) {
+        process.stderr.write(`\n${failureDetails}\n`)
+    }
+    else if (result.stdout || result.stderr) {
+        process.stderr.write(`\n--- Failure output: ${phaseName} (${testPath}) ---\n`)
+        process.stderr.write(`${result.stdout}${result.stderr}`)
+    }
+    return result.exitCode
+}
+
 function runVitest(testPath, sequential, summaryPath) {
+    const testPaths = Array.isArray(testPath) ? testPath : [testPath]
     const args = [
         vitestPath,
         "run",
@@ -142,7 +322,7 @@ function runVitest(testPath, sequential, summaryPath) {
         "--outputFile",
         summaryPath,
         ...(sequential ? ["--no-file-parallelism"] : []),
-        testPath,
+        ...testPaths,
     ]
     return new Promise((resolve, reject) => {
         const testProcess = spawn(process.execPath, args, {
@@ -182,67 +362,70 @@ async function readVitestReport(filePath) {
     }
 }
 
-function formatFailureDetails(report) {
-    const failedFiles = report?.testResults?.filter(result => result.status === "failed") ?? []
-    if (failedFiles.length === 0) return ""
-
-    const lines = ["--- Failed tests ---"]
-    for (const file of failedFiles) {
-        const filePath = relative(projectRoot, file.name).replaceAll("\\", "/")
-        lines.push(`\n${filePath}`)
-        const failedAssertions = file.assertionResults?.filter(result => result.status === "failed") ?? []
-        if (failedAssertions.length === 0) {
-            lines.push(...(file.message || "Test file failed before an assertion completed.").split(/\r?\n/).map(line => `  ${line}`))
-            continue
-        }
-
-        for (const assertion of failedAssertions) {
-            lines.push(`  FAIL ${assertion.fullName || assertion.title}`)
-            for (const message of assertion.failureMessages ?? []) {
-                const messageLines = message.split(/\r?\n/)
-                const firstFrame = messageLines.findIndex(line => /^\s+at /.test(line))
-                const details = firstFrame < 0 ? messageLines : messageLines.slice(0, firstFrame)
-                lines.push(...details.slice(0, 10).map(line => `    ${line}`))
-
-                if (assertion.location) {
-                    lines.push(`    at ${filePath}:${assertion.location.line}:${assertion.location.column}`)
-                }
-                else {
-                    const sourceFrame = messageLines.find(line => line.replaceAll("\\", "/").includes(filePath))
-                    if (sourceFrame) {
-                        const normalizedFrame = sourceFrame.trim().replaceAll("\\", "/")
-                        const pathIndex = normalizedFrame.indexOf(filePath)
-                        lines.push(`    at ${normalizedFrame.slice(pathIndex)}`)
-                    }
-                }
-            }
+async function readPlaywrightSummary(filePath) {
+    try {
+        const report = JSON.parse(await readFile(filePath, "utf8"))
+        const stats = report.stats
+        const passedTests = stats.expected + stats.flaky
+        const totalTests = passedTests + stats.unexpected + stats.skipped
+        const files = new Map()
+        collectBrowserFileTimings(report.suites, files)
+        return {
+            passedTests,
+            totalTests,
+            files: [...files].map(([file, durationMs]) => ({ file, durationMs })),
         }
     }
-
-    return lines.join("\n")
+    catch {
+        return undefined
+    }
 }
 
-async function getSequentialTestFiles() {
-    const directory = join(projectRoot, "tests", "sequential")
+function collectBrowserFileTimings(suites, files, parentFile) {
+    for (const suite of suites) {
+        const suiteFile = suite.file || parentFile
+        for (const spec of suite.specs ?? []) {
+            const file = spec.file || suiteFile
+            if (!file) continue
+            const durationMs = spec.tests.reduce(
+                (total, test) => total + test.results.reduce((testTotal, result) => testTotal + result.duration, 0),
+                0,
+            )
+            const normalizedPath = file.replaceAll("\\", "/")
+            const displayPath = normalizedPath.includes("/")
+                ? normalizedPath.slice(normalizedPath.lastIndexOf("/tests/") + 1)
+                : `tests/parallel/${normalizedPath}`
+            files.set(displayPath, (files.get(displayPath) ?? 0) + durationMs)
+        }
+        collectBrowserFileTimings(suite.suites ?? [], files, suiteFile)
+    }
+}
+
+async function getTestFiles(phase, suffixes) {
+    const directory = join(projectRoot, "tests", phase)
     if (!existsSync(directory)) return []
 
     const entries = await readdir(directory, { withFileTypes: true })
     return entries
-        .filter(entry => entry.isFile() && entry.name.endsWith(".test.ts"))
+        .filter(entry => entry.isFile() && suffixes.some(suffix => entry.name.endsWith(suffix)))
         .map(entry => entry.name)
         .sort((left, right) => left.localeCompare(right))
-        .map(fileName => join("tests", "sequential", fileName))
+        .map(fileName => join("tests", phase, fileName))
 }
 
 function getParallelTestPath(argument) {
     const normalized = argument.replaceAll("\\", "/").replace(/^\.\//, "")
     const prefix = "tests/parallel/"
     const fileName = normalized.startsWith(prefix) ? normalized.slice(prefix.length) : normalized
-    const testPath = join("tests", "parallel", fileName)
+    const testPath = `${prefix}${fileName}`
+    const supportedExtension = fileName.endsWith(".server.test.ts")
+        || fileName.endsWith(".browser.test.ts")
+        || fileName.endsWith(".integration.test.ts")
 
-    if (fileName.includes("/") || !fileName.endsWith(".test.ts") || !existsSync(join(projectRoot, testPath))) {
-        throw new Error(`Unknown parallel test file: ${argument}\nUsage: yarn test [tests/parallel/<file>.test.ts]`)
+    if (fileName.includes("/") || !supportedExtension || !existsSync(join(projectRoot, testPath))) {
+        throw new Error(`Unknown parallel test file: ${argument}\nUsage: yarn --silent test [tests/parallel/<file>.server.test.ts|<file>.browser.test.ts|<file>.integration.test.ts]`)
     }
 
     return testPath
 }
+

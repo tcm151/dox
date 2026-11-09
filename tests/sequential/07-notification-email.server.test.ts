@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import type { Account, Thread, UserSettings } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
-import { expectStatus, grabExampleServer, grabUser } from "../test-server"
+import { expectStatus, grabExampleServer, grabUser } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")

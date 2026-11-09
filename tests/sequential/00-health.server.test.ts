@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
-import { fetch } from "./test-server"
-import { formatFailureReason } from "../server/utils/health"
+import { fetch } from "../utils/test-server"
+import { formatFailureReason } from "../../server/utils/health"
 
 type HealthReport = {
     app: string

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabUser, testAdminCredentials } from "../test-server"
+import { expectStatus, fetch, grabUser, testAdminCredentials } from "../utils/test-server"
 import type { User } from "../../shared/types"
 
 it("reuses the admin session saved during sequential setup", async () => {

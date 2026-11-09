@@ -4,17 +4,11 @@ import { inspect } from "node:util"
 import { expect } from "vitest"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { dirname, join } from "node:path"
-import type { User } from "../shared/types"
-import { isObject, isValidUser } from "../shared/utils/validation"
+import type { User } from "../../shared/types"
+import { isObject, isValidUser } from "../../shared/utils/validation"
+import type { TExampleServer, TSession } from "./test-sessions"
 
-export type TSession = {
-    user: User
-    accessToken: string
-}
-
-export type TExampleServer = {
-    users: Record<string, TSession>
-}
+export type { TExampleServer, TSession }
 
 const testDataDirectory = process.env.CLASSICFORUM_TEST_DATA_DIRECTORY
 const testServerUrl = process.env.CLASSICFORUM_TEST_SERVER_URL
@@ -22,7 +16,7 @@ const adminName = process.env.CLASSICFORUM_TEST_ADMIN_NAME
 const adminPassword = process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD
 
 if (!testDataDirectory?.startsWith(".test-output-") || testDataDirectory.includes("..") || !testServerUrl || !adminName || !adminPassword) {
-    throw new Error("Run integration tests with `yarn test` to start the isolated test app.")
+    throw new Error("Run integration tests with `yarn --silent test` to start the isolated test app.")
 }
 
 await setup({

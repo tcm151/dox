@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fetch, grabUser } from "../test-server"
+import { fetch, grabUser } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 

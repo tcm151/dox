@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabUser } from "../test-server"
+import { expectStatus, fetch, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { FeedPage, Gallery, Post, Sortable, Thread, Topic } from "../../shared/types"
 

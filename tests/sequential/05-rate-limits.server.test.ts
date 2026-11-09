@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch } from "../test-server"
+import { expectStatus, fetch } from "../utils/test-server"
 
 it("rate limits referral claims outside the authentication routes", async () => {
     for (let attempt = 0; attempt < 5; attempt++) {

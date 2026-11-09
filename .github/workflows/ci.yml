@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install Playwright browser
+        run: yarn playwright install --with-deps chromium
+
       - name: Golar app and shared typecheck
         run: yarn typecheck:golar
 
@@ -39,5 +42,5 @@ jobs:
       - name: Production build
         run: yarn build
 
-      - name: Integration and health checks
-        run: yarn test
+      - name: Server and browser integration tests
+        run: yarn --silent test
