@@ -9,6 +9,11 @@ export const useSettings = defineStore("app.settings", () => {
         email: {
             support: "",
             additional: "",
+            spool: {
+                dailyLimit: 100,
+                batchLimit: 10,
+                maxRetries: 3,
+            },
         },
         moderation: {
             perTopic: 3,
