@@ -77,9 +77,16 @@ async function invalidateSessions() {
                 <Toggle v-model:enabled="userSettings.preferences.ui.hoverAnimations" />
             </div>
             <div class="field row center py-2">
-                <label class="f-1">enable notifications</label>
+                <label class="f-1">in app notifications</label>
                 <Toggle
                     v-model:enabled="userSettings.preferences.notifications.inApp"
+                    :disabled="userSettings.loading || !userSettings.loaded || userSettings.saving"
+                />
+            </div>
+            <div class="field row center py-2">
+                <label class="f-1">email notifications</label>
+                <Toggle
+                    v-model:enabled="userSettings.preferences.notifications.email"
                     :disabled="userSettings.loading || !userSettings.loaded || userSettings.saving"
                 />
             </div>

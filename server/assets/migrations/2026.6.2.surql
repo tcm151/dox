@@ -293,6 +293,33 @@ UPDATE appSettings:default SET
     moderation.slowModes = [30, 60, 300, 900]
 WHERE moderation.slowModes = NONE;
 
+DEFINE FIELD OVERWRITE notifications ON userSettings
+    TYPE object DEFAULT ALWAYS { inApp: true, email: false };
+DEFINE FIELD OVERWRITE notifications.email ON userSettings
+    TYPE bool DEFAULT ALWAYS false;
+UPDATE userSettings SET notifications.email = false
+WHERE notifications.email = NONE;
+
+DEFINE TABLE OVERWRITE scheduledEmail SCHEMAFULL;
+DEFINE FIELD OVERWRITE status ON scheduledEmail
+    TYPE string;
+DEFINE FIELD OVERWRITE time ON scheduledEmail
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE attempts ON scheduledEmail
+    TYPE number DEFAULT ALWAYS 0;
+DEFINE FIELD OVERWRITE recipient ON scheduledEmail
+    TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE subject ON scheduledEmail
+    TYPE string;
+DEFINE FIELD OVERWRITE text ON scheduledEmail
+    TYPE option<string>;
+DEFINE FIELD OVERWRITE html ON scheduledEmail
+    TYPE option<string>;
+
+UPDATE appSettings:default SET
+    email.spool = { dailyLimit: 100, batchLimit: 10, maxRetries: 3 }
+WHERE email.spool = NONE;
+
 DEFINE FIELD OVERWRITE moderation ON topic
     TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
 DEFINE FIELD OVERWRITE moderation.maxPostInterval ON topic

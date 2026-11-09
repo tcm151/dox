@@ -17,6 +17,7 @@ export class UserSettingsManager {
         new Validator("UserSettings")
             .object(settings.notifications, "Notification preferences", v => {
                 v.boolean(settings.notifications.inApp, "In-app notifications")
+                v.boolean(settings.notifications.email, "Email notifications")
             })
             .object(settings.ui, "UI preferences", v => {
                 v.boolean(settings.ui.hoverAnimations, "Hover animations")
