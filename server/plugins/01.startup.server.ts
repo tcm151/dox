@@ -1,5 +1,7 @@
 import { scheduledTaskManager } from "@@/server/utils/ScheduledTaskManager"
 import { ReportManager } from "@@/server/utils/ReportManager"
+import { EmailSpool } from "@@/server/utils/EmailSpool"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 export default defineNitroPlugin(async () => {
     const health = useHealth()
@@ -10,9 +12,12 @@ export default defineNitroPlugin(async () => {
 
         await runMigrations()
         await setupDefaultAccount(config.surreal.admin)
+
+        const emailSpool = new EmailSpool(SettingsManager)
         await scheduledTaskManager.start(manager => {
             manager.add(emptyTrash, 600_000)
             manager.add(ReportManager.clean, 600_000)
+            manager.add(() => emailSpool.spool(), 600_000)
         })
 
         health.setStatus("ready")

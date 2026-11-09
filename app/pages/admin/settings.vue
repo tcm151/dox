@@ -29,7 +29,7 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
-const tabs = ['about', 'contact', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
+const tabs = ['about', 'contact', 'email', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
 
 const topicInput = useTemplateRef("topic")
 function addTopic() {
@@ -138,6 +138,42 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         <textarea rows="2" v-model="settings.email.additional"></textarea>
                         <span class="tip">Multiple emails can be included, separated by ;</span>
                     </div>
+                </div>
+                <div v-if="section == 'email'">
+                    <div class="field row">
+                        <label class="f-1">daily email limit</label>
+                        <input
+                            class="py-1 px-2"
+                            type="number"
+                            min="1"
+                            max="100000"
+                            step="1"
+                            v-model.number="settings.email.spool.dailyLimit"
+                        >
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">batch limit</label>
+                        <input
+                            class="py-1 px-2"
+                            type="number"
+                            min="1"
+                            max="1000"
+                            step="1"
+                            v-model.number="settings.email.spool.batchLimit"
+                        >
+                    </div>
+                    <div class="field row">
+                        <label class="f-1">maximum retries</label>
+                        <input
+                            class="py-1 px-2"
+                            type="number"
+                            min="0"
+                            max="10"
+                            step="1"
+                            v-model.number="settings.email.spool.maxRetries"
+                        >
+                    </div>
+                    <p class="tip">Retry count is in addition to the initial delivery attempt.</p>
                 </div>
                 <div v-if="section == 'moderation'">
                     <div class="field row">

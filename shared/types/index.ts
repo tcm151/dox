@@ -200,6 +200,7 @@ export interface UserSettings extends Record {
     }
     notifications: {
         inApp: boolean
+        email: boolean
     }
 }
 
@@ -310,6 +311,11 @@ export interface AppSettings extends Record {
     email: {
         support: string
         additional: string
+        spool: {
+            dailyLimit: number
+            batchLimit: number
+            maxRetries: number
+        }
     }
     moderation: {
         perTopic: number

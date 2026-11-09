@@ -5,7 +5,7 @@ function defaultSettings(): UserSettings {
         id: "userSettings:default",
         user: "user:temp" as UserSettings["user"],
         ui: { hoverAnimations: true, hintDuration: 2500 },
-        notifications: { inApp: true },
+        notifications: { inApp: true, email: false },
     }
 }
 

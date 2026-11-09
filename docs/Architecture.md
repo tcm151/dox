@@ -220,10 +220,13 @@ Key env groups:
 - Surreal connection: `NUXT_SURREAL_INFO_TYPE`, `NUXT_SURREAL_INFO_URL`, namespace/database, credentials
 - Required first default account: `NUXT_SURREAL_ADMIN_*` (may be blank after an account exists)
 - SMTP: optional `NUXT_SMTP_*` email delivery settings
+- Email spool limits: `appSettings.email.spool` stores the daily limit (default 100), batch limit (10), and retry count (3 retries after the initial attempt). One worker runs every 10 minutes; multi-worker claiming is deferred. SMTP credentials remain in `NUXT_SMTP_*` environment settings.
 
 The production installer loads canonical `NUXT_*` values from the shared `.env` and uses the same launch path for systemd and foreground runs. Nuxt reads runtime values on each process start, so changing deployment settings and restarting does not require rebuilding the release. This setup targets fresh deployments; migration of prior environment files is out of scope.
 
 `AppSettings` runtime configuration is persisted in DB and exposed through settings APIs and admin settings UI.
+
+Community notifications flow through `NotificationManager`: in-app creation follows `userSettings.notifications.inApp`, while email queueing independently follows `userSettings.notifications.email`. Email notifications default to off for new and migrated users. Confirmation and password-reset emails remain transactional and are unaffected by this preference; opted-in notification emails are queued for the single-worker spool.
 
 ## 9. Error Handling and Observability
 
