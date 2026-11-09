@@ -487,9 +487,11 @@ DEFINE FIELD ui.hoverAnimations ON userSettings
 DEFINE FIELD ui.hintDuration ON userSettings
     TYPE number DEFAULT ALWAYS 2500;
 DEFINE FIELD notifications ON userSettings
-    TYPE object DEFAULT ALWAYS { inApp: true };
+    TYPE object DEFAULT ALWAYS { inApp: true, email: false };
 DEFINE FIELD notifications.inApp ON userSettings
     TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD notifications.email ON userSettings
+    TYPE bool DEFAULT ALWAYS false;
 
 
 -- ------------------------------
@@ -729,6 +731,26 @@ DEFINE EVENT moderatorLogRequestDenial ON moderationRequest
 
 
 -- ------------------------------
+-- TABLE: scheduledEmail
+-- ------------------------------
+DEFINE TABLE scheduledEmail SCHEMAFULL;
+DEFINE FIELD status ON scheduledEmail
+    TYPE string;
+DEFINE FIELD time ON scheduledEmail
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD attempts ON scheduledEmail
+    TYPE number DEFAULT ALWAYS 0;
+DEFINE FIELD recipient ON scheduledEmail
+    TYPE string ASSERT string::is_email($value);
+DEFINE FIELD subject ON scheduledEmail
+    TYPE string;
+DEFINE FIELD text ON scheduledEmail
+    TYPE option<string>;
+DEFINE FIELD html ON scheduledEmail
+    TYPE option<string>;
+
+
+-- ------------------------------
 -- TABLE: developerQuery
 -- ------------------------------
 DEFINE TABLE developerQuery SCHEMAFULL;
@@ -805,6 +827,11 @@ IF !record::exists(appSettings:default) {
         email: {
             support: "",
             additional: "",
+            spool: {
+                dailyLimit: 100,
+                batchLimit: 10,
+                maxRetries: 3,
+            }
         },
         moderation: {
             perTopic: 3,

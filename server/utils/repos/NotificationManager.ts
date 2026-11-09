@@ -6,23 +6,58 @@ export interface NotificationOptions {
 
 export class NotificationManager {
     static async send({ recipient, context, message }: NotificationOptions): Promise<void> {
+        let html = await useStorage("assets:server").getItem("templates/notification.html") as string
+        html = html.replace("{{notification.message}}", this.escapeHtml(message))
+
         await new DatabaseQuery()
             .addSql(`
-                LET $settings = SELECT VALUE notifications.inApp
-                FROM userSettings
-                WHERE user = $recipient
-                LIMIT 1;
+                LET $settings = (
+                    SELECT VALUE notifications
+                    FROM ONLY userSettings
+                    WHERE user = $recipient
+                    LIMIT 1
+                );
 
-                IF array::len($settings) = 0 OR $settings[0] = true {
+                IF $settings.inApp {
                     CREATE notification SET
                         recipient = $recipient,
                         context = $context,
                         message = $message;
                 };
+
+                IF $settings.email {
+                    LET $email = (
+                        SELECT VALUE email
+                        FROM ONLY account
+                        WHERE user = $recipient
+                        LIMIT 1
+                    );
+                    CREATE scheduledEmail SET
+                        status = "pending",
+                        recipient = $email,
+                        subject = "Notification",
+                        text = $message,
+                        html = $html;
+                };
             `)
+            .addTransaction()
             .addRecord("recipient", recipient)
             .addRecord("context", context)
             .addParameter("message", message)
+            .addParameter("html", html)
             .execute()
+    }
+
+    private static escapeHtml(value: string): string {
+        return value.replace(/[&<>"']/g, character => {
+            switch (character) {
+                case "&": return "&amp;"
+                case "<": return "&lt;"
+                case ">": return "&gt;"
+                case "\"": return "&quot;"
+                case "'": return "&#39;"
+                default: return character
+            }
+        })
     }
 }
