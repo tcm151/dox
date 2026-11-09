@@ -1,4 +1,4 @@
-import type { Report, Topic } from "@@/shared/types"
+import type { Report, Topic } from "#shared/types"
 
 type TopicScope = Pick<Topic, "id">
 type ResolutionAction = "resolve" | "remove" | "remove-topic"

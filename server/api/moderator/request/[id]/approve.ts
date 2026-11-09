@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
             IF $request.approvals CONTAINS $user {
                 fn::http(409, "You have already approved this request.");
             };
-            IF $request.user = $user {
+            IF $request.user = $user AND $user.roles CONTAINSNOT "admin" {
                 fn::http(403, "You cannot approve your own request.");
             };
 
