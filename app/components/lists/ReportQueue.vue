@@ -38,8 +38,12 @@ const reportViews = computed(() => props.reports.map(report => ({
 })))
 
 const topicFilteredReports = computed(() => {
-    if ((props.topics?.length ?? 0) <= 1 || !selectedTopic.value) return reportViews.value
-    return reportViews.value.filter(report => report.moderation.topics.includes(selectedTopic.value))
+    const reports = (props.topics?.length ?? 0) > 1 && selectedTopic.value
+        ? reportViews.value.filter(report => report.moderation.topics.includes(selectedTopic.value))
+        : reportViews.value
+
+    if (props.topics?.length !== 1) return reports
+    return [...reports].sort((left, right) => Number(right.priority ?? false) - Number(left.priority ?? false))
 })
 
 const filteredReports = computed(() => {

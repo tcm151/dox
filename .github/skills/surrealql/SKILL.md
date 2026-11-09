@@ -33,8 +33,10 @@ Use the application's existing database wrapper and verify syntax against the de
 - `FROM ONLY $recordId` is the established pattern for fetching a specific record as a single object. `FROM ONLY table` with a predicate and `LIMIT 1` is used when a single matching row is expected. Keep the limit or an appropriate uniqueness constraint so the query has a single-result contract.
 - Do not unwrap a single-result SurrealQL subquery with `[0]` or `[0] ?? NONE`; use `FROM ONLY` to express its scalar result contract.
 - `NONE` represents an absent value. Use explicit `= NONE` checks for optional values and `??` when supplying a meaningful fallback such as `[]` or a default audit value. The embedded client's JSON output may display `NONE` as `null` or omit an object property.
-- Use record-aware helpers such as `record::exists()` and `record::tb()` for existence and table checks. Keep record references typed in schema definitions.
+- Use record-aware helpers such as `record::exists()` and `record::tb()` for existence and table checks. `record::exists()` expects a record ID; use it for a bound record reference, but compare a `LET` value returned by `SELECT ... FROM ONLY` with `NONE` because that result may be absent.
 - Use array operators and functions (`IN`, `CONTAINS`, `.len()`, `array::union`, `array::last`) in SurrealQL rather than converting records to application strings for query logic.
+- For authorization across candidate topic IDs, use one set-based query to select authorized IDs and reject when `$authorizedTopics.len() = 0`. Avoid scanning candidates with a `.some()` closure that checks membership in a query result; with record-derived topic data this can exceed computation depth in the installed runtime.
+- In moderation queries, bind the combined target record and user record as `$target` and `$user`. Keep the route's broad `requireRole` guard, and perform state-dependent topic authorization and any admin bypass check against `$user.roles` in SQL.
 - Use `fn::http(status, message)` for expected HTTP failures raised within a query; `DatabaseQuery` maps these application errors to HTTP errors.
 
 ## Schema and Migrations

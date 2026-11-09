@@ -253,11 +253,13 @@ For every new write endpoint, review rate limits, replay protection, authorizati
 ### Recommended Anti-Spam Defaults
 
 For a small community, use these as site-wide starting recommendations, not as a description of all current enforcement:
-- Posting: allow at most one new post or thread per account per minute; edits do not count. This limits bursts while leaving normal discussion usable.
+- Posting: allow at most one new post, thread, or gallery per account per topic per minute; edits do not count. This limits bursts while leaving normal discussion usable.
 - Media: use a 10 MB image limit and a 100 MB audio limit when audio is enabled. Keep video disabled until its publishing flow is supported; lower limits when storage or processing capacity is constrained.
-- Reports: put the first report into the moderator queue and prioritize a subject after reports from two distinct accounts. Never hide or delete content automatically based only on report counts.
+- Reports: put the first report into the moderator queue and prioritize a subject after reports from five distinct accounts. Never hide or delete content automatically based only on report counts.
 
-The current in-memory rate limiter allows five requests per minute per client address on selected exact routes. Generic and content-specific report submissions share one budget; post/thread creation is not currently limited. Media upload limits are configurable; current defaults are 10 MB for images and 100 MB for audio, while video defaults to 500 MB but is disabled. The existing `moderation.threshold` setting applies to moderator requests, not reports. Broader write-path protections are tracked separately from the report-submission limit.
+The current in-memory rate limiter allows five requests per minute per client address on selected exact routes. Generic and content-specific report submissions share one budget. Topic posting cooldowns are enforced separately as described below. Media upload limits are configurable; current defaults are 10 MB for images and 100 MB for audio, while video defaults to 500 MB but is disabled. The existing `moderation.threshold` setting applies to moderator requests, not reports. Broader write-path protections are tracked separately from the report-submission limit.
+
+Topic moderation settings are stored per topic. New topics and migrated records default to a 60-second posting interval and a priority-report threshold of five distinct reporters; schema defaults supply missing values. The interval accepts 0 to 3600 seconds, with 0 disabling the cooldown. Post, thread, and gallery publication checks each selected topic, and a cooldown on any selected topic rejects the submission. Reports are prioritized in topic-scoped queues when pending or appealed reports reach that topic's distinct-reporter threshold; this does not hide or remove content. Publications without topics have no topic cooldown.
 
 ## 11. Startup, Migrations, and Default Account
 

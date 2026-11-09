@@ -17,13 +17,28 @@ const route = useRoute()
 
 const id = route.params.topic?.toString()
 const topic = await useDatasource<Topic>(`/api/topic/${id}`)
+const postIntervalMinutes = computed({
+    get: () => (topic.data.value?.moderation.maxPostInterval ?? 0) / 60,
+    set: (minutes: number) => {
+        const profile = topic.data.value
+        if (!profile) return
+
+        profile.moderation.maxPostInterval = Math.round(minutes * 60)
+    },
+})
 
 const loading = ref<boolean>(false)
 async function updateProfile() {
+    const profile = topic.data.value
+    if (!profile) return
+
     try {
         loading.value = true
         await useApi(`/api/topic/${id}/update`, {
-            body: topic.data.value
+            body: {
+                description: profile.description ?? "",
+                moderation: profile.moderation,
+            }
         })
         hints.addSuccess("Updated topic profile successfully.")
     }
@@ -57,16 +72,42 @@ async function updateProfile() {
                 <label>Description</label>
                 <textarea rows="4" v-model="topic.data.value.description" />
             </div>
+            <div class="field row">
+                <div class="column f-1">
+                    <label>Topic Usage Interval (minutes)</label>
+                    <span class="tip">A user can use this topic once per interval. Default: 1 minute, 0 disables.</span>
+                </div>
+                <input class="py-1 px-2" type="number" min="0" max="60" step="0.5" v-model.number="postIntervalMinutes">
+            </div>
+            <div class="field row">
+                <div class="column f-1">
+                    <label>Priority Report Threshold</label>
+                    <span class="tip">Reports will be given priority for review after this many reports. Default: 5.</span>
+                </div>
+                <input class="py-1 px-2" type="number" min="1" max="100" step="1" v-model.number="topic.data.value.moderation.priorityReportThreshold">
+            </div>
             <div class="row g-2">
-                <ButtonSpinner :loading="loading" class="success f-1" @click="updateProfile">
+                <ButtonSpinner :loading="loading" class="success f-2" @click="updateProfile">
                     <i class="fa-solid fa-floppy-disk"></i>
                     Save
                 </ButtonSpinner>
-                <button class="dark" @click="topic.refresh()">
+                <button class="f-1" @click="topic.refresh()">
                     <i class="fa-solid fa-refresh"></i>
-                    Reset
+                    Cancel
                 </button>
             </div>
         </section>
     </article>
 </template>
+
+<style scoped lang="scss">
+.field input[type=number] {
+    width: 6rem;
+    text-align: center;
+    appearance: auto;
+
+    &::-webkit-inner-spin-button {
+        opacity: 1;
+    }
+}
+</style>

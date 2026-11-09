@@ -5,12 +5,7 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, ["moderator", "admin"])
 
     const { type, id } = event.context.params!
-    if (!type || !id) throw createError({ statusCode: 400, statusMessage: "A moderation subject is required." })
+    if (!type || !id) throw createError({ statusCode: 400, statusMessage: "A moderation target is required." })
 
-    return await ModerationManager.clearSlowMode({
-        subjectType: type,
-        subjectId: id,
-        actorId: auth.id,
-        isAdmin: hasRole(auth, "admin"),
-    })
+    return await ModerationManager.clearSlowMode(`${type}:${id}`, auth.id)
 })

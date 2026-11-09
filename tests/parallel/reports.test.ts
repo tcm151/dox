@@ -451,6 +451,74 @@ it("lists a report in administrator and topic queues", async () => {
     }
 })
 
+it("marks topic reports priority only after enough distinct reporters", async () => {
+    const suffix = Date.now()
+    const topicId = `reportPriority${suffix}`
+    let threadId: string | undefined
+    let reportId: string | undefined
+
+    try {
+        const threadResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content: `Report priority test ${suffix}`, topics: [`topic:${topicId}`], images: [] },
+        })
+        expectStatus(threadResponse, 200)
+        threadId = extractId(threadResponse._data!.id)
+
+        const settingsResponse = await admin.fetchRaw(`/api/topic/${topicId}/update`, {
+            method: "POST",
+            body: {
+                description: "",
+                moderation: { maxPostInterval: 60, priorityReportThreshold: 2 },
+            },
+        })
+        expectStatus(settingsResponse, 200)
+
+        const firstComplaint = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: threadResponse._data!.id, reason: "First report from the same account." },
+            headers: { "X-Forwarded-For": "203.0.113.71" },
+        })
+        expectStatus(firstComplaint, 204)
+        const duplicateComplaint = await reporter.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: threadResponse._data!.id, reason: "Additional context from the same account." },
+            headers: { "X-Forwarded-For": "203.0.113.72" },
+        })
+        expectStatus(duplicateComplaint, 204)
+
+        const reportBeforeThreshold = (await admin.fetch<Array<{
+            id: string
+            subject: { id: string }
+            complaints: unknown[]
+            priority: boolean
+        }>>(`/api/topic/${topicId}/reports`)).find(report => report.subject.id === threadResponse._data!.id)
+        expect(reportBeforeThreshold?.complaints).toHaveLength(2)
+        expect(reportBeforeThreshold?.priority).toBe(false)
+        reportId = extractId(reportBeforeThreshold?.id)
+
+        const secondReporterComplaint = await admin.fetchRaw("/api/report/send", {
+            method: "POST",
+            body: { subject: threadResponse._data!.id, reason: "A distinct account also reports this subject." },
+            headers: { "X-Forwarded-For": "203.0.113.73" },
+        })
+        expectStatus(secondReporterComplaint, 204)
+
+        const reportAtThreshold = (await admin.fetch<Array<{
+            subject: { id: string }
+            priority: boolean
+        }>>(`/api/topic/${topicId}/reports`)).find(report => report.subject.id === threadResponse._data!.id)
+        expect(reportAtThreshold?.priority).toBe(true)
+    }
+    finally {
+        await admin.query([
+            ...(reportId ? [`DELETE moderatorLog WHERE target = report:${reportId};`, `DELETE report:${reportId};`] : []),
+            ...(threadId ? [`DELETE thread:${threadId};`] : []),
+            `DELETE topic:${topicId};`,
+        ].join("\n"))
+    }
+})
+
 it("keeps moderator-owned reports out of topic moderator queues", async () => {
         const content = `Owned report test ${Date.now()}`
         const topicId = `ownedReport${Date.now()}`
@@ -580,6 +648,15 @@ it("lets a topic moderator remove one topic without removing the submission or r
         const submissionId = extractId(submission.id)!
         threadIds.push(submissionId)
 
+        const topicSettingsResponse = await admin.fetchRaw(`/api/topic/${removedTopicId}/update`, {
+            method: "POST",
+            body: {
+                description: "",
+                moderation: { maxPostInterval: 0, priorityReportThreshold: 5 },
+            },
+        })
+        expectStatus(topicSettingsResponse, 200, "disable topic cooldown for multi-topic fixture")
+
         const anchorResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
             method: "POST",
             body: { content: `${content} anchor`, topics: [`topic:${removedTopicId}`], images: [] },
@@ -678,6 +755,15 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
         expectStatus(firstThreadResponse, 200, "first appeal subject creation stage")
         const firstThread = firstThreadResponse._data!
         threadIds.push(extractId(firstThread.id)!)
+
+        const topicSettingsResponse = await admin.fetchRaw(`/api/topic/${topicId}/update`, {
+            method: "POST",
+            body: {
+                description: "",
+                moderation: { maxPostInterval: 0, priorityReportThreshold: 5 },
+            },
+        })
+        expectStatus(topicSettingsResponse, 200, "disable topic cooldown for appeal fixture")
 
         const secondThreadResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
             method: "POST",

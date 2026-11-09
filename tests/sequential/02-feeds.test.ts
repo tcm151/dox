@@ -36,6 +36,16 @@ it("paginates popular feed results for each sort mode", async () => {
             if (index === 0) {
                 const topicPosts = await admin.query<Array<Array<string[]>>>(`SELECT VALUE posts FROM topic:${topicId};`)
                 expect(topicPosts[0]?.[0]).toContain(`post:${postId}`)
+
+                const topic = await admin.fetch<Topic>(`/api/topic/${topicId}`)
+                const topicSettingsResponse = await admin.fetchRaw(`/api/topic/${topicId}/update`, {
+                    method: "POST",
+                    body: {
+                        description: topic.description ?? "",
+                        moderation: { ...topic.moderation, maxPostInterval: 0 },
+                    },
+                })
+                expectStatus(topicSettingsResponse, 200, "disable feed fixture topic cooldown")
             }
         }
 

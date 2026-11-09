@@ -1,4 +1,5 @@
 import type { Thread } from "@@/shared/types"
+import { ModerationManager } from "@@/server/utils/ModerationManager"
 
 type CreateThreadRequest = {
     content: string
@@ -10,6 +11,8 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const thread = await readBody<CreateThreadRequest>(event)
     const imageIds = thread.images ?? []
+
+    await ModerationManager.checkTopicCooldown(auth.id, thread.topics)
 
     return await new DatabaseQuery()
         .addSql(`

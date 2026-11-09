@@ -60,6 +60,10 @@ export interface Session extends Record {
 export interface Topic extends Sortable {
     description?: string
     posts: Post[]
+    moderation: {
+        maxPostInterval: number
+        priorityReportThreshold: number
+    }
     threads: Thread[]
     galleries: Gallery[]
     followers: (User & string)[]
@@ -223,6 +227,7 @@ export interface Report extends Record {
     }
     owner: Pick<User, "id" | "name">
     topics: string[]
+    priority?: boolean
     complaints: {
         user: User & string
         reason: string

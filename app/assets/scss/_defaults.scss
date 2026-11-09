@@ -97,15 +97,15 @@ input[type=file]::file-selector-button {
     display: none;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    appearance: none;
-    margin: 0;
-}
+// input:not(.topic-moderation-number)::-webkit-outer-spin-button,
+// input:not(.topic-moderation-number)::-webkit-inner-spin-button {
+//     appearance: none;
+//     margin: 0;
+// }
 
-input[type=number] {
-    appearance: textfield;
-}
+// input[type=number]:not(.topic-moderation-number) {
+//     appearance: textfield;
+// }
 
 a:focus-visible, button:focus-visible, input:focus-visible,
 textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {

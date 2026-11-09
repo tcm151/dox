@@ -114,6 +114,12 @@ DEFINE FIELD invalidated ON session
 DEFINE TABLE topic SCHEMAFULL;
 DEFINE FIELD description ON topic
     TYPE option<string>;
+DEFINE FIELD moderation ON topic
+    TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
+DEFINE FIELD moderation.maxPostInterval ON topic
+    TYPE number DEFAULT ALWAYS 60 ASSERT $value >= 0 AND $value <= 3600;
+DEFINE FIELD moderation.priorityReportThreshold ON topic
+    TYPE number DEFAULT ALWAYS 5 ASSERT $value >= 1 AND $value <= 100;
 DEFINE FIELD posts ON topic
     COMPUTED <~(post FIELD topics);
 DEFINE FIELD threads ON topic

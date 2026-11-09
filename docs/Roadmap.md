@@ -52,7 +52,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 - 🟩 Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
 - 🟩 Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
 - 🟥 Add shadow-quarantine flow for suspicious first-time users with limited visibility and interaction. (`M`)
-- 🟥 Add configurable per-community moderation defaults with documented recommended presets. (`M`)
+- 🟩 Add configurable per-topic moderation defaults with documented recommended presets. (`M`)
 - 🟥 Add admin controls for content visibility policy (NSFW/spoiler/sensitive content defaults). (`M`)
 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.

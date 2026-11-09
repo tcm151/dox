@@ -12,7 +12,8 @@ export default defineEventHandler(async (event) => {
                 fn::http(403, "You cannot moderate this topic.");
             };
 
-            SELECT id, subject.id, subject.content, subject.context.id, owner, topics, time, status, complaints, moderator, history
+            SELECT id, subject.id, subject.content, subject.context.id, owner, topics, time, status, complaints, moderator, history,
+                status IN ["pending", "appealed"] AND array::len(array::union(complaints.*.user, [])) >= $topic.moderation.priorityReportThreshold AS priority
             FROM report
             WHERE record::exists(subject)
             AND topics CONTAINS $topic

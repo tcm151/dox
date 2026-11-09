@@ -1,72 +1,41 @@
 import type { Moderation } from "@@/shared/types"
 
-type LockScope = "item"
-type LockResult = Pick<Moderation, "subject" | "locked">
-type UnlockResult = Pick<Moderation, "subject">
-
-interface LockOptions {
-    subjectType: string
-    subjectId: string
-    actorId: string
-    isAdmin: boolean
-    scope: unknown
-}
-
-interface UnlockOptions {
-    subjectType: string
-    subjectId: string
-    actorId: string
-    isAdmin: boolean
-}
-
-interface SetSlowModeOptions {
-    subjectType: string
-    subjectId: string
-    actorId: string
-    isAdmin: boolean
-    interval: unknown
-}
-
-interface ClearSlowModeOptions {
-    subjectType: string
-    subjectId: string
-    actorId: string
-    isAdmin: boolean
-}
-
-type SlowModeResult = Pick<Moderation, "subject" | "slowed">
-type ClearSlowModeResult = Pick<Moderation, "subject">
-
-interface ControlStateOptions {
-    subjectType: string
-    subjectId: string
-    actorId: string
-    isAdmin: boolean
-}
-
 type ControlState = Pick<Moderation, "locked" | "slowed">[]
 
 export class ModerationManager {
-    private static getSubject(subjectType: string, subjectId: string): Moderation["subject"] {
-        if (!["post", "gallery", "comment", "thread"].includes(subjectType) || !subjectId) {
-            throw createError({ statusCode: 400, statusMessage: "A valid moderation subject is required." })
-        }
-
-        return `${subjectType}:${subjectId}` as Moderation["subject"]
+    static async checkTopicCooldown(userId: string, topicIds: string[]): Promise<void> {
+        if (topicIds.length === 0) return
+        await new DatabaseQuery()
+            .addSql(`
+                LET $recent = (
+                    SELECT topics, time::now() - time AS since
+                    FROM post, thread, gallery
+                    WHERE user = $user
+                    AND topics CONTAINSANY $topics
+                    AND time::now() - time < 1h
+                );
+                FOR $topic IN $topics {
+                    IF $recent.any(|$s| $s.topics CONTAINS $topic AND $s.since < duration::from_secs($topic.moderation.maxPostInterval)) {
+                        fn::http(429, "You have posted in this topic too recently.");
+                    };
+                };
+            `)
+            .addTransaction()
+            .addRecord("user", userId)
+            .addRecords("topics", topicIds)
+            .execute()
     }
 
-    static async getControlState(options: ControlStateOptions): Promise<ControlState> {
-        const { subjectType, subjectId, actorId, isAdmin } = options
-        const subject = this.getSubject(subjectType, subjectId)
+    static async getModeration(targetId: string, userId: string): Promise<ControlState> {
         return await new DatabaseQuery()
             .addSql(`
-                LET $target = (SELECT * FROM ONLY $subject);
-                IF $target = NONE {
-                    fn::http(404, "Moderation subject not found.");
+                IF !record::exists($target) {
+                    fn::http(404, "Moderation target not found.");
                 };
-                IF !$isAdmin {
+                IF $user.roles CONTAINSNOT "admin" {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);
-                    LET $authorizedTopics = SELECT VALUE id FROM topic WHERE id IN $topics AND moderators CONTAINS $actor;
+                    LET $authorizedTopics = SELECT VALUE id FROM topic
+                        WHERE id IN $topics AND moderators CONTAINS $user;
                     IF $authorizedTopics.len() = 0 {
                         fn::http(403, "You cannot moderate this content.");
                     };
@@ -74,129 +43,128 @@ export class ModerationManager {
 
                 RETURN SELECT locked, slowed
                 FROM moderation
-                WHERE subject = $subject;
+                WHERE subject = $target;
             `)
             .addTransaction()
-            .addRecord("subject", subject)
-            .addRecord("actor", actorId)
-            .addParameter("isAdmin", isAdmin)
+            .addRecord("target", targetId)
+            .addRecord("user", userId)
             .queryValue<ControlState>()
     }
 
-    static async lock(options: LockOptions): Promise<LockResult> {
-        const { subjectType, subjectId, actorId, isAdmin, scope } = options
+    static async lock(targetId: string, userId: string, scope: unknown) {
         if (scope !== "item") {
             throw createError({ statusCode: 400, statusMessage: "A valid lock scope is required." })
         }
 
-        const subject = this.getSubject(subjectType, subjectId)
         await new DatabaseQuery()
             .addSql(`
-                LET $target = (SELECT * FROM ONLY $subject);
-                IF $target = NONE {
-                    fn::http(404, "Moderation subject not found.");
+                IF !record::exists($target) {
+                    fn::http(404, "Moderation target not found.");
                 };
-                IF !$isAdmin {
+                IF $user.roles CONTAINSNOT "admin" {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);
                     LET $authorizedTopics = SELECT VALUE id FROM topic
-                        WHERE id IN $topics AND moderators CONTAINS $actor;
+                        WHERE id IN $topics AND moderators CONTAINS $user;
                     IF $authorizedTopics.len() = 0 {
                         fn::http(403, "You cannot moderate this content.");
                     };
                 };
 
-                LET $controlId = (SELECT VALUE id FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                LET $previousLock = (SELECT VALUE locked FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                IF $previousLock = $scope {
+                LET $moderation = (
+                    SELECT *
+                    FROM ONLY moderation
+                    WHERE subject = $target
+                    LIMIT 1
+                );
+                IF $moderation.locked = $scope {
                     fn::http(409, "This content is already locked with that scope.");
                 };
-
-                IF $controlId = NONE {
-                    CREATE moderation SET subject = $subject, locked = $scope;
-                } ELSE {
-                    UPDATE $controlId SET locked = $scope;
+                IF $moderation = NONE {
+                    CREATE moderation SET
+                        subject = $target,
+                        locked = $scope;
+                }
+                ELSE {
+                    UPDATE $moderation SET
+                        locked = $scope;
                 };
 
                 CREATE moderatorLog SET
-                    actor = $actor,
+                    actor = $user,
                     action = "moderation.locked",
-                    target = $subject,
-                    details = { lock: { before: $previousLock ?? "unlocked", after: $scope } };
+                    target = $target,
+                    details = { lock: { before: $moderation.locked ?? "unlocked", after: $scope } };
             `)
             .addTransaction()
-            .addRecord("subject", subject)
-            .addRecord("actor", actorId)
-            .addParameter("isAdmin", isAdmin)
             .addParameter("scope", scope)
+            .addRecord("target", targetId)
+            .addRecord("user", userId)
             .execute()
 
-        return { subject, locked: scope }
+        return { subject: targetId, locked: scope }
     }
 
-    static async unlock(options: UnlockOptions): Promise<UnlockResult> {
-        const { subjectType, subjectId, actorId, isAdmin } = options
-        const subject = this.getSubject(subjectType, subjectId)
+    static async unlock(targetId: string, userId: string) {
         await new DatabaseQuery()
             .addSql(`
-                LET $target = (SELECT * FROM ONLY $subject);
-                IF $target = NONE {
-                    fn::http(404, "Moderation subject not found.");
+                IF !record::exists($target) {
+                    fn::http(404, "Moderation target not found.");
                 };
-                IF !$isAdmin {
+                IF $user.roles CONTAINSNOT "admin" {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);
                     LET $authorizedTopics = SELECT VALUE id FROM topic
-                        WHERE id IN $topics AND moderators CONTAINS $actor;
+                        WHERE id IN $topics AND moderators CONTAINS $user;
                     IF $authorizedTopics.len() = 0 {
                         fn::http(403, "You cannot moderate this content.");
                     };
                 };
 
-                LET $controlId = (SELECT VALUE id FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                LET $previousLock = (SELECT VALUE locked FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                IF $previousLock = NONE {
+                LET $moderation = (
+                    SELECT *
+                    FROM ONLY moderation
+                    WHERE subject = $target
+                    LIMIT 1
+                );
+                IF $moderation.locked = NONE {
                     fn::http(409, "This content is not locked.");
                 };
-                LET $slowed = (SELECT VALUE slowed FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                IF $slowed = NONE {
-                    DELETE $controlId;
+                IF $moderation.slowed = NONE {
+                    DELETE $moderation;
                 } ELSE {
-                    UPDATE $controlId UNSET locked;
+                    UPDATE $moderation UNSET locked;
                 };
 
                 CREATE moderatorLog SET
-                    actor = $actor,
+                    actor = $user,
                     action = "moderation.unlocked",
-                    target = $subject,
-                    details = { lock: { before: $previousLock, after: "unlocked" } };
+                    target = $target,
+                    details = { lock: { before: $moderation.locked, after: "unlocked" } };
             `)
             .addTransaction()
-            .addRecord("subject", subject)
-            .addRecord("actor", actorId)
-            .addParameter("isAdmin", isAdmin)
+            .addRecord("target", targetId)
+            .addRecord("user", userId)
             .execute()
 
-        return { subject }
+        return { subject: targetId }
     }
 
-    static async setSlowMode(options: SetSlowModeOptions): Promise<SlowModeResult> {
-        const { subjectType, subjectId, actorId, isAdmin, interval } = options
-        if (!["post", "gallery", "thread"].includes(subjectType)) {
-            throw createError({ statusCode: 400, statusMessage: "Slow mode is only supported for discussions." })
-        }
+    static async setSlowMode(targetId: string, userId: string, interval: unknown) {
         if (typeof interval !== "number" || !Number.isSafeInteger(interval) || interval <= 0) {
             throw createError({ statusCode: 400, statusMessage: "A valid slow-mode interval is required." })
         }
 
-        const subject = this.getSubject(subjectType, subjectId)
+        if (!targetId.startsWith("post:") && !targetId.startsWith("gallery:") && !targetId.startsWith("thread:")) {
+            throw createError({ statusCode: 400, statusMessage: "Slow mode is only supported for discussions." })
+        }
         await new DatabaseQuery()
             .addSql(`
-                LET $target = (SELECT * FROM ONLY $subject);
-                IF $target = NONE {
-                    fn::http(404, "Moderation subject not found.");
+                IF !record::exists($target) {
+                    fn::http(404, "Moderation target not found.");
                 };
-                IF !$isAdmin {
+                IF $user.roles CONTAINSNOT "admin" {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);
-                    LET $authorizedTopics = SELECT VALUE id FROM topic WHERE id IN $topics AND moderators CONTAINS $actor;
+                    LET $authorizedTopics = SELECT VALUE id FROM topic
+                        WHERE id IN $topics AND moderators CONTAINS $user;
                     IF $authorizedTopics.len() = 0 {
                         fn::http(403, "You cannot moderate this content.");
                     };
@@ -207,80 +175,84 @@ export class ModerationManager {
                     fn::http(400, "This slow-mode interval is not available.");
                 };
 
-                LET $controlId = (SELECT VALUE id FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                LET $previousInterval = (SELECT VALUE slowed FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                IF $previousInterval != NONE {
+                LET $moderation = (
+                    SELECT *
+                    FROM ONLY moderation
+                    WHERE subject = $target
+                    LIMIT 1
+                );
+                IF $moderation.slowed != NONE {
                     fn::http(409, "Slow mode is already active. Clear it before setting a new interval.");
                 };
 
-                IF $controlId = NONE {
-                    CREATE moderation SET subject = $subject, slowed = $interval;
+                IF $moderation = NONE {
+                    CREATE moderation SET
+                        subject = $target,
+                        slowed = $interval;
                 } ELSE {
-                    UPDATE $controlId SET slowed = $interval;
+                    UPDATE $moderation SET
+                        slowed = $interval;
                 };
 
                 CREATE moderatorLog SET
-                    actor = $actor,
+                    actor = $user,
                     action = "moderation.slow_mode.set",
-                    target = $subject,
-                    details = { slowMode: { before: $previousInterval ?? "disabled", after: $interval } };
+                    target = $target,
+                    details = { slowMode: { before: $moderation.slowed ?? "disabled", after: $interval } };
             `)
             .addTransaction()
-            .addRecord("subject", subject)
-            .addRecord("actor", actorId)
-            .addParameter("isAdmin", isAdmin)
             .addParameter("interval", interval)
+            .addRecord("target", targetId)
+            .addRecord("user", userId)
             .execute()
 
-        return { subject, slowed: interval }
+        return { subject: targetId, slowed: interval }
     }
 
-    static async clearSlowMode(options: ClearSlowModeOptions): Promise<ClearSlowModeResult> {
-        const { subjectType, subjectId, actorId, isAdmin } = options
-        if (!["post", "gallery", "thread"].includes(subjectType)) {
+    static async clearSlowMode(targetId: string, userId: string) {
+        if (!targetId.startsWith("post:") && !targetId.startsWith("gallery:") && !targetId.startsWith("thread:")) {
             throw createError({ statusCode: 400, statusMessage: "Slow mode is only supported for discussions." })
         }
-
-        const subject = this.getSubject(subjectType, subjectId)
         await new DatabaseQuery()
             .addSql(`
-                LET $target = (SELECT * FROM ONLY $subject);
-                IF $target = NONE {
-                    fn::http(404, "Moderation subject not found.");
+                IF !record::exists($target) {
+                    fn::http(404, "Moderation target not found.");
                 };
-                IF !$isAdmin {
+                IF $user.roles CONTAINSNOT "admin" {
                     LET $topics = array::union($target.topics ?? [], $target.context.topics ?? []);
                     LET $authorizedTopics = SELECT VALUE id FROM topic
-                        WHERE id IN $topics AND moderators CONTAINS $actor;
+                        WHERE id IN $topics AND moderators CONTAINS $user;
                     IF $authorizedTopics.len() = 0 {
                         fn::http(403, "You cannot moderate this content.");
                     };
                 };
 
-                LET $controlId = (SELECT VALUE id FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                LET $previousInterval = (SELECT VALUE slowed FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                IF $previousInterval = NONE {
+                LET $moderation = (
+                    SELECT *
+                    FROM ONLY moderation
+                    WHERE subject = $target
+                    LIMIT 1
+                );
+                IF $moderation.slowed = NONE {
                     fn::http(409, "Slow mode is not active for this discussion.");
                 };
-                LET $previousLock = (SELECT VALUE locked FROM ONLY moderation WHERE subject = $subject LIMIT 1);
-                IF $previousLock = NONE {
-                    DELETE $controlId;
+                IF $moderation.locked = NONE {
+                    DELETE $moderation;
                 } ELSE {
-                    UPDATE $controlId UNSET slowed;
+                    UPDATE $moderation UNSET slowed;
                 };
 
                 CREATE moderatorLog SET
-                    actor = $actor,
+                    actor = $user,
                     action = "moderation.slow_mode.cleared",
-                    target = $subject,
-                    details = { slowMode: { before: $previousInterval, after: "disabled" } };
+                    target = $target,
+                    details = { slowMode: { before: $moderation.slowed, after: "disabled" } };
             `)
             .addTransaction()
-            .addRecord("subject", subject)
-            .addRecord("actor", actorId)
-            .addParameter("isAdmin", isAdmin)
+            .addRecord("target", targetId)
+            .addRecord("user", userId)
             .execute()
 
-        return { subject }
+        return { subject: targetId }
     }
 }

@@ -1,3 +1,5 @@
+// import { ModerationManager } from "@@/server/utils/ModerationManager"
+
 type PublishGalleryRequest = {
     images: string[]
     description: string
@@ -12,6 +14,8 @@ export default defineEventHandler(async (event) => {
     if (!Array.isArray(body.images) || body.images.length === 0) {
         throw createError({ statusCode: 400, statusMessage: "A gallery must contain at least one image." })
     }
+
+    await ModerationManager.checkTopicCooldown(auth.id, body.topics)
 
     await new DatabaseQuery()
         .addSql(`

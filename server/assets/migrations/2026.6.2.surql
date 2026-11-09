@@ -293,6 +293,17 @@ UPDATE appSettings:default SET
     moderation.slowModes = [30, 60, 300, 900]
 WHERE moderation.slowModes = NONE;
 
+DEFINE FIELD OVERWRITE moderation ON topic
+    TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
+DEFINE FIELD OVERWRITE moderation.maxPostInterval ON topic
+    TYPE number DEFAULT ALWAYS 60 ASSERT $value >= 0 AND $value <= 3600;
+DEFINE FIELD OVERWRITE moderation.priorityReportThreshold ON topic
+    TYPE number DEFAULT ALWAYS 5 ASSERT $value >= 1 AND $value <= 100;
+UPDATE topic SET moderation = {
+    maxPostInterval: 60,
+    priorityReportThreshold: 5,
+} WHERE moderation = NONE;
+
 UPSERT migration SET version = '2026.6.2', time = time::now()
 WHERE version = '2026.6.2';
 COMMIT;

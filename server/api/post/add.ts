@@ -1,4 +1,5 @@
 import type { Post } from "@@/shared/types"
+import { ModerationManager } from "@@/server/utils/ModerationManager"
 
 type CreatePostRequest = {
     title: string
@@ -12,6 +13,8 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const post = await readBody<CreatePostRequest>(event)
     const imageIds = post.images ?? []
+
+    await ModerationManager.checkTopicCooldown(auth.id, post.topics)
 
     return await new DatabaseQuery()
         .addSql(`

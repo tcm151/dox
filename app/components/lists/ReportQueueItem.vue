@@ -131,6 +131,7 @@ function toggleReasons() {
         <section class="row wrap g-1" :aria-busy="report.moderation.isUpdating">
             <Tag class="f-1" :type="report.stage.type" :label="report.stage.label" />
             <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject" />
+            <Tag v-if="report.priority" type="warning" icon="fa-star" label="Priority" />
             <Tag class="f-1" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
             <Spinner v-if="report.moderation.isUpdating" :showText="false" role="status" aria-label="Updating report" />
             <Tag v-if="report.complaints.length > 0" class="danger" @click="toggleReasons">
