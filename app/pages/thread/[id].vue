@@ -211,20 +211,20 @@ function toggleOptions() {
             <footer>
                 <div v-if="!thread.deleted && !editingThread" class="f-1 row wrap g-1 mb-4">
                         <button class="f-1" :disabled="replyState.disabled" @click="toggleReplyBox">
-                            <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                            <i aria-hidden="true" class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                             <span>Reply</span>
                         </button>
                         <button class="f-1" :disabled="quoteState.disabled" @click="quoteThread">
-                            <i class="fa-solid fa-quote-left"></i>
+                            <i aria-hidden="true" class="fa-solid fa-quote-left"></i>
                             <span>Quote</span>
                         </button>
                         <button class="f-1" @click="copyLink">
-                            <i class="fa-solid fa-copy"></i>
+                            <i aria-hidden="true" class="fa-solid fa-copy"></i>
                             <span>Share</span>
                         </button>
                         <ClientOnly>
-                            <button v-if="session.isAuthenticated" @click="toggleOptions">
-                                <i class="fa-solid fa-ellipsis"></i>
+                            <button v-if="session.isAuthenticated" aria-label="Options" title="Options" @click="toggleOptions">
+                                <i aria-hidden="true" class="fa-solid fa-ellipsis"></i>
                             </button>
                             <OverlayTransition>
                                 <ExtraOptions
