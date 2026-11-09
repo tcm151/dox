@@ -64,7 +64,7 @@ export class EmailSpool {
         const settings = (await this.settings.get()).email.spool
         const sentToday = await new DatabaseQuery()
             .addSql(`
-                SELECT VALUE COUNT(*) AS count
+                SELECT VALUE COUNT() AS count
                 FROM scheduledEmail
                 WHERE status = "sent"
                 AND time::round(time, 1d) = time::round(time::now(), 1d)
