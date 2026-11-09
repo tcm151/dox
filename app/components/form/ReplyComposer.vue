@@ -48,11 +48,11 @@ function submit() {
         <p v-if="warning" class="warning mt-2" role="status">{{ warning }}</p>
         <div class="row g-1 pt-2">
             <button type="button" class="success small" :disabled="submitting || disabled" @click="submit">
-                <i class="fa-solid" :class="submitIcon"></i>
+                <i aria-hidden="true" class="fa-solid" :class="submitIcon"></i>
                 <span>{{ submitLabel }}</span>
             </button>
             <button type="button" class="danger small" :disabled="submitting" @click="emit('cancel')">
-                <i class="fa-solid fa-cancel"></i>
+                <i aria-hidden="true" class="fa-solid fa-cancel"></i>
                 <span>Cancel</span>
             </button>
         </div>
