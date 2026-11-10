@@ -364,6 +364,39 @@ DEFINE FIELD votes.negative ON image
 DEFINE FIELD score ON image
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
+-- ------------------------------
+-- TABLE: audio
+-- ------------------------------
+DEFINE TABLE audio SCHEMAFULL;
+DEFINE FIELD user ON audio
+    TYPE record<user>;
+DEFINE FIELD type ON audio
+    TYPE string;
+DEFINE FIELD name ON audio
+    TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD time ON audio
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD origin ON audio
+    TYPE string;
+DEFINE FIELD url ON audio
+    COMPUTED string::concat(origin, "/cdn/audio/", record::id(id));
+DEFINE FIELD tokens ON audio
+    TYPE number DEFAULT ALWAYS 25000;
+DEFINE FIELD visits ON audio
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes.positive ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.misleading ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.negative ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.awards ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.saves ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD score ON audio
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
+
 
 -- ------------------------------
 -- TABLE: gallery

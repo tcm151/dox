@@ -14,7 +14,7 @@ const icon = computed(() => {
 })
 
 function viewUser(userId: string) {
-    if (props.disable) return
+    if (props.disable || userId === "user:deleted") return
     navigateTo(`/user/${extractId(userId)}`)
 }
 </script>

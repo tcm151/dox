@@ -123,6 +123,14 @@ Subsequent starts read `server/assets/migrations/<version>.surql`, apply files n
 - `appSettings` controls runtime behavior toggles
 - `error` stores structured server failures for diagnostics
 
+### 4.4 Account Deletion and Content Attribution
+
+- The `user` owner remains required on content. The reserved `user:deleted` record, displayed as `deleted`, owns content whose account has been removed.
+- The content-retention flow removes the account and reassigns authored content and retained report/moderation attribution to `user:deleted`.
+- The full-delete flow removes unreferenced authored content. Content with replies, quotes, or comments is redacted in place and reassigned to `user:deleted` so discussion references remain valid; unused media is queued for cleanup.
+- Discussion records are retained, and historical votes are not rewritten when an account is deleted. This can leave vote entries referring to a removed user ID.
+- Both flows require the current password and an exact username confirmation, then remove the account and its sessions/private account data transactionally.
+
 ## 5. Authentication and Authorization
 
 Auth implementation resides in `server/utils/auth.ts`:

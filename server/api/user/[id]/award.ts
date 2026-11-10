@@ -15,6 +15,9 @@ export default defineEventHandler(async (event) => {
             IF $target = $awarder {
                 fn::http(400, "You cannot award yourself.");
             };
+            IF $target = user:deleted {
+                fn::http(409, "Deleted users cannot receive awards.");
+            };
             IF $target.votes.awards CONTAINS $awarder {
                 fn::http(409, "You have already awarded this user.");
             };

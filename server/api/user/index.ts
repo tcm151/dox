@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
             SELECT id, name, link, description, dateJoined, votes, score,
                 followers, following, topics, roles, traits
             FROM user
+            WHERE id != user:deleted
             ORDER BY dateJoined DESC
         `)
         .queryAll<User>()
