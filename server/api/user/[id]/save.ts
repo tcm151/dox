@@ -15,6 +15,9 @@ export default defineEventHandler(async (event) => {
     if (target.id === subscriber.id) {
         throw createError({ statusCode: 400, statusMessage: "You cannot save yourself." })
     }
+    if (target.id === "user:deleted") {
+        throw createError({ statusCode: 409, statusMessage: "Deleted users cannot be saved." })
+    }
 
     await new DatabaseQuery()
         .addSql(`

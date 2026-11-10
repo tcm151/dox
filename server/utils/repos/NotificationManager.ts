@@ -6,6 +6,8 @@ export interface NotificationOptions {
 
 export class NotificationManager {
     static async send({ recipient, context, message }: NotificationOptions): Promise<void> {
+        if (recipient === "user:deleted") return
+
         let html = await useStorage("assets:server").getItem("templates/notification.html") as string
         html = html.replace("{{notification.message}}", this.escapeHtml(message))
 

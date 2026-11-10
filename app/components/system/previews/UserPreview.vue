@@ -10,6 +10,7 @@ const emit = defineEmits<{
 }>()
 
 const session = getSession()
+const isDeletedUser = computed(() => props.user.id === "user:deleted")
 const following = computed(() => session.user?.following.includes(props.user.id))
 const isOwnProfile = computed(() => props.user.id === session.user?.id)
 const saved = ref<boolean>(false)
@@ -130,7 +131,7 @@ function awardUser() {
                         {{ user.link }}
                     </a>
                 </div>
-                <Authenticated>
+                <Authenticated v-if="!isDeletedUser">
                     <div class="row wrap g-2">
                         <button v-if="isOwnProfile" class="small" @click="navigateTo('/settings')">
                             <i class="fa-solid fa-address-card"></i>

@@ -5,6 +5,15 @@ type DefaultAccount = {
 }
 
 export async function setupDefaultAccount(config: DefaultAccount) {
+
+    await new DatabaseQuery()
+        .addSql(`
+            IF !record::exists(user:deleted) {
+                CREATE ONLY user:deleted SET name = "deleted";
+            };
+        `)
+        .addTransaction()
+        .execute()
     
     const accounts = await new DatabaseQuery()
         .addSql(`

@@ -4,6 +4,10 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
+            IF $follower = user:deleted {
+                fn::http(409, "Deleted users cannot be followed.");
+            };
+
             UPDATE $user SET
                 following = array::union(following, [$follower]);
 

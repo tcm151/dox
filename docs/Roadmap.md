@@ -71,6 +71,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 Goal: improve async interactions and make the project easier to contribute to.
 
 ### C1. User Control and Account Safety
+- 🟩 Add account deletion choices for retaining authored content or removing it while preserving discussion history. (`0013`, `M`)
 - 🟥 Add revoke-all-sessions capability and session management UI for account safety. (`M`)
 - 🟥 Add block/mute controls for users, topics, and keywords with clear UX. (`L`)
 - 🟥 Add save/unsave actions for eligible content with clear saved-state feedback. (`M`)

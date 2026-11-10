@@ -331,6 +331,40 @@ UPDATE topic SET moderation = {
     priorityReportThreshold: 5,
 } WHERE moderation = NONE;
 
+DEFINE TABLE OVERWRITE audio SCHEMAFULL;
+DEFINE FIELD OVERWRITE user ON audio
+    TYPE record<user>;
+DEFINE FIELD OVERWRITE type ON audio
+    TYPE string;
+DEFINE FIELD OVERWRITE name ON audio
+    TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD OVERWRITE time ON audio
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE origin ON audio
+    TYPE string;
+DEFINE FIELD OVERWRITE url ON audio
+    COMPUTED string::concat(origin, "/cdn/audio/", record::id(id));
+DEFINE FIELD OVERWRITE tokens ON audio
+    TYPE number DEFAULT ALWAYS 25000;
+DEFINE FIELD OVERWRITE visits ON audio
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD OVERWRITE votes.positive ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE votes.misleading ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE votes.negative ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE votes.awards ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE votes.saves ON audio
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD OVERWRITE score ON audio
+    COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
+
+IF !record::exists(user:deleted) {
+    CREATE ONLY user:deleted SET name = "deleted";
+};
+
 UPSERT migration SET version = '2026.6.2', time = time::now()
 WHERE version = '2026.6.2';
 COMMIT;
