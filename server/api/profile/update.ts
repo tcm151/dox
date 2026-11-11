@@ -2,7 +2,7 @@ import type { User } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const user = await readBody<User>(event)
+    const user = await readBody<Pick<User, "name" | "link" | "description">>(event)
 
     return await new DatabaseQuery()
         .addSql(`

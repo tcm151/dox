@@ -7,6 +7,6 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     if (!id) throw createError({ status: 400, statusMessage: "Report ID is required." })
 
-    const body = await readBody<{ message?: unknown }>(event) ?? {}
-    return await ReportManager.remove({ reportId: id, actorId: auth.id, message: body.message })
+    const body = await readBody<{ message: string }>(event)
+    return await ReportManager.remove({ reportId: id, actorId: auth.id, message: body?.message })
 })

@@ -1,9 +1,15 @@
 import type { Comment } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 
+type CreateCommentRequest = {
+    context: string
+    content: string
+    replyTo: string
+}
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const body = await readBody(event)
+    const body = await readBody<CreateCommentRequest>(event)
     if (!body.context) {
         throw createError({ statusCode: 400, statusMessage: "A post or gallery context is required." })
     }
