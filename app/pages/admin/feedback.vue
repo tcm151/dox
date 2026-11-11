@@ -28,9 +28,9 @@ async function dismissFeedback(feedback: Feedback) {
                 <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
             </div>
         </header>
-        <section v-if="activeFeedback.length > 0" class="feedback column g-2" aria-label="Feedback entries">
+        <section v-if="activeFeedback.length > 0" class="feedback column g-2">
             <template v-for="item in activeFeedback" :key="item.id">
-                <article class="box p-3" :aria-label="`Feedback from ${item.user.name}`">
+                <article class="box p-3">
                     <p>{{ item.content }}</p>
                     <div class="tags row g-1 pt-1">
                         <DurationTag :time="item.time" />

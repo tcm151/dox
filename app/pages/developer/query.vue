@@ -67,7 +67,7 @@ const tabTitles = computed(() => {
 
 <template>
     <article class="row g-2 m-4">
-        <section class="left box column g-2 p-4" aria-label="Database query editor">
+        <section class="left box column g-2 p-4">
             <section class="editor f-1 column g-2">
                 <header class="row g-2">
                     <button class="danger" @click="query = ''">
@@ -88,7 +88,7 @@ const tabTitles = computed(() => {
                 </div>
             </section>
         </section>
-        <section class="right box column g-2 p-4" aria-label="Query output">
+        <section class="right box column g-2 p-4">
             <header class="row g-2">
                 <button v-if="errorMessage != ''"  class="danger f-1" @click="tab = 'Results'">
                     <i class="fa-solid fa-triangle-exclamation"></i>
@@ -103,17 +103,17 @@ const tabTitles = computed(() => {
                     <span>History</span>
                 </button>
             </header>
-            <section v-if="tab == 'Error'" aria-label="Query error">
+            <section v-if="tab == 'Error'">
                 <Codeblock class="error" language="text" :code="errorMessage" />
             </section>
-            <section v-if="tab == 'Results'" class="results column" aria-label="Query results">
+            <section v-if="tab == 'Results'" class="results column">
                 <header v-if="results.length > 0" class="tabs row" ref="result-tabs">
                     <template v-for="(label, index) in tabTitles">
-                        <button type="button" class="result px-4 py-2" :class="{ active: selectedResult == index }" :aria-pressed="selectedResult == index" @click="selectedResult = index">
+                        <button type="button" class="result px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
                             {{ label }}
                         </button>
                     </template>
-                    <button type="button" class="clear px-4 py-2" aria-label="Clear results" @click="results = []">
+                    <button type="button" class="clear px-4 py-2" @click="results = []">
                         <i class="fa-solid fa-eraser"></i>
                     </button>
                 </header>
@@ -121,15 +121,15 @@ const tabTitles = computed(() => {
                     <Codeblock v-if="selectedResult == index" class="br-none" language="json" :code="JSON.stringify(result, undefined, 4)" />
                 </template>
             </section>
-            <section v-if="tab == 'History'" class="history column g-2" aria-label="Query history">
+            <section v-if="tab == 'History'" class="history column g-2">
                 <template v-for="(item, index) in history" :key="index">
                     <article class="query">
                         <Codeblock language="sql" :code="item" />
                         <footer class="tools row g-3 p-3">
-                            <button type="button" class="p-0" aria-label="Load query" @click="query = item">
+                            <button type="button" class="p-0" @click="query = item">
                                 <i class="fa-solid fa-rotate"></i>
                             </button>
-                            <button type="button" class="p-0" aria-label="Remove query from history" @click="removeFromHistory(item)">
+                            <button type="button" class="p-0" @click="removeFromHistory(item)">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </footer>

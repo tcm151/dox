@@ -30,9 +30,9 @@ function toggle(id: string) {
             </ButtonSpinner>
         </header>
         <template v-if="logs?.length">
-            <section class="box column g-2 p-2" aria-label="Moderation log entries">
+            <section class="box column g-2 p-2">
                 <template v-for="log in logs" :key="log.id">
-                    <article class="column g-1" :aria-label="`Moderation log: ${actionLabel(log.action)} on ${log.target}`">
+                    <article class="column g-1">
                         <div class="row wrap g-1">
                             <Tag type="danger f-1" :label="actionLabel(log.action)" @click="toggle(log.id)" />
                             <Tag class="link f-1" :label="log.target" />

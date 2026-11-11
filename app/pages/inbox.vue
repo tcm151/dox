@@ -100,7 +100,7 @@ function loadMore() {
                 <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
             </div>
         </header>
-        <section v-if="result && result.total > 0" aria-label="Notifications" class="column g-2">
+        <section v-if="result && result.total > 0" class="column g-2">
             <TransitionGroup name="notifications">
                 <template v-for="notification in result.notifications" :key="notification.id">
                     <article class="box p-4">

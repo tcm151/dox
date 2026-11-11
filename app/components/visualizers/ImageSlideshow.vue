@@ -209,7 +209,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <section v-if="images.length > 0" class="slideshow" :class="[size, { interactive }]" :aria-label="label">
+    <section v-if="images.length > 0" class="slideshow" :class="[size, { interactive }]">
         <div class="stage">
             <ol
                 ref="imageStrip"
@@ -220,7 +220,6 @@ onBeforeUnmount(() => {
                 @pointerup="handlePointerEnd"
                 @pointercancel="handlePointerEnd"
                 @scrollend="handleScrollEnd"
-                aria-label="Images"
             >
                 <li
                     v-for="image in displaySlides"
@@ -246,10 +245,10 @@ onBeforeUnmount(() => {
                 {{ currentImageIndex }} / {{ images.length }}
             </span>
             <template v-if="showScrollControls">
-                <button class="arrow previous grid center p-0" type="button" aria-label="Previous image" @click.stop="moveImages(-1)">
+                <button class="arrow previous grid center p-0" type="button" @click.stop="moveImages(-1)">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <button class="arrow next grid center p-0" type="button" aria-label="Next image" @click.stop="moveImages(1)">
+                <button class="arrow next grid center p-0" type="button" @click.stop="moveImages(1)">
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </template>
