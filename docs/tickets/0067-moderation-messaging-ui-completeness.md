@@ -1,12 +1,12 @@
 # Ticket 0067: Complete Or Hide Unfinished Moderation And Messaging UI
 
 ## Status
-- State: In Progress
+- State: Paused
 - Priority: Medium
-- Next: Resolve the topic profile rename placeholder through Ticket 0007
+- Next: Resume the topic profile rename workflow after Ticket 0084 is unpaused
 
 ## Dependencies
-- [0007](0007-topic-governance-tools.md): The topic profile still exposes a placeholder rename control; this ticket owns the rename request and approval flow.
+- [0084](0084-topic-rename-requests.md): The topic profile still exposes a placeholder rename control; this ticket owns the rename request and approval flow.
 
 ## Goal
 Ensure moderation and messaging screens expose only complete, usable workflows before production.
@@ -27,7 +27,7 @@ Ensure moderation and messaging screens expose only complete, usable workflows b
 
 ## Notes
 - This ticket covers workflow completeness; consistent empty, loading, and error states are tracked in Ticket 0069.
-- The topic profile's unfinished Request Rename action is tracked in Ticket 0007.
+- The topic profile's unfinished Request Rename action is tracked in Ticket 0084, a focused sub-feature of Ticket 0007.
 - Broader review of existing inbox and notification workflows is tracked in Ticket 0083.
 
 ## Relevant Files
@@ -54,6 +54,8 @@ Ensure moderation and messaging screens expose only complete, usable workflows b
 - tests/parallel/topics.server.test.ts
 
 ## Progress Log
+- 2026-11-11: Paused pending the deferred topic rename workflow in Ticket 0084.
+- 2026-11-11: Narrowed the dependency on topic governance to the rename workflow in Ticket 0084.
 - 2026-11-11: Verified moderator request, report, topic-profile authorization, thread, and comment-redirect server flows with focused tests; corrected the comment lookup to pair `FROM` with `queryOne()`.
 - 2026-11-11: Restricted the topic profile page to admins and assigned moderators via an authorized profile endpoint.
 - 2026-11-11: Audited moderator and report actions, gated own-request actions, and surfaced report-action failures. The topic rename control remains a placeholder tracked in Ticket 0007.
