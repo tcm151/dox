@@ -27,6 +27,7 @@ definePageMeta({
 const tabs = ref<TabItem[]>([
     { route: '/admin/pins', icon: 'fa-thumbtack', label: 'Pins' },
     { route: '/admin/users', icon: 'fa-user', label: 'Users' },
+    { route: '/admin/topics', icon: 'fa-tags', label: 'Topics' },
     { route: '/admin/feedback', icon: 'fa-comment', label: 'Feedback', hide: () => !settings.app.misc.feedback.enabled },
     { route: '/admin/settings', icon: 'fa-gear', label: 'Settings' },
     { route: '/admin/logs', icon: 'fa-clipboard-list', label: 'Logs' },

@@ -114,6 +114,8 @@ DEFINE FIELD invalidated ON session
 DEFINE TABLE topic SCHEMAFULL;
 DEFINE FIELD description ON topic
     TYPE option<string>;
+DEFINE FIELD status ON topic
+    TYPE string ASSERT $value IN ["active", "locked"] DEFAULT ALWAYS "active";
 DEFINE FIELD moderation ON topic
     TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
 DEFINE FIELD moderation.maxPostInterval ON topic

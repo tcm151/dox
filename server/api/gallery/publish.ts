@@ -19,6 +19,15 @@ export default defineEventHandler(async (event) => {
 
     await new DatabaseQuery()
         .addSql(`
+            LET $unavailableTopics = (
+                SELECT VALUE id
+                FROM topic
+                WHERE id IN $topics AND status != "active"
+            );
+            IF $unavailableTopics.len() > 0 {
+                fn::http(409, "Locked topics cannot be assigned to new content.");
+            };
+
             FOR $image IN $images {
                 IF !record::exists($image) {
                     fn::http(404, "One or more images do not exist.");

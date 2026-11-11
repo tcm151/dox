@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             SELECT id, score
             FROM topic
+            WHERE status = "active"
             ORDER BY score DESC
         `)
-        .queryAll<Topic>()
+        .queryAll<Pick<Topic, "id" | "score">>()
 })

@@ -148,6 +148,66 @@ export class ModerationManager {
         return { subject: targetId }
     }
 
+    static async lockTopic(topicId: string, userId: string) {
+        await new DatabaseQuery()
+            .addSql(`
+                IF !record::exists($topic) {
+                    fn::http(404, "Topic not found.");
+                };
+                IF $user.roles CONTAINSNOT "admin" {
+                    fn::http(403, "Only admins can lock topics.");
+                };
+
+                LET $status = SELECT VALUE status FROM ONLY $topic;
+                IF $status != "active" {
+                    fn::http(409, "This topic is not active.");
+                };
+
+                UPDATE $topic SET status = "locked";
+                CREATE moderatorLog SET
+                    actor = $user,
+                    action = "moderation.topic.locked",
+                    target = $topic,
+                    details = { status: { before: $status, after: "locked" } };
+            `)
+            .addTransaction()
+            .addRecord("topic", topicId)
+            .addRecord("user", userId)
+            .execute()
+
+        return { topic: topicId, status: "locked" as const }
+    }
+
+    static async unlockTopic(topicId: string, userId: string) {
+        await new DatabaseQuery()
+            .addSql(`
+                IF !record::exists($topic) {
+                    fn::http(404, "Topic not found.");
+                };
+                IF $user.roles CONTAINSNOT "admin" {
+                    fn::http(403, "Only admins can unlock topics.");
+                };
+
+                LET $status = SELECT VALUE status FROM ONLY $topic;
+                IF $status != "locked" {
+                    fn::http(409, "This topic is not locked.");
+                };
+
+                UPDATE $topic SET status = "active";
+                CREATE moderatorLog SET
+                    actor = $user,
+                    action = "moderation.topic.unlocked",
+                    target = $topic,
+                    details = { status: { before: $status, after: "active" } };
+            `)
+            .addTransaction()
+            .addRecord("topic", topicId)
+            .addRecord("user", userId)
+            .execute()
+
+        return { topic: topicId, status: "active" as const }
+    }
+
     static async setSlowMode(targetId: string, userId: string, interval: unknown) {
         if (typeof interval !== "number" || !Number.isSafeInteger(interval) || interval <= 0) {
             throw createError({ statusCode: 400, statusMessage: "A valid slow-mode interval is required." })

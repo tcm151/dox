@@ -18,7 +18,7 @@ function validTopic() {
     return (props.topics.text && props.topics.text !== '') ? valid.topic.name(props.topics.text) : true
 }
 
-const { data: available } = await useDatasource<Topic[]>("/api/topic/available")
+const { data: available } = await useDatasource<Pick<Topic, "id" | "score">[]>("/api/topic/available")
 
 const inputFocused = ref<boolean>(false)
 const matchingResults = computed(() => {
