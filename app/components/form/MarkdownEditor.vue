@@ -231,7 +231,6 @@ function handleKeydown(event: KeyboardEvent) {
                 type="button"
                 class="tool small p-0"
                 :title="tool.title"
-                :aria-label="tool.title"
                 :disabled="disabled"
                 @mousedown.prevent
                 @click.prevent="tool.action"

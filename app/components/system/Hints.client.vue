@@ -50,7 +50,6 @@ function getColor(hint: Hint) {
                     class="hint-dismiss p-1"
                     type="button"
                     title="Dismiss error"
-                    :aria-label="`Dismiss error: ${hint.message}`"
                     @click="hints.remove(hint)"
                 >
                     <i class="fa-solid fa-xmark"></i>

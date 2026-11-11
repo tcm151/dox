@@ -87,17 +87,17 @@ async function denyRequest(id: string) {
                 <span>Refresh</span>
             </ButtonSpinner>
         </header>
-        <nav class="row wrap g-2" aria-label="Filter moderation requests by status">
+        <nav class="row wrap g-2">
             <template v-for="stage in requestStages" :key="stage.status">
-                <button type="button" class="f-1 b-0" :class="{ selected: selectedStatus === stage.status }" :aria-pressed="selectedStatus === stage.status" @click="toggleStatus(stage.status)">
+                <button type="button" class="f-1 b-0" :class="{ selected: selectedStatus === stage.status }" @click="toggleStatus(stage.status)">
                     <span>{{ stage.label }}</span>
                     <span>{{ countRequests(stage.status) }}</span>
                 </button>
             </template>
         </nav>
-        <section v-if="filteredRequests.length > 0" class="box column g-2 p-3" aria-label="Moderation requests">
+        <section v-if="filteredRequests.length > 0" class="box column g-2 p-3">
             <template v-for="request in filteredRequests" :key="request.id">
-                <article class="row wrap inline g-1" :aria-label="`Request for ${request.topic.id}`">
+                <article class="row wrap inline g-1">
                     <Tag class="f-1 b-0" :type="requestStage(request).type" :label="requestStage(request).label" />
                     <TopicTag class="f-1 b-0" :topic="request.topic.id" />
                     <UserTag class="f-1 b-0" :user="request.user" />

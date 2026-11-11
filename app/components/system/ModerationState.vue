@@ -22,7 +22,7 @@ const slowModeLabel = computed(() => {
 </script>
 
 <template>
-    <div v-if="lockLabel || slowModeLabel" class="row wrap g-1" aria-live="polite">
+    <div v-if="lockLabel || slowModeLabel" class="row wrap g-1">
         <Tag v-if="lockLabel" type="danger" icon="fa-lock" />
         <Tag v-if="slowModeLabel" type="warning" icon="fa-hourglass-half" :title="slowModeLabel" />
     </div>

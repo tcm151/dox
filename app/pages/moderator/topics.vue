@@ -15,13 +15,13 @@ const { data: topics, pending, refresh } = await useAuthenticatedDatasource<Topi
                 <span>Refresh</span>
             </ButtonSpinner>
         </header>
-        <section v-if="topics && topics.length > 0" class="box column g-2 p-3" aria-label="Moderated topics">
+        <section v-if="topics && topics.length > 0" class="box column g-2 p-3">
             <template v-for="topic in topics" :key="topic.id">
-                <article class="row wrap inline g-1" :aria-label="`Moderated topic ${extractId(topic.id)}`">
+                <div class="row wrap g-1">
                     <TopicTag class="f-1" :topic="topic.id" />
-                    <Tag type="default" icon="fa-address-card" aria-label="View topic profile" @click="navigateTo(`/topic/${extractId(topic.id)}/profile`)" />
-                    <Tag type="danger" icon="fa-flag" aria-label="View topic reports" @click="navigateTo(`/topic/${extractId(topic.id)}/reports`)" />
-                </article>
+                    <Tag type="default" icon="fa-address-card" @click="navigateTo(`/topic/${extractId(topic.id)}/profile`)" />
+                    <Tag type="danger" icon="fa-flag" @click="navigateTo(`/topic/${extractId(topic.id)}/reports`)" />
+                </div>
             </template>
         </section>
         <section v-else class="box empty-state" aria-live="polite">

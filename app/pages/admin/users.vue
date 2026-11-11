@@ -42,28 +42,28 @@ function toggleRoleManager(user?: User) {
                 <span>Refresh</span>
             </ButtonSpinner>
         </header>
-        <nav class="row wrap g-2" aria-label="Filter users by role">
-            <button type="button" class="f-1 b-0" :class="{ selected: filter == 'admin' }" :aria-pressed="filter == 'admin'" @click="filterRole('admin')">
+        <nav class="row wrap g-2">
+            <button type="button" class="f-1 b-0" :class="{ selected: filter == 'admin' }" @click="filterRole('admin')">
                 <i class="fa-solid fa-shield"></i>
                 <span>Admins</span>
             </button>
-            <button type="button" class="f-1 b-0" :class="{ selected: filter == 'moderator' }" :aria-pressed="filter == 'moderator'" @click="filterRole('moderator')">
+            <button type="button" class="f-1 b-0" :class="{ selected: filter == 'moderator' }" @click="filterRole('moderator')">
                 <i class="fa-solid fa-clipboard"></i>
                 <span>Moderators</span>
             </button>
-            <button type="button" class="f-1 b-0" :class="{ selected: filter == 'developer' }" :aria-pressed="filter == 'developer'" @click="filterRole('developer')">
+            <button type="button" class="f-1 b-0" :class="{ selected: filter == 'developer' }" @click="filterRole('developer')">
                 <i class="fa-solid fa-code"></i>
                 <span>Developers</span>
             </button>
         </nav>
-        <section v-if="filteredUsers.length > 0" class="box column g-2 p-3" aria-label="User results">
+        <section v-if="filteredUsers.length > 0" class="box column g-2 p-3">
             <template v-for="user in filteredUsers" :key="user.id">
-                <article class="row wrap inline g-1" :aria-label="`User ${user.name}`">
+                <article class="row wrap inline g-1">
                     <Votes :target="user" />
                     <!-- <Tag class="f-1 b-0" type="link" :label="user.roles.toString()" /> -->
                     <UserTag class="f-1 b-0" :user="user" />
                     <DurationTag width="6rem" :time="user.dateJoined" />
-                    <Tag type="link" icon="fa-ellipsis" aria-label="Manage user roles" @click="toggleRoleManager(user)" />
+                    <Tag type="link" icon="fa-ellipsis" @click="toggleRoleManager(user)" />
                 </article>
             </template>
         </section>

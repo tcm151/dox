@@ -66,11 +66,11 @@ function toggleStatus(status: Report["status"]) {
 </script>
 
 <template>
-    <section class="column g-3" aria-label="Report queue">
+    <section class="column g-3">
         <header class="row wrap g-2">
             <template v-if="topics && topics.length > 1">
                 <div class="field row topic-filter">
-                    <select v-model="selectedTopic" aria-label="Filter reports by topic">
+                    <select v-model="selectedTopic">
                         <option value="">All Topics</option>
                         <template v-for="topic in topics" :key="topic.id">
                             <option :value="topic.id">{{ extractId(topic.id) }}</option>
@@ -79,7 +79,7 @@ function toggleStatus(status: Report["status"]) {
                 </div>
             </template>
             <template v-for="stage in reportStages" :key="stage.status">
-                <button type="button" class="f-1 b-0" :class="{ selected: selectedStatus === stage.status }" :aria-pressed="selectedStatus === stage.status" @click="toggleStatus(stage.status)">
+                <button type="button" class="f-1 b-0" :class="{ selected: selectedStatus === stage.status }" @click="toggleStatus(stage.status)">
                     <span>{{ stage.label }}</span>
                     <span>{{ countReports(stage.status) }}</span>
                 </button>

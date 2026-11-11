@@ -71,7 +71,7 @@ function toggle(id: string) {
                 Refresh
             </ButtonSpinner>
         </header>
-        <section class="box column g-2 p-3" aria-label="Error filters and results">
+        <section class="box column g-2 p-3">
             <header class="row wrap gr-2 gc-4">
                 <div class="field row">
                     <label>Results</label>
@@ -99,7 +99,7 @@ function toggle(id: string) {
                     <label>Codes</label>
                     <div class="row g-1">
                         <template v-for="code in [400, 401, 403, 404, 429, 500, 503]" :key="code">
-                            <Tag type="danger" :class="{ active: codes.includes(code) }" :aria-pressed="codes.includes(code)" @click="toggleStatus(code)" @click.ctrl="selectStatus(code)">
+                            <Tag type="danger" :class="{ active: codes.includes(code) }" @click="toggleStatus(code)" @click.ctrl="selectStatus(code)">
                                 {{ code }}
                             </Tag>
                         </template>
@@ -108,14 +108,14 @@ function toggle(id: string) {
             </header>
             <template v-if="errors && errors.length > 0">
                 <template v-for="error in errors" :key="error.id">
-                    <article class="column g-1" :aria-label="`Server error ${error.status}: ${error.description}`">
+                    <article class="column g-1">
                         <div class="row wrap g-1">
                             <Tag type="danger" :label="error.status" />
                             <Tag class="text truncate f-1" type="link" :label="error.description" @click="toggle(error.id)" />
                             <DurationTag width="4rem" :time="error.time" />
                         </div>
                         <CollapseTransition>
-                            <section v-if="expanded.includes(error.id)" class="column g-2" aria-label="Error details">
+                            <section v-if="expanded.includes(error.id)" class="column g-2">
                                 <Codeblock :code="`${error.stack}\n\n${JSON.stringify({ ...error.request, data: error.data }, undefined, 4)}`" />
                             </section>
                         </CollapseTransition>

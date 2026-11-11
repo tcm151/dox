@@ -123,22 +123,22 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
         <header class="row wrap inline">
             <h1>Settings</h1>
         </header>
-        <section class="box row g-6 p-5" aria-label="Settings editor">
-            <nav class="tabs column g-2 pr-6" aria-label="Settings sections">
+        <section class="box row g-6 p-5">
+            <nav class="tabs column g-2 pr-6">
                 <template v-for="tab in tabs">
-                    <h3 class="clickable" :class="{ active: section == tab }" :aria-pressed="section == tab" @click="section = tab">
+                    <h3 class="clickable" :class="{ active: section == tab }" @click="section = tab">
                         {{ tab }}
                     </h3>
                 </template>
             </nav>
-            <section class="column f-1" aria-label="Selected settings">
-                <section v-if="section == 'about'" aria-label="About settings">
+            <section class="column f-1">
+                <section v-if="section == 'about'">
                     <div class="field">
                         <label>About summary</label>
                         <textarea rows="12" v-model="settings.about.summary"></textarea>
                     </div>
                 </section>
-                <section v-if="section == 'contact'" aria-label="Contact settings">
+                <section v-if="section == 'contact'">
                     <div class="field">
                         <label>support email</label>
                         <input type="email" name="supportEmail" v-model="settings.email.support">
@@ -149,7 +149,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         <span class="tip">Multiple emails can be included, separated by ;</span>
                     </div>
                 </section>
-                <section v-if="section == 'email'" aria-label="Email settings">
+                <section v-if="section == 'email'">
                     <div class="field row">
                         <label class="f-1">daily email limit</label>
                         <input
@@ -187,7 +187,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         >
                     </div>
                 </section>
-                <section v-if="section == 'moderation'" aria-label="Moderation settings">
+                <section v-if="section == 'moderation'">
                     <div class="field row">
                         <label class="f-1">expected moderators per topic</label>
                         <input class="py-1 px-2" type="number" min="0" step="1" v-model="settings.moderation.perTopic">
@@ -217,7 +217,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         <span class="tip">Moderators can apply one of these intervals to a discussion. Remove all values to disable slow-mode choices.</span>
                     </div>
                 </section>
-                <section v-if="section == 'voting'" aria-label="Voting settings">
+                <section v-if="section == 'voting'">
                     <div class="field row">
                         <label class="f-1">enable voting</label>
                         <Toggle v-model:enabled="settings.voting.enabled" />
@@ -237,7 +237,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         />
                     </div>
                 </section>
-                <section v-if="section == 'feeds'" aria-label="Feed settings">
+                <section v-if="section == 'feeds'">
                     <div class="field row">
                         <label class="f-1">enable search</label>
                         <Toggle v-model:enabled="settings.feeds.search" />
@@ -304,7 +304,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         />
                         </div>
                 </section>
-                <section v-if="section == 'topics'" aria-label="Topic settings">
+                <section v-if="section == 'topics'">
                     <div class="field row">
                         <label class="f-1">topics per submission</label>
                         <input
@@ -336,13 +336,13 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         </template>
                     </template>
                 </section>
-                <section v-if="section == 'posts'" aria-label="Post settings">
+                <section v-if="section == 'posts'">
                     <div class="field row">
                         <label class="f-1">enable posts</label>
                         <Toggle v-model:enabled="settings.posts.enabled" />
                     </div>
                 </section>
-                <section v-if="section == 'links'" aria-label="Link settings">
+                <section v-if="section == 'links'">
                     <p class="unavailable br-small row inline g-2 p-3 mb-3">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span>Link publishing is unfinished. Enabling it exposes a preview-only editor.</span>
@@ -352,14 +352,14 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         <Toggle v-model:enabled="settings.links.enabled" />
                     </div>
                 </section>
-                <section v-if="section == 'threads'" aria-label="Thread settings">
+                <section v-if="section == 'threads'">
                     <div class="field row">
                         <label class="f-1">enable threads</label>
                         <Toggle v-model:enabled="settings.threads.enabled" />
                     </div>
                     
                 </section>
-                <section v-if="section == 'media'" aria-label="Media settings">
+                <section v-if="section == 'media'">
                     <div class="field row">
                         <label class="f-1">use tokens</label>
                         <Toggle v-model:enabled="settings.media.tokens.enabled" />
@@ -405,7 +405,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         <Toggle v-model:enabled="settings.media.video.enabled" />
                     </div>
                 </section>
-                <section v-if="section == 'polls'" aria-label="Poll settings">
+                <section v-if="section == 'polls'">
                     <p class="unavailable br-small row inline g-2 p-3 mb-3">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         <span>Poll publishing is unfinished. Enabling it exposes a preview-only editor.</span>
@@ -415,7 +415,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                         <Toggle v-model:enabled="settings.polls.enabled" />
                     </div>
                 </section>
-                <section v-if="section == 'misc'" aria-label="Feedback settings">
+                <section v-if="section == 'misc'">
                     <div class="field row">
                         <label class="f-1">enable feedback</label>
                         <Toggle v-model:enabled="settings.misc.feedback.enabled" />

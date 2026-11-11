@@ -261,7 +261,7 @@ function toggleOptions() {
                             <span>Share</span>
                         </button>
                         <ClientOnly>
-                            <button v-if="session.isAuthenticated" aria-label="Options" title="Options" @click="toggleOptions">
+                            <button v-if="session.isAuthenticated" title="Options" @click="toggleOptions">
                                 <i aria-hidden="true" class="fa-solid fa-ellipsis"></i>
                             </button>
                             <OverlayTransition>

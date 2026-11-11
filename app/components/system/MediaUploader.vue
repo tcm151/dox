@@ -67,13 +67,13 @@ onBeforeUnmount(() => mediaUrls.forEach(url => URL.revokeObjectURL(url)))
                 </section>
         </div>
         <footer class="row inline g-2 mt-4">
-            <button class="link" aria-label="Previous file" :disabled="media.length < 2" @click="moveSelection(-1)">
+            <button class="link" :disabled="media.length < 2" @click="moveSelection(-1)">
                 <i class="fa-solid fa-caret-left"></i>
             </button>
             <button class="link f-1" :disabled="loading" @click="emit('upload')">
                 <span>Upload <span v-if="media.length > 1">{{ media.length }} files</span></span>
             </button>
-            <button class="link" aria-label="Next file" :disabled="media.length < 2" @click="moveSelection(1)">
+            <button class="link" :disabled="media.length < 2" @click="moveSelection(1)">
                 <i class="fa-solid fa-caret-right"></i>
             </button>
         </footer>

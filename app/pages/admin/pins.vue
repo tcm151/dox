@@ -27,7 +27,7 @@ async function deletePin(pin: Pin) {
                 <span>Refresh</span>
             </ButtonSpinner>
         </header>
-        <section v-if="pins && pins.length > 0" class="column g-4" aria-label="Pinned content">
+        <section v-if="pins && pins.length > 0" class="column g-4">
             <template v-for="pin in pins" :key="pin.id">
                 <article class="box">
                     <MultiPreview :item="pin.item" />

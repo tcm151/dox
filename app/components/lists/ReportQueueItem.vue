@@ -131,7 +131,7 @@ function toggleReasons() {
 </script>
 
 <template>
-    <article class="report box hover-shadow column g-1 p-3" :aria-label="`Report for ${report.subject.id}`">
+    <article class="report box hover-shadow column g-1 p-3">
         <header class="row g-1">
             <template v-for="topic in report.moderation.topics" :key="topic">
                 <TopicTag class="b-0" :topic="topic" />
@@ -142,8 +142,8 @@ function toggleReasons() {
             <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject" />
             <Tag v-if="report.priority" type="warning" icon="fa-star" label="Priority" />
             <Tag class="f-1" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
-            <Spinner v-if="report.moderation.isUpdating" :showText="false" role="status" aria-label="Updating report" />
-            <Tag v-if="report.complaints.length > 0" class="danger" :aria-label="reasonsVisible ? 'Hide complaint details' : 'Show complaint details'" @click="toggleReasons">
+            <Spinner v-if="report.moderation.isUpdating" :showText="false" role="status" />
+            <Tag v-if="report.complaints.length > 0" class="danger" @click="toggleReasons">
                 <i v-if="reasonsVisible" class="fa fa-angles-up"></i>
                 <i v-else class="fa fa-angles-down"></i>
             </Tag>
@@ -214,7 +214,7 @@ function toggleReasons() {
                     Remove
                 </button>
                 <template v-for="topic in report.moderation.removableTopics" :key="topic">
-                    <button type="button" class="small" :disabled="report.moderation.isUpdating" :aria-label="`Remove ${topicLabel(topic)} from this submission`" :title="`Remove ${topicLabel(topic)} from this submission`" @click="startTopicRemoval(topic)">
+                    <button type="button" class="small" :disabled="report.moderation.isUpdating" :title="`Remove ${topicLabel(topic)} from this submission`" @click="startTopicRemoval(topic)">
                         <i class="fa fa-ban"></i>
                         <span>{{ topicLabel(topic) }}</span>
                     </button>
