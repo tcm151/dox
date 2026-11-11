@@ -9,7 +9,7 @@ test("formats selected Markdown and toggles the rendered post preview", async ({
     await title.fill("Preview interaction sample")
     await content.fill("selected words")
     await content.selectText()
-    await authenticatedPage.getByRole("button", { name: "Bold" }).click()
+    await authenticatedPage.locator('button[title="Bold"]').click()
     await expect(content).toHaveValue("**selected words**")
 
     await authenticatedPage.getByRole("button", { name: /Preview/ }).click()
