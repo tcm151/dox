@@ -6,7 +6,7 @@
 - Next: Resume browser regression validation after Ticket 0062 provides the shared browser test suite.
 
 ## Dependencies
-- [0062](0062-browser-validation-test-suite.md): Provides the reusable browser runner and fixtures needed for account-switch regression coverage.
+- [0062](completed/0062-browser-validation-test-suite.md): Provides the reusable browser runner and fixtures needed for account-switch regression coverage.
 
 ## Goal
 Refresh account-dependent views when a user logs in or switches profiles, without a full router reload. Ensure data from the previous account is not left visible under the new identity.
