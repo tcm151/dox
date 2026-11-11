@@ -23,27 +23,29 @@ function toggle(id: string) {
 <template>
     <article class="content-width column g-2 p-4">
         <header class="row wrap inline between g-2">
-            <h1>Moderation</h1>
-            <button class="dark" :disabled="pending" @click="refresh()">
+            <h1>Moderation Logs</h1>
+            <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
                 <i class="fa-solid fa-rotate"></i>
                 <span>Refresh</span>
-            </button>
+            </ButtonSpinner>
         </header>
         <template v-if="logs?.length">
-            <section class="box column g-2 p-2">
-                <div v-for="log in logs" :key="log.id" class="column g-1">
-                    <div class="row wrap g-1">
-                        <Tag type="danger f-1" :label="actionLabel(log.action)" @click="toggle(log.id)" />
-                        <Tag class="link f-1" :label="log.target" />
-                        <UserTag :user="log.actor" />
-                        <DurationTag :time="log.time" />
-                    </div>
-                    <CollapseTransition>
-                        <template v-if="expanded.includes(log.id)" class="column g-2">
-                            <Codeblock language="json" :code="JSON.stringify(log.details, undefined, 4)" />
-                        </template>
-                    </CollapseTransition>
-                </div>
+            <section class="box column g-2 p-2" aria-label="Moderation log entries">
+                <template v-for="log in logs" :key="log.id">
+                    <article class="column g-1" :aria-label="`Moderation log: ${actionLabel(log.action)} on ${log.target}`">
+                        <div class="row wrap g-1">
+                            <Tag type="danger f-1" :label="actionLabel(log.action)" @click="toggle(log.id)" />
+                            <Tag class="link f-1" :label="log.target" />
+                            <UserTag :user="log.actor" />
+                            <DurationTag :time="log.time" />
+                        </div>
+                        <CollapseTransition>
+                            <template v-if="expanded.includes(log.id)" class="column g-2">
+                                <Codeblock language="json" :code="JSON.stringify(log.details, undefined, 4)" />
+                            </template>
+                        </CollapseTransition>
+                    </article>
+                </template>
             </section>
         </template>
         <section v-else class="box empty-state">

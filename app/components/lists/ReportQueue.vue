@@ -66,44 +66,35 @@ function toggleStatus(status: Report["status"]) {
 </script>
 
 <template>
-    <article class="column g-3">
+    <section class="column g-3" aria-label="Report queue">
         <header class="row wrap g-2">
             <template v-if="topics && topics.length > 1">
                 <div class="field row topic-filter">
                     <select v-model="selectedTopic" aria-label="Filter reports by topic">
-                        <option value="">All topics</option>
-                        <option v-for="topic in topics" :key="topic.id" :value="topic.id">
-                            {{ extractId(topic.id) }}
-                        </option>
+                        <option value="">All Topics</option>
+                        <template v-for="topic in topics" :key="topic.id">
+                            <option :value="topic.id">{{ extractId(topic.id) }}</option>
+                        </template>
                     </select>
                 </div>
             </template>
-            <button
-                v-for="stage in reportStages"
-                :key="stage.status"
-                type="button"
-                class="f-1 b-0"
-                :class="{ selected: selectedStatus === stage.status }"
-                :aria-pressed="selectedStatus === stage.status"
-                @click="toggleStatus(stage.status)"
-            >
-                <span>{{ stage.label }}</span>
-                <span>{{ countReports(stage.status) }}</span>
-            </button>
+            <template v-for="stage in reportStages" :key="stage.status">
+                <button type="button" class="f-1 b-0" :class="{ selected: selectedStatus === stage.status }" :aria-pressed="selectedStatus === stage.status" @click="toggleStatus(stage.status)">
+                    <span>{{ stage.label }}</span>
+                    <span>{{ countReports(stage.status) }}</span>
+                </button>
+            </template>
         </header>
         <section v-if="filteredReports.length" class="column g-2">
-            <ReportQueueItem
-                v-for="report in filteredReports"
-                :key="report.id"
-                :report="report"
-                @refresh="emit('refresh')"
-            />
+            <template v-for="report in filteredReports" :key="report.id">
+                <ReportQueueItem :report="report" @refresh="emit('refresh')" />
+            </template>
         </section>
         <section v-else class="box empty-state">
             <p v-if="selectedStatus">There are no reports in this stage.</p>
             <p v-else>Select a status to view reports.</p>
         </section>
-    </article>
+    </section>
 </template>
 
 <style scoped lang="scss">

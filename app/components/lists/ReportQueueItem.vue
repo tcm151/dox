@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Report } from "@@/shared/types"
-import type { ReportModerationView } from "@@/shared/utils/moderation"
+import type { ReportModerationView } from "@@/app/utils/moderation"
 
 const props = defineProps<{
     report: Report & {
@@ -13,6 +13,7 @@ const emit = defineEmits<{
     (event: "refresh"): void
 }>()
 
+const hints = useHints()
 const showReasons = ref<boolean>()
 const moderationAction = ref<"resolve" | "remove" | "remove-topic" | "reopen">()
 const actionMessage = ref("")
@@ -103,9 +104,15 @@ function cancelModerationAction() {
 }
 
 async function runReportAction(action: () => Promise<boolean>) {
-    const completed = await action()
-    if (completed) emit("refresh")
-    return completed
+    try {
+        const completed = await action()
+        if (completed) emit("refresh")
+        return completed
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+        return false
+    }
 }
 
 async function submitModerationAction() {
@@ -124,9 +131,11 @@ function toggleReasons() {
 </script>
 
 <template>
-    <div class="report box hover-shadow column g-1 p-3">
+    <article class="report box hover-shadow column g-1 p-3" :aria-label="`Report for ${report.subject.id}`">
         <header class="row g-1">
-            <TopicTag v-for="topic in report.moderation.topics" :key="topic" class="b-0" :topic="topic" />
+            <template v-for="topic in report.moderation.topics" :key="topic">
+                <TopicTag class="b-0" :topic="topic" />
+            </template>
         </header>
         <section class="row wrap g-1" :aria-busy="report.moderation.isUpdating">
             <Tag class="f-1" :type="report.stage.type" :label="report.stage.label" />
@@ -134,17 +143,19 @@ function toggleReasons() {
             <Tag v-if="report.priority" type="warning" icon="fa-star" label="Priority" />
             <Tag class="f-1" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
             <Spinner v-if="report.moderation.isUpdating" :showText="false" role="status" aria-label="Updating report" />
-            <Tag v-if="report.complaints.length > 0" class="danger" @click="toggleReasons">
+            <Tag v-if="report.complaints.length > 0" class="danger" :aria-label="reasonsVisible ? 'Hide complaint details' : 'Show complaint details'" @click="toggleReasons">
                 <i v-if="reasonsVisible" class="fa fa-angles-up"></i>
                 <i v-else class="fa fa-angles-down"></i>
             </Tag>
         </section>
         <CollapseTransition>
             <section v-show="reasonsVisible" class="f-1 column g-1">
-                <blockquote v-for="(complaint, index) in report.complaints" :key="index">
-                    <strong>{{ complaint.user.name }}:</strong>
-                    {{ complaint.reason }}
-                </blockquote>
+                <template v-for="(complaint, index) in report.complaints" :key="index">
+                    <blockquote>
+                        <strong>{{ complaint.user.name }}:</strong>
+                        {{ complaint.reason }}
+                    </blockquote>
+                </template>
                 <template v-for="entry in report.history" :key="`${entry.action}:${entry.time}`">
                     <span class="timestamp my-1">{{ actionLabel(entry.action) }} • {{ formatDate(entry.time) }} ago</span>
                     <blockquote>
@@ -202,26 +213,19 @@ function toggleReasons() {
                     <i class="fa fa-trash"></i>
                     Remove
                 </button>
-                <button
-                    v-for="topic in report.moderation.removableTopics"
-                    :key="topic"
-                    type="button"
-                    class="small"
-                    :disabled="report.moderation.isUpdating"
-                    :aria-label="`Remove ${topicLabel(topic)} from this submission`"
-                    :title="`Remove ${topicLabel(topic)} from this submission`"
-                    @click="startTopicRemoval(topic)"
-                >
-                    <i class="fa fa-ban"></i>
-                    <span>{{ topicLabel(topic) }}</span>
-                </button>
+                <template v-for="topic in report.moderation.removableTopics" :key="topic">
+                    <button type="button" class="small" :disabled="report.moderation.isUpdating" :aria-label="`Remove ${topicLabel(topic)} from this submission`" :title="`Remove ${topicLabel(topic)} from this submission`" @click="startTopicRemoval(topic)">
+                        <i class="fa fa-ban"></i>
+                        <span>{{ topicLabel(topic) }}</span>
+                    </button>
+                </template>
                 <button v-if="report.moderation.canReopen" type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="startReopen">
                     <i class="fa fa-undo"></i>
                     <span>Reopen</span>
                 </button>
             </section>
         </CollapseTransition>
-    </div>
+    </article>
 </template>
 
 <style scoped lang="scss">

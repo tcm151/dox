@@ -34,6 +34,9 @@ async function submitReport() {
         hints.addSuccess("Thank you for reporting this content.")
         closeReporter()
     }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
     finally {
         loading.value = false
     }

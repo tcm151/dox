@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAttrs } from "vue"
+
 const props = defineProps<{
     width?: string
     type?: string
@@ -6,17 +8,27 @@ const props = defineProps<{
     label?: string | number
     hidden?: boolean
 }>()
+const attrs = useAttrs()
 </script>
 
 <template>
-    <div v-if="!hidden" class="tag" :class="type" :style="{ width }">
+    <component v-if="!hidden" :is="attrs.onClick ? 'button' : 'div'" :type="attrs.onClick ? 'button' : undefined" class="tag" :class="[type, { interactive: attrs.onClick }]" :style="{ width }">
         <i v-if="icon" class="fa-solid" :class="icon"></i>
         <span v-if="label !== undefined && label !== ''">{{ label }}</span>
         <slot />
-    </div>
+    </component>
 </template>
 
 <style scoped lang="scss">
+button.tag.interactive {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+
+    i {
+        font-size: 0.8rem;
+    }
+}
+
 .tag.default {
     background-color: $white-2;
     transition:

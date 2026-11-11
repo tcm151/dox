@@ -6,7 +6,7 @@ definePageMeta({
         if (!ENV.isClient()) return
 
         const session = getSession()
-        if (!session.isAuthenticated || !hasRole(session.user, "moderator")) {
+        if (!session.isAuthenticated || (!hasRole(session.user, "moderator") && !hasRole(session.user, "admin"))) {
             return abortNavigation()
         }
     }
@@ -16,11 +16,17 @@ const hints = useHints()
 const route = useRoute()
 
 const id = route.params.topic?.toString()
-const topic = await useDatasource<Topic>(`/api/topic/${id}`)
+const { data: topic, error, refresh } = await useDatasource<Topic>(`/api/topic/${id}/profile`)
+
+watch(error, async (error) => {
+    const status = error?.statusCode ?? error?.status
+    if (status === 403) await navigateTo(`/topic/${id}`)
+}, { immediate: true })
+
 const postIntervalMinutes = computed({
-    get: () => (topic.data.value?.moderation.maxPostInterval ?? 0) / 60,
+    get: () => (topic.value?.moderation.maxPostInterval ?? 0) / 60,
     set: (minutes: number) => {
-        const profile = topic.data.value
+        const profile = topic.value
         if (!profile) return
 
         profile.moderation.maxPostInterval = Math.round(minutes * 60)
@@ -29,7 +35,7 @@ const postIntervalMinutes = computed({
 
 const loading = ref<boolean>(false)
 async function updateProfile() {
-    const profile = topic.data.value
+    const profile = topic.value
     if (!profile) return
 
     try {
@@ -60,9 +66,10 @@ async function updateProfile() {
                 View Topic
             </button>
         </header>
-        <section v-if="topic.data.value" class="box column g-4 p-5">
+        <section v-if="topic" class="box column g-4 p-5">
             <div class="row between">
                 <h2>{{ id }}</h2>
+                <!-- TODO add functionality for this -->
                 <button @click="">
                     <i class="fa-solid fa-signature"></i>
                     Request Rename
@@ -70,7 +77,7 @@ async function updateProfile() {
             </div>
             <div class="field">
                 <label>Description</label>
-                <textarea rows="4" v-model="topic.data.value.description" />
+                <textarea rows="4" v-model="topic.description" />
             </div>
             <div class="field row">
                 <div class="column f-1">
@@ -84,14 +91,14 @@ async function updateProfile() {
                     <label>Priority Report Threshold</label>
                     <span class="tip">Reports will be given priority for review after this many reports. Default: 5.</span>
                 </div>
-                <input class="py-1 px-2" type="number" min="1" max="100" step="1" v-model.number="topic.data.value.moderation.priorityReportThreshold">
+                <input class="py-1 px-2" type="number" min="1" max="100" step="1" v-model.number="topic.moderation.priorityReportThreshold">
             </div>
             <div class="row g-2">
                 <ButtonSpinner :loading="loading" class="success f-2" @click="updateProfile">
                     <i class="fa-solid fa-floppy-disk"></i>
                     Save
                 </ButtonSpinner>
-                <button class="f-1" @click="topic.refresh()">
+                <button class="f-1" @click="refresh()">
                     <i class="fa-solid fa-refresh"></i>
                     Cancel
                 </button>

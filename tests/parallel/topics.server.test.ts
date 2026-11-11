@@ -1,9 +1,10 @@
 import { expect, it } from "vitest"
-import { expectStatus, grabUser } from "../utils/test-server"
+import { expectStatus, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Post, Topic } from "../../shared/types"
 
 const admin = await grabUser("admin")
+const member = (await grabExampleServer("default")).users.sampleUser01
 
 it("creates and traverses a referenced topic, then removes it when its post is deleted", async () => {
     const topicId = `topicReference${Date.now()}`
@@ -34,6 +35,11 @@ it("creates and traverses a referenced topic, then removes it when its post is d
             maxPostInterval: 60,
             priorityReportThreshold: 5,
         })
+
+        const adminProfileResponse = await admin.fetchRaw<Topic>(`/api/topic/${topicId}/profile`, { method: "GET" })
+        expectStatus(adminProfileResponse, 200, "authorized topic profile stage")
+        const memberProfileResponse = await member.fetchRaw(`/api/topic/${topicId}/profile`, { method: "GET" })
+        expectStatus(memberProfileResponse, 403, "unauthorized topic profile stage")
 
         const blockedThreadResponse = await admin.fetchRaw("/api/thread/add", {
             method: "POST",

@@ -3,11 +3,18 @@ const hints = useHints()
 const events = useEvents()
 const session = getSession()
 
-const { data: schema, refresh } = await useAuthenticatedDatasource<string>("/api/developer/database/schema")
+const { data: schema, pending, refresh } = await useAuthenticatedDatasource<string>("/api/developer/database/schema")
+const syncing = ref(false)
 
 async function syncDatabase() {
-    await useApi("/api/developer/database/sync")
-    hints.addSuccess("Database synced.")
+    syncing.value = true
+    try {
+        await useApi("/api/developer/database/sync")
+        hints.addSuccess("Database synced.")
+    }
+    finally {
+        syncing.value = false
+    }
 }
 
 const loading = ref(false)
@@ -25,21 +32,24 @@ async function replayMigration() {
 </script>
 
 <template>
-    <article class="content-width p-4">
+    <article class="content-width column g-2 p-4">
+        <header class="row wrap inline between g-2">
+            <h1>Schema</h1>
+            <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Refresh</span>
+            </ButtonSpinner>
+        </header>
         <section class="box column g-2 p-4">
             <header class="row wrap g-2">
-                <button class="danger f-1" @click="syncDatabase">
+                <ButtonSpinner class="danger f-1" :loading="syncing" @click="syncDatabase">
                     <i class="fa-solid fa-cloud-arrow-down" />
                     <span>Sync Database</span>
-                </button>
-                <button class="danger f-1" :disabled="loading" @click="replayMigration">
+                </ButtonSpinner>
+                <ButtonSpinner class="danger f-1" :loading="loading" @click="replayMigration">
                     <i class="fa-solid fa-rotate-right" />
-                    <span>{{ loading ? "Replaying Migration..." : "Replay Migration" }}</span>
-                </button>
-                <button class="link f-1" @click="refresh()">
-                    <i class="fa-solid fa-cloud-arrow-down" />
-                    <span>Refresh Schema</span>
-                </button>
+                    <span>Replay Migration</span>
+                </ButtonSpinner>
             </header>
             <Codeblock v-if="schema" language="sql" :code="schema" />
         </section>

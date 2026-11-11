@@ -12,8 +12,10 @@ definePageMeta({
     }
 })
 
+const hints = useHints()
 const pageAmount = ref<number>(5)
 
+const dismissing = ref<boolean>(false)
 const showDismissed = ref<boolean>(false)
 const notificationAmount = ref<number>(pageAmount.value)
 const { data: result, pending, refresh } = await useAuthenticatedDatasource<{ total: number, notifications: Notification[] }>("/api/profile/notifications", {
@@ -24,7 +26,20 @@ const { data: result, pending, refresh } = await useAuthenticatedDatasource<{ to
 })
 
 async function dismissAll() {
-    await useApi(`/api/profile/notifications/dismiss`)
+    if (dismissing.value) return
+
+    dismissing.value = true
+    try {
+        await useApi(`/api/profile/notifications/dismiss`)
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+        return
+    }
+    finally {
+        dismissing.value = false
+    }
+
     await refresh()
 }
 
@@ -32,20 +47,36 @@ function viewContext(notification: Notification) {
     const context = notification.context as string
     const reportId = context.startsWith("report:") ? extractId(context) : undefined
     if (reportId) return navigateTo(`/appeal/${reportId}`)
+    if (context.startsWith("comment:")) return navigateTo(`/comment/${extractId(context)}`)
 
-    return navigateTo(`/${context.replace(':', '/')}`)
+    return navigateTo(`/${context.replace(":", "/")}`)
 }
 
 function contextLabel(notification: Notification) {
     const context = notification.context as string
-    if (context.startsWith("report:")) return "Appeal"
-    if (context.startsWith("topic:")) return "Topic"
-    return "Context"
+    const contextType = context.split(":", 1)[0] ?? ""
+    const labels: Record<string, string> = {
+        comment: "Comment",
+        gallery: "Gallery",
+        image: "Image",
+        post: "Post",
+        report: "Appeal",
+        thread: "Thread",
+        topic: "Topic",
+        user: "Profile",
+    }
+
+    return labels[contextType] ?? "Context"
 }
 
 async function dismiss(notification: Notification) {
-    await useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`)
-    await refresh()
+    try {
+        await useApi(`/api/profile/notifications/${extractId(notification.id)}/dismiss`)
+        await refresh()
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
 }
 
 function loadMore() {
@@ -61,26 +92,26 @@ function loadMore() {
                 <i class="fa-solid fa-refresh"></i>
                 Refresh
             </ButtonSpinner>
-            <button class="dark" @click="dismissAll">
+            <ButtonSpinner v-if="!showDismissed && result && result.total > 0" class="dark" :loading="dismissing" @click="dismissAll">
                 <i class="fa-solid fa-angles-right"></i>
-                Dismiss All
-            </button>
+                Dismiss All Unread
+            </ButtonSpinner>
             <div class="box px-4 py-2">
                 <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
             </div>
         </header>
-        <section v-if="result && result.total > 0" class="column g-2">
+        <section v-if="result && result.total > 0" aria-label="Notifications" class="column g-2">
             <TransitionGroup name="notifications">
-                <div class="box p-4" v-for="notification in result.notifications" :key="notification.id">
-                    <Markdown class="column" :content="notification.message" />
-                    <div class="row g-1 mt-3">
-                        <DurationTag :time="notification.time" />
-                        <Tag type="link" icon="fa-eye" :label="contextLabel(notification)" @click="viewContext(notification)" />
-                        <template v-if="!notification.viewed">
-                            <Tag type="danger" icon="fa-angles-right" label="Dismiss" @click="dismiss(notification)" />
-                        </template>
-                    </div>
-                </div>
+                <template v-for="notification in result.notifications" :key="notification.id">
+                    <article class="box p-4">
+                        <Markdown class="column" :content="notification.message" />
+                        <footer class="row g-1 mt-3">
+                            <DurationTag :time="notification.time" />
+                            <Tag type="link" icon="fa-eye" :label="contextLabel(notification)" @click="viewContext(notification)" />
+                            <Tag v-if="!notification.viewed" type="danger" icon="fa-angles-right" label="Dismiss" @click="dismiss(notification)" />
+                        </footer>
+                    </article>
+                </template>
             </TransitionGroup>
             <template v-if="result.total > result.notifications.length">
                 <button class="link" @click="loadMore">
@@ -90,7 +121,7 @@ function loadMore() {
             </template>
         </section>
         <section class="box empty-state stacked" v-else>
-            <p>You have no unread notifications.</p>
+            <p>{{ showDismissed ? "You don't have any notifications." : "You have no unread notifications." }}</p>
         </section>
     </article>
 </template>
