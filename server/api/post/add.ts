@@ -18,6 +18,15 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
+            LET $unavailableTopics = (
+                SELECT VALUE id
+                FROM topic
+                WHERE id IN $topics AND status != "active"
+            );
+            IF $unavailableTopics.len() > 0 {
+                fn::http(409, "Locked topics cannot be assigned to new content.");
+            };
+
             FOR $image IN $images {
                 IF $image.status != "active" {
                     fn::http(403, "You are not allowed to attach these images.");

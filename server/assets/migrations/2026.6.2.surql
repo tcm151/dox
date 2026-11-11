@@ -322,6 +322,11 @@ WHERE email.spool = NONE;
 
 DEFINE FIELD OVERWRITE moderation ON topic
     TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
+
+DEFINE FIELD OVERWRITE status ON topic
+    TYPE string ASSERT $value IN ["active", "locked"] DEFAULT ALWAYS "active";
+UPDATE topic SET status = "active" WHERE status = NONE;
+
 DEFINE FIELD OVERWRITE moderation.maxPostInterval ON topic
     TYPE number DEFAULT ALWAYS 60 ASSERT $value >= 0 AND $value <= 3600;
 DEFINE FIELD OVERWRITE moderation.priorityReportThreshold ON topic

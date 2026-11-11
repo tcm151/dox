@@ -35,6 +35,7 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                     </Feed>
                 </section>
                 <aside class="sidebar box column g-2 p-4">
+                    <Tag v-if="topic.status === 'locked'" type="warning" icon="fa-lock" label="Locked" />
                     <Authenticated>
                         <button v-if="moderator.canRequest(topic)" class="small" @click="moderator.request(topic)">
                             <i class="fa-solid fa-hand"></i>

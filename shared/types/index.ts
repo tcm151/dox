@@ -50,6 +50,7 @@ export interface User extends Voteable {
 export type Role = "admin" | "developer" | "moderator"
 export type Trait = "confirmed" | "verified"
 export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
+export type TopicStatus = "active" | "locked"
 
 export interface Session extends Record {
     account: Account & string
@@ -59,6 +60,7 @@ export interface Session extends Record {
 
 export interface Topic extends Sortable {
     description?: string
+    status: TopicStatus
     posts: Post[]
     moderation: {
         maxPostInterval: number
