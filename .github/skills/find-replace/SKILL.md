@@ -16,4 +16,6 @@ argument-hint: "Optional scope: files, symbols, or requested change"
 - After a patch result is known, run the narrowest relevant check immediately, then inspect the resulting diff for unintended or missing changes before continuing.
 
 # A Failed Patch
+Patch tools may apply earlier hunks before a later hunk fails. Inspect status and focused diffs to identify edits already applied, then retry only failed or unattempted hunks against the current contents.
+
 When a patch fails in an active session, reference this file and update it to account for genuinely new guidance.
