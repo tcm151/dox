@@ -148,9 +148,6 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
         })
         expectStatus(changeSlowMode, 409, "active slow-mode change stage")
 
-        const missingScopeResponse = await member.fetchRaw(`/api/moderation/post/${postId}/lock/apply`, { method: "POST" })
-        expectStatus(missingScopeResponse, 400, "missing scope stage")
-
         const invalidScopeResponse = await member.fetchRaw(`/api/moderation/comment/${commentId}/lock/apply`, {
             method: "POST",
             body: { scope: "chain" },

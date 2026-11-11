@@ -8,6 +8,6 @@ export default defineEventHandler(async (event) => {
     if (!id) throw createError({ status: 400, statusMessage: "Report ID is required." })
     if (!topic) throw createError({ status: 400, statusMessage: "Topic ID is required." })
 
-    const body = await readBody<{ message?: unknown }>(event) ?? {}
-    return await ReportManager.removeTopic({ reportId: id, actorId: auth.id, topicId: topic, message: body.message })
+    const body = await readBody<{ message: string }>(event)
+    return await ReportManager.removeTopic({ reportId: id, actorId: auth.id, topicId: topic, message: body?.message })
 })

@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)    
-    const { username } = await readBody(event)
+    const { username } = await readBody<{ username: string }>(event)
 
     try {
         await new DatabaseQuery()

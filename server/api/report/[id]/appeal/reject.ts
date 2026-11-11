@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     requireRole(auth, "admin")
 
     const id = event.context.params!.id!
-    const body = await readBody<{ message?: unknown }>(event)
+    const body = await readBody<{ message: string }>(event)
 
-    return await ReportManager.rejectAppeal({ reportId: id, actorId: auth.id, message: body.message })
+    return await ReportManager.rejectAppeal({ reportId: id, actorId: auth.id, message: body?.message })
 })

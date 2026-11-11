@@ -2,7 +2,7 @@ import type { Draft } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const draft = await readBody(event)
+    const draft = await readBody<Pick<Draft, "title" | "content" | "topics">>(event)
     const { id } = event.context.params!
 
     return await new DatabaseQuery()

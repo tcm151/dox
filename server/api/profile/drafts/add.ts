@@ -1,9 +1,17 @@
 import type { Draft } from "@@/shared/types"
 
+type CreateDraftRequest = {
+    title: string
+    content: string
+    replyTo?: string
+    topics: string[]
+    images?: string[]
+}
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const draft = await readBody(event)
-    const imageIds = (draft.images ?? []) as string[]
+    const draft = await readBody<CreateDraftRequest>(event)
+    const imageIds = draft.images ?? []
 
     return await new DatabaseQuery()
         .addSql(`
@@ -35,7 +43,7 @@ export default defineEventHandler(async (event) => {
         .addRecord('user', auth.id)
         .addParameter('title', draft.title)
         .addParameter('content', draft.content)
-        .addRecord('replyTo', draft.replyTo, true)
+        .addRecord('replyTo', draft.replyTo ?? "", true)
         .addRecords('topics', draft.topics)
         .addRecords('images', imageIds)
         .queryOne<Draft>()
