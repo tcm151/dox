@@ -67,7 +67,7 @@ const tabTitles = computed(() => {
 
 <template>
     <article class="row g-2 m-4">
-        <div class="left box column g-2 p-4">
+        <section class="left box column g-2 p-4" aria-label="Database query editor">
             <section class="editor f-1 column g-2">
                 <header class="row g-2">
                     <button class="danger" @click="query = ''">
@@ -87,8 +87,8 @@ const tabTitles = computed(() => {
                     <textarea class="f-1" rows="8" spellcheck="false" @keydown.enter.alt.prevent="submitQuery" v-model="query" />
                 </div>
             </section>
-        </div>
-        <div class="right box column g-2 p-4">
+        </section>
+        <section class="right box column g-2 p-4" aria-label="Query output">
             <header class="row g-2">
                 <button v-if="errorMessage != ''"  class="danger f-1" @click="tab = 'Results'">
                     <i class="fa-solid fa-triangle-exclamation"></i>
@@ -103,38 +103,40 @@ const tabTitles = computed(() => {
                     <span>History</span>
                 </button>
             </header>
-            <section v-if="tab == 'Error'">
+            <section v-if="tab == 'Error'" aria-label="Query error">
                 <Codeblock class="error" language="text" :code="errorMessage" />
             </section>
-            <section v-if="tab == 'Results'" class="results column">
+            <section v-if="tab == 'Results'" class="results column" aria-label="Query results">
                 <header v-if="results.length > 0" class="tabs row" ref="result-tabs">
                     <template v-for="(label, index) in tabTitles">
-                        <div class="result clickable px-4 py-2" :class="{ active: selectedResult == index }" @click="selectedResult = index">
+                        <button type="button" class="result px-4 py-2" :class="{ active: selectedResult == index }" :aria-pressed="selectedResult == index" @click="selectedResult = index">
                             {{ label }}
-                        </div>
+                        </button>
                     </template>
-                    <div class="clear clickable px-4 py-2" @click="results = []">
+                    <button type="button" class="clear px-4 py-2" aria-label="Clear results" @click="results = []">
                         <i class="fa-solid fa-eraser"></i>
-                    </div>
+                    </button>
                 </header>
                 <template v-for="(result, index) in results">
                     <Codeblock v-if="selectedResult == index" class="br-none" language="json" :code="JSON.stringify(result, undefined, 4)" />
                 </template>
             </section>
-            <section v-if="tab == 'History'" class="history column g-2">
-                <div class="query" v-for="(item, index) in history" :key="index">
-                    <Codeblock language="sql" :code="item" />
-                    <div class="tools row g-3 p-3">
-                        <button class="p-0" @click="query = item">
-                            <i class="fa-solid fa-rotate"></i>
-                        </button>
-                        <button class="p-0" @click="removeFromHistory(item)">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
+            <section v-if="tab == 'History'" class="history column g-2" aria-label="Query history">
+                <template v-for="(item, index) in history" :key="index">
+                    <article class="query">
+                        <Codeblock language="sql" :code="item" />
+                        <footer class="tools row g-3 p-3">
+                            <button type="button" class="p-0" aria-label="Load query" @click="query = item">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                            <button type="button" class="p-0" aria-label="Remove query from history" @click="removeFromHistory(item)">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </footer>
+                    </article>
+                </template>
             </section>
-        </div>
+        </section>
     </article>
 </template>
 
@@ -149,12 +151,12 @@ article {
     height: stretch;
     overflow: hidden;
 
-    div.right {
+    section.right {
         overflow: hidden;
     }
     
-    div.left { flex: 5 1 }
-    div.right { flex: 5 1 }
+    section.left { flex: 5 1 }
+    section.right { flex: 5 1 }
 }
 
 section.editor {
@@ -170,8 +172,8 @@ section.editor {
     article {
         @include flex-v;
 
-        div.left { flex: 1 1 }
-        div.right { flex: 10 1 }
+        section.left { flex: 1 1 }
+        section.right { flex: 10 1 }
     }
 
     section.editor textarea {
@@ -183,10 +185,10 @@ section.editor {
 section.history {
     overflow-y: auto;
 
-    div.query {
+    .query {
         position: relative;
 
-        div.tools {
+        .tools {
             inset: 0 0 auto auto;
             position: absolute;
 
@@ -215,29 +217,33 @@ section.results {
             display: none;
         }
 
-        div.result {
+        button.result {
             font-weight: var(--fw-normal);
             font-family: "Source Code Pro", monospace;
             white-space: nowrap;
             border-right: 1px solid $white-1;
             background-color: $white-2;
+            border-radius: 0;
         }
         
-        div.result:hover {
+        button.result:hover {
             text-decoration: underline;
+            color: inherit;
+            background-color: $white-2;
         }
         
-        div.result.active {
+        button.result.active {
             background-color: $white-1;
         }
 
-        div.clear {
+        button.clear {
             background-color: $white-2;
             border-radius: 0 0.25rem 0 0;
         }
 
-        div.clear:hover {
+        button.clear:hover {
             color: $red;
+            background-color: $white-2;
         }
     }
 }

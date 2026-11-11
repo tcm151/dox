@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
             UPDATE $thread SET
                 status = IF status = "archived" THEN "active" ELSE "archived" END
         `)
+        .addTransaction()
         .addRecord("thread", `thread:${id}`)
         .queryOne<Thread>()
 })

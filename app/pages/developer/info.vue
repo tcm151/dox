@@ -3,13 +3,16 @@ const config = useRuntimeConfig()
 </script>
 
 <template>
-    <article class="p-4">
+    <article class="content-width column g-2 p-4">
+        <header class="row wrap inline between g-2">
+            <h1>Info</h1>
+        </header>
         <section class="box content column g-2 px-4">
             <table>
                 <thead>
                     <tr>
-                        <th>Info</th>
-                        <th></th>
+                        <th scope="col">Property</th>
+                        <th scope="col">Value</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,10 +27,6 @@ const config = useRuntimeConfig()
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(40rem, 1rem);
-}
-
 table th:last-child, table td:last-child {
     text-align: right;
 }

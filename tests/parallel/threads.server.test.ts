@@ -38,6 +38,37 @@ it("rejects replies to missing threads", async () => {
     expectStatus(response, 404)
 })
 
+it("denies thread archiving to members and toggles the archived state for admins", async () => {
+    const content = `Thread archive flow ${Date.now()}`
+    let threadId: string | undefined
+
+    try {
+        const createResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content, topics: [], images: [] },
+        })
+        expectStatus(createResponse, 200, "thread creation stage")
+        threadId = extractId(createResponse._data!.id)
+        expect(threadId).toBeDefined()
+
+        const memberResponse = await replyAuthor.fetchRaw(`/api/thread/${threadId}/archive`, { method: "POST" })
+        expectStatus(memberResponse, 403, "member archive stage")
+        const unchangedThread = await threadAuthor.fetch<Thread>(`/api/thread/${threadId}`)
+        expect(unchangedThread.status).toBe("active")
+
+        const archiveResponse = await admin.fetchRaw<Thread>(`/api/thread/${threadId}/archive`, { method: "POST" })
+        expectStatus(archiveResponse, 200, "archive stage")
+        expect(archiveResponse._data?.status).toBe("archived")
+
+        const unarchiveResponse = await admin.fetchRaw<Thread>(`/api/thread/${threadId}/archive`, { method: "POST" })
+        expectStatus(unarchiveResponse, 200, "unarchive stage")
+        expect(unarchiveResponse._data?.status).toBe("active")
+    }
+    finally {
+        if (threadId) await admin.query(`DELETE thread:${threadId};`)
+    }
+})
+
 it("creates a thread reply and notifies the thread author", async () => {
     const parentContent = `API smoke parent ${Date.now()}`
     const replyContent = `API smoke reply ${Date.now()}`
@@ -587,4 +618,3 @@ it("truncates ancestor and best-reply chains with load-more stubs", async () => 
         }
     }
 })
-

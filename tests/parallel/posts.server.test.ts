@@ -120,6 +120,10 @@ it("traverses post comments and rejects hard deletion while comments remain", as
         const comment = commentResponse._data!
         commentId = extractId(comment.id)
 
+        const commentRouteResponse = await admin.fetchRaw(`/comment/${commentId}`, { redirect: "manual" })
+        expectStatus(commentRouteResponse, 302, "comment redirect stage")
+        expect(commentRouteResponse.headers.get("location")).toBe(`/post/${postId}#${encodeURIComponent(comment.id)}`)
+
         const postWithComments = await admin.fetch<Post>(`/api/post/${postId}`)
         expect(postWithComments.comments.map(item => item.id)).toContain(comment.id)
         await expect(admin.query(`DELETE ONLY post:${postId};`)).rejects.toThrow()

@@ -63,13 +63,16 @@ function toggle(id: string) {
 </script>
     
 <template>
-    <article class="p-4">
-        <section class="box column g-2 p-3">
+    <article class="column g-2 p-4">
+        <header class="row wrap inline between g-2">
+            <h1>Errors</h1>
+            <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
+                <i class="fa-solid fa-refresh"></i>
+                Refresh
+            </ButtonSpinner>
+        </header>
+        <section class="box column g-2 p-3" aria-label="Error filters and results">
             <header class="row wrap gr-2 gc-4">
-                <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
-                    <i class="fa-solid fa-refresh"></i>
-                    Refresh
-                </ButtonSpinner>
                 <div class="field row">
                     <label>Results</label>
                     <select v-model.number="limit">
@@ -95,13 +98,8 @@ function toggle(id: string) {
                 <div class="field row">
                     <label>Codes</label>
                     <div class="row g-1">
-                        <template v-for="code in [400, 401, 403, 404, 429, 500, 503]">
-                            <Tag
-                                type="danger"
-                                :class="{ active: codes.includes(code) }"
-                                @click="toggleStatus(code)"
-                                @click.ctrl="selectStatus(code)"
-                            >
+                        <template v-for="code in [400, 401, 403, 404, 429, 500, 503]" :key="code">
+                            <Tag type="danger" :class="{ active: codes.includes(code) }" :aria-pressed="codes.includes(code)" @click="toggleStatus(code)" @click.ctrl="selectStatus(code)">
                                 {{ code }}
                             </Tag>
                         </template>
@@ -110,21 +108,24 @@ function toggle(id: string) {
             </header>
             <template v-if="errors && errors.length > 0">
                 <template v-for="error in errors" :key="error.id">
-                    <div class="column g-1">
+                    <article class="column g-1" :aria-label="`Server error ${error.status}: ${error.description}`">
                         <div class="row wrap g-1">
                             <Tag type="danger" :label="error.status" />
                             <Tag class="text truncate f-1" type="link" :label="error.description" @click="toggle(error.id)" />
                             <DurationTag width="4rem" :time="error.time" />
                         </div>
                         <CollapseTransition>
-                            <footer v-if="expanded.includes(error.id)" class="column g-2">
+                            <section v-if="expanded.includes(error.id)" class="column g-2" aria-label="Error details">
                                 <Codeblock :code="`${error.stack}\n\n${JSON.stringify({ ...error.request, data: error.data }, undefined, 4)}`" />
-                            </footer>
+                            </section>
                         </CollapseTransition>
-                    </div>
+                    </article>
                 </template>
             </template>
-            <p v-else-if="requestId && errors" class="p-2">No matching error was found.</p>
+            <section v-else-if="errors" class="empty-state" aria-live="polite">
+                <p v-if="requestId">No matching error was found.</p>
+                <p v-else>No errors match the current filters.</p>
+            </section>
         </section>
     </article>
 </template>

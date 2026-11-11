@@ -81,6 +81,8 @@ function cancelThreadReply() {
 }
 
 const submitting = ref<boolean>(false)
+const archiving = ref(false)
+const showOptions = ref<boolean>(false)
 async function submitThread() {
     if (submitting.value) return
     if (!session.isAuthenticated) {
@@ -122,10 +124,15 @@ async function submitThread() {
     }
 }
 
-function copyLink() {
+async function copyLink() {
     const postLink = window.location.href
-    navigator.clipboard.writeText(postLink)
-    hints.addSuccess("Copied thread URL")
+    try {
+        await navigator.clipboard.writeText(postLink)
+        hints.addSuccess("Copied thread URL")
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
 }
 
 async function deleteThread() {
@@ -133,9 +140,14 @@ async function deleteThread() {
         title: 'Confirm Deletion',
         message: 'Are you sure you want to delete your thread?',
         accept: async () => {
-            await useApi(`/api/thread/${id}/delete`)
-            hints.addSuccess("Successfully deleted thread.")
-            return navigateTo("/feed")
+            try {
+                await useApi(`/api/thread/${id}/delete`)
+                hints.addSuccess("Successfully deleted thread.")
+                return navigateTo("/feed")
+            }
+            catch (error: any) {
+                hints.addError(error.message, error)
+            }
         },
     })
 }
@@ -154,25 +166,51 @@ async function awardThread() {
         title: 'Confirm Award',
         message: 'Are you sure you want to award this thread? It will cost 256 tokens.',
         accept: async () => {
-            await useApi(`/api/thread/${id}/award`)
-            hints.addSuccess("Successfully awarded thread.")
-            await refresh()
+            try {
+                await useApi(`/api/thread/${id}/award`)
+                hints.addSuccess("Successfully awarded thread.")
+                await refresh()
+            }
+            catch (error: any) {
+                hints.addError(error.message, error)
+            }
         },
     })
 }
 
 async function archiveThread() {
-    await useApi(`/api/thread/${id}/archive`)
-    hints.addSuccess("This thread has been archived.")
+    if (archiving.value || !id) return
+
+    archiving.value = true
+    try {
+        const updatedThread = await useApi<Thread>(`/api/thread/${id}/archive`)
+        if (thread.value) thread.value.status = updatedThread.status
+        hints.addSuccess(updatedThread.status === "archived" ? "This thread has been archived." : "This thread has been unarchived.")
+        showOptions.value = false
+    }
+    catch (error: any) {
+        const status = error?.statusCode ?? error?.status ?? error?.response?.status
+        if (status === 409) hints.addWarning(error.message)
+        else hints.addError(error.message, error)
+        return
+    }
+    finally {
+        archiving.value = false
+    }
+
     await refresh()
 }
 
 async function pinThread() {
-    await useApi(`/api/thread/${id}/pin`)
-    hints.addSuccess("This thread has been pinned.")
+    try {
+        await useApi(`/api/thread/${id}/pin`)
+        hints.addSuccess("This thread has been pinned.")
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
 }
 
-const showOptions = ref<boolean>(false)
 function toggleOptions() {
     showOptions.value = !showOptions.value
 }
@@ -227,18 +265,7 @@ function toggleOptions() {
                                 <i aria-hidden="true" class="fa-solid fa-ellipsis"></i>
                             </button>
                             <OverlayTransition>
-                                <ExtraOptions
-                                    v-if="showOptions"
-                                    :thread="thread"
-                                    @updated="refresh"
-                                    @edit="toggleEditThread"
-                                    @award="awardThread"
-                                    @report="submitReport(thread.id)"
-                                    @delete="deleteThread"
-                                    @archive="archiveThread"
-                                    @pin="pinThread"
-                                    @close="showOptions = false"
-                                />
+                                <ExtraOptions v-if="showOptions" :thread="thread" @updated="refresh" @edit="toggleEditThread" @award="awardThread" @report="submitReport(thread.id)" @delete="deleteThread" @archive="archiveThread" @pin="pinThread" @close="showOptions = false" />
                             </OverlayTransition>
                         </ClientOnly>
                     </div>

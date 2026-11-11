@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
             UPDATE notification SET
                 viewed = true
             WHERE recipient = $user
+            AND viewed = false
         `)
         .addRecord("user", auth.id)
         .execute()

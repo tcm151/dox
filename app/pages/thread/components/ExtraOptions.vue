@@ -9,7 +9,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (event: 'edit'): void
-    (event: 'save'): void
     (event: 'award'): void
     (event: 'report'): void
     (event: 'delete'): void
@@ -19,8 +18,16 @@ const emit = defineEmits<{
     (event: 'updated'): void
 }>()
 
-function emitAndClose(event: string) {
-    emit(event as any)
+const actions = {
+    edit: () => emit('edit'),
+    award: () => emit('award'),
+    report: () => emit('report'),
+    delete: () => emit('delete'),
+    pin: () => emit('pin'),
+}
+
+function emitAndClose(event: keyof typeof actions) {
+    actions[event]()
     emit('close')
 }
 </script>
@@ -32,10 +39,6 @@ function emitAndClose(event: string) {
                 <i class="fa-solid fa-eraser"></i>
                 <span>Edit</span>
             </button>
-            <!-- <button class="save" @click="emitAndClose('save')">
-                <i class="fa-solid fa-box-archive"></i>
-                <span>Save</span>
-            </button> -->
             <button @click="emitAndClose('award')">
                 <i class="fa-solid fa-crown"></i>
                 <span>Award</span>
@@ -44,16 +47,21 @@ function emitAndClose(event: string) {
                 <i class="fa-solid fa-flag"></i>
                 <span>Report</span>
             </button>
-            <!-- <button v-if="hasRole(session.user, 'admin')" @click="emitAndClose('archive')">
-                <i class="fa-solid fa-box"></i>
-                <span v-if="thread.status !== 'archived'">Archive</span>
-                <span v-else>Unarchive</span>
-            </button> -->
+            <template v-if="hasRole(session.user, ['admin', 'developer'])">
+                <button v-if="thread.status === 'active'" class="dark" @click="emit('archive')">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Archive</span>
+                </button>
+                <button v-else-if="thread.status === 'archived'" class="dark" @click="emit('archive')">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Unarchive</span>
+                </button>
+            </template>
             <button v-if="thread.user.id === session.user.id" @click="emitAndClose('delete')">
                 <i class="fa-solid fa-trash-can"></i>
                 <span>Delete</span>
             </button>
-            <button v-if="hasRole(session.user, 'admin')" @click="emitAndClose('pin')">
+            <button v-if="hasRole(session.user, ['admin', 'developer'])" @click="emitAndClose('pin')">
                 <i class="fa-solid fa-thumbtack"></i>
                 <span>Pin</span>
             </button>
