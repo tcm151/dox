@@ -19,8 +19,8 @@ definePageMeta({
 
 const tabs = ref<TabItem[]>([
     { route: '/feed/search', icon: 'fa-magnifying-glass', label: 'Search', hide: () => !settings.app.feeds.search },
-    { route: '/feed/home', icon: 'fa-house', label: 'Home' },
     { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
+    { route: '/feed/home', icon: 'fa-house', label: 'Home' },
     { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts', hide: () => !settings.app.feeds.posts },
     { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
     { route: '/feed/gallery', icon: 'fa-images', label: 'Galleries', hide: () => !settings.app.feeds.images },
