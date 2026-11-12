@@ -2,7 +2,7 @@ import type { Comment } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const { content } = await readBody<{ content: string }>(event)
+    const body = await readBody<{ content: string }>(event)
     const { id } = event.context.params!
 
     const comment = await new DatabaseQuery()
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("comment", `comment:${id}`)
         .addRecord("user", auth.id)
-        .addParameter("content", content)
+        .addParameter("content", body.content)
         .queryOne<Comment>()
 
     return comment.timeEdited

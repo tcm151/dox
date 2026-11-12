@@ -2,7 +2,7 @@ import type { Thread } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const { content } = await readBody<{ content: string }>(event)
+    const body = await readBody<{ content: string }>(event)
     const { id } = event.context.params!
 
     return await new DatabaseQuery()
@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("thread", `thread:${id}`)
         .addRecord("user", auth.id)
-        .addParameter("content", content)
+        .addParameter("content", body.content)
         .queryOne<Thread>()
 })
