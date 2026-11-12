@@ -24,7 +24,7 @@ const { data: topics, pending, refresh } = await useAuthenticatedDatasource<Topi
                 </div>
             </template>
         </section>
-        <section v-else class="box empty-state" aria-live="polite">
+        <section v-else-if="topics" class="box empty-state" aria-live="polite">
             <p>You aren't moderating any topics.</p>
         </section>
     </article>

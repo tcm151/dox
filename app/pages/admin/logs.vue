@@ -34,8 +34,8 @@ function toggle(id: string) {
                 <template v-for="log in logs" :key="log.id">
                     <article class="column g-1">
                         <div class="row wrap g-1">
-                            <Tag type="danger f-1" :label="actionLabel(log.action)" @click="toggle(log.id)" />
-                            <Tag class="link f-1" :label="log.target" />
+                            <Tag type="danger f-1 b-0" :label="actionLabel(log.action)" @click="toggle(log.id)" />
+                            <Tag class="link f-1 b-0" :label="log.target" />
                             <UserTag :user="log.actor" />
                             <DurationTag :time="log.time" />
                         </div>
@@ -48,7 +48,7 @@ function toggle(id: string) {
                 </template>
             </section>
         </template>
-        <section v-else class="box empty-state">
+        <section v-else-if="logs" class="box empty-state" aria-live="polite">
             <p>No moderation activity has been recorded.</p>
         </section>
     </article>

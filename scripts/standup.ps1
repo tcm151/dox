@@ -137,13 +137,13 @@ foreach ($ticket in $tickets) {
    elseif ($ticket.Priority -notin @('High', 'Medium', 'Low')) { $issues.Add("invalid Priority '$($ticket.Priority)'") }
    if (-not $ticket.Next) { $issues.Add('missing Next') }
    elseif ($ticket.State -eq 'Completed' -and $ticket.Next -ne 'None') { $issues.Add('completed ticket should use Next: None') }
-   elseif ($ticket.State -ne 'Completed' -and $ticket.Next -eq 'None') { $issues.Add('unfinished ticket needs a concrete Next step') }
+   elseif ($ticket.State -ne 'Completed' -and $ticket.Next -eq 'None') { $issues.Add('unfinished ticket needs Next step') }
    if ($ticket.Folder -notin @('root', 'backlog', 'completed')) { $issues.Add("unexpected folder '$($ticket.Folder)'") }
    if ($ticket.Folder -eq 'completed' -and $ticket.State -ne 'Completed') { $issues.Add('completed folder has unfinished state') }
-   if ($ticket.Folder -ne 'completed' -and $ticket.State -eq 'Completed') { $issues.Add('completed state is outside completed folder') }
+   if ($ticket.Folder -ne 'completed' -and $ticket.State -eq 'Completed') { $issues.Add('completed but outside folder') }
    if ($ticket.MissingSections.Count) { $issues.Add('missing sections: ' + ($ticket.MissingSections -join ', ')) }
    if ($ticket.UnexpectedSections.Count) { $issues.Add('unexpected sections: ' + ($ticket.UnexpectedSections -join ', ')) }
-   if (-not $ticket.SectionOrderValid) { $issues.Add('sections are out of template order') }
+   if (-not $ticket.SectionOrderValid) { $issues.Add('sections are in wrong order') }
    if (-not $ticket.ProgressOrderValid) { $issues.Add('progress log is not newest first') }
    $ticket | Add-Member -NotePropertyName Issues -NotePropertyValue @($issues)
 }
@@ -232,7 +232,7 @@ foreach ($ticket in $tickets) {
       } elseif (-not $byId.ContainsKey($dependency.Id)) {
          $dependencyWarnings.Add("$($ticket.Id) has unknown dependency $($dependency.Id)")
       } elseif ($byId[$dependency.Id].State -ne 'Completed') {
-         $dependencyWarnings.Add("$($ticket.Id) depends on unfinished ticket $($dependency.Id) ($($byId[$dependency.Id].State))")
+         $dependencyWarnings.Add("$($ticket.Id) depends on $($dependency.Id) ($($byId[$dependency.Id].State))")
       }
    }
 }

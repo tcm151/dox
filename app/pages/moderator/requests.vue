@@ -108,7 +108,7 @@ async function denyRequest(id: string) {
                 </article>
             </template>
         </section>
-        <section v-else class="box empty-state" aria-live="polite">
+        <section v-else-if="requests" class="box empty-state" aria-live="polite">
             <p v-if="requests && requests.length > 0">There are no requests in this stage.</p>
             <p v-else>There aren't any moderation requests.</p>
         </section>
