@@ -2,7 +2,7 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
-## [2026.6.2] - Unreleased
+## [2026.6.2] - 2026-11-12
 
 ### Added
 - Added topic governance tools for locking topics, managing moderator rosters, editing current rules, and pinning posts, threads, and galleries at app or topic scope.
