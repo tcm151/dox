@@ -2,6 +2,8 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
+## [2026.6.3] - Unreleased
+
 ## [2026.6.2] - 2026-11-12
 
 ### Added
