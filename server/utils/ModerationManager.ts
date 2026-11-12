@@ -29,6 +29,34 @@ export class ModerationManager {
             .queryValue<ControlState>()
     }
 
+    static async addContentTag(targetId: string, userId: string, tag: string): Promise<void> {
+        const targetType = targetId.slice(0, targetId.indexOf(":"))
+        if (!["post", "thread", "gallery"].includes(targetType)) {
+            throw createError({ statusCode: 400, statusMessage: "Tags are only supported on posts, threads, and galleries." })
+        }
+
+        await new DatabaseQuery()
+            .addSql(`
+                IF !record::exists($target) {
+                    fn::http(404, "Moderation target not found.");
+                };
+                IF $user.roles CONTAINSNOT "admin" {
+                    LET $topics = $target.topics ?? [];
+                    LET $authorizedTopics = SELECT VALUE id FROM topic
+                        WHERE id IN $topics AND moderators CONTAINS $user;
+                    IF $authorizedTopics.len() = 0 {
+                        fn::http(403, "You cannot moderate this content.");
+                    };
+                };
+                UPDATE $target SET tags = array::union(tags ?? [], [$tag]);
+            `)
+            .addTransaction()
+            .addRecord("target", targetId)
+            .addRecord("user", userId)
+            .addParameter("tag", tag)
+            .execute()
+    }
+
     static async lockContent(targetId: string, userId: string, scope: unknown) {
         if (scope !== "item") {
             throw createError({ statusCode: 400, statusMessage: "A valid lock scope is required." })

@@ -13,6 +13,31 @@ test("opens the seeded thread from the thread feed", async ({ page }) => {
     await expect(page.locator("section.main").getByText(sampleThread, { exact: true })).toBeVisible()
 })
 
+test("shows quarantined thread state without hiding its content", async ({ page }) => {
+    let intercepted = false
+    await page.route(/\/api\/thread\/[^/]+$/, async (route) => {
+        const response = await route.fetch()
+        const body: unknown = await response.json()
+        if (!body || typeof body !== "object" || Array.isArray(body)) {
+            throw new Error("Thread API response was not an object.")
+        }
+
+        intercepted = true
+        await route.fulfill({ response, json: { ...body, status: "quarantined" } })
+    })
+
+    await page.goto("/feed/threads")
+    const threadPreview = page.locator(".thread.clickable").filter({ hasText: sampleThread })
+    await expect(threadPreview).toBeVisible()
+    await threadPreview.locator(".main").click()
+
+    await expect(page).toHaveURL(/\/thread\/[^/]+$/)
+    const threadPage = page.locator("section.main")
+    await expect(threadPage.getByText("Removed", { exact: true })).toBeVisible()
+    await expect(threadPage.getByText(sampleThread, { exact: true })).toBeVisible()
+    expect(intercepted).toBe(true)
+})
+
 test("shows a sign-in hint when a guest tries to reply", async ({ page }) => {
     await page.goto("/feed/threads")
 

@@ -3,6 +3,7 @@ import type { Draft } from "@@/shared/types"
 type CreateDraftRequest = {
     title: string
     content: string
+    tags?: string[]
     replyTo?: string
     topics: string[]
     images?: string[]
@@ -35,6 +36,7 @@ export default defineEventHandler(async (event) => {
                 user = $user,
                 title = $title,
                 content = $content,
+                tags = $tags,
                 replyTo = $replyTo ?? NONE,
                 topics = $topics,
                 images = $images;
@@ -43,6 +45,7 @@ export default defineEventHandler(async (event) => {
         .addRecord('user', auth.id)
         .addParameter('title', draft.title)
         .addParameter('content', draft.content)
+        .addParameter('tags', draft.tags ?? [])
         .addRecord('replyTo', draft.replyTo ?? "", true)
         .addRecords('topics', draft.topics)
         .addRecords('images', imageIds)

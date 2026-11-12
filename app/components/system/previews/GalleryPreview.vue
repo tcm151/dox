@@ -13,13 +13,15 @@ const imageSlides = computed(() => props.gallery.images.map((image, index) => ({
 </script>
 
 <template>
-    <div class="box background animate hover-shadow">
-        <div class="main clickable box column p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
-            <ContentHeader class="mb-2" :content="gallery" context="preview" />
-            <ImageSlideshow :images="imageSlides" label="Gallery images" />
-            <!-- <Markdown v-if="gallery.description" class="content preview" :content="gallery.description" /> -->
+    <ContentVisibility :tags="gallery.tags">
+        <div class="box background animate hover-shadow">
+            <div class="main clickable box column p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
+                <ContentHeader class="mb-2" :content="gallery" context="preview" />
+                <ImageSlideshow :images="imageSlides" label="Gallery images" />
+                <!-- <Markdown v-if="gallery.description" class="content preview" :content="gallery.description" /> -->
+            </div>
         </div>
-    </div>
+    </ContentVisibility>
 </template>
 
 <style scoped lang="scss">

@@ -7,6 +7,7 @@ const hints = useHints()
 const images = useImageUploader('editorImages')
 const topics = useTopicManager()
 const description = ref<string>("")
+const tags = ref<string[]>([])
 const imageSlides = computed(() => images.uploaded.map((image, index) => ({
     id: image.id,
     url: image.url,
@@ -30,6 +31,7 @@ async function submit() {
             body: {
                 images: images.uploaded.map(image => image.id),
                 description: description.value,
+                tags: tags.value,
                 topics: topics.items,
             },
         })
@@ -37,6 +39,7 @@ async function submit() {
         images.uploaded = []
         topics.clear()
         description.value = ""
+        tags.value = []
         hints.addSuccess("Images published.")
         await navigateTo("/feed/gallery")
     }
@@ -52,6 +55,7 @@ async function submit() {
 <template>
     <EditorFrame title="Upload Gallery" :submitting="submitting" @submit="submit">
         <template #header-actions>
+            <ContentTagSelector v-model="tags" />
             <button @click="images.select">
                 <i class="fa-solid fa-images"></i>
                 <span>Browse</span>
@@ -66,12 +70,13 @@ async function submit() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <ImageSlideshow :images="imageSlides" label="Uploaded images" />
-            <Markdown class="content mt-3" :content="description" />
+            <ContentVisibility :tags="tags" direct>
+                <ImageSlideshow :images="imageSlides" label="Uploaded images" />
+                <Markdown class="content mt-3" :content="description" />
+            </ContentVisibility>
         </template>
         <OverlayTransition>
             <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />
         </OverlayTransition>
     </EditorFrame>
 </template>
-

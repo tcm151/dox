@@ -8,21 +8,25 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="post clickable box background animate hover-shadow" :class="{'pinned': pinned }">
-        <div v-if="post.replyTo && post.replyTo.id" class="reply-to row inline g-2 py-1 px-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
-            <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-            <p class="text truncate bold">{{ post.replyTo.title }}</p>
-        </div>
-        <div class="main box row g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
-            <div class="f-1">
-                <ContentHeader :content="post" context="preview" :pinned="pinned" />
-                <h3 class="title mt-2">
-                    {{ post.title }}
-                </h3>
+    <ContentVisibility :tags="post.tags">
+        <div class="post clickable box background animate hover-shadow" :class="{'pinned': pinned }">
+            <ContentVisibility v-if="post.replyTo && post.replyTo.id" :tags="post.replyTo.tags">
+                <div class="reply-to row inline g-2 py-1 px-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
+                    <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                    <p class="text truncate bold">{{ post.replyTo.title }}</p>
+                </div>
+            </ContentVisibility>
+            <div class="main box row g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
+                <div class="f-1">
+                    <ContentHeader :content="post" context="preview" :pinned="pinned" />
+                    <h3 class="title mt-2">
+                        {{ post.title }}
+                    </h3>
+                </div>
+                <img v-if="post.images[0]" class="br-medium" :src="post.images[0].url">
             </div>
-            <img v-if="post.images[0]" class="br-medium" :src="post.images[0].url">
         </div>
-    </div>
+    </ContentVisibility>
 </template>
 
 <style scoped lang="scss">

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const hints = useHints()
 const cache = useCache()
 const defaults = useSettings()
@@ -36,7 +35,7 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "contact")
-const tabs = ['about', 'contact', 'email', 'voting', 'moderation', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
+const tabs = ['about', 'contact', 'email', 'voting', 'moderation', 'visibility', 'feeds', 'topics', 'posts', 'links', 'threads', 'media', 'polls', 'misc']
 
 const topicInput = useTemplateRef("topic")
 function addTopic() {
@@ -215,6 +214,32 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
                             </template>
                         </div>
                         <span class="tip">Moderators can apply one of these intervals to a discussion. Remove all values to disable slow-mode choices.</span>
+                    </div>
+                </section>
+                <section v-if="section == 'visibility'">
+                    <p class="tip mb-3">These defaults apply unless a user chooses a different preference. New content tags default to being masked until revealed.</p>
+                    <div
+                        v-for="tag in [
+                            { value: 'nsfw', label: 'NSFW' },
+                            { value: 'spoiler', label: 'Spoiler' },
+                        ]"
+                        :key="tag.value"
+                        class="field row"
+                    >
+                        <label class="f-1">{{ tag.label }}</label>
+                        <select v-model="settings.content.visibility[tag.value]">
+                            <option
+                                v-for="mode in [
+                                    { value: 'show', label: 'Show normally' },
+                                    { value: 'mask', label: 'Mask and reveal' },
+                                    { value: 'filter', label: 'Filter from feeds and search' },
+                                ]"
+                                :key="mode.value"
+                                :value="mode.value"
+                            >
+                                {{ mode.label }}
+                            </option>
+                        </select>
                     </div>
                 </section>
                 <section v-if="section == 'voting'">

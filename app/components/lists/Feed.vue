@@ -12,8 +12,36 @@ const emit = defineEmits<{
 }>()
 
 const cache = useCache()
+const settings = useSettings()
+const userSettings = useUserSettings()
 
 let sortType = cache.get("feed.sort", () => "new")
+
+function isStringArray(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every(tag => typeof tag === "string")
+}
+
+function contentTags(item: T): readonly string[] {
+    if ("tags" in item && isStringArray(item.tags)) return item.tags
+    if (
+        "context" in item
+        && item.context
+        && typeof item.context === "object"
+        && "tags" in item.context
+        && isStringArray(item.context.tags)
+    ) {
+        return item.context.tags
+    }
+    return []
+}
+
+const visibleItems = computed(() => (props.items.data.value ?? []).filter(item =>
+    !contentTags(item).some(tag =>
+        (userSettings.preferences.content.visibility[tag]
+            ?? settings.app.content.visibility[tag]
+            ?? "show") === "filter",
+    ),
+))
 
 const spinRefresh = ref(false)
 watch(() => props.items.status.value, (status) => {
@@ -55,11 +83,11 @@ function sortFeed(type: string) {
         </header>
         <ClientOnly>
             <TransitionGroup name="feed" tag="div" class="feed-items column g-2">
-                <div v-for="item in props.items.data.value" :key="item.id" class="feed-item">
+                <div v-for="item in visibleItems" :key="item.id" class="feed-item">
                     <slot name="item" v-bind="(item as T)" />
                 </div>
-                <div v-if="!props.items.data.value?.length" key="empty" class="box empty-state stacked">
-                    There is nothing here currently.
+                <div v-if="!visibleItems.length" key="empty" class="box empty-state stacked">
+                    {{ props.items.data.value?.length ? "No content matches your visibility preferences." : "There is nothing here currently." }}
                 </div>
             </TransitionGroup>
         </ClientOnly>

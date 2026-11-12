@@ -24,6 +24,7 @@ let draft = ref<Draft>({
     user: session.user as User & string,
     title: '',
     content: '',
+    tags: [],
     topics: [],
     images: [],
 })
@@ -60,6 +61,7 @@ async function submit() {
                 user: session.user!.id,
                 title: draft.value.title,
                 content: draft.value.content,
+                tags: draft.value.tags,
                 time: new Date(),
                 replyTo: draft.value.replyTo,
                 votes: {
@@ -104,6 +106,7 @@ async function saveDraft() {
                 body: {
                     title: draft.value.title,
                     content: draft.value.content,
+                    tags: draft.value.tags,
                     replyTo: draft.value.replyTo,
                     topics: topics.items,
                     images: images.uploaded.map(i => i.id)
@@ -117,6 +120,7 @@ async function saveDraft() {
                     user: session.user!.id,
                     title: draft.value.title,
                     content: draft.value.content,
+                    tags: draft.value.tags,
                     time: new Date(),
                     replyTo: draft.value.replyTo,
                     topics: topics.items,
@@ -139,6 +143,7 @@ async function saveDraft() {
 <template>
     <EditorFrame title="New Post" :submitting="submitting" @submit="submit">
         <template #header-actions>
+            <ContentTagSelector v-model="draft.tags" />
             <button v-if="replyTo" class="reply-to f-1">
                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                 <p class="text bold truncate">{{ replyTo.title }}</p>
@@ -158,8 +163,10 @@ async function saveDraft() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <h1 class="mb-2">{{ draft.title }}</h1>
-            <Markdown class="content" :content="draft.content" />
+            <ContentVisibility :tags="draft.tags" direct>
+                <h1 class="mb-2">{{ draft.title }}</h1>
+                <Markdown class="content" :content="draft.content" />
+            </ContentVisibility>
         </template>
         <template #footer-actions>
             <button class="link f-1 b-0" @click="images.select">

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Post, Gallery, Comment } from '@@/shared/types'
-import ExtraOptions from "./ExtraOptions.vue"
 
 const session = getSession()
 const events = useEvents()

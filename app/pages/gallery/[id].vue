@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Comment, Gallery } from "@@/shared/types"
-import ExtraOptions from "../post/components/ExtraOptions.vue"
 import CommentSection from "../post/components/CommentSection.vue"
 import { useSlowMode } from "@@/app/utils/slow"
 
@@ -35,6 +34,9 @@ const submitting = ref(false)
 function toggleCommentBox() {
     if (!showCommentBox.value && commentState.value.disabled) return
     showCommentBox.value = !showCommentBox.value
+    if (!showCommentBox.value) {
+        comment.value = ""
+    }
 }
 
 async function submitComment(replyTo: Gallery | Comment, content: string) {
@@ -119,22 +121,24 @@ function copyLink() {
     <article v-if="gallery" class="column inline g-2 p-2">
         <main class="gallery box column p-4">
             <ContentHeader class="header" :content="gallery" context="detail" />
-            <section class="mosaic grid mt-3" :class="{
-                single: gallery.images.length === 1,
-                pair: gallery.images.length === 2,
-                trio: gallery.images.length === 3,
-            }">
-                <figure v-for="(image, index) in gallery.images" :key="image.id" class="tile m-0">
-                    <img
-                        class="br-small"
-                        :src="image.url"
-                        :alt="`${gallery.description || 'Gallery'} image ${index + 1}`"
-                        :loading="index === 0 ? 'eager' : 'lazy'"
-                        decoding="async"
-                    >
-                </figure>
-            </section>
-            <Markdown v-if="gallery.description" class="content" :content="gallery.description" />
+            <ContentVisibility class="column f-1" :tags="gallery.tags" direct>
+                <section class="mosaic grid mt-3" :class="{
+                    single: gallery.images.length === 1,
+                    pair: gallery.images.length === 2,
+                    trio: gallery.images.length === 3,
+                }">
+                    <figure v-for="(image, index) in gallery.images" :key="image.id" class="tile m-0">
+                        <img
+                            class="br-small"
+                            :src="image.url"
+                            :alt="`${gallery.description || 'Gallery'} image ${index + 1}`"
+                            :loading="index === 0 ? 'eager' : 'lazy'"
+                            decoding="async"
+                        >
+                    </figure>
+                </section>
+                <Markdown v-if="gallery.description" class="content" :content="gallery.description" />
+            </ContentVisibility>
             <footer class="actions">
                 <div class="column g-2">
                     <div class="interactions row wrap g-1">
@@ -173,7 +177,7 @@ function copyLink() {
                                     <i class="fa-solid fa-comment"></i>
                                     <span>Submit</span>
                                 </ButtonSpinner>
-                                <button class="danger" @click="showCommentBox = false">
+                                <button class="danger" @click="toggleCommentBox">
                                     <i class="fa-solid fa-ban"></i>
                                     <span>Cancel</span>
                                 </button>
@@ -183,7 +187,9 @@ function copyLink() {
                 </div>
             </footer>
         </main>
-        <CommentSection class="content-width" :target="gallery" :sort-type="sortBy" :loading="status" @refresh="refreshGallery" />
+        <ContentVisibility v-if="gallery.comments.length > 0" :tags="gallery.tags" direct>
+            <CommentSection class="content-width" :target="gallery" :sort-type="sortBy" :loading="status" @refresh="refreshGallery" />
+        </ContentVisibility>
 </article>
     <article v-else class="content-width column p-4">
         <footer class="box text center p-4">

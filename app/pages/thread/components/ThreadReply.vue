@@ -17,6 +17,7 @@ const emit = defineEmits<{
 
 const replyingTo = ref<string>()
 const replyText = ref("")
+const replyTags = ref<string[]>([])
 const submitting = ref(false)
 const replyStates = slowMode.submissionStates(
     () => [props.thread, ...(props.chainItems ?? [])],
@@ -43,12 +44,14 @@ function toggleReply(target: Thread) {
     else {
         replyingTo.value = target.id
         replyText.value = ""
+        replyTags.value = []
     }
 }
 
 function cancelReply() {
     replyingTo.value = undefined
     replyText.value = ""
+    replyTags.value = []
 }
 
 async function submitReply(target: Thread) {
@@ -66,7 +69,7 @@ async function submitReply(target: Thread) {
     submitting.value = true
     try {
         await useApi<Thread>(`/api/thread/${extractId(target.id)}/reply`, {
-            body: { content: replyText.value },
+            body: { content: replyText.value, tags: replyTags.value },
         })
         slowMode.recordSubmission(target.id)
         cancelReply()
@@ -104,10 +107,13 @@ async function submitReply(target: Thread) {
                         <Tag type="link" icon="fa-right-to-bracket" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                     </div>
                 </div>
-                <Markdown class="content preview" :content="thread.content" />
+                <ContentVisibility :tags="thread.tags" direct>
+                    <Markdown class="content preview" :content="thread.content" />
+                </ContentVisibility>
                 <p v-if="replyingTo !== thread.id && replyStates[thread.id]?.warning" class="warning mt-2" role="status">{{ replyStates[thread.id]?.warning }}</p>
                 <ReplyComposer
                     v-if="replyingTo === thread.id"
+                    show-content-tags
                     class="pb-3"
                     autofocus
                     :submitting="submitting"
@@ -115,6 +121,7 @@ async function submitReply(target: Thread) {
                     submit-icon="fa-reply"
                     :disabled="replyStates[thread.id]?.disabled"
                     :warning="replyStates[thread.id]?.warning"
+                    v-model:tags="replyTags"
                     @submit="submitReply(thread)"
                     @cancel="cancelReply"
                     v-model="replyText"
@@ -140,10 +147,13 @@ async function submitReply(target: Thread) {
                                 <Tag v-if="!reply.deleted" type="link" icon="fa-right-to-bracket" @click="navigateTo(`/thread/${extractId(reply.id)}`)" />
                             </div>
                         </div>
-                        <Markdown class="content preview" :content="reply.content" />
+                        <ContentVisibility :tags="reply.tags" direct>
+                            <Markdown class="content preview" :content="reply.content" />
+                        </ContentVisibility>
                         <p v-if="replyingTo !== reply.id && replyStates[reply.id]?.warning" class="warning mt-2" role="status">{{ replyStates[reply.id]?.warning }}</p>
                         <ReplyComposer
                             v-if="replyingTo === reply.id"
+                            show-content-tags
                             class="pb-3"
                             autofocus
                             :submitting="submitting"
@@ -151,6 +161,7 @@ async function submitReply(target: Thread) {
                             submit-icon="fa-reply"
                             :disabled="replyStates[reply.id]?.disabled"
                             :warning="replyStates[reply.id]?.warning"
+                            v-model:tags="replyTags"
                             @submit="submitReply(reply)"
                             @cancel="cancelReply"
                             v-model="replyText"

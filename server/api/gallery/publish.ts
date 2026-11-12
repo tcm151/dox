@@ -3,6 +3,7 @@
 type PublishGalleryRequest = {
     images: string[]
     description: string
+    tags?: string[]
     topics: string[]
 }
 
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
             CREATE gallery SET
                 user = $user,
                 description = $description,
+                tags = $tags,
                 topics = $topics,
                 images = $images,
                 votes.positive = [$user];
@@ -48,6 +50,7 @@ export default defineEventHandler(async (event) => {
         .addRecords("images", body.images)
         .addRecords("topics", body.topics)
         .addParameter("description", body.description)
+        .addParameter("tags", body.tags ?? [])
         .addRecord("user", auth.id)
         .execute()
 

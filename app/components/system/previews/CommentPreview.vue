@@ -46,7 +46,7 @@ async function updateComment(comment: Comment) {
     try {
         await useApi(`/api/comment/${extractId(comment.id)}/edit`, {
             body: {
-                content: comment.content
+                content: comment.content,
             }
         })
         emit("finish-edit")
@@ -126,7 +126,9 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
             </ClientOnly>
             <ModerationState :moderation="comment.moderation" content-type="comment" />
         </header>
-        <Markdown v-if="!editing && comment.status !== 'quarantined'" class="p-3" :content="comment.content" />
+        <template v-if="!editing && comment.status !== 'quarantined'">
+            <Markdown class="p-3" :content="comment.content" />
+        </template>
         <p v-else-if="comment.status === 'quarantined'" class="p-3">[This comment was removed by moderators.]</p>
         <CollapseTransition>
             <ReplyComposer

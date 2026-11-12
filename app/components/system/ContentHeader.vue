@@ -22,6 +22,8 @@ const moderationType = computed(() => thread.value ? "thread" : "discussion")
 const archived = computed(() => props.content.status === "archived"
     && (post.value !== undefined || (gallery.value !== undefined && props.context === "detail")))
 
+const quarantined = computed(() => props.content.status === "quarantined")
+
 const discussionCount = computed(() => {
     if ("replies" in props.content) return props.content.replies.length
     if ("comments" in props.content) return props.content.comments.length
@@ -66,6 +68,7 @@ const readableTime = computed(() => props.content.time.split(".")[0]?.replace("T
         <Tag v-if="context === 'detail' && imageCount" class="meta" icon="fa-image" :label="imageCount" />
         <Tag v-if="context === 'detail' && mediaType" class="meta" icon="fa-image" :label="mediaType" />
         <Tag v-if="context === 'detail' && tokens !== undefined" class="warning" icon="fa-cube" :label="`${tokens} tokens`" />
+        <Tag v-if="quarantined" type="danger" label="Removed" />
         <ModerationState v-if="moderation" :moderation="moderation" :content-type="moderationType" />
         <slot name="actions" />
     </header>

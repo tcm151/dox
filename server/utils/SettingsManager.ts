@@ -20,6 +20,7 @@ export class SettingsManager {
                     about = $about,
                     email = $email,
                     moderation = $moderation,
+                    content = $content,
                     voting = $voting,
                     topics = $topics,
                     feeds = $feeds,
@@ -35,6 +36,7 @@ export class SettingsManager {
             .addParameter("about", settings.about)
             .addParameter("email", settings.email)
             .addParameter("moderation", settings.moderation)
+            .addParameter("content", settings.content)
             .addParameter("voting", settings.voting)
             .addParameter("topics", settings.topics)
             .addParameter("feeds", settings.feeds)
@@ -123,6 +125,16 @@ export class SettingsManager {
             v.object(misc.feedback, "feedback", (v, feedback) => {
                 v.boolean(feedback.enabled, "enabled")
                 v.boolean(feedback.allowAnonymous, "allowAnonymous")
+            })
+        })
+        validator.object(settings.content, "content", (v, content) => {
+            v.object(content.visibility, "visibility", (v, visibility) => {
+                for (const tag of ["nsfw", "spoiler"]) {
+                    v.test(visibility[tag], mode => typeof mode === "string" && ["show", "mask", "filter"].includes(mode), "must be a valid visibility mode")
+                }
+                for (const tag of Object.keys(visibility)) {
+                    v.test(tag, value => ["nsfw", "spoiler"].includes(value), "must be a supported content tag")
+                }
             })
         })
 

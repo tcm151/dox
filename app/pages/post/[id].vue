@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ExtraOptions from "./components/ExtraOptions.vue"
 import CommentSection from "./components/CommentSection.vue"
 import type { Post, Comment } from '@@/shared/types'
 import { useSlowMode } from '@@/app/utils/slow'
@@ -62,7 +61,7 @@ async function updatePost(changedPost: Post | null) {
         submitting.value = true
         await useApi(`/api/post/${id}/edit`, {
             body: {
-                content: post.value?.content
+                content: post.value?.content,
             }
         })
         post.value!.edited = true
@@ -92,6 +91,9 @@ let showCommentBox = ref(false)
 function toggleCommentBox() {
     if (!showCommentBox.value && commentState.value.disabled) return
     showCommentBox.value = !showCommentBox.value
+    if (!showCommentBox.value) {
+        comment.value = ""
+    }
 }
 
 let comment = ref("")
@@ -203,19 +205,23 @@ function toggleOptions() {
 <template>
     <article v-if="post" class="content-width column g-2 p-4">
         <div class="box background br-medium column">
-            <aside v-if="post.replyTo && post.replyTo.id" class="reply-to clickable row inline g-2 py-2 px-3" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
-                <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                <p class="text truncate bold">{{ post.replyTo.title }}</p>
-            </aside>
+            <ContentVisibility v-if="post.replyTo && post.replyTo.id" :tags="post.replyTo.tags" direct>
+                <aside class="reply-to clickable row inline g-2 py-2 px-3" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
+                    <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                    <p class="text truncate bold">{{ post.replyTo.title }}</p>
+                </aside>
+            </ContentVisibility>
             <section class="post box br-medium p-5">
                 <ContentHeader :content="post" context="detail" />
-                <h1 class="mt-2">
-                    {{ post.title }}
-                </h1>
-                <Markdown v-if="!editingPost"
-                    class="content my-4"
-                    :content="post.content" 
-                />
+                <ContentVisibility :tags="post.tags" direct>
+                    <h1 class="mt-2">
+                        {{ post.title }}
+                    </h1>
+                    <Markdown v-if="!editingPost"
+                        class="content my-4"
+                        :content="post.content"
+                    />
+                </ContentVisibility>
                 <ClientOnly>
                     <div v-if="editingPost && post.user.id === session.user.id" class="field my-4">
                         <textarea rows="10" v-model="post.content" />
@@ -290,12 +296,14 @@ function toggleOptions() {
                 </footer>
             </section>
         </div>
-        <CommentSection
-            :target="post"
-            :sort-type="sortBy"
-            :loading="status"
-            @refresh="refreshPost"
-        />
+        <ContentVisibility v-if="post.comments.length > 0" :tags="post.tags" direct>
+            <CommentSection
+                :target="post"
+                :sort-type="sortBy"
+                :loading="status"
+                @refresh="refreshPost"
+            />
+        </ContentVisibility>
     </article>
     <article v-else class="content-width column p-4">
         <footer class="box text center p-4">

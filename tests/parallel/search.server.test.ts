@@ -25,7 +25,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
     try {
         const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
-            body: { title: postTitle, content: "Search test content", topics: [], images: [] },
+            body: { title: postTitle, content: "Search test content", topics: [], images: [], tags: ["spoiler"] },
         })
         expectStatus(postResponse, 200)
         const post = postResponse._data!
@@ -119,7 +119,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         expect(commentResults.map(item => item.id)).toEqual([`comment:${commentId}`])
         expect(commentResults[0]).toMatchObject({
             content: commentContent,
-            context: { id: `post:${postId}`, title: postTitle },
+            context: { id: `post:${postId}`, title: postTitle, tags: ["spoiler"] },
             moderation: { locked: "item" },
         })
 

@@ -22,9 +22,11 @@ function togglePreview() {
             <div class="editor-stage">
                 <Transition name="editor-mode">
                     <section class="editor form" v-show="!preview" :inert="preview" :aria-hidden="preview">
-                        <header class="row inline between g-4">
+                        <header class="row between">
                             <h1>{{ title }}</h1>
-                            <slot name="header-actions" />
+                            <div class="row inline g-4">
+                                <slot name="header-actions" />
+                            </div>
                         </header>
                         <aside v-if="unavailable" class="unavailable br-small row inline g-2 p-3">
                             <i class="fa-solid fa-triangle-exclamation"></i>
