@@ -69,7 +69,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 Goal: complete a secure, dependable baseline platform before expanding into optional content types and advanced authoring features.
 
 ### C1. API Contracts and Operational Signals
-- 🟥 Publish the API endpoint inventory with auth requirements and response contracts. (`0021`, `M`)
+- 🟩 Publish the API endpoint inventory with auth requirements and response contracts. (`0021`, `M`)
 - 🟩 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`0022`, `L`)
 - 🟩 Add structured, redacted handled-error context and request correlation for API errors. Successful-request logging is deferred. (`0023`, `M`)
 - 🟥 Define baseline metrics and operational SLOs for latency, error rate, and migration success. (`M`)

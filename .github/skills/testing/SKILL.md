@@ -17,6 +17,8 @@ The focused test command runs only sequential files named `*.setup.server.test.t
 
 ## Test Runner
 
+Use `docs/API.md` to locate route methods, access expectations, and detailed contracts. Confirm current behavior against the handler and tests; when a test exposes a route-contract change, reconcile the index as part of that change.
+
 `scripts/test-server.mjs` creates a temporary `.test-output-*` directory for the run, including an embedded SurrealDB database and media directory. It starts an isolated Nuxt test app, waits for `/api/health`, runs the test phases, then removes the temporary directory.
 
 The phases are:

@@ -44,6 +44,7 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 
 ## Map Routes To Workflows
 
+- Treat `docs/API.md` as the API definition index: check it before adding or changing handlers, update the method/path/access summary when a route contract changes, and add detailed request, response, validation, side-effect, and test notes for important workflows. Verify behavior against `server/api/` and tests; the index is a map, not the source of truth.
 - When user-facing operations have distinct behavior or side effects, give each operation a named API route and a matching domain-manager method. For reports, `report/[id]/resolve` maps to `ReportManager.resolve`, `reopen` to `ReportManager.reopen`, and `remove` to `ReportManager.remove`; topic-scoped routes use the same action names.
 - Keep route handlers focused on HTTP concerns: authenticate, enforce broad role requirements, parse the request, collect route IDs, and call the matching manager method. Keep the workflow's database transaction and its state-dependent side effects together in that method.
 - Use route guards such as `requireRole` for broad role authorization. Put additional data-scoped checks in the transaction when they depend on database state. For topic reports, moderator routes pass topic scope and SQL verifies the moderator assignment and report membership. An authorized admin can use the global scope without a topic assignment check.
