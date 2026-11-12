@@ -1,7 +1,7 @@
 # Ticket 0084: Topic Rename Requests
 
 ## Status
-- State: Paused
+- State: Planned
 - Priority: Medium
 - Next: Resume canonical-ID rename design and migration after the data/reference impact is reviewed
 

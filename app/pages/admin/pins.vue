@@ -30,8 +30,8 @@ async function deletePin(pin: Pin) {
         <section v-if="pins && pins.length > 0" class="column g-4">
             <template v-for="pin in pins" :key="pin.id">
                 <article class="box">
-                    <MultiPreview :item="pin.item" />
-                    <header class="row g-1 p-3 pin-actions">
+                    <MultiPreview :item="pin.item" pinned />
+                    <header class="row g-1 p-3">
                         <UserTag :user="pin.user" />
                         <DurationTag :time="pin.time" />
                         <Tag type="danger" icon="fa-trash-can" label="Remove" @click="deletePin(pin)" />
@@ -49,10 +49,3 @@ async function deletePin(pin: Pin) {
         </section>
     </article>
 </template>
-
-<style scoped lang="scss">
-.pin-actions {
-    border-top: 1px solid $white-2;
-}
-
-</style>

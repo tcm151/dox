@@ -25,6 +25,64 @@ it("rejects post publishing without authentication", async () => {
     expectStatus(response, 401)
 })
 
+it("denies app pin and archive actions to developer-only accounts", async () => {
+    const username = `DevActions${Date.now()}`
+    const password = "DevActionsTest-password"
+    const registerResponse = await fetch("/api/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            username,
+            email: `${username.toLowerCase()}@example.invalid`,
+            password,
+        }),
+    })
+    expectStatus(registerResponse, 200, "developer-only account registration stage")
+    const accessToken = await registerResponse.text()
+
+    const profileResponse = await fetch("/api/profile/authenticate", {
+        headers: { Authorization: accessToken },
+    })
+    expectStatus(profileResponse, 200, "developer-only account authentication stage")
+    const developer = await profileResponse.json() as { id: string }
+
+    try {
+        await admin.query(`UPDATE ${developer.id} SET roles = ["developer"];`)
+
+        const protectedActions = [
+            "/api/post/missing/archive",
+            "/api/thread/missing/archive",
+            "/api/gallery/missing/archive",
+            "/api/post/missing/pin",
+            "/api/thread/missing/pin",
+            "/api/gallery/missing/pin",
+            "/api/admin/pin/missing/delete",
+        ]
+        for (const path of protectedActions) {
+            const response = await fetch(path, {
+                method: "POST",
+                headers: { Authorization: accessToken },
+            })
+            expectStatus(response, 403, `developer-only authorization for ${path}`)
+        }
+
+        const updatePinResponse = await fetch("/api/admin/pin/missing/update", {
+            method: "POST",
+            headers: { Authorization: accessToken, "Content-Type": "application/json" },
+            body: JSON.stringify({ active: true }),
+        })
+        expectStatus(updatePinResponse, 403, "developer-only app pin update authorization")
+    }
+    finally {
+        await admin.query(`
+            DELETE session WHERE id = ${accessToken};
+            DELETE userSettings WHERE user = ${developer.id};
+            DELETE account WHERE user = ${developer.id};
+            DELETE ${developer.id};
+        `)
+    }
+})
+
 it("publishes and deletes an authenticated post", async () => {
     const response = await admin.fetchRaw<Post>("/api/post/add", {
         method: "POST",

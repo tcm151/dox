@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Topic, Sortable } from '@@/shared/types'
+import type { Pin, Topic, Sortable } from '@@/shared/types'
 
 const cache = useCache()
 const route = useRoute()
@@ -16,6 +16,8 @@ const { data: topic, refresh } = await useDatasource<Topic>(`/api/topic/${id}`, 
 
 const related = await useDatasource<{ id: string, count: number }[]>(`/api/topic/${id}/related-topics`)
 
+const pins = useDatasource<Pin[]>(`/api/topic/${id}/pins`)
+
 const sortBy = cache.get<string>("feed.sort", () => "new")
 const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
     query: {
@@ -31,6 +33,9 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
             <div class="row g-2">
                 <section class="column g-2 f-1">
                     <TopicPreview :topic="topic" @refresh="refresh()" />
+                    <template v-for="pin in pins.data.value" :key="pin.id">
+                        <MultiPreview :item="pin.item" pinned />
+                    </template>
                     <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
                         <template #item="item">
                             <MultiPreview :item="item" />
@@ -40,11 +45,16 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                 <aside class="sidebar box column g-2 p-4">
                     <Tag v-if="topic.status === 'locked'" type="warning" icon="fa-lock" label="Locked" />
                     <Authenticated>
+                        <button v-if="moderator.forTopic(topic) || isAdmin" class="small" @click="navigateTo(`/topic/${id}/tools/profile`)">
+                            <i class="fa-solid fa-address-card"></i>
+                            Profile
+                        </button>
                         <button v-if="moderator.canRequest(topic)" class="small" @click="moderator.request(topic)">
                             <i class="fa-solid fa-hand"></i>
                             Request Moderator
                         </button>
                     </Authenticated>
+                    
                     <h3>Moderators</h3>
                     <section class="column g-1">
                         <template v-if="topic.moderators.length > 0">
@@ -56,23 +66,10 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                     <section class="column g-1">
                         <TopicTag v-for="topic in related.data.value" :topic="topic.id" />
                     </section>
-                    <Authenticated>
-                        <template v-if="moderator.forTopic(topic) || isAdmin">
-                            <h3>Tools</h3>
-                            <button class="small" @click="navigateTo(`/topic/${id}/tools/profile`)">
-                                <i class="fa-solid fa-address-card"></i>
-                                Profile
-                            </button>
-                            <button class="small" @click="navigateTo(`/topic/${id}/tools/moderators`)">
-                                <i class="fa-solid fa-users"></i>
-                                Moderators
-                            </button>
-                            <button class="small" @click="navigateTo(`/topic/${id}/tools/reports`)">
-                                <i class="fa-solid fa-flag"></i>
-                                Reports
-                            </button>
-                        </template>
-                    </Authenticated>
+                    <section v-if="topic.rules" class="column g-1">
+                        <h3>Rules</h3>
+                        <Markdown compact class="content" :content="topic.rules" />
+                    </section>
                 </aside>
             </div>
         </template>
@@ -89,6 +86,6 @@ article {
 
 aside.sidebar {
     height: fit-content;
-    min-width: 15rem;
+    min-width: 18rem;
 }
 </style>

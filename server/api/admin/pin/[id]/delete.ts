@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    requireRole(auth, ["admin", "developer"])
+    requireRole(auth, "admin")
     
     const { id } = event.context.params!
 

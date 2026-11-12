@@ -51,17 +51,16 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 ### B2. Abuse Controls and Safety Defaults
 - 🟩 Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
 - 🟩 Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
-- 🟥 Add shadow-quarantine flow for suspicious first-time users with limited visibility and interaction. (`M`)
 - 🟩 Add configurable per-topic moderation defaults with documented recommended presets. (`M`)
 - 🟩 Add content tagging and visibility policy controls (NSFW/spoiler defaults and user overrides). (`0016`, `M`)
 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.
 
 ### B3. Moderator and User Experience Hardening
-- 🟥 Complete or hide unfinished moderation and messaging UI, including supported thread archive controls. (`M`)
+- 🟥 Complete or hide remaining unfinished moderation and messaging workflows. (`M`)
 - 🟩 Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`0068`, `M`)
 - 🟩 Keep moderation and report result states consistent with awaited datasource conventions. (`0069`, `M`)
-- 🟥 Add topic governance tools (rename/archive/lock, moderator assignment, rules/summary history, and featured/pinned topic content). (`L`)
+- 🟥 Add versioned topic rules/summary history. (`0017`, `M`)
 - 🟩 Add conversation controls for lock/slow-mode/report handling across threads and comments. (`L`)
 
 **Success metric**: moderation UX is understandable for both moderators and affected users.

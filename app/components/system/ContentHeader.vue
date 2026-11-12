@@ -53,7 +53,7 @@ const readableTime = computed(() => props.content.time.split(".")[0]?.replace("T
             <TopicTag v-for="topic in topics" class="f-3 b-0" :key="topic" :topic="topic" />
         </template>
         <UserTag v-if="content.user" class="f-2 b-0" :user="content.user" />
-        <Tag v-if="context === 'preview' && post && pinned" class="meta" icon="fa-thumbtack" />
+        <Tag v-if="context === 'preview' && pinned" class="meta" icon="fa-thumbtack" />
         <Tag v-if="archived" class="meta" icon="fa-folder-closed" />
         <Tag v-if="context === 'preview' && awards" class="meta" icon="fa-crown" :label="awards" />
         <Tag v-if="context === 'preview' && saves" class="meta" icon="fa-box-archive" :label="saves" />

@@ -115,6 +115,8 @@ Subsequent starts read `server/assets/migrations/<version>.surql`, apply files n
 - `account` stores credentials and links identity to a `user`
 - `session` links auth token identity to an `account`
 - `topic` connects to posts, threads, and galleries for taxonomy/discovery
+- `topic` stores optional current rules text; revision history is tracked separately.
+- `pin` targets posts, threads, or galleries and is scoped to either the app home feed or one topic.
 - `post` contains title/content and may include comments/images
 - `thread` supports chain/reply patterns and quoting
 - `gallery` publishes a group of uploaded image assets as one feed item

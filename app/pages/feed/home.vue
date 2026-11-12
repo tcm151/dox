@@ -63,7 +63,7 @@ function cycleFeed() {
 <template>
     <section class="content-width feed column g-2 p-4">
         <template v-for="pin in pins.data.value" :key="pin.id">
-            <MultiPreview :item="pin.item" />
+            <MultiPreview :item="pin.item" pinned />
         </template>
         <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
             <template #buttons>

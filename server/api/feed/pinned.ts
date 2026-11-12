@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
             SELECT *
             FROM pin
             WHERE active = true
+            AND scope = "app"
             FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images.url;
         `)
         .queryAll<Pin>()
