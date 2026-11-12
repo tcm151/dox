@@ -296,11 +296,18 @@ it("lists a report in administrator and topic queues", async () => {
         const reportsBeforeComplaint = await admin.fetch<Array<{
             id: string
             subject: { id: string }
-            history: Array<{ action: string, message?: string, user: { id: string }, changes: Record<string, unknown> }>
+            history: Array<{ action: string, message?: string, user: { id: string }, time: string, changes: Record<string, unknown> }>
         }>>("/api/report")
         const reportBeforeComplaint = reportsBeforeComplaint.find(item => item.subject.id === thread.id)
         expect(reportBeforeComplaint).toBeDefined()
-        const historyBeforeComplaint = structuredClone(reportBeforeComplaint!.history)
+        const projectHistory = (history: Array<{
+            action: string
+            message?: string
+            user: { id: string }
+            time: string
+            changes: Record<string, unknown>
+        }>) => history.map(({ user, ...entry }) => ({ ...entry, user: user.id }))
+        const historyBeforeComplaint = projectHistory(reportBeforeComplaint!.history)
 
         const laterReportResponse = await reporter.fetchRaw("/api/report/send", {
             method: "POST",
@@ -313,7 +320,7 @@ it("lists a report in administrator and topic queues", async () => {
             status: string
             moderator?: { id: string }
             complaints: Array<{ reason: string }>
-            history: Array<{ action: string, message?: string, user: { id: string }, changes: Record<string, unknown> }>
+            history: Array<{ action: string, message?: string, user: { id: string }, time: string, changes: Record<string, unknown> }>
         }>>("/api/report")
         const afterLaterReport = afterLaterReports.find(item => item.subject.id === thread.id)
         expect(afterLaterReport).toMatchObject({
@@ -323,7 +330,7 @@ it("lists a report in administrator and topic queues", async () => {
         })
         expect(afterLaterReport!.complaints).toHaveLength(3)
         expect(afterLaterReport!.complaints.at(-1)).toMatchObject({ reason: "Additional context after resolution." })
-        expect(afterLaterReport!.history).toEqual(historyBeforeComplaint)
+        expect(projectHistory(afterLaterReport!.history)).toEqual(historyBeforeComplaint)
         expect(await getModeratorLogs(`report:${reportId}`)).toHaveLength(2)
 
         const missingReopenMessage = await admin.fetchRaw(`/api/report/${reportId}/reopen`, { method: "POST" })

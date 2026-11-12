@@ -5,7 +5,7 @@ import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promis
 import { join, relative, sep } from "node:path"
 import { performance } from "node:perf_hooks"
 import { buildFixture, createTest, loadFixture, setTestContext, startServer } from "@nuxt/test-utils/e2e"
-import { formatFailureDetails } from "./test-reporting.mjs"
+import { formatFailureDetails, formatVitestFailureOutput } from "./test-reporting.mjs"
 
 const projectRoot = process.cwd()
 const testBuildDirectory = join(projectRoot, ".nuxt", "test-runner")
@@ -302,13 +302,27 @@ function formatDuration(durationMs) {
 }
 
 function reportVitestFailure(result, testPath, phaseName) {
+    const vitestOutput = [result.stdout, result.stderr].filter(Boolean).join("\n").trim()
+    const vitestFailureDetails = formatVitestFailureOutput(vitestOutput)
+    if (vitestFailureDetails) {
+        const maxOutputCharacters = 12_000
+        const output = vitestFailureDetails.length > maxOutputCharacters
+            ? `[Earlier failure details omitted]\n${vitestFailureDetails.slice(-maxOutputCharacters)}`
+            : vitestFailureDetails
+        process.stderr.write(`\n--- Vitest failure: ${phaseName} (${testPath}) ---\n${output}\n`)
+        return result.exitCode
+    }
+
     const failureDetails = formatFailureDetails(result.report)
     if (failureDetails) {
         process.stderr.write(`\n${failureDetails}\n`)
     }
-    else if (result.stdout || result.stderr) {
-        process.stderr.write(`\n--- Failure output: ${phaseName} (${testPath}) ---\n`)
-        process.stderr.write(`${result.stdout}${result.stderr}`)
+    else if (vitestOutput) {
+        const maxOutputCharacters = 4_000
+        const output = vitestOutput.length > maxOutputCharacters
+            ? `[Earlier Vitest output omitted]\n${vitestOutput.slice(-maxOutputCharacters)}`
+            : vitestOutput
+        process.stderr.write(`\n--- Vitest failure output: ${phaseName} (${testPath}) ---\n${output}\n`)
     }
     return result.exitCode
 }
@@ -318,6 +332,7 @@ function runVitest(testPath, sequential, summaryPath) {
     const args = [
         vitestPath,
         "run",
+        "--reporter=default",
         "--reporter=json",
         "--outputFile",
         summaryPath,

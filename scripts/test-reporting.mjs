@@ -64,3 +64,18 @@ export function formatFailureDetails(report, projectRoot = process.cwd()) {
 
     return lines.join("\n")
 }
+
+export function formatVitestFailureOutput(output) {
+    const outputLines = output.split(/\r?\n/)
+    const failureHeadingIndex = outputLines.findIndex(line => line.includes("Failed Tests"))
+    if (failureHeadingIndex < 0) return ""
+
+    const failureEndIndex = outputLines.findIndex((line, index) =>
+        index > failureHeadingIndex && line.trim().startsWith("⎯") && /\[\d+\/\d+\]/.test(line),
+    )
+
+    return outputLines
+        .slice(failureHeadingIndex + 1, failureEndIndex < 0 ? undefined : failureEndIndex)
+        .join("\n")
+        .trim()
+}
