@@ -57,10 +57,9 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 **Success metric**: communities can apply sane moderation defaults without custom engineering.
 
 ### B3. Moderator and User Experience Hardening
-- 🟥 Complete or hide remaining unfinished moderation and messaging workflows. (`M`)
+- 🟩 Complete or hide remaining unfinished moderation and messaging workflows. (`0067`, `M`)
 - 🟩 Add user-visible moderation state where appropriate (locked content, appeal status, action context). (`0068`, `M`)
 - 🟩 Keep moderation and report result states consistent with awaited datasource conventions. (`0069`, `M`)
-- 🟥 Add versioned topic rules/summary history. (`0017`, `M`)
 - 🟩 Add conversation controls for lock/slow-mode/report handling across threads and comments. (`L`)
 
 **Success metric**: moderation UX is understandable for both moderators and affected users.
@@ -82,6 +81,7 @@ Goal: improve async interactions and make the project easier to contribute to.
 ### C2. Fluid Async Discovery and Inbox UX
 - 🟥 Add saved/custom feed presets and URL-synced filter state for search/discovery. (`L`)
 - 🟦 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling). (`M`)
+- 🟥 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`0083`, `M`)
 - 🟦 Resolve high-visibility TODOs affecting trust in feed/search/settings core paths. (`M`)
 - 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`S`)
 - 🟥 Add optional realtime notification delivery mode (SSE/WebSocket) after polling baseline is stable. (`L`)

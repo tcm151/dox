@@ -1,20 +1,17 @@
 # Ticket 0067: Complete Or Hide Unfinished Moderation And Messaging UI
 
 ## Status
-- State: Paused
+- State: Completed
 - Priority: Medium
-- Next: Resume the topic profile workflow after Ticket 0084 is complete
-
-## Dependencies
-- [0084](backlog/0084-topic-rename-requests.md): The topic profile still exposes a placeholder rename control; this ticket owns the rename request and approval flow.
+- Next: None
 
 ## Goal
 Ensure moderation and messaging screens expose only complete, usable workflows before production.
 
 ## Requirements
-- [ ] Unfinished moderation and messaging controls are completed or hidden.
-- [ ] Visible actions have working, authorized outcomes and clear failure feedback.
-- [ ] Moderation and messaging surfaces contain no dead-end controls or placeholder actions.
+- [x] Unfinished moderation and messaging controls are completed or hidden.
+- [x] Visible actions have working, authorized outcomes and clear failure feedback.
+- [x] Moderation and messaging surfaces contain no dead-end controls or placeholder actions.
 - [x] Thread archive/unarchive is exposed to API-authorized roles or intentionally removed from the detail-page wiring.
 - [x] Moderator tabs share consistent page framing and familiar result/filter controls.
 
@@ -22,12 +19,12 @@ Ensure moderation and messaging screens expose only complete, usable workflows b
 - [x] Audit moderator, report, and inbox surfaces for unfinished workflows.
 - [x] Align the moderator topic, report, and request tabs with admin page conventions for layout and result filters.
 - [x] Audit the thread detail options and restore or intentionally remove its archive/unarchive control; align role visibility with the server guard.
-- [ ] Complete supported flows or hide controls that are not ready.
-- [ ] Verify visible actions and error handling on each affected surface.
+- [x] Complete supported flows or hide controls that are not ready.
+- [x] Verify visible actions and error handling on each affected surface.
 
 ## Notes
 - This ticket covers workflow completeness; consistent empty, loading, and error states are tracked in Ticket 0069.
-- The topic profile's unfinished Request Rename action is tracked in Ticket 0084, a focused sub-feature of Ticket 0007.
+- Topic rename is outside this moderation and messaging UI scope; request and approval work is deferred in [Ticket 0084](../backlog/0084-topic-rename-requests.md), a focused sub-feature of Ticket 0007.
 - Broader review of existing inbox and notification workflows is tracked in Ticket 0083.
 
 ## Relevant Files
@@ -54,6 +51,7 @@ Ensure moderation and messaging screens expose only complete, usable workflows b
 - tests/parallel/topics.server.test.ts
 
 ## Progress Log
+- 2026-11-12: Completed the immediate moderator, report, inbox, thread, and notification UI completeness scope. Topic rename remains deferred in Ticket 0084; broader existing-messaging workflow review remains in Ticket 0083.
 - 2026-11-11: Paused pending the deferred topic rename workflow in Ticket 0084.
 - 2026-11-11: Narrowed the dependency on topic governance to the rename workflow in Ticket 0084.
 - 2026-11-11: Verified moderator request, report, topic-profile authorization, thread, and comment-redirect server flows with focused tests; corrected the comment lookup to pair `FROM` with `queryOne()`.
