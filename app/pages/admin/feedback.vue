@@ -20,19 +20,23 @@ async function dismissFeedback(feedback: Feedback) {
     <article class="content-width column g-2 p-4">
         <header class="row wrap inline between g-2">
             <h1>Feedback</h1>
-            <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
-                <i class="fa-solid fa-rotate"></i>
-                <span>Refresh</span>
-            </ButtonSpinner>
-            <div class="box px-4 py-2">
-                <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
+            <div class="row g-1">
+                <div class="box px-4 py-2">
+                    <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
+                </div>
+                <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Refresh</span>
+                </ButtonSpinner>
             </div>
         </header>
         <section v-if="activeFeedback.length > 0" class="feedback column g-2">
             <template v-for="item in activeFeedback" :key="item.id">
                 <article class="box p-3">
-                    <p>{{ item.content }}</p>
-                    <div class="tags row g-1 pt-1">
+                    <blockquote>
+                        {{ item.content }}
+                    </blockquote>
+                    <div class="tags row g-1 pt-2">
                         <DurationTag :time="item.time" />
                         <UserTag class="f-1" :user="item.user" />
                         <Tag v-if="!item.dismissed" type="danger" icon="fa-angles-right" label="Dismiss" @click="dismissFeedback(item)" />
