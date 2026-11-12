@@ -3,6 +3,7 @@ import { ModerationManager } from "@@/server/utils/ModerationManager"
 
 type CreateThreadRequest = {
     content: string
+    tags?: string[]
     topics: string[]
     images?: string[]
 }
@@ -44,6 +45,7 @@ export default defineEventHandler(async (event) => {
             RETURN CREATE thread SET
                 user = $user,
                 content = $content,
+                tags = $tags,
                 topics = $topics,
                 images = $images,
                 votes.positive = [$user];
@@ -51,6 +53,7 @@ export default defineEventHandler(async (event) => {
         .addTransaction()
         .addRecord('user', auth.id)
         .addParameter('content', thread.content)
+        .addParameter('tags', thread.tags ?? [])
         .addRecords('topics', thread.topics)
         .addRecords('images', imageIds)
         .queryOne<Thread>()

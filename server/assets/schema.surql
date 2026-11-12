@@ -158,6 +158,9 @@ DEFINE INDEX IF NOT EXISTS postTitleSearch ON TABLE post
     FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD content ON post
     TYPE string;
+DEFINE FIELD tags ON post
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
 DEFINE INDEX IF NOT EXISTS postContentSearch ON TABLE post
     FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON post
@@ -220,6 +223,9 @@ DEFINE FIELD title ON draft
     TYPE string ASSERT $value = /.{4,128}/;
 DEFINE FIELD content ON draft
     TYPE string;
+DEFINE FIELD tags ON draft
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
 DEFINE FIELD time ON draft
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON draft
@@ -277,6 +283,9 @@ DEFINE FIELD user ON thread
     TYPE record<user>;
 DEFINE FIELD content ON thread
     TYPE string ASSERT $value = /.{4,512}/;
+DEFINE FIELD tags ON thread
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
 DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
     FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON thread
@@ -408,6 +417,9 @@ DEFINE FIELD user ON gallery
     TYPE record<user>;
 DEFINE FIELD description ON gallery
     TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD tags ON gallery
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
 DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
     FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON gallery
@@ -519,6 +531,8 @@ DEFINE FIELD viewed ON notification
 DEFINE TABLE userSettings SCHEMAFULL;
 DEFINE FIELD user ON userSettings
     TYPE record<user>;
+DEFINE FIELD content.visibility ON userSettings
+    TYPE object FLEXIBLE DEFAULT ALWAYS {};
 DEFINE INDEX userSettingsUser ON TABLE userSettings
     FIELDS user UNIQUE;
 DEFINE FIELD ui ON userSettings
@@ -614,7 +628,7 @@ DEFINE FUNCTION fn::thread_ancestors($threadId: record<thread>, $remaining: int)
         RETURN [];
     };
     LET $parent = (
-        SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
+        SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
         FROM ONLY $thread.replyTo
         FETCH user
     );
@@ -635,7 +649,7 @@ DEFINE FUNCTION fn::thread_chain($parent: record<thread>, $remaining: int) -> ar
         RETURN [{ id: "thread:load_more" }];
     };
     LET $next = (
-        SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+        SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
         FROM ONLY $nextId
         FETCH user
     );
@@ -835,6 +849,11 @@ DEFINE FIELD email ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD moderation ON appSettings
     TYPE object FLEXIBLE;
+DEFINE FIELD content.visibility ON appSettings
+    TYPE object FLEXIBLE DEFAULT ALWAYS {
+        nsfw: "mask",
+        spoiler: "mask",
+    };
 DEFINE FIELD voting ON appSettings
     TYPE object FLEXIBLE;
 DEFINE FIELD topics ON appSettings
@@ -878,6 +897,12 @@ IF !record::exists(appSettings:default) {
             perTopic: 3,
             threshold: 2,
             slowModes: [30, 60, 300, 900],
+        },
+        content: {
+            visibility: {
+                nsfw: "mask",
+                spoiler: "mask",
+            }
         },
         voting: {
             enabled: true,

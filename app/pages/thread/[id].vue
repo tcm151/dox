@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ThreadReply from './components/ThreadReply.vue'
-import ExtraOptions from './components/ExtraOptions.vue'
 import type { Thread } from '@@/shared/types'
 import { useSlowMode } from '@@/app/utils/slow'
 
@@ -38,7 +37,7 @@ async function updateThread() {
         submitting.value = true
         await useApi(`/api/thread/${id}/edit`, {
             body: {
-                content: thread.value.content
+                content: thread.value.content,
             }
         })
         thread.value.edited = true
@@ -55,6 +54,7 @@ async function updateThread() {
 
 const showReplyBox = ref<boolean>(false)
 const replyText = ref<string>("")
+const replyTags = ref<string[]>([])
 
 const quoting = ref<boolean>(false)
 const replyState = slowMode.submissionState(() => thread.value)
@@ -78,6 +78,7 @@ function cancelThreadReply() {
     showReplyBox.value = false
     quoting.value = false
     replyText.value = ""
+    replyTags.value = []
 }
 
 const submitting = ref<boolean>(false)
@@ -101,6 +102,7 @@ async function submitThread() {
             body: {
                 user: session.user.id,
                 content: replyText.value,
+                tags: replyTags.value,
                 votes: {
                     positive: [session.user.id],
                     misleading: [],
@@ -111,6 +113,7 @@ async function submitThread() {
 
         if (action === "reply" && thread.value) slowMode.recordSubmission(thread.value.id)
         replyText.value = ""
+        replyTags.value = []
         showReplyBox.value = false
         refresh()
     }
@@ -228,18 +231,22 @@ function toggleOptions() {
         <section class="main box column px-4 pt-4">
             <ContentHeader :content="thread" context="detail" />
             <template v-if="!editingThread">
-                <Markdown class="content" :content="thread.content" />
-                <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
-                    <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
-                </aside>
-                <aside v-if="thread.quote" class="br-medium border-subtle mb-3 px-3 pt-3">
-                    <ContentHeader :content="thread.quote" context="preview">
-                        <template #actions>
-                            <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
-                        </template>
-                    </ContentHeader>
-                    <Markdown class="content preview" :content="thread.quote.content" />
-                </aside>
+                <ContentVisibility :tags="thread.tags" direct>
+                    <Markdown class="content" :content="thread.content" />
+                    <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
+                        <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
+                    </aside>
+                    <aside v-if="thread.quote" class="br-medium border-subtle mb-3 px-3 pt-3">
+                        <ContentVisibility :tags="thread.quote.tags" direct>
+                            <ContentHeader :content="thread.quote" context="preview">
+                                <template #actions>
+                                    <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
+                                </template>
+                            </ContentHeader>
+                            <Markdown class="content preview" :content="thread.quote.content" />
+                        </ContentVisibility>
+                    </aside>
+                </ContentVisibility>
             </template>
             <ClientOnly>
                 <div v-if="editingThread && thread.user.id === session.user.id" class="field my-4">
@@ -265,7 +272,18 @@ function toggleOptions() {
                                 <i aria-hidden="true" class="fa-solid fa-ellipsis"></i>
                             </button>
                             <OverlayTransition>
-                                <ExtraOptions v-if="showOptions" :thread="thread" @updated="refresh" @edit="toggleEditThread" @award="awardThread" @report="submitReport(thread.id)" @delete="deleteThread" @archive="archiveThread" @pin="pinThread" @close="showOptions = false" />
+                                <ExtraOptions
+                                    v-if="showOptions"
+                                    :target="thread"
+                                    @updated="refresh"
+                                    @edit="toggleEditThread"
+                                    @award="awardThread"
+                                    @report="submitReport(thread.id)"
+                                    @delete="deleteThread"
+                                    @archive="archiveThread"
+                                    @pin="pinThread"
+                                    @close="showOptions = false"
+                                />
                             </OverlayTransition>
                         </ClientOnly>
                     </div>
@@ -288,6 +306,7 @@ function toggleOptions() {
                     <CollapseTransition>
                         <ReplyComposer
                             v-if="showReplyBox && !thread.deleted && !editingThread"
+                            show-content-tags
                             class="mb-4"
                             :rows="5"
                             autofocus
@@ -296,6 +315,7 @@ function toggleOptions() {
                             :submit-icon="quoting ? 'fa-quote-left' : 'fa-reply'"
                             :disabled="activeSubmissionState.disabled"
                             :warning="activeSubmissionState.warning"
+                            v-model:tags="replyTags"
                             @submit="submitThread"
                             @cancel="cancelThreadReply"
                             v-model="replyText"

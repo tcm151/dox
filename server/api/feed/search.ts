@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
             LET $comments = (
                 SELECT id,
                     user.{id, name, roles} AS user,
-                    context.{id, title, description} AS context, moderation,
+                    context.{id, title, description, tags} AS context, moderation,
                     content, time, edited, deleted, status, timeEdited, votes, score,
                     string::contains(string::lowercase(content), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
@@ -26,8 +26,8 @@ export default defineEventHandler(async (event) => {
             );
 
             LET $posts = (
-                SELECT id, user.id, user.name, title, time, edited, timeEdited,
-                    replyTo.id, replyTo.title, topics, comments, votes,
+                SELECT id, user.id, user.name, title, tags, time, edited, timeEdited,
+                    replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes,
                     status, images.{id, url} AS images, visits, moderation,
                     (string::contains(string::lowercase(title), string::lowercase($text))
                         OR string::contains(string::lowercase(content), string::lowercase($text))) AS search.exact,
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
             );
 
             LET $threads = (
-                SELECT id, user.id, user.name, content, time,
+                SELECT id, user.id, user.name, content, tags, time,
                     topics, replies, votes, score,
                     edited, timeEdited, visits, images.{id, url} AS images,
                     (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation,
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
             );
 
             LET $galleries = (
-                SELECT id, user.id, user.name, description, time,
+                SELECT id, user.id, user.name, description, tags, time,
                     topics, images.{id, url} AS images, votes, score, visits, status,
                     moderation,
                     string::contains(string::lowercase(description), string::lowercase($text)) AS search.exact,

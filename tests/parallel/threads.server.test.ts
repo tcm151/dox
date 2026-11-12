@@ -69,6 +69,44 @@ it("denies thread archiving to members and toggles the archived state for admins
     }
 })
 
+it("allows admins to add thread tags without allowing members or authors to remove them", async () => {
+    const content = `Thread tag permissions ${Date.now()}`
+    let threadId: string | undefined
+
+    try {
+        const createResponse = await admin.fetchRaw<Thread>("/api/thread/add", {
+            method: "POST",
+            body: { content, topics: [], images: [], tags: ["spoiler"] },
+        })
+        expectStatus(createResponse, 200, "thread creation stage")
+        threadId = extractId(createResponse._data!.id)
+
+        const deniedResponse = await replyAuthor.fetchRaw(`/api/thread/${threadId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(deniedResponse, 403, "member authorization stage")
+
+        const addResponse = await admin.fetchRaw(`/api/thread/${threadId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(addResponse, 204, "admin tag addition stage")
+
+        const editResponse = await admin.fetchRaw(`/api/thread/${threadId}/edit`, {
+            method: "POST",
+            body: { content: "Edited without changing tags.", tags: [] },
+        })
+        expectStatus(editResponse, 200, "author edit stage")
+        expect((await admin.fetch<Thread>(`/api/thread/${threadId}`)).tags).toEqual(["spoiler", "nsfw"])
+    }
+    finally {
+        if (threadId) {
+            await admin.query(`DELETE notification WHERE context = thread:${threadId}; DELETE thread:${threadId};`)
+        }
+    }
+})
+
 it("creates a thread reply and notifies the thread author", async () => {
     const parentContent = `API smoke parent ${Date.now()}`
     const replyContent = `API smoke reply ${Date.now()}`

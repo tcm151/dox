@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     
     const { id } = event.context.params!
-    const thread = await readBody<Thread>(event)
+    const thread = await readBody<Pick<Thread, "content"> & { tags?: string[] }>(event)
     const replyTo = `thread:${id}`
 
     const { reply, recipient } = await new DatabaseQuery()
@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
                 CREATE ONLY thread SET
                     user = $user,
                     content = $content,
+                    tags = $tags,
                     replyTo = $replyTo,
                     votes.positive = [$user]
             );
@@ -47,6 +48,7 @@ export default defineEventHandler(async (event) => {
         .addRecord('user', auth.id)
         .addRecord('replyTo', replyTo)
         .addParameter('content', thread.content)
+        .addParameter('tags', thread.tags ?? [])
         .queryValue<{ reply: Thread, recipient: string }>()
 
     await NotificationManager.send({

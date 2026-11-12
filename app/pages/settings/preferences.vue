@@ -4,6 +4,24 @@ const events = useEvents()
 const session = getSession()
 const userSettings = useUserSettings()
 
+function contentVisibilityMode(tag: string) {
+    return userSettings.preferences.content.visibility[tag] ?? "inherit"
+}
+
+function updateContentVisibility(tag: string, event: Event) {
+    const mode = (event.target as HTMLSelectElement).value
+    const preferences = userSettings.preferences.content.visibility
+    if (mode === "inherit") {
+        delete preferences[tag]
+    }
+    else if (mode === "show" || mode === "mask" || mode === "filter") {
+        preferences[tag] = mode
+    }
+    else {
+        hints.addError("Invalid content visibility option.")
+    }
+}
+
 const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
 try {
     await userSettings.refresh()
@@ -72,6 +90,36 @@ async function invalidateSessions() {
 <template>
     <article class="column g-4 p-4">
         <section class="box form g-1 p-5">
+            <h2 class="mb-2">Content visibility</h2>
+            <p class="tip mb-3">Choose how tagged content is displayed. Filtering removes it from feeds and search; direct links still require revealing it.</p>
+            <div
+                v-for="tag in [
+                    { value: 'nsfw', label: 'NSFW' },
+                    { value: 'spoiler', label: 'Spoiler' },
+                ]"
+                :key="tag.value"
+                class="field row center py-2"
+            >
+                <label class="f-1">{{ tag.label }}</label>
+                <select
+                    :value="contentVisibilityMode(tag.value)"
+                    :disabled="userSettings.loading || !userSettings.loaded || userSettings.saving"
+                    @change="updateContentVisibility(tag.value, $event)"
+                >
+                    <option value="inherit">Use community default</option>
+                    <option
+                        v-for="mode in [
+                            { value: 'show', label: 'Show normally' },
+                            { value: 'mask', label: 'Mask and reveal' },
+                            { value: 'filter', label: 'Filter from feeds and search' },
+                        ]"
+                        :key="mode.value"
+                        :value="mode.value"
+                    >
+                        {{ mode.label }}
+                    </option>
+                </select>
+            </div>
             <div class="field row center py-2">
                 <label class="f-1">enable animations</label>
                 <Toggle v-model:enabled="userSettings.preferences.ui.hoverAnimations" />

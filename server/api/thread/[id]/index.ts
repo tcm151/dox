@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const thread = await new DatabaseQuery()
         .addSql(`
             LET $thread = (
-                SELECT id, user, content, time, quote, replyTo, topics, images,
+                SELECT id, user, content, tags, time, quote, replyTo, topics, images,
                 status, deleted, edited, timeEdited, visits, votes, score, moderation
                 FROM ONLY $thread
                 FETCH user, replyTo, replyTo.user, quote, quote.user, images.url
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
             LET $ancestors = fn::thread_ancestors($thread.id, $displayLimit);
             LET $replyRows = (
-                SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+                SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
                 FROM thread
                 WHERE replyTo = $thread.id
                 ORDER BY score DESC, id ASC
@@ -31,8 +31,8 @@ export default defineEventHandler(async (event) => {
                 replies: $replies
             });
         `)
-        .addRecord("thread", `thread:${id}`)
         .addTransaction()
+        .addRecord("thread", `thread:${id}`)
         .addParameter("displayLimit", THREAD_DISPLAY_LIMIT)
         .queryValue<Thread>()
 

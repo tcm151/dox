@@ -45,6 +45,85 @@ it("publishes and deletes an authenticated post", async () => {
     expectStatus(deleteResponse, 200)
 })
 
+it("persists supported tags while keeping comments untagged", async () => {
+    const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
+        method: "POST",
+        body: { ...postRequest, title: `Content visibility ${Date.now()}`, tags: ["spoiler"] },
+    })
+    expectStatus(postResponse, 200)
+
+    const post = postResponse._data!
+    const postId = extractId(post.id)
+    expect(post.tags).toEqual(["spoiler"])
+
+    let commentId: string | undefined
+    try {
+        await expect(admin.query(`UPDATE post:${postId} SET tags = ["unsupported"];`)).rejects.toThrow()
+        expect((await admin.fetch<Post>(`/api/post/${postId}`)).tags).toEqual(["spoiler"])
+
+        const commentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: {
+                context: post.id,
+                replyTo: post.id,
+                content: `Untagged comment ${Date.now()}`,
+                tags: ["nsfw"],
+            },
+        })
+        expectStatus(commentResponse, 200, "comment creation stage")
+        const comment = commentResponse._data!
+        commentId = extractId(comment.id)
+        expect(comment).not.toHaveProperty("tags")
+        await expect(admin.query(`UPDATE comment:${commentId} SET tags = ["nsfw"];`)).rejects.toThrow()
+    }
+    finally {
+        await admin.query([
+            ...(commentId ? [`DELETE comment:${commentId};`] : []),
+            `DELETE notification WHERE context = post:${postId};`,
+            `DELETE post:${postId};`,
+        ].join("\n"))
+    }
+})
+
+it("allows admins to add post tags without allowing members or authors to remove them", async () => {
+    const regularUser = exampleServer.users.commentAuthor
+    const title = `Post tag permissions ${Date.now()}`
+    let postId: string | undefined
+
+    try {
+        const createResponse = await admin.fetchRaw<Post>("/api/post/add", {
+            method: "POST",
+            body: { ...postRequest, title, tags: ["spoiler"] },
+        })
+        expectStatus(createResponse, 200, "post creation stage")
+        postId = extractId(createResponse._data!.id)
+
+        const deniedResponse = await regularUser.fetchRaw(`/api/post/${postId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(deniedResponse, 403, "member authorization stage")
+
+        const addResponse = await admin.fetchRaw(`/api/post/${postId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(addResponse, 204, "admin tag addition stage")
+
+        const editResponse = await admin.fetchRaw(`/api/post/${postId}/edit`, {
+            method: "POST",
+            body: { content: "Edited without changing tags.", tags: [] },
+        })
+        expectStatus(editResponse, 200, "author edit stage")
+        expect((await admin.fetch<Post>(`/api/post/${postId}`)).tags).toEqual(["spoiler", "nsfw"])
+    }
+    finally {
+        if (postId) {
+            await admin.query(`DELETE notification WHERE context = post:${postId}; DELETE post:${postId};`)
+        }
+    }
+})
+
 it("projects moderation state onto post lists, feed, search, and pinned items", async () => {
     const searchTerm = `projectionmarker${Date.now()}`
     const topicId = `projectionTopic${Date.now()}`

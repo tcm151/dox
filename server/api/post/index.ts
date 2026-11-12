@@ -5,8 +5,8 @@ export default defineEventHandler(async (event) => {
     
     const posts = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, title, time, edited, timeEdited,
-            replyTo.id, replyTo.title, topics, comments, votes, score,
+            SELECT id, user.id, user.name, title, tags, time, edited, timeEdited,
+            replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes, score,
             status, images.{id, url} AS images, visits, moderation
             FROM post
             WHERE status = "active"

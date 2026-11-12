@@ -6,6 +6,14 @@ import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-
 const admin = await grabUser("admin")
 const otherUser = (await grabExampleServer("default")).users.commentAuthor
 
+it("defaults content visibility modes to masking", async () => {
+    const settings = await fetch("/api/settings/default").then(response => response.json()) as AppSettings
+    expect(settings.content.visibility).toEqual({
+        nsfw: "mask",
+        spoiler: "mask",
+    })
+})
+
 it("persists and restores the About summary setting", async () => {
     const settingsResponse = await fetch("/api/settings/default")
     expectStatus(settingsResponse, 200)
@@ -152,6 +160,12 @@ it("persists UI preferences only for the authenticated user", async () => {
             hoverAnimations: !originalAdminSettings.ui.hoverAnimations,
             hintDuration: originalAdminSettings.ui.hintDuration + 500,
         },
+        content: {
+            visibility: {
+                ...originalAdminSettings.content.visibility,
+                nsfw: "filter",
+            },
+        },
     }
 
     try {
@@ -163,6 +177,7 @@ it("persists UI preferences only for the authenticated user", async () => {
 
         const savedAdminSettings = await admin.fetch<UserSettings>("/api/profile/settings")
         expect(savedAdminSettings.ui).toEqual(updatedSettings.ui)
+        expect(savedAdminSettings.content).toEqual(updatedSettings.content)
         expect(savedAdminSettings.notifications).toEqual(originalAdminSettings.notifications)
 
         const savedOtherSettings = await otherUser.fetch<UserSettings>("/api/profile/settings")

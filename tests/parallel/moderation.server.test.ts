@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { AppSettings, Comment, ModeratorLog, Moderation, Post, Thread, Topic, User } from "../../shared/types"
+import type { AppSettings, Comment, Gallery, ModeratorLog, Moderation, Post, Thread, Topic, User } from "../../shared/types"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 
@@ -127,7 +127,27 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
         expectStatus(unassignedResponse, 403, "topic assignment stage")
         expectStatus(await member.fetchRaw(`/api/moderation/post/${postId}`), 403, "control state topic assignment stage")
 
+        const unassignedTagResponse = await member.fetchRaw(`/api/post/${postId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(unassignedTagResponse, 403, "tag topic assignment stage")
+
         await admin.query(`UPDATE topic:${topicId} SET moderators += ${member.user.id};`)
+
+        const addPostTagResponse = await member.fetchRaw(`/api/post/${postId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(addPostTagResponse, 204, "moderator post tag stage")
+        expect((await member.fetch<Post>(`/api/post/${postId}`)).tags).toEqual(["nsfw"])
+
+        const addGalleryTagResponse = await member.fetchRaw(`/api/gallery/${galleryId}/tag/add`, {
+            method: "POST",
+            body: { tag: "spoiler" },
+        })
+        expectStatus(addGalleryTagResponse, 204, "moderator gallery tag stage")
+        expect((await member.fetch<Gallery>(`/api/gallery/${galleryId}`)).tags).toEqual(["spoiler"])
 
         const setPostSlowMode = await member.fetchRaw<Pick<Moderation, "subject" | "slowed">>(`/api/moderation/post/${postId}/slow/apply`, {
             method: "POST",
@@ -209,10 +229,17 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
 
         const threadResponse = await admin.fetchRaw<Thread>("/api/thread/add", {
             method: "POST",
-            body: { content: `Global admin lock ${Date.now()}`, topics: [], images: [] },
+            body: { content: `Global admin lock ${Date.now()}`, topics: [`topic:${topicId}`], images: [] },
         })
         expectStatus(threadResponse, 200, "thread creation stage")
         threadId = extractId(threadResponse._data!.id)
+        const addThreadTagResponse = await member.fetchRaw(`/api/thread/${threadId}/tag/add`, {
+            method: "POST",
+            body: { tag: "spoiler" },
+        })
+        expectStatus(addThreadTagResponse, 204, "moderator thread tag stage")
+        expect((await member.fetch<Thread>(`/api/thread/${threadId}`)).tags).toEqual(["spoiler"])
+
         const setThreadSlowMode = await admin.fetchRaw<Pick<Moderation, "subject" | "slowed">>(`/api/moderation/thread/${threadId}/slow/apply`, {
             method: "POST",
             body: { interval: 30 },

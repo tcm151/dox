@@ -1,5 +1,39 @@
 BEGIN TRANSACTION;
 
+DEFINE FIELD OVERWRITE tags ON post
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
+DEFINE FIELD OVERWRITE tags ON draft
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
+DEFINE FIELD OVERWRITE tags ON thread
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
+DEFINE FIELD OVERWRITE tags ON gallery
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
+
+UPDATE post SET tags = [] WHERE tags = NONE;
+UPDATE draft SET tags = [] WHERE tags = NONE;
+UPDATE thread SET tags = [] WHERE tags = NONE;
+UPDATE gallery SET tags = [] WHERE tags = NONE;
+
+DEFINE FIELD OVERWRITE content.visibility ON userSettings
+    TYPE object FLEXIBLE DEFAULT ALWAYS {};
+UPDATE userSettings SET content.visibility = {}
+WHERE content.visibility = NONE;
+
+DEFINE FIELD OVERWRITE content.visibility ON appSettings
+    TYPE object FLEXIBLE DEFAULT ALWAYS {
+        nsfw: "mask",
+        spoiler: "mask",
+    };
+UPDATE appSettings SET content.visibility = {
+    nsfw: "mask",
+    spoiler: "mask",
+}
+WHERE content.visibility = NONE;
+
 LET $replies = (SELECT id, replyTo FROM thread WHERE replyTo != NONE AND record::exists(replyTo));
 LET $quotes = (SELECT id, quote FROM thread WHERE quote != NONE AND record::exists(quote));
 LET $postTopics = (SELECT id, topics FROM post WHERE deleted = false);
@@ -249,7 +283,7 @@ DEFINE FUNCTION OVERWRITE fn::thread_ancestors($threadId: record<thread>, $remai
         RETURN [];
     };
     LET $parent = (
-        SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
+        SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
         FROM ONLY $thread.replyTo
         FETCH user
     );
@@ -270,7 +304,7 @@ DEFINE FUNCTION OVERWRITE fn::thread_chain($parent: record<thread>, $remaining: 
         RETURN [{ id: "thread:load_more" }];
     };
     LET $next = (
-        SELECT id, user, content, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+        SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
         FROM ONLY $nextId
         FETCH user
     );

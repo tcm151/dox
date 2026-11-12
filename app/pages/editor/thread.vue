@@ -10,6 +10,7 @@ let newThread = ref<Thread>({
     id: '',
     user: session.user as User & string,
     content: '',
+    tags: [],
     time: '',
     topics: [],
     quotes: [],
@@ -56,6 +57,7 @@ async function submit() {
             body: {
                 user: session.user.id,
                 content: newThread.value.content,
+                tags: newThread.value.tags,
                 topics: topics.items,
                 votes: {
                     positive: [session.user.id],
@@ -81,16 +83,21 @@ async function submit() {
 
 <template>
     <EditorFrame title="New Thread" :submitting="submitting" @submit="submit">
+        <template #header-actions>
+            <ContentTagSelector v-model="newThread.tags" />
+        </template>
         <template #form>
             <UploadedImages size="small" :images="images" />
             <MarkdownEditor bounded label="Content" :rows="12" v-model="newThread.content" @focus="contentFocused = true" @blur="contentFocused = false" />
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <Markdown class="content" :content="newThread.content" />
-            <aside v-if="images.uploaded.length > 0" class="preview-images row wrap g-2 mt-3">
-                <img v-for="image in images.uploaded" class="br-small border-subtle" :src="image.url">
-            </aside>
+            <ContentVisibility :tags="newThread.tags" direct>
+                <Markdown class="content" :content="newThread.content" />
+                <aside v-if="images.uploaded.length > 0" class="preview-images row wrap g-2 mt-3">
+                    <img v-for="image in images.uploaded" class="br-small border-subtle" :src="image.url">
+                </aside>
+            </ContentVisibility>
         </template>
         <template #footer-actions>
             <button class="link f-1 b-0" @click="images.select">

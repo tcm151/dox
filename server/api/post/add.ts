@@ -4,6 +4,7 @@ import { ModerationManager } from "@@/server/utils/ModerationManager"
 type CreatePostRequest = {
     title: string
     content: string
+    tags?: string[]
     replyTo?: string
     topics: string[]
     images?: string[]
@@ -13,7 +14,6 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const post = await readBody<CreatePostRequest>(event)
     const imageIds = post.images ?? []
-
     await ModerationManager.checkTopicCooldown(auth.id, post.topics)
 
     return await new DatabaseQuery()
@@ -47,6 +47,7 @@ export default defineEventHandler(async (event) => {
                 user = $user,
                 title = $title,
                 content = $content,
+                tags = $tags,
                 replyTo = $replyTo ?? NONE,
                 topics = $topics,
                 images = $images,
@@ -56,6 +57,7 @@ export default defineEventHandler(async (event) => {
         .addRecord("user", auth.id)
         .addParameter("title", post.title)
         .addParameter("content", post.content)
+        .addParameter("tags", post.tags ?? [])
         .addRecord('replyTo', post.replyTo ?? "", true)
         .addRecords("topics", post.topics)
         .addRecords("images", imageIds)

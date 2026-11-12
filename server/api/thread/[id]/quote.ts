@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
                 CREATE ONLY thread SET
                     user = $user,
                     content = $content,
+                    tags = $tags,
                     topics = $topics,
                     quote = $quote,
                     votes.positive = [$user]
@@ -30,6 +31,7 @@ export default defineEventHandler(async (event) => {
         .addTransaction()
         .addRecord('user', auth.id)
         .addParameter('content', thread.content)
+        .addParameter('tags', thread.tags ?? [])
         .addRecords('topics', thread.topics ?? [])
         .addRecord('quote', quoteId)
         .queryValue<{ quote: Thread, recipient: string }>()

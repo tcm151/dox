@@ -20,6 +20,12 @@ export const useSettings = defineStore("app.settings", () => {
             threshold: 2,
             slowModes: [30, 60, 300, 900],
         },
+        content: {
+            visibility: {
+                nsfw: "mask",
+                spoiler: "mask",
+            },
+        },
         voting: {
             enabled: true,
             misleading: true,

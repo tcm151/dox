@@ -50,6 +50,7 @@ export interface User extends Voteable {
 export type Role = "admin" | "developer" | "moderator"
 export type Trait = "confirmed" | "verified"
 export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
+export type ContentVisibilityMode = "show" | "mask" | "filter"
 export type TopicStatus = "active" | "locked"
 
 export interface Session extends Record {
@@ -82,6 +83,7 @@ export interface Post extends Sortable {
     user: User & string
     title: string
     content: string
+    tags: string[]
     replyTo?: Post & string
     topics: string[]
     comments: (Comment & string)[]
@@ -96,6 +98,7 @@ export interface Draft extends Record {
     user: User & string
     title: string
     content: string
+    tags: string[]
     time: string
     replyTo?: Post & string
     topics: string[]
@@ -117,6 +120,7 @@ export interface Comment extends Sortable {
 export interface Thread extends Sortable {
     user: User & string
     content: string
+    tags: string[]
     quote?: Thread & string
     quotes: (Thread & string)[]
     replyTo?: Thread & string
@@ -148,6 +152,7 @@ export interface Image extends Media {
 export interface Gallery extends Sortable {
     user: User & string
     description: string
+    tags: string[]
     topics: string[]
     comments: (Comment & string)[]
     images: Attachment[]
@@ -157,7 +162,7 @@ export interface Gallery extends Sortable {
 
 export interface SearchComment extends Voteable {
     user: Pick<User, "id" | "name" | "roles">
-    context: Pick<Post, "id" | "title"> | Pick<Gallery, "id" | "description">
+    context: Pick<Post, "id" | "title" | "tags"> | Pick<Gallery, "id" | "description" | "tags">
     content: string
     time: string
     edited: boolean
@@ -196,6 +201,9 @@ export interface Notification extends Record {
 
 export interface UserSettings extends Record {
     user: User & string
+    content: {
+        visibility: Partial<{ [tag: string]: ContentVisibilityMode }>
+    }
     ui: {
         hoverAnimations: boolean
         hintDuration: number
@@ -323,6 +331,9 @@ export interface AppSettings extends Record {
         perTopic: number
         threshold: number
         slowModes: number[]
+    }
+    content: {
+        visibility: { [tag: string]: ContentVisibilityMode }
     }
     voting: {
         enabled: boolean

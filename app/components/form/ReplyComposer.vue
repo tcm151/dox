@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
     submitIcon?: string
     disabled?: boolean
     warning?: string
+    showContentTags?: boolean
 }>(), {
     submitting: false,
     rows: 2,
@@ -15,7 +16,10 @@ const props = withDefaults(defineProps<{
     submitLabel: "Submit",
     submitIcon: "fa-comment",
     disabled: false,
+    showContentTags: false,
 })
+
+const tags = defineModel<string[]>("tags", { default: () => [] })
 
 const emit = defineEmits<{
     (event: "update:modelValue", value: string): void

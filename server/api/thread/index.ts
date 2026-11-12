@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     
     const threads = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, content, time,
+            SELECT id, user.id, user.name, content, tags, time,
             topics, quote, replies, votes, score,
             edited, timeEdited, visits, images.{id, url} AS images,
             (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation

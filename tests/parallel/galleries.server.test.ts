@@ -109,6 +109,48 @@ it("returns gallery details, increments visits, and denies deletion by a non-own
     }
 })
 
+it("allows admins to add gallery tags and denies regular members", async () => {
+    const imageId = `galleryTag${Date.now()}`
+    const description = `Gallery tag permissions ${Date.now()}`
+    const regularUser = exampleServer.users.commentAuthor
+    let galleryId: string | undefined
+
+    try {
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+
+        const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
+            method: "POST",
+            body: { images: [`image:${imageId}`], description, topics: [], tags: ["spoiler"] },
+        })
+        expectStatus(publishResponse, 200, "gallery publication stage")
+
+        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
+        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        expect(gallery).toBeDefined()
+        galleryId = extractId(gallery!.id)
+
+        const deniedResponse = await regularUser.fetchRaw(`/api/gallery/${galleryId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(deniedResponse, 403, "member authorization stage")
+
+        const addResponse = await admin.fetchRaw(`/api/gallery/${galleryId}/tag/add`, {
+            method: "POST",
+            body: { tag: "nsfw" },
+        })
+        expectStatus(addResponse, 204, "admin tag addition stage")
+        expect((await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)).tags).toEqual(["spoiler", "nsfw"])
+    }
+    finally {
+        await admin.query([
+            ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
+            `DELETE image:${imageId};`,
+            `DELETE mediaTrash:${imageId};`,
+        ].join("\n"))
+    }
+})
+
 it("rejects gallery publishing without images", async () => {
     const description = `empty gallery ${Date.now()}`
 
