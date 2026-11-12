@@ -66,48 +66,47 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 
 ## Phase C: Product and DX for Modern Async Communities
 
-Goal: improve async interactions and make the project easier to contribute to.
+Goal: complete a secure, dependable baseline platform before expanding into optional content types and advanced authoring features.
 
-### C1. User Control and Account Safety
+### C1. API Contracts and Operational Signals
+- 🟥 Publish the API endpoint inventory with auth requirements and response contracts. (`0021`, `M`)
+- 🟩 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`0022`, `L`)
+- 🟩 Add structured, redacted handled-error context and request correlation for API errors. Successful-request logging is deferred. (`0023`, `M`)
+- 🟥 Define baseline metrics and operational SLOs for latency, error rate, and migration success. (`M`)
+
+**Success metric**: contributors can identify API contracts and evaluate changes to core routes against tested behavior and operational baselines.
+
+### C2. Account Safety and Personal Controls
 - 🟩 Add account deletion choices for retaining authored content or removing it while preserving discussion history. (`0013`, `M`)
-- 🟥 Add revoke-all-sessions capability and session management UI for account safety. (`M`)
-- 🟥 Add block/mute controls for users, topics, and keywords with clear UX. (`L`)
-- 🟥 Add save/unsave actions for eligible content with clear saved-state feedback. (`M`)
-- 🟥 Add privacy controls with documented defaults. (`M`)
-- 🟥 Add configurable email and in-app notification preference controls in user settings. (`M`)
+- 🟩 Add revoke-other-sessions action, session expiry, and password-reset invalidation. (`0012`, `M`)
+- 🟥 Add user/topic block and mute controls with feed, search, and inbox filtering. (`0014`, `M`)
+- 🟥 Add save/unsave actions for eligible content with clear saved-state feedback. (`0080`, `M`)
+- 🟥 Align extra-option actions across content types, coordinating save-action availability with Ticket 0080. (`0087`, `M`)
+- 🟥 Define account privacy controls and documented defaults, distinct from content visibility settings. (`0089`, `S`)
+- 🟩 Add configurable email and in-app notification preference controls in user settings. (`0008`, `M`)
 
-**Success metric**: users can control their experience and account risk without moderator intervention.
+**Success metric**: users can secure their accounts, manage core privacy and visibility choices, and control unwanted interactions without moderator intervention.
 
-### C2. Fluid Async Discovery and Inbox UX
-- 🟥 Add saved/custom feed presets and URL-synced filter state for search/discovery. (`L`)
-- 🟦 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling). (`M`)
+### C3. Discovery and Inbox Reliability
+- 🟥 Persist feed and comment sorting preferences across devices. (`0070`, `S`)
+- 🟥 Add search filters and URL synchronization for shareable discovery. (`0015`, `M`)
+- 🟦 Finish saved-user content ranking and feed integration after the engagement fundamentals. (`0058`, `M`)
 - 🟥 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`0083`, `M`)
-- 🟦 Resolve high-visibility TODOs affecting trust in feed/search/settings core paths. (`M`)
-- 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`S`)
-- 🟥 Add optional realtime notification delivery mode (SSE/WebSocket) after polling baseline is stable. (`L`)
+- 🟥 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling) after the inbox audit. (`0060`, `M`)
+- 🟥 Triage high-visibility TODOs in feed/search/settings and create linked follow-up work. (`0090`, `S`)
+- 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`0082`, `S`)
 
-**Success metric**: core browse and notification workflows feel modern without requiring full realtime infrastructure.
+**Success metric**: feed and inbox state stays understandable and current, with shareable discovery and reliable polling as the baseline.
 
-### C4. Advanced Authoring Experience
-- 🟥 Add scheduled publish support for posts and threads. (`M`)
-- 🟥 Add richer poll creation (multiple options, expiration, and result display states). (`M`)
-- 🟥 Add rich link/article/video embed support with preview rendering. (`M`)
-- 🟥 Add side-by-side markdown preview with debounced rendering controls. (`M`)
-- 🟥 Add series/collection grouping for related posts and threads. (`L`)
-- 🟥 Add revision history for posts/threads with moderator review and revert capabilities. (`L`)
-- 🟥 Add rendered Markdown preview to inline post/thread editing. (`S`)
-- 🟩 Complete thread editor parity with post editor for supported publishing, preview, validation, and upload workflows. (`M`)
-- 🟥 Extract reusable dropdown/autocomplete form component for topics and future mention workflows. (`M`)
+### C4. Core Content Publishing
+- 🟩 Complete thread editor parity with post editor for supported publishing, preview, validation, and upload workflows. (`0011`, `M`)
+- 🟥 Add first-class link publishing. (`0039`, `M`)
+- 🟥 Add link detail and feed integration after the foundation; it does not depend on optional metadata previews. (`0041`, `M`)
+- 🟥 Complete audio publication, then detail/feed/playback and cleanup. (`0042`, `0043`, `L`)
 
-**Success metric**: advanced content creation workflows are consistent across editor types and safe for moderation.
+**Success metric**: core link and audio publishing paths are complete end to end, including visibility, moderation, feed integration, and media cleanup; deferred content types are not presented as supported workflows.
 
-### C3. Contributor and Contract Stability
-- 🟥 Publish API endpoint inventory with auth requirements and response contracts. (`M`)
-- 🟩 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`L`)
-- 🟩 Add structured, redacted handled-error context and request correlation for API errors. Successful-request logging is deferred. (`M`)
-- 🟥 Define baseline metrics and operational SLOs (latency, error rate, migration success). (`M`)
-
-**Success metric**: changes to core async and moderation flows are safer to ship and easier to maintain.
+**Phase C exit criteria**: core account, discovery, inbox, link, and audio workflows are usable and tested; API contracts and operational baselines are documented; unfinished optional publishing paths remain disabled or clearly unavailable.
 
 ## Phase D: Long-Term Monetization (Deferred)
 

@@ -27,7 +27,7 @@ Make published links readable, discoverable, and actionable through a canonical 
 - [ ] Validate detail loading, missing records, permissions, disabled settings, and mixed-feed rendering.
 
 ## Notes
-- Ticket 0040 enriches previews but is not required for basic detail and feed rendering.
+- Optional metadata enrichment is deferred to backlog [Ticket 0040](backlog/0040-safe-link-metadata-previews.md); it is not required for basic detail and feed rendering.
 - Reuse the generic vote and report endpoints where their record-level authorization and schema assumptions hold.
 
 ## Relevant Files

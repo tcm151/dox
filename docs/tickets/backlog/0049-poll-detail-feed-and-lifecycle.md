@@ -28,7 +28,7 @@ Make polls discoverable and understandable across detail and feed surfaces while
 - [ ] Validate keyboard interaction, screen-reader labels, narrow layouts, stale responses, missing records, and mixed feeds.
 
 ## Notes
-- Roadmap C4 calls for expiration and result display states; those states should be visible consistently in compact and full views.
+- Poll creation, responses/results, and detail/lifecycle are a deferred feature chain; keep these states consistent across compact and full views when implementation begins.
 
 ## Relevant Files
 - app/components/system/previews/MultiPreview.vue

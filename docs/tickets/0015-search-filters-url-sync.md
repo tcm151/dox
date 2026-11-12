@@ -19,6 +19,7 @@ Add practical search filters and keep filter state synchronized in the URL for s
 - [ ] Build UI controls and URL state synchronization.
 
 ## Notes
+- This ticket establishes the filter and query-string contract for saved presets in [Ticket 0010](backlog/0010-saved-custom-feeds.md).
 
 ## Relevant Files
 - app/pages/feed/search.vue

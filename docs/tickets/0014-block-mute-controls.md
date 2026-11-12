@@ -1,24 +1,25 @@
-# Ticket 0014: Block And Mute Controls
+# Ticket 0014: User And Topic Block/Mute Controls
 
 ## Status
 - State: Planned
 - Priority: Medium
-- Next: Define first-pass block targets (users/topics/keywords)
+- Next: Define user/topic block and mute semantics for the first release
 
 ## Goal
-Let users reduce unwanted content by managing personal block and mute settings.
+Let users reduce unwanted content by blocking or muting other users and topics through personal settings.
 
 ## Requirements
-- [ ] Users can block/mute supported targets from settings/profile surfaces.
-- [ ] Feed/search/inbox respect block/mute settings.
+- [ ] Users can block or mute users and topics from the appropriate settings and profile surfaces.
+- [ ] Feed, search, and inbox results respect user/topic settings consistently.
 - [ ] Controls are reversible and easy to understand.
 
 ## Tasks
-- [ ] Define data model for blocked entities.
-- [ ] Implement APIs for add/remove/list actions.
-- [ ] Integrate filtering into feed/query paths.
+- [ ] Define user/topic block and mute behavior, including the distinction between hiding and blocking.
+- [ ] Implement persistence and add/remove/list operations for user and topic targets.
+- [ ] Integrate user/topic filtering into feed, search, and inbox query paths.
 
 ## Notes
+- Keyword muting is a deferred extension tracked in [Ticket 0088](backlog/0088-keyword-mute-controls.md) because text matching has distinct semantics and query costs.
 
 ## Relevant Files
 - app/pages/settings/preferences.vue

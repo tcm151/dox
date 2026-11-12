@@ -26,7 +26,7 @@ Choose and document a video ingestion and playback design that fits ClassicForum
 
 ## Notes
 - The repository currently has only settings and an editor tab for video. There is no editor page, type, table, API, processor, or playback route.
-- This ticket is a bounded technical decision, not an open-ended implementation spike.
+- This is a bounded technical decision, not an open-ended implementation spike.
 
 ## Relevant Files
 - docs/Architecture.md

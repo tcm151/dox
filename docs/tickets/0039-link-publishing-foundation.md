@@ -24,7 +24,7 @@ Make links a first-class persisted content type so the existing link editor can 
 
 ## Notes
 - The editor UI and client-side validation already exist, but there is no shared `Link` type, link table, or link API.
-- Restrict the initial URL scheme to HTTP and HTTPS. Remote metadata fetching is intentionally deferred to Ticket 0040.
+- Restrict the initial URL scheme to HTTP and HTTPS. Remote metadata fetching is deferred to backlog [Ticket 0040](backlog/0040-safe-link-metadata-previews.md).
 - Draft support remains out of scope per completed Ticket 0011.
 
 ## Relevant Files

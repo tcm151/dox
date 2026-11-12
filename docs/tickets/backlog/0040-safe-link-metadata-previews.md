@@ -6,7 +6,7 @@
 - Next: Document the metadata fields and network restrictions required for remote URL inspection.
 
 ## Dependencies
-- [0039](0039-link-publishing-foundation.md): Metadata previews need the Link contract and publication path.
+- [0039](../0039-link-publishing-foundation.md): Metadata previews need the Link contract and publication path.
 
 ## Goal
 Generate useful link previews without allowing remote metadata fetches to expose internal services or consume unbounded server resources.
@@ -27,7 +27,7 @@ Generate useful link previews without allowing remote metadata fetches to expose
 - [ ] Cover loopback, private address, redirect, oversized response, timeout, malformed HTML, and successful preview cases.
 
 ## Notes
-- This is the rich link preview portion of Roadmap C4. It is separate from basic publishing because server-side URL fetching introduces SSRF and resource-exhaustion risks.
+- This is an optional follow-up to basic link publishing; remote fetching adds SSRF and resource-exhaustion risks.
 - Publication must remain usable when metadata extraction fails.
 
 ## Relevant Files

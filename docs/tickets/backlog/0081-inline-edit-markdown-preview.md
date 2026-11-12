@@ -19,7 +19,8 @@ Let authors inspect rendered Markdown while editing an existing post or thread o
 - [ ] Verify preview updates, save/cancel behavior, and keyboard access for both content types.
 
 ## Notes
-- This covers inline editing on detail pages, not the editor routes whose preview behavior is tracked in completed [Ticket 0011](completed/0011-thread-editor-parity.md).
+- This covers inline editing on detail pages, not the editor routes whose preview behavior is tracked in completed [Ticket 0011](../completed/0011-thread-editor-parity.md).
+- Side-by-side preview in the post/thread editor routes is tracked separately in [Ticket 0091](0091-side-by-side-markdown-preview.md).
 
 ## Relevant Files
 - app/pages/post/[id].vue
