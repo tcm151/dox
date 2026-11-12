@@ -269,6 +269,8 @@ DEFINE FIELD votes.misleading ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.negative ON comment
     TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.awards ON comment
+    TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD score ON comment
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, 1);
 DEFINE FIELD moderation ON comment COMPUTED (

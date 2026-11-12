@@ -56,6 +56,52 @@ test("shows a sign-in hint when a guest tries to reply", async ({ page }) => {
     await expect(page.locator(".hint").filter({ hasText: "You must be logged in to interact with others." })).toBeVisible()
 })
 
+test("shows the edit action to the thread author", async ({ page, exampleServer }) => {
+    const threadAuthor = exampleServer.users.threadAuthor
+    await page.addInitScript((session) => {
+        window.sessionStorage.setItem("authenticated", JSON.stringify(true))
+        window.sessionStorage.setItem("user", JSON.stringify(session.user))
+        window.localStorage.setItem("tokens", JSON.stringify({ access: session.accessToken }))
+    }, threadAuthor)
+    await page.goto("/feed/threads")
+
+    const threadPreview = page.locator(".thread.clickable").filter({ hasText: sampleThread })
+    await threadPreview.locator(".main").click()
+    await expect(page).toHaveURL(/\/thread\/[^/]+$/)
+    await page.locator("section.main").getByRole("button", { name: "Options" }).click()
+
+    const optionsWindow = page.locator("main.window").filter({
+        has: page.getByRole("heading", { name: "Options" }),
+    })
+    await expect(optionsWindow.getByRole("button", { name: "Edit" })).toBeVisible()
+})
+
+test("hides thread tag actions from moderators without topic assignment", async ({ page, exampleServer }) => {
+    const session = exampleServer.users.unassignedModerator
+    await page.route(/\/api\/thread\/[^/]+$/, async (route) => {
+        const response = await route.fetch()
+        const thread = await response.json()
+        await route.fulfill({ response, json: { ...thread, topics: ["topic:unassignedBrowserTest"] } })
+    })
+    await page.addInitScript((session) => {
+        window.sessionStorage.setItem("authenticated", JSON.stringify(true))
+        window.sessionStorage.setItem("user", JSON.stringify(session.user))
+        window.localStorage.setItem("tokens", JSON.stringify({ access: session.accessToken }))
+    }, session)
+    await page.goto("/feed/threads")
+
+    const threadPreview = page.locator(".thread.clickable").filter({ hasText: sampleThread })
+    await threadPreview.locator(".main").click()
+    await expect(page).toHaveURL(/\/thread\/[^/]+$/)
+    await page.locator("section.main").getByRole("button", { name: "Options" }).click()
+
+    const optionsWindow = page.locator("main.window").filter({
+        has: page.getByRole("heading", { name: "Options" }),
+    })
+    await expect(optionsWindow.getByRole("button", { name: "Pin" })).toHaveCount(0)
+    await expect(optionsWindow.getByRole("button", { name: "NSFW" })).toHaveCount(0)
+})
+
 test("opens the seeded thread options without changing it", async ({ authenticatedPage }) => {
     await authenticatedPage.goto("/feed/threads")
 
@@ -70,6 +116,10 @@ test("opens the seeded thread options without changing it", async ({ authenticat
     const optionsWindow = authenticatedPage.locator("main.window").filter({
         has: authenticatedPage.getByRole("heading", { name: "Options" }),
     })
+    await expect(optionsWindow.getByRole("button", { name: "Lock" })).toBeVisible()
+    await expect(optionsWindow.getByRole("button", { name: "Unlock" })).toHaveCount(0)
+    await expect(optionsWindow.getByRole("button", { name: "Slow" })).toBeVisible()
+    await expect(optionsWindow.getByRole("button", { name: "Delete" })).toBeVisible()
     await optionsWindow.locator("button.close").click()
     await expect(authenticatedPage.getByRole("heading", { name: "Options" })).toBeHidden()
 })

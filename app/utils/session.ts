@@ -1,5 +1,5 @@
 import { skipHydrate } from "pinia"
-import type { User } from "@@/shared/types"
+import type { Topic, User } from "@@/shared/types"
 
 interface Tokens {
     access: string
@@ -34,9 +34,39 @@ export const getSession = defineStore("session", () => {
         },
     }))
 
+    const moderator = useSessionStorage<{ topics: string[] }>("moderator", { topics: [] })
+
+    function moderates(topicIds: string[]): boolean {
+        return topicIds.some(t => moderator.value.topics.some(m => m === t))
+    }
+
+    async function getModeratorTopics(): Promise<void> {
+        if (!hasRole(user.value, "moderator")) {
+            moderator.value = { topics: [] }
+            return
+        }
+
+        try {
+            const topics = await useApi<Topic[]>("/api/moderator/topics")
+            moderator.value = { topics: topics.map(topic => topic.id) }
+        }
+        catch (error: any) {
+            moderator.value = { topics: [] }
+        }
+    }
+
+    events.subscribe(Trigger.authenticatedUser, async () => {
+        await getModeratorTopics()
+    })
+
+    if (ENV.isClient() && isAuthenticated.value && hasRole(user.value, "moderator")) {
+        void getModeratorTopics()
+    }
+
     async function refreshProfile(): Promise<void> {
         try {
             user.value = await useApi<User>('/api/profile')
+            await getModeratorTopics()
         }
         catch (error: any) {
             throw createError({
@@ -83,6 +113,7 @@ export const getSession = defineStore("session", () => {
                 clear: clear
             }
         })
+        moderator.value = { topics: [] }
         events.publish(Trigger.userLoggedOut, { user: user.value, clear: clear })
         isAuthenticated.value = false
         if (clear == true) {
@@ -116,7 +147,9 @@ export const getSession = defineStore("session", () => {
     return {
         user: skipHydrate(user),
         tokens: skipHydrate(tokens),
+        moderator: skipHydrate(moderator),
         isAuthenticated: skipHydrate(isAuthenticated),
+        moderates,
         refreshProfile,
         authenticate,
         login,

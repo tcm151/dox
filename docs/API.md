@@ -209,6 +209,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/gallery` | Public | Lists active galleries. |
 | `GET` | `/api/gallery/:id` | Public | Returns gallery details and comments. |
 | `GET` | `/api/gallery/:id/visit` | Public | Increments and returns the gallery visit counter. |
+| `POST` | [`/api/gallery/:id/edit`](#gallery-edit) | Gallery owner | Updates the gallery description. |
+| `POST` | [`/api/gallery/:id/award`](#gallery-award) | Authenticated; token balance; not owner or previous awarder | Transfers an award to the gallery author. |
 | `POST` | `/api/gallery/:id/delete` | Gallery owner/admin | Deletes a gallery and cleans up unused topic records. |
 | `GET` | `/api/image/:id` | Public | Returns image metadata and owner details. |
 | `POST` | `/api/image/:id/delete` | Image owner/admin | Deletes an image unless it remains attached to content. |
@@ -319,7 +321,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/user/:id/{follow,unfollow,save,unsave}` | Authenticated | Manages the current user's relationship with another user. |
 | `POST` | `/api/topic/:topic/{follow,unfollow}` | Authenticated | Follows or unfollows a topic. |
 | `POST` | `/api/user/:id/award` | Authenticated; token and self-award checks | Awards another user with tokens. |
-| `POST` | `/api/{post,thread}/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the content author as an award. |
+| `POST` | `/api/{post,thread,gallery}/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the content author as an award. |
+| `POST` | `/api/comment/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the comment author as an award. |
 | `POST` | `/api/profile/referral` | Authenticated | Claims a referral code. |
 
 ### Vote

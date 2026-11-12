@@ -1,8 +1,9 @@
 import { expect, it } from "vitest"
 import type { Comment, Post, Thread } from "../../shared/types"
-import { expectStatus, grabExampleServer } from "../utils/test-server"
+import { expectStatus, grabExampleServer, grabUser } from "../utils/test-server"
 
 const exampleServer = await grabExampleServer("default")
+const admin = await grabUser("admin")
 const postAuthor = exampleServer.users.postAuthor
 const threadAuthor = exampleServer.users.threadAuthor
 
@@ -41,4 +42,12 @@ it("seeds representative feed content for browser tests", async () => {
     })
     expectStatus(threadResponse, 200)
     expect(threadResponse._data?.content).toBe("A representative thread seeded for browser integration tests.")
+
+    const galleryImageId = "browserSuiteSampleGallery"
+    await admin.query(`CREATE ONLY image:${galleryImageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+    const galleryResponse = await admin.fetchRaw("/api/gallery/publish", {
+        method: "POST",
+        body: { images: [`image:${galleryImageId}`], description: "Browser suite sample gallery", topics: [] },
+    })
+    expectStatus(galleryResponse, 200)
 })

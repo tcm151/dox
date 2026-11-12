@@ -40,7 +40,10 @@ export const authenticateLogin = async (event: H3Event) => {
         const [username, password] = header.split(":", 2)
         const session = await SessionManager.authenticateLogin(username!, password!)
         event.context.account = session.account
-        return { tokens: { access: session.id }, user: session.account.user }
+        return {
+            tokens: { access: session.id },
+            user: session.account.user,
+        }
     }
     catch (error: any) {
         throw createError({
@@ -67,6 +70,10 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
             stack: error.stack,
         })
     }
+}
+
+export const authenticateProfile = async (event: H3Event): Promise<User> => {
+    return await authenticateRequest(event)
 }
 
 export const invalidateSession = async (event: H3Event, clear: boolean) => {

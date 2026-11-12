@@ -3,7 +3,6 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const events = useEvents()
 const settings = useSettings()
-const hints = useHints()
 
 useSeoMeta({
     title: config.public.site.title,

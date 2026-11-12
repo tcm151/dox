@@ -51,6 +51,38 @@ function reportSelectedComment() {
     if (selectedComment.value) events.publish(Trigger.reportContent, selectedComment.value.id)
 }
 
+async function awardSelectedComment() {
+    const comment = selectedComment.value
+    if (!comment) return
+    if (comment.user.id === session.user.id) {
+        hints.addWarning("You can't award your own comments.")
+        return
+    }
+    if (comment.votes.awards.includes(session.user.id)) {
+        hints.addWarning("You have already awarded this comment.")
+        return
+    }
+    if (session.user.tokens < 256) {
+        hints.addWarning("You don't have enough tokens.")
+        return
+    }
+
+    events.publish(Trigger.showPopup, {
+        title: "Confirm Award",
+        message: "Are you sure you want to award this comment? It will cost 256 tokens.",
+        accept: async () => {
+            try {
+                await useApi(`/api/comment/${extractId(comment.id)}/award`)
+                hints.addSuccess("Successfully awarded comment.")
+                emit("refresh", props.sortType)
+            }
+            catch (error: any) {
+                hints.addError(error.message, error)
+            }
+        },
+    })
+}
+
 const spinRefresh = ref(false)
 watch(() => props.loading, (status) => {
     if (status == "pending") {
@@ -102,8 +134,10 @@ watch(() => props.loading, (status) => {
             <ExtraOptions
                 v-if="canShowCommentOptions && selectedComment"
                 :target="selectedComment"
+                :topics="target.topics"
                 @updated="emit('refresh', sortType)"
                 @edit="startEditingComment"
+                @award="awardSelectedComment"
                 @delete="deleteSelectedComment"
                 @report="reportSelectedComment"
                 @close="closeCommentOptions"

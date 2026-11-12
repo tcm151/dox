@@ -1,41 +1,54 @@
 <script setup lang="ts">
 import type { Comment, Gallery, Post, Thread } from "@@/shared/types"
-import { parseRecordId } from "@@/shared/utils/records"
+import { extractId, parseRecordId } from "@@/shared/utils/records"
 
-const session = getSession()
 const hints = useHints()
+const session = getSession()
 
 const props = defineProps<{
     target: Post | Thread | Gallery | Comment
+    topics?: string[]
 }>()
 
-const targetType = computed(() => targetRecord.value?.table)
 const targetRecord = computed(() => parseRecordId(props.target.id))
+const targetType = computed(() => targetRecord.value?.table)
 const targetTopics = computed(() => {
-    if (!("topics" in props.target)) return []
+    const topics = targetType.value === "comment"
+        ? props.topics ?? []
+        : "topics" in props.target
+            ? props.target.topics
+            : []
 
-    return props.target.topics.flatMap((topic) => {
+    return topics.flatMap((topic) => {
         const record = parseRecordId(topic)
-        return record?.table === "topic" ? [record.id] : []
+        return record?.table === "topic" ? [topic] : []
     })
 })
 
 const actions = computed(() => {
-    const type = targetType.value
     const isOwner = props.target.user.id === session.user.id
     const isAdmin = hasRole(session.user, "admin")
     const isModerator = hasRole(session.user, "moderator")
 
+    const type = targetType.value
+    const isLocked = props.target.moderation?.locked
+    const isTopicModerator = isModerator && session.moderates(targetTopics.value)
+    const isReply = "replyTo" in props.target && props.target.replyTo !== undefined
+
     return {
-        edit: isOwner && (type === "post" || type === "comment"),
-        award: type === "post" || type === "thread",
-        tag: (isAdmin || isModerator) && (type === "post" || type === "thread" || type === "gallery"),
-        archive: (type === "post" && isAdmin) || (type === "gallery" && isAdmin) || (type === "thread" && isAdmin
-                && (props.target.status === "active" || props.target.status === "archived")),
-        delete: isOwner || (isAdmin && (type === "gallery" || type === "comment")),
-        pin: (type === "post" || type === "thread" || type === "gallery") && isAdmin,
-        topicPin: (isAdmin || isModerator) && targetTopics.value.length > 0
-            && (type === "post" || type === "thread" || type === "gallery"),
+        edit: isOwner && !isLocked,
+        delete: isOwner || isAdmin,
+        award: !isOwner,
+        moderation: {
+            lock: isAdmin || isTopicModerator,
+            slow: (isAdmin || isTopicModerator) && type !== "comment",
+        },
+        archive: isAdmin && type !== "comment",
+        pin: {
+            app: isAdmin && type !== "comment",
+            topic: (isAdmin || isTopicModerator) && (type === "post" || type === "gallery" || (type === "thread" && !isReply))
+        },
+        tag: (isAdmin || isTopicModerator) && type !== "comment"
     }
 })
 
@@ -64,16 +77,90 @@ function emitAndClose(event: keyof typeof emitActions) {
     emit("close")
 }
 
+const settings = useSettings()
+const slowModes = computed(() => [...settings.app.moderation.slowModes].sort((left, right) => left - right))
+const selectedInterval = ref<number>()
+const savingModeration = ref(false)
+
+watch(() => props.target.moderation?.slowed, (slowed) => {
+    selectedInterval.value = slowed ?? slowModes.value[0]
+}, { immediate: true })
+
+function formatInterval(interval: number) {
+    return interval % 60 === 0 ? `${interval / 60}m` : `${interval}s`
+}
+
+async function updateLock() {
+    const type = targetType.value
+    const targetId = targetRecord.value?.id
+    if (savingModeration.value || !type || !targetId) return
+    savingModeration.value = true
+    try {
+        if (props.target.moderation?.locked) {
+            await useApi(`/api/moderation/${type}/${targetId}/lock/clear`, { method: "POST" })
+        }
+        else {
+            await useApi(`/api/moderation/${type}/${targetId}/lock/apply`, {
+                method: "POST",
+                body: { scope: "item" },
+            })
+        }
+        emit("updated")
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
+    finally {
+        savingModeration.value = false
+    }
+}
+
+async function setSlowMode() {
+    const type = targetType.value
+    const targetId = targetRecord.value?.id
+    if (savingModeration.value || selectedInterval.value === undefined || !type || !targetId) return
+    savingModeration.value = true
+    try {
+        await useApi(`/api/moderation/${type}/${targetId}/slow/apply`, {
+            method: "POST",
+            body: { interval: selectedInterval.value },
+        })
+        emit("updated")
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
+    finally {
+        savingModeration.value = false
+    }
+}
+
+async function clearSlowMode() {
+    const type = targetType.value
+    const targetId = targetRecord.value?.id
+    if (savingModeration.value || !type || !targetId) return
+    savingModeration.value = true
+    try {
+        await useApi(`/api/moderation/${type}/${targetId}/slow/clear`, { method: "POST" })
+        emit("updated")
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
+    finally {
+        savingModeration.value = false
+    }
+}
+
 const choosingPin = ref(false)
 const pinningTopic = ref<string>()
 
 async function pinToTopic(topic: string) {
-    const record = targetRecord.value
-    if (!record || pinningTopic.value) return
+    if (!targetRecord.value || pinningTopic.value) return
 
     pinningTopic.value = topic
     try {
-        await useApi(`/api/topic/${topic}/pins/add`, { body: { item: props.target.id } })
+        await useApi(`/api/topic/${extractId(topic)}/pins/add`, { body: { item: props.target.id } })
         hints.addSuccess("Content pinned to topic.")
         emit("updated")
         emit("close")
@@ -111,25 +198,26 @@ async function addTag(tag: "nsfw" | "spoiler") {
         emit("close")
     }
 }
+
 </script>
 
 <template>
-    <Window title="Options" icon="fa-solid fa-list-ul" width="25rem" @close="emit('close')">
+    <Window title="Options" icon="fa-solid fa-list-ul" width="30rem" @close="emit('close')">
         <section class="column g-2">
-            <template v-if="actions.topicPin || actions.pin">
+            <template v-if="actions.pin.app || (actions.pin.topic && targetTopics.length)">
                 <button @click="choosingPin = !choosingPin">
                     <i class="fa-solid fa-thumbtack"></i>
                     <span>Pin</span>
                 </button>
                 <section v-if="choosingPin" class="row wrap fill g-2">
-                    <button v-if="actions.pin" @click="emitAndClose('pin')">
-                        <i class="fa-solid fa-home"></i>
+                    <button v-if="actions.pin.app" @click="emitAndClose('pin')">
+                        <!-- <i class="fa-solid fa-home"></i> -->
                         <span>Home</span>
                     </button>
-                    <template v-for="topic in targetTopics" :key="topic">
-                        <button :disabled="pinningTopic !== undefined" @click="pinToTopic(topic)">
-                            <i class="fa-solid fa-tag"></i>
-                            <span>{{ topic }}</span>
+                    <template v-if="actions.pin.topic && targetTopics.length">
+                        <button v-for="topic in targetTopics" :key="topic" :disabled="pinningTopic !== undefined" @click="pinToTopic(topic)">
+                            <!-- <i class="fa-solid fa-tag"></i> -->
+                            <span>{{ extractId(topic) }}</span>
                         </button>
                     </template>
                 </section>
@@ -162,7 +250,38 @@ async function addTag(tag: "nsfw" | "spoiler") {
                     <span>Unarchive</span>
                 </button>
             </template>
-            <ModerationControls :id="target.id" @updated="emit('updated')" />
+            <section v-if="actions.moderation.lock" class="moderation-controls column g-2">
+                <button v-if="!target.moderation?.locked" :disabled="savingModeration" @click="updateLock">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Lock</span>
+                </button>
+                <button v-else :disabled="savingModeration" @click="updateLock">
+                    <i class="fa-solid fa-lock-open"></i>
+                    <span>Unlock</span>
+                </button>
+
+                <div v-if="actions.moderation.slow" class="column g-1">
+                    <div v-if="target.moderation?.slowed" class="row g-1">
+                        <button class="f-1" :disabled="savingModeration" @click="clearSlowMode">
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Slowed</span>
+                        </button>
+                    </div>
+                    <template v-else>
+                        <div class="row g-2">
+                            <button class="f-2 b-0" :disabled="savingModeration || selectedInterval === undefined" @click="setSlowMode">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                <span>Slow</span>
+                            </button>
+                            <label class="field text-center f-1 b-0">
+                                <select class="slow-mode-select" v-model.number="selectedInterval" :disabled="savingModeration || slowModes.length === 0">
+                                    <option v-for="interval in slowModes" :key="interval" :value="interval">{{ formatInterval(interval) }}</option>
+                                </select>
+                            </label>
+                        </div>
+                    </template>
+                </div>
+            </section>
             <template v-if="actions.tag">
                 <div class="row fill g-2">
                     <button v-if="!tags.includes('nsfw')" class="b-0" :disabled="addingTag" @click="addTag('nsfw')">
@@ -178,3 +297,27 @@ async function addTag(tag: "nsfw" | "spoiler") {
         </section>
     </Window>
 </template>
+
+<style scoped lang="scss">
+.moderation-controls {
+    .text-center {
+        text-align: center;
+    }
+
+    .slow-mode-select {
+        text-align: center;
+        text-align-last: center;
+        justify-content: center;
+
+        &::picker-icon {
+            position: static;
+            margin-inline-start: 0.375rem;
+            padding: 0;
+        }
+
+        option {
+            text-align: center;
+        }
+    }
+}
+</style>

@@ -89,6 +89,63 @@ async function reportGallery() {
     submitReport(gallery.value.id)
 }
 
+async function awardGallery() {
+    const currentGallery = gallery.value
+    if (!currentGallery) return
+    if (currentGallery.user.id === session.user.id) {
+        hints.addWarning("You can't award your own galleries.")
+        return
+    }
+    if (currentGallery.votes.awards?.includes(session.user.id)) {
+        hints.addWarning("You have already awarded this gallery.")
+        return
+    }
+    if (session.user.tokens < 256) {
+        hints.addWarning("You don't have enough tokens.")
+        return
+    }
+
+    events.publish(Trigger.showPopup, {
+        title: "Confirm Award",
+        message: "Are you sure you want to award this gallery? It will cost 256 tokens.",
+        accept: async () => {
+            await useApi(`/api/gallery/${extractId(currentGallery.id)}/award`)
+            hints.addSuccess("Successfully awarded gallery.")
+            await refresh()
+        },
+    })
+}
+
+const editingGallery = ref(false)
+const savingGallery = ref(false)
+const editedDescription = ref("")
+
+function toggleEditGallery() {
+    editingGallery.value = !editingGallery.value
+    if (editingGallery.value) editedDescription.value = gallery.value?.description ?? ""
+}
+
+async function saveGallery() {
+    const currentGallery = gallery.value
+    if (!currentGallery || savingGallery.value) return
+
+    savingGallery.value = true
+    try {
+        await useApi(`/api/gallery/${extractId(currentGallery.id)}/edit`, {
+            body: { description: editedDescription.value },
+        })
+        hints.addSuccess("Gallery updated.")
+        editingGallery.value = false
+        await refresh()
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
+    finally {
+        savingGallery.value = false
+    }
+}
+
 async function archiveGallery() {
     if (!gallery.value) return
     await useApi(`/api/gallery/${extractId(gallery.value.id)}/archive`)
@@ -143,11 +200,12 @@ function copyLink() {
                         >
                     </figure>
                 </section>
-                <Markdown v-if="gallery.description" compact class="content" :content="gallery.description" />
+                <Markdown v-if="!editingGallery && gallery.description" compact class="content" :content="gallery.description" />
+                <MarkdownEditor v-if="editingGallery" :rows="5" v-model="editedDescription" />
             </ContentVisibility>
             <footer class="actions">
                 <div class="column g-2">
-                    <div class="interactions row wrap g-1">
+                    <div v-if="!editingGallery" class="interactions row wrap g-1">
                         <button class="comment f-1" :disabled="commentState.disabled" @click="toggleCommentBox">
                             <i class="fa-solid fa-comment"></i>
                             <span>Comment</span>
@@ -157,7 +215,7 @@ function copyLink() {
                             <span>Share</span>
                         </button>
                         <ClientOnly>
-                            <button class="options" title="Options" @click="showOptions = !showOptions">
+                            <button v-if="session.isAuthenticated" class="options" title="Options" @click="showOptions = !showOptions">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
                             <OverlayTransition>
@@ -165,6 +223,8 @@ function copyLink() {
                                     v-if="showOptions"
                                     :target="gallery"
                                     @updated="refresh"
+                                    @edit="toggleEditGallery"
+                                    @award="awardGallery"
                                     @report="reportGallery"
                                     @delete="deleteGallery"
                                     @archive="archiveGallery"
@@ -173,6 +233,16 @@ function copyLink() {
                                 />
                             </OverlayTransition>
                         </ClientOnly>
+                    </div>
+                    <div v-if="editingGallery" class="row g-1">
+                        <ButtonSpinner class="success f-1" :loading="savingGallery" @click="saveGallery">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Save</span>
+                        </ButtonSpinner>
+                        <button class="danger" @click="editingGallery = false">
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
                     </div>
                     <p v-if="!showCommentBox && commentState.warning" class="warning br-small px-3 py-2" role="status">{{ commentState.warning }}</p>
                     <CollapseTransition>

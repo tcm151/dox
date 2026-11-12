@@ -64,6 +64,10 @@ it("seeds reusable example users", async () => {
             ...await createTestUser(username),
         }
     }
+    users["unassignedModerator"] = await createTestUser("UnassignedModerator")
+    const admin = await grabUser("admin")
+    await admin.query(`UPDATE ${users.unassignedModerator.user.id} SET roles = ["moderator"];`)
+    users.unassignedModerator.user.roles = ["moderator"]
 
     const exampleServer: TExampleServer = {
         users,

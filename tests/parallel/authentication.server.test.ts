@@ -7,6 +7,24 @@ it("reuses the admin session saved during sequential setup", async () => {
     const user = await admin.fetch<User>("/api/profile/authenticate")
     expect(user.id).toBe(admin.user.id)
     expect(user.name).toBe(admin.user.name)
+    expect(user).not.toHaveProperty("moderatedTopics")
+})
+
+it("keeps moderator topics separate from the authenticated user", async () => {
+    const admin = await grabUser("admin")
+    const topicId = `sessionModeratorTopic${Date.now()}`
+
+    await admin.query(`CREATE ONLY topic:${topicId} SET moderators = [${admin.user.id}];`)
+    try {
+        const user = await admin.fetch<User>("/api/profile/authenticate")
+        expect(user).not.toHaveProperty("moderatedTopics")
+
+        const topics = await admin.fetch<Array<{ id: string }>>("/api/moderator/topics")
+        expect(topics.map(topic => topic.id)).toContain(`topic:${topicId}`)
+    }
+    finally {
+        await admin.query(`DELETE topic:${topicId};`)
+    }
 })
 
 it("rejects a session token after logout", async () => {

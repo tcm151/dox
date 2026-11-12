@@ -109,6 +109,40 @@ it("returns gallery details, increments visits, and denies deletion by a non-own
     }
 })
 
+it("allows owners to edit gallery descriptions and denies other users", async () => {
+    const imageId = `galleryEdit${Date.now()}`
+    const description = `Original gallery description ${Date.now()}`
+    const updatedDescription = `Updated gallery description ${Date.now()}`
+    let galleryId: string | undefined
+
+    try {
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+        expectStatus(await admin.fetchRaw("/api/gallery/publish", {
+            method: "POST",
+            body: { images: [`image:${imageId}`], description, topics: [] },
+        }), 200)
+
+        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
+        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        expect(gallery).toBeDefined()
+        galleryId = extractId(gallery!.id)
+
+        const endpoint = `/api/gallery/${galleryId}/edit`
+        const denied = await member.fetchRaw(endpoint, { method: "POST", body: { description: updatedDescription } })
+        expectStatus(denied, 403)
+
+        const invalid = await admin.fetchRaw(endpoint, { method: "POST", body: { description: 123 } })
+        expectStatus(invalid, 400)
+
+        const edit = await admin.fetchRaw(endpoint, { method: "POST", body: { description: updatedDescription } })
+        expectStatus(edit, 200)
+        expect((await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)).description).toBe(updatedDescription)
+    }
+    finally {
+        await admin.query([...(galleryId ? [`DELETE gallery:${galleryId};`] : []), `DELETE image:${imageId};`, `DELETE mediaTrash:${imageId};`].join("\n"))
+    }
+})
+
 it("allows admins to add gallery tags and denies regular members", async () => {
     const imageId = `galleryTag${Date.now()}`
     const description = `Gallery tag permissions ${Date.now()}`

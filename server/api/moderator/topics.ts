@@ -1,4 +1,4 @@
-import type { User } from "@@/shared/types"
+import type { Topic } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -12,5 +12,5 @@ export default defineEventHandler(async (event) => {
             ORDER BY score DESC
         `)
         .addRecord("user", auth.id)
-        .queryAll<User>()
+        .queryAll<Topic>()
 })

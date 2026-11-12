@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Notification, User } from "../../shared/types"
+import type { Comment, Gallery, Notification, Post, User } from "../../shared/types"
 
 const exampleServer = await grabExampleServer("default")
 const awardSender = exampleServer.users.awardSender
@@ -156,6 +156,102 @@ it("allows only one of two concurrent awards and records one notification", asyn
     }
     finally {
         await restoreAwardState(concurrentAwarder.user, concurrentTarget.user, senderBefore.tokens, targetBefore.tokens)
+    }
+})
+
+it("awards galleries with a token transfer and notification", async () => {
+    const galleryId = `galleryAward${Date.now()}`
+    const galleryRecord = `gallery:${galleryId}`
+    const senderBefore = await awardSender.fetch<User>("/api/profile/authenticate")
+    const authorBefore = await awardTarget.fetch<User>("/api/profile/authenticate")
+    let galleryCreated = false
+
+    try {
+        await admin.query(`CREATE ONLY ${galleryRecord} SET user = ${authorBefore.id}, description = "Gallery award test";`)
+        galleryCreated = true
+
+        const selfAward = await awardTarget.fetchRaw(`/api/gallery/${galleryId}/award`, { method: "POST" })
+        expectStatus(selfAward, 400)
+
+        const award = () => awardSender.fetchRaw(`/api/gallery/${galleryId}/award`, { method: "POST" })
+        expectStatus(await award(), 204)
+        expectStatus(await award(), 409)
+
+        const gallery = await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)
+        const senderAfter = await awardSender.fetch<User>("/api/profile/authenticate")
+        const authorAfter = await awardTarget.fetch<User>("/api/profile/authenticate")
+        expect(gallery.votes.awards).toContain(senderBefore.id)
+        expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
+        expect(authorAfter.tokens).toBe(authorBefore.tokens + 256)
+
+        const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
+        const notification = notifications.notifications.find(item => item.context === galleryRecord)
+        expect(notification?.message).toContain("awarded your gallery")
+    }
+    finally {
+        if (galleryCreated) {
+            await admin.query(`
+                UPDATE ${senderBefore.id} SET tokens = ${senderBefore.tokens};
+                UPDATE ${authorBefore.id} SET tokens = ${authorBefore.tokens};
+                DELETE notification WHERE recipient = ${authorBefore.id} AND context = ${galleryRecord};
+                DELETE ${galleryRecord};
+            `)
+        }
+    }
+})
+
+it("awards comments with a token transfer and notification", async () => {
+    const senderBefore = await awardSender.fetch<User>("/api/profile/authenticate")
+    const authorBefore = await awardTarget.fetch<User>("/api/profile/authenticate")
+    const title = `Comment award test ${Date.now()}`
+    let postRecord: string | undefined
+    let commentRecord: string | undefined
+
+    try {
+        const postResponse = await awardTarget.fetchRaw<Post>("/api/post/add", {
+            method: "POST",
+            body: { title, content: "Post for comment award test.", topics: [], images: [] },
+        })
+        expectStatus(postResponse, 200, "post creation stage")
+        const post = postResponse._data!
+        postRecord = post.id
+
+        const commentResponse = await awardTarget.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: post.id, replyTo: post.id, content: `Comment award test ${Date.now()}` },
+        })
+        expectStatus(commentResponse, 200, "comment creation stage")
+        const comment = commentResponse._data!
+        commentRecord = comment.id
+        const commentId = extractId(comment.id)
+
+        expectStatus(await fetch(`/api/comment/${commentId}/award`, { method: "POST" }), 401)
+        expectStatus(await awardTarget.fetchRaw(`/api/comment/${commentId}/award`, { method: "POST" }), 400)
+
+        const award = () => awardSender.fetchRaw(`/api/comment/${commentId}/award`, { method: "POST" })
+        expectStatus(await award(), 204)
+        expectStatus(await award(), 409)
+
+        const comments = await admin.query<Array<Array<Comment>>>(`SELECT * FROM comment:${commentId};`)
+        expect(comments[0]?.[0]?.votes.awards).toContain(senderBefore.id)
+
+        const senderAfter = await awardSender.fetch<User>("/api/profile/authenticate")
+        const authorAfter = await awardTarget.fetch<User>("/api/profile/authenticate")
+        expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
+        expect(authorAfter.tokens).toBe(authorBefore.tokens + 256)
+
+        const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
+        expect(notifications.notifications.some(notification =>
+            notification.context === comment.id && notification.message.includes("awarded your comment"),
+        )).toBe(true)
+    }
+    finally {
+        await admin.query([
+            `UPDATE ${senderBefore.id} SET tokens = ${senderBefore.tokens};`,
+            `UPDATE ${authorBefore.id} SET tokens = ${authorBefore.tokens};`,
+            ...(commentRecord ? [`DELETE notification WHERE context = ${commentRecord};`, `DELETE ${commentRecord};`] : []),
+            ...(postRecord ? [`DELETE notification WHERE context = ${postRecord};`, `DELETE ${postRecord};`] : []),
+        ].join("\n"))
     }
 })
 
