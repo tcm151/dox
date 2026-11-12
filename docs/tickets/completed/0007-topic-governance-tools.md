@@ -6,8 +6,8 @@
 - Next: None
 
 ## Dependencies
-- [0085](0085-topic-lock-controls.md): Complete admin-only topic locking and new-content enforcement.
-- [0086](0086-topic-moderator-assignment-management.md): Complete topic moderator roster management.
+- [0085](../0085-topic-lock-controls.md): Complete admin-only topic locking and new-content enforcement.
+- [0086](../0086-topic-moderator-assignment-management.md): Complete topic moderator roster management.
 
 ## Goal
 Deliver moderator topic governance controls for lifecycle, safety, and content curation. Rules and summary history are tracked separately in Ticket 0017.
@@ -19,8 +19,8 @@ Deliver moderator topic governance controls for lifecycle, safety, and content c
 - [x] Moderators can feature or pin supported topic content, and those selections are visible to users.
 
 ## Tasks
-- [x] Complete [0085](0085-topic-lock-controls.md): admin-only topic locking and enforcement.
-- [x] Complete [0086](0086-topic-moderator-assignment-management.md): moderator assignment management in topic tools.
+- [x] Complete [0085](../0085-topic-lock-controls.md): admin-only topic locking and enforcement.
+- [x] Complete [0086](../0086-topic-moderator-assignment-management.md): moderator assignment management in topic tools.
 - [x] Add moderator controls and user-facing display for featured/pinned topic content.
 
 ## Notes
