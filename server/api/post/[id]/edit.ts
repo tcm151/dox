@@ -2,16 +2,16 @@ import type { Post } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const { content } = await readBody<{ content: string }>(event)
+    const body = await readBody<{ content: string }>(event)
     const { id } = event.context.params!
 
     return await new DatabaseQuery()
         .addSql(`
             IF $post.user = $user {
                 RETURN UPDATE $post SET
-                content = $content,
-                edited = true,
-                timeEdited = time::now();
+                    content = $content,
+                    edited = true,
+                    timeEdited = time::now();
             }
             ELSE {
                 fn::http(403, "You are not the author of this post.");
@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("post", `post:${id}`)
         .addRecord("user", auth.id)
-        .addParameter("content", content)
+        .addParameter("content", body.content)
         .queryOne<Post>()
 })

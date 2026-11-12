@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
     if (!body.context) {
         throw createError({ statusCode: 400, statusMessage: "A post or gallery context is required." })
     }
-
     const { comment, recipient } = await new DatabaseQuery()
         .addSql(`
             LET $moderation = (SELECT * FROM ONLY moderation WHERE subject = $context LIMIT 1);
