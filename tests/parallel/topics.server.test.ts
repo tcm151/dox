@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, grabExampleServer, grabUser } from "../utils/test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Comment, ModeratorLog, Post, Thread, Topic } from "../../shared/types"
 
@@ -257,5 +257,91 @@ it("allows only admins to lock and unlock topics without restricting existing di
             `DELETE image:${imageId};`,
             `DELETE topic:${topicId};`,
         ].join("\n"))
+    }
+})
+
+it("allows only admins to remove topic moderators and revokes the global role after the final assignment", async () => {
+    const suffix = Date.now().toString()
+    const topicId = `topicModerator${suffix}`
+    const otherTopicId = `topicModeratorOther${suffix}`
+    const moderatorId = `topicModeratorTarget${suffix}`
+    const moderatorName = `TopicModTarget${suffix}`
+    const actorId = `topicModeratorActor${suffix}`
+    const actorName = `TopicModActor${suffix}`
+    const accountId = `topicModeratorAccount${suffix}`
+    const sessionId = `topicModeratorSession${suffix}`
+    const actorToken = `session:${sessionId}`
+
+    try {
+        await admin.query(`
+            CREATE ONLY user:${moderatorId} SET name = "${moderatorName}", roles = ["moderator"];
+            CREATE ONLY user:${actorId} SET name = "${actorName}", roles = ["moderator"];
+            CREATE ONLY topic:${topicId} SET moderators = [user:${moderatorId}, user:${actorId}];
+            CREATE ONLY topic:${otherTopicId} SET moderators = [user:${moderatorId}];
+            CREATE ONLY account:${accountId} SET
+                user = user:${actorId},
+                email = "${actorName}@example.invalid",
+                password = "integration-test-password";
+            CREATE ONLY session:${sessionId} SET account = account:${accountId};
+        `)
+
+        const moderatorRemoval = await fetch(`/api/topic/${topicId}/moderators/remove`, {
+            method: "POST",
+            headers: {
+                Authorization: actorToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ user: `user:${moderatorId}` }),
+        })
+        expectStatus(moderatorRemoval, 403, "topic moderator cannot remove another moderator")
+        const unchangedTopic = await admin.fetch<Topic>(`/api/topic/${topicId}/profile`)
+        expect(unchangedTopic.moderators.some(user => user.id === `user:${moderatorId}`)).toBe(true)
+
+        const firstRemoval = await admin.fetchRaw(`/api/topic/${topicId}/moderators/remove`, {
+            method: "POST",
+            body: { user: `user:${moderatorId}` },
+        })
+        expectStatus(firstRemoval, 200, "removal with another topic assignment")
+        const rolesWithAnotherAssignment = await admin.query<string[][]>(`SELECT VALUE roles FROM ONLY user:${moderatorId};`)
+        expect(rolesWithAnotherAssignment[0]).toContain("moderator")
+
+        const finalRemoval = await admin.fetchRaw(`/api/topic/${otherTopicId}/moderators/remove`, {
+            method: "POST",
+            body: { user: `user:${moderatorId}` },
+        })
+        expectStatus(finalRemoval, 200, "removal of final topic assignment")
+        const rolesWithoutAssignments = await admin.query<string[][]>(`SELECT VALUE roles FROM ONLY user:${moderatorId};`)
+        expect(rolesWithoutAssignments[0]).not.toContain("moderator")
+
+        const logs = await admin.query<ModeratorLog[][]>(`
+            SELECT actor, action, target, details
+            FROM moderatorLog
+            WHERE target IN [topic:${topicId}, topic:${otherTopicId}];
+        `)
+        expect(logs[0]).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                actor: admin.user.id,
+                action: "moderation.topic.moderator.removed",
+                target: `topic:${topicId}`,
+                details: { moderator: `user:${moderatorId}`, globalModeratorRoleRemoved: false },
+            }),
+            expect.objectContaining({
+                actor: admin.user.id,
+                action: "moderation.topic.moderator.removed",
+                target: `topic:${otherTopicId}`,
+                details: { moderator: `user:${moderatorId}`, globalModeratorRoleRemoved: true },
+            }),
+        ]))
+    }
+    finally {
+        await admin.query(`
+            DELETE moderatorLog WHERE target IN [topic:${topicId}, topic:${otherTopicId}];
+            DELETE topic:${topicId};
+            DELETE topic:${otherTopicId};
+            DELETE session:${sessionId};
+            DELETE account:${accountId};
+            DELETE user:${actorId};
+            DELETE user:${moderatorId};
+        `)
     }
 })

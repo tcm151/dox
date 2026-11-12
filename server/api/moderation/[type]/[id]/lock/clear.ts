@@ -7,5 +7,5 @@ export default defineEventHandler(async (event) => {
     const { type, id } = event.context.params!
     if (!type || !id) throw createError({ statusCode: 400, statusMessage: "A moderation target is required." })
 
-    return await ModerationManager.unlock(`${type}:${id}`, auth.id)
+    return await ModerationManager.unlockContent(`${type}:${id}`, auth.id)
 })

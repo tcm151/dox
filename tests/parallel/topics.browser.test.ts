@@ -64,3 +64,84 @@ test("admins can lock and unlock topics from the admin topics page", async ({ au
         }
     }
 })
+
+test("admins can manage a topic moderator roster from the topic moderators page", async ({ authenticatedPage: page }) => {
+    const suffix = Date.now().toString()
+    const topicId = `topicModeratorBrowser${suffix}`
+    const userId = `topicModBrowser${suffix}`
+    const userName = `TopicBrowser${suffix}`
+    const accessToken = await page.evaluate(() => {
+        const tokens = JSON.parse(localStorage.getItem("tokens") ?? "{}")
+        return tokens.access as string
+    })
+    const apiUrl = (path: string) => new URL(path, page.url()).toString()
+
+    try {
+        const createResponse = await page.request.post(apiUrl("/api/developer/database/query"), {
+            headers: { Authorization: accessToken },
+            data: {
+                query: `
+                    CREATE ONLY user:${userId} SET name = "${userName}", roles = ["moderator"];
+                    CREATE ONLY topic:${topicId} SET moderators = [user:${userId}];
+                `,
+            },
+        })
+        expect(createResponse.ok()).toBe(true)
+
+        await page.goto("/admin/topics", { timeout: 10_000 })
+        const topicRow = page.locator(".row.wrap.inline.g-1").filter({ hasText: topicId })
+        const profileLink = topicRow.locator(".tag:has(.fa-address-card)")
+        await expect(profileLink).toBeVisible({ timeout: 5_000 })
+        await profileLink.click()
+        await expect(page).toHaveURL(new RegExp(`/topic/${topicId}/tools/profile$`))
+        await expect(page.getByRole("heading", { name: topicId, exact: true })).toBeVisible({ timeout: 5_000 })
+
+        await page.goto(`/topic/${topicId}/tools/moderators`, { timeout: 10_000 })
+        await expect(page).toHaveURL(new RegExp(`/topic/${topicId}/tools/moderators$`))
+
+        await page.goto(`/topic/${topicId}`, { timeout: 10_000 })
+        await expect(page.locator(".topic-tools > nav.tabstrip")).toHaveCount(0)
+        const publicTools = page.locator("aside.sidebar")
+        const profileButton = publicTools.locator("button").filter({ hasText: "Profile" })
+        const moderatorsButton = publicTools.locator("button").filter({ hasText: "Moderators" })
+        const reportsButton = publicTools.locator("button").filter({ hasText: "Reports" })
+        await expect(profileButton).toBeVisible()
+        await expect(moderatorsButton).toBeVisible()
+        await expect(reportsButton).toBeVisible()
+        await moderatorsButton.click()
+        await expect(page).toHaveURL(new RegExp(`/topic/${topicId}/tools/moderators$`))
+
+        await page.goto(`/topic/${topicId}/tools`, { timeout: 10_000 })
+        await expect(page).toHaveURL(new RegExp(`/topic/${topicId}/tools/profile$`))
+
+        await page.goto(`/topic/${topicId}/tools/moderators`, { timeout: 10_000 })
+        await expect(page.getByRole("heading", { name: "Topic moderators", exact: true })).toBeVisible({ timeout: 5_000 })
+
+        const tabs = page.locator(".topic-tools nav.tabstrip a")
+        await expect(tabs).toHaveCount(4)
+        await expect(tabs).toHaveText(["Back", "Profile", "Moderators", "Reports"])
+        await expect(tabs.nth(0)).toHaveAttribute("href", `/topic/${topicId}`)
+        await expect(tabs.nth(1)).toHaveAttribute("href", `/topic/${topicId}/tools/profile`)
+        await expect(tabs.nth(2)).toHaveAttribute("href", `/topic/${topicId}/tools/moderators`)
+        await expect(tabs.nth(3)).toHaveAttribute("href", `/topic/${topicId}/tools/reports`)
+        await expect(page.getByLabel("Add Moderator")).toHaveCount(0)
+
+        const moderatorRow = page.locator(".moderator-row").filter({ hasText: userName })
+        await expect(moderatorRow).toBeVisible({ timeout: 5_000 })
+        await moderatorRow.getByRole("button", { name: "Remove", exact: true }).click()
+        await expect(moderatorRow).toHaveCount(0, { timeout: 5_000 })
+    }
+    finally {
+        await page.request.post(apiUrl("/api/developer/database/query"), {
+            headers: { Authorization: accessToken },
+            data: {
+                query: `
+                    DELETE moderatorLog WHERE target = topic:${topicId};
+                    DELETE topic:${topicId};
+                    DELETE user:${userId};
+                `,
+            },
+            timeout: 5_000,
+        })
+    }
+})

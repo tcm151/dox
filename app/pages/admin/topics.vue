@@ -61,13 +61,14 @@ async function toggleLock(topic: Topic) {
                 <div class="row wrap inline g-1">
                     <Votes :target="topic" />
                     <TopicTag class="f-8 b-0" :topic="topic.id" />
-                    <DurationTag v-if="topic.firstUsed" width="6rem" :time="topic.firstUsed" />
+                    <DurationTag v-if="topic.firstUsed" width="4rem" :time="topic.firstUsed" />
                     <template v-if="topic.status == 'active'">
                         <Tag class="success f-1 b-0" label="Active" @click="toggleLock(topic)" />
                     </template>
                     <template v-if="topic.status == 'locked'">
                         <Tag class="danger f-1 b-0" label="Locked" icon="fa-lock" @click="toggleLock(topic)" />
                     </template>
+                    <Tag type="default" icon="fa-address-card" @click="navigateTo(`/topic/${extractId(topic.id)}/tools/profile`)" />
                 </div>
             </template>
         </section>

@@ -3,7 +3,10 @@ import type { Topic, Sortable } from '@@/shared/types'
 
 const cache = useCache()
 const route = useRoute()
+const session = getSession()
 const moderator = useModeration()
+
+const isAdmin = computed(() => hasRole(session.user, "admin"))
 
 const id = route.params.topic?.toString()
 await useDatasource(`/api/topic/${id}/visit`)
@@ -54,13 +57,17 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                         <TopicTag v-for="topic in related.data.value" :topic="topic.id" />
                     </section>
                     <Authenticated>
-                        <template v-if="moderator.forTopic(topic)">
+                        <template v-if="moderator.forTopic(topic) || isAdmin">
                             <h3>Tools</h3>
-                            <button class="small" @click="navigateTo(`/topic/${id}/profile`)">
+                            <button class="small" @click="navigateTo(`/topic/${id}/tools/profile`)">
                                 <i class="fa-solid fa-address-card"></i>
                                 Profile
                             </button>
-                            <button class="small" @click="navigateTo(`/topic/${id}/reports`)">
+                            <button class="small" @click="navigateTo(`/topic/${id}/tools/moderators`)">
+                                <i class="fa-solid fa-users"></i>
+                                Moderators
+                            </button>
+                            <button class="small" @click="navigateTo(`/topic/${id}/tools/reports`)">
                                 <i class="fa-solid fa-flag"></i>
                                 Reports
                             </button>

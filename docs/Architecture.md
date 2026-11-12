@@ -166,7 +166,7 @@ Role checks are applied in route handlers and page middleware as needed.
 - Report records expose the subject owner and topic associations as computed fields. The top-level `time` is report creation time; complaint and history entries have independent event times.
 - Comment reports use the comment as their subject, resolve ownership to its author, and inherit topic scope from the containing post or gallery. Moderation quarantines only the comment; the comment and its replies remain in discussion context, while its text is hidden in the discussion and excluded from search until restored. Moderator report cards identify the reported comment and navigate to its anchor in the containing discussion. Topic removal is unavailable for comment reports because comments do not own topic associations.
 - Report complaints, appeals, moderation decisions, reopen actions, and topic removals require nonempty text after trimming. Reasons and decision messages are preserved in complaints or history.
-- Topic-scoped reporting views exist for moderators (for example, topic report queues under `app/pages/topic/[topic]/reports.vue` backed by `server/api/topic/[topic]/reports.ts`).
+- Topic-scoped moderation tools use a nested page shell under `app/pages/topic/[topic]/tools.vue`; report queues live at `app/pages/topic/[topic]/tools/reports.vue` and are backed by `server/api/topic/[topic]/reports.ts`. The public topic page remains separate.
 - Report statuses are `pending`, `removed`, `appealed`, `denied`, and `closed`. Workflow actions append entries to `history`; its action string is intentionally unconstrained, and `changes` holds action-specific details.
 
 | Current status | Action | Next status | Content effect | Moderator effect |

@@ -1,5 +1,5 @@
 import { SettingsManager } from "@@/server/utils/SettingsManager"
-import { ModeratorRequestManager } from "@@/server/utils/ModeratorRequestManager"
+import { ModerationManager } from "@@/server/utils/ModerationManager"
 
 interface ApprovalResult {
     approved: boolean
@@ -36,13 +36,9 @@ export default defineEventHandler(async (event) => {
 
             IF $approved {
                 UPDATE $request.topic SET
-                    moderators += $request.user;
-
-                IF $request.user.roles CONTAINSNOT "moderator" {
-                    UPDATE $request.user SET
-                        roles += "moderator";
-                };
-
+                moderators = array::union(moderators, [$request.user]);
+                UPDATE $request.user SET
+                    roles = array::union(roles, ["moderator"]);
                 UPDATE $request SET
                     closed = true;
             };
@@ -60,7 +56,7 @@ export default defineEventHandler(async (event) => {
         .queryValue<ApprovalResult>()
 
     if (result.approved) {
-        await ModeratorRequestManager.sendApprovalNotification(result)
+        await ModerationManager.sendApprovalNotification(result)
     }
 
     return result

@@ -8,5 +8,5 @@ export default defineEventHandler(async (event) => {
     if (!type || !id) throw createError({ statusCode: 400, statusMessage: "A moderation target is required." })
     const body = await readBody<{ scope: string }>(event)
 
-    return await ModerationManager.lock(`${type}:${id}`, auth.id, body.scope)
+    return await ModerationManager.lockContent(`${type}:${id}`, auth.id, body.scope)
 })
