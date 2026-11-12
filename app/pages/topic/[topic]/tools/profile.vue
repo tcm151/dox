@@ -1,21 +1,11 @@
 <script setup lang="ts">
 import type { Topic } from '@@/shared/types';
 
-definePageMeta({
-    middleware: () => {
-        if (!ENV.isClient()) return
-
-        const session = getSession()
-        if (!session.isAuthenticated || (!hasRole(session.user, "moderator") && !hasRole(session.user, "admin"))) {
-            return abortNavigation()
-        }
-    }
-})
-
 const hints = useHints()
 const route = useRoute()
 
 const id = route.params.topic?.toString()
+
 const { data: topic, error, refresh } = await useDatasource<Topic>(`/api/topic/${id}/profile`)
 
 watch(error, async (error) => {

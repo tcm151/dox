@@ -1,17 +1,6 @@
 <script setup lang="ts">
 import type { Report } from '@@/shared/types'
 
-definePageMeta({
-    middleware: () => {
-        if (!ENV.isClient()) return
-
-        const session = getSession()
-        if (!session.isAuthenticated || (!hasRole(session.user, "moderator") && !hasRole(session.user, "admin"))) {
-            return abortNavigation()
-        }
-    }
-})
-
 const route = useRoute()
 
 const id = route.params.topic?.toString()

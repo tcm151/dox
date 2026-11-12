@@ -1,13 +1,13 @@
 import type { User, Topic } from "@@/shared/types"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
-import { ModeratorRequestManager } from "@@/server/utils/ModeratorRequestManager"
+import { ModerationManager } from "@@/server/utils/ModerationManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, "moderator")
 
     const settings = await SettingsManager.get()
-    await ModeratorRequestManager.reconcile(settings.moderation.threshold)
+    await ModerationManager.reviewApprovals(settings.moderation.threshold)
 
     return await new DatabaseQuery()
         .addSql(`

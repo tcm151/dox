@@ -19,8 +19,8 @@ const { data: topics, pending, refresh } = await useAuthenticatedDatasource<Topi
             <template v-for="topic in topics" :key="topic.id">
                 <div class="row wrap g-1">
                     <TopicTag class="f-1" :topic="topic.id" />
-                    <Tag type="default" icon="fa-address-card" @click="navigateTo(`/topic/${extractId(topic.id)}/profile`)" />
-                    <Tag type="danger" icon="fa-flag" @click="navigateTo(`/topic/${extractId(topic.id)}/reports`)" />
+                    <Tag type="default" icon="fa-address-card" @click="navigateTo(`/topic/${extractId(topic.id)}/tools/profile`)" />
+                    <Tag type="danger" icon="fa-flag" @click="navigateTo(`/topic/${extractId(topic.id)}/tools/reports`)" />
                 </div>
             </template>
         </section>
