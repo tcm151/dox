@@ -74,8 +74,8 @@ let showFollow = computed(() => {
                 first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
             </Tag>
         </section>
-        <section v-if="topic.description" class="column g-2">
-            <p>{{ topic.description }}</p>
+        <section v-if="topic.description">
+            <Markdown compact class="content" :content="topic.description" />
         </section>
     </main>
 </template>

@@ -143,9 +143,9 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
                 v-model="replyText"
             />
         </CollapseTransition>
-        <div class="comment-edit field px-3 pb-3 mt-2" v-if="editing">
-            <textarea rows="5" v-model="comment.content"></textarea>
-            <div class="row g-1 pt-2">
+        <div class="comment-edit column g-2 px-3 pb-3 mt-2" v-if="editing">
+            <MarkdownEditor :rows="5" v-model="comment.content" />
+            <div class="row g-1">
                 <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="emit('finish-edit')" />
             </div>

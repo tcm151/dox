@@ -417,6 +417,60 @@ pre {
     }
 }
 
+.markdown.compact {
+    >:first-child {
+        margin-top: 0;
+    }
+
+    >:last-child {
+        margin-bottom: 0;
+    }
+
+    h1, h2 {
+        margin-block: 0.5rem;
+    }
+
+    h3, h4, h5, h6, p {
+        margin-block: 0.25rem;
+    }
+
+    br {
+        margin-bottom: 0.25rem;
+    }
+
+    ul, ol {
+        gap: 0.5rem;
+        margin-block: 0.25rem;
+        padding-inline-start: 1rem;
+        list-style-position: outside;
+    }
+
+    li > ul {
+        margin-block: 0.25rem;
+    }
+
+    blockquote {
+        margin-block: 0.25rem;
+    }
+
+    p:has(img) {
+        margin-block: 0.5rem;
+    }
+
+    pre:has(code), table {
+        margin-block: 0.5rem;
+    }
+
+    pre:has(code) code {
+        padding: 0.5rem;
+    }
+
+    .row {
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
 .markdown {
     span.spoiler {
         user-select: none;
@@ -432,7 +486,7 @@ pre {
     }
 }
 
-.content.preview {
+.content.preview:not(.compact) {
     >:first-child {
         margin-top: 0.75rem;
     }

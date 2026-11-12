@@ -60,10 +60,7 @@ onBeforeUnmount(() => mediaUrls.forEach(url => URL.revokeObjectURL(url)))
                         <label>File - {{ getFileSize(selectedItem.size) }}</label>
                         <input type="text" v-model="selectedItem.name">
                     </div>
-                    <div class="field">
-                        <label>Description</label>
-                        <textarea class="f-1" resize="none" v-model="(selectedItem as MediaFile).description" />
-                    </div>
+                    <MarkdownEditor class="f-1" label="Description" :rows="4" v-model="(selectedItem as MediaFile).description" />
                 </section>
         </div>
         <footer class="row inline g-2 mt-4">

@@ -90,8 +90,8 @@ async function submitReply(target: Thread) {
 <template>
     <div class="thread box row hover-shadow">
         <aside class="indent-line br-small ml-4 my-4" />
-        <div class="main column f-1 px-4 pt-4">
-            <section>
+        <div class="main column g-2 f-1 p-4">
+            <section class="column g-2">
                 <div class="row wrap g-1">
                     <Votes :target="thread" />
                     <div class="row wrap f-1 g-1">
@@ -108,7 +108,7 @@ async function submitReply(target: Thread) {
                     </div>
                 </div>
                 <ContentVisibility :tags="thread.tags" direct>
-                    <Markdown class="content preview" :content="thread.content" />
+                    <Markdown compact class="content preview" :content="thread.content" />
                 </ContentVisibility>
                 <p v-if="replyingTo !== thread.id && replyStates[thread.id]?.warning" class="warning mt-2" role="status">{{ replyStates[thread.id]?.warning }}</p>
                 <ReplyComposer
@@ -130,7 +130,7 @@ async function submitReply(target: Thread) {
             <template v-if="chainItems">
                 <template v-for="reply in chainItems" :key="reply.id">
                     <Tag v-if="isThreadLoadMore(reply)" class="dark mb-3" icon="fa-ellipsis" label="More replies omitted" />
-                    <section v-else>
+                    <section v-else class="column g-2">
                         <div class="row wrap g-1">
                             <Votes :target="reply" />
                             <div class="row wrap f-1 g-1">
@@ -148,7 +148,7 @@ async function submitReply(target: Thread) {
                             </div>
                         </div>
                         <ContentVisibility :tags="reply.tags" direct>
-                            <Markdown class="content preview" :content="reply.content" />
+                            <Markdown compact class="content preview" :content="reply.content" />
                         </ContentVisibility>
                         <p v-if="replyingTo !== reply.id && replyStates[reply.id]?.warning" class="warning mt-2" role="status">{{ replyStates[reply.id]?.warning }}</p>
                         <ReplyComposer

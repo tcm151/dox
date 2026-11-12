@@ -223,9 +223,9 @@ function toggleOptions() {
                     />
                 </ContentVisibility>
                 <ClientOnly>
-                    <div v-if="editingPost && post.user.id === session.user.id" class="field my-4">
-                        <textarea rows="10" v-model="post.content" />
-                    </div>
+                    <template v-if="editingPost && post.user.id === session.user.id">
+                        <MarkdownEditor class="my-4" :rows="10" v-model="post.content" />
+                    </template>
                 </ClientOnly>
                 <footer class="column g-2">
                     <div v-if="!editingPost" class="interactions row wrap g-1">
@@ -242,7 +242,7 @@ function toggleOptions() {
                                 <span>Share</span>
                             </button>
                             <ClientOnly>
-                                <button v-if="session.isAuthenticated" class="options" @click="toggleOptions">
+                                <button v-if="session.isAuthenticated" class="options" title="Options" @click="toggleOptions">
                                     <i class="fa-solid fa-ellipsis"></i>
                                 </button>
                                 <OverlayTransition>
@@ -278,10 +278,10 @@ function toggleOptions() {
                         </button>
                     </div>
                     <CollapseTransition>
-                        <div v-if="showCommentBox && !editingPost" class="field">
-                            <textarea rows="5" v-model="comment"></textarea>
-                            <p v-if="commentState.warning" class="warning mt-2" role="status">{{ commentState.warning }}</p>
-                            <div class="row g-2 mt-2">
+                        <div v-if="showCommentBox && !editingPost" class="column g-2">
+                            <MarkdownEditor :rows="5" v-model="comment" />
+                            <p v-if="commentState.warning" class="warning" role="status">{{ commentState.warning }}</p>
+                            <div class="row g-2">
                                 <ButtonSpinner class="success f-1" :loading="submitting" :disabled="commentState.disabled" @click="submitComment(post, comment)">
                                     <i class="fa-solid fa-comment"></i>
                                     <span>Submit</span>

@@ -18,17 +18,22 @@ type Cursor = {
     }
 }
 
-defineProps<{
+const props = defineProps<{
     label?: string
     rows?: number
     placeholder?: string
     disabled?: boolean
     spellcheck?: boolean
     bounded?: boolean
+    autofocus?: boolean
 }>()
 
 const content = defineModel<string>({ default: "" })
 const textarea = useTemplateRef<HTMLTextAreaElement>("textarea")
+
+onMounted(() => {
+    if (props.autofocus) textarea.value?.focus({ preventScroll: true })
+})
 
 const tools: Tool[] = [
     { label: "Bold", icon: "fa-bold", title: "Bold", action: applyBold },

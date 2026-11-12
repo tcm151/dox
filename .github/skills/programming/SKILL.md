@@ -35,6 +35,13 @@ The goal is code that is easy to use and easy to follow. You should be able to t
 - Sometimes when retiring a stored field in a `SCHEMAFULL` table, `REMOVE FIELD` removes its schema definition but leaves existing record values. `UPDATE ... UNSET field` cannot clear a required field while its strict type is still active. Redefine it as `option<T>`, migrate any values, unset it, then remove its definition; verify this sequence in a disposable SurrealDB sandbox.
 - Follow the Nuxt conventions and nearby code. Reuse a pattern when it makes the code clearer; do not introduce another way to do the same thing without a good reason.
 
+## Vue Templates And Markdown
+
+- Use `MarkdownEditor` for editable prose fields that are rendered as Markdown. Keep native text inputs and textareas for values that remain plain text.
+- When a conditional component has no structural wrapper, put the condition on a `<template v-if>` instead of adding a DOM wrapper solely to hold it.
+- Keep a component's Vue attributes together on one line. Do not split attributes across lines to accommodate a conditional or other formatting concern.
+- Use compact Markdown rendering only for dense UI contexts. When compact rendering removes internal content margins, express separation with the parent layout's existing padding and gap utilities rather than adding compensating margins to the Markdown element.
+
 ## Map Routes To Workflows
 
 - When user-facing operations have distinct behavior or side effects, give each operation a named API route and a matching domain-manager method. For reports, `report/[id]/resolve` maps to `ReportManager.resolve`, `reopen` to `ReportManager.reopen`, and `remove` to `ReportManager.remove`; topic-scoped routes use the same action names.
