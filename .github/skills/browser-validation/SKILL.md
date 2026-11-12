@@ -30,7 +30,7 @@ Before any browser inspection or interaction, get explicit permission unless the
 ## 3. Exercise Flows Safely
 
 1. Check route load, main content, controls, and expected empty, error, or success states.
-2. Start with read-only actions. Before a mutation, use disposable development data and confirm cleanup is possible. Do not submit, delete, publish, revoke sessions, or change account settings without user authorization.
+2. Start with read-only actions. Use one-time test data that is uniquely identifiable and can be cleaned up, or legitimate reusable fixtures with realistic, stable content. In a development environment, existing content may be used for mutations when the user explicitly approves it; record its initial state and restore reversible changes after the test. Approval applies only to the described workflow and does not authorize unrelated deletion, publishing, session revocation, or account changes.
 3. For confirmations, verify the prompt. Dismiss it if the destructive action is outside scope.
 4. Record the route, action, expected and observed results, and relevant browser console or request errors.
 5. Separate application regressions from environment or data problems, such as unavailable APIs, missing media, or stale records. For legacy metadata that points to files lost during a restore or reformat, compare against a known-good asset uploaded during this pass. Recheck after navigation before attributing old console events to a route.
