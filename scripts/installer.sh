@@ -573,9 +573,6 @@ case "$COMMAND" in
         if [ "${2:-}" = "--no-service" ]; then
             local_install_service=false
         fi
-        if [ "$local_install_service" = true ]; then
-            stop_running_service
-        fi
         ensure_environment_file
         require_runtime
         load_environment
@@ -583,6 +580,7 @@ case "$COMMAND" in
         validate_default_account_credentials
         prepare_data_paths
         if [ "$local_install_service" = true ]; then
+            stop_running_service
             install_service
         else
             echo "Prepared deployment without installing a systemd service. Start it with: ./installer.sh run"

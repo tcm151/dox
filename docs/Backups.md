@@ -4,14 +4,14 @@ Use this runbook to protect and restore ClassicForum application data. Test each
 
 ## Embedded SurrealDB
 
-In the packaged Linux quickstart, the shared configuration is `/root/forum/.env`, and `NUXT_DATA_PATH=../data` resolves from the versioned app directory to `/root/forum/data`. That directory contains the embedded RocksDB database and uploaded image/audio files. The installer backup command includes only the configured RocksDB database directory; it does not include `.env`, media, or other files. Back up uploaded media separately if the recovery plan requires it. If the deployment uses a different database URL, adapt the restore path accordingly.
+The quickstart uses `/srv/forum/.env` as an example shared configuration path, and `NUXT_DATA_PATH=../data` resolves from the versioned app directory to `/srv/forum/data`. Choose your own install root and substitute it in the commands below. That data directory contains the embedded RocksDB database and uploaded image/audio files. The installer backup command includes only the configured RocksDB database directory; it does not include `.env`, media, or other files. Back up uploaded media separately if the recovery plan requires it. If the deployment uses a different database URL, adapt the restore path accordingly.
 
 ### Create A Backup
 
-Run as root from the versioned release directory:
+Run as root from the versioned release directory. If you customized the systemd unit name, pass the same `SERVICE_NAME` value to installer commands that inspect or manage the service, for example `SERVICE_NAME=classicforum ./installer.sh backup`:
 
 ```bash
-cd /root/forum/<current-version>
+cd /srv/forum/<current-version>
 ./installer.sh backup
 ```
 
@@ -20,7 +20,7 @@ The command supports embedded SurrealDB deployments only. It stops the service b
 Verify the checksum and archive using the paths printed by the command:
 
 ```bash
-cd /root/forum/backups
+cd /srv/forum/backups
 sha256sum -c classicforum-db-<timestamp>-<pid>.tar.gz.sha256
 gzip -t classicforum-db-<timestamp>-<pid>.tar.gz
 tar -tzf classicforum-db-<timestamp>-<pid>.tar.gz
@@ -30,12 +30,12 @@ Remote SurrealDB is not included. Use the [remote database backup procedure](#re
 
 ### Restore A Backup
 
-Choose a compatible release. Run the restore command as root from its versioned directory. With no archive argument, it restores the newest timestamped backup in `BACKUP_DIR` or the default `backups/` directory beside the shared `.env`. An archive path can be supplied to select a specific restore point:
+Choose a compatible release. Run the restore command as root from its versioned directory, passing the configured `SERVICE_NAME` if it is not the default `forum`. With no archive argument, it restores the newest timestamped backup in `BACKUP_DIR` or the default `backups/` directory beside the shared `.env`. An archive path can be supplied to select a specific restore point:
 
 ```bash
-cd /root/forum/<restore-version>
+cd /srv/forum/<restore-version>
 ./installer.sh restore
-# Or: ./installer.sh restore /root/forum/backups/classicforum-db-<timestamp>-<pid>.tar.gz
+# Or: ./installer.sh restore /srv/forum/backups/classicforum-db-<timestamp>-<pid>.tar.gz
 ```
 
 Before changing the database, the command verifies the SHA-256 checksum, gzip stream, archive paths, and configured database directory. It stops an active service for the restore and starts it again only if it was active beforehand. It does not install or enable a systemd service. The restored database takes the ownership of the existing database, or its parent directory if the database does not yet exist. The existing `.env` and media remain in place. If a database already exists, it is preserved as `<database-path>.before-restore-<timestamp>-<pid>` for rollback.
@@ -76,7 +76,7 @@ Imports can apply statements before a later error; they are not an all-or-nothin
 
 ## Recovery Checks
 
-- If the service does not start, inspect `journalctl -u forum` and confirm the restored `.env`, data path, database URL, and file ownership match the selected release.
+- If the service does not start, inspect `journalctl -u <service-name>` (default: `forum`) and confirm the restored `.env`, data path, database URL, and file ownership match the selected release.
 - If `/api/health` is not ready, inspect app startup/migration errors and SurrealDB logs; preserve the current database before retrying a restore.
 - If records load but images/audio are missing in embedded mode, verify the archive included the configured media directories under `NUXT_DATA_PATH`.
 - If remote import reports errors, assume the target may be partially changed. Restore into a clean target or recover from the pre-restore backup instead of retrying blindly.

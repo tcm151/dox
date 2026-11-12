@@ -1,6 +1,6 @@
 # Production Quickstart
 
-Use this guide to install a forum release on a Linux server. Releases live in versioned folders such as `/root/forum/<version>`, while persistent data stays in `/root/forum/data`.
+Use this guide to install a forum release on a Linux server. The examples unpack the archive under `/srv`, creating `/srv/forum/<version>` for the app, with shared configuration and persistent data under `/srv/forum`. Choose a parent directory appropriate for your host and replace `/srv` throughout. The archive itself contains the `forum/<version>` directory structure.
 
 ## Prerequisites
 
@@ -11,12 +11,12 @@ Use this guide to install a forum release on a Linux server. Releases live in ve
 
 ## Install The Artifact
 
-Log in as root, then unpack the release under `/root`:
+Log in as root, then unpack the release under `/srv` (replace this with your chosen parent directory):
 
 ```bash
-cd /root
-tar -xzf forum-<version>-linux-x64.tar.gz
-cd /root/forum/<version>
+cd /srv
+tar -xzf /path/to/forum-<version>-linux-x64.tar.gz
+cd /srv/forum/<version>
 ```
 
 The directory should contain the installer, environment example, and packaged server entrypoint:
@@ -28,7 +28,7 @@ ls -la installer.sh .env.example server/index.mjs
 The installed layout is:
 
 ```text
-/root/forum
+/srv/forum
 	.env
 	<version>/
 		installer.sh
@@ -63,7 +63,7 @@ Set these values before starting the service. Use unique credentials for all thr
 
 ```bash
 PORT=8001
-NUXT_PUBLIC_BASE_URL=http://your-server-hostname-or-ip:8001
+NUXT_PUBLIC_BASE_URL=https://forum.example.com
 NUXT_PUBLIC_SITE_TITLE="Forum"
 NUXT_PUBLIC_SITE_TITLE_SHORT="Forum"
 NUXT_SURREAL_ADMIN_EMAIL=
@@ -77,7 +77,7 @@ The default account receives the `moderator`, `admin`, and `developer` roles. It
 
 If an account already exists, leave all three values blank. The installer rejects partial configuration and known placeholder passwords.
 
-If you use a reverse proxy or TLS, set `NUXT_PUBLIC_BASE_URL` to the public URL. For a reverse proxy, set `NUXT_TRUSTED_PROXIES` to the proxy's exact source IP or narrow CIDR, such as `127.0.0.1,10.0.0.0/24`. Leave it blank when the app is not behind a trusted proxy.
+Choose an unused `PORT` and set `NUXT_PUBLIC_BASE_URL` to the public URL for your instance. The example assumes a TLS-terminating reverse proxy; without one, include the app's port in the URL. For a reverse proxy, use the externally visible scheme, hostname, and port (normally HTTPS on port 443), and set `NUXT_TRUSTED_PROXIES` to the proxy's exact source IP or narrow CIDR, such as `127.0.0.1,10.0.0.0/24`. Leave it blank when the app is not behind a trusted proxy.
 
 The app uses forwarded client addresses only when the connecting socket belongs to a configured trusted proxy. Configure the proxy to replace incoming `X-Forwarded-For` with the address it observed, or append that observed address consistently. Do not expose the app port to untrusted peers if the proxy network is intended to be the only path to the app.
 
@@ -85,34 +85,52 @@ Nuxt reads the `NUXT_*` settings when the server starts, so changing them and re
 
 ## Install And Start The Service
 
-Run the packaged installer from `/root/forum/<version>`:
+Run the packaged installer from your versioned release directory, for example `/srv/forum/<version>`:
 
 ```bash
 ./installer.sh install
 ```
 
-The installer creates and starts `forum.service`, which starts automatically when the server boots.
+The installer creates and starts `forum.service`, which starts automatically when the server boots. To use a different systemd unit name for this instance, prefix the install and every later installer command with the same value, for example `SERVICE_NAME=classicforum ./installer.sh install` and `SERVICE_NAME=classicforum ./installer.sh status`. The default is `forum`.
 
 For a disposable release copy that should not create or manage a systemd service, use `./installer.sh install --no-service`. This still validates the configuration and prepares data paths; start the copy in the foreground with `./installer.sh run`.
 
 ## Upgrade
 
-Stop the running service before replacing app files:
+Starting a new release applies any pending database migrations. Back up the database before the upgrade. For embedded SurrealDB, run the backup from the current release and verify the checksum using the path printed by the command:
 
 ```bash
-cd /root/forum/<current-version>
-./installer.sh stop
-cd /root
-tar -xzf forum-<new-version>-linux-x64.tar.gz
-cd /root/forum/<new-version>
-./installer.sh
+cd /srv/forum/<current-version>
+./installer.sh backup
+cd /srv/forum/backups
+sha256sum -c classicforum-db-<timestamp>-<pid>.tar.gz.sha256
 ```
 
-The release artifact does not include a live `.env`, so your configured `/root/forum/.env` remains in place across version folders. The data remains in `/root/forum/data`.
+The installer backup includes only the RocksDB database directory, not `.env` or uploaded media. See [Backup And Restore](Backups.md) for remote database backups and media protection.
+
+Unpack the new version alongside the existing release while the current service continues running. When `install` runs, it validates the release and configuration, then stops the current service, points the systemd unit at the new version, and starts it:
+
+```bash
+cd /srv
+tar -xzf /path/to/forum-<new-version>-linux-x64.tar.gz
+cd /srv/forum/<new-version>
+./installer.sh install
+```
+
+The release artifact does not include a live `.env`, so `/srv/forum/.env` remains in place across version folders. The data remains in `/srv/forum/data`. Keep the old release folder and verified backup until the new release passes its health check.
+
+After installation, verify the service and health endpoint:
+
+```bash
+./installer.sh status
+curl --fail-with-body http://127.0.0.1:8001/api/health
+```
+
+Use the configured port in the health URL. Confirm the response reports both `app` and `database` as `ready`. If startup or migration fails, inspect `journalctl -u forum` (replace `forum` with your configured service name); do not start an older app against a database already migrated by the new release. Stop the service and restore the pre-upgrade backup first, following [Backup And Restore](Backups.md#restore-a-backup).
 
 ## Service Commands
 
-The installer also wraps common service operations:
+The installer also wraps common service operations. If you chose a custom `SERVICE_NAME`, set it for these commands too:
 
 ```bash
 ./installer.sh status
@@ -137,6 +155,8 @@ Check the health endpoint:
 ```bash
 curl http://127.0.0.1:8001/api/health
 ```
+
+Replace port `8001` with the configured `PORT` value.
 
 For backup and restore procedures covering embedded and remote databases, see [Backups](Backups.md).
 
