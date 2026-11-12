@@ -132,10 +132,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
             </nav>
             <section class="column f-1">
                 <section v-if="section == 'about'">
-                    <div class="field">
-                        <label>About summary</label>
-                        <textarea rows="12" v-model="settings.about.summary"></textarea>
-                    </div>
+                    <MarkdownEditor label="About summary" :rows="12" v-model="settings.about.summary" />
                 </section>
                 <section v-if="section == 'contact'">
                     <div class="field">

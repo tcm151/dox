@@ -15,7 +15,7 @@ const contextName = computed(() => "title" in props.comment.context
 <template>
     <ContentVisibility :tags="comment.context.tags">
         <div class="search-comment clickable box background animate hover-shadow">
-            <div class="main box column px-3 pt-3" @click="navigateTo(contextUrl)">
+            <div class="main box column g-2 p-3" @click="navigateTo(contextUrl)">
                 <div class="row wrap g-1">
                     <Votes :target="comment" />
                     <div class="row wrap f-2 g-1">
@@ -33,7 +33,7 @@ const contextName = computed(() => "title" in props.comment.context
                         <ModerationState :moderation="comment.moderation" content-type="comment" />
                     </div>
                 </div>
-                <Markdown class="content preview" :content="comment.content" />
+                <Markdown compact class="content preview" :content="comment.content" />
             </div>
         </div>
     </ContentVisibility>

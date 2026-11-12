@@ -71,8 +71,10 @@ async function submit() {
         </template>
         <template #preview>
             <ContentVisibility :tags="tags" direct>
-                <ImageSlideshow :images="imageSlides" label="Uploaded images" />
-                <Markdown class="content mt-3" :content="description" />
+                <div class="column g-3">
+                    <ImageSlideshow :images="imageSlides" label="Uploaded images" />
+                    <Markdown compact class="content" :content="description" />
+                </div>
             </ContentVisibility>
         </template>
         <OverlayTransition>

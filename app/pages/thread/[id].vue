@@ -236,22 +236,22 @@ function toggleOptions() {
                     <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
                         <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
                     </aside>
-                    <aside v-if="thread.quote" class="br-medium border-subtle mb-3 px-3 pt-3">
+                    <aside v-if="thread.quote" class="br-medium border-subtle column g-2 mb-3 p-3">
                         <ContentVisibility :tags="thread.quote.tags" direct>
                             <ContentHeader :content="thread.quote" context="preview">
                                 <template #actions>
                                     <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
                                 </template>
                             </ContentHeader>
-                            <Markdown class="content preview" :content="thread.quote.content" />
+                            <Markdown compact class="content preview" :content="thread.quote.content" />
                         </ContentVisibility>
                     </aside>
                 </ContentVisibility>
             </template>
             <ClientOnly>
-                <div v-if="editingThread && thread.user.id === session.user.id" class="field my-4">
-                    <textarea rows="10" v-model="thread.content" />
-                </div>
+                <template v-if="editingThread && thread.user.id === session.user.id">
+                    <MarkdownEditor class="my-4" :rows="10" v-model="thread.content" />
+                </template>
             </ClientOnly>
             <footer>
                 <div v-if="!thread.deleted && !editingThread" class="f-1 row wrap g-1 mb-4">

@@ -35,8 +35,8 @@ async function reportImage() {
 
 <template v-if="id">
     <article class="p-4">
-        <section v-if="image" class="box p-4">
-            <ContentHeader class="mb-2" :content="image" context="detail">
+        <section v-if="image" class="box column g-2 p-4">
+            <ContentHeader :content="image" context="detail">
                 <template #actions>
                     <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
                     <ClientOnly>
@@ -50,7 +50,7 @@ async function reportImage() {
                     </ClientOnly>
                 </template>
             </ContentHeader>
-            <Markdown v-if="image.description" class="content mb-3" :content="image.description" />
+            <Markdown v-if="image.description" compact class="content" :content="image.description" />
             <figure class="image">
                 <img class="br-small" :src="image.url">
             </figure>

@@ -40,13 +40,13 @@ function submit() {
 </script>
 
 <template>
-    <div class="reply-composer field" @click.stop>
-        <textarea
-            ref="reply-textarea"
+    <div class="reply-composer" @click.stop>
+        <MarkdownEditor
             :rows="rows"
-            :value="modelValue"
+            :autofocus="autofocus"
             :disabled="submitting"
-            @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
+            :model-value="modelValue"
+            @update:model-value="emit('update:modelValue', $event)"
             @keydown.ctrl.enter.prevent="submit"
         />
         <p v-if="warning" class="warning mt-2" role="status">{{ warning }}</p>

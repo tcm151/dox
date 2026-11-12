@@ -1,13 +1,16 @@
 <script setup lang="ts">
-defineProps<{ content?: string }>()
+defineProps<{
+    content?: string
+    compact?: boolean
+}>()
 </script>
 
 <template>
-    <div class="markdown" v-html="renderMarkdown(content)"></div>
+    <div class="markdown" :class="{ compact }" v-html="renderMarkdown(content)"></div>
 </template>
 
 <style lang="scss">
-div.markdown:not(.content) {
+div.markdown:not(.content):not(.compact) {
     p:not(:first-child) {
         margin-top: 0.5rem;
     }
