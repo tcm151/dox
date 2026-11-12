@@ -2,7 +2,29 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
-## [2026.6.1]- [Unreleased]
+## [2026.6.2] - Unreleased
+
+### Added
+- Added topic governance tools for locking topics, managing moderator rosters, editing current rules, and pinning posts, threads, and galleries at app or topic scope.
+- Added per-topic posting cooldowns and report-priority thresholds, plus moderator controls for discussion locks and configurable slow mode across posts, galleries, comments, and thread items.
+- Added NSFW and spoiler tags with community visibility defaults and personal show, mask, or filter preferences across feeds, search, previews, and detail pages.
+- Added gallery comments and replies, and enabled reporting and moderation of comments in post and gallery discussions.
+- Added account deletion choices to retain authored content under a deleted-user identity or remove eligible content while preserving discussion history.
+- Added in-app and email notification preferences, with scheduled email delivery, configurable daily and batch limits, and retry handling. Email notifications are opt-in by default.
+- Added browser integration tests for critical user workflows across editor, feed, moderation, topic, gallery, and discussion pages.
+
+### Changed
+- Migrated content relationships to native SurrealDB record references, including topic membership, post and gallery comments, and thread replies and quotes. Migration `2026.6.2` preserves existing relationships and their deletion behavior.
+- Improved report and moderation workflows with comment-aware queues, clearer removed and locked states, owner-facing appeal context, and consistent result and empty states.
+- Expanded Markdown editing and compact rendering across posts, replies, descriptions, and dense feed and preview contexts.
+- Refined moderator, admin, inbox, feed, and gallery interfaces with clearer action feedback, filters, navigation, and responsive discussion layouts.
+- Validated application settings before saving and added admin controls for moderation defaults and notification email delivery limits.
+
+### Fixed
+- Corrected the scheduled-email quota query to use SurrealQL's `COUNT()` function.
+- Set new content visit counters to start at one.
+
+## [2026.6.1] - 2026-10-29
 
 ### Added
 - Added `installer.sh backup` for embedded database restore points.
