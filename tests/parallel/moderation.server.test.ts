@@ -79,6 +79,7 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
 
     try {
         await admin.query(`CREATE ONLY topic:${topicId} SET moderators = [];`)
+        await admin.query(`UPDATE topic:${topicId} SET moderation = { maxPostInterval: 0, priorityReportThreshold: 5 };`)
         const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
             body: {

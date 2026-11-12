@@ -1,5 +1,23 @@
 import { relative } from "node:path"
 
+const maxFailureDetailLines = 24
+const maxFailureDetailLineLength = 1200
+
+function appendDiagnosticLines(lines, sourceLines, indentation = "    ") {
+    const detailLines = sourceLines.filter(line => line.trim())
+    for (const detailLine of detailLines.slice(0, maxFailureDetailLines)) {
+        const line = detailLine.trim()
+        const displayedLine = line.length > maxFailureDetailLineLength
+            ? `${line.slice(0, maxFailureDetailLineLength)} ... [line truncated]`
+            : line
+        lines.push(`${indentation}${displayedLine}`)
+    }
+
+    if (detailLines.length > maxFailureDetailLines) {
+        lines.push(`${indentation}... ${detailLines.length - maxFailureDetailLines} additional detail lines omitted`)
+    }
+}
+
 export function formatFailureDetails(report, projectRoot = process.cwd()) {
     const failedFiles = report?.testResults?.filter(result => result.status === "failed") ?? []
     if (failedFiles.length === 0) return ""
@@ -11,7 +29,7 @@ export function formatFailureDetails(report, projectRoot = process.cwd()) {
         lines.push(`\n${filePath}`)
         const failedAssertions = file.assertionResults?.filter(result => result.status === "failed") ?? []
         if (failedAssertions.length === 0) {
-            lines.push(...(file.message || "Test file failed before an assertion completed.").split(/\r?\n/).slice(0, 8).map(line => `  ${line}`))
+            appendDiagnosticLines(lines, (file.message || "Test file failed before an assertion completed.").split(/\r?\n/), "  ")
             continue
         }
 
@@ -21,7 +39,7 @@ export function formatFailureDetails(report, projectRoot = process.cwd()) {
                 const messageLines = message.split(/\r?\n/)
                 const stackStart = messageLines.findIndex(line => /^\s+at /.test(line))
                 const details = stackStart < 0 ? messageLines : messageLines.slice(0, stackStart)
-                lines.push(...details.filter(line => line.trim()).slice(0, 4).map(line => `    ${line.trim()}`))
+                appendDiagnosticLines(lines, details)
 
                 if (assertion.location) {
                     lines.push(`    at ${filePath}:${assertion.location.line}:${assertion.location.column}`)
