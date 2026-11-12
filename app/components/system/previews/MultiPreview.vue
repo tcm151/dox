@@ -3,6 +3,7 @@ import type { SearchComment, Sortable, Post, Thread, Gallery } from '@@/shared/t
 
 const props = defineProps<{
     item: Sortable | SearchComment
+    pinned?: boolean
 }>()
 
 
@@ -13,13 +14,13 @@ const props = defineProps<{
         <SearchCommentPreview :comment="(item as SearchComment)" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'post'">
-        <PostPreview :post="(item as Post)" />
+        <PostPreview :post="(item as Post)" :pinned="pinned" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'gallery'">
-        <GalleryPreview :gallery="(item as Gallery)" />
+        <GalleryPreview :gallery="(item as Gallery)" :pinned="pinned" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'thread'">
-        <ThreadPreview :thread="(item as Thread)" />
+        <ThreadPreview :thread="(item as Thread)" :pinned="pinned" />
     </template>
 </template>
 

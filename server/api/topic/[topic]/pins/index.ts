@@ -1,0 +1,21 @@
+import type { Pin } from "@@/shared/types"
+import { attachPinModeration } from "@@/server/utils/pinModeration"
+
+export default defineEventHandler(async (event) => {
+    const { topic } = event.context.params!
+    const pins = await new DatabaseQuery()
+        .addSql(`
+            SELECT *
+            FROM pin
+            WHERE scope = "topic"
+            AND topic = $topic
+            AND active = true
+            AND record::exists(item) AND item.status = "active"
+            ORDER BY time DESC
+            FETCH user, topic, item.user, item.replyTo, item.quote, item.quote.user, item.images.url;
+        `)
+        .addRecord("topic", `topic:${topic}`)
+        .queryAll<Pin>()
+
+    return await attachPinModeration(pins)
+})

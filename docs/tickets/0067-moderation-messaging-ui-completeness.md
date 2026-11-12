@@ -3,10 +3,10 @@
 ## Status
 - State: Paused
 - Priority: Medium
-- Next: Resume the topic profile rename workflow after Ticket 0084 is unpaused
+- Next: Resume the topic profile workflow after Ticket 0084 is complete
 
 ## Dependencies
-- [0084](0084-topic-rename-requests.md): The topic profile still exposes a placeholder rename control; this ticket owns the rename request and approval flow.
+- [0084](backlog/0084-topic-rename-requests.md): The topic profile still exposes a placeholder rename control; this ticket owns the rename request and approval flow.
 
 ## Goal
 Ensure moderation and messaging screens expose only complete, usable workflows before production.

@@ -43,6 +43,7 @@ it("paginates popular feed results for each sort mode", async () => {
                     body: {
                         description: topic.description ?? "",
                         moderation: { ...topic.moderation, maxPostInterval: 0 },
+                        rules: topic.rules ?? "",
                     },
                 })
                 expectStatus(topicSettingsResponse, 200, "disable feed fixture topic cooldown")

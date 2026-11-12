@@ -26,6 +26,7 @@ const tabs = computed<TabItem[]>(() => {
         { route: `/topic/${id}`, icon: 'fa-arrow-left', label: 'Back' },
         { route: `/topic/${id}/tools/profile`, icon: 'fa-address-card', label: 'Profile' },
         { route: `/topic/${id}/tools/moderators`, icon: 'fa-users', label: 'Moderators' },
+        { route: `/topic/${id}/tools/pins`, icon: 'fa-thumbtack', label: 'Pins' },
         { route: `/topic/${id}/tools/reports`, icon: 'fa-flag', label: 'Reports' },
     ]
 })

@@ -4,6 +4,7 @@ import { Validator } from "@@/shared/utils/Validator"
 interface UpdateTopicRequest {
     description: string
     moderation: Topic["moderation"]
+    rules: string
 }
 
 export default defineEventHandler(async (event) => {
@@ -14,26 +15,32 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<UpdateTopicRequest>(event)
 
     const validator = new Validator("TopicSettings")
-    validator.object(body, "settings", (v, settings) => {
-        v.string(settings.description, "description")
-        v.object(settings.moderation, "moderation", (v, moderation) => {
-            v.integer(moderation.maxPostInterval, "maxPostInterval", { min: 0, max: 3600 })
-            v.integer(moderation.priorityReportThreshold, "priorityReportThreshold", { min: 1, max: 100 })
-        })
+    validator.string(body.description, "description")
+    validator.object(body.moderation, "moderation", (v, moderation) => {
+        v.integer(moderation.maxPostInterval, "maxPostInterval", { min: 0, max: 3600 })
+        v.integer(moderation.priorityReportThreshold, "priorityReportThreshold", { min: 1, max: 100 })
     })
+    validator.string(body.rules, "rules")
     validator.confirm()
 
     return await new DatabaseQuery()
         .addSql(`
-            IF $topic.moderators CONTAINS $user OR $user.roles CONTAINS "admin" {
-                UPDATE $topic SET
-                    description = $description,
-                    moderation = $moderation;
+            IF !record::exists($topic) {
+                fn::http(404, "Topic not found.");
             };
+            IF NOT ($topic.moderators CONTAINS $user OR $user.roles CONTAINS "admin") {
+                fn::http(403, "You cannot update this topic profile.");
+            };
+            UPDATE $topic SET
+                description = $description,
+                moderation = $moderation,
+                rules = $rules;
         `)
+        .addTransaction()
         .addRecord("user", auth.id)
         .addRecord("topic", `topic:${topic}`)
         .addParameter("description", body.description)
         .addParameter("moderation", body.moderation)
-        .queryOne<Topic>()
+        .addParameter("rules", body.rules)
+        .execute()
 })

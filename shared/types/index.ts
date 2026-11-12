@@ -52,6 +52,7 @@ export type Trait = "confirmed" | "verified"
 export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
 export type ContentVisibilityMode = "show" | "mask" | "filter"
 export type TopicStatus = "active" | "locked"
+export type PinScope = "app" | "topic"
 
 export interface Session extends Record {
     account: Account & string
@@ -61,6 +62,7 @@ export interface Session extends Record {
 
 export interface Topic extends Sortable {
     description?: string
+    rules?: string
     status: TopicStatus
     posts: Post[]
     moderation: {
@@ -185,7 +187,9 @@ export interface Attachment extends Record {
 export interface Audio extends Media { }
 
 export interface Pin extends Record {
-    item: Post | Thread
+    item: Post | Thread | Gallery
+    scope: PinScope
+    topic?: Topic & string
     user: User
     active: boolean
     time: string

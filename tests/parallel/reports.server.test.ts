@@ -470,6 +470,7 @@ it("marks topic reports priority only after enough distinct reporters", async ()
             body: {
                 description: "",
                 moderation: { maxPostInterval: 60, priorityReportThreshold: 2 },
+                rules: "",
             },
         })
         expectStatus(settingsResponse, 200)
@@ -653,6 +654,7 @@ it("lets a topic moderator remove one topic without removing the submission or r
             body: {
                 description: "",
                 moderation: { maxPostInterval: 0, priorityReportThreshold: 5 },
+                rules: "",
             },
         })
         expectStatus(topicSettingsResponse, 200, "disable topic cooldown for multi-topic fixture")
@@ -761,6 +763,7 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
             body: {
                 description: "",
                 moderation: { maxPostInterval: 0, priorityReportThreshold: 5 },
+                rules: "",
             },
         })
         expectStatus(topicSettingsResponse, 200, "disable topic cooldown for appeal fixture")

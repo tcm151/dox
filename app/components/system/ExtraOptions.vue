@@ -11,22 +11,31 @@ const props = defineProps<{
 
 const targetType = computed(() => targetRecord.value?.table)
 const targetRecord = computed(() => parseRecordId(props.target.id))
+const targetTopics = computed(() => {
+    if (!("topics" in props.target)) return []
+
+    return props.target.topics.flatMap((topic) => {
+        const record = parseRecordId(topic)
+        return record?.table === "topic" ? [record.id] : []
+    })
+})
 
 const actions = computed(() => {
     const type = targetType.value
     const isOwner = props.target.user.id === session.user.id
     const isAdmin = hasRole(session.user, "admin")
     const isModerator = hasRole(session.user, "moderator")
-    const isAdminOrDeveloper = isAdmin || hasRole(session.user, "developer")
 
     return {
         edit: isOwner && (type === "post" || type === "comment"),
         award: type === "post" || type === "thread",
         tag: (isAdmin || isModerator) && (type === "post" || type === "thread" || type === "gallery"),
-        archive: (type === "post" && isAdmin) || (type === "gallery" && isAdminOrDeveloper),
-        threadArchive: type === "thread" && isAdminOrDeveloper && (props.target.status === "active" || props.target.status === "archived"),
+        archive: (type === "post" && isAdmin) || (type === "gallery" && isAdmin) || (type === "thread" && isAdmin
+                && (props.target.status === "active" || props.target.status === "archived")),
         delete: isOwner || (isAdmin && (type === "gallery" || type === "comment")),
-        pin: (type === "post" && isAdmin) || (type === "thread" && isAdminOrDeveloper),
+        pin: (type === "post" || type === "thread" || type === "gallery") && isAdmin,
+        topicPin: (isAdmin || isModerator) && targetTopics.value.length > 0
+            && (type === "post" || type === "thread" || type === "gallery"),
     }
 })
 
@@ -53,6 +62,28 @@ const emitActions = {
 function emitAndClose(event: keyof typeof emitActions) {
     emitActions[event]()
     emit("close")
+}
+
+const choosingPin = ref(false)
+const pinningTopic = ref<string>()
+
+async function pinToTopic(topic: string) {
+    const record = targetRecord.value
+    if (!record || pinningTopic.value) return
+
+    pinningTopic.value = topic
+    try {
+        await useApi(`/api/topic/${topic}/pins/add`, { body: { item: props.target.id } })
+        hints.addSuccess("Content pinned to topic.")
+        emit("updated")
+        emit("close")
+    }
+    catch (error: any) {
+        hints.addError("Failed to pin content to topic.", error)
+    }
+    finally {
+        pinningTopic.value = undefined
+    }
 }
 
 const addingTag = ref(false)
@@ -83,12 +114,36 @@ async function addTag(tag: "nsfw" | "spoiler") {
 </script>
 
 <template>
-    <Window title="Options" icon="fa-solid fa-list-ul" width="20rem" @close="emit('close')">
+    <Window title="Options" icon="fa-solid fa-list-ul" width="25rem" @close="emit('close')">
         <section class="column g-2">
-            <button v-if="actions.edit" @click="emitAndClose('edit')">
-                <i class="fa-solid fa-eraser"></i>
-                <span>Edit</span>
-            </button>
+            <template v-if="actions.topicPin || actions.pin">
+                <button @click="choosingPin = !choosingPin">
+                    <i class="fa-solid fa-thumbtack"></i>
+                    <span>Pin</span>
+                </button>
+                <section v-if="choosingPin" class="row wrap fill g-2">
+                    <button v-if="actions.pin" @click="emitAndClose('pin')">
+                        <i class="fa-solid fa-home"></i>
+                        <span>Home</span>
+                    </button>
+                    <template v-for="topic in targetTopics" :key="topic">
+                        <button :disabled="pinningTopic !== undefined" @click="pinToTopic(topic)">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>{{ topic }}</span>
+                        </button>
+                    </template>
+                </section>
+            </template>
+            <div v-if="actions.edit || actions.delete" class="row fill g-2">
+                <button v-if="actions.edit" @click="emitAndClose('edit')">
+                    <i class="fa-solid fa-eraser"></i>
+                    <span>Edit</span>
+                </button>
+                <button v-if="actions.delete" @click="emitAndClose('delete')">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Delete</span>
+                </button>
+            </div>
             <button v-if="actions.award" @click="emitAndClose('award')">
                 <i class="fa-solid fa-crown"></i>
                 <span>Award</span>
@@ -97,6 +152,17 @@ async function addTag(tag: "nsfw" | "spoiler") {
                 <i class="fa-solid fa-flag"></i>
                 <span>Report</span>
             </button>
+            <template v-if="actions.archive">
+                <button v-if="target.status === 'active'" @click="emitAndClose('archive')">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Archive</span>
+                </button>
+                <button v-if="target.status === 'archived'" @click="emitAndClose('archive')">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>Unarchive</span>
+                </button>
+            </template>
+            <ModerationControls :id="target.id" @updated="emit('updated')" />
             <template v-if="actions.tag">
                 <div class="row fill g-2">
                     <button v-if="!tags.includes('nsfw')" class="b-0" :disabled="addingTag" @click="addTag('nsfw')">
@@ -109,24 +175,6 @@ async function addTag(tag: "nsfw" | "spoiler") {
                     </button>
                 </div>
             </template>
-            <button v-if="actions.threadArchive" class="dark" @click="emitAndClose('archive')">
-                <i class="fa-solid" :class="target.status === 'archived' ? 'fa-box-open' : 'fa-box-archive'"></i>
-                <span>{{ target.status === "archived" ? "Unarchive" : "Archive" }}</span>
-            </button>
-            <button v-else-if="actions.archive" @click="emitAndClose('archive')">
-                <i class="fa-solid fa-box"></i>
-                <span v-if="target.status !== 'archived'">Archive</span>
-                <span v-else>Unarchive</span>
-            </button>
-            <button v-if="actions.pin" @click="emitAndClose('pin')">
-                <i class="fa-solid fa-thumbtack"></i>
-                <span>Pin</span>
-            </button>
-            <ModerationControls :id="target.id" @updated="emit('updated')" />
-            <button v-if="actions.delete" @click="emitAndClose('delete')">
-                <i class="fa-solid fa-trash-can"></i>
-                <span>Delete</span>
-            </button>
         </section>
     </Window>
 </template>

@@ -34,6 +34,7 @@ async function updateProfile() {
             body: {
                 description: profile.description ?? "",
                 moderation: profile.moderation,
+                rules: profile.rules ?? "",
             }
         })
         hints.addSuccess("Updated topic profile successfully.")
@@ -65,10 +66,8 @@ async function updateProfile() {
                     Request Rename
                 </button>
             </div>
-            <div class="field">
-                <label>Description</label>
-                <textarea rows="4" v-model="topic.description" />
-            </div>
+            <MarkdownEditor label="Description" :rows="4" v-model="topic.description" />
+            <MarkdownEditor label="Rules" :rows="8" v-model="topic.rules" />
             <div class="field row">
                 <div class="column f-1">
                     <label>Topic Usage Interval (minutes)</label>

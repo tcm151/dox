@@ -114,6 +114,8 @@ DEFINE FIELD invalidated ON session
 DEFINE TABLE topic SCHEMAFULL;
 DEFINE FIELD description ON topic
     TYPE option<string>;
+DEFINE FIELD rules ON topic
+    TYPE option<string>;
 DEFINE FIELD status ON topic
     TYPE string ASSERT $value IN ["active", "locked"] DEFAULT ALWAYS "active";
 DEFINE FIELD moderation ON topic
@@ -498,15 +500,22 @@ DEFINE FIELD time ON mediaTrash
 -- ------------------------------
 DEFINE TABLE pin SCHEMAFULL;
 DEFINE FIELD item ON pin
-    TYPE record<post|thread>;
-DEFINE INDEX item ON pin
-    FIELDS item UNIQUE;
+    TYPE record<post|thread|gallery>;
+DEFINE FIELD scope ON pin
+    TYPE string ASSERT $value IN ["app", "topic"] DEFAULT ALWAYS "app";
+DEFINE FIELD topic ON pin
+    TYPE option<record<topic>> REFERENCE ON DELETE CASCADE;
 DEFINE FIELD user ON pin
     TYPE record<user>;
 DEFINE FIELD active ON pin
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD time ON pin
     TYPE datetime DEFAULT ALWAYS time::now();
+
+DEFINE INDEX pinItemScopeTopic ON TABLE pin
+    FIELDS item, scope, topic UNIQUE;
+DEFINE INDEX pinScopeTopicActive ON TABLE pin
+    FIELDS scope, topic, active;
 
 
 -- ------------------------------

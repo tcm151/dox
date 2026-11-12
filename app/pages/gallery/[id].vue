@@ -96,6 +96,12 @@ async function archiveGallery() {
     await refresh()
 }
 
+async function pinGallery() {
+    if (!gallery.value) return
+    await useApi(`/api/gallery/${extractId(gallery.value.id)}/pin`)
+    hints.addSuccess("This gallery has been pinned.")
+}
+
 function deleteGallery() {
     if (!gallery.value) return
     const galleryId = extractId(gallery.value.id)
@@ -119,10 +125,10 @@ function copyLink() {
 
 <template>
     <article v-if="gallery" class="column inline g-2 p-2">
-        <main class="gallery box column p-4">
+        <main class="gallery box column g-2 p-4">
             <ContentHeader class="header" :content="gallery" context="detail" />
             <ContentVisibility class="column f-1" :tags="gallery.tags" direct>
-                <section class="mosaic grid mt-3" :class="{
+                <section class="mosaic grid" :class="{
                     single: gallery.images.length === 1,
                     pair: gallery.images.length === 2,
                     trio: gallery.images.length === 3,
@@ -137,7 +143,7 @@ function copyLink() {
                         >
                     </figure>
                 </section>
-                <Markdown v-if="gallery.description" class="content" :content="gallery.description" />
+                <Markdown v-if="gallery.description" compact class="content" :content="gallery.description" />
             </ContentVisibility>
             <footer class="actions">
                 <div class="column g-2">
@@ -151,7 +157,7 @@ function copyLink() {
                             <span>Share</span>
                         </button>
                         <ClientOnly>
-                            <button class="options" @click="showOptions = !showOptions">
+                            <button class="options" title="Options" @click="showOptions = !showOptions">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
                             <OverlayTransition>
@@ -162,6 +168,7 @@ function copyLink() {
                                     @report="reportGallery"
                                     @delete="deleteGallery"
                                     @archive="archiveGallery"
+                                    @pin="pinGallery"
                                     @close="showOptions = false"
                                 />
                             </OverlayTransition>
@@ -169,10 +176,10 @@ function copyLink() {
                     </div>
                     <p v-if="!showCommentBox && commentState.warning" class="warning br-small px-3 py-2" role="status">{{ commentState.warning }}</p>
                     <CollapseTransition>
-                        <div v-if="showCommentBox" class="field">
-                            <textarea v-model="comment" rows="5"></textarea>
-                            <p v-if="commentState.warning" class="warning mt-2" role="status">{{ commentState.warning }}</p>
-                            <div class="row g-2 mt-2">
+                        <div v-if="showCommentBox" class="column g-2">
+                            <MarkdownEditor :rows="5" v-model="comment" />
+                            <p v-if="commentState.warning" class="warning" role="status">{{ commentState.warning }}</p>
+                            <div class="row g-2">
                                 <ButtonSpinner class="success f-1" :loading="submitting" :disabled="commentState.disabled" @click="submitComment(gallery, comment)">
                                     <i class="fa-solid fa-comment"></i>
                                     <span>Submit</span>

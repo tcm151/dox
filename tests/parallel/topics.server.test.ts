@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, ModeratorLog, Post, Thread, Topic } from "../../shared/types"
+import type { Comment, ModeratorLog, Pin, Post, Thread, Topic } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const member = (await grabExampleServer("default")).users.sampleUser01
@@ -73,11 +73,13 @@ it("creates and traverses a referenced topic, then removes it when its post is d
             body: {
                 description: "Topic settings test",
                 moderation: updatedDefaults,
+                rules: "Be kind and stay on topic.",
             },
         })
-        expectStatus(updateResponse, 200, "topic defaults update stage")
+        expectStatus(updateResponse, 200)
         const updatedTopic = await admin.fetch<Topic>(`/api/topic/${topicId}`)
         expect(updatedTopic.moderation).toEqual(updatedDefaults)
+        expect(updatedTopic.rules).toBe("Be kind and stay on topic.")
 
         const invalidUpdateResponse = await admin.fetchRaw(`/api/topic/${topicId}/update`, {
             method: "POST",
@@ -87,6 +89,7 @@ it("creates and traverses a referenced topic, then removes it when its post is d
                     ...updatedDefaults,
                     priorityReportThreshold: 0,
                 },
+                rules: "Invalid update should not persist.",
             },
         })
         expectStatus(invalidUpdateResponse, 400, "topic defaults validation stage")
@@ -109,6 +112,111 @@ it("creates and traverses a referenced topic, then removes it when its post is d
             ...(otherPostId ? [`DELETE post:${otherPostId};`] : []),
             `DELETE topic:${topicId};`,
             `DELETE topic:${otherTopicId};`,
+        ].join("\n"))
+    }
+})
+
+it("lets topic moderators manage the active state of topic-scoped pins", async () => {
+    const topicId = `topicPins${Date.now()}`
+    let postId: string | undefined
+    let pinId: string | undefined
+    let moderatorId: string | undefined
+    let moderatorToken: string | undefined
+
+    try {
+        const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
+            method: "POST",
+            body: {
+                title: `Topic pin ${Date.now()}`,
+                content: "Topic pin management test.",
+                topics: [`topic:${topicId}`],
+                images: [],
+            },
+        })
+        expectStatus(postResponse, 200, "topic pin content stage")
+        postId = extractId(postResponse._data!.id)
+
+        const moderatorName = `TopicPinModerator${Date.now()}`
+        const registerResponse = await fetch("/api/user/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: moderatorName,
+                email: `${moderatorName.toLowerCase()}@example.invalid`,
+                password: "TopicPinModerator-test-password",
+            }),
+        })
+        expectStatus(registerResponse, 200, "topic moderator registration stage")
+        moderatorToken = await registerResponse.text()
+
+        const profileResponse = await fetch("/api/profile/authenticate", {
+            headers: { Authorization: moderatorToken },
+        })
+        expectStatus(profileResponse, 200, "topic moderator authentication stage")
+        moderatorId = (await profileResponse.json() as { id: string }).id
+        await admin.query(`
+            UPDATE ${moderatorId} SET roles = ["moderator"];
+            UPDATE topic:${topicId} SET moderators += ${moderatorId};
+        `)
+
+        const addResponse = await fetch(`/api/topic/${topicId}/pins/add`, {
+            method: "POST",
+            headers: { Authorization: moderatorToken, "Content-Type": "application/json" },
+            body: JSON.stringify({ item: postResponse._data!.id }),
+        })
+        expectStatus(addResponse, 200, "topic pin creation stage")
+
+        const managedResponse = await fetch(`/api/topic/${topicId}/pins/manage`, {
+            headers: { Authorization: moderatorToken },
+        })
+        expectStatus(managedResponse, 200, "topic pin management stage")
+        const managedPins = await managedResponse.json() as Pin[]
+        expect(managedPins).toHaveLength(1)
+        pinId = extractId(managedPins[0].id)
+        expect(managedPins[0]).toMatchObject({ scope: "topic", active: true })
+        expect(managedPins[0].topic).toMatchObject({ id: `topic:${topicId}` })
+
+        expectStatus(await member.fetchRaw(`/api/topic/${topicId}/pins/manage`), 403, "topic pin management authorization stage")
+
+        const updateResponse = await fetch(`/api/topic/${topicId}/pins/${pinId}/update`, {
+            method: "POST",
+            headers: { Authorization: moderatorToken, "Content-Type": "application/json" },
+            body: JSON.stringify({ active: false }),
+        })
+        expectStatus(updateResponse, 200, "topic pin active toggle stage")
+        expect(await updateResponse.json()).toBe(false)
+
+        const inactiveResponse = await fetch(`/api/topic/${topicId}/pins/manage`, {
+            headers: { Authorization: moderatorToken },
+        })
+        expectStatus(inactiveResponse, 200, "inactive topic pin management stage")
+        const inactivePins = await inactiveResponse.json() as Pin[]
+        expect(inactivePins).toHaveLength(1)
+        expect(inactivePins[0].active).toBe(false)
+        expect(await admin.fetch<Pin[]>(`/api/topic/${topicId}/pins`)).toHaveLength(0)
+
+        const deleteResponse = await fetch(`/api/topic/${topicId}/pins/${pinId}/delete`, {
+            method: "POST",
+            headers: { Authorization: moderatorToken },
+        })
+        expectStatus(deleteResponse, 200, "topic pin removal stage")
+        const remainingPinsResponse = await fetch(`/api/topic/${topicId}/pins/manage`, {
+            headers: { Authorization: moderatorToken },
+        })
+        expectStatus(remainingPinsResponse, 200, "topic pin removal verification stage")
+        expect(await remainingPinsResponse.json()).toHaveLength(0)
+    }
+    finally {
+        await admin.query([
+            `DELETE pin WHERE topic = topic:${topicId};`,
+            ...(postId ? [`DELETE post:${postId};`] : []),
+            `DELETE topic:${topicId};`,
+            ...(moderatorToken ? [`DELETE session WHERE id = ${moderatorToken};`] : []),
+            ...(moderatorId ? [
+                `DELETE userSettings WHERE user = ${moderatorId};`,
+                `DELETE account WHERE user = ${moderatorId};`,
+                `DELETE ${moderatorId};`,
+            ] : []),
         ].join("\n"))
     }
 })

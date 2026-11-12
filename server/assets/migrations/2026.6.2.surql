@@ -361,6 +361,9 @@ DEFINE FIELD OVERWRITE status ON topic
     TYPE string ASSERT $value IN ["active", "locked"] DEFAULT ALWAYS "active";
 UPDATE topic SET status = "active" WHERE status = NONE;
 
+DEFINE FIELD OVERWRITE rules ON topic
+    TYPE option<string>;
+
 DEFINE FIELD OVERWRITE moderation.maxPostInterval ON topic
     TYPE number DEFAULT ALWAYS 60 ASSERT $value >= 0 AND $value <= 3600;
 DEFINE FIELD OVERWRITE moderation.priorityReportThreshold ON topic
@@ -369,6 +372,19 @@ UPDATE topic SET moderation = {
     maxPostInterval: 60,
     priorityReportThreshold: 5,
 } WHERE moderation = NONE;
+
+REMOVE INDEX IF EXISTS item ON TABLE pin;
+DEFINE FIELD OVERWRITE item ON pin
+    TYPE record<post|thread|gallery>;
+DEFINE FIELD IF NOT EXISTS scope ON pin
+    TYPE string ASSERT $value IN ["app", "topic"] DEFAULT ALWAYS "app";
+UPDATE pin SET scope = "app" WHERE scope = NONE;
+DEFINE FIELD IF NOT EXISTS topic ON pin
+    TYPE option<record<topic>> REFERENCE ON DELETE CASCADE;
+DEFINE INDEX IF NOT EXISTS pinItemScopeTopic ON TABLE pin
+    FIELDS item, scope, topic UNIQUE;
+DEFINE INDEX IF NOT EXISTS pinScopeTopicActive ON TABLE pin
+    FIELDS scope, topic, active;
 
 DEFINE TABLE OVERWRITE audio SCHEMAFULL;
 DEFINE FIELD OVERWRITE user ON audio
