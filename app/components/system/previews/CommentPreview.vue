@@ -114,22 +114,24 @@ async function submitComment(replyId: Post | Gallery | Comment, content: string)
                 {{ formatDate(comment.timeEdited) }}
             </Tag>
             <DurationTag v-else :time="comment.time" />
-            <button v-if="!comment.deleted && comment.status === 'active'" type="button" class="link small reply-action" :disabled="replyState.disabled" @click="replyToComment">
+            <button v-if="!comment.deleted && comment.status === 'active'" type="button" class="meta tag" :disabled="replyState.disabled" @click="replyToComment">
                 <i class="fa-solid fa-reply"></i>
                 <span>Reply</span>
             </button>
             <Tag v-if="comment.status === 'quarantined'" type="danger" label="Removed" />
-            <ClientOnly>
-                <template v-if="session.isAuthenticated && !comment.deleted && comment.status === 'active'">
-                    <Tag class="link" icon="fa-ellipsis" title="Options" @click="emit('options', comment)" />
+            <Authenticated>
+                <template v-if="!comment.deleted && comment.status === 'active'">
+                    <Tag class="meta" icon="fa-ellipsis" title="Options" @click="emit('options', comment)" />
                 </template>
-            </ClientOnly>
+            </Authenticated>
             <ModerationState :moderation="comment.moderation" content-type="comment" />
         </header>
         <template v-if="!editing && comment.status !== 'quarantined'">
             <Markdown class="p-3" :content="comment.content" />
         </template>
-        <p v-else-if="comment.status === 'quarantined'" class="p-3">[This comment was removed by moderators.]</p>
+        <p v-else-if="comment.status === 'quarantined'" class="p-3">
+            [This comment was removed by moderators.]
+        </p>
         <CollapseTransition>
             <ReplyComposer
                 v-if="replyTo"

@@ -233,7 +233,7 @@ function toggleOptions() {
                                 <i class="fa-solid fa-comment"></i>
                                 <span>Comment</span>
                             </button>
-                            <button class="reply" @click="writePostReply">
+                            <button class="reply" :disabled="commentState.disabled" @click="writePostReply">
                                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                                 <span>Reply</span>
                             </button>
