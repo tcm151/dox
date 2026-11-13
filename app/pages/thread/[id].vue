@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ThreadReply from './components/ThreadReply.vue'
+import ThreadChain from './components/ThreadChain.vue'
 import type { Thread } from '@@/shared/types'
 import { useSlowMode } from '@@/app/utils/slow'
 
@@ -225,7 +225,7 @@ function toggleOptions() {
         <template v-for="ancestor in thread.ancestors ?? []" :key="ancestor.id">
             <Tag v-if="isThreadLoadMore(ancestor)" class="dark mb-2" icon="fa-ellipsis" label="Earlier context omitted" />
             <section v-else class="mb-2">
-                <ThreadReply :thread="ancestor" />
+                <ThreadChain :thread="ancestor" />
             </section>
         </template>
         <section class="main box column px-4 pt-4">
@@ -324,7 +324,7 @@ function toggleOptions() {
             </footer>
         </section>
         <section class="column g-2 mt-2">
-            <ThreadReply v-for="reply in thread.replies" :key="reply.id" :thread="reply" :chain-items="reply.chain" @reply="refresh" />
+            <ThreadChain v-for="reply in thread.replies" :key="reply.id" :thread="reply" @reply="refresh" />
         </section>
     </article>
     <article v-else class="content-width column p-4">
