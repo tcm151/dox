@@ -99,11 +99,5 @@ async function updateProfile() {
 <style scoped lang="scss">
 .field input[type=number] {
     width: 6rem;
-    text-align: center;
-    appearance: auto;
-
-    &::-webkit-inner-spin-button {
-        opacity: 1;
-    }
 }
 </style>

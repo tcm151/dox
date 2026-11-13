@@ -20,6 +20,7 @@ type Cursor = {
 
 const props = defineProps<{
     label?: string
+    tip?: string
     rows?: number
     placeholder?: string
     disabled?: boolean
@@ -253,6 +254,7 @@ function handleKeydown(event: KeyboardEvent) {
             v-model="content"
             @keydown="handleKeydown"
         />
+        <span v-if="tip" class="tip">{{ tip }}</span>
     </div>
 </template>
 
@@ -271,12 +273,12 @@ div.markdown-editor {
     button.tool {
         display: grid;
         place-items: center;
-        flex: 0 0 2rem;
-        width: 2rem;
-        height: 2rem;
+        flex: 0 0 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
 
         i {
-            font-size: 1rem;
+            font-size: 0.8rem;
         }
 
         span {
