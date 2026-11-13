@@ -72,9 +72,8 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 - 🟩 Publish the API endpoint inventory with auth requirements and response contracts. (`0021`, `M`)
 - 🟩 Add contract tests for high-risk routes (auth, moderation, media upload, vote/report). (`0022`, `L`)
 - 🟩 Add structured, redacted handled-error context and request correlation for API errors. Successful-request logging is deferred. (`0023`, `M`)
-- 🟥 Define baseline metrics and operational SLOs for latency, error rate, and migration success. (`M`)
 
-**Success metric**: contributors can identify API contracts and evaluate changes to core routes against tested behavior and operational baselines.
+**Success metric**: contributors can identify API contracts and evaluate changes to core routes against tested behavior.
 
 ### C2. Account Safety and Personal Controls
 - 🟩 Add account deletion choices for retaining authored content or removing it while preserving discussion history. (`0013`, `M`)
@@ -106,7 +105,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 
 **Success metric**: core link and audio publishing paths are complete end to end, including visibility, moderation, feed integration, and media cleanup; deferred content types are not presented as supported workflows.
 
-**Phase C exit criteria**: core account, discovery, inbox, link, and audio workflows are usable and tested; API contracts and operational baselines are documented; unfinished optional publishing paths remain disabled or clearly unavailable.
+**Phase C exit criteria**: core account, discovery, inbox, link, and audio workflows are usable and tested; API contracts are documented; unfinished optional publishing paths remain disabled or clearly unavailable.
 
 ## Phase D: Long-Term Monetization (Deferred)
 

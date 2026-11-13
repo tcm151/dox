@@ -247,7 +247,7 @@ Server-side:
 Client-side:
 - `app/plugins/errorHandler.ts` and hint systems expose user-facing feedback.
 
-Errors are captured today. Broader observability, including metrics, SLO dashboards, and endpoint performance traces, remains on the roadmap.
+Errors are captured today. The app does not expose a metrics exporter or record successful requests.
 
 ## 10. Security Model
 
