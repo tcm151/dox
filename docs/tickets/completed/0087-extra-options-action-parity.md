@@ -14,6 +14,19 @@ Review the shared Extra Options menu across posts, threads, galleries, and comme
 - [x] Keep client-side action visibility aligned with server authorization and cover changed workflows with focused tests.
 - [x] Use session-provided moderator topic assignments for client visibility while keeping server authorization authoritative.
 
+## Tasks
+- [x] Audit current action availability, route support, and authorization for each content type.
+- [x] Add missing action support where appropriate and align the shared Extra Options UI.
+- [x] Standardize action ordering and grouping across content types.
+- [x] Add or update focused UI and server tests for the changed actions.
+- [x] Replace the per-target moderation-access request with session moderator-topic data, including parent topic scope for comments.
+
+## Notes
+- This ticket follows the decision to expand action support where possible and revisit parity separately from the current tag workflow.
+- Ticket 0067 covers broader moderation and messaging UI completeness, including thread archive controls; coordinate with it, but it is not a prerequisite.
+- Preserve type-specific behavior where an action has no meaningful or authorized equivalent.
+- Client visibility is a UX approximation: server routes remain authoritative for current item state, topic membership, and award constraints. Topic-pin visibility intentionally does not pre-check content status.
+
 ## Action Matrix
 | Action | Post | Thread | Gallery | Comment |
 | --- | --- | --- | --- | --- |
@@ -29,19 +42,6 @@ Review the shared Extra Options menu across posts, threads, galleries, and comme
 | Tags | Admin or assigned moderator | Admin or assigned moderator | Admin or assigned moderator | Not supported |
 
 Award routes enforce token balance, self-award, and duplicate-award rules. Comment moderation inherits the parent content's topic scope. Admins bypass topic assignment checks for topic-scoped actions. The menu uses the shared action order: pin, edit/delete, award, report, archive, moderation, tags.
-
-## Tasks
-- [x] Audit current action availability, route support, and authorization for each content type.
-- [x] Add missing action support where appropriate and align the shared Extra Options UI.
-- [x] Standardize action ordering and grouping across content types.
-- [x] Add or update focused UI and server tests for the changed actions.
-- [x] Replace the per-target moderation-access request with session moderator-topic data, including parent topic scope for comments.
-
-## Notes
-- This ticket follows the decision to expand action support where possible and revisit parity separately from the current tag workflow.
-- Ticket 0067 covers broader moderation and messaging UI completeness, including thread archive controls; coordinate with it, but it is not a prerequisite.
-- Preserve type-specific behavior where an action has no meaningful or authorized equivalent.
-- Client visibility is a UX approximation: server routes remain authoritative for current item state, topic membership, and award constraints. Topic-pin visibility intentionally does not pre-check content status.
 
 ## Relevant Files
 - `app/components/system/ExtraOptions.vue`

@@ -6,7 +6,7 @@
 - Next: Compare every AppSettings field with the current database schema and identify legacy or schema-only fields.
 
 ## Dependencies
-- [0098](0098-audit-appsettings-usage-and-gaps.md): Complete the settings inventory and resolve contract mismatches before locking the database schema.
+- [0098](completed/0098-audit-appsettings-usage-and-gaps.md): Complete the settings inventory and resolve contract mismatches before locking the database schema.
 
 ## Goal
 Make the database enforce the complete nested AppSettings contract instead of accepting arbitrary fields inside flexible settings objects.
@@ -16,12 +16,13 @@ Make the database enforce the complete nested AppSettings contract instead of ac
 - [ ] The database rejects undeclared nested settings and invalid field types, including on writes that bypass SettingsManager.
 - [ ] The shared contract, defaults, SettingsManager validation, database schema, and migrated settings records agree.
 - [ ] Existing installations retain valid settings through a replay-safe forward migration, and fresh installs start with the same strict shape.
-- [ ] Tests cover unknown nested fields, invalid types, valid updates, and migration of current default settings.
+- [ ] Tests cover unknown nested fields, invalid types and bounds (including email spool limits), valid updates, and migration of current default settings.
 
 ## Tasks
 - [ ] Inventory AppSettings fields across the shared contract, defaults, admin controls, validator, and current database records.
 - [ ] Resolve schema-only or legacy fields, including `topics.enabled`, against the audited contract.
-- [ ] Replace flexible nested settings objects with explicit field definitions and align SettingsManager validation.
+- [ ] Replace flexible nested settings objects with explicit field definitions and align SettingsManager validation, including email spool limits.
+- [ ] Align shared field types with editable controls, including boolean feedback settings.
 - [ ] Add a replay-safe migration that preserves valid settings and removes or maps undeclared legacy data.
 - [ ] Add focused database and API tests for strict shape enforcement and migration behavior.
 
