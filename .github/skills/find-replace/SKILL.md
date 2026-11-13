@@ -19,4 +19,7 @@ argument-hint: "Optional scope: files, symbols, or requested change"
 # A Failed Patch
 Patch tools may apply earlier hunks before a later hunk fails. Inspect status and focused diffs to identify edits already applied, then retry only failed or unattempted hunks against the current contents.
 
+- If a reread confirms the exact target but the same kind of hunk fails again with `Invalid context`, do not keep trying equivalent anchors. Split the work into one file and one small hunk per patch, and anchor on adjacent literal source lines. If that still fails, stop and ask before using another edit method; do not fall back to shell-based text replacement.
+- For a requested file move, confirm the destination does not exist and use a dedicated move operation rather than deleting and recreating the file. Verify the source, destination, and worktree state afterward.
+
 When a patch fails in an active session, reference this file and update it to account for genuinely new guidance.

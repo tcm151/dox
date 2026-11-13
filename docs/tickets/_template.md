@@ -23,12 +23,27 @@
 ## Tasks
 <!-- List of actionable tasks required to complete the ticket -->
 - [ ] `task 1`
+<!-- Any task may have sub-tasks to help stay organized -->
+  - [ ] `sub-task 1`
+  - [ ] `sub-task 2`
+  - [ ] `sub-task 3`
 - [ ] `task 2`
 - [ ] `task 3`
 
 ## Notes
 <!-- Keep items concise and separated by bullet points -->
 - `relevant information, context, or notes about the ticket`
+
+## `additional section`
+<!-- Additional section maybe be added if the established sections don't fit -->
+### `sub-section`
+<!-- Keep information grouped in relevant chunks -->
+- `some information`
+- `some information`
+### `sub-section`
+<!-- Add multiple sub sections to keep things organized -->
+- `some information`
+- `some information`
 
 ## Relevant Files
 - `path/to/primary/file`

@@ -23,7 +23,8 @@ Use this skill to add a project ticket under `docs/tickets/`.
    - `Priority: High`, `Medium`, or `Low` based on the request; default to `Medium` if unspecified.
    - `Next:` one immediate action, or `None` when complete.
 7. List only tickets that must finish first as dependencies. Use `- [NNNN](relative-ticket-path.md): Reason`; omit the section if none are required. Check all ticket folders for unknown numbers, self-dependencies, and cycles. Put related or parallel work in `Notes`.
-8. Write a short `Goal`, testable `Requirements`, actionable `Tasks`, concise `Notes`, and relevant file paths. Leave new requirement and task checkboxes unchecked.
+8. Write a short `Goal`, testable `Requirements`, actionable `Tasks`, concise `Notes`, and relevant file paths.
+9. Use indented sub-task checkboxes under a task when it has independently trackable steps; keep simple tasks flat. Leave all new checkboxes unchecked.
 9. Add `YYYY-MM-DD: Ticket created.` to `Progress Log` using today's date. Keep the newest entry first.
 10. Report the ticket number, path, and assumptions to check.
 
@@ -34,4 +35,5 @@ Use this skill to add a project ticket under `docs/tickets/`.
 - Make `Next` one immediate action, not a broad plan.
 - Use only `Planned`, `In Progress`, and `Completed`. Every ticket, including completed tickets, needs `Next` and `Requirements`.
 - When editing a ticket, preserve completed checkboxes and progress history. Keep dated entries newest first; do not copy template guidance into the ticket.
+- Mark a parent task complete only when its work and all of its sub-tasks are complete.
 - If a relevant path is unknown, use `- TBD`; do not invent it.

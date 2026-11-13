@@ -20,7 +20,7 @@ Use this to summarize ticket status from `docs/tickets/` as a concise standup re
    - folder: root, `backlog`, or `completed`
    - `State`, `Priority`, and `Next` from `## Status`
    - dependencies and reasons, when present; look up each dependency's state
-   - requirements, tasks, and the newest dated progress entry
+   - requirements and task checklists, including nested sub-tasks, and the newest dated progress entry
 4. Assign lanes by state, using the folder to distinguish planned work from backlog:
    - `In Progress`: `State: In Progress`
    - `Paused`: `State: Paused`
@@ -32,7 +32,7 @@ Use this to summarize ticket status from `docs/tickets/` as a concise standup re
    - tickets in `completed/` not marked `Completed`
    - root or backlog tickets marked `Completed`
    - missing `State`, `Priority`, or `Next`; completed tickets use `Next: None`
-   - fields, states, or section order that differ from the template; progress logs not newest first
+   - fields, states, or section order that differ from the template; ticket-specific sections are allowed after `Notes` and before `Relevant Files`; progress logs not newest first
    - unknown dependencies, self-dependencies, or cycles
 6. Use the user's requested focus, but keep enough context to make the report useful.
 7. Do not edit ticket files unless the user asks for cleanup or reorganization. Before editing a ticket, read `docs/tickets/_template.md` and follow it without copying its comments or placeholders.

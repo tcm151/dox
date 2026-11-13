@@ -87,7 +87,16 @@ foreach ($file in $files) {
    $missingSections = @($requiredSections | Where-Object { $_ -notin $headings })
    $presentExpected = @($expectedSections | Where-Object { $_ -in $headings })
    $actualExpected = @($headings | Where-Object { $_ -in $expectedSections })
-   $unexpectedSections = @($headings | Where-Object { $_ -notin $expectedSections })
+   $notesIndex = [array]::IndexOf($headings, 'Notes')
+   $relevantFilesIndex = [array]::IndexOf($headings, 'Relevant Files')
+   $unexpectedSections = @(
+      for ($index = 0; $index -lt $headings.Count; $index++) {
+         if ($headings[$index] -notin $expectedSections -and
+            ($notesIndex -lt 0 -or $index -le $notesIndex -or $relevantFilesIndex -le $index)) {
+            $headings[$index]
+         }
+      }
+   )
    $sectionOrderValid = (($presentExpected -join '|') -eq ($actualExpected -join '|'))
 
    $progressSection = Get-SectionContent -Text $text -Name 'Progress Log'
