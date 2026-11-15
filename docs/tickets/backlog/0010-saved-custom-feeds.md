@@ -6,7 +6,7 @@
 - Next: Reuse the filter and URL contract established by Ticket 0015
 
 ## Dependencies
-- [0015](../0015-search-filters-url-sync.md): Saved presets must use the shared filter schema and query-string behavior.
+- [0015](../completed/0015-search-filters-url-sync.md): Saved presets must use the shared filter schema and query-string behavior.
 
 ## Goal
 Enable users to save reusable feed presets with filter and sort settings.

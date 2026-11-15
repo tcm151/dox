@@ -30,6 +30,46 @@ export default defineNuxtPlugin((nuxtApp) => {
         }
     })
 
+    const scrollPositions = new Map<string, number>()
+    const scrollPositionKeys = new WeakMap<HTMLElement, string>()
+
+    function saveScrollPosition(element: HTMLElement, key: string) {
+        scrollPositions.set(key, element.scrollTop)
+    }
+
+    function restoreScrollPosition(element: HTMLElement, key: string) {
+        if (element.isConnected && scrollPositionKeys.get(element) === key) {
+            element.scrollTop = scrollPositions.get(key) ?? 0
+        }
+    }
+
+    function scheduleScrollRestore(element: HTMLElement, key: string) {
+        nuxtApp.hooks.hookOnce("page:transition:finish", () => restoreScrollPosition(element, key))
+    }
+
+    nuxtApp.vueApp.directive("scrollPosition", {
+        mounted(element: HTMLElement, binding: DirectiveBinding<string>) {
+            scrollPositionKeys.set(element, binding.value)
+            requestAnimationFrame(() => restoreScrollPosition(element, binding.value))
+            scheduleScrollRestore(element, binding.value)
+        },
+        beforeUpdate(element: HTMLElement, binding: DirectiveBinding<string>) {
+            const previousKey = scrollPositionKeys.get(element)
+            if (previousKey && previousKey !== binding.value) saveScrollPosition(element, previousKey)
+        },
+        updated(element: HTMLElement, binding: DirectiveBinding<string>) {
+            if (scrollPositionKeys.get(element) === binding.value) return
+
+            scrollPositionKeys.set(element, binding.value)
+            scheduleScrollRestore(element, binding.value)
+        },
+        beforeUnmount(element: HTMLElement) {
+            const key = scrollPositionKeys.get(element)
+            if (key) saveScrollPosition(element, key)
+            scrollPositionKeys.delete(element)
+        },
+    })
+
     interface DragScrollState {
         pointerId: number | undefined
         startX: number

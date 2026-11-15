@@ -33,7 +33,7 @@ const tabs = ref<TabItem[]>([
 <template>
     <article class="feed column inline">
         <PagedTabstrip :tabs="tabs" />
-        <section class="page column inline">
+        <section v-scroll-position="route.fullPath" class="page column inline">
             <NuxtPage :key="route.path" />
         </section>
     </article>

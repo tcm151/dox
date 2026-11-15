@@ -22,7 +22,7 @@ Keep feed and inbox views current during normal browsing without requiring full-
 
 ## Notes
 - This ticket covers bounded client refresh behavior, not push-based realtime delivery.
-- Saved/custom feed presets and URL state are tracked separately in [Ticket 0010](backlog/0010-saved-custom-feeds.md) and [Ticket 0015](0015-search-filters-url-sync.md).
+- Saved/custom feed presets and URL state are tracked separately in [Ticket 0010](backlog/0010-saved-custom-feeds.md) and [Ticket 0015](completed/0015-search-filters-url-sync.md).
 - Coordinate inbox-specific refresh changes with the inbox and notification audit in [Ticket 0083](0083-audit-existing-messaging-workflows.md); feed refresh work can proceed independently.
 
 ## Relevant Files
