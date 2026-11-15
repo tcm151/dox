@@ -4,6 +4,7 @@ import UploadedImages from "./components/UploadedImages.vue"
 import type { User, Thread } from '@@/shared/types'
 
 const hints = useHints()
+const settings = useSettings()
 const session = getSession()
 
 let newThread = ref<Thread>({
@@ -48,6 +49,10 @@ async function submit() {
     }
     if (topics.items.length == 0) {
         hints.addWarning("You must include at least one topic.")
+        return
+    }
+    if (!settings.app.media.images.attachments.threads && images.uploaded.length > 0) {
+        hints.addWarning("Image attachments to threads are disabled.")
         return
     }
 
@@ -100,7 +105,7 @@ async function submit() {
             </ContentVisibility>
         </template>
         <template #footer-actions>
-            <button class="link f-1 b-0" @click="images.select">
+            <button v-if="settings.app.media.images.attachments.threads" class="link f-1 b-0" @click="images.select">
                 <i class="fa-solid fa-images"></i>
                 <span>Upload</span>
             </button>

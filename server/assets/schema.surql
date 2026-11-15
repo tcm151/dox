@@ -933,123 +933,137 @@ DEFINE FIELD data ON error
 -- ------------------------------
 DEFINE TABLE appSettings SCHEMAFULL;
 DEFINE FIELD about ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD about.summary ON appSettings
+    TYPE string DEFAULT ALWAYS "";
 DEFINE FIELD email ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD email.support ON appSettings
+    TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD email.additional ON appSettings
+    TYPE string DEFAULT ALWAYS "";
+DEFINE FIELD email.spool ON appSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD email.spool.dailyLimit ON appSettings
+    TYPE int DEFAULT ALWAYS 100 ASSERT $value >= 1 AND $value <= 100000;
+DEFINE FIELD email.spool.batchLimit ON appSettings
+    TYPE int DEFAULT ALWAYS 10 ASSERT $value >= 1 AND $value <= 1000;
+DEFINE FIELD email.spool.maxRetries ON appSettings
+    TYPE int DEFAULT ALWAYS 3 ASSERT $value >= 0 AND $value <= 10;
 DEFINE FIELD moderation ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD moderation.perTopic ON appSettings
+    TYPE int DEFAULT ALWAYS 3 ASSERT $value >= 0;
+DEFINE FIELD moderation.threshold ON appSettings
+    TYPE int DEFAULT ALWAYS 2 ASSERT $value >= 1;
+DEFINE FIELD moderation.slowModes ON appSettings
+    TYPE array<int> DEFAULT ALWAYS [30, 60, 300, 900]
+    ASSERT $value.all(|$interval| $interval > 0);
+DEFINE FIELD content ON appSettings
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD content.visibility ON appSettings
-    TYPE object FLEXIBLE DEFAULT ALWAYS {
-        nsfw: "mask",
-        spoiler: "mask",
-    };
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD content.visibility.nsfw ON appSettings
+    TYPE string DEFAULT ALWAYS "mask" ASSERT $value IN ["show", "mask", "filter"];
+DEFINE FIELD content.visibility.spoiler ON appSettings
+    TYPE string DEFAULT ALWAYS "mask" ASSERT $value IN ["show", "mask", "filter"];
 DEFINE FIELD voting ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD voting.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD voting.misleading ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD voting.negative ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
 DEFINE FIELD topics ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD topics.perSubmission ON appSettings
+    TYPE int DEFAULT ALWAYS 3 ASSERT $value >= 0 AND $value <= 5;
+DEFINE FIELD topics.restrict ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD topics.allowed ON appSettings
+    TYPE array<string> DEFAULT ALWAYS [];
 DEFINE FIELD feeds ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD feeds.search ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD feeds.discover ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD feeds.topics ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD feeds.posts ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD feeds.links ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD feeds.threads ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD feeds.images ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD feeds.audio ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD feeds.video ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD feeds.polls ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD posts ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD posts.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
 DEFINE FIELD links ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD links.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD threads ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD threads.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD media ON appSettings
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD media.tokens ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD media.tokens.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD media.images ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD media.images.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD media.images.uploadLimit ON appSettings
+    TYPE int DEFAULT ALWAYS 10 ASSERT $value >= 0 AND $value <= 100;
+DEFINE FIELD media.images.attachments ON appSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD media.images.attachments.posts ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD media.images.attachments.threads ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD media.gallery ON appSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD media.gallery.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
 DEFINE FIELD media.audio ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD media.audio.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD media.audio.uploadLimit ON appSettings
+    TYPE int DEFAULT ALWAYS 100 ASSERT $value >= 0 AND $value <= 500;
 DEFINE FIELD media.video ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD media.video.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD media.video.uploadLimit ON appSettings
+    TYPE int DEFAULT ALWAYS 500 ASSERT $value >= 0;
 DEFINE FIELD polls ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD polls.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD misc ON appSettings
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD misc.feedback ON appSettings
-    TYPE object FLEXIBLE;
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD misc.feedback.enabled ON appSettings
+    TYPE bool DEFAULT ALWAYS true;
+DEFINE FIELD misc.feedback.allowAnonymous ON appSettings
+    TYPE bool DEFAULT ALWAYS false;
 
 IF !record::exists(appSettings:default) {
-    CREATE appSettings:default CONTENT {
-        about: {
-            summary: "",
-        },
-        email: {
-            support: "",
-            additional: "",
-            spool: {
-                dailyLimit: 100,
-                batchLimit: 10,
-                maxRetries: 3,
-            }
-        },
-        moderation: {
-            perTopic: 3,
-            threshold: 2,
-            slowModes: [30, 60, 300, 900],
-        },
-        content: {
-            visibility: {
-                nsfw: "mask",
-                spoiler: "mask",
-            }
-        },
-        voting: {
-            enabled: true,
-            misleading: true,
-            negative: true,
-        },
-        topics: {
-            enabled: true,
-            perSubmission: 3,
-            restrict: false,
-            allowed: [],
-        },
-        feeds: {
-            search: true,
-            discover: true,
-            topics: true,
-            posts: true,
-            links: false,
-            threads: true,
-            images: true,
-            audio: false,
-            video: false,
-            polls: false,
-        },
-        posts: {
-            enabled: true,
-        },
-        links: {
-            enabled: false,
-        },
-        threads: {
-            enabled: true,
-        },
-        media: {
-            tokens: {
-                enabled: false,
-            },
-            images: {
-                enabled: true,
-                uploadLimit: 10,
-            },
-            audio: {
-                enabled: false,
-                uploadLimit: 100,
-            },
-            video: {
-                enabled: false,
-                uploadLimit: 500,
-            }
-        },
-        polls: {
-            enabled: false,
-        },
-        misc: {
-            feedback: {
-                enabled: true,
-                allowAnonymous: false,
-            }
-        },
-    };
+    CREATE appSettings:default;
 };

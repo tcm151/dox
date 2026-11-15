@@ -3,6 +3,7 @@ import EditorFrame from "./components/EditorFrame.vue"
 import UploadedImages from "./components/UploadedImages.vue"
 
 const hints = useHints()
+const settings = useSettings()
 
 const images = useImageUploader('editorImages')
 const topics = useTopicManager()
@@ -17,6 +18,10 @@ const imageSlides = computed(() => images.uploaded.map((image, index) => ({
 
 const submitting = ref<boolean>(false)
 async function submit() {
+    if (!settings.app.media.images.enabled || !settings.app.media.gallery.enabled) {
+        hints.addMessage("Gallery publishing is not enabled.")
+        return
+    }
     if (images.uploaded.length == 0) {
         hints.addWarning("You must upload at least one image.")
         return
@@ -62,7 +67,7 @@ async function submit() {
     <EditorFrame title="Upload Gallery" :submitting="submitting" @submit="submit">
         <template #header-actions>
             <ContentTagSelector v-model="tags" />
-            <button @click="images.select">
+            <button v-if="settings.app.media.images.enabled" @click="images.select">
                 <i class="fa-solid fa-images"></i>
                 <span>Browse</span>
             </button>

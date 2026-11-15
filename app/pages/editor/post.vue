@@ -6,6 +6,7 @@ import type { User, Post, Draft } from '@@/shared/types'
 
 const hints = useHints()
 const valid = useValidation()
+const settings = useSettings()
 const session = getSession()
 
 const route = useRoute()
@@ -52,6 +53,10 @@ async function submit() {
     }
     if (topics.items.length == 0) {
         hints.addWarning("You must include at least one topic.")
+        return
+    }
+    if (!settings.app.media.images.attachments.posts && images.uploaded.length > 0) {
+        hints.addWarning("Image attachments to posts and replies are disabled.")
         return
     }
     try {
@@ -169,7 +174,7 @@ async function saveDraft() {
             </ContentVisibility>
         </template>
         <template #footer-actions>
-            <button class="link f-1 b-0" @click="images.select">
+            <button v-if="settings.app.media.images.attachments.posts" class="link f-1 b-0" @click="images.select">
                 <i class="fa-solid fa-images"></i>
                 <span>Upload</span>
             </button>

@@ -64,6 +64,13 @@ export const useSettings = defineStore("app.settings", () => {
             images: {
                 enabled: true,
                 uploadLimit: 10,
+                attachments: {
+                    posts: true,
+                    threads: true,
+                },
+            },
+            gallery: {
+                enabled: true,
             },
             audio: {
                 enabled: false,

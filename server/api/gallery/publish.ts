@@ -1,4 +1,5 @@
 import { Validator } from "@@/shared/utils/Validator"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 type PublishGalleryRequest = {
     images: string[]
@@ -11,6 +12,11 @@ type PublishGalleryRequest = {
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireTrait(auth, "confirmed")
+
+    const settings = await SettingsManager.get()
+    if (!settings.media.images.enabled || !settings.media.gallery.enabled) {
+        throw createError({ statusCode: 403, statusMessage: "Gallery publishing is disabled." })
+    }
 
     const body = await readBody<PublishGalleryRequest>(event)
 

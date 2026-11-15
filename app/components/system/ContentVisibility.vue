@@ -12,12 +12,16 @@ const props = withDefaults(defineProps<{
 const settings = useSettings()
 const userSettings = useUserSettings()
 
+function appVisibilityMode(tag: string) {
+    if (tag === "nsfw" || tag === "spoiler") return settings.app.content.visibility[tag]
+}
+
 const revealed = ref(false)
 const mode = computed(() => {
     let visibility: ContentVisibilityMode = "show"
 
     for (const tag of props.tags) {
-        const tagMode = userSettings.preferences.content.visibility[tag] ?? settings.app.content.visibility[tag]
+        const tagMode = userSettings.preferences.content.visibility[tag] ?? appVisibilityMode(tag)
         if (tagMode === "filter") return "filter"
         if (tagMode === "mask") visibility = "mask"
     }

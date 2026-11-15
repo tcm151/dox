@@ -11,6 +11,10 @@ export class SettingsManager {
             .addRecord("settings", `appSettings:${id}`)
             .queryOne<AppSettings>()
     }
+    static async canAttachImages(target: "posts" | "threads") {
+        const settings = await this.get()
+        return settings.media.images.enabled && settings.media.images.attachments[target]
+    }
     static async update(id: string, settings: AppSettings) {
         this.validate(settings)
 
@@ -51,17 +55,28 @@ export class SettingsManager {
 
     private static validate(settings: AppSettings) {
         const validator = new Validator("AppSettings")
-        validator.object(settings, "settings").confirm()
+        validator.object(settings, "settings")
+            .keys(settings, ["id", "about", "email", "moderation", "content", "voting", "topics", "feeds", "posts", "links", "threads", "media", "polls", "misc"])
+            .confirm()
 
         validator
             .object(settings.about, "about", (v, about) => {
+                v.keys(about, ["summary"])
                 v.string(about.summary, "summary")
             })
             .object(settings.email, "email", (v, email) => {
+                v.keys(email, ["support", "additional", "spool"])
                 v.string(email.support, "support")
                 v.string(email.additional, "additional")
+                v.object(email.spool, "spool", (v, spool) => {
+                    v.keys(spool, ["dailyLimit", "batchLimit", "maxRetries"])
+                    v.integer(spool.dailyLimit, "dailyLimit", { min: 1, max: 100000 })
+                    v.integer(spool.batchLimit, "batchLimit", { min: 1, max: 1000 })
+                    v.integer(spool.maxRetries, "maxRetries", { min: 0, max: 10 })
+                })
             })
             .object(settings.moderation, "moderation", (v, moderation) => {
+                v.keys(moderation, ["perTopic", "threshold", "slowModes"])
                 v.integer(moderation.perTopic, "perTopic", { min: 0 })
                 v.integer(moderation.threshold, "threshold", { min: 1 })
                 v.array(moderation.slowModes, "slowModes", (v, interval) => {
@@ -69,11 +84,13 @@ export class SettingsManager {
                 })
             })
             .object(settings.voting, "voting", (v, voting) => {
+                v.keys(voting, ["enabled", "misleading", "negative"])
                 v.boolean(voting.enabled, "enabled")
                 v.boolean(voting.misleading, "misleading")
                 v.boolean(voting.negative, "negative")
             })
             .object(settings.topics, "topics", (v, topics) => {
+                v.keys(topics, ["perSubmission", "restrict", "allowed"])
                 v.integer(topics.perSubmission, "perSubmission", { min: 0, max: 5 })
                 v.boolean(topics.restrict, "restrict")
                 v.array(topics.allowed, "allowed", (v, topic) => {
@@ -81,6 +98,7 @@ export class SettingsManager {
                 })
             })
             .object(settings.feeds, "feeds", (v, feeds) => {
+                v.keys(feeds, ["search", "discover", "topics", "posts", "links", "threads", "images", "audio", "video", "polls"])
                 v.boolean(feeds.search, "search")
                 v.boolean(feeds.discover, "discover")
                 v.boolean(feeds.topics, "topics")
@@ -93,49 +111,68 @@ export class SettingsManager {
                 v.boolean(feeds.polls, "polls")
             })
             .object(settings.posts, "posts", (v, posts) => {
+                v.keys(posts, ["enabled"])
                 v.boolean(posts.enabled, "enabled")
             })
             .object(settings.links, "links", (v, links) => {
+                v.keys(links, ["enabled"])
                 v.boolean(links.enabled, "enabled")
             })
             .object(settings.threads, "threads", (v, threads) => {
+                v.keys(threads, ["enabled"])
                 v.boolean(threads.enabled, "enabled")
             })
             .object(settings.media, "media", (v, media) => {
+                v.keys(media, ["tokens", "images", "gallery", "audio", "video"])
                 v.object(media.tokens, "tokens", (v, tokens) => {
+                    v.keys(tokens, ["enabled"])
                     v.boolean(tokens.enabled, "enabled")
                 })
                 v.object(media.images, "images", (v, images) => {
+                    v.keys(images, ["enabled", "uploadLimit", "attachments"])
                     v.boolean(images.enabled, "enabled")
                     v.integer(images.uploadLimit, "uploadLimit", { min: 0, max: 100 })
+                    v.object(images.attachments, "attachments", (v, attachments) => {
+                        v.keys(attachments, ["posts", "threads"])
+                        v.boolean(attachments.posts, "posts")
+                        v.boolean(attachments.threads, "threads")
+                    })
+                })
+                v.object(media.gallery, "gallery", (v, gallery) => {
+                    v.keys(gallery, ["enabled"])
+                    v.boolean(gallery.enabled, "enabled")
                 })
                 v.object(media.audio, "audio", (v, audio) => {
+                    v.keys(audio, ["enabled", "uploadLimit"])
                     v.boolean(audio.enabled, "enabled")
                     v.integer(audio.uploadLimit, "uploadLimit", { min: 0, max: 500 })
                 })
                 v.object(media.video, "video", (v, video) => {
+                    v.keys(video, ["enabled", "uploadLimit"])
                     v.boolean(video.enabled, "enabled")
                     v.integer(video.uploadLimit, "uploadLimit", { min: 0 })
                 })
             })
             .object(settings.polls, "polls", (v, polls) => {
+                v.keys(polls, ["enabled"])
                 v.boolean(polls.enabled, "enabled")
             })
             .object(settings.misc, "misc", (v, misc) => {
+                v.keys(misc, ["feedback"])
                 v.object(misc.feedback, "feedback", (v, feedback) => {
+                    v.keys(feedback, ["enabled", "allowAnonymous"])
                     v.boolean(feedback.enabled, "enabled")
                     v.boolean(feedback.allowAnonymous, "allowAnonymous")
                 })
             })
             .object(settings.content, "content", (v, content) => {
+                v.keys(content, ["visibility"])
                 v.object(content.visibility, "visibility", (v, visibility) => {
-                    for (const tag of ["nsfw", "spoiler"]) {
-                        v.string(visibility[tag], tag)
-                        v.in(visibility[tag], tag, ["show", "mask", "filter"])
-                    }
-                    for (const tag of Object.keys(visibility)) {
-                        v.in(tag, tag, ["nsfw", "spoiler"])
-                    }
+                    v.keys(visibility, ["nsfw", "spoiler"])
+                    v.string(visibility.nsfw, "nsfw")
+                    v.in(visibility.nsfw, "nsfw", ["show", "mask", "filter"])
+                    v.string(visibility.spoiler, "spoiler")
+                    v.in(visibility.spoiler, "spoiler", ["show", "mask", "filter"])
                 })
             })
             .confirm()

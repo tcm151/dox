@@ -14,6 +14,15 @@ it("defaults content visibility modes to masking", async () => {
     })
 })
 
+it("defaults gallery publishing and image attachments to enabled", async () => {
+    const settings = await fetch("/api/settings/default").then(response => response.json()) as AppSettings
+    expect(settings.media.gallery.enabled).toBe(true)
+    expect(settings.media.images.attachments).toEqual({
+        posts: true,
+        threads: true,
+    })
+})
+
 it("persists and restores the About summary setting", async () => {
     const settingsResponse = await fetch("/api/settings/default")
     expectStatus(settingsResponse, 200)
@@ -89,6 +98,16 @@ it("rejects invalid application settings without changing saved settings", async
             ...originalSettings,
             media: {
                 ...originalSettings.media,
+                gallery: {
+                    ...originalSettings.media.gallery,
+                    enabled: "false" as unknown as boolean,
+                },
+            },
+        },
+        {
+            ...originalSettings,
+            media: {
+                ...originalSettings.media,
                 images: {
                     ...originalSettings.media.images,
                     uploadLimit: 101,
@@ -97,9 +116,43 @@ it("rejects invalid application settings without changing saved settings", async
         },
         {
             ...originalSettings,
+            media: {
+                ...originalSettings.media,
+                images: {
+                    ...originalSettings.media.images,
+                    attachments: {
+                        ...originalSettings.media.images.attachments,
+                        posts: "false" as unknown as boolean,
+                    },
+                },
+            },
+        },
+        {
+            ...originalSettings,
             moderation: {
                 ...originalSettings.moderation,
                 slowModes: [30, 0],
+            },
+        },
+        {
+            ...originalSettings,
+            email: {
+                ...originalSettings.email,
+                spool: { ...originalSettings.email.spool, dailyLimit: 0 },
+            },
+        },
+        {
+            ...originalSettings,
+            email: {
+                ...originalSettings.email,
+                spool: { ...originalSettings.email.spool, batchLimit: 1001 },
+            },
+        },
+        {
+            ...originalSettings,
+            email: {
+                ...originalSettings.email,
+                spool: { ...originalSettings.email.spool, maxRetries: 11 },
             },
         },
     ]
@@ -114,10 +167,48 @@ it("rejects invalid application settings without changing saved settings", async
             const error = response._data as { message?: string }
             expect(error.message).toContain("moderation.slowModes[1]")
         }
+        if (settings.email.spool.dailyLimit === 0) {
+            const error = response._data as { message?: string }
+            expect(error.message).toContain("email.spool.dailyLimit")
+        }
     }
 
     const savedSettings = await admin.fetch<AppSettings>("/api/settings/default")
     expect(savedSettings).toEqual(originalSettings)
+})
+
+it("rejects unknown nested application setting keys", async () => {
+    const originalSettings = await admin.fetch<AppSettings>("/api/settings/default")
+    const invalidSettings = {
+        ...originalSettings,
+        feeds: { ...originalSettings.feeds, unexpected: true },
+    }
+    const response = await admin.fetchRaw(
+        `/api/admin/settings/${extractId(originalSettings.id)}/update`,
+        { method: "POST", body: invalidSettings },
+    )
+
+    expectStatus(response, 400)
+    const error = response._data as { message?: string }
+    expect(error.message).toContain("feeds.unexpected")
+})
+
+it("rejects invalid direct database writes to nested application settings", async () => {
+    const invalidQueries = [
+        "UPDATE appSettings:default SET feeds.unexpected = true;",
+        "UPDATE appSettings:default SET email.spool.dailyLimit = 100001;",
+        "UPDATE appSettings:default SET media.gallery.enabled = \"yes\";",
+        "UPDATE appSettings:default SET media.images.gallery.enabled = true;",
+        "UPDATE appSettings:default SET misc.feedback.enabled = \"yes\";",
+    ]
+
+    for (const query of invalidQueries) {
+        const response = await admin.fetchRaw("/api/developer/database/query", {
+            method: "POST",
+            body: { query },
+        })
+        expect(response.status).toBeGreaterThanOrEqual(400)
+    }
 })
 
 it("rejects a non-object application settings payload", async () => {

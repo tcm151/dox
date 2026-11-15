@@ -50,6 +50,7 @@ export interface User extends Voteable {
 export type Role = "admin" | "developer" | "moderator"
 export type Trait = "confirmed" | "verified"
 export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
+export type ContentVisibilityTag = "nsfw" | "spoiler"
 export type ContentVisibilityMode = "show" | "mask" | "filter"
 export type TopicStatus = "active" | "locked"
 export type PinScope = "app" | "topic"
@@ -361,7 +362,9 @@ export interface AppSettings extends Record {
         slowModes: number[]
     }
     content: {
-        visibility: { [tag: string]: ContentVisibilityMode }
+        visibility: {
+            [tag in ContentVisibilityTag]: ContentVisibilityMode
+        }
     }
     voting: {
         enabled: boolean
@@ -401,6 +404,13 @@ export interface AppSettings extends Record {
         images: {
             enabled: boolean
             uploadLimit: number
+            attachments: {
+                posts: boolean
+                threads: boolean
+            }
+        }
+        gallery: {
+            enabled: boolean
         }
         audio: {
             enabled: boolean
@@ -416,8 +426,8 @@ export interface AppSettings extends Record {
     },
     misc: {
         feedback: {
-            enabled: true,
-            allowAnonymous: false
+            enabled: boolean
+            allowAnonymous: boolean
         }
     }
 }

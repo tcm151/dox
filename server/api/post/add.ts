@@ -1,5 +1,6 @@
 import type { Post } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 type CreatePostRequest = {
     title: string
@@ -14,6 +15,11 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const post = await readBody<CreatePostRequest>(event)
     const imageIds = post.images ?? []
+    if (imageIds.length > 0) {
+        if (!await SettingsManager.canAttachImages("posts")) {
+            throw createError({ statusCode: 403, statusMessage: "Image attachments to posts and replies are disabled." })
+        }
+    }
     await ModerationManager.checkTopicCooldown(auth.id, post.topics)
 
     return await new DatabaseQuery()

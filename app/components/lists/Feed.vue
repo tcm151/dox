@@ -35,10 +35,14 @@ function contentTags(item: T): readonly string[] {
     return []
 }
 
+function appVisibilityMode(tag: string) {
+    if (tag === "nsfw" || tag === "spoiler") return settings.app.content.visibility[tag]
+}
+
 const visibleItems = computed(() => (props.items.data.value ?? []).filter(item =>
     !contentTags(item).some(tag =>
         (userSettings.preferences.content.visibility[tag]
-            ?? settings.app.content.visibility[tag]
+            ?? appVisibilityMode(tag)
             ?? "show") === "filter",
     ),
 ))

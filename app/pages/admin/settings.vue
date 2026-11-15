@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ContentVisibilityTag } from "@@/shared/types"
+
 const hints = useHints()
 const cache = useCache()
 const defaults = useSettings()
@@ -35,7 +37,7 @@ async function saveSettings() {
 }
 
 const section = cache.get<string>("settings.lastTab", () => "about")
-const tabs = ['feeds', 'voting', 'topics', 'moderation', 'publishing', 'content', 'email', 'feedback', 'about']
+const tabs = ['feeds', 'voting', 'topics', 'moderation', 'discussion', 'media', 'content', 'email', 'feedback', 'about']
 
 const existingTopics = await useDatasource<Topic[]>("/api/topic/available")
 watch(() => settings.value.topics.restrict, (restrict) => {
@@ -98,12 +100,6 @@ watch(() => settings.value.threads.enabled, (threadsEnabled) => {
     }
 })
 
-watch(() => settings.value.media.images.enabled, (imagesEnabled) => {
-    if (!imagesEnabled) {
-        settings.value.feeds.images = false
-    }
-})
-
 watch(() => settings.value.media.audio.enabled, (audioEnabled) => {
     if (!audioEnabled) {
         settings.value.feeds.audio = false
@@ -122,7 +118,7 @@ watch(() => settings.value.polls.enabled, (pollsEnabled) => {
     }
 })
 
-const tags = ref([
+const tags = ref<{ value: ContentVisibilityTag; label: string; tip: string }[]>([
     { value: 'spoiler', label: 'Spoiler', tip: "Content that may spoil things." },
     { value: 'nsfw', label: 'NSFW', tip: "Not safe for work; or sexually explicit content." },
 ])
@@ -220,7 +216,7 @@ const visibilityOptions = ref([
                     <div class="field row">
                         <div class="column f-1">
                             <label>moderators per topic</label>
-                            <span class="tip">Allows user to request being a moderator until this amount is reached.</span>
+                            <span class="tip">Allows user requests to be a moderator until this amount is reached.</span>
                         </div>
                         <input class="py-1 px-2" type="number" min="0" step="1" v-model="settings.moderation.perTopic">
                     </div>
@@ -272,7 +268,7 @@ const visibilityOptions = ref([
                         </div>
                     </div>
                 </section>
-                <section v-if="section == 'publishing'">
+                <section v-if="section == 'discussion'">
                     <div class="field row">
                         <div class="column f-1">
                             <label>enable posts</label>
@@ -320,10 +316,6 @@ const visibilityOptions = ref([
                     </div>
                     <CollapseTransition>
                         <div v-if="settings.links.enabled">
-                            <p class="unavailable br-small row inline g-2 p-2 mb-3">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                <span>Link publishing is unfinished and may be unstable.</span>
-                            </p>
                             <div class="field row">
                                 <div class="column f-1">
                                     <label>link feed</label>
@@ -356,7 +348,8 @@ const visibilityOptions = ref([
                             </div>
                         </div>
                     </CollapseTransition>
-                    <hr>
+                </section>
+                <section v-if="section == 'media'">
                     <div class="field row">
                         <div class="column f-1">
                             <label>use tokens</label>
@@ -367,8 +360,8 @@ const visibilityOptions = ref([
                     <hr>
                     <div class="field row">
                         <div class="column f-1">
-                            <label>enable images</label>
-                            <span class="tip">Allow users to upload images and publish galleries.</span>
+                            <label>enable image uploads</label>
+                            <span class="tip">Allow users to upload images.</span>
                         </div>
                         <Toggle v-model:enabled="settings.media.images.enabled" />
                     </div>
@@ -383,11 +376,36 @@ const visibilityOptions = ref([
                             </div>
                             <div class="field row">
                                 <div class="column f-1">
-                                    <label>gallery</label>
-                                    <span class="tip">Shows only galleries in a separate feed.</span>
+                                    <label>post attachments</label>
+                                    <span class="tip">Allow images to be attached to posts.</span>
                                 </div>
-                                <Toggle v-model:enabled="settings.feeds.images" />
+                                <Toggle v-model:enabled="settings.media.images.attachments.posts" />
                             </div>
+                            <div class="field row">
+                                <div class="column f-1">
+                                    <label>thread attachments</label>
+                                    <span class="tip">Allow images to be attached to threads.</span>
+                                </div>
+                                <Toggle v-model:enabled="settings.media.images.attachments.threads" />
+                            </div>
+                            <div class="field row">
+                                <div class="column f-1">
+                                    <label>enable galleries</label>
+                                    <span class="tip">Allow users to publish image galleries.</span>
+                                </div>
+                                <Toggle v-model:enabled="settings.media.gallery.enabled" />
+                            </div>
+                            <CollapseTransition>
+                                <div v-if="settings.media.gallery.enabled">
+                                    <div class="field row">
+                                        <div class="column f-1">
+                                            <label>gallery feed</label>
+                                            <span class="tip">Show galleries in a separate feed.</span>
+                                        </div>
+                                        <Toggle v-model:enabled="settings.feeds.images" />
+                                    </div>
+                                </div>
+                            </CollapseTransition>
                         </div>
                     </CollapseTransition>
                     <hr>
@@ -420,6 +438,7 @@ const visibilityOptions = ref([
                             </div>
                         </div>
                     </CollapseTransition>
+                    <hr>
                     <div class="field row">
                         <div class="column f-1">
                             <label>enable video</label>

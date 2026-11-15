@@ -68,6 +68,18 @@ export class Validator {
         return this
     }
 
+    keys(value: unknown, allowed: readonly string[]): this {
+        if (!isObject(value) || Array.isArray(value)) return this
+
+        const allowedKeys = new Set(allowed)
+        for (const key of Object.keys(value)) {
+            if (!allowedKeys.has(key)) {
+                this.addError("is not an allowed field", this.fieldPath(key))
+            }
+        }
+        return this
+    }
+
     string(value: unknown, field = "", options: LengthOptions = {}): this {
         const path = this.fieldPath(field)
         if (typeof value !== "string") {

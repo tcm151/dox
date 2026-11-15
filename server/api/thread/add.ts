@@ -1,5 +1,6 @@
 import type { Thread } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 type CreateThreadRequest = {
     content: string
@@ -12,6 +13,11 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const thread = await readBody<CreateThreadRequest>(event)
     const imageIds = thread.images ?? []
+    if (imageIds.length > 0) {
+        if (!await SettingsManager.canAttachImages("threads")) {
+            throw createError({ statusCode: 403, statusMessage: "Image attachments to threads are disabled." })
+        }
+    }
 
     await ModerationManager.checkTopicCooldown(auth.id, thread.topics)
 
