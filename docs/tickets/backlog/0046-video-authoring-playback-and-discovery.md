@@ -28,7 +28,7 @@ Complete the user-facing video workflow from editor metadata and preview through
 - [ ] Validate keyboard operation, responsive sizing, interrupted playback, missing derivatives, and mixed-feed rendering.
 
 ## Notes
-- Rich external video embeds belong with the safe link-preview work in backlog [Ticket 0040](0040-safe-link-metadata-previews.md); this ticket covers hosted video.
+- Rich external video embeds belong with the safe link-preview work in active [Ticket 0040](../0040-safe-link-metadata-previews.md); this ticket covers hosted video.
 - Draft support remains out of scope per completed Ticket 0011.
 
 ## Relevant Files
