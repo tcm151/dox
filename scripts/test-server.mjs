@@ -10,7 +10,7 @@ import { formatFailureDetails, formatVitestFailureOutput } from "./test-reportin
 const projectRoot = process.cwd()
 const testBuildDirectory = join(projectRoot, ".nuxt", "test-runner")
 const testBuildManifestPath = join(testBuildDirectory, "build-inputs.sha256")
-const slowFileThresholdMs = 5_000
+const slowFileThresholdMs = 10_000
 const timings = []
 const runStartedAt = performance.now()
 let buildWasCached = false
