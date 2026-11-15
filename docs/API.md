@@ -60,7 +60,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - `401`: credentials cannot be authenticated.
 - Side effects: creates a session and associates the account with the request.
 - Source: [route](../server/api/profile/login.ts), [authentication](../server/utils/auth.ts).
-- Tests: [authentication tests](../tests/parallel/authentication.server.test.ts).
+- Tests: [account and authentication tests](../tests/parallel/account.server.test.ts).
 
 ### Password Reset
 
@@ -93,7 +93,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Delete behavior: retains published content and media under `user:deleted`.
 - Wipe behavior: removes unreferenced submissions; content required by replies, quotes, or comments is redacted in place to preserve discussion references. Unused media is queued for cleanup.
 - Source: [delete route](../server/api/profile/account/delete.ts), [wipe route](../server/api/profile/account/wipe.ts), [account manager](../server/utils/repos/AccountManager.ts).
-- Tests: [account deletion tests](../tests/parallel/account-deletion.server.test.ts) cover password rejection, retained content, and wipe behavior.
+- Tests: [account tests](../tests/parallel/account.server.test.ts) cover password rejection, retained content, and wipe behavior.
 
 ## Notifications and Inbox
 

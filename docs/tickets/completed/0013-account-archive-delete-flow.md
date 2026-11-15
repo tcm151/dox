@@ -33,7 +33,7 @@ Provide a user-controlled account exit flow while preserving forum integrity and
 - server/assets/migrations/2026.6.2.surql
 - app/components/system/tags/UserTag.vue
 - app/components/system/previews/UserPreview.vue
-- tests/parallel/account-deletion.server.test.ts
+- tests/parallel/account.server.test.ts
 
 ## Progress Log
 - 2026-11-09: Implemented and validated the retention and full-deletion workflows; documented the resulting content and vote contracts.

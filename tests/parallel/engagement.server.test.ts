@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../utils/test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Comment, Gallery, Link, Notification, Post, User } from "../../shared/types"
 
@@ -15,11 +15,6 @@ const insufficientAwarder = follower
 const insufficientTarget = followedUser
 const admin = await grabUser("admin")
 
-type UserSummary = {
-    name: string
-    roles: string[]
-}
-
 async function restoreAwardState(sender: User, target: User, senderTokens: number, targetTokens: number) {
     const message = `**${sender.name}** awarded you 256 tokens. Don't forget to thank them!`
     await admin.query(`
@@ -34,16 +29,6 @@ async function restoreAwardState(sender: User, target: User, senderTokens: numbe
             AND message = "${message}";
     `)
 }
-
-it("lists users and returns the configured admin", async () => {
-    const response = await fetch("/api/user")
-    expectStatus(response, 200)
-
-    const users = await response.json() as UserSummary[]
-    const admin = users.find(user => user.name === testAdminCredentials.name)
-    expect(admin).toBeDefined()
-    expect(admin?.roles).toEqual(expect.arrayContaining(["admin", "moderator", "developer"]))
-})
 
 it("follows and unfollows a user with idempotent state updates", async () => {
     const followerId = extractId(follower.user.id)
