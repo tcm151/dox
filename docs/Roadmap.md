@@ -89,7 +89,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 ### C3. Discovery and Inbox Reliability
 - 🟥 Persist feed and comment sorting preferences across devices. (`0070`, `S`)
 - 🟥 Add search filters and URL synchronization for shareable discovery. (`0015`, `M`)
-- 🟦 Finish saved-user content ranking and feed integration after the engagement fundamentals. (`0058`, `M`)
+- 🟥 Define and implement saved-user content ranking and feed integration after the engagement fundamentals. (`0105`, `M`)
 - 🟥 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`0083`, `M`)
 - 🟥 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling) after the inbox audit. (`0060`, `M`)
 - 🟥 Triage high-visibility TODOs in feed/search/settings and create linked follow-up work. (`0090`, `S`)
@@ -99,8 +99,8 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 
 ### C4. Core Content Publishing
 - 🟩 Complete thread editor parity with post editor for supported publishing, preview, validation, and upload workflows. (`0011`, `M`)
-- 🟥 Add first-class link publishing. (`0039`, `M`)
-- 🟥 Add link detail and feed integration after the foundation; it does not depend on optional metadata previews. (`0041`, `M`)
+- 🟩 Add first-class link publishing. (`0039`, `M`)
+- 🟩 Add link detail and feed integration after the foundation; it does not depend on optional metadata previews. (`0041`, `M`)
 - 🟥 Complete audio publication, then detail/feed/playback and cleanup. (`0042`, `0043`, `L`)
 
 **Success metric**: core link and audio publishing paths are complete end to end, including visibility, moderation, feed integration, and media cleanup; deferred content types are not presented as supported workflows.
