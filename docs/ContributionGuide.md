@@ -93,7 +93,7 @@ Install the project dependencies, then run the integration smoke tests:
 
 ```bash
 yarn install
-yarn --silent test
+yarn test
 ```
 
 The test command builds and starts one Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder.
@@ -102,12 +102,15 @@ The compiled test server is cached under the ignored `.nuxt/test-runner/` direct
 
 Add sequential setup tests under `tests/sequential/` using `*.setup.test.ts`, and parallel tests under `tests/`. Name server-only Vitest tests `*.server.test.ts`, browser-only Playwright tests `*.browser.test.ts`, and full-stack UI-to-server Playwright flows `*.integration.test.ts`. An integration test is run once in a real browser against the isolated server; it is not duplicated across runners. Keep shared helpers in `tests/utils/`; `test-server.ts` provides API access and named sessions, while `browser-fixtures.ts` provides authenticated pages and the seeded example server. The runner completes all sequential setup before starting parallel tests, using one isolated app, database, and media directory. Named users and the example server are persisted under the temporary test-data folder for either runner to use. Keep shared setup sequential; parallel tests should use unique test data, assert against their own markers, and clean up records they create.
 
-Run the full suite with `yarn --silent test`, or only the ordered sequential suite with `yarn --silent test --sequential`. To run one parallel server test or browser spec, pass its filename; the runner starts the isolated app and runs only the required `*.setup.test.ts` fixtures before the selected file:
+Run the full suite with `yarn test` (no arguments). Use `--server` to run sequential and parallel server tests without Playwright, or `--browser` to run the required setup fixtures and all browser/integration tests without the Vitest server suites. The existing `--sequential` option still runs only the ordered sequential server suite. To run one parallel server test or browser spec, pass only its filename; the runner starts the isolated app and runs only the required `*.setup.test.ts` fixtures before the selected file:
 
 ```bash
-yarn --silent test tests/parallel/posts.server.test.ts
-yarn --silent test tests/parallel/feed.browser.test.ts
-yarn --silent test tests/parallel/registration.integration.test.ts
+yarn test --server
+yarn test --browser
+yarn test --sequential
+yarn test posts.server.test.ts
+yarn test feed.browser.test.ts
+yarn test registration.integration.test.ts
 ```
 
 Each run reports total, app startup (with cache status), setup, server tests, browser phase, and cleanup. Browser files appear only in a slow-file summary when a file takes at least five seconds.
@@ -195,7 +198,7 @@ yarn install --frozen-lockfile
 yarn typecheck:golar
 yarn typecheck
 yarn build
-yarn --silent test
+yarn test
 ```
 
 Repository branch protection must require `CI / Validate` before merging; workflow files cannot enable that GitHub setting themselves.

@@ -6,7 +6,7 @@ import type { TExampleServer, TSession } from "./test-sessions"
 function getTestDataDirectory() {
     const directory = process.env.CLASSICFORUM_TEST_DATA_DIRECTORY
     if (!directory?.startsWith(".test-output-") || directory.includes("..")) {
-        throw new Error("Run browser tests through `yarn --silent test` to load isolated test data.")
+        throw new Error("Run browser tests through `yarn test` to load isolated test data.")
     }
     return directory
 }

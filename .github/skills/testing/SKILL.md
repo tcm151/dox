@@ -8,9 +8,11 @@ argument-hint: "Optional test file or failure"
 
 ## Commands
 
-- Run the full integration suite with `yarn --silent test`.
-- Run only the ordered sequential suite with `yarn --silent test --sequential`.
-- Run one parallel test with `yarn --silent test <file>.<type>.test.ts`.
+- Run the full integration suite with `yarn test` (no arguments).
+- Run only the ordered sequential suite with `yarn test --sequential`.
+- Run sequential and parallel server tests without browser tests with `yarn test --server`.
+- Run browser and integration tests with required setup fixtures, without server test suites, with `yarn test --browser`.
+- Run one parallel test with `yarn test <file>.<type>.test.ts`.
 - Run `yarn typecheck` when changes affect TypeScript or Vue templates.
 - Run `yarn build` when changes affect route registration, Nuxt configuration, or production output.
 
@@ -24,7 +26,7 @@ Use `docs/API.md` to locate route methods, access expectations, and detailed con
 
 The phases are:
 
-1. Full runs execute `tests/sequential/*.setup.test.ts` and `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled. `yarn --silent test --sequential` runs only this phase. Focused runs execute only `*.setup.test.ts` files before the selected parallel test.
+1. Full runs execute `tests/sequential/*.setup.test.ts` and `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled. `yarn test --sequential` runs only this phase. `--server` runs this phase and parallel server tests; `--browser` runs only the required `*.setup.test.ts` fixtures before the browser suite. Focused runs execute only `*.setup.test.ts` files before the selected parallel test.
 2. `tests/parallel/*.server.test.ts`, run by Vitest with file parallelism enabled.
 3. `tests/parallel/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium, serially within each file and with at most two files running concurrently.
 
@@ -43,8 +45,8 @@ For example, after a rejected publish request, check that no gallery with that t
 
 ## Diagnosing Failures
 
-1. Run `yarn --silent test` first so the standard runner reports the failing phase and assertions.
-2. Rerun a failing parallel file with `yarn --silent test tests/parallel/<file>.server.test.ts`, `yarn --silent test tests/parallel/<file>.browser.test.ts`, or `yarn --silent test tests/parallel/<file>.integration.test.ts` to check whether the failure depends on other parallel files. Required setup fixtures still run in this mode.
+1. Run `yarn test` first so the standard runner reports the failing phase and assertions.
+2. Rerun a failing parallel file with `yarn test <file>.server.test.ts`, `yarn test <file>.browser.test.ts`, or `yarn test <file>.integration.test.ts` to check whether the failure depends on other parallel files. Use only the test filename. Required setup fixtures still run in this mode.
 3. If the file passes alone but fails in the full run, inspect shared records, fixture-user mutations, global list snapshots, and assumptions about ordering before changing application behavior or weakening the assertion.
 4. Fix isolation at the narrowest boundary, then rerun the focused file and the full suite.
 

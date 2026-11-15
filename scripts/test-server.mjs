@@ -14,13 +14,24 @@ const slowFileThresholdMs = 10_000
 const timings = []
 const runStartedAt = performance.now()
 let buildWasCached = false
-const testArgument = process.argv[2]
-const sequentialOnly = testArgument === "--sequential"
-const testUsage = "Usage: yarn --silent test [--sequential|<file>.<type>.test.ts]"
-if (process.argv.length > 3) {
+const testArguments = process.argv.slice(2)
+const testModeFlags = new Set(["--sequential", "--server", "--browser"])
+const selectedModes = testArguments.filter(argument => testModeFlags.has(argument))
+const selectedTestArguments = testArguments.filter(argument => !testModeFlags.has(argument))
+const sequentialOnly = selectedModes.includes("--sequential")
+const serverMode = selectedModes.includes("--server")
+const browserMode = selectedModes.includes("--browser")
+const testUsage = "Usage: yarn test [--sequential | --server | --browser | <file>.<type>.test.ts]"
+if (
+    selectedModes.length + selectedTestArguments.length !== testArguments.length
+    || selectedModes.length !== new Set(selectedModes).size
+    || selectedTestArguments.length > 1
+    || (sequentialOnly && (serverMode || browserMode || selectedTestArguments.length > 0))
+    || (selectedTestArguments.length > 0 && selectedModes.length > 0)
+) {
     throw new Error(testUsage)
 }
-const selectedParallelTest = testArgument && !sequentialOnly ? getParallelTestPath(testArgument) : undefined
+const selectedParallelTest = selectedTestArguments[0] ? getParallelTestPath(selectedTestArguments[0]) : undefined
 const testFolder = await mkdtemp(join(projectRoot, ".test-output-"))
 const testRoot = relative(projectRoot, testFolder).split(sep).join("/")
 const vitestPath = join(projectRoot, "node_modules", "vitest", "vitest.mjs")
@@ -195,23 +206,29 @@ function runBrowserTests(testPath, summaryPath) {
 async function runTestSuite(testFolder) {
     let phaseIndex = 0
     const testSummaries = []
-    const sequentialSuffixes = selectedParallelTest
+    const hasSuiteMode = serverMode || browserMode
+    const runServerSuite = !hasSuiteMode || serverMode
+    const runBrowserSuite = !hasSuiteMode || browserMode
+    const sequentialSuffixes = selectedParallelTest || !runServerSuite
         ? [".setup.test.ts"]
         : [".server.test.ts", ".setup.test.ts"]
     const sequentialTestPaths = await getTestFiles("sequential", sequentialSuffixes)
 
-    const setupResult = await runTimed(selectedParallelTest ? "required fixtures" : "sequential tests", async () => {
-        for (const testPath of sequentialTestPaths) {
-            const summaryPath = join(testFolder, `phase-${phaseIndex++}-summary.json`)
-            const result = await runVitest(testPath, true, summaryPath)
-            if (result.summary) testSummaries.push(result.summary)
-            if (result.exitCode !== 0) {
-                const phaseName = selectedParallelTest ? "required setup" : "sequential tests"
-                return reportVitestFailure(result, testPath, phaseName)
+    const setupResult = await runTimed(
+        selectedParallelTest || !runServerSuite ? "required fixtures" : "sequential tests",
+        async () => {
+            for (const testPath of sequentialTestPaths) {
+                const summaryPath = join(testFolder, `phase-${phaseIndex++}-summary.json`)
+                const result = await runVitest(testPath, true, summaryPath)
+                if (result.summary) testSummaries.push(result.summary)
+                if (result.exitCode !== 0) {
+                    const phaseName = selectedParallelTest || !runServerSuite ? "required setup" : "sequential tests"
+                    return reportVitestFailure(result, testPath, phaseName)
+                }
             }
-        }
-        return 0
-    })
+            return 0
+        },
+    )
     if (setupResult !== 0) return setupResult
     if (sequentialOnly) return printTestSummary(testSummaries)
 
@@ -226,14 +243,16 @@ async function runTestSuite(testFolder) {
     else {
         const serverParallelPaths = selectedParallelTest
             ? [selectedParallelTest]
-            : await getTestFiles("parallel", [".server.test.ts"])
+            : runServerSuite
+                ? await getTestFiles("parallel", [".server.test.ts"])
+                : []
         if (serverParallelPaths.length > 0) {
             const summaryPath = join(testFolder, `phase-${phaseIndex++}-summary.json`)
             const result = await runTimed("parallel server tests", () => runVitest(serverParallelPaths, false, summaryPath))
             if (result.summary) testSummaries.push(result.summary)
             if (result.exitCode !== 0) return reportVitestFailure(result, serverParallelPaths.join(", "), "parallel server tests")
         }
-        if (!selectedParallelTest) {
+        if (!selectedParallelTest && runBrowserSuite) {
             const summaryPath = join(testFolder, `phase-${phaseIndex++}-browser-summary.json`)
             const result = await runTimed("browser suite", () => runBrowserTests(undefined, summaryPath))
             recordBrowserFileTimings(result.summary)
@@ -452,4 +471,3 @@ function getParallelTestPath(argument) {
 
     return testPath
 }
-

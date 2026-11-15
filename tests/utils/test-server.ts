@@ -16,7 +16,7 @@ const adminName = process.env.CLASSICFORUM_TEST_ADMIN_NAME
 const adminPassword = process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD
 
 if (!testDataDirectory?.startsWith(".test-output-") || testDataDirectory.includes("..") || !testServerUrl || !adminName || !adminPassword) {
-    throw new Error("Run integration tests with `yarn --silent test` to start the isolated test app.")
+    throw new Error("Run integration tests with `yarn test` to start the isolated test app.")
 }
 
 await setup({

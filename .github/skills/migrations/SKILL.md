@@ -49,5 +49,5 @@ Use this workflow for SurrealDB schema and stored-data changes.
 - Use `node scripts/surreal-explore.mjs -` for disposable probes. It provides `db` and `assert`; never use the app database.
 - For upgrades, apply the immediately previous released schema/version with representative old data, run the migration, and check schema/data/version. Do not use a partially migrated development database as the upgrade fixture; adjust it manually through the admin query or rebuild it from the baseline.
 - For fresh-schema changes, apply the full schema and assert the affected fields, indexes, events, references, or computed behavior.
-- Run `yarn --silent test` when application behavior changes and `yarn typecheck` when TypeScript or Vue code changes.
+- Run `yarn test` when application behavior changes and `yarn typecheck` when TypeScript or Vue code changes.
 - Follow `.github/skills/surrealql/SKILL.md` for query conventions and `docs/SurrealDB.md` for deployment details.

@@ -43,4 +43,4 @@ jobs:
         run: yarn build
 
       - name: Server and browser integration tests
-        run: yarn --silent test
+        run: yarn test
