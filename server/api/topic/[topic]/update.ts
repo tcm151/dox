@@ -14,14 +14,14 @@ export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!
     const body = await readBody<UpdateTopicRequest>(event)
 
-    const validator = new Validator("TopicSettings")
-    validator.string(body.description, "description")
-    validator.object(body.moderation, "moderation", (v, moderation) => {
-        v.integer(moderation.maxPostInterval, "maxPostInterval", { min: 0, max: 3600 })
-        v.integer(moderation.priorityReportThreshold, "priorityReportThreshold", { min: 1, max: 100 })
-    })
-    validator.string(body.rules, "rules")
-    validator.confirm()
+    new Validator("TopicSettings")
+        .string(body.description, "description")
+        .object(body.moderation, "moderation", (v, moderation) => {
+            v.integer(moderation.maxPostInterval, "maxPostInterval", { min: 0, max: 3600 })
+            v.integer(moderation.priorityReportThreshold, "priorityReportThreshold", { min: 1, max: 100 })
+        })
+        .string(body.rules, "rules")
+        .confirm()
 
     return await new DatabaseQuery()
         .addSql(`

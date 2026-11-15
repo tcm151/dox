@@ -26,8 +26,9 @@ export class UserSettingsManager {
             .object(settings.content, "Content settings", (v, content) => {
                 v.object(content.visibility, "visibility", (v, visibility) => {
                     for (const [tag, mode] of Object.entries(visibility)) {
-                        v.test(tag, value => ["nsfw", "spoiler"].includes(value), "must be a supported content tag")
-                        v.test(mode, value => typeof value === "string" && ["show", "mask", "filter"].includes(value), "must be a valid visibility mode")
+                        v.string(mode, tag)
+                        v.in(tag, tag, ["nsfw", "spoiler"])
+                        v.in(mode, tag, ["show", "mask", "filter"])
                     }
                 })
             })
