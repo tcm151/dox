@@ -15,10 +15,12 @@ const timings = []
 const runStartedAt = performance.now()
 let buildWasCached = false
 const testArgument = process.argv[2]
+const sequentialOnly = testArgument === "--sequential"
+const testUsage = "Usage: yarn --silent test [--sequential|<file>.<type>.test.ts]"
 if (process.argv.length > 3) {
-    throw new Error("Usage: yarn --silent test [tests/parallel/<file>.server.test.ts|<file>.browser.test.ts|<file>.integration.test.ts]")
+    throw new Error(testUsage)
 }
-const selectedParallelTest = testArgument ? getParallelTestPath(testArgument) : undefined
+const selectedParallelTest = testArgument && !sequentialOnly ? getParallelTestPath(testArgument) : undefined
 const testFolder = await mkdtemp(join(projectRoot, ".test-output-"))
 const testRoot = relative(projectRoot, testFolder).split(sep).join("/")
 const vitestPath = join(projectRoot, "node_modules", "vitest", "vitest.mjs")
@@ -193,7 +195,9 @@ function runBrowserTests(testPath, summaryPath) {
 async function runTestSuite(testFolder) {
     let phaseIndex = 0
     const testSummaries = []
-    const sequentialSuffixes = selectedParallelTest ? [".setup.server.test.ts"] : [".server.test.ts"]
+    const sequentialSuffixes = selectedParallelTest
+        ? [".setup.test.ts"]
+        : [".server.test.ts", ".setup.test.ts"]
     const sequentialTestPaths = await getTestFiles("sequential", sequentialSuffixes)
 
     const setupResult = await runTimed(selectedParallelTest ? "required fixtures" : "sequential tests", async () => {
@@ -209,6 +213,7 @@ async function runTestSuite(testFolder) {
         return 0
     })
     if (setupResult !== 0) return setupResult
+    if (sequentialOnly) return printTestSummary(testSummaries)
 
     const isBrowserTest = selectedParallelTest?.endsWith(".browser.test.ts") || selectedParallelTest?.endsWith(".integration.test.ts")
     if (isBrowserTest) {
@@ -237,6 +242,10 @@ async function runTestSuite(testFolder) {
         }
     }
 
+    return printTestSummary(testSummaries)
+}
+
+function printTestSummary(testSummaries) {
     const passedTests = testSummaries.reduce((total, summary) => total + summary.passedTests, 0)
     const totalTests = testSummaries.reduce((total, summary) => total + summary.totalTests, 0)
     console.log(`\n[tests] ${passedTests}/${totalTests} tests passed`)
@@ -438,7 +447,7 @@ function getParallelTestPath(argument) {
         || fileName.endsWith(".integration.test.ts")
 
     if (fileName.includes("/") || !supportedExtension || !existsSync(join(projectRoot, testPath))) {
-        throw new Error(`Unknown parallel test file: ${argument}\nUsage: yarn --silent test [tests/parallel/<file>.server.test.ts|<file>.browser.test.ts|<file>.integration.test.ts]`)
+        throw new Error(`Unknown parallel test file: ${argument}\n${testUsage}`)
     }
 
     return testPath

@@ -47,7 +47,7 @@ it("seeds representative feed content for browser tests", async () => {
     await admin.query(`CREATE ONLY image:${galleryImageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
     const galleryResponse = await admin.fetchRaw("/api/gallery/publish", {
         method: "POST",
-        body: { images: [`image:${galleryImageId}`], description: "Browser suite sample gallery", topics: [] },
+        body: { images: [`image:${galleryImageId}`], title: "Browser sample gallery", description: "Browser suite sample gallery", topics: [] },
     })
     expectStatus(galleryResponse, 200)
 })
