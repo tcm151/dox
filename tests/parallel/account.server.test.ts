@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import type { Comment, Post, Thread, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
-import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 const otherUser = (await grabExampleServer("default")).users.commentAuthor
@@ -193,4 +193,76 @@ it("wipes interacted submissions and permanently deletes unreferenced submission
             [retainedThread.id, quote.id],
         )
     }
+})
+
+it("reuses the admin session saved during sequential setup", async () => {
+    const admin = await grabUser("admin")
+    const user = await admin.fetch<User>("/api/profile/authenticate")
+    expect(user.id).toBe(admin.user.id)
+    expect(user.name).toBe(admin.user.name)
+    expect(user).not.toHaveProperty("moderatedTopics")
+})
+
+it("keeps moderator topics separate from the authenticated user", async () => {
+    const admin = await grabUser("admin")
+    const topicId = `sessionModeratorTopic${Date.now()}`
+
+    await admin.query(`CREATE ONLY topic:${topicId} SET moderators = [${admin.user.id}];`)
+    try {
+        const user = await admin.fetch<User>("/api/profile/authenticate")
+        expect(user).not.toHaveProperty("moderatedTopics")
+
+        const topics = await admin.fetch<Array<{ id: string }>>("/api/moderator/topics")
+        expect(topics.map(topic => topic.id)).toContain(`topic:${topicId}`)
+    }
+    finally {
+        await admin.query(`DELETE topic:${topicId};`)
+    }
+})
+
+it("rejects a session token after logout", async () => {
+    const loginResponse = await fetch("/api/profile/login", {
+        headers: {
+            Authorization: btoa(`${testAdminCredentials.name}:${testAdminCredentials.password}`),
+        },
+    })
+    expectStatus(loginResponse, 200)
+    const login = await loginResponse.json() as { tokens: { access: string } }
+    const accessToken = login.tokens.access
+
+    const authenticatedResponse = await fetch("/api/profile/authenticate", {
+        headers: { Authorization: accessToken },
+    })
+    expectStatus(authenticatedResponse, 200)
+
+    const logoutResponse = await fetch("/api/profile/logout", {
+        method: "POST",
+        headers: {
+            Authorization: accessToken,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clear: true }),
+    })
+    expectStatus(logoutResponse, 204, await logoutResponse.clone().text())
+
+    const staleProfileResponse = await fetch("/api/profile/authenticate", {
+        headers: { Authorization: accessToken },
+    })
+    expectStatus(staleProfileResponse, 401)
+
+    const staleProtectedResponse = await fetch("/api/user/missing/save", {
+        method: "POST",
+        headers: { Authorization: accessToken },
+    })
+    expectStatus(staleProtectedResponse, 401)
+})
+
+it("lists users and returns the configured admin", async () => {
+    const response = await fetch("/api/user")
+    expectStatus(response, 200)
+
+    const users = await response.json() as Array<{ name: string; roles: string[] }>
+    const admin = users.find(user => user.name === testAdminCredentials.name)
+    expect(admin).toBeDefined()
+    expect(admin?.roles).toEqual(expect.arrayContaining(["admin", "moderator", "developer"]))
 })
