@@ -6,8 +6,8 @@
 - Next: None
 
 ## Dependencies
-- [0072](completed/0072-gallery-comments.md): Establishes post and gallery comment support before comment controls are added.
-- [0073](completed/0073-report-comments.md): Establishes comment reporting and moderation status behavior before this ticket adds conversation controls.
+- [0072](0072-gallery-comments.md): Establishes post and gallery comment support before comment controls are added.
+- [0073](0073-report-comments.md): Establishes comment reporting and moderation status behavior before this ticket adds conversation controls.
 
 ## Goal
 Give moderators controls to limit replies on posts, galleries, comments, and threads, with clear lock scope and configurable slow mode.

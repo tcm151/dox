@@ -2,7 +2,7 @@
 
 ## Status
 - State: Planned
-- Priority: Medium
+- Priority: Low
 - Next: Define the public audio query shape shared by detail and preview rendering.
 
 ## Dependencies

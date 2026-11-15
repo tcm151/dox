@@ -3,6 +3,8 @@
 
 ## Status
 <!-- Use Paused when work is intentionally on hold; keep Next as the resumption step. Use Next: None for completed work. -->
+<!-- Transfer intentionally deferred work to a follow-up ticket before completing this one. -->
+<!-- Before completing: check every Requirements and Tasks item, set Next: None, move this file to completed/, update relative links, and run yarn standup (or yarn.cmd standup if PowerShell blocks the shim). -->
 - State: `Planned | In Progress | Paused | Blocked | Completed`
 - Priority: `High | Medium | Low`
 - Next: `single immediate next step`
@@ -51,4 +53,3 @@
 ## Progress Log
 <!-- Keep in reverse chronological order, with the newest entries first -->
 - YYYY-MM-DD: Ticket created.
-

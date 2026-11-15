@@ -36,4 +36,6 @@ Use this skill to add a project ticket under `docs/tickets/`.
 - Use only `Planned`, `In Progress`, and `Completed`. Every ticket, including completed tickets, needs `Next` and `Requirements`.
 - When editing a ticket, preserve completed checkboxes and progress history. Keep dated entries newest first; do not copy template guidance into the ticket.
 - Mark a parent task complete only when its work and all of its sub-tasks are complete.
+- Transfer intentionally deferred work to a follow-up ticket before completing its parent ticket.
+- Before completing a ticket, finish every Requirements and Tasks checkbox, set `Next: None`, move it to `docs/tickets/completed/`, update relative links, and run `yarn standup` (`yarn.cmd standup` if PowerShell blocks the shim).
 - If a relevant path is unknown, use `- TBD`; do not invent it.

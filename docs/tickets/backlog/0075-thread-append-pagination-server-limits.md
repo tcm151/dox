@@ -6,7 +6,7 @@
 - Next: Define the server-owned initial response and continuation limits.
 
 ## Dependencies
-- [0018](../0018-thread-comment-lock-slowmode.md): Complete item-level thread controls before adding paginated thread interactions.
+- [0018](../completed/0018-thread-comment-lock-slowmode.md): Complete item-level thread controls before adding paginated thread interactions.
 
 ## Goal
 Replace client-supplied thread depth and breadth values with server-owned pagination limits. Load additional direct replies and reply-chain segments through focused endpoints that append only the requested data.

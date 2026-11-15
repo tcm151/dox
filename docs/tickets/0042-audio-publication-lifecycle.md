@@ -2,7 +2,7 @@
 
 ## Status
 - State: Planned
-- Priority: Medium
+- Priority: Low
 - Next: Define the schemafull audio record and staged-upload state used before publication.
 
 ## Goal
