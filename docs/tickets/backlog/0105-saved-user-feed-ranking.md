@@ -6,7 +6,7 @@
 - Next: Define how saved-user content ranks relative to the selected following-feed sort mode.
 
 ## Dependencies
-- [0058](../0058-user-awards-and-saved-subscriptions.md): User save relationships and profile controls must be available first.
+- [0058](../completed/0058-user-awards-and-saved-subscriptions.md): User save relationships and profile controls must be available first.
 
 ## Goal
 Define and implement a distinct ranking effect for content from users the viewer has saved, separate from following-feed eligibility.

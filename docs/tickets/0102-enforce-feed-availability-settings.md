@@ -26,7 +26,7 @@ Make active feed settings control direct access to their dedicated feed pages an
 
 ## Notes
 - Admin descriptions distinguish dedicated feeds from the aggregate Home feed; a disabled dedicated feed must not implicitly disable content publishing or aggregate discovery.
-- Links, polls, and video do not yet have complete feed workflows. Their settings remain with [Ticket 0041](0041-link-detail-and-feed-integration.md), [Ticket 0046](backlog/0046-video-authoring-playback-and-discovery.md), and [Ticket 0049](backlog/0049-poll-detail-feed-and-lifecycle.md).
+- Links, polls, and video do not yet have complete feed workflows. Their settings remain with [Ticket 0041](completed/0041-link-detail-and-feed-integration.md), [Ticket 0046](backlog/0046-video-authoring-playback-and-discovery.md), and [Ticket 0049](backlog/0049-poll-detail-feed-and-lifecycle.md).
 - Audio feed behavior remains with [Ticket 0043](0043-audio-detail-feed-and-cleanup.md).
 
 ## Relevant Files

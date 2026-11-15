@@ -204,7 +204,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Request body: `{ url }` (at most 2048 characters).
 - `200`: `{ title?, description?, imageUrl? }`; descriptions are limited to 256 characters, and unavailable or non-HTML metadata returns an empty object.
 - `400`: invalid URL or a target/redirect resolving to a private or reserved address. `401`: no valid session. `429`: more than 60 requests per minute from the same client address.
-- Side effects: performs a remote HTML/JSON request and caches its result in memory for ten minutes. DNS lookups, idle socket timeouts, redirect count, and response size are limited; an absolute request deadline remains tracked in [Ticket 0040](tickets/0040-safe-link-metadata-previews.md).
+- Side effects: performs a remote HTML/JSON request and caches its result in memory for ten minutes. DNS lookups, idle socket timeouts, redirect count, and response size are limited; an absolute request deadline remains tracked in [Ticket 0040](tickets/completed/0040-safe-link-metadata-previews.md).
 - Source: [route](../server/api/link/preview.ts), [preview manager](../server/utils/LinkPreviewManager.ts).
 - Tests: [preview manager and endpoint tests](../tests/parallel/link-preview.server.test.ts).
 

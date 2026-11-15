@@ -21,7 +21,7 @@ Let users save and unsave eligible content from its detail and options surfaces,
 - [ ] Add focused integration coverage for the supported types and failure cases.
 
 ## Notes
-- User-profile save/subscription behavior is tracked separately in [Ticket 0058](0058-user-awards-and-saved-subscriptions.md).
+- User-profile save/subscription behavior is tracked separately in [Ticket 0058](completed/0058-user-awards-and-saved-subscriptions.md).
 - Posts, threads, and galleries have `votes.saves` in the current schema. Comments inherit the save field in the shared TypeScript type, but the current comment schema does not define `votes.saves`; explicitly settle gallery and comment support before implementation.
 - A saved-content listing is not assumed by this ticket; decide whether it is needed before expanding beyond save actions and state feedback.
 
