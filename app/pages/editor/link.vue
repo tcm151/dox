@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import EditorFrame from "./components/EditorFrame.vue"
-import LinkPreview from "~/components/system/previews/LinkPreview.vue"
 import type { Link } from "@@/shared/types"
 
 const hints = useHints()
 const valid = useValidation()
-const session = getSession()
 
 const title = ref<string>("")
 const description = ref<string>("")
@@ -17,27 +15,33 @@ const titleFocused = ref(false)
 const urlFocused = ref(false)
 let previewRequest = 0
 let autoFilledTitle = ""
+let autoFilledDescription = ""
 
 const topics = useTopicManager()
 
-const previewLink = computed<Link>(() => ({
-    id: "preview",
-    score: 0,
-    votes: { positive: [], misleading: [], negative: [], awards: [], saves: [] },
-    time: new Date().toISOString(),
-    visits: 0,
-    user: session.user as Link["user"],
-    title: title.value || preview.value.title || "",
-    description: description.value,
-    url: url.value,
-    preview: preview.value,
-    tags: tags.value,
-    topics: topics.items,
-    comments: [],
-    status: "active",
-    deleted: false,
-    edited: false,
-}))
+const displayTitle = computed(() => title.value || preview.value.title || "")
+const displayDescription = computed(() => description.value.trim() || preview.value.description || "")
+const domain = computed(() => {
+    try {
+        return new URL(url.value).hostname.replace(/^www\./i, "")
+    }
+    catch {
+        return url.value
+    }
+})
+const imageUrl = computed(() => {
+    const source = preview.value.imageUrl
+    if (!source) return
+
+    try {
+        const image = new URL(source)
+        if (image.protocol !== "https:" || image.username || image.password || image.port) return
+        return image.href
+    }
+    catch {
+        return
+    }
+})
 
 function validTitle() {
     return valid.post.title(title.value)
@@ -59,6 +63,8 @@ watch(url, (_newUrl, _oldUrl, onCleanup) => {
     previewLoading.value = false
     if (autoFilledTitle && title.value === autoFilledTitle) title.value = ""
     autoFilledTitle = ""
+    if (autoFilledDescription && description.value === autoFilledDescription) description.value = ""
+    autoFilledDescription = ""
     const timer = setTimeout(() => {
         if (requestId === previewRequest && validUrl()) void loadPreview()
     }, 350)
@@ -80,6 +86,10 @@ async function loadPreview() {
             if (!title.value.trim() && result.title) {
                 title.value = result.title
                 autoFilledTitle = result.title
+            }
+            if (!description.value.trim() && result.description) {
+                description.value = result.description
+                autoFilledDescription = result.description
             }
         }
     }
@@ -142,21 +152,73 @@ async function submit() {
                 <label>Title</label>
                 <input v-model="title" @focus="titleFocused = true" @blur="titleFocused = false" />
             </div>
-            <div class="field">
+            <div class="field f-1">
                 <label>Description</label>
-                <MarkdownEditor :rows="3" :max-length="256" v-model="description" />
+                <MarkdownEditor bounded class="f-1" :rows="3" :max-length="256" v-model="description" />
             </div>
             <TopicField :topics="topics" />
-            <div v-if="validUrl()" class="mt-3">
-                <LinkPreview :link="previewLink" :loading="previewLoading" :interactive="false" />
+        </template>
+        <template #preview>
+            <div class="box background br-medium">
+                <section class="link-detail box br-medium" :aria-busy="previewLoading">
+                    <ContentVisibility :tags="tags" direct>
+                        <h1 class="mt-2">{{ displayTitle }}</h1>
+                        <p class="description mt-3">
+                            <span v-if="displayDescription" class="mr-3">{{ displayDescription }} </span>
+                            <a v-if="validUrl()" class="destination" :href="url" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+                                <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
+                                {{ domain }}
+                            </a>
+                        </p>
+                        <img
+                            v-if="imageUrl"
+                            class="link-image mt-3"
+                            :src="imageUrl"
+                            :alt="preview.title || displayTitle"
+                            loading="lazy"
+                            decoding="async"
+                            referrerpolicy="no-referrer"
+                        >
+                        <p v-if="previewLoading" class="muted mt-2" role="status">Loading preview...</p>
+                    </ContentVisibility>
+                </section>
             </div>
         </template>
     </EditorFrame>
 </template>
 
 <style scoped lang="scss">
-.link-preview {
+.link-detail {
     min-width: 0;
-    width: 100%;
+
+    .description {
+        color: $white-3;
+        overflow-wrap: anywhere;
+    }
+
+    .destination {
+        display: inline-block;
+        color: $blue;
+        font-weight: var(--fw-bold);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+
+        &:visited {
+            color: $purple;
+        }
+
+        i {
+            font-size: 0.85rem;
+        }
+    }
+
+    .link-image {
+        max-width: 100%;
+        max-height: 640px;
+        object-fit: contain;
+        box-sizing: border-box;
+        border: 1px solid $white-1;
+        border-radius: 0.25rem;
+    }
 }
 </style>
