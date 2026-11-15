@@ -76,11 +76,11 @@ async function submitComment(replyTo: Gallery | Comment, content: string) {
 
 useSeoMeta({
     ogType: "article",
-    title: () => gallery.value?.description.slice(0, 80) || "Gallery",
-    ogTitle: () => gallery.value?.description.slice(0, 80) || "Gallery",
+    title: () => gallery.value?.title || "Gallery",
+    ogTitle: () => gallery.value?.title || "Gallery",
     author: () => gallery.value?.user.name || "unknown",
-    description: () => gallery.value?.description.slice(0, 256),
-    ogDescription: () => gallery.value?.description.slice(0, 256),
+    description: () => gallery.value?.description || gallery.value?.title,
+    ogDescription: () => gallery.value?.description || gallery.value?.title,
     ogImage: () => gallery.value?.images[0]?.url ?? "",
 })
 
@@ -185,6 +185,7 @@ function copyLink() {
         <main class="gallery box column g-2 p-4">
             <ContentHeader class="header" :content="gallery" context="detail" />
             <ContentVisibility class="column f-1" :tags="gallery.tags" direct>
+                <h1 class="title mt-2">{{ gallery.title }}</h1>
                 <section class="mosaic grid" :class="{
                     single: gallery.images.length === 1,
                     pair: gallery.images.length === 2,

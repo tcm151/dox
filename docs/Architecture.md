@@ -88,7 +88,7 @@ Typical API request lifecycle:
 
 Core interfaces live in `shared/types/index.ts` and include:
 - `User`, `Account`, `Session`
-- `Post`, `Comment`, `Thread`, `Draft`, `Gallery`
+- `Post`, `Link`, `Comment`, `Thread`, `Draft`, `Gallery`
 - `Topic`, `Pin`, `Notification`, `Feedback`, `Report`
 - `Image`, `Audio`
 - `AppSettings`
@@ -114,10 +114,11 @@ Subsequent starts read `server/assets/migrations/<version>.surql`, apply files n
 - `user` owns authored entities and links to account records
 - `account` stores credentials and links identity to a `user`
 - `session` links auth token identity to an `account`
-- `topic` connects to posts, threads, and galleries for taxonomy/discovery
+- `topic` connects to posts, links, threads, and galleries for taxonomy/discovery
 - `topic` stores optional current rules text; revision history is tracked separately.
-- `pin` targets posts, threads, or galleries and is scoped to either the app home feed or one topic.
+- `pin` targets posts, links, threads, or galleries and is scoped to either the app home feed or one topic.
 - `post` contains title/content and may include comments/images
+- `link` contains a title, destination URL, optional preview metadata, and discussion/topics
 - `thread` supports chain/reply patterns and quoting
 - `gallery` publishes a group of uploaded image assets as one feed item
 - `report` references moderation targets
@@ -158,7 +159,7 @@ Role checks are applied in route handlers and page middleware as needed.
 
 ### 6.1 Content flows
 
-- Posts, comments, threads, galleries, and drafts have dedicated API endpoints under `server/api/`.
+- Posts, links, comments, threads, galleries, and drafts have dedicated API endpoints under `server/api/`.
 - Voting endpoints operate per target ID (`/api/vote/[id]/*`).
 - Discovery/feed endpoints aggregate content for major browse views.
 

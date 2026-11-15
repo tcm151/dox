@@ -142,7 +142,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Methods: `GET /api/feed/popular` and `GET /api/feed/following`.
 - Access: popular feed is public; following feed requires authentication and includes content from followed topics or users.
 - Query: `sortBy` accepts `new`, `hot`, or `top` and defaults to `new`. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to a nonnegative maximum.
-- `200`: `{ items, offset, more }`; `items` contains a mixed page of feed records and `more` indicates whether another item exists.
+- `200`: `{ items, offset, more }`; `items` may contain active posts, links, top-level threads, or galleries, and `more` indicates whether another item exists.
 - Source: [feed handlers](../server/api/feed/popular.ts), [following handler](../server/api/feed/following.ts), [pagination implementation](../server/utils/feedPagination.ts).
 - Tests: [feed pagination tests](../tests/sequential/02-feeds.server.test.ts) cover sort modes, offsets, limits, and followed-topic filtering.
 
@@ -162,10 +162,18 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/post` | Public | Lists active posts. |
 | `GET` | `/api/post/:id` | Public | Returns a post and its discussion. |
 | `GET` | `/api/post/:id/visit` | Public | Increments and returns the post visit counter. |
+| `GET` | `/api/link/:id` | Public | Returns a link and its discussion. |
+| `GET` | `/api/link/:id/visit` | Public | Increments and returns the link visit counter. |
+| `POST` | `/api/link/:id/edit` | Authenticated; Link author | Updates the authored Link description. |
+| `POST` | `/api/link/:id/delete` | Authenticated; author or admin | Deletes or redacts the Link while preserving its discussion. |
+| `POST` | `/api/link/:id/award` | Authenticated; token balance; not owner or previous awarder | Transfers an award to the Link author. |
+| `POST` | `/api/link/:id/{archive,pin}` | Admin | Archives/restores a Link or queues an application pin for review. |
+| `POST` | [`/api/link/preview`](#link-preview) | Authenticated; bounded public URL fetch | Returns best-effort title, description, and image metadata for the editor. |
 | `GET` | `/api/profile/drafts` | Authenticated | Lists the current user's drafts. |
 | `POST` | `/api/profile/drafts/add` | Authenticated | Creates a draft for the current user. |
 | `POST` | `/api/profile/drafts/:id/{update,delete}` | Authenticated; draft owner | Updates or deletes an owned draft. |
 | `POST` | [`/api/post/add`](#create-post) | Authenticated; resource checks | Publishes a post for the current user. |
+| `POST` | [`/api/link/add`](#create-link) | Authenticated; resource checks | Publishes a link for the current user. |
 | `POST` | `/api/post/:id/edit` | Authenticated; post author | Edits the post content. |
 | `POST` | `/api/post/:id/delete` | Authenticated; author or admin | Deletes or redacts the post while preserving referenced discussion. |
 | `GET` | `/api/thread` | Public | Lists active top-level threads. |
@@ -175,7 +183,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/thread/:id/edit` | Authenticated; thread author | Edits the thread content. |
 | `POST` | `/api/thread/:id/delete` | Authenticated; author or admin | Deletes or redacts the thread according to its discussion links. |
 | `POST` | `/api/thread/:id/quote` | Authenticated | Publishes a quote of a thread unless it is locked. |
-| `POST` | `/api/comment/add` | Authenticated; discussion rules | Adds a comment or reply to a post or gallery discussion. |
+| `POST` | `/api/comment/add` | Authenticated; discussion rules | Adds a comment or reply to a post, link, or gallery discussion. |
 | `POST` | `/api/comment/:id/edit` | Authenticated; comment author | Edits the comment content. |
 | `POST` | `/api/comment/:id/delete` | Authenticated; author or admin | Deletes or redacts the comment according to its replies. |
 | `POST` | [`/api/thread/:id/reply`](#thread-reply) | Authenticated; discussion rules | Adds a reply subject to lock and slow-mode rules. |
@@ -189,6 +197,16 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Side effects: creates the post and initializes the author's positive vote.
 - Source: [route](../server/api/post/add.ts).
 - Tests: [post API tests](../tests/parallel/posts.server.test.ts).
+
+### Link Preview
+
+- Access: authenticated user; targets are restricted to public HTTP and HTTPS addresses on default ports.
+- Request body: `{ url }` (at most 2048 characters).
+- `200`: `{ title?, description?, imageUrl? }`; descriptions are limited to 256 characters, and unavailable or non-HTML metadata returns an empty object.
+- `400`: invalid URL or a target/redirect resolving to a private or reserved address. `401`: no valid session. `429`: more than 60 requests per minute from the same client address.
+- Side effects: performs a remote HTML/JSON request and caches its result in memory for ten minutes. DNS lookups, idle socket timeouts, redirect count, and response size are limited; an absolute request deadline remains tracked in [Ticket 0040](tickets/0040-safe-link-metadata-previews.md).
+- Source: [route](../server/api/link/preview.ts), [preview manager](../server/utils/LinkPreviewManager.ts).
+- Tests: [preview manager and endpoint tests](../tests/parallel/link-preview.server.test.ts).
 
 ### Thread Reply
 
@@ -232,7 +250,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 - Method: `POST /api/gallery/publish`.
 - Access: authenticated, confirmed user. Every image must exist, be active, and be owned by the caller; topic cooldown and locked-topic checks also apply.
-- Request body: `{ images, description, topics }`; `images` must be a nonempty array. `tags` is optional.
+- Request body: `{ images, title, description, topics }`; `images` must be a nonempty array, `title` must be 4-128 characters, and `description` is limited to 256 characters. `tags` is optional.
 - `200`: `true` after the gallery is created.
 - `400`: no images supplied. `403`: an image is unavailable or not owned by the caller. `404`: a referenced image does not exist. Locked-topic or cooldown errors are returned by the moderation checks.
 - Side effects: creates the gallery transactionally and initializes the author's positive vote.
@@ -281,7 +299,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/moderator/request` | Moderator | Lists pending moderator requests after reviewing approval thresholds. |
 | `POST` | [`/api/moderator/request/:id/{approve,deny}`](#moderator-request-decisions) | Moderator/admin | Records an approval or denial toward the configured threshold. |
 | `GET` | `/api/topic/:topic/pins/manage` | Assigned moderator/admin | Lists manageable pins for a topic. |
-| `POST` | `/api/topic/:topic/pins/add` | Assigned moderator/admin | Pins active top-level content in a topic. |
+| `POST` | `/api/topic/:topic/pins/add` | Assigned moderator/admin | Pins active top-level posts, threads, galleries, or Links in a topic. |
 | `POST` | `/api/topic/:topic/pins/:id/{update,delete}` | Assigned moderator/admin | Updates or removes a topic pin. |
 | `POST` | `/api/topic/:topic/{lock,unlock}` | Admin | Locks or unlocks a topic. |
 
@@ -300,7 +318,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | --- | --- | --- | --- |
 | `GET` | `/api/moderation/:type/:id` | Moderator/admin | Returns the moderation state for a target. |
 | `POST` | `/api/{post,gallery,image}/:id/report` | Authenticated | Reports a post, gallery, or image. |
-| `POST` | `/api/{post,thread,gallery}/:id/tag/add` | Moderator/admin | Adds a moderation tag to content. |
+| `POST` | `/api/{post,thread,gallery,link}/:id/tag/add` | Moderator/admin | Adds a moderation tag to content. |
 | `POST` | `/api/moderation/:type/:id/{lock,slow}/{apply,clear}` | Moderator/admin; target-scope checks | Applies or clears a conversation lock or slow mode. |
 
 ### Topic Report Queue
@@ -321,7 +339,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/user/:id/{follow,unfollow,save,unsave}` | Authenticated | Manages the current user's relationship with another user. |
 | `POST` | `/api/topic/:topic/{follow,unfollow}` | Authenticated | Follows or unfollows a topic. |
 | `POST` | `/api/user/:id/award` | Authenticated; token and self-award checks | Awards another user with tokens. |
-| `POST` | `/api/{post,thread,gallery}/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the content author as an award. |
+| `POST` | `/api/{post,thread,gallery,link}/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the content author as an award. |
 | `POST` | `/api/comment/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the comment author as an award. |
 | `POST` | `/api/profile/referral` | Authenticated | Claims a referral code. |
 
@@ -354,8 +372,8 @@ These endpoints manage privileged roles and application-wide content curation.
 | `GET` | `/api/admin/pin` | Admin | Lists application pins and their moderation state. |
 | `POST` | `/api/admin/pin/:id/update` | Admin | Activates or deactivates an application pin. |
 | `POST` | `/api/admin/pin/:id/delete` | Admin | Deletes an application pin. |
-| `POST` | `/api/{post,thread,gallery}/:id/archive` | Admin | Archives or restores a post, thread, or gallery. |
-| `POST` | `/api/{post,thread,gallery}/:id/pin` | Admin | Pins a post, thread, or gallery to the application feed. |
+| `POST` | `/api/{post,thread,gallery,link}/:id/archive` | Admin | Archives or restores content. |
+| `POST` | `/api/{post,thread,gallery,link}/:id/pin` | Admin | Queues an application pin for content; admins activate it through `/api/admin/pin/:id/update`. |
 
 ## Platform Settings
 

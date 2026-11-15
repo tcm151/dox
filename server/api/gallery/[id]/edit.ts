@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<EditGalleryRequest>(event)
 
     new Validator("Gallery")
-        .string(body.description, "description")
+        .string(body.description, "description", { maxLength: 256 })
         .confirm()
 
     return await new DatabaseQuery()

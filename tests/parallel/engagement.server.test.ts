@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, Gallery, Notification, Post, User } from "../../shared/types"
+import type { Comment, Gallery, Link, Notification, Post, User } from "../../shared/types"
 
 const exampleServer = await grabExampleServer("default")
 const awardSender = exampleServer.users.awardSender
@@ -195,6 +195,50 @@ it("awards galleries with a token transfer and notification", async () => {
                 UPDATE ${authorBefore.id} SET tokens = ${authorBefore.tokens};
                 DELETE notification WHERE recipient = ${authorBefore.id} AND context = ${galleryRecord};
                 DELETE ${galleryRecord};
+            `)
+        }
+    }
+})
+
+it("awards links with a token transfer and notification", async () => {
+    const linkId = `linkAward${Date.now()}`
+    const linkRecord = `link:${linkId}`
+    const senderBefore = await awardSender.fetch<User>("/api/profile/authenticate")
+    const authorBefore = await awardTarget.fetch<User>("/api/profile/authenticate")
+    let linkCreated = false
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${linkRecord} SET
+                user = ${authorBefore.id},
+                title = "Link award test",
+                url = "https://example.invalid/award";
+        `)
+        linkCreated = true
+
+        expectStatus(await awardTarget.fetchRaw(`/api/link/${linkId}/award`, { method: "POST" }), 400)
+        const award = () => awardSender.fetchRaw(`/api/link/${linkId}/award`, { method: "POST" })
+        expectStatus(await award(), 204)
+        expectStatus(await award(), 409)
+
+        const links = await admin.query<Link[][]>(`SELECT * FROM ${linkRecord};`)
+        const senderAfter = await awardSender.fetch<User>("/api/profile/authenticate")
+        const authorAfter = await awardTarget.fetch<User>("/api/profile/authenticate")
+        expect(links[0]?.[0]?.votes.awards).toContain(senderBefore.id)
+        expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
+        expect(authorAfter.tokens).toBe(authorBefore.tokens + 256)
+
+        const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
+        const notification = notifications.notifications.find(item => item.context === linkRecord)
+        expect(notification?.message).toContain("awarded your link")
+    }
+    finally {
+        if (linkCreated) {
+            await admin.query(`
+                UPDATE ${senderBefore.id} SET tokens = ${senderBefore.tokens};
+                UPDATE ${authorBefore.id} SET tokens = ${authorBefore.tokens};
+                DELETE notification WHERE recipient = ${authorBefore.id} AND context = ${linkRecord};
+                DELETE ${linkRecord};
             `)
         }
     }

@@ -31,8 +31,8 @@ export class ModerationManager {
 
     static async addContentTag(targetId: string, userId: string, tag: string): Promise<void> {
         const targetType = targetId.slice(0, targetId.indexOf(":"))
-        if (!["post", "thread", "gallery"].includes(targetType)) {
-            throw createError({ statusCode: 400, statusMessage: "Tags are only supported on posts, threads, and galleries." })
+        if (!["post", "thread", "gallery", "link"].includes(targetType)) {
+            throw createError({ statusCode: 400, statusMessage: "Tags are only supported on posts, threads, galleries, and links." })
         }
 
         await new DatabaseQuery()
@@ -220,7 +220,7 @@ export class ModerationManager {
             .addSql(`
                 LET $recent = (
                     SELECT topics, time::now() - time AS since
-                    FROM post, thread, gallery
+                    FROM post, thread, gallery, link
                     WHERE user = $user
                     AND topics CONTAINSANY $topics
                     AND time::now() - time < 1h

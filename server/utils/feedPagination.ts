@@ -19,7 +19,7 @@ const FEED_FIELDS = [
     "user.id",
     "user.name",
     "title",
-    "content",
+    `string::slice(content ?? "", 0, 512) AS content`,
     "tags",
     "time",
     "edited",
@@ -40,6 +40,7 @@ const FEED_FIELDS = [
     "type",
     "tokens",
     "url",
+    "preview",
     "description",
 ]
 

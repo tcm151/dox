@@ -4,12 +4,10 @@ import type { SearchComment } from '@@/shared/types'
 const props = defineProps<{ comment: SearchComment }>()
 const contextUrl = computed(() => {
     const context = props.comment.context
-    const table = "title" in context ? "post" : "gallery"
+    const table = "url" in context ? "link" : "description" in context ? "gallery" : "post"
     return `/${table}/${extractId(context.id)}#${encodeURIComponent(props.comment.id)}`
 })
-const contextName = computed(() => "title" in props.comment.context
-    ? props.comment.context.title
-    : props.comment.context.description)
+const contextName = computed(() => props.comment.context.title)
 </script>
 
 <template>

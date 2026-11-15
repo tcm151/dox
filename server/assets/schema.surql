@@ -130,6 +130,8 @@ DEFINE FIELD threads ON topic
     COMPUTED <~(thread FIELD topics);
 DEFINE FIELD galleries ON topic
     COMPUTED <~(gallery FIELD topics);
+DEFINE FIELD links ON topic
+    COMPUTED <~(link FIELD topics);
 DEFINE FIELD visits ON topic
     TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD followers ON topic
@@ -137,7 +139,7 @@ DEFINE FIELD followers ON topic
 DEFINE FIELD moderators ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD firstUsed ON topic
-    COMPUTED time::min(array::filter(array::union(array::union(posts.time ?? [], threads.time ?? []), galleries.time ?? []), |$value| $value != NONE));
+    COMPUTED time::min(array::filter(array::union(array::union(array::union(posts.time ?? [], threads.time ?? []), galleries.time ?? []), links.time ?? []), |$value| $value != NONE));
 DEFINE FIELD votes.positive ON topic
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON topic
@@ -216,6 +218,77 @@ DEFINE EVENT ensureTopics ON post WHEN $event = 'CREATE' THEN {
 
 
 -- ------------------------------
+-- TABLE: link
+-- ------------------------------
+DEFINE TABLE link SCHEMAFULL;
+DEFINE FIELD user ON link
+    TYPE record<user>;
+DEFINE FIELD title ON link
+    TYPE string ASSERT $value.len() >= 4 AND $value.len() <= 128;
+DEFINE INDEX IF NOT EXISTS linkTitleSearch ON TABLE link
+    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE FIELD url ON link
+    TYPE string ASSERT $value.len() <= 2048;
+DEFINE FIELD description ON link
+    TYPE string ASSERT $value.len() <= 256 DEFAULT ALWAYS "";
+DEFINE FIELD preview ON link
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD preview.title ON link
+    TYPE option<string> ASSERT $value = NONE OR $value.len() <= 512;
+DEFINE FIELD preview.description ON link
+    TYPE option<string> ASSERT $value = NONE OR $value.len() <= 256;
+DEFINE FIELD preview.canonicalUrl ON link
+    TYPE option<string> ASSERT $value = NONE OR $value.len() <= 2048;
+DEFINE FIELD preview.imageUrl ON link
+    TYPE option<string> ASSERT $value = NONE OR $value.len() <= 2048;
+DEFINE FIELD time ON link
+    TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD tags ON link
+    TYPE array<string> DEFAULT ALWAYS []
+    ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
+DEFINE FIELD topics ON link
+    TYPE array<record<topic>> DEFAULT ALWAYS []
+    REFERENCE ON DELETE REJECT;
+DEFINE FIELD comments ON link
+    COMPUTED <~(comment FIELD context);
+DEFINE FIELD moderation ON link COMPUTED (
+    SELECT locked, slowed
+    FROM ONLY moderation
+    WHERE subject = $parent.id
+    LIMIT 1
+);
+DEFINE FIELD status ON link
+    TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
+DEFINE FIELD edited ON link
+    TYPE bool DEFAULT ALWAYS false;
+DEFINE FIELD timeEdited ON link
+    TYPE option<datetime>;
+DEFINE FIELD visits ON link
+    TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes.positive ON link
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.misleading ON link
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.negative ON link
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.awards ON link
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes.saves ON link
+    TYPE array<record<user>> DEFAULT ALWAYS [];
+DEFINE FIELD votes ON link
+    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
+DEFINE FIELD score ON link
+    COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+DEFINE EVENT ensureTopics ON link WHEN $event = 'CREATE' THEN {
+    FOR $topic in $after.topics {
+        IF !record::exists($topic) {
+            CREATE $topic;
+        }
+    };
+};
+
+
+-- ------------------------------
 -- TABLE: draft
 -- ------------------------------
 DEFINE TABLE draft SCHEMAFULL;
@@ -245,7 +318,7 @@ DEFINE TABLE comment SCHEMAFULL;
 DEFINE FIELD user ON comment
     TYPE record<user>;
 DEFINE FIELD context ON comment
-    TYPE record<post | gallery> ASSERT record::exists($value)
+    TYPE record<post | link | gallery> ASSERT record::exists($value)
     REFERENCE ON DELETE REJECT;
 DEFINE FIELD content ON comment
     TYPE string;
@@ -254,7 +327,7 @@ DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
 DEFINE FIELD time ON comment
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON comment
-    TYPE record<post | gallery | comment>;
+    TYPE record<post | link | gallery | comment>;
 DEFINE FIELD deleted ON comment
     TYPE bool DEFAULT ALWAYS false;
 DEFINE FIELD status ON comment
@@ -419,8 +492,12 @@ DEFINE FIELD score ON audio
 DEFINE TABLE gallery SCHEMAFULL;
 DEFINE FIELD user ON gallery
     TYPE record<user>;
+DEFINE FIELD title ON gallery
+    TYPE string ASSERT $value.len() >= 4 AND $value.len() <= 128 DEFAULT ALWAYS "Gallery";
+DEFINE INDEX IF NOT EXISTS galleryTitleSearch ON TABLE gallery
+    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD description ON gallery
-    TYPE string DEFAULT ALWAYS "";
+    TYPE string ASSERT $value.len() <= 256 DEFAULT ALWAYS "";
 DEFINE FIELD tags ON gallery
     TYPE array<string> DEFAULT ALWAYS []
     ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
@@ -475,11 +552,12 @@ DEFINE TABLE feed AS
 SELECT id, id AS sourceId, time,
     fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits) AS score,
     user, topics
-FROM post, thread, gallery
+FROM post, thread, gallery, link
 WHERE IF id IS NONE THEN false ELSE (
     (record::tb(id) = 'post' AND status = 'active')
     OR (record::tb(id) = 'thread' AND replyTo = NONE AND status = 'active')
     OR (record::tb(id) = 'gallery' AND status = 'active')
+    OR (record::tb(id) = 'link' AND status = 'active')
 ) END;
 DEFINE FIELD hot ON feed
     COMPUTED fn::sort_hot(score, time, time::now());
@@ -502,7 +580,7 @@ DEFINE FIELD time ON mediaTrash
 -- ------------------------------
 DEFINE TABLE pin SCHEMAFULL;
 DEFINE FIELD item ON pin
-    TYPE record<post|thread|gallery>;
+    TYPE record<post|thread|gallery|link>;
 DEFINE FIELD scope ON pin
     TYPE string ASSERT $value IN ["app", "topic"] DEFAULT ALWAYS "app";
 DEFINE FIELD topic ON pin
@@ -527,7 +605,7 @@ DEFINE TABLE notification SCHEMAFULL;
 DEFINE FIELD recipient ON notification
     TYPE record<user>;
 DEFINE FIELD context ON notification
-    TYPE record<post|comment|user|thread|gallery|image|report|topic>;
+    TYPE record<post|link|comment|user|thread|gallery|image|report|topic>;
 DEFINE FIELD message ON notification
     TYPE string;
 DEFINE FIELD time ON notification
@@ -619,7 +697,7 @@ DEFINE FIELD history.*.changes ON report
 -- ------------------------------
 DEFINE TABLE moderation SCHEMAFULL;
 DEFINE FIELD subject ON moderation
-    TYPE record<post | gallery | comment | thread>
+    TYPE record<post | link | gallery | comment | thread>
     ASSERT record::exists($value)
     REFERENCE ON DELETE CASCADE;
 DEFINE INDEX subject ON TABLE moderation

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Gallery, Image, Post, Thread } from "@@/shared/types"
+import type { Gallery, Image, Link, Post, Thread } from "@@/shared/types"
 
-type ContentHeaderItem = Post | Thread | Gallery | Image
+type ContentHeaderItem = Post | Link | Thread | Gallery | Image
 
 const props = withDefaults(defineProps<{
     content: ContentHeaderItem
@@ -11,9 +11,9 @@ const props = withDefaults(defineProps<{
     context: "preview",
 })
 
-const post = computed(() => "title" in props.content ? props.content : undefined)
+const post = computed(() => "content" in props.content && "title" in props.content ? props.content : undefined)
 const thread = computed(() => "replies" in props.content ? props.content : undefined)
-const gallery = computed(() => "comments" in props.content && !("title" in props.content) ? props.content : undefined)
+const gallery = computed(() => "images" in props.content && "description" in props.content ? props.content : undefined)
 const image = computed(() => "type" in props.content ? props.content : undefined)
 const topics = computed(() => "topics" in props.content ? props.content.topics : [])
 const moderation = computed(() => "moderation" in props.content ? props.content.moderation : undefined)

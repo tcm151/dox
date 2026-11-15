@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Comment, Post, Gallery } from '@@/shared/types';
+import type { Comment, Post, Link, Gallery } from '@@/shared/types';
 
 const hints = useHints()
 const session = getSession()
@@ -7,7 +7,7 @@ const slowMode = useSlowMode()
 
 const props = defineProps<{
     comment: Comment
-    discussion: Post | Gallery
+    discussion: Post | Link | Gallery
     editing: boolean
 }>()
 
@@ -57,7 +57,7 @@ async function updateComment(comment: Comment) {
     }
 }
 
-async function submitComment(replyId: Post | Gallery | Comment, content: string) {
+async function submitComment(replyId: Post | Link | Gallery | Comment, content: string) {
     if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")

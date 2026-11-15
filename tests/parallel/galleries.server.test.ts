@@ -20,7 +20,7 @@ it("rejects publishing an image owned by another user", async () => {
 
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            body: { images: [`image:${imageId}`], description: "", topics: [] },
+            body: { images: [`image:${imageId}`], title: "Foreign image", description: "", topics: [] },
         })
         expectStatus(publishResponse, 403)
     }
@@ -45,7 +45,7 @@ it("allows other users to attach an image only after gallery publication", async
 
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            body: { images: [`image:${imageId}`], description: "", topics: [] },
+            body: { images: [`image:${imageId}`], title: "Attachment gallery", description: "", topics: [] },
         })
         expectStatus(publishResponse, 200)
         const galleries = await admin.fetch<Gallery[]>("/api/gallery")
@@ -79,7 +79,7 @@ it("returns gallery details, increments visits, and denies deletion by a non-own
 
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            body: { images: [`image:${imageId}`], description, topics: [] },
+            body: { images: [`image:${imageId}`], title: "Gallery detail", description, topics: [] },
         })
         expectStatus(publishResponse, 200)
 
@@ -119,7 +119,7 @@ it("allows owners to edit gallery descriptions and denies other users", async ()
         await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
         expectStatus(await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            body: { images: [`image:${imageId}`], description, topics: [] },
+            body: { images: [`image:${imageId}`], title: "Gallery edit", description, topics: [] },
         }), 200)
 
         const galleries = await admin.fetch<Gallery[]>("/api/gallery")
@@ -154,7 +154,7 @@ it("allows admins to add gallery tags and denies regular members", async () => {
 
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            body: { images: [`image:${imageId}`], description, topics: [], tags: ["spoiler"] },
+            body: { images: [`image:${imageId}`], title: "Gallery tags", description, topics: [], tags: ["spoiler"] },
         })
         expectStatus(publishResponse, 200, "gallery publication stage")
 
@@ -190,7 +190,7 @@ it("rejects gallery publishing without images", async () => {
 
     const response = await admin.fetchRaw("/api/gallery/publish", {
         method: "POST",
-        body: { images: [], description, topics: [] },
+        body: { images: [], title: "Empty gallery", description, topics: [] },
     })
     expectStatus(response, 400)
 
@@ -215,6 +215,7 @@ it("removes a gallery-only topic after its gallery is deleted", async () => {
             method: "POST",
             body: {
                 images: [`image:${imageId}`, `image:${otherImageId}`],
+                title: "Topic cleanup gallery",
                 description: "",
                 topics: [`topic:${topicId}`],
             },
@@ -270,7 +271,7 @@ it("supports gallery comments, replies, retrieval, and reference-protected delet
         await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
-            body: { images: [`image:${imageId}`], description, topics: [] },
+            body: { images: [`image:${imageId}`], title: "Gallery comments", description, topics: [] },
         })
         expectStatus(publishResponse, 200, "gallery publication stage")
 

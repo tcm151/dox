@@ -213,7 +213,7 @@ onBeforeUnmount(() => {
         <div class="stage">
             <ol
                 ref="imageStrip"
-                class="strip row g-3 p-2 m-0"
+                class="strip br-small row g-3 m-0"
                 :class="{ 'drag-enabled': showScrollControls }"
                 v-drag-scroll
                 @pointerdown="handlePointerDown"
@@ -329,7 +329,7 @@ onBeforeUnmount(() => {
             display: block;
             width: auto;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         &:only-child {

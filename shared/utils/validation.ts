@@ -10,7 +10,7 @@ export const useValidation = () => {
     }
 
     const post = {
-        title: (v: string) => /.{4,128}/.test(v)
+        title: (v: string) => /^[\s\S]{4,128}$/.test(v)
     }
 
     const topic = {

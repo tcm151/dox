@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SearchComment, Sortable, Post, Thread, Gallery } from '@@/shared/types'
+import type { SearchComment, Sortable, Post, Link, Thread, Gallery } from '@@/shared/types'
 
 const props = defineProps<{
     item: Sortable | SearchComment
@@ -15,6 +15,9 @@ const props = defineProps<{
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'post'">
         <PostPreview :post="(item as Post)" :pinned="pinned" />
+    </template>
+    <template v-else-if="item.id?.split(':')[0] == 'link'">
+        <LinkPreview :link="(item as Link)" :pinned="pinned" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'gallery'">
         <GalleryPreview :gallery="(item as Gallery)" :pinned="pinned" />

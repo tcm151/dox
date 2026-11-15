@@ -18,6 +18,7 @@ const imageSlides = computed(() => props.gallery.images.map((image, index) => ({
         <div class="gallery box background animate hover-shadow" :class="{ pinned }">
             <div class="main clickable box column p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
                 <ContentHeader class="mb-2" :content="gallery" context="preview" :pinned="pinned" />
+                <h3 class="title text left mb-2">{{ gallery.title }}</h3>
                 <ImageSlideshow :images="imageSlides" label="Gallery images" />
                 <!-- <Markdown v-if="gallery.description" class="content preview" :content="gallery.description" /> -->
             </div>
@@ -28,6 +29,10 @@ const imageSlides = computed(() => props.gallery.images.map((image, index) => ({
 <style scoped lang="scss">
 .main {
     overflow: hidden;
+}
+
+.title {
+    overflow-wrap: anywhere;
 }
 
 .gallery.pinned .main {

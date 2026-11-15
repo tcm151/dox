@@ -22,6 +22,7 @@ const tabs = ref<TabItem[]>([
     { route: '/feed/topics', icon: 'fa-tags', label: 'Topics', hide: () => !settings.app.feeds.topics },
     { route: '/feed/home', icon: 'fa-house', label: 'Home' },
     { route: '/feed/posts', icon: 'fa-newspaper', label: 'Posts', hide: () => !settings.app.feeds.posts },
+    { route: '/feed/links', icon: 'fa-link', label: 'Links', hide: () => !settings.app.feeds.links },
     { route: '/feed/threads', icon: 'fa-comments', label: 'Threads', hide: () => !settings.app.feeds.threads },
     { route: '/feed/gallery', icon: 'fa-images', label: 'Galleries', hide: () => !settings.app.feeds.images },
     { route: '/feed/audio', icon: 'fa-microphone', label: 'Audio', hide: () => !settings.app.feeds.audio },

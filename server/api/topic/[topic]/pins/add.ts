@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<{ item?: string }>(event)
     const itemId = typeof body?.item === "string" ? body.item : undefined
     const item = itemId ? parseRecordId(itemId) : undefined
-    if (!itemId || !item || !["post", "thread", "gallery"].includes(item.table)) {
-        throw createError({ statusCode: 400, statusMessage: "A post, thread, or gallery record is required." })
+    if (!itemId || !item || !["post", "thread", "gallery", "link"].includes(item.table)) {
+        throw createError({ statusCode: 400, statusMessage: "A post, thread, gallery, or link record is required." })
     }
 
     await new DatabaseQuery()

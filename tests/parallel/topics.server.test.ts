@@ -1,10 +1,75 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, ModeratorLog, Pin, Post, Thread, Topic } from "../../shared/types"
+import type { Comment, Link, ModeratorLog, Pin, Post, Thread, Topic } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const member = (await grabExampleServer("default")).users.sampleUser01
+
+it("includes published links in the topic feed", async () => {
+    const topicId = `topicLinkFeed${Date.now()}`
+    const linkId = `topicFeedLink${Date.now()}`
+
+    try {
+        await admin.query(`
+            CREATE ONLY topic:${topicId};
+            CREATE ONLY link:${linkId} SET
+                user = ${admin.user.id},
+                title = "Topic feed link",
+                url = "https://example.invalid/article",
+                topics = [topic:${topicId}];
+        `)
+
+        const feed = await admin.fetch<Link[]>(`/api/topic/${topicId}/feed?sortBy=new`)
+        expect(feed.find(item => item.id === `link:${linkId}`)).toMatchObject({
+            title: "Topic feed link",
+            url: "https://example.invalid/article",
+            preview: {},
+            topics: [`topic:${topicId}`],
+        })
+    }
+    finally {
+        await admin.query(`DELETE link:${linkId}; DELETE topic:${topicId};`)
+    }
+})
+
+it("lets moderators pin links to their topic", async () => {
+    const topicId = `topicLinkPin${Date.now()}`
+    const linkId = `topicPinnedLink${Date.now()}`
+    const linkRecord = `link:${linkId}`
+
+    try {
+        await admin.query(`
+            CREATE ONLY topic:${topicId};
+            CREATE ONLY ${linkRecord} SET
+                user = ${admin.user.id},
+                title = "Topic pinned link",
+                url = "https://example.invalid/topic-pin",
+                topics = [topic:${topicId}];
+        `)
+
+        const response = await admin.fetchRaw(`/api/topic/${topicId}/pins/add`, {
+            method: "POST",
+            body: { item: linkRecord },
+        })
+        expectStatus(response, 200)
+
+        const pins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = ${linkRecord} AND topic = topic:${topicId};`)
+        expect(pins[0]).toHaveLength(1)
+        expect(pins[0]?.[0]).toMatchObject({ item: linkRecord, scope: "topic", topic: `topic:${topicId}` })
+        const visiblePins = await admin.fetch<Pin[]>(`/api/topic/${topicId}/pins`)
+        expect(visiblePins.find(pin => pin.item.id === linkRecord)).toBeDefined()
+        const managedPins = await admin.fetch<Pin[]>(`/api/topic/${topicId}/pins/manage`)
+        expect(managedPins.find(pin => pin.item.id === linkRecord)).toBeDefined()
+    }
+    finally {
+        await admin.query(`
+            DELETE pin WHERE item = ${linkRecord};
+            DELETE ${linkRecord};
+            DELETE topic:${topicId};
+        `)
+    }
+})
 
 it("creates and traverses a referenced topic, then removes it when its post is deleted", async () => {
     const topicId = `topicReference${Date.now()}`
@@ -289,6 +354,7 @@ it("allows only admins to lock and unlock topics without restricting existing di
             method: "POST",
             body: {
                 images: [`image:${imageId}`],
+                title: "Locked topic gallery",
                 description: "This new gallery must not use a locked topic.",
                 topics: [`topic:${topicId}`],
             },

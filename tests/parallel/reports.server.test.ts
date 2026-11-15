@@ -1053,6 +1053,7 @@ it("reports comments in inherited topic queues and quarantines only the comment"
             method: "POST",
             body: {
                 images: [`image:${imageId}`],
+                title: `Gallery report ${suffix}`,
                 description: `Gallery for comment report ${suffix}`,
                 topics: [`topic:${topicId}`],
             },

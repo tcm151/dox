@@ -5,6 +5,23 @@ const props = defineProps<{
     post: Post
     pinned?: boolean
 }>()
+
+const thumbnailSize = ref({ width: '96px', height: '72px' })
+
+const contentPreview = computed(() => {
+    const text = renderMarkdownText(props.post.content ?? "")
+    return (text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? []).slice(0, 3).join("").trim()
+})
+
+function updateThumbnailSize(event: Event) {
+    const image = event.currentTarget as HTMLImageElement
+    if (!image.naturalWidth || !image.naturalHeight) return
+
+    const aspectRatio = Math.min(16 / 9, Math.max(9 / 16, image.naturalWidth / image.naturalHeight))
+    const width = Math.min(128, 96 * aspectRatio)
+    const height = width / aspectRatio
+    thumbnailSize.value = { width: `${width}px`, height: `${height}px` }
+}
 </script>
 
 <template>
@@ -16,14 +33,26 @@ const props = defineProps<{
                     <p class="text truncate bold">{{ post.replyTo.title }}</p>
                 </div>
             </ContentVisibility>
-            <div class="main box row g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
-                <div class="f-1">
-                    <ContentHeader :content="post" context="preview" :pinned="pinned" />
-                    <h3 class="title mt-2">
-                        {{ post.title }}
-                    </h3>
+            <div class="main box column g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
+                <ContentHeader :content="post" context="preview" :pinned="pinned" />
+                <div class="content-row row inline start g-2">
+                    <div class="details f-1">
+                        <h3 class="title">
+                            {{ post.title }}
+                        </h3>
+                        <p class="description content-preview mt-1">{{ contentPreview }}</p>
+                    </div>
+                    <img
+                        v-if="post.images[0]"
+                        class="thumbnail br-medium border-subtle"
+                        :src="post.images[0].url"
+                        :alt="post.title"
+                        loading="lazy"
+                        decoding="async"
+                        :style="thumbnailSize"
+                        @load="updateThumbnailSize"
+                    >
                 </div>
-                <img v-if="post.images[0]" class="br-medium" :src="post.images[0].url">
             </div>
         </div>
     </ContentVisibility>
@@ -47,15 +76,30 @@ const props = defineProps<{
 }
 
 .main {
+    min-width: 0;
     overflow: hidden;
 }
 
-img {
-    max-width: 64px;
-    max-height: 64px;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border: 1px solid $white-1;
+.content-row, .details {
+    min-width: 0;
+}
+
+.content-preview {
+    line-clamp: 3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+.description {
+    color: $white-3;
+    font-size: 0.875rem;
+}
+
+.thumbnail {
+    flex: 0 0 auto;
+    object-fit: contain;
 }
 
 .reply-to + .main {

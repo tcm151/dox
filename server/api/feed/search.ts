@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
             LET $comments = (
                 SELECT id,
                     user.{id, name, roles} AS user,
-                    context.{id, title, description, tags} AS context, moderation,
+                    context.{id, title, description, url, tags} AS context, moderation,
                     content, time, edited, deleted, status, timeEdited, votes, score,
                     string::contains(string::lowercase(content), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
             );
 
             LET $posts = (
-                SELECT id, user.id, user.name, title, tags, time, edited, timeEdited,
+                SELECT id, user.id, user.name, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
                     replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes,
                     status, images.{id, url} AS images, visits, moderation,
                     (string::contains(string::lowercase(title), string::lowercase($text))
@@ -54,13 +54,14 @@ export default defineEventHandler(async (event) => {
             );
 
             LET $galleries = (
-                SELECT id, user.id, user.name, description, tags, time,
+                SELECT id, user.id, user.name, title, description, tags, time,
                     topics, images.{id, url} AS images, votes, score, visits, status,
                     moderation,
-                    string::contains(string::lowercase(description), string::lowercase($text)) AS search.exact,
-                    search::score(1) AS search.score
+                    (string::contains(string::lowercase(title), string::lowercase($text))
+                        OR string::contains(string::lowercase(description), string::lowercase($text))) AS search.exact,
+                    (search::score(1) * 2 + search::score(2)) AS search.score
                 FROM gallery
-                WHERE description @1@ $text
+                WHERE (title @1@ $text OR description @2@ $text)
                 AND status = "active"
                 FETCH user
             );

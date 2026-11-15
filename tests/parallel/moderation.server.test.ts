@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { AppSettings, Comment, Gallery, ModeratorLog, Moderation, Post, Thread, Topic, User } from "../../shared/types"
+import type { AppSettings, Comment, Gallery, Link, ModeratorLog, Moderation, Post, Thread, Topic, User } from "../../shared/types"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 
@@ -67,6 +67,41 @@ it("restricts the moderator log to administrators", async () => {
     const logs = await admin.fetch<ModeratorLog[]>("/api/admin/logs/moderator")
     expect(Array.isArray(logs)).toBe(true)
     expect(logs.length).toBeLessThanOrEqual(100)
+})
+
+it("allows administrators to tag and lock links", async () => {
+    const linkId = `moderatedLink${Date.now()}`
+    const linkRecord = `link:${linkId}`
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${linkRecord} SET
+                user = ${admin.user.id},
+                title = "Moderated link test",
+                url = "https://example.invalid/moderated";
+        `)
+
+        expectStatus(await admin.fetchRaw(`/api/link/${linkId}/tag/add`, {
+            method: "POST",
+            body: { tag: "spoiler" },
+        }), 204)
+        const link = await admin.fetch<Link>(`/api/link/${linkId}`)
+        expect(link.tags).toContain("spoiler")
+
+        const lock = await admin.fetchRaw<Pick<Moderation, "subject" | "locked">>(`/api/moderation/link/${linkId}/lock/apply`, {
+            method: "POST",
+            body: { scope: "item" },
+        })
+        expectStatus(lock, 200)
+        expect(lock._data).toMatchObject({ subject: linkRecord, locked: "item" })
+    }
+    finally {
+        await admin.query(`
+            DELETE moderatorLog WHERE target = ${linkRecord};
+            DELETE moderation WHERE subject = ${linkRecord};
+            DELETE ${linkRecord};
+        `)
+    }
 })
 
 it("authorizes lock controls by topic and audits lock and unlock transitions", async () => {

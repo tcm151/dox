@@ -6,12 +6,13 @@ const hints = useHints()
 
 const images = useImageUploader('editorImages')
 const topics = useTopicManager()
+const title = ref<string>("Gallery")
 const description = ref<string>("")
 const tags = ref<string[]>([])
 const imageSlides = computed(() => images.uploaded.map((image, index) => ({
     id: image.id,
     url: image.url,
-    alt: `${description.value || "Gallery"} image ${index + 1}`,
+    alt: `${title.value} image ${index + 1}`,
 })))
 
 const submitting = ref<boolean>(false)
@@ -24,12 +25,17 @@ async function submit() {
         hints.addWarning("You must include at least one topic.")
         return
     }
+    if (title.value.length < 4 || title.value.length > 128) {
+        hints.addWarning("Gallery titles must be between 4 and 128 characters.")
+        return
+    }
 
     try {
         submitting.value = true
         await useApi("/api/gallery/publish", {
             body: {
                 images: images.uploaded.map(image => image.id),
+                title: title.value,
                 description: description.value,
                 tags: tags.value,
                 topics: topics.items,
@@ -63,15 +69,20 @@ async function submit() {
         </template>
         <template #form>
             <UploadedImages size="large" :images="images" />
+            <div class="field">
+                <label>Title</label>
+                <input v-model="title" maxlength="128" />
+            </div>
             <div class="field f-1">
                 <label>Description</label>
-                <MarkdownEditor bounded class="f-1" :rows="1" v-model="description" />
+                <MarkdownEditor bounded class="f-1" :rows="1" :max-length="256" v-model="description" />
             </div>
             <TopicField :topics="topics" />
         </template>
         <template #preview>
             <ContentVisibility :tags="tags" direct>
                 <div class="column g-3">
+                    <h2 class="title text left">{{ title }}</h2>
                     <ImageSlideshow :images="imageSlides" label="Uploaded images" />
                     <Markdown compact class="content" :content="description" />
                 </div>

@@ -1,4 +1,4 @@
-import type { Gallery, Post, Thread } from "@@/shared/types"
+import type { Gallery, Link, Post, Thread } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!
@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
     let posts = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, title, tags, time, edited, timeEdited,
+            SELECT id, user.id, user.name, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
                 replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes, score,
                 status, images.{id, url} AS images, visits, moderation
             FROM post
@@ -17,6 +17,19 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("topic", `topic:${topic}`)
         .queryAll<Post>()
+
+    let links = await new DatabaseQuery()
+        .addSql(`
+            SELECT id, user.id, user.name, title, description, url, preview, tags, time, edited, timeEdited,
+                topics, comments, votes, score, status, visits, moderation
+            FROM link
+            WHERE topics CONTAINS $topic
+            AND status = "active"
+            ORDER BY time DESC
+            FETCH user
+        `)
+        .addRecord("topic", `topic:${topic}`)
+        .queryAll<Link>()
 
     let threads = await new DatabaseQuery()
         .addSql(`
@@ -36,7 +49,7 @@ export default defineEventHandler(async (event) => {
 
     let galleries = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, description, tags, time,
+            SELECT id, user.id, user.name, title, description, tags, time,
                 topics, images.{id, url} AS images, votes, score, visits, status, moderation
             FROM gallery
             WHERE topics CONTAINS $topic
@@ -47,5 +60,5 @@ export default defineEventHandler(async (event) => {
         .addRecord("topic", `topic:${topic}`)
         .queryAll<Gallery>()
 
-    return sortList([...posts, ...threads, ...galleries], query.sortBy)
+    return sortList([...posts, ...links, ...threads, ...galleries], query.sortBy)
 })

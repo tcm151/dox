@@ -11,9 +11,9 @@ export default defineEventHandler(async (event) => {
     const { topic, id } = event.context.params!
     const body = await readBody<UpdateTopicPinRequest>(event)
     
-    const validator = new Validator("TopicPin")
-    validator.boolean(body.active, "active")
-    validator.confirm()
+    new Validator("TopicPin")
+        .boolean(body.active, "active")
+        .confirm()
 
     await new DatabaseQuery()
         .addSql(`

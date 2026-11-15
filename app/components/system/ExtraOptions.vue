@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Comment, Gallery, Post, Thread } from "@@/shared/types"
+import type { Comment, Gallery, Link, Post, Thread } from "@@/shared/types"
 import { extractId, parseRecordId } from "@@/shared/utils/records"
 
 const hints = useHints()
 const session = getSession()
 
 const props = defineProps<{
-    target: Post | Thread | Gallery | Comment
+    target: Post | Thread | Gallery | Link | Comment
     topics?: string[]
 }>()
 
@@ -46,9 +46,9 @@ const actions = computed(() => {
         archive: isAdmin && type !== "comment",
         pin: {
             app: isAdmin && type !== "comment",
-            topic: (isAdmin || isTopicModerator) && (type === "post" || type === "gallery" || (type === "thread" && !isReply))
+            topic: (isAdmin || isTopicModerator) && (type === "post" || type === "gallery" || type === "link" || (type === "thread" && !isReply))
         },
-        tag: (isAdmin || isTopicModerator) && type !== "comment"
+        tag: (isAdmin || isTopicModerator) && (type === "post" || type === "thread" || type === "gallery" || type === "link")
     }
 })
 
@@ -182,8 +182,8 @@ async function addTag(tag: "nsfw" | "spoiler") {
     addingTag.value = true
     try {
         const record = targetRecord.value
-        if (!record || (record.table !== "post" && record.table !== "thread" && record.table !== "gallery")) {
-            throw new Error("Tags are only supported on posts, threads, and galleries.")
+        if (!record || (record.table !== "post" && record.table !== "thread" && record.table !== "gallery" && record.table !== "link")) {
+            throw new Error("Tags are only supported on posts, threads, galleries, and links.")
         }
 
         await useApi(`/api/${record.table}/${record.id}/tag/add`, { body: { tag } })

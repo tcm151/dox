@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, FeedPage, Pin, Post, SearchResult, Sortable } from "../../shared/types"
+import type { Comment, FeedPage, Link, Pin, Post, SearchResult, Sortable } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
@@ -23,6 +23,74 @@ it("rejects post publishing without authentication", async () => {
     })
 
     expectStatus(response, 401)
+})
+
+it("includes published links in the author's feed", async () => {
+    const linkId = `userFeedLink${Date.now()}`
+
+    try {
+        await admin.query(`
+            CREATE ONLY link:${linkId} SET
+                user = ${admin.user.id},
+                title = "Author feed link",
+                url = "https://example.invalid/article";
+        `)
+
+        const feed = await admin.fetch<Link[]>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
+        expect(feed.find(item => item.id === `link:${linkId}`)).toMatchObject({
+            title: "Author feed link",
+            url: "https://example.invalid/article",
+            preview: {},
+        })
+    }
+    finally {
+        await admin.query(`DELETE link:${linkId};`)
+    }
+})
+
+it("soft-deletes links with comments using status", async () => {
+    const linkId = `linkDelete${Date.now()}`
+    const linkRecord = `link:${linkId}`
+    let commentId: string | undefined
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${linkRecord} SET
+                user = ${admin.user.id},
+                title = "Link to delete",
+                url = "https://example.invalid/article";
+        `)
+
+        const commentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: {
+                context: linkRecord,
+                replyTo: linkRecord,
+                content: `Link delete comment ${Date.now()}`,
+            },
+        })
+        expectStatus(commentResponse, 200, "link comment creation stage")
+        commentId = extractId(commentResponse._data!.id)
+
+        const deleteResponse = await admin.fetchRaw(`/api/link/${linkId}/delete`)
+        expectStatus(deleteResponse, 200, "link deletion stage")
+
+        const deletedLinkStatus = await admin.query<string[]>(
+            `SELECT VALUE status FROM ONLY ${linkRecord};`,
+        )
+        expect(deletedLinkStatus[0]).toBe("deleted")
+
+        const deletedLink = await admin.fetch<Link>(`/api/link/${linkId}`)
+        expect(deletedLink.status).toBe("deleted")
+        expect(deletedLink).not.toHaveProperty("deleted")
+    }
+    finally {
+        await admin.query([
+            `DELETE notification WHERE context = ${linkRecord};`,
+            ...(commentId ? [`DELETE comment:${commentId};`] : []),
+            `DELETE ${linkRecord};`,
+        ].join("\n"))
+    }
 })
 
 it("denies app pin and archive actions to developer-only accounts", async () => {
@@ -53,9 +121,11 @@ it("denies app pin and archive actions to developer-only accounts", async () => 
             "/api/post/missing/archive",
             "/api/thread/missing/archive",
             "/api/gallery/missing/archive",
+            "/api/link/missing/archive",
             "/api/post/missing/pin",
             "/api/thread/missing/pin",
             "/api/gallery/missing/pin",
+            "/api/link/missing/pin",
             "/api/admin/pin/missing/delete",
         ]
         for (const path of protectedActions) {
@@ -79,6 +149,69 @@ it("denies app pin and archive actions to developer-only accounts", async () => 
             DELETE userSettings WHERE user = ${developer.id};
             DELETE account WHERE user = ${developer.id};
             DELETE ${developer.id};
+        `)
+    }
+})
+
+it("archives and app-pins links for administrators", async () => {
+    const linkId = `linkActions${Date.now()}`
+    const linkRecord = `link:${linkId}`
+    const postId = `postActions${Date.now()}`
+    const galleryId = `galleryActions${Date.now()}`
+    const archiveTargets = [
+        { type: "post", id: postId, record: `post:${postId}` },
+        { type: "gallery", id: galleryId, record: `gallery:${galleryId}` },
+        { type: "link", id: linkId, record: linkRecord },
+    ]
+
+    try {
+        await admin.query(`
+            CREATE ONLY post:${postId} SET
+                user = ${admin.user.id},
+                title = "Post actions test",
+                content = "Archive action test.";
+            CREATE ONLY gallery:${galleryId} SET
+                user = ${admin.user.id},
+                description = "Gallery actions test",
+                images = [];
+            CREATE ONLY ${linkRecord} SET
+                user = ${admin.user.id},
+                title = "Link actions test",
+                url = "https://example.invalid/actions";
+        `)
+
+        for (const target of archiveTargets) {
+            const archive = () => admin.fetchRaw(`/api/${target.type}/${target.id}/archive`, { method: "POST" })
+            expectStatus(await archive(), 200)
+            expect((await admin.query<string[]>(`SELECT VALUE status FROM ONLY ${target.record};`))[0]).toBe("archived")
+            expectStatus(await archive(), 200)
+            expect((await admin.query<string[]>(`SELECT VALUE status FROM ONLY ${target.record};`))[0]).toBe("active")
+        }
+
+        const pinResponse = await admin.fetchRaw<Pin>(`/api/link/${linkId}/pin`, { method: "POST" })
+        expectStatus(pinResponse, 200)
+        const pins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = ${linkRecord} AND scope = "app";`)
+        expect(pins[0]).toHaveLength(1)
+        const managedPins = await admin.fetch<Pin[]>("/api/admin/pin")
+        expect(managedPins.find(pin => pin.item.id === linkRecord)?.active).toBe(false)
+        const visiblePins = await admin.fetch<Pin[]>("/api/feed/pinned")
+        expect(visiblePins.find(pin => pin.item.id === linkRecord)).toBeUndefined()
+
+        expectStatus(await admin.fetchRaw(`/api/admin/pin/${extractId(pinResponse._data!.id)}/update`, {
+            method: "POST",
+            body: { active: true },
+        }), 200)
+        const activatedPins = await admin.fetch<Pin[]>("/api/feed/pinned")
+        expect(activatedPins.find(pin => pin.item.id === linkRecord)).toBeDefined()
+    }
+    finally {
+        await admin.query(`
+            DELETE pin WHERE item = ${linkRecord};
+            DELETE pin WHERE item = gallery:${galleryId};
+            DELETE pin WHERE item = post:${postId};
+            DELETE ${linkRecord};
+            DELETE gallery:${galleryId};
+            DELETE post:${postId};
         `)
     }
 })
@@ -184,10 +317,12 @@ it("allows admins to add post tags without allowing members or authors to remove
 
 it("projects moderation state onto post lists, feed, search, and pinned items", async () => {
     const searchTerm = `projectionmarker${Date.now()}`
+    const previewContent = `${searchTerm} ${"preview text ".repeat(60)}`
+    const expectedContent = previewContent.slice(0, 512)
     const topicId = `projectionTopic${Date.now()}`
     const response = await admin.fetchRaw<Post>("/api/post/add", {
         method: "POST",
-        body: { ...postRequest, title: `Moderation ${searchTerm}`, topics: [`topic:${topicId}`] },
+        body: { ...postRequest, title: `Moderation ${searchTerm}`, content: previewContent, topics: [`topic:${topicId}`] },
     })
     expectStatus(response, 200, "post creation stage")
     const post = response._data!
@@ -198,28 +333,35 @@ it("projects moderation state onto post lists, feed, search, and pinned items", 
         await admin.query(`
             CREATE moderation SET subject = post:${postId}, locked = "item";
             CREATE pin SET item = post:${postId}, user = ${admin.user.id}, active = true;
+            CREATE pin SET item = post:${postId}, user = ${admin.user.id}, scope = "topic", topic = topic:${topicId}, active = true;
         `)
 
         const posts = await admin.fetch<Post[]>("/api/post?sortBy=new")
-        expect(posts.find(item => item.id === post.id)).toMatchObject({ moderation: { locked: "item" } })
+        expect(posts.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const topicFeed = await admin.fetch<Sortable[]>(`/api/topic/${topicId}/feed?sortBy=new`)
-        expect(topicFeed.find(item => item.id === post.id)).toMatchObject({ moderation: { locked: "item" } })
+        expect(topicFeed.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const userFeed = await admin.fetch<Sortable[]>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
-        expect(userFeed.find(item => item.id === post.id)).toMatchObject({ moderation: { locked: "item" } })
+        expect(userFeed.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const feed = await admin.fetch<FeedPage<Post>>("/api/feed/popular?sortBy=new&pageSize=50")
-        expect(feed.items.find(item => item.id === post.id)).toMatchObject({ moderation: { locked: "item" } })
+        expect(feed.items.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const searchResults = await admin.fetch<SearchResult[]>(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(searchResults.find(item => item.id === post.id)).toMatchObject({ moderation: { locked: "item" } })
+        expect(searchResults.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const pins = await admin.fetch<Pin[]>("/api/feed/pinned")
-        expect(pins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ moderation: { locked: "item" } })
+        expect(pins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+
+        const topicPins = await admin.fetch<Pin[]>(`/api/topic/${topicId}/pins`)
+        expect(topicPins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+
+        const managedTopicPins = await admin.fetch<Pin[]>(`/api/topic/${topicId}/pins/manage`)
+        expect(managedTopicPins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const adminPins = await admin.fetch<Pin[]>("/api/admin/pin")
-        expect(adminPins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ moderation: { locked: "item" } })
+        expect(adminPins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
     }
     finally {
         await admin.query([

@@ -14,7 +14,11 @@ export default defineEventHandler(async (event) => {
             IF NOT ($user.roles CONTAINS "admin" OR $topic.moderators CONTAINS $user) {
                 fn::http(403, "You cannot manage pins for this topic.");
             };
-            SELECT *
+            SELECT id,
+                item.{ id, user, title, content, tags, time, visits, score, votes, replyTo, topics, comments, images, status, edited, timeEdited, moderation,
+                    description, url, preview, quote, quotes, replies, ancestors, chain, deleted } AS item,
+                IF record::tb(item) = "post" THEN string::slice(item.content ?? "", 0, 512) ELSE item.content END AS item.content,
+                scope, topic, user, active, time
             FROM pin
             WHERE scope = "topic" AND topic = $topic
             AND record::exists(item) AND item.status = "active"

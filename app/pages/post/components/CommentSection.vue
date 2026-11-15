@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Post, Gallery, Comment } from '@@/shared/types'
+import type { Post, Link, Gallery, Comment } from '@@/shared/types'
 
 const session = getSession()
 const events = useEvents()
 const hints = useHints()
 
 const props = defineProps<{
-    target: Post | Gallery
+    target: Post | Link | Gallery
     sortType: string
     loading: string
 }>()

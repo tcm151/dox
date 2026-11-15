@@ -25,6 +25,7 @@ export class RateLimiter {
             [RateLimiter.#reportSubmissionPath]: { ms: requestWindow, max: maxRequests },
             "/api/image/upload": { ms: requestWindow, max: maxRequests },
             "/api/audio/upload": { ms: requestWindow, max: maxRequests },
+            "/api/link/preview": { ms: requestWindow, max: 60 },
         })
     }
 

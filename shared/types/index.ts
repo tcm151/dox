@@ -65,6 +65,7 @@ export interface Topic extends Sortable {
     rules?: string
     status: TopicStatus
     posts: Post[]
+    links: Link[]
     moderation: {
         maxPostInterval: number
         priorityReportThreshold: number
@@ -96,6 +97,26 @@ export interface Post extends Sortable {
     moderation?: ContentModerationState
 }
 
+export interface Link extends Sortable {
+    user: User & string
+    title: string
+    description: string
+    url: string
+    preview: {
+        title?: string
+        description?: string
+        canonicalUrl?: string
+        imageUrl?: string
+    }
+    tags: string[]
+    topics: string[]
+    comments: (Comment & string)[]
+    status: ContentStatus
+    edited: boolean
+    timeEdited?: string
+    moderation?: ContentModerationState
+}
+
 export interface Draft extends Record {
     user: User & string
     title: string
@@ -109,9 +130,9 @@ export interface Draft extends Record {
 
 export interface Comment extends Sortable {
     user: User & string
-    context: (Post | Gallery) & string
+    context: (Post | Link | Gallery) & string
     content: string
-    replyTo: (Post | Gallery | Comment) & string
+    replyTo: (Post | Link | Gallery | Comment) & string
     deleted: boolean
     status: ContentStatus
     edited: boolean
@@ -153,6 +174,7 @@ export interface Image extends Media {
 
 export interface Gallery extends Sortable {
     user: User & string
+    title: string
     description: string
     tags: string[]
     topics: string[]
@@ -164,7 +186,9 @@ export interface Gallery extends Sortable {
 
 export interface SearchComment extends Voteable {
     user: Pick<User, "id" | "name" | "roles">
-    context: Pick<Post, "id" | "title" | "tags"> | Pick<Gallery, "id" | "description" | "tags">
+    context: Pick<Post, "id" | "title" | "tags">
+        | Pick<Link, "id" | "title" | "description" | "url" | "tags">
+        | Pick<Gallery, "id" | "title" | "description" | "tags">
     content: string
     time: string
     edited: boolean
@@ -173,7 +197,7 @@ export interface SearchComment extends Voteable {
     moderation?: ContentModerationState
 }
 
-export type SearchResult = (Post | Thread | Gallery | SearchComment) & {
+export type SearchResult = (Post | Link | Thread | Gallery | SearchComment) & {
     search: {
         exact: boolean
         score: number
@@ -187,7 +211,7 @@ export interface Attachment extends Record {
 export interface Audio extends Media { }
 
 export interface Pin extends Record {
-    item: Post | Thread | Gallery
+    item: Post | Link | Thread | Gallery
     scope: PinScope
     topic?: Topic & string
     user: User
@@ -197,7 +221,7 @@ export interface Pin extends Record {
 
 export interface Notification extends Record {
     recipient: User & string
-    context: (Post | Comment | User | Thread | Gallery | Image | Report | Topic) & string
+    context: (Post | Link | Comment | User | Thread | Gallery | Image | Report | Topic) & string
     message: string
     time: string
     viewed: boolean
@@ -255,7 +279,7 @@ export interface Report extends Record {
 }
 
 export interface Moderation extends Record {
-    subject: (Post | Gallery | Comment | Thread) & string
+    subject: (Post | Link | Gallery | Comment | Thread) & string
     locked?: "item"
     slowed?: number
 }

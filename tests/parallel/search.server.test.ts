@@ -61,6 +61,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             method: "POST",
             body: {
                 images: [`image:${imageId}`],
+                title: `Search gallery ${searchTerm}`,
                 description: galleryDescription,
                 topics: [],
             },
@@ -323,3 +324,4 @@ it("returns empty results for unmatched and empty search terms", async () => {
         expect(await response.json()).toEqual([])
     }
 })
+

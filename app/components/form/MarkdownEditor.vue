@@ -22,6 +22,7 @@ const props = defineProps<{
     label?: string
     tip?: string
     rows?: number
+    maxLength?: number
     placeholder?: string
     disabled?: boolean
     spellcheck?: boolean
@@ -248,6 +249,7 @@ function handleKeydown(event: KeyboardEvent) {
         <textarea
             ref="textarea"
             :rows="rows ?? 8"
+            :maxlength="maxLength"
             :placeholder="placeholder"
             :disabled="disabled"
             :spellcheck="spellcheck ?? true"
