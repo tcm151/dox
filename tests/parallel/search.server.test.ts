@@ -325,3 +325,89 @@ it("returns empty results for unmatched and empty search terms", async () => {
     }
 })
 
+it("filters search results by type, topic, author, and inclusive UTC date range", async () => {
+    const identifier = randomUUID().replaceAll("-", "")
+    const searchTerm = `searchfilters${identifier}`
+    const commentSearchTerm = `searchfiltercomment${identifier}`
+    const topicId = `search${identifier.replace(/\d/g, "a").slice(0, 12)}`
+    const postTitle = `Search filters ${identifier}`
+    let postId: string | undefined
+    let commentId: string | undefined
+
+    try {
+        const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
+            method: "POST",
+            body: {
+                title: postTitle,
+                content: `Unique search text ${searchTerm}`,
+                topics: [`topic:${topicId}`],
+                images: [],
+            },
+        })
+        expectStatus(postResponse, 200)
+        postId = extractId(postResponse._data!.id)
+        expect(postId).toBeDefined()
+
+        const commentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: `post:${postId}`, replyTo: `post:${postId}`, content: commentSearchTerm },
+        })
+        expectStatus(commentResponse, 200)
+        commentId = extractId(commentResponse._data!.id)
+        expect(commentId).toBeDefined()
+
+        const today = new Date().toISOString().slice(0, 10)
+        const filters = new URLSearchParams({
+            text: searchTerm,
+            type: "post",
+            topic: topicId,
+            user: admin.user.name.toUpperCase(),
+            from: today,
+            to: today,
+        })
+        const response = await fetch(`/api/feed/search?${filters}`)
+        expectStatus(response, 200, await response.clone().text())
+        const results = await response.json() as SearchResult[]
+        expect(results.map(item => item.id)).toEqual([`post:${postId}`])
+
+        for (const filters of [
+            new URLSearchParams({ text: searchTerm, type: "post" }),
+            new URLSearchParams({ text: searchTerm, topic: topicId }),
+            new URLSearchParams({ text: searchTerm, user: admin.user.name.toUpperCase() }),
+            new URLSearchParams({ text: searchTerm, from: today, to: today }),
+        ]) {
+            const filteredResponse = await fetch(`/api/feed/search?${filters}`)
+            expectStatus(filteredResponse, 200, await filteredResponse.clone().text())
+            const filteredResults = await filteredResponse.json() as SearchResult[]
+            expect(filteredResults.map(item => item.id)).toEqual([`post:${postId}`])
+        }
+
+        const commentFilters = new URLSearchParams({
+            text: commentSearchTerm,
+            type: "comment",
+            topic: topicId,
+        })
+        const commentSearchResponse = await fetch(`/api/feed/search?${commentFilters}`)
+        expectStatus(commentSearchResponse, 200, await commentSearchResponse.clone().text())
+        const commentResults = await commentSearchResponse.json() as SearchResult[]
+        expect(commentResults.map(item => item.id)).toEqual([`comment:${commentId}`])
+
+        const wrongType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "thread" })}`)
+        expectStatus(wrongType, 200, await wrongType.clone().text())
+        expect(await wrongType.json()).toEqual([])
+
+        const invalidType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "link" })}`)
+        expectStatus(invalidType, 400, await invalidType.clone().text())
+
+        const invalidDate = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, from: "2026-02-31" })}`)
+        expectStatus(invalidDate, 400, await invalidDate.clone().text())
+
+        const reversedRange = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, from: "2026-11-16", to: "2026-11-15" })}`)
+        expectStatus(reversedRange, 400, await reversedRange.clone().text())
+    }
+    finally {
+        if (commentId) await admin.query(`DELETE comment:${commentId};`)
+        if (postId) await admin.query(`DELETE post:${postId};`)
+        await admin.query(`DELETE topic:${topicId};`)
+    }
+})

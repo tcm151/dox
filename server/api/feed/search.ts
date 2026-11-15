@@ -1,14 +1,59 @@
 import type { SearchResult } from "@@/shared/types"
+import { Validator } from "@@/shared/utils/Validator"
 
 const MINIMUM_SEARCH_SCORE = 0.5
+const SEARCH_TYPES = ["post", "thread", "gallery", "comment"] as const
+
+function isValidSearchDate(value: unknown): value is string {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+
+    const timestamp = Date.parse(`${value}T00:00:00.000Z`)
+    return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value
+}
+
+function nextUtcDay(date: string) {
+    const nextDay = new Date(`${date}T00:00:00.000Z`)
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1)
+    return nextDay.toISOString()
+}
 
 export default defineEventHandler(async (event) => {
-    const { text } = getQuery(event)
+    const query = getQuery(event)
+    const { text } = query
+    const type = typeof query.type === "string" ? query.type : undefined
+    const topic = typeof query.topic === "string" ? query.topic : undefined
+    const user = typeof query.user === "string" ? query.user.trim() : undefined
+    const from = typeof query.from === "string" ? query.from : undefined
+    const to = typeof query.to === "string" ? query.to : undefined
+    const validator = new Validator("FeedSearch")
+
+    validator.optional(query.type, (v, value) => {
+        v.string(value, "type")
+        v.in(value, "type", SEARCH_TYPES)
+    })
+    validator.optional(query.topic, (v, value) => {
+        v.string(value, "topic")
+        v.match(value, "topic.id", "topic")
+    })
+    validator.optional(query.user, (v, value) => v.string(value, "user", { maxLength: 32 }))
+    validator.optional(query.from, (v, value) => {
+        v.string(value, "from", { minLength: 10, maxLength: 10 })
+        v.test(value, isValidSearchDate, "must be a valid YYYY-MM-DD date", "from")
+    })
+    validator.optional(query.to, (v, value) => {
+        v.string(value, "to", { minLength: 10, maxLength: 10 })
+        v.test(value, isValidSearchDate, "must be a valid YYYY-MM-DD date", "to")
+    })
+    if (from && to && isValidSearchDate(from) && isValidSearchDate(to)) {
+        validator.test(from, () => from <= to, "must be on or before 'to'", "from")
+    }
+    validator.confirm()
+
     if (typeof text !== "string" || text.trim() === "") {
         return []
     }
 
-    return await new DatabaseQuery()
+    const databaseQuery = new DatabaseQuery()
         .addSql(`
             LET $comments = (
                 SELECT id,
@@ -23,6 +68,7 @@ export default defineEventHandler(async (event) => {
                 AND status = "active"
                 AND context.status = "active"
                 AND context.deleted != true
+                AND ($topic IS NULL OR context.topics CONTAINS $topic)
             );
 
             LET $posts = (
@@ -36,6 +82,7 @@ export default defineEventHandler(async (event) => {
                 WHERE (title @1@ $text OR content @2@ $text)
                 AND status = "active"
                 AND deleted != true
+                AND ($topic IS NULL OR topics CONTAINS $topic)
                 FETCH user, replyTo
             );
 
@@ -50,6 +97,7 @@ export default defineEventHandler(async (event) => {
                 WHERE content @1@ $text
                 AND status = "active"
                 AND deleted != true
+                AND ($topic IS NULL OR topics CONTAINS $topic)
                 FETCH user, replyTo
             );
 
@@ -63,15 +111,26 @@ export default defineEventHandler(async (event) => {
                 FROM gallery
                 WHERE (title @1@ $text OR description @2@ $text)
                 AND status = "active"
+                AND ($topic IS NULL OR topics CONTAINS $topic)
                 FETCH user
             );
 
             RETURN SELECT * FROM $posts, $threads, $galleries, $comments
-                WHERE search.exact = true OR search.score >= $minimumScore
+                WHERE ($type IS NULL OR record::tb(id) = $type)
+                AND ($user IS NULL OR string::contains(string::lowercase(user.name), string::lowercase($user)))
+                AND ($from IS NULL OR time >= type::datetime($from))
+                AND ($to IS NULL OR time < type::datetime($to))
+                AND (search.exact = true OR search.score >= $minimumScore)
                 ORDER BY search.exact DESC, search.score DESC, time DESC, id ASC;
         `)
         .addTransaction()
         .addParameter("text", text.trim())
+        .addParameter("type", type ?? null)
+        .addParameter("user", user || null)
+        .addParameter("from", from ? `${from}T00:00:00.000Z` : null)
+        .addParameter("to", to ? nextUtcDay(to) : null)
         .addParameter("minimumScore", MINIMUM_SEARCH_SCORE)
-        .queryAll<SearchResult>()
+        .addRecord("topic", topic ? `topic:${topic}` : null)
+
+    return await databaseQuery.queryAll<SearchResult>()
 })

@@ -119,7 +119,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | [`/api/feed/popular`](#feed-pagination) | Public | Returns a paginated aggregate feed. |
 | `GET` | [`/api/feed/following`](#feed-pagination) | Authenticated | Returns a feed filtered by the current user's followed topics and users. |
 | `GET` | `/api/feed/pinned` | Public | Returns active application-wide pinned content. |
-| `GET` | [`/api/feed/search?text=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments. |
+| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments with optional filters. |
 | `GET` | `/api/trending/topics` | Public | Returns the five topics with the most recent post activity. |
 | `GET` | `/api/trending/users` | Public | Returns the five highest-scoring users. |
 | `GET` | `/api/settings/:id` | Public | Returns application settings for the requested ID. |
@@ -148,12 +148,13 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 ### Feed Search
 
-- Method: `GET /api/feed/search?text=`.
+- Method: `GET /api/feed/search?text=&type=&topic=&user=&from=&to=`.
 - Access: public.
-- Request: `text` is the search query. Missing or whitespace-only text returns `200 []`.
-- `200`: matching active posts, threads, galleries, and comments, ordered by case-insensitive exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Deleted comments and comments under inactive or deleted contexts are excluded.
+- Request: `text` is the search query. Optional `type` is `post`, `thread`, `gallery`, or `comment`; `topic` is a topic ID without the `topic:` prefix; `user` is a case-insensitive partial author-name match; `from` and `to` are inclusive UTC calendar dates in `YYYY-MM-DD` form.
+- Missing or whitespace-only `text` returns `200 []`. Invalid filters or a `from` date after `to` return `400`.
+- `200`: matching active posts, threads, galleries, and comments, ordered by case-insensitive exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Deleted comments and comments under inactive or deleted contexts are excluded. Supplied filters are combined.
 - Source: [search handler](../server/api/feed/search.ts).
-- Tests: [search API tests](../tests/parallel/search.server.test.ts) cover ranking and exclusion of inactive or deleted content.
+- Tests: [search API tests](../tests/parallel/search.server.test.ts) cover ranking, exclusion of inactive or deleted content, and optional filters.
 
 ## Content and Discussions
 

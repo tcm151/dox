@@ -120,10 +120,15 @@ export class DatabaseQuery {
     /**
      * Binds a record ID as a SurrealDB record; use for record-valued fields and parameters.
      * @param key Parameter name referenced by the SQL.
-     * @param record Record ID in `table:id` form.
+     * @param record Record ID in `table:id` form, or null to bind a nullable value.
      * @param optional When true, invalid record IDs bind as null instead of throwing.
      */
-    addRecord(key: string, record: string, optional: boolean = false) {
+    addRecord(key: string, record: string | null, optional: boolean = false) {
+        if (record === null) {
+            this.#parameters[key] = null
+            return this
+        }
+
         try {
             this.#parameters[key] = DatabaseQuery.parseRecord(record)
         }
