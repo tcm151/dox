@@ -1,7 +1,9 @@
+-- Rebuild the derived feed after the content schema and status changes.
 REMOVE TABLE IF EXISTS feed;
 
 BEGIN TRANSACTION;
 
+-- Set up migration tracking and the shared full-text search infrastructure.
 DEFINE TABLE IF NOT EXISTS migration SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS version ON migration
 	TYPE string;
@@ -25,6 +27,7 @@ DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
 DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
 	FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 
+-- Normalize media trash and add missing legacy content fields before backfilling them.
 DEFINE TABLE OVERWRITE mediaTrash SCHEMAFULL;
 DEFINE FIELD OVERWRITE type ON mediaTrash
 	TYPE string;
@@ -41,10 +44,12 @@ DEFINE FIELD OVERWRITE description ON image
 	TYPE string DEFAULT ALWAYS "";
 UPDATE image SET description = "" WHERE description IS NONE;
 
+-- Preserve one referral claim per claimant under the updated unique index.
 REMOVE INDEX IF EXISTS claimant_recipient ON referralClaim;
 DEFINE INDEX OVERWRITE claimant ON referralClaim
 	FIELDS claimant UNIQUE;
 
+-- Keep scoring, feed ranking, and application errors consistent with current queries.
 DEFINE FUNCTION OVERWRITE fn::sort_hot($score: number, $created_at: datetime, $as_of: datetime) -> number {
     LET $age_hours = math::max([1, (time::unix($as_of) - time::unix($created_at)) / 3600]);
     RETURN <float>$score / math::pow($age_hours, 2);
@@ -61,11 +66,13 @@ DEFINE FUNCTION OVERWRITE fn::http($status: int, $message: string) {
 	THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
 };
 
+-- Ensure existing application settings have the optional summary object.
 DEFINE FIELD OVERWRITE about ON appSettings
 	TYPE object FLEXIBLE;
 UPDATE appSettings SET about = { summary: "" } WHERE about IS NONE;
 UPDATE appSettings SET about.summary = "" WHERE about.summary IS NONE;
 
+-- Normalize vote shapes before replacing stored scores with computed values.
 REMOVE FIELD IF EXISTS score ON post;
 REMOVE FIELD IF EXISTS score ON thread;
 
@@ -88,6 +95,7 @@ UPDATE user SET votes = {
 	saves: votes.saves ?? []
 } WHERE votes IS NONE OR votes.positive IS NONE OR votes.misleading IS NONE OR votes.negative IS NONE OR votes.awards IS NONE OR votes.saves IS NONE;
 
+-- Define the gallery content contract before migrating public images into galleries.
 DEFINE TABLE OVERWRITE gallery SCHEMAFULL;
 REMOVE FIELD IF EXISTS score ON gallery;
 DEFINE FIELD OVERWRITE user ON gallery
@@ -117,6 +125,7 @@ DEFINE FIELD OVERWRITE votes.saves ON gallery
 DEFINE FIELD OVERWRITE votes ON gallery
 	TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 
+-- Fill missing vote arrays and visit counters before score calculations use them.
 UPDATE post SET votes = {
 	positive: votes.positive ?? [],
 	misleading: votes.misleading ?? [],
@@ -144,6 +153,7 @@ UPDATE gallery SET votes = {
 } WHERE votes IS NONE OR votes.positive IS NONE OR votes.misleading IS NONE OR votes.negative IS NONE OR votes.awards IS NONE OR votes.saves IS NONE;
 UPDATE gallery SET visits = 0 WHERE visits IS NONE;
 
+-- Recompute ranking scores from the normalized vote and visit fields.
 DEFINE FIELD OVERWRITE score ON user
 	COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 DEFINE FIELD OVERWRITE score ON topic
@@ -159,6 +169,7 @@ DEFINE FIELD OVERWRITE score ON image
 DEFINE FIELD OVERWRITE score ON gallery
 	COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
+-- Restore topic-to-gallery membership and keep first-used dates derived from content.
 DEFINE FIELD OVERWRITE galleries ON topic
 	TYPE array<record<gallery>> DEFAULT ALWAYS [];
 DEFINE FIELD OVERWRITE firstUsed ON topic
@@ -167,6 +178,7 @@ DEFINE FIELD OVERWRITE firstUsed ON topic
 REMOVE EVENT IF EXISTS removeBlank ON topic;
 REMOVE EVENT IF EXISTS updateTopics ON gallery;
 
+-- Convert each public image into a gallery only when it is not already represented.
 LET $publicImages = SELECT * FROM image WHERE public = true;
 FOR $image IN $publicImages {
 	LET $existingGallery = SELECT VALUE id FROM gallery WHERE images CONTAINS $image.id LIMIT 1;
@@ -184,6 +196,7 @@ FOR $image IN $publicImages {
 	};
 };
 
+-- Rebuild topic membership from content records before removing image-level topics.
 REMOVE FIELD IF EXISTS topics ON image;
 UPDATE image UNSET topics;
 
@@ -201,6 +214,7 @@ FOR $topic IN $orphanedTopics {
 	DELETE $topic;
 };
 
+-- Keep topic membership synchronized when galleries are created after migration.
 DEFINE EVENT OVERWRITE removeBlank ON topic WHEN $event = 'UPDATE' THEN {
 	IF $after.posts.len() = 0 AND $after.threads.len() = 0 AND $after.galleries.len() = 0 {
 		DELETE $after.id;
@@ -218,6 +232,7 @@ DEFINE EVENT OVERWRITE updateTopics ON gallery WHEN $event = 'CREATE' THEN {
 	};
 };
 
+-- Rebuild the derived feed from the migrated content tables.
 DEFINE TABLE OVERWRITE feed AS
 SELECT id, id AS sourceId, time,
 	fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits) AS score,

@@ -1,5 +1,6 @@
 BEGIN TRANSACTION;
 
+-- Reshape report records around computed ownership and history-based moderation.
 DEFINE FIELD OVERWRITE owner ON report
 	COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
 DEFINE FIELD OVERWRITE topics ON report
@@ -39,6 +40,7 @@ REMOVE FIELD IF EXISTS appeal.moderator ON report;
 REMOVE FIELD IF EXISTS appeal ON report;
 REMOVE FIELD IF EXISTS author ON report;
 
+-- Extend notification targets and persist moderator actions from report/request history.
 DEFINE FIELD OVERWRITE context ON notification
 	TYPE record<post|comment|user|thread|gallery|image|report|topic>;
 
@@ -94,6 +96,7 @@ DEFINE EVENT OVERWRITE moderatorLogRequestDenial ON moderationRequest
 			details = { topic: $after.topic, applicant: $after.user };
 	};
 
+-- Keep per-user settings aligned with the UI and in-app notification preferences.
 DEFINE TABLE OVERWRITE userSettings SCHEMAFULL;
 DEFINE FIELD OVERWRITE user ON userSettings
 	TYPE record<user>;
@@ -112,10 +115,12 @@ DEFINE FIELD OVERWRITE notifications.inApp ON userSettings
 
 COMMIT;
 
+-- Replace the legacy report index with the canonical unique subject index.
 REMOVE INDEX IF EXISTS reportSubject ON TABLE report;
 DEFINE INDEX OVERWRITE subject ON TABLE report
 	FIELDS subject UNIQUE;
 
+-- Rebuild the feed against content status before removing legacy visibility fields.
 BEGIN TRANSACTION;
 
 DEFINE TABLE OVERWRITE feed AS
@@ -131,6 +136,7 @@ WHERE IF id IS NONE THEN false ELSE (
 DEFINE FIELD OVERWRITE hot ON feed
     COMPUTED fn::sort_hot(score, time, time::now());
 
+-- Convert archived flags to active/archived statuses for posts, threads, and galleries.
 LET $postFields = (INFO FOR TABLE post).fields;
 DEFINE FIELD OVERWRITE archived ON post TYPE option<bool>;
 IF $postFields.archived != NONE {
@@ -164,6 +170,7 @@ REMOVE FIELD archived ON gallery;
 DEFINE FIELD OVERWRITE status ON gallery
 	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 
+-- Replace image visibility with the unified content status.
 LET $imageFields = (INFO FOR TABLE image).fields;
 DEFINE FIELD OVERWRITE public ON image TYPE option<bool>;
 IF $imageFields.public != NONE {
@@ -175,6 +182,7 @@ REMOVE FIELD public ON image;
 DEFINE FIELD OVERWRITE status ON image
 	TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 
+-- Ensure every existing user has settings while preserving their stored UI preferences.
 FOR $user IN (SELECT VALUE id FROM user) {
 	UPSERT userSettings SET
 		user = $user,
@@ -185,6 +193,7 @@ FOR $user IN (SELECT VALUE id FROM user) {
 	WHERE user = $user;
 };
 
+-- Record completion only after the schema, backfills, and feed update succeed.
 UPSERT migration SET version = '2026.6.1', time = time::now()
 WHERE version = '2026.6.1';
 COMMIT;

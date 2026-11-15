@@ -1,5 +1,6 @@
 BEGIN TRANSACTION;
 
+-- Add constrained content tags and initialize visibility defaults for existing records.
 DEFINE FIELD OVERWRITE tags ON post
     TYPE array<string> DEFAULT ALWAYS []
     ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
@@ -34,12 +35,14 @@ UPDATE appSettings SET content.visibility = {
 }
 WHERE content.visibility = NONE;
 
+-- Snapshot valid relationships before replacing stored links with references.
 LET $replies = (SELECT id, replyTo FROM thread WHERE replyTo != NONE AND record::exists(replyTo));
 LET $quotes = (SELECT id, quote FROM thread WHERE quote != NONE AND record::exists(quote));
 LET $postTopics = (SELECT id, topics FROM post WHERE deleted = false);
 LET $threadTopics = (SELECT id, topics FROM thread WHERE deleted = false);
 LET $galleryTopics = (SELECT id, topics FROM gallery);
 
+-- Remove dangling thread links and disable old relationship-maintenance events.
 UPDATE thread SET replyTo = NONE WHERE replyTo != NONE AND !record::exists(replyTo);
 UPDATE thread SET quote = NONE WHERE quote != NONE AND !record::exists(quote);
 
@@ -50,6 +53,7 @@ REMOVE EVENT IF EXISTS updateTopics ON post;
 REMOVE EVENT IF EXISTS updateTopics ON thread;
 REMOVE EVENT IF EXISTS updateTopics ON gallery;
 
+-- Apply reference constraints, then restore the valid reply and quote links captured above.
 DEFINE FIELD OVERWRITE replyTo ON thread
     TYPE option<record<thread>> ASSERT $value = NONE OR record::exists($value)
     REFERENCE ON DELETE REJECT;
@@ -66,6 +70,7 @@ FOR $relation IN $quotes {
     UPDATE $relation.id SET quote = $relation.quote;
 };
 
+-- Replace stored topic membership arrays while retaining content-to-topic relationships.
 DEFINE FIELD OVERWRITE posts ON topic
     TYPE option<array<record<post>>>;
 DEFINE FIELD OVERWRITE threads ON topic
@@ -133,6 +138,7 @@ FOR $gallery IN $galleryTopics {
     };
 };
 
+-- Rebuild reverse topic relationships, remove empty topics, and restore create-time safeguards.
 DEFINE FIELD posts ON topic
     COMPUTED <~(post FIELD topics);
 DEFINE FIELD threads ON topic
@@ -168,6 +174,7 @@ DEFINE EVENT OVERWRITE ensureTopics ON gallery WHEN $event = 'CREATE' THEN {
     };
 };
 
+-- Replace stored replies, quotes, and post comments with computed relationships.
 DEFINE FIELD OVERWRITE replies ON thread
     TYPE option<array<record<thread>>>;
 DEFINE FIELD OVERWRITE quotes ON thread
@@ -185,8 +192,10 @@ REMOVE FIELD comments.* ON post;
 REMOVE FIELD comments ON post;
 COMMIT;
 
+-- Convert comment targets and add the remaining moderation, scoring, and settings contracts.
 BEGIN TRANSACTION;
 UPDATE comment UNSET comments;
+-- Merge post/gallery targets into comment.context before removing the legacy fields.
 DEFINE FIELD OVERWRITE post ON comment
     TYPE option<record<post>>
     ASSERT $value = NONE OR record::exists($value)
@@ -217,11 +226,13 @@ DEFINE FIELD OVERWRITE comments ON post
 DEFINE FIELD OVERWRITE comments ON gallery
     COMPUTED <~(comment FIELD context);
 
+-- Restore thread navigation as reverse references from replyTo and quote.
 DEFINE FIELD replies ON thread
     COMPUTED <~(thread FIELD replyTo);
 DEFINE FIELD quotes ON thread
     COMPUTED <~(thread FIELD quote);
 
+-- Ensure visit counters exist before score and ranking calculations use them.
 DEFINE FIELD OVERWRITE visits ON user
     TYPE number DEFAULT ALWAYS 1;
 DEFINE FIELD OVERWRITE visits ON post
@@ -233,6 +244,7 @@ DEFINE FIELD OVERWRITE visits ON gallery
 DEFINE FIELD OVERWRITE visits ON image
     TYPE number DEFAULT ALWAYS 1;
 
+-- Include subject topics in reports and define moderation storage for supported content.
 DEFINE FIELD OVERWRITE topics ON report
     COMPUTED array::union(subject.topics ?? [], subject.context.topics ?? []);
 
@@ -273,6 +285,7 @@ DEFINE FIELD IF NOT EXISTS moderation ON thread COMPUTED (
     LIMIT 1
 );
 
+-- Rebuild recursive thread projections against the reference-backed hierarchy.
 DEFINE FUNCTION OVERWRITE fn::thread_ancestors($threadId: record<thread>, $remaining: int) -> array<object> {
     IF $remaining <= 0 {
         LET $parent = (SELECT VALUE replyTo FROM ONLY $threadId);
@@ -323,6 +336,7 @@ DEFINE FUNCTION OVERWRITE fn::thread_replies($replies: array<object>, $remaining
     RETURN [$reply].concat($tail);
 };
 
+-- Backfill newly introduced moderation and notification preferences without overwriting values.
 UPDATE appSettings:default SET
     moderation.slowModes = [30, 60, 300, 900]
 WHERE moderation.slowModes = NONE;
@@ -334,6 +348,7 @@ DEFINE FIELD OVERWRITE notifications.email ON userSettings
 UPDATE userSettings SET notifications.email = false
 WHERE notifications.email = NONE;
 
+-- Define the persisted email delivery queue used by scheduled notifications.
 DEFINE TABLE OVERWRITE scheduledEmail SCHEMAFULL;
 DEFINE FIELD OVERWRITE status ON scheduledEmail
     TYPE string;
@@ -354,6 +369,7 @@ UPDATE appSettings:default SET
     email.spool = { dailyLimit: 100, batchLimit: 10, maxRetries: 3 }
 WHERE email.spool = NONE;
 
+-- Add topic moderation defaults and an explicit active/locked lifecycle.
 DEFINE FIELD OVERWRITE moderation ON topic
     TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
 
@@ -373,6 +389,7 @@ UPDATE topic SET moderation = {
     priorityReportThreshold: 5,
 } WHERE moderation = NONE;
 
+-- Replace global pin uniqueness with scoped uniqueness while preserving existing pins as app-wide.
 REMOVE INDEX IF EXISTS item ON TABLE pin;
 DEFINE FIELD OVERWRITE item ON pin
     TYPE record<post|thread|gallery>;
@@ -386,6 +403,7 @@ DEFINE INDEX IF NOT EXISTS pinItemScopeTopic ON TABLE pin
 DEFINE INDEX IF NOT EXISTS pinScopeTopicActive ON TABLE pin
     FIELDS scope, topic, active;
 
+-- Define audio records and their computed playback and scoring fields.
 DEFINE TABLE OVERWRITE audio SCHEMAFULL;
 DEFINE FIELD OVERWRITE user ON audio
     TYPE record<user>;
@@ -416,10 +434,12 @@ DEFINE FIELD OVERWRITE votes.saves ON audio
 DEFINE FIELD OVERWRITE score ON audio
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
+-- Provide a stable owner reference for content whose account has been deleted.
 IF !record::exists(user:deleted) {
     CREATE ONLY user:deleted SET name = "deleted";
 };
 
+-- Record completion after all schema and data changes have succeeded.
 UPSERT migration SET version = '2026.6.2', time = time::now()
 WHERE version = '2026.6.2';
 COMMIT;
