@@ -11,10 +11,15 @@ argument-hint: "Optional scope: files, ticket, or commit to review"
 - Ask before amending, rebasing, or otherwise rewriting existing commits. These actions change commit hashes.
 - Do not push commits unless explicitly asked.
 
+## Whitespace
+- Treat `git diff --check` as advisory, not a commit gate. Prioritize behavior, tests, and staged scope over cosmetic whitespace.
+- Ignore isolated blank lines at EOF and other minor spacing unless they create substantial diff noise, violate required formatting, or affect behavior or tooling.
+- Do not make cleanup-only edits or repeat edit/check cycles for cosmetic whitespace. If a narrow cleanup does not clear the warning, inspect the diff once and move on unless the remaining issue is substantial.
+
 ## Workflow
 1. Check `git status`, staged and unstaged diffs, and untracked files. Preserve changes you did not make; do not assume everything belongs in this commit.
 2. Set the commit scope and relevant ticket. Split independent work into separate commits, and stage only the files in scope.
-3. Review the staged diff. Run relevant tests, checks, or builds, and check the patch for whitespace errors. Do not delay a commit or make cleanup-only edits for harmless minor whitespace, such as a single blank line at EOF; address only substantial whitespace problems that add noise or affect behavior.
+3. Review the staged diff and run relevant tests, checks, or builds. Treat whitespace-check output according to the guidance above.
 4. Follow recent commit messages. Use one concise subject for one logical change. Do not impose Conventional Commits if the repository uses another style. Include a ticket identifier when the project convention calls for one.
 5. Commit only after explicit approval. Then verify the commit and worktree, and report the hash, scope, checks, and any remaining changes.
 

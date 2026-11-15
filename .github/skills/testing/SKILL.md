@@ -9,11 +9,12 @@ argument-hint: "Optional test file or failure"
 ## Commands
 
 - Run the full integration suite with `yarn --silent test`.
-- Run one parallel test with `yarn --silent test tests/parallel/<file>.server.test.ts`, `yarn --silent test tests/parallel/<file>.browser.test.ts`, or `yarn --silent test tests/parallel/<file>.integration.test.ts`.
+- Run only the ordered sequential suite with `yarn --silent test --sequential`.
+- Run one parallel test with `yarn --silent test <file>.<type>.test.ts`.
 - Run `yarn typecheck` when changes affect TypeScript or Vue templates.
 - Run `yarn build` when changes affect route registration, Nuxt configuration, or production output.
 
-The focused test command runs only sequential files named `*.setup.server.test.ts` before the selected file. These files create fixtures consumed downstream; ordinary sequential tests are skipped. The runner caches the production test server under ignored `.nuxt/test-runner/`, keyed by app/server/shared/public source and build configuration; it still creates fresh temporary database and media directories for every run. Timing output summarizes total, startup/cache status, setup, test phases, and cleanup. Browser files are listed only when a file takes at least five seconds.
+The focused test command runs only sequential files named `*.setup.test.ts` before the selected file. These files create fixtures consumed downstream; ordinary sequential tests are skipped. The runner caches the production test server under ignored `.nuxt/test-runner/`, keyed by app/server/shared/public source and build configuration; it still creates fresh temporary database and media directories for every run. Timing output summarizes total, startup/cache status, setup, test phases, and cleanup. Browser files are listed only when a file takes at least five seconds.
 
 ## Test Runner
 
@@ -23,7 +24,7 @@ Use `docs/API.md` to locate route methods, access expectations, and detailed con
 
 The phases are:
 
-1. Full runs execute `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled. Focused runs execute only `tests/sequential/*.setup.server.test.ts` before the selected test.
+1. Full runs execute `tests/sequential/*.setup.test.ts` and `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled. `yarn --silent test --sequential` runs only this phase. Focused runs execute only `*.setup.test.ts` files before the selected parallel test.
 2. `tests/parallel/*.server.test.ts`, run by Vitest with file parallelism enabled.
 3. `tests/parallel/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium, serially within each file and with at most two files running concurrently.
 
