@@ -30,7 +30,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 ## Notes
 - This ticket covers audit and prioritization, not implementation of new settings or behavior changes.
 - Distinct from [Ticket 0079](0079-validate-application-settings.md), which establishes server-side validation, and [Ticket 0090](../0090-core-path-todo-audit.md), which triages TODOs and unfinished core paths.
-- Accepted implementation follow-ups are tracked in [Ticket 0099](../0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](../0100-strict-appsettings-schema.md), [Ticket 0101](../0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](../0102-enforce-feed-availability-settings.md), [Ticket 0103](../0103-enforce-voting-availability-settings.md), and [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md).
+- Accepted implementation follow-ups are tracked in [Ticket 0099](../0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](0100-strict-appsettings-schema.md), [Ticket 0101](../0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](../0102-enforce-feed-availability-settings.md), [Ticket 0103](../0103-enforce-voting-availability-settings.md), and [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md).
 - Existing feature work remains in [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md), [Ticket 0039](0039-link-publishing-foundation.md), [Ticket 0041](0041-link-detail-and-feed-integration.md), [Ticket 0042](../0042-audio-publication-lifecycle.md), [Ticket 0043](../0043-audio-detail-feed-and-cleanup.md), [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md), [Ticket 0047](../backlog/0047-poll-creation-model-and-publishing.md), and [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md); this avoids duplicate feature tickets.
 - Dependency order: this audit is complete; strictify AppSettings in Ticket 0100 before Ticket 0099 adds image-policy fields. Tickets 0101-0103 can proceed from this audit, while Ticket 0104 follows Ticket 0100.
 
@@ -82,7 +82,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Medium.
 - Finding: Admin inputs constrain `dailyLimit`, `batchLimit`, and `maxRetries`, but `SettingsManager.validate` checks only email support strings and the schema stores email as a flexible object. `EmailSpool` consumes these values directly, so invalid API updates can suppress sending or alter retry behavior.
 - Evidence: `app/pages/admin/settings.vue`, `server/utils/SettingsManager.ts`, `server/assets/schema.surql`, `server/utils/EmailSpool.ts`.
-- Recommendation: Validate integer types and bounds server-side to match the admin controls. Tracked in [Ticket 0100](../0100-strict-appsettings-schema.md).
+- Recommendation: Validate integer types and bounds server-side to match the admin controls. Tracked in [Ticket 0100](0100-strict-appsettings-schema.md).
 
 ### Image Upload and Attachments
 - Priority: Medium.
@@ -94,13 +94,13 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Medium.
 - Finding: The table is `SCHEMAFULL`, but most settings objects are `TYPE object FLEXIBLE`; `SettingsManager.validate` checks declared fields but does not reject unknown nested keys, and `Validator.object` does not inspect extra properties. The schema default also contains `topics.enabled`, which is absent from the shared AppSettings contract.
 - Evidence: `server/assets/schema.surql`, `shared/types/index.ts`, `server/utils/SettingsManager.ts`, `shared/utils/Validator.ts`.
-- Recommendation: Reconcile schema-only/legacy fields and define strict nested fields with a data-preserving migration. Tracked in [Ticket 0100](../0100-strict-appsettings-schema.md).
+- Recommendation: Reconcile schema-only/legacy fields and define strict nested fields with a data-preserving migration. Tracked in [Ticket 0100](0100-strict-appsettings-schema.md).
 
 ### Feedback Settings
 - Priority: Medium.
 - Finding: `misc.feedback.enabled` hides feedback UI entry points, but `/api/feedback/submit` does not check the setting. `allowAnonymous` appears in the admin control, default, schema, and validator, but the client only offers submission to authenticated users and the API always calls `authenticateRequest`. The shared type narrows both fields to their default literals (`true` and `false`) although the admin exposes toggles and the validator accepts booleans.
 - Evidence: `app/app.vue`, `app/components/system/Navbar.client.vue`, `app/components/system/Feedback.client.vue`, `app/pages/contact.vue`, `app/pages/admin/settings.vue`, `server/api/feedback/submit.ts`, `tests/parallel/feedback.server.test.ts`.
-- Recommendation: Enforce `enabled` and implement anonymous submission when allowed, including an optional feedback author and abuse controls. Tracked in [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md); align the AppSettings field types in [Ticket 0100](../0100-strict-appsettings-schema.md).
+- Recommendation: Enforce `enabled` and implement anonymous submission when allowed, including an optional feedback author and abuse controls. Tracked in [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md); align the AppSettings field types in [Ticket 0100](0100-strict-appsettings-schema.md).
 
 ## AppSettings Field Map
 

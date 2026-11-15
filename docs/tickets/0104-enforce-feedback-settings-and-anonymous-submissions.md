@@ -6,7 +6,7 @@
 - Next: Define the anonymous feedback record shape and migration behavior.
 
 ## Dependencies
-- [0100](0100-strict-appsettings-schema.md): The AppSettings feedback fields and validator must agree before the feedback workflow relies on them.
+- [0100](completed/0100-strict-appsettings-schema.md): The AppSettings feedback fields and validator must agree before the feedback workflow relies on them.
 
 ## Goal
 Honor the feedback controls at the submission API and support anonymous submissions when enabled, as promised by the admin setting.
