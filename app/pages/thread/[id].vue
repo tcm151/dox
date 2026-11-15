@@ -222,12 +222,7 @@ function toggleOptions() {
 
 <template>
     <article v-if="thread" class="content-width column p-4">
-        <template v-for="ancestor in thread.ancestors ?? []" :key="ancestor.id">
-            <Tag v-if="isThreadLoadMore(ancestor)" class="dark mb-2" icon="fa-ellipsis" label="Earlier context omitted" />
-            <section v-else class="mb-2">
-                <ThreadChain :thread="ancestor" />
-            </section>
-        </template>
+        <ThreadChain v-if="thread.ancestors?.length" class="mb-2" :threads="thread.ancestors" load-more-label="Earlier context omitted" />
         <section class="main box column px-4 pt-4">
             <ContentHeader :content="thread" context="detail" />
             <template v-if="!editingThread">
@@ -324,7 +319,7 @@ function toggleOptions() {
             </footer>
         </section>
         <section class="column g-2 mt-2">
-            <ThreadChain v-for="reply in thread.replies" :key="reply.id" :thread="reply" @reply="refresh" />
+            <ThreadChain v-for="reply in thread.replies" :key="reply.id" :threads="[reply, ...(reply.chain ?? [])]" @reply="refresh" />
         </section>
     </article>
     <article v-else class="content-width column p-4">

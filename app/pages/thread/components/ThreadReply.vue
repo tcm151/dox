@@ -90,8 +90,8 @@ async function submitReply() {
             <div class="row wrap f-1 g-1">
                 <UserTag :user="thread.user" />
                 <DurationTag :time="thread.time" />
-                <Tag type="meta" icon="fa-comment" :label="thread.replies.length.toString()" />
                 <Tag type="meta" icon="fa-chart-simple" :label="thread.visits" />
+                <Tag type="meta" icon="fa-comment" :label="thread.replies.length.toString()" @click="navigateTo(`/thread/${extractId(thread.id)}`)" />
                 <Tag v-if="thread.timeEdited" class="f-1" type="danger" icon="fa-eraser" :label="formatDate(thread.timeEdited)" />
                 <button v-if="!thread.deleted" type="button" class="meta tag" :disabled="replyState.disabled" @click="toggleReply">
                     <i class="fa-solid fa-reply"></i>

@@ -3,7 +3,8 @@ import type { Thread } from '@@/shared/types'
 import ThreadReply from './ThreadReply.vue'
 
 defineProps<{
-    thread: Thread
+    threads: Thread[]
+    loadMoreLabel?: string
 }>()
 
 const emit = defineEmits<{
@@ -37,26 +38,16 @@ function cancelReply() {
     <div class="thread box row hover-shadow">
         <aside class="indent-line br-small ml-4 my-4" />
         <div class="main column g-2 f-1 p-4">
-            <ThreadReply
-                :thread="thread"
-                :active="replyingTo === thread.id"
-                @reply="toggleReply(thread)"
-                @cancel="cancelReply"
-                @submitting="submitting = $event"
-                @updated="emit('reply')"
-            />
-            <template v-if="thread.chain">
-                <template v-for="reply in thread.chain" :key="reply.id">
-                    <Tag v-if="isThreadLoadMore(reply)" class="dark mb-3" icon="fa-ellipsis" label="More replies omitted" />
-                    <ThreadReply v-else
-                        :thread="reply"
-                        :active="replyingTo === reply.id"
-                        @reply="toggleReply(reply)"
-                        @cancel="cancelReply"
-                        @submitting="submitting = $event"
-                        @updated="emit('reply')"
-                    />
-                </template>
+            <template v-for="thread in threads" :key="thread.id">
+                <Tag v-if="isThreadLoadMore(thread)" class="dark mb-3" icon="fa-ellipsis" :label="loadMoreLabel ?? 'More replies omitted'" />
+                <ThreadReply v-else
+                    :thread="thread"
+                    :active="replyingTo === thread.id"
+                    @reply="toggleReply(thread)"
+                    @cancel="cancelReply"
+                    @submitting="submitting = $event"
+                    @updated="emit('reply')"
+                />
             </template>
         </div>
     </div>
