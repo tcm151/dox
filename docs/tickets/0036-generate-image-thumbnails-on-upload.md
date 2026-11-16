@@ -1,41 +1,44 @@
 # Ticket 0036: Generate Image Thumbnails On Upload
 
 ## Status
-- State: Planned
+- State: Paused
 - Priority: Medium
-- Next: Decide the thumbnail derivative size, format, and storage path convention for uploaded images.
+- Next: Resume implementation with the agreed 480px WebP thumbnail policy.
 
 ## Goal
-Generate a small thumbnail derivative when an image is uploaded so preview-only views can load a lighter asset instead of the full image. This should reduce page load time and bandwidth for feeds, search results, and other thumbnail-sized image displays.
+Generate a small thumbnail derivative for uploaded images so post previews can load a lighter asset when a post includes images. Keep this ticket limited to post previews; other image surfaces continue using the full-size asset.
 
 ## Requirements
-- [ ] Image uploads create both the display image and a smaller thumbnail derivative using the existing Sharp-based processing flow.
+- [ ] Image uploads create both the display image and a 480px-bounded WebP thumbnail using the existing Sharp-based processing flow; GIF thumbnails use the first frame while the original remains animated.
 - [ ] Image records expose a thumbnail URL or equivalent field without breaking existing consumers of `url`.
-- [ ] Preview-only UI surfaces render the thumbnail asset while full image/detail views continue to use the full image.
+- [ ] Post previews render the thumbnail asset with a full-size fallback; other image surfaces continue to use the full-size URL.
 - [ ] Deleting or rolling back an image also removes any generated thumbnail file and does not leave orphaned media.
 
 ## Tasks
-- [ ] Extend server media processing to produce a thumbnail buffer for image uploads, including animated/unsupported format handling decisions.
-- [ ] Persist thumbnail files under a predictable CDN path and update image schema/types to expose the thumbnail URL.
+- [ ] Extend server media processing to produce the agreed thumbnail buffer for image uploads.
+- [ ] Persist thumbnail files under a predictable CDN path and update image schema, types, and the 2026.6.3 migration to expose the thumbnail URL.
 - [ ] Update image upload creation to save the thumbnail after the image record is created and roll back cleanly on write failures.
-- [ ] Switch feed/post/image preview components that show small previews to use the thumbnail URL with a full-size fallback.
-- [ ] Add focused coverage or manual verification for upload, thumbnail serving, preview rendering, and delete cleanup.
+- [ ] Switch `PostPreview` and its post-image projections to use the thumbnail URL with a full-size fallback.
+- [ ] Add focused coverage for upload, thumbnail serving, post preview data, and delete cleanup.
 
 ## Notes
 - Current image processing already uses Sharp in `server/utils/media.ts`, so thumbnail generation should likely live near the existing image handlers.
 - The current image schema computes only `url`; a new computed `thumbnailUrl` or stored derivative metadata will be needed.
-- The exact thumbnail dimensions and output format are not specified. A small bounded derivative, such as WebP/JPEG at a fixed max width, should be chosen before implementation.
-- Animated GIF behavior needs an explicit decision: generate a static poster thumbnail, an animated thumbnail, or fall back to the original.
+- The thumbnail policy is a WebP derivative bounded to 480px on each side; animated GIF uploads retain their original animation and use the first frame for the thumbnail.
+- Only post previews consume thumbnails in this ticket. Gallery, thread, image-feed, detail, and editor/slideshow surfaces remain on the full-size URL.
+- The schema field belongs in the current 2026.6.3 migration.
 
 ## Relevant Files
 - server/utils/media.ts
 - server/api/image/upload.ts
 - server/api/image/[id]/delete.ts
+- server/api/post/index.ts
+- server/utils/feedPagination.ts
 - server/assets/schema.surql
 - server/assets/migrations/
 - shared/types/index.ts
-- app/components/system/previews/ImagePreview.vue
 - app/components/system/previews/PostPreview.vue
 
 ## Progress Log
+- 2026-11-16: Narrowed thumbnail use to post previews and paused implementation by request.
 - 2026-07-21: Ticket created.

@@ -372,7 +372,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 - Access: authenticated user; targets must be posts, links, threads, or galleries.
 - Request: target record ID and `save` or `unsave` action in the path; no body.
-- `200`: `{ saved: true }` after save or `{ saved: false }` after unsave. Repeated actions are idempotent. `400`: unsupported target type. `401`: no valid session. `404`: target does not exist.
+- `200`: `true` after save or unsave. Repeated actions are idempotent. `400`: unsupported target type. `401`: no valid session. `404`: target does not exist.
 - Side effects: adds or removes the current user from `votes.saves`; user-profile subscriptions remain separate.
 - Source: [save route](../server/api/vote/[id]/save.ts), [content manager](../server/utils/ContentManager.ts).
 - Tests: [engagement tests](../tests/parallel/engagement.server.test.ts).
@@ -394,6 +394,14 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Side effects: transfers 256 tokens and records the award in one transaction, then sends the recipient an in-app notification.
 - Source: [award handler](../server/api/user/[id]/award.ts), [notification manager](../server/utils/repos/NotificationManager.ts).
 - Tests: [engagement tests](../tests/parallel/engagement.server.test.ts) cover successful, duplicate, self, insufficient-balance, and concurrent awards.
+
+### Content Awards
+
+- Access: authenticated user; the caller must have enough tokens and cannot award their own content or an already-awarded target.
+- `200`: `true`. `400`: self-award. `403`: block policy rejection. `409`: duplicate award or insufficient balance.
+- Side effects: transfers 256 tokens, records the award, and notifies the content owner.
+- Source: [content award route](../server/api/post/[id]/award.ts), [content manager](../server/utils/ContentManager.ts), [notification manager](../server/utils/repos/NotificationManager.ts).
+- Tests: [engagement tests](../tests/parallel/engagement.server.test.ts).
 
 ## Administration and Curation
 

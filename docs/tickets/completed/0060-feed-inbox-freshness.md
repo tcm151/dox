@@ -38,8 +38,8 @@ Keep feed and inbox views current during normal browsing without requiring full-
 - tests/parallel/freshness.browser.test.ts
 
 ## Progress Log
-- 2026-11-16: Wired stale-navigation refresh to Nuxt's page-finish lifecycle, including pages without transitions. `yarn.cmd test freshness.server.test.ts` (15/15), `yarn.cmd test freshness.browser.test.ts` (10/10), typecheck, and production build passed.
+- 2026-11-16: Wired stale-navigation refresh to Nuxt's page-finish lifecycle, including pages without transitions. `yarn test freshness.server.test.ts` (15/15), `yarn test freshness.browser.test.ts` (10/10), typecheck, and production build passed.
 - 2026-11-15: Completed the freshness implementation and focused test coverage. Typecheck and production build passed; direct Vitest passed (6/6). The integration runner could not start because Windows Application Control blocked the SurrealDB native module, so browser execution had not yet been verified.
-- 2026-11-15: Implemented datasource freshness tracking and mutation invalidation. `yarn.cmd typecheck`, `yarn.cmd build`, and `yarn.cmd vitest run tests/parallel/freshness.server.test.ts` passed (6/6). `yarn.cmd test freshness.server.test.ts` could not start because Windows Application Control blocked the SurrealDB native module; browser coverage had not yet been verified.
+- 2026-11-15: Implemented datasource freshness tracking and mutation invalidation. `yarn typecheck`, `yarn build`, and `yarn vitest run tests/parallel/freshness.server.test.ts` passed (6/6). `yarn test freshness.server.test.ts` could not start because Windows Application Control blocked the SurrealDB native module; browser coverage had not yet been verified.
 - 2026-11-15: Confirmed a 60-second threshold; refresh on relevant successful local mutations, explicit refresh, and fresh navigation only, excluding focus and browser history traversal.
 - 2026-10-25: Ticket created.

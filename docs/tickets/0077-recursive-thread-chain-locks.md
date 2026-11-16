@@ -1,7 +1,7 @@
 # Ticket 0077: Recursive Thread Chain Locks
 
 ## Status
-- State: Planned
+- State: Paused
 - Priority: Medium
 - Next: Define the chain-lock contract and bounded ancestor semantics.
 
@@ -42,4 +42,5 @@ Allow moderators to apply a lock to a thread and its descendants without changin
 - tests/parallel/threads.test.ts
 
 ## Progress Log
+- 2026-11-16: Paused by request before implementation; current thread locks remain item-only.
 - 2026-11-01: Ticket created.

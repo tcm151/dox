@@ -49,7 +49,7 @@ Run the read-only audit from the repository root with Yarn and Node.js:
 yarn standup
 ```
 
-If PowerShell blocks the `yarn.ps1` shim, run `yarn.cmd standup` instead.
+If PowerShell blocks the `yarn.ps1` shim, run `yarn standup` instead.
 
 The Node script locates the repository from its own path, so it can also be run directly from another directory. Use `--focus active`, `backlog`, `priority`, `cleanup`, or `dependencies` to limit the report to those sections. Use `--ticket 0083` for one ticket's status, dependencies, checklists, and latest progress. `--priority High|Medium|Low` filters work lists; without it, next-work candidates prefer High, then Medium, and `--priority Low` includes low-priority options. `--limit 10` shows more entries. For example:
 
