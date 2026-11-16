@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
-import type { Comment, FeedPage, Post, Thread, User, UserContentFilterView } from "../../shared/types"
+import type { Comment, FeedPage, Post, Thread, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 
@@ -43,10 +43,13 @@ function accountFetch(account: FilterTestAccount, path: string, body?: unknown) 
     })
 }
 
-async function getFilters(account: FilterTestAccount): Promise<UserContentFilterView> {
+async function getFilters(account: FilterTestAccount) {
     const response = await accountFetch(account, "/api/profile/filters")
     expectStatus(response, 200)
-    return await response.json() as UserContentFilterView
+    return await response.json() as {
+        muted: Array<{ id: string, name: string }>
+        blocked: Array<{ id: string, name: string }>
+    }
 }
 
 async function cleanupTestData(accounts: FilterTestAccount[], postId?: string, topicId?: string, threadId?: string) {
@@ -88,7 +91,7 @@ it("mutes and blocks users independently, removes follows, and prevents interact
         const actorId = extractId(actor.user.id)!
 
         expectStatus(await fetch("/api/profile/filters"), 401)
-        expectStatus(await accountFetch(actor, "/api/profile/filters/mute", { target: "post:invalid" }), 400)
+        expectStatus(await accountFetch(actor, "/api/profile/filters/mute", { target: "post:invalid" }), 404)
         expectStatus(await accountFetch(actor, "/api/profile/filters/mute", {}), 400)
         expectStatus(await accountFetch(actor, "/api/profile/filters/block", { target: actor.user.id }), 400)
         expectStatus(await accountFetch(actor, "/api/profile/filters/block", { target: "user:deleted" }), 400)

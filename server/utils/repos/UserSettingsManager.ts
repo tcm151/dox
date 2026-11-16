@@ -1,11 +1,7 @@
 import type {
-    ContentFilterTargetType,
-    ContentFilterTargetView,
     User,
-    UserContentFilterView,
     UserSettings,
 } from "@@/shared/types"
-import { extractId } from "@@/shared/utils/records"
 import { Validator } from "@@/shared/utils/Validator"
 
 export class UserSettingsManager {
@@ -56,32 +52,23 @@ export class UserSettingsManager {
             .queryOne<UserSettings>()
     }
 
-    static async list(user: string): Promise<UserContentFilterView> {
-        const filters = await new DatabaseQuery()
+    static async list(user: string) {
+        return await new DatabaseQuery()
             .addSql(`
                 SELECT
-                    content.filters.muted.{id, name} AS muted,
-                    content.filters.blocked.{id, name} AS blocked
+                    content.filters.muted.{id, name: name ?? record::id(id)} AS muted,
+                    content.filters.blocked.{id, name: name ?? record::id(id)} AS blocked
                 FROM userSettings
                 WHERE user = $user
             `)
             .addRecord("user", user)
             .queryOne<{
-                muted: Array<{ id: string, name?: string }>
-                blocked: Array<{ id: string, name?: string }>
+                muted: Array<{ id: string, name: string }>
+                blocked: Array<{ id: string, name: string }>
             }>()
-        const muted = filters.muted.map(target => this.toTargetView(target))
-        const blocked = filters.blocked.map(target => this.toTargetView(target))
-        const byName = (left: ContentFilterTargetView, right: ContentFilterTargetView) => left.name.localeCompare(right.name)
-
-        return {
-            muted: muted.sort(byName),
-            blocked: blocked.sort(byName),
-        }
     }
 
     static async mute(user: string, target: string): Promise<boolean> {
-        this.validateTarget(target)
         return await new DatabaseQuery()
             .addSql(`
                 IF !record::exists($target) {
@@ -104,7 +91,6 @@ export class UserSettingsManager {
     }
 
     static async unmute(user: string, target: string): Promise<boolean> {
-        this.validateTarget(target)
         return await new DatabaseQuery()
             .addSql(`
                 UPDATE userSettings SET
@@ -120,7 +106,6 @@ export class UserSettingsManager {
     }
 
     static async block(user: string, target: string): Promise<boolean> {
-        this.validateTarget(target)
         return await new DatabaseQuery()
             .addSql(`
                 IF !record::exists($target) {
@@ -159,7 +144,6 @@ export class UserSettingsManager {
     }
 
     static async unblock(user: string, target: string): Promise<boolean> {
-        this.validateTarget(target)
         return await new DatabaseQuery()
             .addSql(`
                 UPDATE userSettings SET
@@ -177,102 +161,63 @@ export class UserSettingsManager {
     static async getFilteredTargets(viewer: User | null | undefined): Promise<string[]> {
         if (!viewer) return []
 
-        const { muted, blocked, blockedBy } = await new DatabaseQuery()
+        const { targets } = await new DatabaseQuery()
             .addSql(`
-                SELECT
-                    content.filters.muted AS muted,
-                    content.filters.blocked AS blocked,
-                    (SELECT VALUE user FROM userSettings WHERE content.filters.blocked CONTAINS $viewer) AS blockedBy
+                SELECT array::group([
+                    content.filters.muted,
+                    content.filters.blocked,
+                    (SELECT VALUE user FROM userSettings WHERE content.filters.blocked CONTAINS $viewer)
+                ]) AS targets
                 FROM userSettings
                 WHERE user = $viewer
                 LIMIT 1
             `)
             .addRecord("viewer", viewer.id)
-            .queryOne<{ muted: string[], blocked: string[], blockedBy: string[] }>()
+            .queryOne<{ targets: string[] }>()
 
-        return [...new Set([...muted, ...blocked, ...blockedBy])]
+        return targets
     }
 
-    static async getBlockedUsers(viewer: User | null | undefined): Promise<string[]> {
-        if (!viewer) return []
+    static async isBlocked(viewer: User, target: string | string[], statusCode = 403): Promise<void> {
+        const targets = Array.isArray(target) ? target : [target]
+        if (targets.length === 0) return
 
-        const { blocked, blockedBy } = await new DatabaseQuery()
+        await new DatabaseQuery()
             .addSql(`
-                SELECT
-                    content.filters.blocked AS blocked,
-                    (SELECT VALUE user FROM userSettings WHERE content.filters.blocked CONTAINS $viewer) AS blockedBy
-                FROM userSettings
-                WHERE user = $viewer
-                LIMIT 1
-            `)
-            .addRecord("viewer", viewer.id)
-            .queryOne<{ blocked: string[], blockedBy: string[] }>()
-
-        return [...new Set([
-            ...blocked.filter(target => target.startsWith("user:")),
-            ...blockedBy,
-        ])]
-    }
-
-    static async getBlockedTopics(viewer: User | null | undefined): Promise<string[]> {
-        if (!viewer) return []
-
-        const { blocked } = await new DatabaseQuery()
-            .addSql(`
-                SELECT content.filters.blocked AS blocked
-                FROM userSettings
-                WHERE user = $viewer
-                LIMIT 1
-            `)
-            .addRecord("viewer", viewer.id)
-            .queryOne<{ blocked: string[] }>()
-
-        return blocked.filter(target => target.startsWith("topic:"))
-    }
-
-    static async isBlocked(user: string, target: string): Promise<boolean> {
-        this.validateTarget(target)
-        return await new DatabaseQuery()
-            .addSql(`
-                LET $matches = (
-                    SELECT id
-                    FROM userSettings
-                    WHERE (
-                        user = $user
-                        AND (
-                            (record::tb($target) = "user" AND content.filters.blocked CONTAINS $target)
-                            OR (record::tb($target) = "topic" AND content.filters.blocked CONTAINS $target)
-                        )
-                    )
-                    OR (
-                        record::tb($target) = "user"
-                        AND user = $target
-                        AND content.filters.blocked CONTAINS $user
-                    )
-                    LIMIT 1
+                LET $blocked = array::union(
+                    (SELECT VALUE content.filters.blocked FROM ONLY userSettings WHERE user = $viewer LIMIT 1),
+                    (SELECT VALUE user FROM userSettings WHERE content.filters.blocked CONTAINS $viewer)
                 );
-                RETURN $matches.len() > 0;
+                LET $targets = array::group(array::flatten(array::map($targetIds, |$target| [
+                    IF record::tb($target) IN ["user", "topic"] {
+                        $target
+                    }
+                    ELSE {
+                        (SELECT VALUE user FROM ONLY $target)
+                    },
+                    IF record::tb($target) = "thread" {
+                        array::group([$target.topics, $target.replyTo.topics, $target.quote.topics])
+                    }
+                    ELSE IF record::tb($target) = "comment" {
+                        array::group([$target.context.topics])
+                    }
+                    ELSE IF record::tb($target) IN ["post", "gallery", "link"] {
+                        $target.topics
+                    }
+                    ELSE {
+                        []
+                    }
+                ])));
+
+                IF $targets CONTAINSANY $blocked {
+                    fn::http($statusCode, "This action is blocked.");
+                };
             `)
             .addTransaction()
-            .addRecord("user", user)
-            .addRecord("target", target)
-            .queryValue<boolean>()
+            .addRecord("viewer", viewer.id)
+            .addRecords("targetIds", targets)
+            .addParameter("statusCode", statusCode)
+            .execute()
     }
 
-    private static toTargetView(target: { id: string, name?: string }): ContentFilterTargetView {
-        const name = target.name ?? extractId(target.id)
-        if (!name) throw new Error(`Invalid content filter target ID: ${target.id}`)
-        return { id: target.id, name }
-    }
-
-    private static validateTarget(target: string): ContentFilterTargetType {
-        const targetType = target.slice(0, target.indexOf(":"))
-        if (targetType !== "user" && targetType !== "topic") {
-            throw createError({
-                statusCode: 400,
-                statusMessage: "Only users and topics can be muted or blocked.",
-            })
-        }
-        return targetType
-    }
 }

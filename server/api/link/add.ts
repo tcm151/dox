@@ -39,11 +39,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: "Link publishing is disabled." })
     }
 
-    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
-    if (link.topics.some(topic => blockedTopics.includes(topic))) {
-        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
-    }
-
+    await UserSettingsManager.isBlocked(auth, link.topics)
     await ModerationManager.checkTopicCooldown(auth.id, link.topics)
     const preview = await linkPreviewManager.get(link.url).catch(() => ({}))
 

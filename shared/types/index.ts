@@ -249,16 +249,6 @@ export interface UserSettings extends Record {
 
 export type ContentFilterTargetType = "user" | "topic"
 
-export interface ContentFilterTargetView {
-    id: string
-    name: string
-}
-
-export interface UserContentFilterView {
-    muted: ContentFilterTargetView[]
-    blocked: ContentFilterTargetView[]
-}
-
 export interface Feedback extends Record {
     user: User & string
     content: string

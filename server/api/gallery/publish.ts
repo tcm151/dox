@@ -30,12 +30,9 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: "A gallery must contain at least one image." })
     }
 
-    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
-    if (body.topics.some(topic => blockedTopics.includes(topic))) {
-        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
-    }
-
+    await UserSettingsManager.isBlocked(auth, body.topics)
     await ModerationManager.checkTopicCooldown(auth.id, body.topics)
+
     await new DatabaseQuery()
         .addSql(`
             LET $unavailableTopics = (

@@ -20,12 +20,9 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
-    if (thread.topics.some(topic => blockedTopics.includes(topic))) {
-        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
-    }
-
+    await UserSettingsManager.isBlocked(auth, thread.topics)
     await ModerationManager.checkTopicCooldown(auth.id, thread.topics)
+
     return await new DatabaseQuery()
         .addSql(`
             LET $unavailableTopics = (

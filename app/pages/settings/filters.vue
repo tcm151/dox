@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { ContentFilterTargetView, UserContentFilterView } from "@@/shared/types"
-
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
 const userSettings = useUserSettings()
 
-const { data: filters, refresh } = await useDatasource<UserContentFilterView>("/api/profile/filters")
+const { data: filters, refresh } = await useDatasource<{
+    muted: Array<{ id: string, name: string }>
+    blocked: Array<{ id: string, name: string }>
+}>("/api/profile/filters")
 
 const filterAction = ref<string | null>(null)
 const contentVisibilityTags = [
@@ -63,7 +64,7 @@ async function resetPreferences() {
     }
 }
 
-function confirmRemoveFilter(action: "unmute" | "unblock", target: ContentFilterTargetView) {
+function confirmRemoveFilter(action: "unmute" | "unblock", target: { id: string, name: string }) {
     if (filterAction.value !== null) return
 
     const verb = action === "unmute" ? "unmute" : "unblock"

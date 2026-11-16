@@ -5,9 +5,7 @@ import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!
     const viewer = await authenticateOptionalRequest(event)
-    if (viewer && await UserSettingsManager.isBlocked(viewer.id, `topic:${topic}`)) {
-        throw createError({ statusCode: 404, statusMessage: "Topic not found." })
-    }
+    if (viewer) await UserSettingsManager.isBlocked(viewer, `topic:${topic}`, 404)
 
     return await new DatabaseQuery()
         .addSql(`

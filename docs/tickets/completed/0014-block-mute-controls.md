@@ -66,6 +66,7 @@ Let users reduce unwanted content by blocking or muting other users and topics t
 - tests/parallel/content-filters.server.test.ts
 
 ## Progress Log
+- 2026-11-16: Centralized server block assertions in `UserSettingsManager.isBlocked`, simplified target mapping and query checks, and removed redundant filter target validation, view types, and sorting. `content-filters.server.test.ts` passed 13 tests.
 - 2026-11-16: Server-side blocks now reject award and referral actions between blocked users and awards on blocked-topic content. Moderation/admin notifications remain available. `content-filters.server.test.ts` passed 12 tests, `engagement.server.test.ts` passed 16 tests, and typecheck passed.
 - 2026-11-16: Applied the flat exclusion list to feeds and search, documented the chosen operators, and deferred notification filtering to source-side handling.
 - 2026-11-16: User blocks now prevent re-following in either direction; `content-filters.server.test.ts` passed 12 tests and typecheck passed.

@@ -8,11 +8,7 @@ export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     let thread = await readBody<Thread>(event)
 
-    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
-    if ((thread.topics ?? []).some(topic => blockedTopics.includes(topic))) {
-        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
-    }
-    const quoteId = `thread:${id}`
+    await UserSettingsManager.isBlocked(auth, thread.topics ?? [])
 
     const { quote, recipient } = await new DatabaseQuery()
         .addSql(`
@@ -39,7 +35,7 @@ export default defineEventHandler(async (event) => {
         .addParameter('content', thread.content)
         .addParameter('tags', thread.tags ?? [])
         .addRecords('topics', thread.topics ?? [])
-        .addRecord('quote', quoteId)
+        .addRecord('quote', `thread:${id}`)
         .queryValue<{ quote: Thread, recipient: string }>()
 
     await NotificationManager.send({

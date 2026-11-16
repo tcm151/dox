@@ -47,13 +47,7 @@ export class ReferralManager {
             })
         }
 
-        const blockedUsers = await UserSettingsManager.getBlockedUsers(user)
-        if (blockedUsers.includes(recipient)) {
-            throw createError({
-                statusCode: 403,
-                statusMessage: "Users cannot claim referrals from each other while either user blocks the other.",
-            })
-        }
+        await UserSettingsManager.isBlocked(user, recipient)
 
         const existingClaims = await new DatabaseQuery()
             .addSql(`
