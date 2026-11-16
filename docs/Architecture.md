@@ -226,6 +226,7 @@ Runtime configuration is defined in `nuxt.config.ts` and env variables.
 
 Key env groups:
 - App identity and URL: `PORT`, `NUXT_PUBLIC_BASE_URL`, `NUXT_PUBLIC_SITE_TITLE`, `NUXT_PUBLIC_SITE_TITLE_SHORT`
+- Developer info captures the build timestamp and Git revision/ref automatically, and displays the package version, current browser origin, and development/production mode. It reads only an explicit public metadata allowlist; private runtime settings remain server-side.
 - Trusted reverse proxies: `NUXT_TRUSTED_PROXIES` (comma-separated IP addresses or narrow CIDRs; empty means no forwarded-header trust)
 - Media storage path: `NUXT_DATA_PATH`
 - Surreal connection: `NUXT_SURREAL_INFO_TYPE`, `NUXT_SURREAL_INFO_URL`, namespace/database, credentials

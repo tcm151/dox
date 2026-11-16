@@ -1,5 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { execFileSync } from "node:child_process"
 import packageJson from "./package.json"
+
+// Git metadata may be unavailable when building from a source archive.
+function readGitMetadata(args: string[]) {
+    try {
+        return execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim()
+    }
+    catch {
+        return ""
+    }
+}
+
+const gitCommit = readGitMetadata(["rev-parse", "--short=12", "HEAD"])
+const gitRef = readGitMetadata(["branch", "--show-current"]) || readGitMetadata(["describe", "--always", "--tags", "HEAD"])
 
 export default defineNuxtConfig({
     compatibilityDate: "2025-12-01",
@@ -117,6 +131,9 @@ export default defineNuxtConfig({
         public: {
             version: packageJson.version,
             baseUrl: "",
+            buildDate: new Date().toISOString(),
+            gitCommit,
+            gitRef,
             site: {
                 title: "",
                 titleShort: "",

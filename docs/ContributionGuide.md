@@ -31,6 +31,7 @@ Create a `.env` file with these parameters:
 ```bash
 PORT= # the port of your running Nuxt instance. Ex: 3000
 NUXT_PUBLIC_BASE_URL= # the public address of your running Nuxt instance. Ex: http://localhost:3000
+# Developer > Info captures build time and Git revision/ref automatically; no extra metadata variables are required.
 
 NUXT_PUBLIC_SITE_TITLE= # the title you'd like to be displayed in the browser tab
 NUXT_PUBLIC_SITE_TITLE_SHORT= # the shortened title used when space is limited
