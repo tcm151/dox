@@ -80,16 +80,23 @@ test("keeps search filters in the URL and restores feed scroll when returning fr
         expect(visibleIndex).toBeGreaterThanOrEqual(0)
         await page.locator(".post.clickable").nth(visibleIndex).click()
         await expect(page).toHaveURL(/\/post\//)
+        await expect(page.locator("section.post")).toBeVisible()
+        await expect(page.locator(".swap-enter-active")).toHaveCount(0)
 
         await page.goBack()
         await expect(page).toHaveURL(searchUrl)
         await expect(page.locator(".feed-items .feed-item")).toHaveCount(postIds.length)
+        await expect(page.locator(".feed-enter-active")).toHaveCount(0)
         await expect.poll(() => scroller.evaluate(element => (element as HTMLElement).scrollTop)).toBe(previousScroll)
 
         await page.goForward()
         await expect(page).toHaveURL(/\/post\//)
+        await expect(page.locator("section.post")).toBeVisible()
+        await expect(page.locator(".swap-enter-active")).toHaveCount(0)
         await page.goBack()
         await expect(page).toHaveURL(searchUrl)
+        await expect(page.locator(".feed-items .feed-item")).toHaveCount(postIds.length)
+        await expect(page.locator(".feed-enter-active")).toHaveCount(0)
         await expect.poll(() => scroller.evaluate(element => (element as HTMLElement).scrollTop)).toBe(previousScroll)
 
         await page.reload()

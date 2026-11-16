@@ -35,6 +35,7 @@ Add practical search filters and keep filter state synchronized in the URL for s
 - tests/parallel/search.browser.test.ts
 
 ## Progress Log
+- 2026-11-16: Added route and feed transition waits before checking Back-navigation scroll restoration. The focused search browser spec passed 2 tests; the full suite still has intermittent browser failures under concurrency.
 - 2026-11-15: Reviewed the implementation with no findings. Typecheck, focused API/browser tests, and one full suite run passed (187/187); a later full run timed out at the 5-second limit in the unrelated `09-feeds.server.test.ts` feed-pagination test.
 - 2026-11-15: Started implementation with type, topic, author, and date filters plus Back-based scroll restoration for all feed pages.
 - 2026-04-13: Ticket created.
