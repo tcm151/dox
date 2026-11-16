@@ -78,7 +78,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 ### C2. Account Safety and Personal Controls
 - 🟩 Add account deletion choices for retaining authored content or removing it while preserving discussion history. (`0013`, `M`)
 - 🟩 Add revoke-other-sessions action, session expiry, and password-reset invalidation. (`0012`, `M`)
-- 🟥 Add user/topic block and mute controls with feed, search, and inbox filtering. (`0014`, `M`)
+- 🟩 Add user/topic block and mute controls with feed/search filtering and server-side action enforcement. (`0014`, `M`)
 - 🟥 Add save/unsave actions for eligible content with clear saved-state feedback. (`0080`, `M`)
 - 🟥 Align extra-option actions across content types, coordinating save-action availability with Ticket 0080. (`0087`, `M`)
 - 🟥 Define account privacy controls and documented defaults, distinct from content visibility settings. (`0089`, `S`)
@@ -91,7 +91,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 - 🟥 Add search filters and URL synchronization for shareable discovery. (`0015`, `M`)
 - 🟥 Define and implement saved-user content ranking and feed integration after the engagement fundamentals. (`0105`, `M`)
 - 🟥 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`0083`, `M`)
-- 🟥 Improve async refresh behavior for inbox/feed (polling, optimistic updates, stale-state handling) after the inbox audit. (`0060`, `M`)
+- 🟩 Refresh feeds and inbox after relevant mutations and on stale fresh navigation, preserving loaded content. (`0060`, `M`)
 - 🟥 Triage high-visibility TODOs in feed/search/settings and create linked follow-up work. (`0090`, `S`)
 - 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`0082`, `S`)
 
