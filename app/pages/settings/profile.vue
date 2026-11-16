@@ -65,7 +65,20 @@ async function resetProfile() {
 </script>
 
 <template>
-    <article class="m-4">
+    <article class="column g-4 m-4">
+        <header class="row wrap inline between g-2">
+            <h1>Profile</h1>
+            <div class="row wrap g-2">
+                <ButtonSpinner class="success" :loading="loading" @click="updateProfile">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Update</span>
+                </ButtonSpinner>
+                <button @click="resetProfile">
+                    <i class="fa-solid fa-refresh"></i>
+                    <span>Cancel</span>
+                </button>
+            </div>
+        </header>
         <section class="box column g-4 p-5">
             <h2>User Information</h2>
             <div class="form">
@@ -86,16 +99,6 @@ async function resetProfile() {
                     <label>Description</label>
                     <MarkdownEditor bounded :rows="6" v-model="session.user.description" />
                 </div>
-            </div>
-            <div class="row g-2">
-                <ButtonSpinner class="success f-2" :loading="loading" @click="updateProfile">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <span>Update</span>
-                </ButtonSpinner>
-                <button class="f-1" @click="resetProfile">
-                    <i class="fa-solid fa-refresh"></i>
-                    <span>Cancel</span>
-                </button>
             </div>
         </section>
     </article>

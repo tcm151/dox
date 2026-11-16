@@ -102,7 +102,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Methods: `GET /api/profile/filters` lists filters; `POST /api/profile/filters/mute`, `/unmute`, `/block`, and `/unblock` manage one target.
 - Access: authenticated user.
 - Request: action bodies contain `{ target }`, where `target` is a `user:` or `topic:` record ID.
-- `200`: the list returns `{ mutedUsers, blockedUsers, mutedTopics, blockedTopics }`; each action returns `true`.
+- `200`: the list returns `{ muted, blocked }`, each containing user and topic targets; each action returns `true`.
 - `400`: malformed or unsupported target, or an attempt to mute/block yourself or block `user:deleted`. `404`: mute/block target does not exist.
 - Side effects: blocking a user removes follows in both directions and prevents following, discussing, awarding, or claiming referrals with that user. Blocking a topic removes the caller's follow and prevents following or publishing content to it, and prevents awarding content associated with it. Unblocking does not restore follows. Mutes and blocks remain independent.
 - Source: [filter routes](../server/api/profile/filters/), [settings manager](../server/utils/repos/UserSettingsManager.ts).

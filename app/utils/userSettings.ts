@@ -22,6 +22,7 @@ export const useUserSettings = defineStore("user.preferences", () => {
     const loading = ref(false)
     const loaded = ref(false)
     const saving = ref(false)
+    const pending = computed(() => loading.value || !loaded.value || saving.value)
 
     watch(() => preferences.value.ui.hoverAnimations, enabled => {
         if (!ENV.isClient()) return
@@ -72,5 +73,5 @@ export const useUserSettings = defineStore("user.preferences", () => {
         if (userId !== "user:temp") void refresh().catch(() => {})
     }, { immediate: true })
 
-    return { preferences, loading, loaded, saving, get, set, refresh, save }
+    return { preferences, pending, get, set, refresh, save }
 })

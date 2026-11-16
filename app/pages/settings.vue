@@ -2,7 +2,9 @@
 
 const tabs = ref<TabItem[]>([
     { route: '/settings/profile', icon: 'fa-address-card', label: 'Profile' },
-    { route: '/settings/preferences', icon: 'fa-sliders', label: 'Preferences' },
+    { route: '/settings/preferences', icon: 'fa-gear', label: 'Preferences' },
+    { route: '/settings/filters', icon: 'fa-eye-slash', label: 'Filters' },
+    { route: '/settings/misc', icon: 'fa-ellipsis', label: 'Misc' },
 ])
 
 definePageMeta({

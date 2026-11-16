@@ -255,10 +255,8 @@ export interface ContentFilterTargetView {
 }
 
 export interface UserContentFilterView {
-    mutedUsers: ContentFilterTargetView[]
-    blockedUsers: ContentFilterTargetView[]
-    mutedTopics: ContentFilterTargetView[]
-    blockedTopics: ContentFilterTargetView[]
+    muted: ContentFilterTargetView[]
+    blocked: ContentFilterTargetView[]
 }
 
 export interface Feedback extends Record {

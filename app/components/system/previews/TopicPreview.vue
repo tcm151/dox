@@ -52,7 +52,7 @@ let showFollow = computed(() => {
                         <ButtonSpinner v-if="!showFollow && !moderator.forTopic(topic)" class="danger small" :loading="loading" @click="unfollowTopic">
                             Unfollow
                         </ButtonSpinner>
-                        <ContentFilterControls :target="topic.id" :name="extractId(topic.id) ?? topic.id" />
+                        <TargetOptions :target="topic" :name="extractId(topic.id) ?? topic.id" />
                     </div>
                 </Authenticated>
             </div>

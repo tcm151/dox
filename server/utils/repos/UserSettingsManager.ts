@@ -75,10 +75,8 @@ export class UserSettingsManager {
         const byName = (left: ContentFilterTargetView, right: ContentFilterTargetView) => left.name.localeCompare(right.name)
 
         return {
-            mutedUsers: muted.filter(target => target.id.startsWith("user:")).sort(byName),
-            blockedUsers: blocked.filter(target => target.id.startsWith("user:")).sort(byName),
-            mutedTopics: muted.filter(target => target.id.startsWith("topic:")).sort(byName),
-            blockedTopics: blocked.filter(target => target.id.startsWith("topic:")).sort(byName),
+            muted: muted.sort(byName),
+            blocked: blocked.sort(byName),
         }
     }
 

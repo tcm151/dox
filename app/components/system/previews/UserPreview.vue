@@ -13,26 +13,6 @@ const session = getSession()
 const isDeletedUser = computed(() => props.user.id === "user:deleted")
 const following = computed(() => session.user?.following.includes(props.user.id))
 const isOwnProfile = computed(() => props.user.id === session.user?.id)
-const saved = ref<boolean>(false)
-const awarded = ref<boolean>(false)
-const saveCount = ref<number>(0)
-const awardCount = ref<number>(0)
-
-const engagement = computed(() => ({
-    votes: props.user.votes,
-    viewerId: session.user?.id,
-}))
-
-watch(
-    engagement,
-    ({ votes, viewerId }) => {
-        saveCount.value = votes.saves.length
-        awardCount.value = votes.awards.length
-        saved.value = viewerId ? votes.saves.includes(viewerId) : false
-        awarded.value = viewerId ? votes.awards.includes(viewerId) : false
-    },
-    { immediate: true },
-)
 
 const connections = useFollowing()
 const loading = ref<boolean>(false)
@@ -59,61 +39,6 @@ async function unfollowUser() {
     finally {
         loading.value = false
     }
-}
-
-const hints = useHints()
-
-async function toggleSaved() {
-    const wasSaved = saved.value
-    loading.value = true
-    try {
-        await useApi(`/api/user/${extractId(props.user.id)}/${wasSaved ? "unsave" : "save"}`)
-        saved.value = !wasSaved
-        saveCount.value += wasSaved ? -1 : 1
-        hints.addSuccess(wasSaved ? "User removed from saved subscriptions." : "User saved as a subscription.")
-        emit("refresh")
-    }
-    catch (error: any) {
-        hints.addError("Unable to update this saved subscription.", error)
-    }
-    finally {
-        loading.value = false
-    }
-}
-
-const events = useEvents()
-
-function awardUser() {
-    if (awarded.value) {
-        hints.addWarning("You have already awarded this user.")
-        return
-    }
-    if (session.user.tokens < 256) {
-        hints.addWarning("You do not have enough tokens to award this user.")
-        return
-    }
-
-    events.publish(Trigger.showPopup, {
-        title: "Confirm Award",
-        message: "Are you sure you want to award this user? It will cost 256 tokens.",
-        accept: async () => {
-            loading.value = true
-            try {
-                await useApi(`/api/user/${extractId(props.user.id)}/award`)
-                awarded.value = true
-                awardCount.value += 1
-                await session.refreshProfile()
-                hints.addSuccess("Successfully awarded user.")
-                emit("refresh")
-            }
-            catch (error: any) {
-                hints.addError("Unable to award this user.", error)
-            }
-            finally {
-                loading.value = false
-            }
-        },
-    })
 }
 
 </script>
@@ -143,23 +68,15 @@ function awardUser() {
                         <ButtonSpinner v-else class="success small" :loading="loading" @click="followUser">
                             Follow
                         </ButtonSpinner>
-                        <ButtonSpinner v-if="!isOwnProfile" class="link small" :loading="loading" @click="toggleSaved">
-                            <i :class="saved ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"></i>
-                            <span>{{ saved ? "Saved" : "Save" }}</span>
-                        </ButtonSpinner>
-                        <ButtonSpinner v-if="!isOwnProfile" class="warning small" :loading="loading" :disabled="awarded" @click="awardUser">
-                            <i class="fa-solid fa-crown"></i>
-                            <span>{{ awarded ? "Awarded" : "Award" }}</span>
-                        </ButtonSpinner>
-                        <ContentFilterControls v-if="!isOwnProfile" :target="user.id" :name="user.name" @refresh="emit('refresh')" />
+                        <TargetOptions v-if="!isOwnProfile" :target="user" :name="user.name" @refresh="emit('refresh')" />
                     </div>
                 </Authenticated>
             </div>
         </section>
         <section class="row wrap g-1">
             <Votes :target="user" />
-            <Tag class="f-1 fw-normal" type="info" icon="fa-crown" :label="awardCount.toString()" />
-            <Tag class="f-1 fw-normal" type="info" icon="fa-box-archive" :label="saveCount.toString()" />
+            <Tag class="f-1 fw-normal" type="info" icon="fa-crown" :label="user.votes.awards.length.toString()" />
+            <Tag class="f-1 fw-normal" type="info" icon="fa-box-archive" :label="user.votes.saves.length.toString()" />
             <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ user.visits }}</strong> visits
             </Tag>

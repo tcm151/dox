@@ -123,8 +123,8 @@ it("mutes and blocks users independently, removes follows, and prevents interact
         await assertBlockedInteractions(actor, target)
 
         let filters = await getFilters(actor)
-        expect(filters.mutedUsers.filter(user => user.id === target.user.id)).toHaveLength(1)
-        expect(filters.blockedUsers.filter(user => user.id === target.user.id)).toHaveLength(1)
+        expect(filters.muted.filter(user => user.id === target.user.id)).toHaveLength(1)
+        expect(filters.blocked.filter(user => user.id === target.user.id)).toHaveLength(1)
 
         let actorProfile = await accountFetch(actor, "/api/profile/authenticate")
         let targetProfile = await accountFetch(target, "/api/profile/authenticate")
@@ -133,8 +133,8 @@ it("mutes and blocks users independently, removes follows, and prevents interact
 
         expectStatus(await accountFetch(actor, "/api/profile/filters/unblock", { target: target.user.id }), 200)
         filters = await getFilters(actor)
-        expect(filters.blockedUsers).toHaveLength(0)
-        expect(filters.mutedUsers.filter(user => user.id === target.user.id)).toHaveLength(1)
+        expect(filters.blocked.filter(user => user.id === target.user.id)).toHaveLength(0)
+        expect(filters.muted.filter(user => user.id === target.user.id)).toHaveLength(1)
 
         actorProfile = await accountFetch(actor, "/api/profile/authenticate")
         targetProfile = await accountFetch(target, "/api/profile/authenticate")
@@ -143,7 +143,7 @@ it("mutes and blocks users independently, removes follows, and prevents interact
 
         expectStatus(await accountFetch(actor, "/api/profile/filters/unmute", { target: target.user.id }), 200)
         filters = await getFilters(actor)
-        expect(filters.mutedUsers).toHaveLength(0)
+        expect(filters.muted).toHaveLength(0)
     }
     finally {
         await cleanupTestData(accounts, actionPostId, actionTopicId)
@@ -215,16 +215,16 @@ it("mutes and blocks topics, and does not restore a follow after unblocking", as
         expectStatus(blockedGalleryResponse, 403, "blocked topic gallery stage")
 
         let filters = await getFilters(actor)
-        expect(filters.mutedTopics.map(topic => topic.id)).toContain(`topic:${topicId}`)
-        expect(filters.blockedTopics.map(topic => topic.id)).toContain(`topic:${topicId}`)
+        expect(filters.muted.map(topic => topic.id)).toContain(`topic:${topicId}`)
+        expect(filters.blocked.map(topic => topic.id)).toContain(`topic:${topicId}`)
         let profile = await accountFetch(actor, "/api/profile/authenticate")
         expect((await profile.json() as User).topics).not.toContain(`topic:${topicId}`)
 
         expectStatus(await accountFetch(actor, "/api/profile/filters/unblock", { target: `topic:${topicId}` }), 200)
         expectStatus(await accountFetch(actor, "/api/profile/filters/unmute", { target: `topic:${topicId}` }), 200)
         filters = await getFilters(actor)
-        expect(filters.blockedTopics).toHaveLength(0)
-        expect(filters.mutedTopics).toHaveLength(0)
+        expect(filters.blocked).toHaveLength(0)
+        expect(filters.muted).toHaveLength(0)
         profile = await accountFetch(actor, "/api/profile/authenticate")
         expect((await profile.json() as User).topics).not.toContain(`topic:${topicId}`)
     }
