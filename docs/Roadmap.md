@@ -79,7 +79,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 - 🟩 Add account deletion choices for retaining authored content or removing it while preserving discussion history. (`0013`, `M`)
 - 🟩 Add revoke-other-sessions action, session expiry, and password-reset invalidation. (`0012`, `M`)
 - 🟩 Add user/topic block and mute controls with feed/search filtering and server-side action enforcement. (`0014`, `M`)
-- 🟥 Add save/unsave actions for eligible content with clear saved-state feedback. (`0080`, `M`)
+- 🟩 Add save/unsave actions for eligible content with clear saved-state feedback. (`0080`, `M`)
 - 🟥 Align extra-option actions across content types, coordinating save-action availability with Ticket 0080. (`0087`, `M`)
 - 🟥 Define account privacy controls and documented defaults, distinct from content visibility settings. (`0089`, `S`)
 - 🟩 Add configurable email and in-app notification preference controls in user settings. (`0008`, `M`)

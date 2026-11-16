@@ -12,6 +12,8 @@ const props = defineProps<{
 
 const targetRecord = computed(() => parseRecordId(props.target.id))
 const targetType = computed(() => targetRecord.value?.table)
+const savedContent = computed(() => ["post", "link", "thread", "gallery"].includes(targetType.value ?? "")
+    && props.target.votes.saves.includes(session.user.id))
 const targetTopics = computed(() => {
     const topics = targetType.value === "comment"
         ? props.topics ?? []
@@ -81,6 +83,7 @@ const settings = useSettings()
 const slowModes = computed(() => [...settings.app.moderation.slowModes].sort((left, right) => left - right))
 const selectedInterval = ref<number>()
 const savingModeration = ref(false)
+const savingContent = ref(false)
 
 watch(() => props.target.moderation?.slowed, (slowed) => {
     selectedInterval.value = slowed ?? slowModes.value[0]
@@ -149,6 +152,23 @@ async function clearSlowMode() {
     }
     finally {
         savingModeration.value = false
+    }
+}
+
+async function toggleSavedContent() {
+    if (savingContent.value || !["post", "link", "thread", "gallery"].includes(targetType.value ?? "")) return
+
+    savingContent.value = true
+    try {
+        await useApi(`/api/vote/${props.target.id}/${savedContent.value ? "unsave" : "save"}`, { method: "POST" })
+        hints.addSuccess(savedContent.value ? "Content removed from saved items." : "Content saved.")
+        emit("updated")
+    }
+    catch (error: any) {
+        hints.addError("Unable to update saved content.", error)
+    }
+    finally {
+        savingContent.value = false
     }
 }
 
@@ -235,6 +255,10 @@ async function addTag(tag: "nsfw" | "spoiler") {
             <button v-if="actions.award" @click="emitAndClose('award')">
                 <i class="fa-solid fa-crown"></i>
                 <span>Award</span>
+            </button>
+            <button v-if="['post', 'link', 'thread', 'gallery'].includes(targetType ?? '')" :disabled="savingContent" @click="toggleSavedContent">
+                <i class="fa-solid fa-bookmark"></i>
+                <span>{{ savedContent ? "Unsave" : "Save" }}</span>
             </button>
             <button class="report" @click="emitAndClose('report')">
                 <i class="fa-solid fa-flag"></i>

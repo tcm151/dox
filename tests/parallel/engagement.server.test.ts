@@ -309,3 +309,48 @@ it("rejects awards from an empty balance without changing either account", async
         await restoreAwardState(insufficientAwarder.user, insufficientTarget.user, senderBefore.tokens, targetBefore.tokens)
     }
 })
+
+it("saves and unsaves eligible content idempotently", async () => {
+    const suffix = Date.now().toString()
+    const post = `post:contentSavePost${suffix}`
+    const link = `link:contentSaveLink${suffix}`
+    const thread = `thread:contentSaveThread${suffix}`
+    const gallery = `gallery:contentSaveGallery${suffix}`
+    const records = [post, link, thread, gallery]
+
+    try {
+        const unauthenticatedSave = await fetch(`/api/vote/${post}/save`, { method: "POST" })
+        expectStatus(unauthenticatedSave, 401)
+        const unauthenticatedUnsave = await fetch(`/api/vote/${post}/unsave`, { method: "POST" })
+        expectStatus(unauthenticatedUnsave, 401)
+
+        await admin.query(`
+            CREATE ONLY ${post} SET user = ${awardTarget.user.id}, title = "Save post ${suffix}", content = "Save test", topics = [];
+            CREATE ONLY ${link} SET user = ${awardTarget.user.id}, title = "Save link ${suffix}", url = "https://example.invalid/${suffix}";
+            CREATE ONLY ${thread} SET user = ${awardTarget.user.id}, content = "Save thread ${suffix}";
+            CREATE ONLY ${gallery} SET user = ${awardTarget.user.id}, title = "Save gallery ${suffix}", description = "", topics = [];
+        `)
+
+        for (const record of records) {
+            const save = () => subscriber.fetchRaw(`/api/vote/${record}/save`, { method: "POST" })
+            expectStatus(await save(), 200, `save ${record}`)
+            expectStatus(await save(), 200, `repeat save ${record}`)
+
+            const saved = await admin.query<Array<Array<{ votes: { saves: string[] } }>>>(`SELECT * FROM ${record};`)
+            expect(saved[0]?.[0]?.votes.saves.filter(userId => userId === subscriber.user.id)).toHaveLength(1)
+
+            const unsave = () => subscriber.fetchRaw(`/api/vote/${record}/unsave`, { method: "POST" })
+            expectStatus(await unsave(), 200, `unsave ${record}`)
+            expectStatus(await unsave(), 200, `repeat unsave ${record}`)
+
+            const unsaved = await admin.query<Array<Array<{ votes: { saves: string[] } }>>>(`SELECT * FROM ${record};`)
+            expect(unsaved[0]?.[0]?.votes.saves).not.toContain(subscriber.user.id)
+        }
+
+        const unsupportedSave = await subscriber.fetchRaw(`/api/vote/comment:unsupported${suffix}/save`, { method: "POST" })
+        expectStatus(unsupportedSave, 400)
+    }
+    finally {
+        await admin.query(records.map(record => `DELETE ${record};`).join("\n"))
+    }
+})

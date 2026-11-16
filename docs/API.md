@@ -350,6 +350,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
 | `POST` | [`/api/vote/:id/:kind`](#vote) | Authenticated | Sets or resets the current user's vote on a voteable record. |
+| `POST` | `/api/vote/:id/{save,unsave}` | Authenticated; post, link, thread, or gallery target | Saves or removes eligible content from the current user's saved items. |
 | `POST` | `/api/user/:id/{follow,unfollow,save,unsave}` | Authenticated | Manages the current user's relationship with another user; following is rejected if either user blocks the other. |
 | `POST` | `/api/topic/:topic/{follow,unfollow}` | Authenticated | Follows or unfollows a topic; following is rejected if the caller has blocked it. |
 | `POST` | `/api/user/:id/award` | Authenticated; token, self-award, and block checks | Awards another user with tokens unless either user blocks the other. |
@@ -366,6 +367,24 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Side effects: updates the caller's vote state, removing their vote from the other categories when setting a vote.
 - Source: [positive vote route](../server/api/vote/[id]/positive.ts).
 - Tests: [vote API tests](../tests/parallel/votes.server.test.ts).
+
+### Content Saves
+
+- Access: authenticated user; targets must be posts, links, threads, or galleries.
+- Request: target record ID and `save` or `unsave` action in the path; no body.
+- `200`: `{ saved: true }` after save or `{ saved: false }` after unsave. Repeated actions are idempotent. `400`: unsupported target type. `401`: no valid session. `404`: target does not exist.
+- Side effects: adds or removes the current user from `votes.saves`; user-profile subscriptions remain separate.
+- Source: [save route](../server/api/vote/[id]/save.ts), [content manager](../server/utils/ContentManager.ts).
+- Tests: [engagement tests](../tests/parallel/engagement.server.test.ts).
+
+### Visit Counters
+
+- Methods: `GET /api/user/:id/visit`, `GET /api/topic/:topic/visit`, and `GET /api/{post,thread,gallery,link}/:id/visit`.
+- Access: public.
+- `200`: the incremented visit count as a number.
+- Side effects: increments the target's `visits` field.
+- Source: [visit route](../server/api/post/[id]/visit.ts), [content manager](../server/utils/ContentManager.ts).
+- Tests: [visit counter tests](../tests/parallel/visits.server.test.ts).
 
 ### User Awards
 

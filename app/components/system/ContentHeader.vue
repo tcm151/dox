@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Gallery, Image, Link, Post, Thread } from "@@/shared/types"
+import { parseRecordId } from "@@/shared/utils/records"
 
 type ContentHeaderItem = Post | Link | Thread | Gallery | Image
 
@@ -11,6 +12,7 @@ const props = withDefaults(defineProps<{
     context: "preview",
 })
 
+const session = getSession()
 const post = computed(() => "content" in props.content && "title" in props.content ? props.content : undefined)
 const thread = computed(() => "replies" in props.content ? props.content : undefined)
 const gallery = computed(() => "images" in props.content && "description" in props.content ? props.content : undefined)
@@ -31,7 +33,11 @@ const discussionCount = computed(() => {
 })
 
 const awards = computed(() => post.value?.votes.awards.length)
-const saves = computed(() => post.value?.votes.saves.length)
+const saves = computed(() => ["post", "link", "thread", "gallery"].includes(parseRecordId(props.content.id)?.table ?? "")
+    ? props.content.votes.saves.length
+    : undefined)
+const saved = computed(() => ["post", "link", "thread", "gallery"].includes(parseRecordId(props.content.id)?.table ?? "")
+    && props.content.votes.saves.includes(session.user.id))
 const imageCount = computed(() => gallery.value?.images.length)
 const mediaType = computed(() => image.value?.type)
 const tokens = computed(() => image.value?.tokens)
@@ -56,7 +62,8 @@ const readableTime = computed(() => props.content.time.split(".")[0]?.replace("T
         <Tag v-if="context === 'preview' && pinned" class="meta" icon="fa-thumbtack" />
         <Tag v-if="archived" class="meta" icon="fa-folder-closed" />
         <Tag v-if="context === 'preview' && awards" class="meta" icon="fa-crown" :label="awards" />
-        <Tag v-if="context === 'preview' && saves" class="meta" icon="fa-box-archive" :label="saves" />
+        <Tag v-if="context === 'preview' && saves !== undefined" :type="saved ? 'info' : 'meta'" icon="fa-bookmark" :label="saves" :title="saved ? 'Saved by you' : 'Save count'" />
+        <Tag v-if="context === 'detail' && saved" type="info" icon="fa-bookmark" title="Saved by you" />
         <Tag class="meta" icon="fa-chart-simple" :label="content.visits" />
         <Tag v-if="discussionCount !== undefined" class="meta" icon="fa-comment" :label="discussionCount" />
         <Tag class="meta" icon="fa-stopwatch" :label="formatDate(content.time)" :title="readableTime">
