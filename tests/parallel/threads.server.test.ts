@@ -56,16 +56,19 @@ it("denies thread archiving to members and toggles the archived state for admins
         const unchangedThread = await threadAuthor.fetch<Thread>(`/api/thread/${threadId}`)
         expect(unchangedThread.status).toBe("active")
 
-        const archiveResponse = await admin.fetchRaw<Thread>(`/api/thread/${threadId}/archive`, { method: "POST" })
+        const archiveResponse = await admin.fetchRaw<boolean>(`/api/thread/${threadId}/archive`, { method: "POST" })
         expectStatus(archiveResponse, 200, "archive stage")
-        expect(archiveResponse._data?.status).toBe("archived")
+        expect(archiveResponse._data).toBe(true)
+        expect((await threadAuthor.fetch<Thread>(`/api/thread/${threadId}`)).status).toBe("archived")
 
-        const unarchiveResponse = await admin.fetchRaw<Thread>(`/api/thread/${threadId}/archive`, { method: "POST" })
+        const unarchiveResponse = await admin.fetchRaw<boolean>(`/api/thread/${threadId}/archive`, { method: "POST" })
         expectStatus(unarchiveResponse, 200, "unarchive stage")
-        expect(unarchiveResponse._data?.status).toBe("active")
+        expect(unarchiveResponse._data).toBe(true)
+        expect((await threadAuthor.fetch<Thread>(`/api/thread/${threadId}`)).status).toBe("active")
 
-        const pinResponse = await admin.fetchRaw<Pin>(`/api/thread/${threadId}/pin`, { method: "POST" })
+        const pinResponse = await admin.fetchRaw<boolean>(`/api/thread/${threadId}/pin`, { method: "POST" })
         expectStatus(pinResponse, 200, "app pin stage")
+        expect(pinResponse._data).toBe(true)
         const pins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = thread:${threadId} AND scope = "app";`)
         expect(pins[0]).toHaveLength(1)
     }

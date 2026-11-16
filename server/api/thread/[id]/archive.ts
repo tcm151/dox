@@ -1,4 +1,3 @@
-import type { Thread } from "@@/shared/types"
 import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
@@ -7,5 +6,7 @@ export default defineEventHandler(async (event) => {
     
     const { id } = event.context.params!
 
-    return await ContentManager.archive<Thread>(`thread:${id}`)
+    await ContentManager.archive(`thread:${id}`)
+
+    return true
 })

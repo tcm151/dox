@@ -159,7 +159,9 @@ it("awards galleries with a token transfer and notification", async () => {
         expectStatus(selfAward, 400)
 
         const award = () => awardSender.fetchRaw(`/api/gallery/${galleryId}/award`, { method: "POST" })
-        expectStatus(await award(), 204)
+        const awardResponse = await award()
+        expectStatus(awardResponse, 200)
+        expect(awardResponse._data).toBe(true)
         expectStatus(await award(), 409)
 
         const gallery = await admin.fetch<Gallery>(`/api/gallery/${galleryId}`)
@@ -203,7 +205,9 @@ it("awards links with a token transfer and notification", async () => {
 
         expectStatus(await awardTarget.fetchRaw(`/api/link/${linkId}/award`, { method: "POST" }), 400)
         const award = () => awardSender.fetchRaw(`/api/link/${linkId}/award`, { method: "POST" })
-        expectStatus(await award(), 204)
+        const awardResponse = await award()
+        expectStatus(awardResponse, 200)
+        expect(awardResponse._data).toBe(true)
         expectStatus(await award(), 409)
 
         const links = await admin.query<Link[][]>(`SELECT * FROM ${linkRecord};`)
@@ -258,7 +262,9 @@ it("awards comments with a token transfer and notification", async () => {
         expectStatus(await awardTarget.fetchRaw(`/api/comment/${commentId}/award`, { method: "POST" }), 400)
 
         const award = () => awardSender.fetchRaw(`/api/comment/${commentId}/award`, { method: "POST" })
-        expectStatus(await award(), 204)
+        const awardResponse = await award()
+        expectStatus(awardResponse, 200)
+        expect(awardResponse._data).toBe(true)
         expectStatus(await award(), 409)
 
         const comments = await admin.query<Array<Array<Comment>>>(`SELECT * FROM comment:${commentId};`)
@@ -333,15 +339,23 @@ it("saves and unsaves eligible content idempotently", async () => {
 
         for (const record of records) {
             const save = () => subscriber.fetchRaw(`/api/vote/${record}/save`, { method: "POST" })
-            expectStatus(await save(), 200, `save ${record}`)
-            expectStatus(await save(), 200, `repeat save ${record}`)
+            const saveResponse = await save()
+            expectStatus(saveResponse, 200, `save ${record}`)
+            expect(saveResponse._data).toBe(true)
+            const repeatSaveResponse = await save()
+            expectStatus(repeatSaveResponse, 200, `repeat save ${record}`)
+            expect(repeatSaveResponse._data).toBe(true)
 
             const saved = await admin.query<Array<Array<{ votes: { saves: string[] } }>>>(`SELECT * FROM ${record};`)
             expect(saved[0]?.[0]?.votes.saves.filter(userId => userId === subscriber.user.id)).toHaveLength(1)
 
             const unsave = () => subscriber.fetchRaw(`/api/vote/${record}/unsave`, { method: "POST" })
-            expectStatus(await unsave(), 200, `unsave ${record}`)
-            expectStatus(await unsave(), 200, `repeat unsave ${record}`)
+            const unsaveResponse = await unsave()
+            expectStatus(unsaveResponse, 200, `unsave ${record}`)
+            expect(unsaveResponse._data).toBe(true)
+            const repeatUnsaveResponse = await unsave()
+            expectStatus(repeatUnsaveResponse, 200, `repeat unsave ${record}`)
+            expect(repeatUnsaveResponse._data).toBe(true)
 
             const unsaved = await admin.query<Array<Array<{ votes: { saves: string[] } }>>>(`SELECT * FROM ${record};`)
             expect(unsaved[0]?.[0]?.votes.saves).not.toContain(subscriber.user.id)

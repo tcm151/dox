@@ -1,11 +1,21 @@
-import type { Pin, User } from "@@/shared/types"
+import type { User } from "@@/shared/types"
 import { parseRecordId } from "@@/shared/utils/records"
+import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 const awardCost = 256
 type AwardedContent = { id: string, user: string }
 
 export class ContentManager {
+    private static validateTarget(targetId: string, action = "saved") {
+        const target = parseRecordId(targetId)
+        if (!target || !["post", "link", "thread", "gallery"].includes(target.table)) {
+            throw createError({ statusCode: 400, statusMessage: `This content type cannot be ${action}.` })
+        }
+
+        return target
+    }
+    
     static async visit(targetId: string): Promise<number> {
         const target = await new DatabaseQuery()
             .addSql(`
@@ -18,27 +28,28 @@ export class ContentManager {
         return target.visits
     }
 
-    static async archive<T = unknown>(targetId: string): Promise<T> {
+    static async archive(targetId: string): Promise<boolean> {
         const target = this.validateTarget(targetId, "archived")
 
-        return await new DatabaseQuery()
+        await new DatabaseQuery()
             .addSql(`
                 IF $target.status NOT IN ["active", "archived"] {
                     fn::http(409, "This ${target.table} cannot be archived in its current state.");
                 };
                 UPDATE $target SET
                     status = IF status = "archived" THEN "active" ELSE "archived" END;
-                RETURN SELECT * FROM $target;
             `)
             .addTransaction()
             .addRecord("target", targetId)
-            .queryOne<T>()
+            .execute()
+
+        return true
     }
 
-    static async pin(targetId: string, userId: string): Promise<Pin> {
+    static async pin(targetId: string, userId: string): Promise<boolean> {
         this.validateTarget(targetId, "pinned")
 
-        return await new DatabaseQuery()
+        await new DatabaseQuery()
             .addSql(`
                 CREATE pin SET
                     item = $target,
@@ -47,16 +58,18 @@ export class ContentManager {
             `)
             .addRecord("target", targetId)
             .addRecord("user", userId)
-            .queryOne<Pin>()
+            .execute()
+
+        return true
     }
 
-    static async award<T extends AwardedContent>(targetId: string, awarder: User): Promise<T> {
-        const target = parseRecordId(targetId)
-        if (!target) throw createError({ statusCode: 400, statusMessage: "This content type cannot be awarded." })
+    static async award(targetId: string, awarder: User): Promise<boolean> {
+        const targetType = parseRecordId(targetId)
+        if (!targetType) throw createError({ statusCode: 400, statusMessage: "This content type cannot be awarded." })
 
         await UserSettingsManager.isBlocked(awarder, targetId)
 
-        return await new DatabaseQuery()
+        const target = await new DatabaseQuery()
             .addSql(`
                 IF $target.user = $awarder {
                     fn::http(400, "You cannot award your own content.");
@@ -81,7 +94,15 @@ export class ContentManager {
             .addRecord("target", targetId)
             .addRecord("awarder", awarder.id)
             .addParameter("awardCost", awardCost)
-            .queryOne<T>()
+            .queryOne<AwardedContent>()
+
+        await NotificationManager.send({
+            recipient: target.user,
+            context: target.id,
+            message: `**${awarder.name}** awarded your ${targetType.table}\n> You gained 256 tokens. Don't forget to thank them!\n`,
+        })
+
+        return true
     }
 
     static async save(targetId: string, userId: string) {
@@ -100,7 +121,7 @@ export class ContentManager {
             .addRecord("user", userId)
             .execute()
 
-        return { saved: true }
+        return true
     }
 
     static async unsave(targetId: string, userId: string) {
@@ -121,15 +142,6 @@ export class ContentManager {
             .addRecord("user", userId)
             .execute()
 
-        return { saved: false }
-    }
-
-    private static validateTarget(targetId: string, action = "saved") {
-        const target = parseRecordId(targetId)
-        if (!target || !["post", "link", "thread", "gallery"].includes(target.table)) {
-            throw createError({ statusCode: 400, statusMessage: `This content type cannot be ${action}.` })
-        }
-
-        return target
+        return true
     }
 }

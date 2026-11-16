@@ -188,13 +188,16 @@ it("archives and app-pins links for administrators", async () => {
             expect((await admin.query<string[]>(`SELECT VALUE status FROM ONLY ${target.record};`))[0]).toBe("active")
         }
 
-        const pinResponse = await admin.fetchRaw<Pin>(`/api/link/${linkId}/pin`, { method: "POST" })
+        const pinResponse = await admin.fetchRaw<boolean>(`/api/link/${linkId}/pin`, { method: "POST" })
         expectStatus(pinResponse, 200)
+        expect(pinResponse._data).toBe(true)
         const pins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = ${linkRecord} AND scope = "app";`)
         expect(pins[0]).toHaveLength(1)
+        const pinId = extractId(pins[0]![0]!.id)
         for (const target of archiveTargets.filter(target => target.type !== "link")) {
-            const response = await admin.fetchRaw<Pin>(`/api/${target.type}/${target.id}/pin`, { method: "POST" })
+            const response = await admin.fetchRaw<boolean>(`/api/${target.type}/${target.id}/pin`, { method: "POST" })
             expectStatus(response, 200, `app pin ${target.type}`)
+            expect(response._data).toBe(true)
 
             const targetPins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = ${target.record} AND scope = "app";`)
             expect(targetPins[0]).toHaveLength(1)
@@ -204,7 +207,7 @@ it("archives and app-pins links for administrators", async () => {
         const visiblePins = await admin.fetch<Pin[]>("/api/feed/pinned")
         expect(visiblePins.find(pin => pin.item.id === linkRecord)).toBeUndefined()
 
-        expectStatus(await admin.fetchRaw(`/api/admin/pin/${extractId(pinResponse._data!.id)}/update`, {
+        expectStatus(await admin.fetchRaw(`/api/admin/pin/${pinId}/update`, {
             method: "POST",
             body: { active: true },
         }), 200)

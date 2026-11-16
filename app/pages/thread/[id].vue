@@ -186,9 +186,10 @@ async function archiveThread() {
 
     archiving.value = true
     try {
-        const updatedThread = await useApi<Thread>(`/api/thread/${id}/archive`)
-        if (thread.value) thread.value.status = updatedThread.status
-        hints.addSuccess(updatedThread.status === "archived" ? "This thread has been archived." : "This thread has been unarchived.")
+        await useApi<boolean>(`/api/thread/${id}/archive`)
+        const nextStatus = thread.value?.status === "archived" ? "active" : "archived"
+        if (thread.value) thread.value.status = nextStatus
+        hints.addSuccess(nextStatus === "archived" ? "This thread has been archived." : "This thread has been unarchived.")
         showOptions.value = false
     }
     catch (error: any) {
