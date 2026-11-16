@@ -9,8 +9,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const query = getQuery<NotificationQuery>(event)
 
-    // TODO notifications shouldn't be filtered, the should be blocked at the source instead
-    const databaseQuery = new DatabaseQuery()
+    const notifications = await new DatabaseQuery()
         .addSql(`
             RETURN SELECT id, recipient, context, message, time, viewed
             FROM notification
@@ -20,7 +19,7 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("user", auth.id)
         .addParameter("dismissed", JSON.parse(query.dismissed))
-    const notifications = await databaseQuery.queryAll<Notification>()
+        .queryAll<Notification>()
 
     return {
         total: notifications.length,
