@@ -9,15 +9,16 @@ export default defineEventHandler(async (event) => {
     const pins = await new DatabaseQuery()
         .addSql(`
             RETURN SELECT id,
-                item.{ id, user, title, content, tags, time, visits, score, votes, replyTo, topics, comments, images, status, edited, timeEdited, moderation,
-                    description, url, preview, quote, quotes, replies, ancestors, chain, deleted } AS item,
+                item.{ id, user.{id, name, roles}, title, content, tags, time, visits, score, votes,
+                    replyTo.{id, title, tags}, topics, comments, images.{id, url}, status, edited, timeEdited, moderation,
+                    description, url, preview, quote.{id, content, tags, time, replies, topics, votes, visits, status, user.{id, name, roles}},
+                    quotes, replies, ancestors, chain, deleted },
                 IF record::tb(item) = "post" THEN string::slice(item.content ?? "", 0, 512) ELSE item.content END AS item.content,
-                scope, topic, user, active, time
+                scope, topic, user.{id, name, roles}, active, time
             FROM pin
             WHERE active = true
             AND scope = "app"
             AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([item.user], item.topics ?? []))
-            FETCH user, item.user, item.replyTo, item.quote, item.quote.user, item.images.url;
         `)
         .addRecords("excluded", excluded)
         .queryAll<Pin>()

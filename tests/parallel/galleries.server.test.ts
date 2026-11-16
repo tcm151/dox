@@ -250,6 +250,7 @@ it("removes a gallery-only topic after its gallery is deleted", async () => {
     finally {
         const statements = [
             ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
+            `DELETE gallery WHERE topics CONTAINS topic:${topicId};`,
             `DELETE image:${imageId};`,
             `DELETE image:${otherImageId};`,
             `DELETE mediaTrash:${imageId};`,

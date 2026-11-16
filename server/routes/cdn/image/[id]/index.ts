@@ -10,12 +10,11 @@ export default defineEventHandler(async (event) => {
     try {
         const image = await new DatabaseQuery()
             .addSql(`
-                SELECT *
+                SELECT type
                 FROM $image
-                FETCH user
             `)
             .addRecord("image" ,`image:${id}`)
-            .queryOne<Image>()
+            .queryOne<Pick<Image, "type">>()
 
         return fs.readFileSync(`${config.data.path}/image/${id}.${image.type}`)
     }

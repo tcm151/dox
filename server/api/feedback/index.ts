@@ -6,10 +6,9 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, content, time, user.id, user.name, dismissed
+            SELECT id, content, time, user.{id, name, roles}, dismissed
             FROM feedback
             ORDER BY time DESC
-            FETCH user
         `)
         .queryAll<Feedback>()
 })

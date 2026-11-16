@@ -11,9 +11,11 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT *
+            SELECT id, description, rules, status, posts, threads, links,
+                galleries.{id, user.{id, name, roles}, title, description, tags, time, topics, comments,
+                    images.{id, url}, votes, score, visits, status, moderation},
+                followers, moderators.{id, name, roles}, moderation, time, visits, votes, score, firstUsed
             FROM $topic
-            FETCH moderators, galleries, galleries.user, galleries.images
         `)
         .addRecord("topic", `topic:${topic}`)
         .queryOne<Topic>()

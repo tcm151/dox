@@ -6,17 +6,15 @@ export default defineEventHandler(async (event) => {
 
     const gallery = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, title, description, tags, time, topics,
-                images.{id, url} AS images, votes, score, visits, status, moderation,
+            SELECT id, user.{id, name, roles}, title, description, tags, time, topics,
+                images.{id, url}, votes, score, visits, status, moderation,
                 (
-                    SELECT id, time, user.id, user.name, context,
+                    SELECT id, time, user.{id, name, roles}, context,
                         replyTo, content, votes, score, edited, deleted, status, timeEdited, moderation
                     FROM $gallery.comments
                     ORDER BY time DESC
-                    FETCH user
                 ) AS comments
             FROM $gallery
-            FETCH user
         `)
         .addRecord("gallery", `gallery:${id}`)
         .queryOne<Gallery>()

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser, uniqueTestIp } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Comment, FeedPage, Link, Pin, Post, SearchResult, Sortable } from "../../shared/types"
 
@@ -18,7 +18,7 @@ const postRequest = {
 it("rejects post publishing without authentication", async () => {
     const response = await fetch("/api/post/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Forwarded-For": uniqueTestIp() },
         body: JSON.stringify(postRequest),
     })
 
@@ -340,13 +340,25 @@ it("projects moderation state onto post lists, feed, search, and pinned items", 
         expect(posts.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const topicFeed = await admin.fetch<Sortable[]>(`/api/topic/${topicId}/feed?sortBy=new`)
-        expect(topicFeed.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        expect(topicFeed.find(item => item.id === post.id)).toMatchObject({
+            content: expectedContent,
+            user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
+            moderation: { locked: "item" },
+        })
 
         const userFeed = await admin.fetch<Sortable[]>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
-        expect(userFeed.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        expect(userFeed.find(item => item.id === post.id)).toMatchObject({
+            content: expectedContent,
+            user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
+            moderation: { locked: "item" },
+        })
 
         const feed = await admin.fetch<FeedPage<Post>>("/api/feed/popular?sortBy=new&pageSize=50")
-        expect(feed.items.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        expect(feed.items.find(item => item.id === post.id)).toMatchObject({
+            content: expectedContent,
+            user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
+            moderation: { locked: "item" },
+        })
 
         const searchResults = await admin.fetch<SearchResult[]>(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expect(searchResults.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })

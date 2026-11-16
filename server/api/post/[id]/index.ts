@@ -6,18 +6,16 @@ export default defineEventHandler(async (event) => {
 
     const post = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, title, content, tags, time,
-            replyTo.id, replyTo.title, replyTo.tags, topics, votes, status, edited, timeEdited, visits,
-            images.{id, url} AS images, moderation,
+            SELECT id, user.{id, name, roles}, title, content, tags, time,
+            replyTo.{id, title, tags}, topics, votes, status, edited, timeEdited, visits,
+            images.{id, url}, moderation,
             (
-                SELECT id, time, user.id, user.name, context,
+                SELECT id, time, user.{id, name, roles}, context,
                     replyTo, content, votes, score, edited, deleted, status, timeEdited, moderation
                 FROM $post.comments
                 ORDER BY time DESC
-                FETCH user
             ) AS comments
             FROM $post
-            FETCH user, replyTo
         `)
         .addRecord("post", `post:${id}`)
         .queryOne<Post>()

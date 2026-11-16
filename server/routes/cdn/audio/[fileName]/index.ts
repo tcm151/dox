@@ -11,12 +11,11 @@ export default defineEventHandler(async (event) => {
     try {
         const audio = await new DatabaseQuery()
             .addSql(`
-                SELECT *
+                SELECT type
                 FROM $audio
-                FETCH user
             `)
             .addRecord("audio" ,`audio:${id}`)
-            .queryOne<Audio>()
+            .queryOne<Pick<Audio, "type">>()
 
         return fs.readFileSync(`${config.data.path}/audio/${id}.${audio.type}`)
     }

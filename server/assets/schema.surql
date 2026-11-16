@@ -723,9 +723,8 @@ DEFINE FUNCTION fn::thread_ancestors($threadId: record<thread>, $remaining: int)
         RETURN [];
     };
     LET $parent = (
-        SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
+        SELECT id, user.{id, name, roles}, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
         FROM ONLY $thread.replyTo
-        FETCH user
     );
     LET $ancestors = fn::thread_ancestors($thread.replyTo, $remaining - 1);
     RETURN $ancestors.concat([$parent]);
@@ -744,9 +743,8 @@ DEFINE FUNCTION fn::thread_chain($parent: record<thread>, $remaining: int) -> ar
         RETURN [{ id: "thread:load_more" }];
     };
     LET $next = (
-        SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+        SELECT id, user.{id, name, roles}, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
         FROM ONLY $nextId
-        FETCH user
     );
     LET $tail = fn::thread_chain($nextId, $remaining - 1);
     RETURN [$next].concat($tail);

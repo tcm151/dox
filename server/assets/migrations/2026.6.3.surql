@@ -381,6 +381,44 @@ UPDATE userSettings SET
     content.filters.muted = content.filters.muted ?? [],
     content.filters.blocked = content.filters.blocked ?? [];
 
+-- Project thread authors explicitly in recursive ancestor and reply-chain results.
+DEFINE FUNCTION OVERWRITE fn::thread_ancestors($threadId: record<thread>, $remaining: int) -> array<object> {
+    IF $remaining <= 0 {
+        LET $parent = (SELECT VALUE replyTo FROM ONLY $threadId);
+        RETURN IF $parent != NONE { [{ id: "thread:load_more" }] } ELSE { [] };
+    };
+    LET $thread = SELECT id, replyTo FROM ONLY $threadId;
+    IF $thread.replyTo = NONE {
+        RETURN [];
+    };
+    LET $parent = (
+        SELECT id, user.{id, name, roles}, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, moderation, replies
+        FROM ONLY $thread.replyTo
+    );
+    LET $ancestors = fn::thread_ancestors($thread.replyTo, $remaining - 1);
+    RETURN $ancestors.concat([$parent]);
+};
+
+DEFINE FUNCTION OVERWRITE fn::thread_chain($parent: record<thread>, $remaining: int) -> array<object> {
+    LET $nextId = (
+        SELECT VALUE id FROM ONLY thread
+        WHERE replyTo = $parent
+        ORDER BY score DESC, id ASC LIMIT 1
+    );
+    IF $nextId = NONE {
+        RETURN [];
+    };
+    IF $remaining <= 0 {
+        RETURN [{ id: "thread:load_more" }];
+    };
+    LET $next = (
+        SELECT id, user.{id, name, roles}, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+        FROM ONLY $nextId
+    );
+    LET $tail = fn::thread_chain($nextId, $remaining - 1);
+    RETURN [$next].concat($tail);
+};
+
 UPSERT migration SET version = '2026.6.3', time = time::now()
 WHERE version = '2026.6.3';
 COMMIT;

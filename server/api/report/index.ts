@@ -6,11 +6,13 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT id, subject.id, subject.content, subject.context.id, owner, topics, time, status, complaints, moderator, history
+            SELECT id, subject.{id, content, context.{id}}, owner, topics, time, status,
+                complaints.{user.{id, name, roles}, reason, time},
+                moderator.{id, name, roles},
+                history.{action, message, user.{id, name, roles}, time, changes}
             FROM report
             WHERE record::exists(subject)
             ORDER BY time DESC
-            FETCH subject, subject.user, complaints.user, moderator, history.user
         `)
         .queryAll<Report>()
 })

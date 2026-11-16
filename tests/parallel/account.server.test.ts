@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import type { Comment, Post, Thread, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
-import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials } from "../utils/test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials, uniqueTestIp } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 const otherUser = (await grabExampleServer("default")).users.commentAuthor
@@ -12,7 +12,7 @@ async function createAccount() {
     const email = `${username.toLowerCase()}@example.invalid`
     const registerResponse = await fetch("/api/user/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Forwarded-For": uniqueTestIp() },
         body: JSON.stringify({ username, email, password: accountPassword }),
     })
     expectStatus(registerResponse, 200, "account registration stage")

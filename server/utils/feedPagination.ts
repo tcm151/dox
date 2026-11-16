@@ -18,26 +18,23 @@ const FEED_ORDER_BY: Record<FeedSort, string> = {
 // TODO I think hot sorting isn't quite working right
 const FEED_FIELDS = [
     "id",
-    "user.id",
-    "user.name",
+    "user.{id, name, roles}",
     "title",
     `string::slice(content ?? "", 0, 512) AS content`,
     "tags",
     "time",
     "edited",
     "timeEdited",
-    "replyTo.id",
-    "replyTo.title",
-    "replyTo.tags",
+    "replyTo.{id, title, tags}",
     "topics",
     "comments",
     "votes",
     "(SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation",
     "score",
     "status",
-    "images.{id, url} AS images",
+    "images.{id, url}",
     "visits",
-    "quote.{id, content, tags, time, replies, topics, votes, visits, user.{id, name}} AS quote",
+    "quote.{id, content, tags, time, replies, topics, votes, visits, status, user.{id, name, roles}}",
     "replies",
     "type",
     "tokens",
@@ -90,7 +87,6 @@ export async function queryFeedPage<T extends Sortable>(event: H3Event, followin
         .addSql(`
             SELECT ${FEED_FIELDS.join(", ")}
             FROM $ids
-            FETCH quote.user
         `)
         .addRecords("ids", pageCandidates.map(candidate => candidate.sourceId))
         .queryAll<T>()

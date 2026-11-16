@@ -61,8 +61,8 @@ export default defineEventHandler(async (event) => {
         .addSql(`
             LET $comments = (
                 SELECT id,
-                    user.{id, name, roles} AS user,
-                    context.{id, title, description, url, tags} AS context, moderation,
+                    user.{id, name, roles},
+                    context.{id, title, description, url, tags}, moderation,
                     content, time, edited, deleted, status, timeEdited, votes, score,
                     string::contains(string::lowercase(content), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
@@ -77,9 +77,9 @@ export default defineEventHandler(async (event) => {
             );
 
             LET $posts = (
-                SELECT id, user.id, user.name, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
-                    replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes,
-                    status, images.{id, url} AS images, visits, moderation,
+                SELECT id, user.{id, name, roles}, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
+                    replyTo.{id, title, tags}, topics, comments, votes,
+                    status, images.{id, url}, visits, moderation,
                     (string::contains(string::lowercase(title), string::lowercase($text))
                         OR string::contains(string::lowercase(content), string::lowercase($text))) AS search.exact,
                     (search::score(1) * 2 + search::score(2)) AS search.score
@@ -89,13 +89,12 @@ export default defineEventHandler(async (event) => {
                 AND deleted != true
                 AND ($topic IS NULL OR topics CONTAINS $topic)
                 AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
-                FETCH user, replyTo
             );
 
             LET $threads = (
-                SELECT id, user.id, user.name, content, tags, time,
+                SELECT id, user.{id, name, roles}, content, tags, time,
                     topics, replies, votes, score,
-                    edited, timeEdited, visits, images.{id, url} AS images,
+                    edited, timeEdited, visits, images.{id, url},
                     (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation,
                     string::contains(string::lowercase(content), string::lowercase($text)) AS search.exact,
                     search::score(1) AS search.score
@@ -105,12 +104,11 @@ export default defineEventHandler(async (event) => {
                 AND deleted != true
                 AND ($topic IS NULL OR topics CONTAINS $topic)
                 AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
-                FETCH user, replyTo
             );
 
             LET $galleries = (
-                SELECT id, user.id, user.name, title, description, tags, time,
-                    topics, images.{id, url} AS images, votes, score, visits, status,
+                SELECT id, user.{id, name, roles}, title, description, tags, time,
+                    topics, images.{id, url}, votes, score, visits, status,
                     moderation,
                     (string::contains(string::lowercase(title), string::lowercase($text))
                         OR string::contains(string::lowercase(description), string::lowercase($text))) AS search.exact,
@@ -120,7 +118,6 @@ export default defineEventHandler(async (event) => {
                 AND status = "active"
                 AND ($topic IS NULL OR topics CONTAINS $topic)
                 AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
-                FETCH user
             );
 
             RETURN SELECT * FROM $posts, $threads, $galleries, $comments

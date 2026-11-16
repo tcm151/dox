@@ -8,9 +8,8 @@ export default defineEventHandler(async (event) => {
     const { topic } = event.context.params!
     const profile = await new DatabaseQuery()
         .addSql(`
-            SELECT *
+            SELECT id, description, rules, moderation, moderators.{id, name, roles}
             FROM $topic
-            FETCH moderators, galleries, galleries.user, galleries.images
         `)
         .addRecord("topic", `topic:${topic}`)
         .queryOne<Topic>()

@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import type { Account } from "@@/shared/types"
+
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
 const userSettings = useUserSettings()
+
+const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
 
 async function sendConfirmation() {
     await useApi("/api/profile/confirm/send")

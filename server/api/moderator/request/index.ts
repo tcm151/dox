@@ -11,9 +11,8 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT *
+            SELECT id, topic.{id}, user.{id, name, roles}, approvals, denials, closed
             FROM moderationRequest
-            FETCH topic, user
         `)
         .addRecord("user", auth.id)
         .queryAll<{ id: string, topic: Topic, user: User }[]>()

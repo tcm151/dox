@@ -56,7 +56,7 @@ export type TopicStatus = "active" | "locked"
 export type PinScope = "app" | "topic"
 
 export interface Session extends Record {
-    account: Account & string
+    account: Omit<Account, "password"> & string
     time: string
     invalidated: boolean
 }

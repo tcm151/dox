@@ -575,6 +575,16 @@ it("returns all direct replies and complete chains with item moderation", async 
         const complete = await threadAuthor.fetch<Thread>(`/api/thread/${rootId}`)
         const lockedBranch = complete.replies.find(reply => extractId(reply.id) === branchId)
         const otherBranch = complete.replies.find(reply => extractId(reply.id) === otherBranchId)
+        expect(complete.user).toMatchObject({
+            id: threadAuthor.user.id,
+            name: threadAuthor.user.name,
+            roles: expect.any(Array),
+        })
+        expect(lockedBranch?.user).toMatchObject({
+            id: replyAuthor.user.id,
+            name: replyAuthor.user.name,
+            roles: expect.any(Array),
+        })
         expect(complete.replies).toHaveLength(2)
         expect(lockedBranch?.chain).toHaveLength(2)
         expect(otherBranch?.chain).toHaveLength(1)

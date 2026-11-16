@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
 import type { Comment, FeedPage, Post, Thread, User, UserContentFilterView } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
-import { expectStatus, fetch, grabUser } from "../utils/test-server"
+import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 
 const admin = await grabUser("admin")
 const password = "ContentFilterTest-password"
@@ -16,7 +16,7 @@ async function createAccount(): Promise<FilterTestAccount> {
     const username = `Filter${randomUUID().replaceAll("-", "").slice(0, 12)}`
     const registerResponse = await fetch("/api/user/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Forwarded-For": uniqueTestIp() },
         body: JSON.stringify({
             username,
             email: `${username.toLowerCase()}@example.invalid`,

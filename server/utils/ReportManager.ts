@@ -341,18 +341,25 @@ export class ReportManager {
     }
 
     static async getOwnerAppeal(reportId: string, ownerId: string): Promise<OwnerAppealStatus | null> {
-        return await new DatabaseQuery()
+        const result = await new DatabaseQuery()
             .addSql(`
-                SELECT id, subject.id, status, moderator, history
-                FROM ONLY report
-                WHERE id = $report
-                AND subject.user = $owner
-                LIMIT 1
-                FETCH subject, moderator, history
+                LET $appeal = (
+                    SELECT id, subject.{id}, status,
+                        moderator.{id, name, roles},
+                        history.{action, message, user.{id, name, roles}, time, changes}
+                    FROM ONLY report
+                    WHERE id = $report
+                    AND subject.user = $owner
+                    LIMIT 1
+                );
+                RETURN { appeal: $appeal ?? null };
             `)
+            .addTransaction()
             .addRecord("report", `report:${reportId}`)
             .addRecord("owner", ownerId)
-            .queryValue<OwnerAppealStatus>()
+            .queryValue<{ appeal?: OwnerAppealStatus | null }>()
+
+        return result.appeal ?? null
     }
 
     static async submitAppeal(options: { reportId: string, ownerId: string, reason: unknown }): Promise<Report[]> {

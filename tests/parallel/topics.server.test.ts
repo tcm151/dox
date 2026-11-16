@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
+import { expectStatus, fetch, grabExampleServer, grabUser, uniqueTestIp } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Comment, Link, ModeratorLog, Pin, Post, Thread, Topic } from "../../shared/types"
 
@@ -204,7 +204,7 @@ it("lets topic moderators manage the active state of topic-scoped pins", async (
         const moderatorName = `TopicPinModerator${Date.now()}`
         const registerResponse = await fetch("/api/user/register", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "X-Forwarded-For": uniqueTestIp() },
             body: JSON.stringify({
                 username: moderatorName,
                 email: `${moderatorName.toLowerCase()}@example.invalid`,

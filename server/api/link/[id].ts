@@ -6,17 +6,15 @@ export default defineEventHandler(async (event) => {
 
     const link = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, title, description, url, preview, tags, time, topics,
+            SELECT id, user.{id, name, roles}, title, description, url, preview, tags, time, topics,
                 votes, score, status, edited, timeEdited, visits, moderation,
                 (
-                    SELECT id, time, user.id, user.name, context,
+                    SELECT id, time, user.{id, name, roles}, context,
                         replyTo, content, votes, score, edited, deleted, status, timeEdited, moderation
                     FROM $link.comments
                     ORDER BY time DESC
-                    FETCH user
                 ) AS comments
             FROM $link
-            FETCH user
         `)
         .addRecord("link", `link:${id}`)
         .queryOne<Link>()

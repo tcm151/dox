@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
 
     return await new DatabaseQuery()
         .addSql(`
-            SELECT *
+            SELECT id, actor.{id, name, roles}, action, target, details, time
             FROM moderatorLog
             ORDER BY time DESC
             LIMIT 100
-            FETCH actor;
+            ;
         `)
         .queryAll<ModeratorLog>()
 })

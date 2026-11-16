@@ -7,10 +7,11 @@ export default defineEventHandler(async (event) => {
     const thread = await new DatabaseQuery()
         .addSql(`
             LET $thread = (
-                SELECT id, user, content, tags, time, quote, replyTo, topics, images,
+                SELECT id, user.{id, name, roles}, content, tags, time,
+                    quote.{id, user.{id, name, roles}, content, tags, time, replies, topics, votes, score, status, visits},
+                    replyTo.{id}, topics, images.{id, url},
                 status, deleted, edited, timeEdited, visits, votes, score, moderation
                 FROM ONLY $thread
-                FETCH user, replyTo, replyTo.user, quote, quote.user, images.url
             );
             IF $thread = NONE {
                 fn::http(404, "Thread not found.");
@@ -18,11 +19,11 @@ export default defineEventHandler(async (event) => {
 
             LET $ancestors = fn::thread_ancestors($thread.id, $displayLimit);
             LET $replyRows = (
-                SELECT id, user, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted, replyTo, moderation, replies
+                SELECT id, user.{id, name, roles}, content, tags, time, edited, timeEdited, visits, votes, score, status, deleted,
+                    replyTo.{id}, moderation, replies
                 FROM thread
                 WHERE replyTo = $thread.id
                 ORDER BY score DESC, id ASC
-                FETCH user
             );
             LET $replies = fn::thread_replies($replyRows, $displayLimit);
             RETURN object::extend($thread, {

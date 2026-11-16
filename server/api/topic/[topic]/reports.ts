@@ -12,7 +12,10 @@ export default defineEventHandler(async (event) => {
                 fn::http(403, "You cannot moderate this topic.");
             };
 
-            SELECT id, subject.id, subject.content, subject.context.id, owner, topics, time, status, complaints, moderator, history,
+            SELECT id, subject.{id, content, context.{id}}, owner, topics, time, status,
+                complaints.{user.{id, name, roles}, reason, time},
+                moderator.{id, name, roles},
+                history.{action, message, user.{id, name, roles}, time, changes},
                 status IN ["pending", "appealed"] AND array::len(array::union(complaints.*.user, [])) >= $topic.moderation.priorityReportThreshold AS priority
             FROM report
             WHERE record::exists(subject)
@@ -26,7 +29,6 @@ export default defineEventHandler(async (event) => {
                 )
             )
             ORDER BY time DESC
-            FETCH subject, subject.user, complaints.user, moderator, history.user
         `)
         .addTransaction()
         .addRecord("topic", `topic:${topic}`)

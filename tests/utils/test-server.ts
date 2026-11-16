@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { fetch, setup } from "@nuxt/test-utils/e2e"
 import { $fetch, type FetchOptions, type FetchRequest, type ResponseType } from "ofetch"
 import { inspect } from "node:util"
@@ -140,6 +141,11 @@ function isValidSession(value: unknown): value is TSession {
 
 export { fetch }
 export const testAdminCredentials = { name: adminName, password: adminPassword }
+
+export function uniqueTestIp() {
+    const hex = randomUUID().replaceAll("-", "")
+    return `2001:db8:${hex.slice(0, 4)}:${hex.slice(4, 8)}:${hex.slice(8, 12)}:${hex.slice(12, 16)}:${hex.slice(16, 20)}:${hex.slice(20, 24)}`
+}
 
 export function expectStatus(
     response: { status: number, _data?: unknown },

@@ -14,8 +14,11 @@ export default defineEventHandler(async (event) => {
             );
             LET $topicIds = $topics.id;
             LET $reports = (
-                SELECT id, subject.id, subject.content, subject.context.id, topics,
-                    time, status, complaints, moderator, history, owner
+                SELECT id, subject.{id, content, context.{id}}, topics,
+                    time, status, complaints.{user.{id, name, roles}, reason, time},
+                    moderator.{id, name, roles},
+                    history.{action, message, user.{id, name, roles}, time, changes},
+                    owner
                 FROM report
                 WHERE record::exists(subject)
                     AND topics CONTAINSANY $topicIds
@@ -28,7 +31,6 @@ export default defineEventHandler(async (event) => {
                         )
                     )
                 ORDER BY time DESC
-                FETCH subject, subject.user, complaints.user, moderator, history.user
             );
 
             RETURN $reports;

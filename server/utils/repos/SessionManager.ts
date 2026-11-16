@@ -1,5 +1,5 @@
 export class SessionManager {
-    static async add(account: Account) {
+    static async add(account: Pick<Account, "id">) {
         return await new DatabaseQuery()
             .addSql(`
                 LET $sesh = (
@@ -11,10 +11,10 @@ export class SessionManager {
                 WHERE account = $account
                 AND (invalidated = true OR time::now()-time > 14d);
     
-                RETURN SELECT *
+                RETURN SELECT id, time, invalidated,
+                    account.{id, email, user.{id, name, link, description, topics, followers, following, dateJoined, visits, tokens, roles, traits, score, votes}}
                 FROM session
-                WHERE id = $sesh.id
-                FETCH account, account.user;
+                WHERE id = $sesh.id;
             `)
             .addTransaction()
             .addRecord("account", account.id)
@@ -24,16 +24,15 @@ export class SessionManager {
     static async authenticateLogin(id: string, password: string) {
         const account = await new DatabaseQuery()
             .addSql(`
-                SELECT *
-                OMIT password
+                SELECT id, email,
+                    user.{id, name, link, description, topics, followers, following, dateJoined, visits, tokens, roles, traits, score, votes}
                 FROM account
                 WHERE (email = $id OR user.name = $id)
-                AND crypto::argon2::compare(password, $password)
-                FETCH user;
+                AND crypto::argon2::compare(password, $password);
             `)
             .addParameter("id", id)
             .addParameter("password", password)
-            .queryOne<Account>()
+            .queryOne<Omit<Account, "password">>()
 
         return await this.add(account);
     }
@@ -41,12 +40,12 @@ export class SessionManager {
     static async authenticateToken(id: string) {
         return await new DatabaseQuery()
             .addSql(`
-                SELECT *
+                SELECT id, time, invalidated,
+                    account.{id, email, user.{id, name, link, description, topics, followers, following, dateJoined, visits, tokens, roles, traits, score, votes}}
                 FROM session
                 WHERE id = $id
                 AND invalidated = false
-                AND time::now() - time <= 14d
-                FETCH account, account.user;
+                AND time::now() - time <= 14d;
             `)
             .addRecord("id", id)
             .queryOne<Session>()

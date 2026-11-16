@@ -98,10 +98,16 @@ it("searches posts, threads, galleries, and comments in global relevance order",
                 || right.search.score - left.search.score,
         )
         expect(results.map(item => item.id)).toEqual(orderedResults.map(item => item.id))
-        expect(results.find(item => item.id === `post:${postId}`)).toMatchObject({
+        const postResult = results.find(item => item.id === `post:${postId}`)
+        expect(postResult).toMatchObject({
             title: postTitle,
             user: { id: admin.user.id },
             moderation: { locked: "item" },
+        })
+        expect(postResult?.user).toEqual({
+            id: admin.user.id,
+            name: admin.user.name,
+            roles: admin.user.roles,
         })
         expect(results.find(item => item.id === `thread:${threadId}`)).toMatchObject({
             content: threadContent,
