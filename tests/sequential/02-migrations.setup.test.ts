@@ -1,8 +1,30 @@
 import { expect, it } from "vitest"
 import type { AppSettings } from "../../shared/types"
+import { applyMigrations, applySchemaFromTag, getPreviousReleaseTag, useSurrealSandbox } from "../../scripts/surreal-explore.mjs"
 import { fetch, grabUser } from "../utils/test-server"
 
 const admin = await grabUser("admin")
+
+it("applies every migration after the previous tagged release", async () => {
+    const healthResponse = await fetch("/api/health")
+    const health = await healthResponse.json() as { version: string }
+    const previousReleaseTag = getPreviousReleaseTag(health.version)
+
+    const result = await useSurrealSandbox(async (database) => {
+        await applySchemaFromTag(database, previousReleaseTag)
+        const baseline = await database.query("SELECT VALUE version FROM migration;")
+        const appliedMigrations = await applyMigrations(database, previousReleaseTag, health.version)
+        const versions = await database.query("SELECT VALUE version FROM migration ORDER BY time ASC;")
+        return {
+            baselineVersion: baseline[0]?.[0],
+            recordedVersions: versions[0] ?? [],
+            appliedMigrations,
+        }
+    })
+
+    expect(result.baselineVersion).toBeDefined()
+    expect(result.recordedVersions).toEqual([result.baselineVersion, ...result.appliedMigrations])
+})
 
 it("replays the current migration for an authorized developer", async () => {
     const result = await admin.fetch<{ version: string }>("/api/developer/database/replay", { method: "POST" })

@@ -1,12 +1,92 @@
+import { execFileSync } from "node:child_process"
 import { createNodeEngines } from "@surrealdb/node"
 import { createRemoteEngines, Surreal } from "surrealdb"
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { mkdtemp, mkdir, rm } from "node:fs/promises"
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import assert from "node:assert/strict"
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..")
+
+function parseReleaseVersion(version) {
+    const match = /^(?:v)?(\d+(?:\.\d+)*)$/.exec(version)
+    if (!match) {
+        throw new Error(`Invalid release version: ${version}`)
+    }
+    return match[1]
+}
+
+function compareVersions(left, right) {
+    return left.localeCompare(right, undefined, { numeric: true })
+}
+
+export function getPreviousReleaseTag(version) {
+    const targetVersion = parseReleaseVersion(version)
+    const tags = execFileSync("git", ["tag", "--list", "v*"], {
+        cwd: projectRoot,
+        encoding: "utf8",
+    }).split(/\r?\n/).filter(tag => /^v\d+(?:\.\d+)*$/.test(tag))
+
+    const previousTag = tags
+        .map(tag => ({ tag, version: parseReleaseVersion(tag) }))
+        .filter(release => compareVersions(release.version, targetVersion) < 0)
+        .sort((left, right) => compareVersions(right.version, left.version))[0]
+
+    if (!previousTag) {
+        throw new Error(`No tagged release exists before ${targetVersion}.`)
+    }
+    return previousTag.tag
+}
+
+export async function applySchema(database, version) {
+    const schema = readFileSync(join(projectRoot, "server", "assets", "schema.surql"), "utf8")
+    return await database.query(schema, { version: parseReleaseVersion(version) })
+}
+
+export async function applySchemaFromTag(database, tag) {
+    const version = parseReleaseVersion(tag)
+    const schema = execFileSync("git", ["show", `${tag}:server/assets/schema.surql`], {
+        cwd: projectRoot,
+        encoding: "utf8",
+    })
+    return await database.query(schema, { version })
+}
+
+export function getMigration(version) {
+    const normalizedVersion = parseReleaseVersion(version)
+    return readFileSync(join(projectRoot, "server", "assets", "migrations", `${normalizedVersion}.surql`), "utf8")
+}
+
+export async function applyMigration(database, version) {
+    return await database.query(getMigration(version))
+}
+
+export async function applyMigrations(database, fromVersion, toVersion) {
+    const firstVersion = parseReleaseVersion(fromVersion)
+    const lastVersion = parseReleaseVersion(toVersion)
+    const migrations = readdirSync(join(projectRoot, "server", "assets", "migrations"))
+        .filter(file => /^\d+(?:\.\d+)*\.surql$/.test(file))
+        .map(file => file.slice(0, -".surql".length))
+        .filter(version => compareVersions(version, firstVersion) > 0 && compareVersions(version, lastVersion) <= 0)
+        .sort(compareVersions)
+
+    for (const version of migrations) {
+        await applyMigration(database, version)
+    }
+    return migrations
+}
+
+function createExploreTools(database) {
+    return {
+        applySchema: version => applySchema(database, version),
+        applySchemaFromTag: tag => applySchemaFromTag(database, tag),
+        getMigration,
+        applyMigration: version => applyMigration(database, version),
+        applyMigrations: (fromVersion, toVersion) => applyMigrations(database, fromVersion, toVersion),
+        getPreviousReleaseTag,
+    }
+}
 
 export async function useSurrealSandbox(explore) {
     const folder = await mkdtemp(join(projectRoot, ".test-output-"))
@@ -60,8 +140,8 @@ async function main() {
         }
 
         const asyncFunction = Object.getPrototypeOf(async function () {}).constructor
-        const explore = new asyncFunction("db", "assert", source)
-        const result = await useSurrealSandbox(database => explore(database, assert))
+        const explore = new asyncFunction("db", "assert", "tools", source)
+        const result = await useSurrealSandbox(database => explore(database, assert, createExploreTools(database)))
         if (result !== undefined) {
             console.log(JSON.stringify(result, null, 2))
         }

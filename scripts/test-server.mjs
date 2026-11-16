@@ -338,6 +338,11 @@ function reportVitestFailure(result, testPath, phaseName) {
             ? `[Earlier failure details omitted]\n${vitestFailureDetails.slice(-maxOutputCharacters)}`
             : vitestFailureDetails
         process.stderr.write(`\n--- Vitest failure: ${phaseName} (${testPath}) ---\n${output}\n`)
+        const maxCapturedOutputCharacters = 12_000
+        const capturedOutput = vitestOutput.length > maxCapturedOutputCharacters
+            ? `[Earlier captured output omitted]\n${vitestOutput.slice(-maxCapturedOutputCharacters)}`
+            : vitestOutput
+        process.stderr.write(`\n--- Captured Vitest stdout/stderr ---\n${capturedOutput}\n`)
         return result.exitCode
     }
 
