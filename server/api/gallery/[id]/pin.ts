@@ -1,18 +1,10 @@
 import type { Pin } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     requireRole(auth, "admin")
 
     const { id } = event.context.params!
-    return await new DatabaseQuery()
-        .addSql(`
-            CREATE pin SET
-                item = $gallery,
-                scope = "app",
-                user = $user;
-        `)
-        .addRecord("gallery", `gallery:${id}`)
-        .addRecord("user", auth.id)
-        .queryOne<Pin>()
+    return await ContentManager.pin(`gallery:${id}`, auth.id)
 })

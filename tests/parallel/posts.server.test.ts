@@ -192,6 +192,13 @@ it("archives and app-pins links for administrators", async () => {
         expectStatus(pinResponse, 200)
         const pins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = ${linkRecord} AND scope = "app";`)
         expect(pins[0]).toHaveLength(1)
+        for (const target of archiveTargets.filter(target => target.type !== "link")) {
+            const response = await admin.fetchRaw<Pin>(`/api/${target.type}/${target.id}/pin`, { method: "POST" })
+            expectStatus(response, 200, `app pin ${target.type}`)
+
+            const targetPins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = ${target.record} AND scope = "app";`)
+            expect(targetPins[0]).toHaveLength(1)
+        }
         const managedPins = await admin.fetch<Pin[]>("/api/admin/pin")
         expect(managedPins.find(pin => pin.item.id === linkRecord)?.active).toBe(false)
         const visiblePins = await admin.fetch<Pin[]>("/api/feed/pinned")

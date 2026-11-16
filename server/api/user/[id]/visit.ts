@@ -1,15 +1,7 @@
-import type { User } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    const user = await new DatabaseQuery()
-        .addSql(`
-            UPDATE $user SET
-            visits += 1    
-        `)
-        .addRecord("user", `user:${id}`)
-        .queryOne<User>()
-
-    return user.visits
+    return await ContentManager.visit(`user:${id}`)
 })

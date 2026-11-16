@@ -1,15 +1,7 @@
-import type { Topic } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const id = event.context.params!.topic!.toString()
 
-    const topic = await new DatabaseQuery()
-        .addSql(`
-            UPDATE $topic SET
-            visits += 1    
-        `)
-        .addRecord("topic", `topic:${id}`)
-        .queryOne<Topic>()
-
-    return topic.visits
+    return await ContentManager.visit(`topic:${id}`)
 })

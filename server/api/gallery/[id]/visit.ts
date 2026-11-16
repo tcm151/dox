@@ -1,14 +1,7 @@
-import type { Gallery } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    const gallery = await new DatabaseQuery()
-        .addSql(`
-            UPDATE $gallery SET visits += 1
-        `)
-        .addRecord("gallery", `gallery:${id}`)
-        .queryOne<Gallery>()
-
-    return gallery.visits
+    return await ContentManager.visit(`gallery:${id}`)
 })

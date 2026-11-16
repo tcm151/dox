@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { extractId } from "../../shared/utils/records"
-import { type Thread, type Topic, type User, type UserSettings } from "../../shared/types"
+import { type Pin, type Thread, type Topic, type User, type UserSettings } from "../../shared/types"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 
 const admin = await grabUser("admin")
@@ -63,9 +63,14 @@ it("denies thread archiving to members and toggles the archived state for admins
         const unarchiveResponse = await admin.fetchRaw<Thread>(`/api/thread/${threadId}/archive`, { method: "POST" })
         expectStatus(unarchiveResponse, 200, "unarchive stage")
         expect(unarchiveResponse._data?.status).toBe("active")
+
+        const pinResponse = await admin.fetchRaw<Pin>(`/api/thread/${threadId}/pin`, { method: "POST" })
+        expectStatus(pinResponse, 200, "app pin stage")
+        const pins = await admin.query<Array<Pin[]>>(`SELECT * FROM pin WHERE item = thread:${threadId} AND scope = "app";`)
+        expect(pins[0]).toHaveLength(1)
     }
     finally {
-        if (threadId) await admin.query(`DELETE thread:${threadId};`)
+        if (threadId) await admin.query(`DELETE pin WHERE item = thread:${threadId}; DELETE thread:${threadId};`)
     }
 })
 

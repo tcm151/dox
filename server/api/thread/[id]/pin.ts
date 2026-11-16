@@ -1,4 +1,5 @@
 import type { Pin } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
@@ -6,14 +7,5 @@ export default defineEventHandler(async (event) => {
     
     const { id } = event.context.params!
 
-        return await new DatabaseQuery()
-            .addSql(`
-                CREATE pin SET
-                    item = $thread,
-                    scope = "app",
-                    user = $user;
-            `)
-            .addRecord("thread", `thread:${id}`)
-            .addRecord("user", auth.id)
-            .queryOne<Pin>()
+    return await ContentManager.pin(`thread:${id}`, auth.id)
 })

@@ -1,15 +1,7 @@
-import type { Thread } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    const thread = await new DatabaseQuery()
-        .addSql(`
-            UPDATE $thread SET
-            visits += 1
-        `)
-        .addRecord("thread", `thread:${id}`)
-        .queryOne<Thread>()
-
-    return thread.visits
+    return await ContentManager.visit(`thread:${id}`)
 })

@@ -1,15 +1,7 @@
-import type { Post } from "@@/shared/types"
+import { ContentManager } from "@@/server/utils/ContentManager"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
 
-    const post = await new DatabaseQuery()
-        .addSql(`
-            UPDATE $post SET
-            visits += 1    
-        `)
-        .addRecord("post", `post:${id}`)
-        .queryOne<Post>()
-
-    return post.visits
+    return await ContentManager.visit(`post:${id}`)
 })
