@@ -7,7 +7,7 @@
 
 ## Dependencies
 - [0083](../0083-audit-existing-messaging-workflows.md): Realtime delivery must preserve the audited notification authorization and state behavior.
-- [0060](../0060-feed-inbox-freshness.md): Realtime delivery is optional and must build on a stable polling fallback.
+- [0060](../completed/0060-feed-inbox-freshness.md): Realtime delivery is optional and must build on a stable polling fallback.
 
 ## Goal
 Add optional realtime in-app notification delivery after existing messaging workflows are audited and the polling baseline is reliable.

@@ -1,5 +1,6 @@
 import type { NitroFetchRequest, NitroFetchOptions } from "nitropack/types"
 import type { UseFetchOptions } from "#app"
+import { getFreshDataKind, getFreshMutationKind, markFreshDataChanged, trackFreshDatasource } from "./freshness"
 
 export function useDatasource<T>(
     url: string | Ref<string> | (() => string),
@@ -25,7 +26,21 @@ export function useDatasource<T>(
         watch(() => session.user.id, () => datasource.clear(), { flush: "sync" })
     }
 
-    return datasource
+    const sourceUrl = () => typeof url === "function" ? url() : unref(url)
+    const kind = ENV.isClient() ? getFreshDataKind(sourceUrl()) : undefined
+    if (!kind) return datasource
+
+    const route = useRoute()
+    const refresh = trackFreshDatasource({
+        kind,
+        userId: () => session.user.id,
+        routePath: () => route.path,
+        url: sourceUrl,
+        status: datasource.status,
+        refresh: () => datasource.refresh({ dedupe: "defer" }),
+    })
+
+    return { ...datasource, refresh }
 }
 
 export function useAuthenticatedDatasource<T>(
@@ -38,16 +53,21 @@ export function useAuthenticatedDatasource<T>(
     })
 }
 
-export function useApi<T>(
+export async function useApi<T>(
     url: NitroFetchRequest,
     options: NitroFetchOptions<NitroFetchRequest> = {}
 ) {
     const session = getSession()
-    return $fetch<T>(url, {
+    const response = await $fetch<T>(url, {
         method: "POST",
         headers: {
             Authorization: session.tokens.access
         },
         ...options
     })
+
+    const kind = typeof url === "string" ? getFreshMutationKind(url, options.method) : undefined
+    if (kind) markFreshDataChanged(kind, session.user.id)
+
+    return response
 }
