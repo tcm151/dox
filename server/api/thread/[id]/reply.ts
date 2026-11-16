@@ -1,18 +1,22 @@
 import type { Thread } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+    const blockedUsers = await UserSettingsManager.getBlockedUsers(auth)
     
     const { id } = event.context.params!
     const thread = await readBody<Pick<Thread, "content"> & { tags?: string[] }>(event)
-    const replyTo = `thread:${id}`
 
     const { reply, recipient } = await new DatabaseQuery()
         .addSql(`
             LET $replyTarget = (SELECT id, user FROM ONLY $replyTo);
             IF $replyTarget = NONE {
                 fn::http(404, "Thread not found.");
+            };
+            IF $blockedUsers.len() > 0 AND $blockedUsers CONTAINS $replyTarget.user {
+                fn::http(403, "Users cannot reply while either user blocks the other.");
             };
 
             LET $replyModeration = (SELECT * FROM ONLY moderation WHERE subject = $replyTo LIMIT 1);
@@ -46,7 +50,8 @@ export default defineEventHandler(async (event) => {
         `)
         .addTransaction()
         .addRecord('user', auth.id)
-        .addRecord('replyTo', replyTo)
+        .addRecord('replyTo', `thread:${id}`)
+        .addRecords("blockedUsers", blockedUsers)
         .addParameter('content', thread.content)
         .addParameter('tags', thread.tags ?? [])
         .queryValue<{ reply: Thread, recipient: string }>()

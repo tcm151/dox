@@ -1,5 +1,6 @@
 import type { User } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export class ReferralManager {
     static async validateReferral(referral: string) {
@@ -43,6 +44,14 @@ export class ReferralManager {
             throw createError({
                 status: 400,
                 statusText: "You cannot redeem your own referral code."
+            })
+        }
+
+        const blockedUsers = await UserSettingsManager.getBlockedUsers(user)
+        if (blockedUsers.includes(recipient)) {
+            throw createError({
+                statusCode: 403,
+                statusMessage: "Users cannot claim referrals from each other while either user blocks the other.",
             })
         }
 

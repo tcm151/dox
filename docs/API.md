@@ -34,6 +34,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/profile/username-taken` | Authenticated | Checks whether a username is already in use. |
 | `GET` | `/api/profile/settings` | Authenticated | Returns the current user's settings. |
 | `PUT` | `/api/profile/settings/update` | Authenticated | Replaces the current user's settings. |
+| `GET` | `/api/profile/filters` | Authenticated | Lists the caller's muted and blocked users and topics. |
+| `POST` | `/api/profile/filters/{mute,unmute,block,unblock}` | Authenticated | Adds or removes one user or topic from the caller's filters. |
 | `POST` | [`/api/profile/password/reset`](#password-reset) | Public | Requests a password reset email without disclosing whether the account exists. |
 | `POST` | [`/api/profile/password/confirm`](#password-reset) | Public; reset token required | Sets a new password and invalidates the account's existing sessions. |
 | `POST` | `/api/profile/confirm/send` | Authenticated; email required | Sends an account confirmation link. |
@@ -94,6 +96,17 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Wipe behavior: removes unreferenced submissions; content required by replies, quotes, or comments is redacted in place to preserve discussion references. Unused media is queued for cleanup.
 - Source: [delete route](../server/api/profile/account/delete.ts), [wipe route](../server/api/profile/account/wipe.ts), [account manager](../server/utils/repos/AccountManager.ts).
 - Tests: [account tests](../tests/parallel/account.server.test.ts) cover password rejection, retained content, and wipe behavior.
+
+### Content Filters
+
+- Methods: `GET /api/profile/filters` lists filters; `POST /api/profile/filters/mute`, `/unmute`, `/block`, and `/unblock` manage one target.
+- Access: authenticated user.
+- Request: action bodies contain `{ target }`, where `target` is a `user:` or `topic:` record ID.
+- `200`: the list returns `{ mutedUsers, blockedUsers, mutedTopics, blockedTopics }`; each action returns `true`.
+- `400`: malformed or unsupported target, or an attempt to mute/block yourself or block `user:deleted`. `404`: mute/block target does not exist.
+- Side effects: blocking a user removes follows in both directions and prevents following, discussing, awarding, or claiming referrals with that user. Blocking a topic removes the caller's follow and prevents following or publishing content to it, and prevents awarding content associated with it. Unblocking does not restore follows. Mutes and blocks remain independent.
+- Source: [filter routes](../server/api/profile/filters/), [settings manager](../server/utils/repos/UserSettingsManager.ts).
+- Tests: [content-filter API tests](../tests/parallel/content-filters.server.test.ts).
 
 ## Notifications and Inbox
 
@@ -173,17 +186,17 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/profile/drafts` | Authenticated | Lists the current user's drafts. |
 | `POST` | `/api/profile/drafts/add` | Authenticated | Creates a draft for the current user. |
 | `POST` | `/api/profile/drafts/:id/{update,delete}` | Authenticated; draft owner | Updates or deletes an owned draft. |
-| `POST` | [`/api/post/add`](#create-post) | Authenticated; resource and image-attachment settings | Publishes a post for the current user. |
-| `POST` | [`/api/link/add`](#create-link) | Authenticated; resource checks | Publishes a link for the current user. |
+| `POST` | [`/api/post/add`](#create-post) | Authenticated; resource, image-attachment, and blocked-topic checks | Publishes a post for the current user. |
+| `POST` | [`/api/link/add`](#create-link) | Authenticated; resource and blocked-topic checks | Publishes a link for the current user. |
 | `POST` | `/api/post/:id/edit` | Authenticated; post author | Edits the post content. |
 | `POST` | `/api/post/:id/delete` | Authenticated; author or admin | Deletes or redacts the post while preserving referenced discussion. |
 | `GET` | `/api/thread` | Public | Lists active top-level threads. |
 | `GET` | `/api/thread/:id` | Public | Returns a thread and its reply context. |
 | `GET` | `/api/thread/:id/visit` | Public | Increments and returns the thread visit counter. |
-| `POST` | `/api/thread/add` | Authenticated; resource and image-attachment settings | Publishes a thread. |
+| `POST` | `/api/thread/add` | Authenticated; resource, image-attachment, and blocked-topic checks | Publishes a thread. |
 | `POST` | `/api/thread/:id/edit` | Authenticated; thread author | Edits the thread content. |
 | `POST` | `/api/thread/:id/delete` | Authenticated; author or admin | Deletes or redacts the thread according to its discussion links. |
-| `POST` | `/api/thread/:id/quote` | Authenticated | Publishes a quote of a thread unless it is locked. |
+| `POST` | `/api/thread/:id/quote` | Authenticated | Publishes a quote unless the thread is locked or a selected topic is blocked. |
 | `POST` | `/api/comment/add` | Authenticated; discussion rules | Adds a comment or reply to a post, link, or gallery discussion. |
 | `POST` | `/api/comment/:id/edit` | Authenticated; comment author | Edits the comment content. |
 | `POST` | `/api/comment/:id/delete` | Authenticated; author or admin | Deletes or redacts the comment according to its replies. |
@@ -191,10 +204,10 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 ### Create Post
 
-- Access: authenticated user. Topic state, image ownership/publication, and the post/reply image-attachment setting are checked server-side.
+- Access: authenticated user. Blocked and locked topic state, image ownership/publication, and the post/reply image-attachment setting are checked server-side.
 - Request body: `title`, `content`, and `topics`; optional `tags`, `replyTo`, and `images`.
 - `200`: created `Post` record.
-- `401`: no valid session. `403`: image attachment is disabled or an attached image is unavailable or not permitted. `409`: a selected topic is locked.
+- `401`: no valid session. `403`: a selected topic is blocked, image attachment is disabled, or an attached image is unavailable or not permitted. `409`: a selected topic is locked.
 - Side effects: creates the post and initializes the author's positive vote.
 - Source: [route](../server/api/post/add.ts).
 - Tests: [post API tests](../tests/parallel/posts.server.test.ts).
@@ -224,7 +237,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
 | `POST` | [`/api/image/upload`](#image-upload) | Confirmed account | Uploads an image and charges the applicable token cost. |
-| `POST` | [`/api/gallery/publish`](#gallery-publication) | Confirmed account; gallery setting; image ownership | Publishes owned images as a gallery. |
+| `POST` | [`/api/gallery/publish`](#gallery-publication) | Confirmed account; gallery setting; image ownership; blocked-topic checks | Publishes owned images as a gallery. |
 | `GET` | `/api/gallery` | Public | Lists active galleries. |
 | `GET` | `/api/gallery/:id` | Public | Returns gallery details and comments. |
 | `GET` | `/api/gallery/:id/visit` | Public | Increments and returns the gallery visit counter. |
@@ -250,10 +263,10 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 ### Gallery Publication
 
 - Method: `POST /api/gallery/publish`.
-- Access: authenticated, confirmed user. Image uploads and gallery publishing must both be enabled. Every image must exist, be active, and be owned by the caller; topic cooldown and locked-topic checks also apply.
+- Access: authenticated, confirmed user. Image uploads and gallery publishing must both be enabled. Every image must exist, be active, and be owned by the caller; blocked-topic, cooldown, and locked-topic checks also apply.
 - Request body: `{ images, title, description, topics }`; `images` must be a nonempty array, `title` must be 4-128 characters, and `description` is limited to 256 characters. `tags` is optional.
 - `200`: `true` after the gallery is created.
-- `400`: no images supplied. `403`: image uploads or gallery publishing are disabled, or an image is unavailable or not owned by the caller. `404`: a referenced image does not exist. Locked-topic or cooldown errors are returned by the moderation checks.
+- `400`: no images supplied. `403`: a selected topic is blocked, image uploads or gallery publishing are disabled, or an image is unavailable or not owned by the caller. `404`: a referenced image does not exist. Locked-topic or cooldown errors are returned by the moderation checks.
 - Side effects: creates the gallery transactionally and initializes the author's positive vote.
 - Source: [publish handler](../server/api/gallery/publish.ts), [topic cooldown checks](../server/utils/ModerationManager.ts).
 - Tests: [gallery API tests](../tests/parallel/galleries.server.test.ts) cover publication and ownership; [image policy tests](../tests/sequential/10-media-settings.server.test.ts) cover independent policy enforcement and existing-content visibility.
@@ -337,12 +350,12 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
 | `POST` | [`/api/vote/:id/:kind`](#vote) | Authenticated | Sets or resets the current user's vote on a voteable record. |
-| `POST` | `/api/user/:id/{follow,unfollow,save,unsave}` | Authenticated | Manages the current user's relationship with another user. |
-| `POST` | `/api/topic/:topic/{follow,unfollow}` | Authenticated | Follows or unfollows a topic. |
-| `POST` | `/api/user/:id/award` | Authenticated; token and self-award checks | Awards another user with tokens. |
-| `POST` | `/api/{post,thread,gallery,link}/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the content author as an award. |
-| `POST` | `/api/comment/:id/award` | Authenticated; token and self-award checks | Transfers 256 tokens to the comment author as an award. |
-| `POST` | `/api/profile/referral` | Authenticated | Claims a referral code. |
+| `POST` | `/api/user/:id/{follow,unfollow,save,unsave}` | Authenticated | Manages the current user's relationship with another user; following is rejected if either user blocks the other. |
+| `POST` | `/api/topic/:topic/{follow,unfollow}` | Authenticated | Follows or unfollows a topic; following is rejected if the caller has blocked it. |
+| `POST` | `/api/user/:id/award` | Authenticated; token, self-award, and block checks | Awards another user with tokens unless either user blocks the other. |
+| `POST` | `/api/{post,thread,gallery,link}/:id/award` | Authenticated; token and block checks | Transfers 256 tokens unless either user blocks the other or the caller blocked an associated topic. |
+| `POST` | `/api/comment/:id/award` | Authenticated; token and block checks | Transfers 256 tokens unless either user blocks the other or the caller blocked an associated topic. |
+| `POST` | `/api/profile/referral` | Authenticated; block checks | Claims a referral code unless either user blocks the other. |
 
 ### Vote
 
@@ -357,8 +370,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 ### User Awards
 
 - Method: `POST /api/user/:id/award`.
-- Access: authenticated; the caller cannot award themselves, a deleted user, or an already-awarded user. The caller needs 256 tokens, and the recipient must remain below the token cap.
-- `200`: `{ awarded: true }`. Self-awards return `400`; missing recipients return `404`; repeated awards, deleted recipients, or balance/cap failures return `409`.
+- Access: authenticated; the caller cannot award themselves, a deleted user, an already-awarded user, or a user who blocks them (or whom they block). The caller needs 256 tokens, and the recipient must remain below the token cap.
+- `200`: `{ awarded: true }`. Self-awards return `400`; missing recipients return `404`; block checks return `403`; repeated awards, deleted recipients, or balance/cap failures return `409`.
 - Side effects: transfers 256 tokens and records the award in one transaction, then sends the recipient an in-app notification.
 - Source: [award handler](../server/api/user/[id]/award.ts), [notification manager](../server/utils/repos/NotificationManager.ts).
 - Tests: [engagement tests](../tests/parallel/engagement.server.test.ts) cover successful, duplicate, self, insufficient-balance, and concurrent awards.

@@ -1,11 +1,17 @@
 import type { Thread } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
 
     const { id } = event.context.params!
     let thread = await readBody<Thread>(event)
+
+    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
+    if ((thread.topics ?? []).some(topic => blockedTopics.includes(topic))) {
+        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
+    }
     const quoteId = `thread:${id}`
 
     const { quote, recipient } = await new DatabaseQuery()

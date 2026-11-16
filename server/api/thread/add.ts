@@ -1,6 +1,7 @@
 import type { Thread } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 type CreateThreadRequest = {
     content: string
@@ -19,8 +20,12 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    await ModerationManager.checkTopicCooldown(auth.id, thread.topics)
+    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
+    if (thread.topics.some(topic => blockedTopics.includes(topic))) {
+        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
+    }
 
+    await ModerationManager.checkTopicCooldown(auth.id, thread.topics)
     return await new DatabaseQuery()
         .addSql(`
             LET $unavailableTopics = (

@@ -151,6 +151,7 @@ function awardUser() {
                             <i class="fa-solid fa-crown"></i>
                             <span>{{ awarded ? "Awarded" : "Award" }}</span>
                         </ButtonSpinner>
+                        <ContentFilterControls v-if="!isOwnProfile" :target="user.id" :name="user.name" @refresh="emit('refresh')" />
                     </div>
                 </Authenticated>
             </div>

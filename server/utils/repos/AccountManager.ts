@@ -34,6 +34,11 @@ export class AccountManager {
                 UPDATE report SET moderator = $deleted WHERE moderator = $user;
                 UPDATE moderatorLog SET actor = $deleted WHERE actor = $user;
                 UPDATE topic SET moderators -= $user WHERE moderators CONTAINS $user;
+                UPDATE userSettings SET
+                    content.filters.muted = array::difference(content.filters.muted, [$user]),
+                    content.filters.blocked = array::difference(content.filters.blocked, [$user])
+                WHERE content.filters.muted CONTAINS $user
+                    OR content.filters.blocked CONTAINS $user;
                 DELETE moderationRequest WHERE user = $user;
                 UPDATE pin SET user = $deleted WHERE user = $user;
                 DELETE notification WHERE recipient = $user OR context = $user;
@@ -179,6 +184,11 @@ export class AccountManager {
                 UPDATE report SET moderator = $deleted WHERE moderator = $user;
                 UPDATE moderatorLog SET actor = $deleted WHERE actor = $user;
                 UPDATE topic SET moderators -= $user WHERE moderators CONTAINS $user;
+                UPDATE userSettings SET
+                    content.filters.muted = array::difference(content.filters.muted, [$user]),
+                    content.filters.blocked = array::difference(content.filters.blocked, [$user])
+                WHERE content.filters.muted CONTAINS $user
+                    OR content.filters.blocked CONTAINS $user;
                 DELETE moderationRequest WHERE user = $user;
                 UPDATE pin SET user = $deleted WHERE user = $user;
                 DELETE notification WHERE recipient = $user OR context = $user;

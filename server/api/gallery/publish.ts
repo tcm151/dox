@@ -1,5 +1,6 @@
 import { Validator } from "@@/shared/utils/Validator"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 type PublishGalleryRequest = {
     images: string[]
@@ -29,8 +30,12 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: "A gallery must contain at least one image." })
     }
 
-    await ModerationManager.checkTopicCooldown(auth.id, body.topics)
+    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
+    if (body.topics.some(topic => blockedTopics.includes(topic))) {
+        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
+    }
 
+    await ModerationManager.checkTopicCooldown(auth.id, body.topics)
     await new DatabaseQuery()
         .addSql(`
             LET $unavailableTopics = (

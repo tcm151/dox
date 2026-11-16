@@ -1,11 +1,21 @@
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
     const awarder = await authenticateRequest(event)
     const { id } = event.context.params!
+    const blockedUsers = await UserSettingsManager.getBlockedUsers(awarder)
+    const blockedTopics = await UserSettingsManager.getBlockedTopics(awarder)
 
     const recipient = await new DatabaseQuery()
         .addSql(`
+            IF $blockedUsers.len() > 0 AND $blockedUsers CONTAINS $comment.user {
+                fn::http(403, "Users cannot award each other while either user blocks the other.");
+            };
+            LET $topics = $comment.context.topics ?? [];
+            IF $blockedTopics.len() > 0 AND $blockedTopics CONTAINSANY $topics {
+                fn::http(403, "You cannot award content in a topic you have blocked.");
+            };
             IF $comment.user = $awarder {
                 fn::http(400, "You cannot award your own comments.");
             };
@@ -30,6 +40,8 @@ export default defineEventHandler(async (event) => {
         .addTransaction()
         .addRecord("comment", `comment:${id}`)
         .addRecord("awarder", awarder.id)
+        .addRecords("blockedUsers", blockedUsers)
+        .addRecords("blockedTopics", blockedTopics)
         .queryValue<string>()
 
     await NotificationManager.send({

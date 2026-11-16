@@ -1,8 +1,18 @@
 <script setup lang="ts">
+import type { UserContentFilterView } from "@@/shared/types"
+
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
 const userSettings = useUserSettings()
+const filters = ref<UserContentFilterView>({
+    mutedUsers: [],
+    blockedUsers: [],
+    mutedTopics: [],
+    blockedTopics: [],
+})
+const filtersLoading = ref(false)
+const filterAction = ref<string | null>(null)
 
 function contentVisibilityMode(tag: string) {
     return userSettings.preferences.content.visibility[tag] ?? "inherit"
@@ -25,9 +35,38 @@ function updateContentVisibility(tag: string, event: Event) {
 const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
 try {
     await userSettings.refresh()
+    await refreshFilters()
 }
 catch (error: any) {
-    hints.addError("Failed to load notification preference.", error)
+    hints.addError("Failed to load preferences.", error)
+}
+
+async function refreshFilters() {
+    filtersLoading.value = true
+    try {
+        filters.value = await useApi<UserContentFilterView>("/api/profile/filters")
+    }
+    finally {
+        filtersLoading.value = false
+    }
+}
+
+async function removeFilter(action: "unmute" | "unblock", target: string) {
+    filterAction.value = `${action}:${target}`
+    try {
+        await useApi(`/api/profile/filters/${action}`, {
+            method: "POST",
+            body: { target },
+        })
+        await Promise.all([refreshFilters(), userSettings.refresh()])
+        hints.addSuccess(action === "unmute" ? "Mute removed." : "Block removed.")
+    }
+    catch (error: any) {
+        hints.addError(action === "unmute" ? "Failed to remove mute." : "Failed to remove block.", error)
+    }
+    finally {
+        filterAction.value = null
+    }
 }
 
 async function savePreferences() {
@@ -151,6 +190,48 @@ async function invalidateSessions() {
                     <i class="fa-solid fa-rotate"></i>
                     <span>Reset</span>
                 </button>
+            </div>
+        </section>
+        <section class="box column g-3 p-5">
+            <h2>Muted users</h2>
+            <p v-if="filtersLoading">Loading muted users...</p>
+            <p v-else-if="filters.mutedUsers.length === 0" class="light">No users muted.</p>
+            <div v-for="target in filters.mutedUsers" :key="target.id" class="row inline between g-2">
+                <NuxtLink :to="`/user/${extractId(target.id)}`">{{ target.name }}</NuxtLink>
+                <ButtonSpinner class="small" :loading="filterAction === `unmute:${target.id}`" :disabled="filterAction !== null" @click="removeFilter('unmute', target.id)">
+                    Unmute
+                </ButtonSpinner>
+            </div>
+
+            <!-- TODO the mutes and blocks should have its own page for the user profile -->
+            <h2>Muted topics</h2>
+            <p v-if="filtersLoading">Loading muted topics...</p>
+            <p v-else-if="filters.mutedTopics.length === 0" class="light">No topics muted.</p>
+            <div v-for="target in filters.mutedTopics" :key="target.id" class="row inline between g-2">
+                <NuxtLink :to="`/topic/${extractId(target.id)}`">{{ target.name }}</NuxtLink>
+                <ButtonSpinner class="small" :loading="filterAction === `unmute:${target.id}`" :disabled="filterAction !== null" @click="removeFilter('unmute', target.id)">
+                    Unmute
+                </ButtonSpinner>
+            </div>
+
+            <h2>Blocked users</h2>
+            <p v-if="filtersLoading">Loading blocked users...</p>
+            <p v-else-if="filters.blockedUsers.length === 0" class="light">No users blocked.</p>
+            <div v-for="target in filters.blockedUsers" :key="target.id" class="row inline between g-2">
+                <NuxtLink :to="`/user/${extractId(target.id)}`">{{ target.name }}</NuxtLink>
+                <ButtonSpinner class="small" :loading="filterAction === `unblock:${target.id}`" :disabled="filterAction !== null" @click="removeFilter('unblock', target.id)">
+                    Unblock
+                </ButtonSpinner>
+            </div>
+
+            <h2>Blocked topics</h2>
+            <p v-if="filtersLoading">Loading blocked topics...</p>
+            <p v-else-if="filters.blockedTopics.length === 0" class="light">No topics blocked.</p>
+            <div v-for="target in filters.blockedTopics" :key="target.id" class="row inline between g-2">
+                <NuxtLink :to="`/topic/${extractId(target.id)}`">{{ target.name }}</NuxtLink>
+                <ButtonSpinner class="small" :loading="filterAction === `unblock:${target.id}`" :disabled="filterAction !== null" @click="removeFilter('unblock', target.id)">
+                    Unblock
+                </ButtonSpinner>
             </div>
         </section>
         <section class="box column g-2 p-5">

@@ -3,6 +3,7 @@ import { Validator } from "@@/shared/utils/Validator"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { linkPreviewManager } from "@@/server/utils/LinkPreviewManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 type CreateLinkRequest = {
     title: string
@@ -36,6 +37,11 @@ export default defineEventHandler(async (event) => {
     const settings = await SettingsManager.get()
     if (!settings.links.enabled) {
         throw createError({ statusCode: 403, statusMessage: "Link publishing is disabled." })
+    }
+
+    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
+    if (link.topics.some(topic => blockedTopics.includes(topic))) {
+        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
     }
 
     await ModerationManager.checkTopicCooldown(auth.id, link.topics)

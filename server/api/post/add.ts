@@ -1,6 +1,7 @@
 import type { Post } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 type CreatePostRequest = {
     title: string
@@ -20,8 +21,13 @@ export default defineEventHandler(async (event) => {
             throw createError({ statusCode: 403, statusMessage: "Image attachments to posts and replies are disabled." })
         }
     }
-    await ModerationManager.checkTopicCooldown(auth.id, post.topics)
 
+    const blockedTopics = await UserSettingsManager.getBlockedTopics(auth)
+    if (post.topics.some(topic => blockedTopics.includes(topic))) {
+        throw createError({ statusCode: 403, statusMessage: "You cannot post to a topic you have blocked." })
+    }
+
+    await ModerationManager.checkTopicCooldown(auth.id, post.topics)
     return await new DatabaseQuery()
         .addSql(`
             LET $unavailableTopics = (

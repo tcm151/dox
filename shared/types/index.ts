@@ -232,6 +232,10 @@ export interface UserSettings extends Record {
     user: User & string
     content: {
         visibility: Partial<{ [tag: string]: ContentVisibilityMode }>
+        filters: {
+            muted: string[]
+            blocked: string[]
+        }
     }
     ui: {
         hoverAnimations: boolean
@@ -241,6 +245,20 @@ export interface UserSettings extends Record {
         inApp: boolean
         email: boolean
     }
+}
+
+export type ContentFilterTargetType = "user" | "topic"
+
+export interface ContentFilterTargetView {
+    id: string
+    name: string
+}
+
+export interface UserContentFilterView {
+    mutedUsers: ContentFilterTargetView[]
+    blockedUsers: ContentFilterTargetView[]
+    mutedTopics: ContentFilterTargetView[]
+    blockedTopics: ContentFilterTargetView[]
 }
 
 export interface Feedback extends Record {

@@ -370,6 +370,17 @@ IF !record::exists(appSettings:default) {
     CREATE appSettings:default;
 };
 
+-- Add user and topic content filters to existing user settings.
+DEFINE FIELD IF NOT EXISTS content.filters ON userSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD IF NOT EXISTS content.filters.muted ON userSettings
+    TYPE array<record<user | topic>> DEFAULT ALWAYS [];
+DEFINE FIELD IF NOT EXISTS content.filters.blocked ON userSettings
+    TYPE array<record<user | topic>> DEFAULT ALWAYS [];
+UPDATE userSettings SET
+    content.filters.muted = content.filters.muted ?? [],
+    content.filters.blocked = content.filters.blocked ?? [];
+
 UPSERT migration SET version = '2026.6.3', time = time::now()
 WHERE version = '2026.6.3';
 COMMIT;

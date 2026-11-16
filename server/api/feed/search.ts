@@ -1,5 +1,7 @@
 import type { SearchResult } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
+import { authenticateOptionalRequest } from "@@/server/utils/auth"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 const MINIMUM_SEARCH_SCORE = 0.5
 const SEARCH_TYPES = ["post", "thread", "gallery", "comment"] as const
@@ -25,8 +27,8 @@ export default defineEventHandler(async (event) => {
     const user = typeof query.user === "string" ? query.user.trim() : undefined
     const from = typeof query.from === "string" ? query.from : undefined
     const to = typeof query.to === "string" ? query.to : undefined
-    const validator = new Validator("FeedSearch")
 
+    const validator = new Validator("FeedSearch")
     validator.optional(query.type, (v, value) => {
         v.string(value, "type")
         v.in(value, "type", SEARCH_TYPES)
@@ -53,6 +55,8 @@ export default defineEventHandler(async (event) => {
         return []
     }
 
+    const viewer = await authenticateOptionalRequest(event)
+    const excluded = await UserSettingsManager.getFilteredTargets(viewer)
     const databaseQuery = new DatabaseQuery()
         .addSql(`
             LET $comments = (
@@ -69,6 +73,7 @@ export default defineEventHandler(async (event) => {
                 AND context.status = "active"
                 AND context.deleted != true
                 AND ($topic IS NULL OR context.topics CONTAINS $topic)
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user, context.user], context.topics ?? []))
             );
 
             LET $posts = (
@@ -83,6 +88,7 @@ export default defineEventHandler(async (event) => {
                 AND status = "active"
                 AND deleted != true
                 AND ($topic IS NULL OR topics CONTAINS $topic)
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
                 FETCH user, replyTo
             );
 
@@ -98,6 +104,7 @@ export default defineEventHandler(async (event) => {
                 AND status = "active"
                 AND deleted != true
                 AND ($topic IS NULL OR topics CONTAINS $topic)
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
                 FETCH user, replyTo
             );
 
@@ -112,6 +119,7 @@ export default defineEventHandler(async (event) => {
                 WHERE (title @1@ $text OR description @2@ $text)
                 AND status = "active"
                 AND ($topic IS NULL OR topics CONTAINS $topic)
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
                 FETCH user
             );
 
@@ -131,6 +139,6 @@ export default defineEventHandler(async (event) => {
         .addParameter("to", to ? nextUtcDay(to) : null)
         .addParameter("minimumScore", MINIMUM_SEARCH_SCORE)
         .addRecord("topic", topic ? `topic:${topic}` : null)
-
+        .addRecords("excluded", excluded)
     return await databaseQuery.queryAll<SearchResult>()
 })

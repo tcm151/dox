@@ -21,8 +21,8 @@ Let users hide feed, search, and inbox content that matches keywords they choose
 - [ ] Test matching boundaries, settings updates, and filtered results.
 
 ## Notes
-- User and topic blocking/muting are tracked separately in [Ticket 0014](../0014-block-mute-controls.md).
-- Keep keyword matching distinct from user/topic relationship checks; coordinate the settings UX with Ticket 0014.
+- User and topic blocking/muting are tracked separately in [Ticket 0014](../completed/0014-block-mute-controls.md).
+- Keep keyword matching distinct from user/topic relationship checks; coordinate the settings UX with [Ticket 0014](../completed/0014-block-mute-controls.md).
 
 ## Relevant Files
 - app/pages/settings/preferences.vue

@@ -142,11 +142,16 @@ export class DatabaseQuery {
     }
 
     /**
-     * Binds an array of record IDs as SurrealDB records.
+     * Binds an array of record IDs as SurrealDB records, or null for an absent optional value.
      * @param key Parameter name referenced by the SQL.
-     * @param records Record IDs in `table:id` form.
+     * @param records Record IDs in `table:id` form, or null.
      */
-    addRecords(key: string, records: string[]) {
+    addRecords(key: string, records: string[] | null) {
+        if (records === null) {
+            this.#parameters[key] = null
+            return this
+        }
+
         let results: RecordId[] = []
         for (let record of records) {
             results.push(DatabaseQuery.parseRecord(record))

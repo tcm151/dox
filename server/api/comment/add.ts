@@ -1,5 +1,6 @@
 import type { Comment } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 type CreateCommentRequest = {
     context: string
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
     if (!body.context) {
         throw createError({ statusCode: 400, statusMessage: "A post or gallery context is required." })
     }
+    const blockedUsers = await UserSettingsManager.getBlockedUsers(auth)
     const { comment, recipient } = await new DatabaseQuery()
         .addSql(`
             LET $moderation = (SELECT * FROM ONLY moderation WHERE subject = $context LIMIT 1);
@@ -40,7 +42,12 @@ export default defineEventHandler(async (event) => {
                 };
             };
 
+            LET $contextAuthor = (SELECT VALUE user FROM ONLY $context);
             LET $recipient = (SELECT VALUE user FROM ONLY $replyTo);
+            IF $blockedUsers.len() > 0 AND $blockedUsers CONTAINSANY array::union([$contextAuthor], [$recipient]) {
+                fn::http(403, "Users cannot comment while either user blocks the other.");
+            };
+
             LET $comment = (
                 CREATE ONLY comment SET
                     user = $user,
@@ -56,6 +63,7 @@ export default defineEventHandler(async (event) => {
         .addRecord("user", auth.id)
         .addRecord("context", body.context)
         .addParameter("content", body.content)
+        .addRecords("blockedUsers", blockedUsers)
         .addRecord("replyTo", body.replyTo)
         .queryValue<{ comment: Comment, recipient: string }>()
     

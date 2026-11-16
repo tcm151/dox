@@ -1,64 +1,70 @@
-import type { Gallery, Link, Post, Thread } from "@@/shared/types"
+import type { Sortable } from "@@/shared/types"
+import { authenticateOptionalRequest } from "@@/server/utils/auth"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
     const { id } = event.context.params!
     let query = getQuery<{ sortBy: string }>(event)
 
-    let posts = await new DatabaseQuery()
-        .addSql(`
-            SELECT id, user.id, user.name, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
-                replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes, score,
-                status, images.{id, url} AS images, visits, moderation
-            FROM post
-            WHERE user = $user
-            AND status = "active"
-            ORDER BY time DESC
-            FETCH user, replyTo
-        `)
-        .addRecord("user", `user:${id}`)
-        .queryAll<Post>()
+    const viewer = await authenticateOptionalRequest(event)
+    const excluded = await UserSettingsManager.getFilteredTargets(viewer)
 
-    let links = await new DatabaseQuery()
+    const items = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.id, user.name, title, description, url, preview, tags, time, edited, timeEdited,
-                topics, comments, votes, score, status, visits, moderation
-            FROM link
-            WHERE user = $user
-            AND status = "active"
-            ORDER BY time DESC
-            FETCH user
-        `)
-        .addRecord("user", `user:${id}`)
-        .queryAll<Link>()
+            LET $posts = (
+                SELECT id, user.id, user.name, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
+                    replyTo.id, replyTo.title, replyTo.tags, topics, comments, votes, score,
+                    status, images.{id, url} AS images, visits, moderation
+                FROM post
+                WHERE user = $user
+                AND status = "active"
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+                ORDER BY time DESC
+                FETCH user, replyTo
+            );
 
-    let threads = await new DatabaseQuery()
-        .addSql(`
-            SELECT id, user.id, user.name, content, tags, time,
-                topics, quote, replies, votes, score,
-                edited, timeEdited, visits, images.{id, url} AS images,
-                (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation
-            FROM thread
-            WHERE user = $user
-            AND replyTo = NONE
-            AND status = "active"
-            ORDER BY time DESC
-            FETCH user, quote, quote.user
-        `)
-        .addRecord("user", `user:${id}`)
-        .queryAll<Thread>()
+            LET $links = (
+                SELECT id, user.id, user.name, title, description, url, preview, tags, time, edited, timeEdited,
+                    topics, comments, votes, score, status, visits, moderation
+                FROM link
+                WHERE user = $user
+                AND status = "active"
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+                ORDER BY time DESC
+                FETCH user
+            );
 
-    let galleries = await new DatabaseQuery()
-        .addSql(`
-            SELECT id, user.id, user.name, title, description, tags, time,
-                topics, images.{id, url} AS images, votes, score, visits, status, moderation
-            FROM gallery
-            WHERE user = $user
-            AND status = "active"
-            ORDER BY time DESC
-            FETCH user
-        `)
-        .addRecord("user", `user:${id}`)
-        .queryAll<Gallery>()
+            LET $threads = (
+                SELECT id, user.id, user.name, content, tags, time,
+                    topics, quote, replies, votes, score,
+                    edited, timeEdited, visits, images.{id, url} AS images,
+                    (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation
+                FROM thread
+                WHERE user = $user
+                AND replyTo = NONE
+                AND status = "active"
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+                ORDER BY time DESC
+                FETCH user, quote, quote.user
+            );
 
-    return sortList([...posts, ...links, ...threads, ...galleries], query.sortBy)
+            LET $galleries = (
+                SELECT id, user.id, user.name, title, description, tags, time,
+                    topics, images.{id, url} AS images, votes, score, visits, status, moderation
+                FROM gallery
+                WHERE user = $user
+                AND status = "active"
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+                ORDER BY time DESC
+                FETCH user
+            );
+
+            RETURN SELECT * FROM $posts, $links, $threads, $galleries;
+        `)
+        .addTransaction()
+        .addRecord("user", `user:${id}`)
+        .addRecords("excluded", excluded)
+        .queryAll<Sortable>()
+
+    return sortList(items, query.sortBy)
 })

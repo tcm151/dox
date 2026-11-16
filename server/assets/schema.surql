@@ -622,6 +622,12 @@ DEFINE FIELD user ON userSettings
     TYPE record<user>;
 DEFINE FIELD content.visibility ON userSettings
     TYPE object FLEXIBLE DEFAULT ALWAYS {};
+DEFINE FIELD content.filters ON userSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD content.filters.muted ON userSettings
+    TYPE array<record<user | topic>> DEFAULT ALWAYS [];
+DEFINE FIELD content.filters.blocked ON userSettings
+    TYPE array<record<user | topic>> DEFAULT ALWAYS [];
 DEFINE INDEX userSettingsUser ON TABLE userSettings
     FIELDS user UNIQUE;
 DEFINE FIELD ui ON userSettings

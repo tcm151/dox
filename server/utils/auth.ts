@@ -72,6 +72,12 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
     }
 }
 
+export const authenticateOptionalRequest = async (event: H3Event): Promise<User | undefined> => {
+    const token = getHeader(event, "Authorization")
+    if (!token) return undefined
+    return await authenticateRequest(event)
+}
+
 export const authenticateProfile = async (event: H3Event): Promise<User> => {
     return await authenticateRequest(event)
 }

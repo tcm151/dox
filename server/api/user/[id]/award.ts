@@ -1,4 +1,5 @@
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 const awardCost = 256
 const maxTokens = 65536
 
@@ -6,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const awarder = await authenticateRequest(event)
     const { id } = event.context.params!
     const targetId = `user:${id}`
+    const blockedUsers = await UserSettingsManager.getBlockedUsers(awarder)
 
     await new DatabaseQuery()
         .addSql(`
@@ -17,6 +19,9 @@ export default defineEventHandler(async (event) => {
             };
             IF $target = user:deleted {
                 fn::http(409, "Deleted users cannot receive awards.");
+            };
+            IF $blockedUsers.len() > 0 AND $blockedUsers CONTAINS $target {
+                fn::http(403, "Users cannot award each other while either user blocks the other.");
             };
             IF $target.votes.awards CONTAINS $awarder {
                 fn::http(409, "You have already awarded this user.");
@@ -38,6 +43,7 @@ export default defineEventHandler(async (event) => {
         .addTransaction()
         .addRecord("target", targetId)
         .addRecord("awarder", awarder.id)
+        .addRecords("blockedUsers", blockedUsers)
         .addParameter("awardCost", awardCost)
         .addParameter("maxTokens", maxTokens)
         .execute()

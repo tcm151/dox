@@ -1,5 +1,6 @@
 import type { FeedPage, Sortable } from "@@/shared/types"
-import { authenticateRequest } from "@@/server/utils/auth"
+import { authenticateOptionalRequest, authenticateRequest } from "@@/server/utils/auth"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 import { getQuery, type H3Event } from "h3"
 
 export type FeedSort = "new" | "hot" | "top"
@@ -54,23 +55,26 @@ export async function queryFeedPage<T extends Sortable>(event: H3Event, followin
     const pageSize = Math.max(1, Math.min(MAX_PAGE_SIZE, Math.trunc(Number(queryParams.pageSize) || DEFAULT_PAGE_SIZE)))
     const offset = Math.max(0, Math.min(MAX_OFFSET, Math.trunc(Number(queryParams.offset) || 0)))
 
+    const user = following
+        ? await authenticateRequest(event)
+        : await authenticateOptionalRequest(event)
+    const excluded = await UserSettingsManager.getFilteredTargets(user)
     const query = new DatabaseQuery()
         .addSql(`
             SELECT sourceId, time, score, hot
             FROM feed
-            WHERE $follow = false OR (
-                topics CONTAINSANY $user.topics OR $user.following CONTAINS user
-            )
+            WHERE ($follow = false OR (topics CONTAINSANY $user.topics OR $user.following CONTAINS user))
+            AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
             ORDER BY ${FEED_ORDER_BY[sortBy]}
             LIMIT $limit
             START $offset
         `)
+        .addRecords("excluded", excluded)
         .addParameter("limit", pageSize + 1)
         .addParameter("offset", offset)
         .addParameter("follow", following)
 
-    if (following) {
-        const user = await authenticateRequest(event)
+    if (user) {
         query.addRecord("user", user.id)
     }
 

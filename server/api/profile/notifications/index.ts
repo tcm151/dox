@@ -9,9 +9,10 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const query = getQuery<NotificationQuery>(event)
 
-    const notifications = await new DatabaseQuery()
+    // TODO notifications shouldn't be filtered, the should be blocked at the source instead
+    const databaseQuery = new DatabaseQuery()
         .addSql(`
-            SELECT id, recipient, context, message, time, viewed
+            RETURN SELECT id, recipient, context, message, time, viewed
             FROM notification
             WHERE recipient = $user
             AND ($dismissed = true OR ($dismissed = false AND viewed = false))
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
         `)
         .addRecord("user", auth.id)
         .addParameter("dismissed", JSON.parse(query.dismissed))
-        .queryAll<Notification>()
+    const notifications = await databaseQuery.queryAll<Notification>()
 
     return {
         total: notifications.length,
