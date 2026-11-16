@@ -252,6 +252,7 @@ it("persists UI preferences only for the authenticated user", async () => {
             hintDuration: originalAdminSettings.ui.hintDuration + 500,
         },
         content: {
+            ...originalAdminSettings.content,
             visibility: {
                 ...originalAdminSettings.content.visibility,
                 nsfw: "filter",

@@ -14,7 +14,7 @@ test("toggles and resets an unsaved preference", async ({ authenticatedPage }) =
 })
 
 test("opens and dismisses a settings confirmation through the event bus", async ({ authenticatedPage }) => {
-    await authenticatedPage.goto("/settings/preferences")
+    await authenticatedPage.goto("/settings/misc")
     await authenticatedPage.getByRole("button", { name: /Sign Out Everywhere/ }).click()
 
     const confirmation = authenticatedPage.getByRole("heading", { name: "Sign Out Everywhere?" })
