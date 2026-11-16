@@ -5,7 +5,7 @@ import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
-    const thread = await readBody<Pick<Thread, "content", "tags">>(event)
+    const thread = await readBody<Pick<Thread, "content" | "tags">>(event)
 
     await UserSettingsManager.isBlocked(auth, [`thread:${id}`])
 
