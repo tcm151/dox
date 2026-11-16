@@ -15,6 +15,7 @@ const FEED_ORDER_BY: Record<FeedSort, string> = {
     top: "score DESC, time DESC, sourceId ASC",
 }
 
+// TODO I think hot sorting isn't quite working right
 const FEED_FIELDS = [
     "id",
     "user.id",
