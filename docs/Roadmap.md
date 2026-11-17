@@ -81,7 +81,8 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 - 🟩 Add user/topic block and mute controls with feed/search filtering and server-side action enforcement. (`0014`, `M`)
 - 🟩 Add save/unsave actions for eligible content with clear saved-state feedback. (`0080`, `M`)
 - 🟥 Align extra-option actions across content types, coordinating save-action availability with Ticket 0080. (`0087`, `M`)
-- 🟥 Define account privacy controls and documented defaults, distinct from content visibility settings. (`0089`, `S`)
+- 🟩 Define account privacy controls and documented defaults, distinct from content visibility settings. (`0089`, `S`)
+- 🟩 Implement the agreed profile audience control for profile details, social data, and profile-feed aggregation. (`0107`, `M`)
 - 🟩 Add configurable email and in-app notification preference controls in user settings. (`0008`, `M`)
 
 **Success metric**: users can secure their accounts, manage core privacy and visibility choices, and control unwanted interactions without moderator intervention.

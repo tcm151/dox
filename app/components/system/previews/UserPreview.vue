@@ -52,7 +52,7 @@ async function unfollowUser() {
             <div class="name-follow row inline between f-1 g-4">
                 <div>
                     <h2>{{ user.name }}</h2>
-                    <a v-if="user.link" class="text truncate" :href="user.link">
+                    <a v-if="user.visible !== false && user.link" class="text truncate" :href="user.link">
                         {{ user.link }}
                     </a>
                 </div>
@@ -73,6 +73,9 @@ async function unfollowUser() {
                 </Authenticated>
             </div>
         </section>
+        <p v-if="user.visible === false" class="tip">
+            This profile's details, social information, and profile feed are restricted by the user's audience setting.
+        </p>
         <section class="row wrap g-1">
             <Votes :target="user" />
             <Tag class="f-1 fw-normal" type="info" icon="fa-crown" :label="user.votes.awards.length.toString()" />
@@ -80,20 +83,22 @@ async function unfollowUser() {
             <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ user.visits }}</strong> visits
             </Tag>
-            <Tag class="f-1 fw-normal" type="link" @click="navigateTo(`/user/${extractId(user.id)}/topics`)">
-                <strong>{{ user.topics.length }}</strong> topics
-            </Tag>
-            <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
-                <strong>{{ user.followers.length }}</strong> followers
-            </Tag>
-            <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
-                <strong>{{ user.following.length }}</strong> following
-            </Tag>
+            <template v-if="user.visible !== false">
+                <Tag class="f-1 fw-normal" type="link" @click="navigateTo(`/user/${extractId(user.id)}/topics`)">
+                    <strong>{{ user.topics.length }}</strong> topics
+                </Tag>
+                <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
+                    <strong>{{ user.followers.length }}</strong> followers
+                </Tag>
+                <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
+                    <strong>{{ user.following.length }}</strong> following
+                </Tag>
+            </template>
             <Tag class="f-1 fw-normal" type="info">
                 joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong> ago
             </Tag>
         </section>
-        <section v-if="user.description" class="column g-2">
+        <section v-if="user.visible !== false && user.description" class="column g-2">
             <p>{{ user.description }}</p>
         </section>
     </main>

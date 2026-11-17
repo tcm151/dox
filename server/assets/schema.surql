@@ -30,6 +30,15 @@ DEFINE FUNCTION fn::calculate_score(
 DEFINE FUNCTION fn::http($status: int, $message: string) {
     THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
 };
+DEFINE FUNCTION fn::can_view_profile(
+    $visibility: string,
+    $viewer: option<record<user>>,
+    $owner: record<user>
+) -> bool {
+    RETURN $visibility = "public"
+        OR ($visibility = "members" AND $viewer != NONE)
+        OR ($visibility = "private" AND $viewer = $owner);
+};
 
 DEFINE ANALYZER IF NOT EXISTS relevanceSearch
     TOKENIZERS camel, class
@@ -628,6 +637,10 @@ DEFINE FIELD content.filters.muted ON userSettings
     TYPE array<record<user | topic>> DEFAULT ALWAYS [];
 DEFINE FIELD content.filters.blocked ON userSettings
     TYPE array<record<user | topic>> DEFAULT ALWAYS [];
+DEFINE FIELD privacy ON userSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD privacy.profile ON userSettings
+    TYPE string DEFAULT ALWAYS "public" ASSERT $value IN ["public", "members", "private"];
 DEFINE INDEX userSettingsUser ON TABLE userSettings
     FIELDS user UNIQUE;
 DEFINE FIELD ui ON userSettings

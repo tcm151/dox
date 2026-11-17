@@ -32,8 +32,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/profile/account` | Authenticated | Returns the current account details. |
 | `POST` | `/api/profile/update` | Authenticated | Updates the current user's name, link, and description. |
 | `POST` | `/api/profile/username-taken` | Authenticated | Checks whether a username is already in use. |
-| `GET` | `/api/profile/settings` | Authenticated | Returns the current user's settings. |
-| `PUT` | `/api/profile/settings/update` | Authenticated | Replaces the current user's settings. |
+| `GET` | `/api/profile/settings` | Authenticated | Returns the current user's settings, including their profile audience. |
+| `PUT` | `/api/profile/settings/update` | Authenticated | Replaces the current user's settings, including their profile audience (`public`, `members`, or `private`). |
 | `GET` | `/api/profile/filters` | Authenticated | Lists the caller's muted and blocked users and topics. |
 | `POST` | `/api/profile/filters/{mute,unmute,block,unblock}` | Authenticated | Adds or removes one user or topic from the caller's filters. |
 | `POST` | [`/api/profile/password/reset`](#password-reset) | Public | Requests a password reset email without disclosing whether the account exists. |
@@ -148,10 +148,10 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/topic/:topic/pins` | Public | Lists active pins for a topic. |
 | `GET` | `/api/topic/:topic/related-topics` | Public | Lists topics related through shared content. |
 | `GET` | `/api/topic/:topic/visit` | Public | Increments and returns the topic visit counter. |
-| `GET` | `/api/user` | Public | Lists public user profile fields. |
-| `GET` | `/api/user/:id` | Public | Returns a user's public profile. |
-| `GET` | `/api/user/:id/feed?sortBy=` | Public | Returns active posts, top-level threads, and galleries by a user. |
-| `GET` | `/api/user/:id/{followers,following,topics}` | Public | Lists a user's followers, followed users, or followed topics. |
+| `GET` | `/api/user` | Public | Lists user profiles visible to the current viewer; anonymous viewers see public profiles. |
+| `GET` | `/api/user/:id` | Public | Returns a profile with a `visible` flag; controlled details are omitted when the viewer is not allowed. |
+| `GET` | `/api/user/:id/feed?sortBy=` | Public | Returns the user's active posts, top-level threads, and galleries only when their profile is visible to the viewer. |
+| `GET` | `/api/user/:id/{followers,following,topics}` | Public | Lists a user's followers, followed users, or followed topics only when their profile is visible to the viewer. |
 | `GET` | `/api/user/:id/visit` | Public | Increments and returns the profile visit counter. |
 
 ### Feed Pagination

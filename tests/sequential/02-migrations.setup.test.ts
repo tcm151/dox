@@ -24,6 +24,39 @@ it("applies every migration after the previous tagged release", async () => {
 
     expect(result.baselineVersion).toBeDefined()
     expect(result.recordedVersions).toEqual([result.baselineVersion, ...result.appliedMigrations])
+}, 15_000)
+
+it("defaults existing and new profile privacy settings to public", async () => {
+    const healthResponse = await fetch("/api/health")
+    const health = await healthResponse.json() as { version: string }
+    const previousReleaseTag = getPreviousReleaseTag(health.version)
+    const previousReleaseVersion = previousReleaseTag.replace(/^v/, "")
+
+    const result = await useSurrealSandbox(async (database) => {
+        await applySchemaFromTag(database, previousReleaseTag)
+        await database.query(`
+            CREATE user:privacy_existing SET name = "privacy_existing";
+            CREATE userSettings:privacy_existing SET user = user:privacy_existing;
+        `)
+        await applyMigrations(database, previousReleaseVersion, health.version)
+
+        const existing = await database.query(
+            "SELECT privacy.profile FROM userSettings WHERE user = user:privacy_existing;",
+        )
+        await database.query(`
+            CREATE user:privacy_new SET name = "privacy_new";
+            CREATE userSettings:privacy_new SET user = user:privacy_new;
+        `)
+        const created = await database.query(
+            "SELECT privacy.profile FROM userSettings WHERE user = user:privacy_new;",
+        )
+        return {
+            existing: existing[0]?.[0]?.privacy?.profile,
+            created: created[0]?.[0]?.privacy?.profile,
+        }
+    })
+
+    expect(result).toEqual({ existing: "public", created: "public" })
 })
 
 it("replays the current migration for an authorized developer", async () => {

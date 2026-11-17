@@ -22,6 +22,9 @@ export class UserSettingsManager {
                 v.boolean(settings.notifications.inApp, "In-app notifications")
                 v.boolean(settings.notifications.email, "Email notifications")
             })
+            .object(settings.privacy, "Privacy preferences", v => {
+                v.in(settings.privacy.profile, ["public", "members", "private"])
+            })
             .object(settings.ui, "UI preferences", v => {
                 v.boolean(settings.ui.hoverAnimations, "Hover animations")
                 v.number(settings.ui.hintDuration, "Hint duration")
@@ -42,14 +45,31 @@ export class UserSettingsManager {
                 UPDATE userSettings SET
                     notifications = $notifications,
                     content.visibility = $visibility,
+                    privacy = $privacy,
                     ui = $ui
                 WHERE user = $user
             `)
             .addRecord("user", user)
             .addParameter("notifications", settings.notifications)
             .addParameter("ui", settings.ui)
+            .addParameter("privacy", settings.privacy)
             .addParameter("visibility", settings.content.visibility)
             .queryOne<UserSettings>()
+    }
+
+    static async canViewProfile(target: string, viewer?: User): Promise<boolean> {
+        const { canView } = await new DatabaseQuery()
+            .addSql(`
+                SELECT fn::can_view_profile(privacy.profile, $viewer, user) AS canView
+                FROM userSettings
+                WHERE user = $target
+                LIMIT 1
+            `)
+            .addRecord("target", target)
+            .addRecord("viewer", viewer?.id)
+            .queryOne<{ canView: boolean }>()
+
+        return canView
     }
 
     static async list(user: string) {

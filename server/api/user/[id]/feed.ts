@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
     let query = getQuery<{ sortBy: string }>(event)
 
     const viewer = await authenticateOptionalRequest(event)
+    if (!await UserSettingsManager.canViewProfile(`user:${id}`, viewer)) return []
+
     const excluded = await UserSettingsManager.getFilteredTargets(viewer)
 
     const items = await new DatabaseQuery()

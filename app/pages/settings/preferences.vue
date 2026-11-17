@@ -84,6 +84,18 @@ async function resetPreferences() {
                     :disabled="userSettings.pending"
                 />
             </div>
+            <hr>
+            <div class="field row center">
+                <div class="column f-1">
+                    <label>profile audience</label>
+                    <span class="tip">Choose who can see your profile details, social information, and feed.</span>
+                </div>
+                <select class="px-2 py-1" v-model="userSettings.preferences.privacy.profile" :disabled="userSettings.pending">
+                    <option value="public">Public</option>
+                    <option value="members">Members</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
         </section>
     </article>
 </template>

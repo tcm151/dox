@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Topic } from "@@/shared/types"
+import type { Topic, User } from "@@/shared/types"
 
 const route = useRoute()
 

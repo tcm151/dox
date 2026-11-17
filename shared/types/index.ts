@@ -35,6 +35,7 @@ export interface Account extends Record {
 
 export interface User extends Voteable {
     name: string
+    visible?: boolean
     link?: string
     description?: string
     topics: string[]
@@ -52,6 +53,7 @@ export type Trait = "confirmed" | "verified"
 export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
 export type ContentVisibilityTag = "nsfw" | "spoiler"
 export type ContentVisibilityMode = "show" | "mask" | "filter"
+export type ProfileVisibility = "public" | "members" | "private"
 export type TopicStatus = "active" | "locked"
 export type PinScope = "app" | "topic"
 
@@ -236,6 +238,9 @@ export interface UserSettings extends Record {
             muted: string[]
             blocked: string[]
         }
+    }
+    privacy: {
+        profile: ProfileVisibility
     }
     ui: {
         hoverAnimations: boolean

@@ -381,6 +381,24 @@ UPDATE userSettings SET
     content.filters.muted = content.filters.muted ?? [],
     content.filters.blocked = content.filters.blocked ?? [];
 
+-- Give existing user settings a public profile audience by default.
+DEFINE FIELD IF NOT EXISTS privacy ON userSettings
+    TYPE object DEFAULT ALWAYS {};
+DEFINE FIELD IF NOT EXISTS privacy.profile ON userSettings
+    TYPE string DEFAULT ALWAYS "public" ASSERT $value IN ["public", "members", "private"];
+UPDATE userSettings SET privacy.profile = "public" WHERE privacy.profile = NONE;
+
+-- Centralize profile-audience checks for user-facing queries.
+DEFINE FUNCTION OVERWRITE fn::can_view_profile(
+    $visibility: string,
+    $viewer: option<record<user>>,
+    $owner: record<user>
+) -> bool {
+    RETURN $visibility = "public"
+        OR ($visibility = "members" AND $viewer != NONE)
+        OR ($visibility = "private" AND $viewer = $owner);
+};
+
 -- Project thread authors explicitly in recursive ancestor and reply-chain results.
 DEFINE FUNCTION OVERWRITE fn::thread_ancestors($threadId: record<thread>, $remaining: int) -> array<object> {
     IF $remaining <= 0 {

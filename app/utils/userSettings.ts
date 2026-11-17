@@ -11,6 +11,7 @@ function defaultSettings(): UserSettings {
                 blocked: [],
             },
         },
+        privacy: { profile: "public" },
         ui: { hoverAnimations: true, hintDuration: 2500 },
         notifications: { inApp: true, email: false },
     }
