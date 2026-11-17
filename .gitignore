@@ -6,6 +6,9 @@
 .production
 .test-output-*/
 .env
+
+.github/instructions/workspace.instructions.md
+
 releases/
 
 data/*
