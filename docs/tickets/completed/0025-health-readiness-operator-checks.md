@@ -33,7 +33,7 @@ Define and document health/readiness checks so deployments can detect degraded s
 
 ## Relevant Files
 - nuxt.config.ts
-- server/plugins/01.migrations.server.ts
+- server/plugins/01.startup.server.ts
 - server/api/health.ts
 - server/utils/health.ts
 - docs/Architecture.md

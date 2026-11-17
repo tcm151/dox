@@ -340,13 +340,15 @@ Before merging architectural changes:
 
 ## 13. Known Gaps
 
-Work still in progress:
-- CI and automated test coverage baseline
-- Expanded rate-limiting and abuse controls
-- Moderation/audit completeness
-- UX completion in some feature surfaces
-- Ops maturity (health/readiness, backup/restore, release process)
-- API contract documentation and stability practices
+The CI/API/browser test infrastructure, moderation/audit baseline, health checks, backup runbook, and API inventory have been delivered. Their existence is not proof that every current workflow or deployment has passed release acceptance.
+
+Remaining work is tracked in the [Roadmap](Roadmap.md) and [tickets](tickets/):
+- Close known media cleanup/category and confirmation-email abuse gaps.
+- Finish consistent personal filtering, bounded discovery/inbox queries, and account-dependent request isolation.
+- Align mutation/projection types, validation/error contracts, and complex domain workflow boundaries; polish core loading, retry, and edit behavior.
+- Complete reproducible candidate testing, independent Linux installation, upgrade/recovery, and live SMTP/onboarding checks before claiming the corresponding workflows are verified.
+- Publish verifiable release downloads, demonstrate supported capabilities reliably, and document practical hosting and support limits.
+- Keep unfinished optional content types, advanced authoring, realtime delivery, and funding explicitly separate from the narrower pilot offering.
 
 When adding features:
 - Prefer incremental hardening over broad surface expansion.

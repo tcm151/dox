@@ -28,7 +28,7 @@ Let users save and unsave eligible content from its detail and options surfaces,
 ## Relevant Files
 - app/components/system/ExtraOptions.vue
 - app/components/system/ContentHeader.vue
-- shared/utils/content.ts
+- shared/types/index.ts
 - server/utils/ContentManager.ts
 - server/api/vote/[id]/save.ts
 - server/api/vote/[id]/unsave.ts

@@ -52,11 +52,9 @@ Add structured request logging for key API actions to improve debugging and inci
 - app/utils/hints.ts
 - app/pages/developer/errors.vue
 - server/api/[...].ts
-- server/utils/database.ts
+- server/utils/DatabaseQuery.ts
 - server/assets/schema.surql
 - shared/types/index.ts
-- app/pages/developer/errors.vue
-- server/api/developer/error/index.ts
 
 ## Progress Log
 - 2026-10-27: Closed the handled-error logging scope after local integration and browser validation. Confirmed request-ID lookup, linked hint navigation, automatic hint dismissal on arrival, redaction, and persistent manual dismissal. Decided against a separate request-log table for now; production-like deployment validation remains an operational follow-up. `yarn test` passes (7/7 phases).

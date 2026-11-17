@@ -36,7 +36,7 @@ Let users reduce unwanted content by blocking or muting other users and topics t
 
 ## Relevant Files
 - app/pages/settings/preferences.vue
-- app/components/system/ContentFilterControls.vue
+- app/components/system/ExtraOptions.vue
 - server/utils/repos/UserSettingsManager.ts
 - server/utils/repos/ReferralManager.ts
 - server/utils/feedPagination.ts

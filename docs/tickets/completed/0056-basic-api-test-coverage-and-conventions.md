@@ -9,7 +9,7 @@
 Expand the starter integration suite beyond health checks with a few representative basic API operations. Establish a clear, repeatable pattern for organizing, setting up, and asserting future integration tests.
 
 ## Requirements
-- [x] A small set of currently-uncovered basic API operations has focused integration coverage in test modules separate from `health.test.ts`.
+- [x] A small set of currently-uncovered basic API operations has focused integration coverage in test modules separate from the health smoke test.
 - [x] Tests demonstrate useful success assertions and at least one meaningful expected failure assertion.
 - [x] Tests use the shared isolated harness and deterministic test data.
 - [x] Sequential tests can persist and reload named user sessions between test processes.
@@ -25,15 +25,14 @@ Expand the starter integration suite beyond health checks with a few representat
 ## Notes
 - Keep this as a deliberately small baseline, not comprehensive route or contract coverage.
 - The baseline covers the public user list, default-user login/session reuse, and minimal post publishing. Ticket 0027 retains the broader auth/content/moderation smoke workflow.
-- Ticket 0019's referral replay and concurrency tests are deferred until this baseline is established.
+- Ticket 0019's deferred referral replay/concurrency validation is now tracked in [0118](../0118-close-public-release-validation-gaps.md); this completed baseline supplies its test conventions.
 
 ## Relevant Files
-- tests/health.test.ts
-- tests/sequential/01-database-response.test.ts
-- tests/sequential/02-default-user-login.test.ts
-- tests/sequential/03-admin-session-reuse.test.ts
-- tests/sequential/04-post-publishing.test.ts
-- tests/test-server.ts
+- tests/sequential/00-health.setup.test.ts
+- tests/sequential/01-default-user.setup.test.ts
+- tests/sequential/06-example-data.setup.test.ts
+- tests/parallel/posts.server.test.ts
+- tests/utils/test-server.ts
 - tests/
 - scripts/test-server.mjs
 - server/utils/repos/SessionManager.ts

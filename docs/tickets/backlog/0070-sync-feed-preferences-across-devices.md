@@ -32,7 +32,7 @@ Persist feed and comment sorting choices in account settings so they follow a si
 - shared/types/index.ts
 - server/assets/schema.surql
 - server/assets/migrations/2026.6.1.surql
-- tests/parallel/threads.test.ts
+- tests/parallel/threads.server.test.ts
 
 ## Progress Log
 - 2026-10-26: Ticket created.

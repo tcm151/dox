@@ -30,15 +30,15 @@ Give galleries the same commenting and reply capabilities as posts, using the ex
 ## Relevant Files
 - app/pages/gallery/[id].vue
 - app/pages/post/components/CommentSection.vue
-- app/pages/post/components/ExtraOptions.vue
+- app/components/system/ExtraOptions.vue
 - server/api/comment/add.ts
 - server/api/gallery/[id]/index.ts
 - server/api/feed/search.ts
 - server/assets/schema.surql
 - server/assets/migrations/2026.6.2.surql
 - shared/types/index.ts
-- tests/parallel/galleries.test.ts
-- tests/parallel/search.test.ts
+- tests/parallel/galleries.server.test.ts
+- tests/parallel/search.server.test.ts
 
 ## Progress Log
 - 2026-10-29: Implemented gallery comments using the unified `comment.context` target and computed reverse traversal. Reused the post discussion and options UI, aligned gallery detail layout/actions with post detail, added gallery-aware comment search, and covered author/context, ordering, reply, edit, deletion, and reference protection. Browser checks passed at desktop and mobile widths; full integration suite passed 64/64.

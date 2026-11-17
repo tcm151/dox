@@ -30,7 +30,7 @@ Validate application settings at the server boundary so malformed or out-of-rang
 - shared/types/index.ts
 - server/assets/schema.surql
 - app/pages/admin/settings.vue
-- tests/parallel/settings.test.ts
+- tests/parallel/settings.server.test.ts
 
 ## Progress Log
 - 2026-11-02: Added composable array validation with indexed error paths; completed AppSettings validation and API coverage. Focused settings tests pass (13/13) and `yarn typecheck` passes.

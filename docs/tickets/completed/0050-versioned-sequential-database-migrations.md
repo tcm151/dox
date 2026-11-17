@@ -49,7 +49,7 @@ Keep migrations compatible with the fresh schema and supported database upgrades
 - server/assets/schema.surql
 - server/assets/migrations/2026.6.0.surql
 - server/api/post/[id]/delete.ts
-- server/utils/database.ts
+- server/utils/DatabaseQuery.ts
 - server/utils/health.ts
 - docs/Architecture.md
 - docs/ContributionGuide.md

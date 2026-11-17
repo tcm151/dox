@@ -38,7 +38,7 @@ Add a moderation safety flow that limits visibility and interaction for suspicio
 - server/utils/repos/UserManager.ts
 - shared/types/index.ts
 - server/assets/schema.surql
-- tests/parallel/settings.test.ts
+- tests/parallel/settings.server.test.ts
 
 ## Progress Log
 - 2026-04-13: Ticket created.

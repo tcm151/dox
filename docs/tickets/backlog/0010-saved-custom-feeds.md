@@ -22,7 +22,7 @@ Enable users to save reusable feed presets with filter and sort settings.
 - [ ] Apply preset values to feed/search API requests.
 
 ## Notes
-- Persisted default feed and sort preferences are tracked separately in [Ticket 0070](../0070-sync-feed-preferences-across-devices.md); coordinate the settings model without conflating defaults with saved presets.
+- Persisted default feed and sort preferences are tracked separately in [Ticket 0070](0070-sync-feed-preferences-across-devices.md); coordinate the settings model without conflating defaults with saved presets.
 
 ## Relevant Files
 - app/pages/feed.vue

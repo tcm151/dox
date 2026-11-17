@@ -22,7 +22,7 @@ Establish a lightweight release process with clear versioning and a maintained c
 - Keep process sustainable for solo maintenance.
 - Use `year.major.patch` versions for a continuous release/deployment strategy. The current version is `2026.5.0` after retroactively grouping the 2026 work into release blocks.
 - `package.json` owns the application version; Nuxt public runtime config should read from it.
-- Hold off on tagging automation and the fuller release checklist until the process is clearer.
+- The original scope deferred tagging and the fuller release checklist. Public pilot archives, tags, checksums, and publication evidence are now tracked in [0127](../0127-publish-a-verifiable-pilot-release.md); this completed ticket does not establish that a release was published.
 
 ## Relevant Files
 - README.md
@@ -33,6 +33,7 @@ Establish a lightweight release process with clear versioning and a maintained c
 - nuxt.config.ts
 
 ## Progress Log
+- 2026-11-17: Linked the deferred publication/checklist work to Ticket 0127. Preserved completed scope and historical results; no release was tagged or published.
 - 2026-07-21: Completed ticket; release checklist/tagging work remains intentionally deferred for a future ticket.
 - 2026-07-21: Expanded changelog into retroactive release blocks grouped by significant time periods from commit history; updated package version to `2026.5.0` to match the latest release block.
 - 2026-07-21: Marked in progress; documented `year.major.patch` versioning; added package-owned version source; created starter changelog.

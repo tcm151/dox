@@ -26,7 +26,7 @@ Create a general-purpose SurrealDB user guide that links to authoritative upstre
 - docs/ContributionGuide.md
 - docs/Architecture.md
 - docs/SurrealDB.md
-- server/utils/database.ts
+- server/utils/DatabaseQuery.ts
 - docs/.env.example
 
 ## Progress Log

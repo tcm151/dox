@@ -38,12 +38,12 @@ Add tests around critical API contracts to catch regressions in auth, moderation
 - server/api/moderator/request/[id]/approve.ts
 - server/api/moderator/request/[id]/deny.ts
 - server/api/topic/[topic]/reports.ts
-- server/utils/database.ts
-- tests/parallel/feedback.test.ts
-- tests/parallel/media.test.ts
-- tests/parallel/moderation.test.ts
-- tests/parallel/engagement.test.ts
-- tests/parallel/votes.test.ts
+- server/utils/DatabaseQuery.ts
+- tests/parallel/feedback.server.test.ts
+- tests/parallel/media.server.test.ts
+- tests/parallel/moderation.server.test.ts
+- tests/parallel/engagement.server.test.ts
+- tests/parallel/votes.server.test.ts
 - tests/parallel/
 - tests/sequential/
 

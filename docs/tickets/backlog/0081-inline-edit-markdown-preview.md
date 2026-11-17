@@ -5,6 +5,9 @@
 - Priority: Low
 - Next: Confirm the preview toggle behavior for inline post and thread edits
 
+## Dependencies
+- [0114](../0114-discard-cancelled-inline-content-edits.md): Preview must build on isolated edit buffers so toggling and cancelling cannot mutate displayed persisted content.
+
 ## Goal
 Let authors inspect rendered Markdown while editing an existing post or thread on its detail page, without saving their changes first.
 
@@ -28,4 +31,5 @@ Let authors inspect rendered Markdown while editing an existing post or thread o
 - app/components/text/Markdown.vue
 
 ## Progress Log
+- 2026-11-17: Added the unsaved-edit isolation prerequisite; inline preview remains planned.
 - 2026-11-09: Ticket created.

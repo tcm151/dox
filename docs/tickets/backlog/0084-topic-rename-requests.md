@@ -1,9 +1,13 @@
 # Ticket 0084: Topic Rename Requests
 
 ## Status
-- State: Planned
+- State: Paused
 - Priority: Medium
 - Next: Resume canonical-ID rename design and migration after the data/reference impact is reviewed
+
+## Dependencies
+- [0007](../completed/0007-topic-governance-tools.md): Rename requests extend the existing role-gated topic governance workflow.
+- [0074](../completed/0074-surrealdb-record-references.md): Canonical-ID changes must preserve the adopted relationship ownership and traversal behavior.
 
 ## Goal
 Allow topic moderators to request a rename and authorized reviewers to decide that request without losing the topic's content or history.
@@ -26,12 +30,13 @@ Allow topic moderators to request a rename and authorized reviewers to decide th
 - The current preference is to change the canonical topic ID and preserve previous URLs through aliases or redirects; this contract is not yet designed or implemented.
 
 ## Relevant Files
-- app/pages/topic/[topic]/profile.vue
+- app/pages/topic/[topic]/tools/profile.vue
 - server/api/topic/[topic]/
 - server/api/moderator/request/
 - server/assets/schema.surql
 - shared/types/index.ts
 
 ## Progress Log
+- 2026-11-17: Aligned State with the previously recorded user-requested pause, documented existing prerequisites, and updated the tools path. Work was not resumed.
 - 2026-11-11: Paused at the user's request after reviewing the record-ID migration complexity; canonical-ID rename with legacy URL compatibility remains the preferred direction.
 - 2026-11-11: Ticket created.

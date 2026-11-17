@@ -27,7 +27,6 @@ Use the singular `/feed/gallery` route for the gallery feed.
 ## Relevant Files
 - app/pages/feed.vue
 - app/pages/feed/gallery.vue
-- app/pages/feed/images.vue
 - app/pages/editor/image.vue
 
 ## Progress Log

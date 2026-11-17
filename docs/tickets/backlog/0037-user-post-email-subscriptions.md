@@ -32,7 +32,7 @@ Let users subscribe to another user and receive email when that user publishes m
 - If selected topics are empty in topic-filtered mode, the UI/API should reject the subscription or treat it as disabled rather than silently emailing all posts.
 
 ## Relevant Files
-- docs/tickets/0008-user-notification-preferences.md
+- docs/tickets/completed/0008-user-notification-preferences.md
 - app/utils/following.ts
 - app/pages/user/[id]/index.vue
 - app/pages/settings/preferences.vue

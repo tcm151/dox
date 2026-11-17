@@ -32,7 +32,7 @@ Establish a reusable integration-first test harness that starts the full Nuxt/Ni
 - package.json
 - docs/ContributionGuide.md
 - scripts/test-server.mjs
-- tests/health.test.ts
+- tests/sequential/00-health.setup.test.ts
 - .gitignore
 
 ## Progress Log

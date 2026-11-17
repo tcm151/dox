@@ -36,7 +36,7 @@ Add paged loading behavior to home feed so users can load more content predictab
 - server/api/feed/following.ts
 - server/utils/feedPagination.ts
 - server/assets/schema.surql
-- tests/sequential/05-home-feed-pagination.test.ts
+- tests/sequential/09-feeds.server.test.ts
 
 ## Progress Log
 - 2026-10-24: Clarified offset pagination's non-snapshot tradeoff and completed controlled sort-order, following-topic pagination, score, bounds, and stable-record-set end-of-list coverage.

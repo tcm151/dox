@@ -32,14 +32,14 @@ Replace the existing report resolution and appeal storage model with the agreed 
 ## Notes
 - The target schema keeps `time`; its meaning is report creation time. Each complaint and history entry has its own event time.
 - History entries use the agreed fields: `action`, optional `message`, `user`, `time`, and flexible `changes`. The schema does not constrain `action` to a fixed enum.
-- Preserve the existing product behavior from [Ticket 0033](0033-moderation-appeals-mvp.md) and [Ticket 0063](completed/0063-report-queue-triage.md), except where this ticket explicitly replaces the storage contract or statuses.
+- Preserve the existing product behavior from [Ticket 0033](0033-moderation-appeals-mvp.md) and [Ticket 0063](0063-report-queue-triage.md), except where this ticket explicitly replaces the storage contract or statuses.
 - Review the in-progress `2026.6.1` migration before implementation. Consolidate only if it is still the intended unreleased target; otherwise add a forward migration without rewriting a released migration.
 
 ## Relevant Files
 - server/assets/schema.surql
 - server/assets/migrations/2026.6.1.surql
 - shared/types/index.ts
-- shared/utils/moderation.ts
+- app/utils/moderation.ts
 - server/utils/ReportManager.ts
 - server/api/report/
 - server/api/topic/[topic]/reports/
@@ -48,9 +48,9 @@ Replace the existing report resolution and appeal storage model with the agreed 
 - app/components/lists/ReportQueue.vue
 - app/components/lists/ReportQueueItem.vue
 - app/pages/moderator/reports.vue
-- app/pages/topic/[topic]/reports.vue
+- app/pages/topic/[topic]/tools/reports.vue
 - app/pages/appeal/[id].vue
-- tests/parallel/reports.test.ts
+- tests/parallel/reports.server.test.ts
 - docs/Architecture.md
 
 ## Progress Log

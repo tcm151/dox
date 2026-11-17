@@ -24,7 +24,7 @@ Create a shared, durable revision-history contract for posts and threads so late
 
 ## Notes
 - User-facing post and thread history, moderator review, and revert behavior are split into [Ticket 0094](0094-post-revision-history.md) and [Ticket 0095](0095-thread-revision-history.md).
-- Topic rule history remains separate in [Ticket 0017](../0017-topic-rules-history-page.md).
+- Topic rule history remains separate in [Ticket 0017](0017-topic-rules-history-page.md).
 
 ## Relevant Files
 - shared/types/index.ts

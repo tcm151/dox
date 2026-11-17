@@ -30,8 +30,8 @@ Audit application settings and nearby hard-coded behavior to identify options th
 ## Notes
 - This ticket covers audit and prioritization, not implementation of new settings or behavior changes.
 - Distinct from [Ticket 0079](0079-validate-application-settings.md), which establishes server-side validation, and [Ticket 0090](../0090-core-path-todo-audit.md), which triages TODOs and unfinished core paths.
-- Accepted implementation follow-ups are tracked in [Ticket 0099](0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](0100-strict-appsettings-schema.md), [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](../0102-enforce-feed-availability-settings.md), [Ticket 0103](../0103-enforce-voting-availability-settings.md), and [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md).
-- Existing feature work remains in [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md), [Ticket 0039](0039-link-publishing-foundation.md), [Ticket 0041](0041-link-detail-and-feed-integration.md), [Ticket 0042](../0042-audio-publication-lifecycle.md), [Ticket 0043](../0043-audio-detail-feed-and-cleanup.md), [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md), [Ticket 0047](../backlog/0047-poll-creation-model-and-publishing.md), and [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md); this avoids duplicate feature tickets.
+- Accepted implementation follow-ups are tracked in [Ticket 0099](0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](0100-strict-appsettings-schema.md), [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](0102-enforce-feed-availability-settings.md), [Ticket 0103](0103-enforce-voting-availability-settings.md), and [Ticket 0104](0104-enforce-feedback-settings-and-anonymous-submissions.md).
+- Existing feature work remains in [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md), [Ticket 0039](0039-link-publishing-foundation.md), [Ticket 0041](0041-link-detail-and-feed-integration.md), [Ticket 0042](../backlog/0042-audio-publication-lifecycle.md), [Ticket 0043](../backlog/0043-audio-detail-feed-and-cleanup.md), [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md), [Ticket 0047](../backlog/0047-poll-creation-model-and-publishing.md), and [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md); this avoids duplicate feature tickets.
 - Dependency order: this audit is complete; strictify AppSettings in Ticket 0100 before Ticket 0099 adds image-policy fields. Tickets 0101-0103 can proceed from this audit, while Ticket 0104 follows Ticket 0100.
 
 ## Preliminary Findings
@@ -46,13 +46,13 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Medium.
 - Finding: `Votes.vue` hides controls according to `voting.enabled`, `voting.misleading`, and `voting.negative`, but all four authenticated vote API handlers mutate vote state without checking those settings. Existing tests cover authentication and vote transitions, not disabled settings.
 - Evidence: `app/components/system/tags/Votes.vue`, `server/api/vote/[id]/positive.ts`, `server/api/vote/[id]/misleading.ts`, `server/api/vote/[id]/negative.ts`, `server/api/vote/[id]/reset.ts`, `tests/parallel/votes.server.test.ts`.
-- Recommendation: Enforce the settings in the API and add disabled-setting test cases. Tracked in [Ticket 0103](../0103-enforce-voting-availability-settings.md).
+- Recommendation: Enforce the settings in the API and add disabled-setting test cases. Tracked in [Ticket 0103](0103-enforce-voting-availability-settings.md).
 
 ### Feed Visibility Flags
 - Priority: Medium.
 - Finding: `feeds.search`, `topics`, `posts`, `threads`, `images`, and `audio` hide tabs in `app/pages/feed.vue`, but direct page routes and their data APIs do not check those settings. `feeds.discover` has no runtime consumer and the Home tab remains visible. `feeds.links`, `feeds.polls`, and `feeds.video` have no corresponding feed route or runtime consumer.
 - Evidence: `app/pages/admin/settings.vue`, `app/pages/feed.vue`, `app/pages/feed/home.vue`, `app/pages/feed/search.vue`, `app/pages/feed/topics.vue`, `app/pages/feed/posts.vue`, `app/pages/feed/threads.vue`, `app/pages/feed/gallery.vue`, `app/pages/feed/audio.vue`, `server/api/feed/search.ts`, `server/api/feed/popular.ts`, `server/api/feed/following.ts`, `server/api/feed/pinned.ts`, `server/api/post/index.ts`, `server/api/topic/index.ts`, `server/api/thread/index.ts`, `server/api/gallery/index.ts`, `server/api/audio/index.ts`.
-- Recommendation: Enforce active feed settings for direct routes and feed-specific APIs; preserve aggregate-feed behavior. Tracked in [Ticket 0102](../0102-enforce-feed-availability-settings.md). Link, audio, video, and poll feeds remain with their existing feature tickets.
+- Recommendation: Enforce active feed settings for direct routes and feed-specific APIs; preserve aggregate-feed behavior. Tracked in [Ticket 0102](0102-enforce-feed-availability-settings.md). Link, audio, video, and poll feeds remain with their existing feature tickets.
 
 ### Publishing Flags
 - Priority: Medium.
@@ -100,7 +100,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Medium.
 - Finding: `misc.feedback.enabled` hides feedback UI entry points, but `/api/feedback/submit` does not check the setting. `allowAnonymous` appears in the admin control, default, schema, and validator, but the client only offers submission to authenticated users and the API always calls `authenticateRequest`. The shared type narrows both fields to their default literals (`true` and `false`) although the admin exposes toggles and the validator accepts booleans.
 - Evidence: `app/app.vue`, `app/components/system/Navbar.client.vue`, `app/components/system/Feedback.client.vue`, `app/pages/contact.vue`, `app/pages/admin/settings.vue`, `server/api/feedback/submit.ts`, `tests/parallel/feedback.server.test.ts`.
-- Recommendation: Enforce `enabled` and implement anonymous submission when allowed, including an optional feedback author and abuse controls. Tracked in [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md); align the AppSettings field types in [Ticket 0100](0100-strict-appsettings-schema.md).
+- Recommendation: Enforce `enabled` and implement anonymous submission when allowed, including an optional feedback author and abuse controls. Tracked in [Ticket 0104](0104-enforce-feedback-settings-and-anonymous-submissions.md); align the AppSettings field types in [Ticket 0100](0100-strict-appsettings-schema.md).
 
 ## AppSettings Field Map
 
@@ -163,7 +163,7 @@ No additional AppSettings fields are recommended by this scan; the actionable mi
 - server/api/topic/[topic]/reports.ts
 - server/utils/ModerationManager.ts
 - server/utils/EmailSpool.ts
-- tests/sequential/06-email-spool.server.test.ts
+- tests/sequential/05-email-spool.server.test.ts
 - shared/utils/Validator.ts
 - app/components/system/Navbar.client.vue
 - app/pages/store.vue

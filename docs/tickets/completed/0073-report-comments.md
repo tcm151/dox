@@ -37,12 +37,12 @@ Allow users to report comments and let moderators review them through the existi
 - app/components/system/previews/CommentPreview.vue
 - app/components/lists/ReportQueueItem.vue
 - app/pages/post/components/CommentSection.vue
-- app/pages/post/components/ExtraOptions.vue
+- app/components/system/ExtraOptions.vue
 - shared/types/index.ts
-- shared/utils/moderation.ts
+- app/utils/moderation.ts
 - server/assets/schema.surql
 - server/assets/migrations/2026.6.2.surql
-- tests/parallel/reports.test.ts
+- tests/parallel/reports.server.test.ts
 
 ## Progress Log
 - 2026-10-30: Implemented comment reporting for post and gallery discussions, including inherited topic scope, moderator queue rendering, comment-only quarantine/restoration, preserved replies, and focused UI options. `yarn test` passed 65/65 and `yarn typecheck` passed.

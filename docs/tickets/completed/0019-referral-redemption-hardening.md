@@ -19,7 +19,7 @@ Harden referral redemption for idempotency and abuse resistance while keeping us
 - [x] Defer replay/race test coverage until the basic test-suite pattern is established in Ticket 0056.
 
 ## Notes
-- Referral-specific replay and concurrency tests are deferred; follow-up test work should use the patterns established in Ticket 0056.
+- The test conventions from [0056](0056-basic-api-test-coverage-and-conventions.md) are complete. Outstanding referral replay/concurrency acceptance is transferred to [0118](../0118-close-public-release-validation-gaps.md), which must inventory existing tests before adding cases.
 
 ## Relevant Files
 - app/pages/store.vue
@@ -31,6 +31,7 @@ Harden referral redemption for idempotency and abuse resistance while keeping us
 - shared/types/index.ts
 
 ## Progress Log
+- 2026-11-17: Linked deferred referral validation to 0118 now that the basic harness conventions are established. Historical implementation completion is unchanged; no tests were run.
 - 2026-10-23: Closed the implementation scope; referral-specific replay and concurrency tests are deferred until Ticket 0056 establishes basic test conventions.
 - 2026-10-23: Deferred referral-specific tests until the basic suite is expanded and establishes a reusable pattern; see Ticket 0056.
 - 2026-10-23: Completed claim-flow audit and validation/conflict handling; replay and concurrency tests are the remaining task.

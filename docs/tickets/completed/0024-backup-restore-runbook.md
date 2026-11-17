@@ -31,7 +31,7 @@ Document practical backup/restore steps so operators can recover service and dat
 - docs/SurrealDB.md
 - docs/ContributionGuide.md
 - docs/.env.example
-- server/plugins/01.migrations.server.ts
+- server/plugins/01.startup.server.ts
 
 ## Progress Log
 - 2026-10-25: Narrowed installer backups to the configured RocksDB directory only; media and `.env` are excluded. WSL verification remains isolated from the persistent fixture and VPS.

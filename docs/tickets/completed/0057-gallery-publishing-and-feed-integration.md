@@ -27,9 +27,9 @@ Make a group of uploaded images publish as one first-class gallery content item,
 ## Notes
 - One publish operation creates one gallery; it is not a persistent user-managed collection.
 - Keep the image table focused on uploaded media and attachment references. Gallery records own publication topics and feed engagement.
-- Coordinate mixed-feed changes with [Ticket 0003](completed/0003-feed-home-pagination.md); that ticket already tracks stable pagination and mixed-content sorting.
-- Reuse the media cleanup and high-risk route coverage work in [Ticket 0001](completed/0001-media-delete-atomicity.md), [Ticket 0052](completed/0052-image-attachment-ownership-and-refunds.md), and [Ticket 0022](completed/0022-contract-tests-high-risk-routes.md) rather than creating overlapping tickets.
-- Image thumbnail work remains separately tracked in [Ticket 0036](0036-generate-image-thumbnails-on-upload.md).
+- Coordinate mixed-feed changes with [Ticket 0003](0003-feed-home-pagination.md); that ticket already tracks stable pagination and mixed-content sorting.
+- Reuse the media cleanup and high-risk route coverage work in [Ticket 0001](0001-media-delete-atomicity.md), [Ticket 0052](0052-image-attachment-ownership-and-refunds.md), and [Ticket 0022](0022-contract-tests-high-risk-routes.md) rather than creating overlapping tickets.
+- Image thumbnail work remains separately tracked in [Ticket 0036](../backlog/0036-generate-image-thumbnails-on-upload.md).
 
 ## Relevant Files
 - server/assets/schema.surql
@@ -41,20 +41,18 @@ Make a group of uploaded images publish as one first-class gallery content item,
 - server/api/feed/search.ts
 - server/utils/mediaCleanup.ts
 - server/utils/feedPagination.ts
-- server/api/feed/search.ts
 - server/api/topic/[topic]/feed.ts
 - server/api/user/[id]/feed.ts
 - app/components/system/previews/MultiPreview.vue
 - app/components/system/previews/GalleryPreview.vue
-- app/components/system/previews/MultiPreview.vue
 - app/components/system/previews/SearchCommentPreview.vue
 - app/pages/gallery/[id].vue
-- app/pages/feed/images.vue
+- app/pages/feed/gallery.vue
 - app/pages/feed/home.vue
-- tests/sequential/05-home-feed-pagination.test.ts
-- tests/sequential/04-content-submissions.test.ts
-- tests/sequential/06-topic-query-resilience.test.ts
-- tests/parallel/search.test.ts
+- tests/sequential/09-feeds.server.test.ts
+- tests/parallel/galleries.server.test.ts
+- tests/parallel/topics.server.test.ts
+- tests/parallel/search.server.test.ts
 
 ## Progress Log
 - 2026-10-25: Added gallery owner deletion controls and integration coverage for publish ownership, detail/visit behavior, non-owner deletion, topic cleanup, image retention, and following-feed ordering across new/hot/top. `yarn test` and `yarn typecheck` pass.

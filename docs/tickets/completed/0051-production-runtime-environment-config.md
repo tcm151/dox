@@ -41,7 +41,7 @@ Make installed releases use the operator's environment configuration at startup 
 - docs/Quickstart.md
 - docs/ContributionGuide.md
 - server/plugins/01.startup.server.ts
-- server/utils/database.ts
+- server/utils/DatabaseQuery.ts
 - server/utils/media.ts
 
 ## Progress Log

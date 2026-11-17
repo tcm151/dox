@@ -27,7 +27,7 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 ## Notes
 - Runtime configuration was validated using the packaged Windows x64 release under two isolated deployment configurations; see [Ticket 0051](0051-production-runtime-environment-config.md).
 - [Ticket 0053](0053-trusted-proxy-rate-limit-client-addresses.md) implements trusted-proxy client addresses and its setup guidance is included in the quickstart.
-- Follow-up: Validate the Linux-native release artifact and service installation on a clean Linux host when that environment is available.
+- Follow-up: [0118](../0118-close-public-release-validation-gaps.md) tracks clean Linux-native installation, independent guide-following, previous-release upgrade, and recovery validation. Public download/README entrypoints and measured hosting guidance are separate under [0129](../0129-complete-public-adoption-entrypoints.md) and [0131](../0131-document-pilot-hosting-requirements-and-limits.md).
 - Keep this practical and copy-paste friendly.
 - Warning: do not package a live `.env`; upgrades rely on shared `/root/forum/.env` remaining outside versioned release folders.
 - Installer commands: `install` default, `run`, `status`, `stop`, and `restart`.
@@ -54,6 +54,7 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - package.json
 
 ## Progress Log
+- 2026-11-17: Linked the open Linux/install/upgrade validation and operator adoption follow-ups. Preserved completed documentation scope; no new deployment validation was performed.
 - 2026-10-22: Completed the quickstart scope after validating packaged runtime configuration through Ticket 0051 and adding trusted-proxy guidance from Ticket 0053. Deferred clean Linux-host installation validation as a separate follow-up because that environment is not currently available.
 - 2026-10-21: Linked runtime environment loading and trusted-proxy rate limiting from the application review; runtime configuration is a prerequisite for clean-host validation.
 - 2026-09-28: Made startup reject empty databases without complete default account credentials and aligned setup documentation with that requirement.

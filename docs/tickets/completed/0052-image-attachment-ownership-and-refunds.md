@@ -20,7 +20,7 @@ Prevent a post author from deleting another user's images or collecting their up
 - [x] Separate permission to delete a post from permission to delete each attached image.
 - [x] Check remaining references before deleting shared media, or prevent reuse if that is the chosen policy.
 - [x] Calculate refunds from the stored uploader and upload cost rather than the post author or acting user.
-- [ ] Test cross-user attachment requests, shared images, administrator deletion, duplicate IDs, and repeated or concurrent deletion.
+- [x] Transfer outstanding cross-user attachment, shared-image, administrator deletion, duplicate-ID, and repeated/concurrent deletion test acceptance to [0118](../0118-close-public-release-validation-gaps.md).
 - [x] Coordinate record deletion and refund handling with the cleanup strategy in Ticket 0001.
 
 ## Notes
@@ -31,6 +31,7 @@ Prevent a post author from deleting another user's images or collecting their up
 - The single-refund and concurrent-request requirement is supported by transaction and delete-result checks, but concurrency behavior is not runtime-verified.
 - Automated tests were deferred per user request; completion is based on code review and diagnostics, not runtime test coverage.
 - [Ticket 0001](0001-media-delete-atomicity.md) covers filesystem/database consistency and cleanup retries.
+- The test task above records an explicit transfer, not newly completed runtime coverage. Existing tests must be inventoried before filling the remaining cases.
 
 ## Relevant Files
 - server/api/post/add.ts
@@ -42,6 +43,7 @@ Prevent a post author from deleting another user's images or collecting their up
 - server/assets/schema.surql
 
 ## Progress Log
+- 2026-11-17: Transferred deferred ownership/refund validation to 0118 and reconciled the completed implementation checklist without claiming tests passed.
 - 2026-10-23: Closed after reviewing ownership, shared-reference, atomic attachment, and uploader-refund behavior. Automated tests remain deferred per request.
 - 2026-10-23: Added shared-reference guards to post and direct image deletion; refund credits use the stored uploader. Focused integration coverage remains.
 - 2026-10-23: Added owned-or-public attachment checks for posts, threads, and drafts. Confirmed image publishing already requires uploader ownership.

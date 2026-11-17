@@ -6,7 +6,7 @@
 - Next: Define the chain-lock contract and bounded ancestor semantics.
 
 ## Dependencies
-- [0018](completed/0018-thread-comment-lock-slowmode.md): Complete local thread lock and slow-mode moderation controls first.
+- [0018](../completed/0018-thread-comment-lock-slowmode.md): Complete local thread lock and slow-mode moderation controls first.
 
 ## Goal
 Allow moderators to apply a lock to a thread and its descendants without changing local item-lock behavior. Make inherited lock state visible and enforce it consistently for descendant replies and quotes.
@@ -27,10 +27,10 @@ Allow moderators to apply a lock to a thread and its descendants without changin
 ## Notes
 - Ticket 0018 currently supports item-only thread locks and root-thread slow mode.
 - Keep thread pagination limits and load-more behavior under Ticket 0075.
-- Consider the computation-depth constraints captured by Ticket 0076 when selecting related thread records.
+- Coordinate bounded reply-chain loading with Ticket 0075 and preserve the explicit field projections established by Ticket 0076.
 
 ## Relevant Files
-- app/components/system/ModerationControls.vue
+- app/components/system/ExtraOptions.vue
 - app/components/system/ModerationState.vue
 - app/pages/thread/[id].vue
 - app/pages/thread/components/ThreadReply.vue
@@ -39,7 +39,7 @@ Allow moderators to apply a lock to a thread and its descendants without changin
 - server/api/thread/[id]/reply.ts
 - server/assets/schema.surql
 - server/utils/ModerationManager.ts
-- tests/parallel/threads.test.ts
+- tests/parallel/threads.server.test.ts
 
 ## Progress Log
 - 2026-11-16: Paused by request before implementation; current thread locks remain item-only.

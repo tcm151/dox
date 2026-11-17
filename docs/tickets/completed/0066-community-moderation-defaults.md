@@ -29,7 +29,7 @@ Let topic moderators configure supported per-topic moderation defaults using doc
 - Posting cooldown applies when any selected topic is still within its interval. Report priority is calculated for pending or appealed reports in topic-scoped queues and never automatically hides or removes content.
 
 ## Relevant Files
-- app/pages/topic/[topic]/profile.vue
+- app/pages/topic/[topic]/tools/profile.vue
 - server/api/topic/[topic]/update.ts
 - server/api/topic/[topic]/reports.ts
 - server/assets/schema.surql
@@ -39,8 +39,8 @@ Let topic moderators configure supported per-topic moderation defaults using doc
 - server/api/post/
 - server/api/thread/
 - server/api/gallery/publish.ts
-- tests/parallel/topics.test.ts
-- tests/parallel/reports.test.ts
+- tests/parallel/topics.server.test.ts
+- tests/parallel/reports.server.test.ts
 
 ## Progress Log
 - 2026-11-09: Implemented per-topic cooldown and distinct-reporter report priority, documented defaults and fallback behavior, and verified with `yarn test` (78/78), moderation tests (14/14), and `yarn typecheck`.

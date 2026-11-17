@@ -27,7 +27,7 @@ Make active feed settings control direct access to their dedicated feed pages an
 ## Notes
 - Admin descriptions distinguish dedicated feeds from the aggregate Home feed; a disabled dedicated feed must not implicitly disable content publishing or aggregate discovery.
 - The dedicated Links page follows `feeds.links`, but `/api/link` remains unfiltered as specified by completed [Ticket 0041](0041-link-detail-and-feed-integration.md). Polls and video do not yet have complete feed workflows; their settings remain with [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md) and [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md).
-- Audio feed behavior remains with [Ticket 0043](../0043-audio-detail-feed-and-cleanup.md).
+- Audio feed behavior remains with [Ticket 0043](../backlog/0043-audio-detail-feed-and-cleanup.md).
 
 ## Relevant Files
 - app/pages/feed.vue

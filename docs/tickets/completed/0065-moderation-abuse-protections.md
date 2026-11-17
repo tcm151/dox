@@ -32,9 +32,9 @@ Apply appropriate rate limits and abuse protections to moderation-adjacent write
 - server/api/post/[id]/report.ts
 - server/api/gallery/[id]/report.ts
 - server/api/image/[id]/report.ts
-- tests/parallel/reports.test.ts
-- tests/parallel/moderation.test.ts
-- tests/sequential/03.migrations.test.ts
+- tests/parallel/reports.server.test.ts
+- tests/parallel/moderation.server.test.ts
+- tests/sequential/02-migrations.setup.test.ts
 - server/assets/migrations/2026.6.1.surql
 
 ## Progress Log

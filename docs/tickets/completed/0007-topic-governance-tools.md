@@ -25,7 +25,7 @@ Deliver moderator topic governance controls for lifecycle, safety, and content c
 
 ## Notes
 - Existing moderation-request approvals can add a user to a topic's moderator list; Ticket 0086 covers roster management outside that workflow.
-- Topic rename remains in the planned backlog as [Ticket 0084](backlog/0084-topic-rename-requests.md) and is not required for this work.
+- Topic rename remains paused in the backlog as [Ticket 0084](../backlog/0084-topic-rename-requests.md) and is not required for this work.
 - App-wide pins are admin-managed; topic-scoped pins are managed by assigned topic moderators and admins.
 - Topic rules revision history remains tracked separately in Ticket 0017.
 

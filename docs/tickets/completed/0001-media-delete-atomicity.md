@@ -16,15 +16,15 @@ Keep image files, database records, and token refunds consistent across direct i
 - [x] Deleting an image cannot leave DB and filesystem in conflicting states.
 - [x] Deleting a post uses the same cleanup path instead of deleting image records without removing files.
 - [x] Partial failures can be retried without duplicate refunds or cleanup work.
-- [ ] Error responses remain clear and consistent.
+- [x] Transfer remaining error-response consistency work to [0055](../0055-consistent-database-error-mapping.md), without claiming that mapping is implemented.
 - [x] Auth and role checks still enforce current behavior.
-- [ ] Tests cover success and partial failure paths.
+- [x] Transfer outstanding partial-failure and retry test acceptance to [0118](../0118-close-public-release-validation-gaps.md); historical successful-path evidence remains below.
 
 ## Tasks
 - [x] Choose strategy (DB-first with a durable mediaTrash cleanup queue).
 - [x] Use the shared cleanup strategy from the image and post delete handlers.
 - [x] Make cleanup and refund retries safe, including when the file is already missing.
-- [ ] Add tests for filesystem failure, database failure, retries, and post attachment cleanup.
+- [x] Record filesystem failure, database failure, retry, and post attachment cleanup tests in [0118](../0118-close-public-release-validation-gaps.md).
 - [x] Update docs only if runtime behavior changes.
 
 ## Notes
@@ -35,12 +35,13 @@ Keep image files, database records, and token refunds consistent across direct i
 - Retry behavior was reviewed in code but not covered by automated tests. Tests were deferred per user request.
 - Clear and consistent error mapping is tracked separately in [Ticket 0055](../0055-consistent-database-error-mapping.md).
 - [Ticket 0052](0052-image-attachment-ownership-and-refunds.md) covers ownership, shared references, and refund eligibility.
+- This ticket's completed scope is the cleanup implementation and documented review. Deferred validation is explicitly transferred, not newly executed or treated as passing.
 
 ## Relevant Files
 - server/api/image/[id]/delete.ts
 - server/api/post/[id]/delete.ts
 - server/utils/mediaCleanup.ts
-- server/utils/scheduledTasks.ts
+- server/utils/ScheduledTaskManager.ts
 - server/plugins/01.startup.server.ts
 - server/plugins/cleanup.ts
 - server/assets/migrations/2026.6.0.surql
@@ -49,6 +50,7 @@ Keep image files, database records, and token refunds consistent across direct i
 - shared/types/index.ts
 
 ## Progress Log
+- 2026-11-17: Reconciled completed scope by transferring error mapping to 0055 and outstanding failure/retry tests to 0118. Updated the scheduler path; no runtime validation was performed.
 - 2026-10-23: Closed after cleanup queue integration and code review of retry behavior. Automated failure/retry tests remain deferred by request; error mapping moved to Ticket 0055.
 - 2026-10-23: Reviewed retry behavior: record deletion, uploader refund, and queue insertion share one transaction; filesystem cleanup tolerates missing files and retains queue records after failures. Tests remain deferred.
 - 2026-10-23: Post deletion now enqueues each eligible image in mediaTrash, coordinating record deletion and refunds with the direct-image cleanup pipeline. Failure/retry coverage remains open.

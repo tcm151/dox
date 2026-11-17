@@ -38,7 +38,7 @@ Replace client-supplied thread depth and breadth values with server-owned pagina
 - server/api/thread/[id]/index.ts
 - server/assets/schema.surql
 - shared/types/index.ts
-- tests/parallel/threads.test.ts
+- tests/parallel/threads.server.test.ts
 
 ## Progress Log
 - 2026-11-01: Review confirmed direct-reply breadth is unbounded; include it in the initial response limits and continuation design.

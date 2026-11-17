@@ -41,8 +41,8 @@ Let users control notification behavior from settings without requiring moderato
 - Keep SMTP credentials in environment configuration, not app settings. Account confirmation and password-reset emails are transactional and should not be disabled by notification preferences.
 - The worker is scheduled every 10 minutes and currently assumes one worker; multi-worker claiming/leases are deferred.
 - The thread-reply integration test verifies the email preference default and independent in-app/email queueing behavior.
-- The email spool tests cover successful delivery, retry scheduling, and terminal failure after the configured retry count. Live SMTP delivery is not exercised by the integration suite.
-- `tests/test-database-query.ts` provides configurable query handlers and captures SQL and bindings for reusable tests.
+- The email spool tests cover successful delivery, retry scheduling, and terminal failure after the configured retry count. Live SMTP delivery is not exercised by the integration suite; [0130](../0130-verify-smtp-and-first-upload-onboarding.md) tracks real confirmation/reset/notification delivery and first-upload onboarding.
+- `tests/utils/test-database-query.ts` provides configurable query handlers and captures SQL and bindings for reusable tests.
 
 ## Relevant Files
 - app/pages/settings/preferences.vue
@@ -61,11 +61,12 @@ Let users control notification behavior from settings without requiring moderato
 - server/assets/schema.surql
 - server/assets/migrations/2026.6.2.surql
 - server/assets/templates/notification.html
-- tests/sequential/06-email-spool.test.ts
-- tests/sequential/07-notification-email.test.ts
-- tests/test-database-query.ts
+- tests/sequential/05-email-spool.server.test.ts
+- tests/sequential/07-notifications.server.test.ts
+- tests/utils/test-database-query.ts
 
 ## Progress Log
+- 2026-11-17: Linked remaining live SMTP verification to Ticket 0130 without reopening the completed preference/spool scope or claiming new runtime evidence.
 - 2026-11-09: Added coverage for successful sends, retry scheduling, and terminal failure, and extracted a reusable `DatabaseQuery` test stub beside the shared test setup. `yarn typecheck` passed; `yarn test tests/parallel/reports.test.ts` passed (22/22). The full `yarn test` run reported failures in parallel report, moderation, search, and thread tests (74/81 passed); live SMTP delivery remains unverified.
 - 2026-11-09: Added email notification preferences (default off), settings controls and validation, and preference-gated notification email queueing. The thread-reply integration test covers the enabled/disabled cases independently of in-app notifications. `yarn typecheck` and `yarn test` pass (78/78). Retry/failure transition tests and live SMTP verification remain.
 - 2026-11-09: Added app-configurable spool defaults and admin controls, injected the settings manager into the scheduled worker, enforced daily/batch/retry limits, and added spool settings tests. The schema and migration now agree on the attempt-count field; `yarn typecheck` and `yarn test` pass (77/77). Notification preference fields and queue integration remain.

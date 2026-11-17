@@ -5,6 +5,9 @@
 - Priority: Low
 - Next: Define the revision record, including the editor and timestamp for each rules or summary change
 
+## Dependencies
+- [0007](../completed/0007-topic-governance-tools.md): Revision capture and history views build on the current topic rules and summary workflow.
+
 ## Goal
 Provide an auditable, user-visible revision history for topic rules and summary changes. Current rules and summary editing and display are covered by topic governance work; this ticket covers their history.
 
@@ -24,10 +27,11 @@ Provide an auditable, user-visible revision history for topic rules and summary 
 
 ## Relevant Files
 - app/pages/topic/[topic]/index.vue
-- app/pages/topic/[topic]/profile.vue
+- app/pages/topic/[topic]/tools/profile.vue
 - server/api/topic/[topic]/index.ts
 - server/api/topic/[topic]/update.ts
 
 ## Progress Log
+- 2026-11-17: Recorded the completed governance prerequisite and updated the topic tools path; revision history remains unimplemented.
 - 2026-11-12: Narrowed the remaining scope to revision history; current rules editing and display are implemented under Ticket 0007.
 - 2026-04-13: Ticket created.

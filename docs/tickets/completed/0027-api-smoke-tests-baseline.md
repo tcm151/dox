@@ -32,11 +32,11 @@ Add minimal API smoke tests for auth and core content/moderation flows.
 - server/api/post/add.ts
 - server/api/thread/[id]/reply.ts
 - server/api/report/send.ts
-- tests/sequential/01-default-user.test.ts
-- tests/sequential/04-example-users.test.ts
-- tests/parallel/posts.test.ts
-- tests/parallel/threads.test.ts
-- tests/parallel/reports.test.ts
+- tests/sequential/01-default-user.setup.test.ts
+- tests/sequential/06-example-data.setup.test.ts
+- tests/parallel/posts.server.test.ts
+- tests/parallel/threads.server.test.ts
+- tests/parallel/reports.server.test.ts
 - package.json
 
 ## Progress Log

@@ -44,7 +44,7 @@ Give moderators controls to limit replies on posts, galleries, comments, and thr
 - Each user can submit once per selected interval on the moderated item. Comments on a post/gallery share that item's cooldown; replies share the cooldown of the exact thread item they target. Quotes are separate root threads and are not rate-limited as replies.
 - Thread and comment reporting already use the shared report workflow; this ticket focuses on interaction controls.
 - Comment context is a post or gallery; comment replies use `replyTo`. Thread chains use `replyTo`, while quotes create a separate root thread.
-- Recursive thread-chain locking is deferred to [Ticket 0077](0077-recursive-thread-chain-locks.md); thread locks in this ticket are item-only.
+- Recursive thread-chain locking is deferred to [Ticket 0077](../backlog/0077-recursive-thread-chain-locks.md); thread locks in this ticket are item-only.
 
 ## Relevant Files
 - app/pages/thread/[id].vue
@@ -65,11 +65,11 @@ Give moderators controls to limit replies on posts, galleries, comments, and thr
 - server/assets/migrations/
 - server/assets/schema.surql
 - shared/types/index.ts
-- tests/parallel/posts.test.ts
-- tests/parallel/galleries.test.ts
-- tests/parallel/moderation.test.ts
-- tests/parallel/settings.test.ts
-- tests/parallel/threads.test.ts
+- tests/parallel/posts.server.test.ts
+- tests/parallel/galleries.server.test.ts
+- tests/parallel/moderation.server.test.ts
+- tests/parallel/settings.server.test.ts
+- tests/parallel/threads.server.test.ts
 
 ## Progress Log
 - 2026-11-01: Completed moderation controls and state refresh across post, gallery, comment, and thread surfaces; aligned audit review with the admin-only ModeratorLog convention.

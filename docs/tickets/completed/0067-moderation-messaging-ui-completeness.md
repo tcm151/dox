@@ -32,11 +32,11 @@ Ensure moderation and messaging screens expose only complete, usable workflows b
 - app/pages/moderator/topics.vue
 - app/pages/moderator/reports.vue
 - app/pages/moderator/requests.vue
-- app/pages/topic/[topic]/reports.vue
-- app/pages/topic/[topic]/profile.vue
+- app/pages/topic/[topic]/tools/reports.vue
+- app/pages/topic/[topic]/tools/profile.vue
 - app/pages/inbox.vue
 - app/pages/thread/[id].vue
-- app/pages/thread/components/ExtraOptions.vue
+- app/components/system/ExtraOptions.vue
 - app/components/lists/ReportQueue.vue
 - app/components/lists/ReportQueueItem.vue
 - app/utils/moderation.ts

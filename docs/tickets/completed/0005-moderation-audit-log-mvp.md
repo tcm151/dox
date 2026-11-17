@@ -25,7 +25,7 @@ Track core moderation actions with enough detail to support accountability and r
 - app/pages/admin.vue
 - app/pages/admin/logs.vue
 - server/api/admin/logs/moderator.ts
-- tests/parallel/moderation.test.ts
+- tests/parallel/moderation.server.test.ts
 - shared/types/index.ts
 - server/assets/migrations/2026.6.1.surql
 
