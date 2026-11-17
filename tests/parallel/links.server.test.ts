@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { Link } from "../../shared/types"
+import type { Comment, Link } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser } from "../utils/test-server"
 
@@ -22,6 +22,7 @@ function linkRequest(topic: string, title = `Link publishing ${Date.now()}`) {
 it("creates and retrieves a link and applies topic cooldowns", async () => {
     const topic = nextTopicId()
     const createdIds: string[] = []
+    const commentIds: string[] = []
     await admin.query(`CREATE ${topic};`)
 
     try {
@@ -44,6 +45,24 @@ it("creates and retrieves a link and applies topic cooldowns", async () => {
         expect(fetched.id).toBe(link.id)
         expect(fetched.comments).toEqual([])
 
+        const commentResponse = await admin.fetchRaw<Comment>("/api/comment/add", {
+            method: "POST",
+            body: { context: link.id, replyTo: link.id, content: `Link comment context ${Date.now()}` },
+        })
+        expectStatus(commentResponse, 200, "link comment creation")
+        const comment = commentResponse._data!
+        const commentId = extractId(comment.id)
+        commentIds.push(commentId)
+
+        const notifications = await admin.fetch<{ notifications: Array<{ context: string }> }>(
+            "/api/profile/notifications?dismissed=false&amount=1000",
+        )
+        expect(notifications.notifications.some(notification => notification.context === comment.id)).toBe(true)
+
+        const commentRouteResponse = await admin.fetchRaw(`/comment/${commentId}`, { redirect: "manual" })
+        expectStatus(commentRouteResponse, 302, "link comment redirect stage")
+        expect(commentRouteResponse.headers.get("location")).toBe(`/link/${extractId(link.id)}#${encodeURIComponent(comment.id)}`)
+
         const repeated = await admin.fetchRaw<Link>("/api/link/add", {
             method: "POST",
             body: linkRequest(topic),
@@ -53,6 +72,7 @@ it("creates and retrieves a link and applies topic cooldowns", async () => {
     }
     finally {
         await admin.query([
+            ...commentIds.map(id => `DELETE notification WHERE context = comment:${id}; DELETE comment:${id};`),
             ...createdIds.map(id => `DELETE link:${id};`),
             `DELETE ${topic};`,
         ].join("\n"))

@@ -87,6 +87,7 @@ it("soft-deletes links with comments using status", async () => {
     finally {
         await admin.query([
             `DELETE notification WHERE context = ${linkRecord};`,
+            ...(commentId ? [`DELETE notification WHERE context = comment:${commentId};`] : []),
             ...(commentId ? [`DELETE comment:${commentId};`] : []),
             `DELETE ${linkRecord};`,
         ].join("\n"))
@@ -279,6 +280,7 @@ it("persists supported tags while keeping comments untagged", async () => {
     }
     finally {
         await admin.query([
+            ...(commentId ? [`DELETE notification WHERE context = comment:${commentId};`] : []),
             ...(commentId ? [`DELETE comment:${commentId};`] : []),
             `DELETE notification WHERE context = post:${postId};`,
             `DELETE post:${postId};`,
@@ -446,6 +448,7 @@ it("traverses post comments and rejects hard deletion while comments remain", as
     }
     finally {
         await admin.query([
+            ...(commentId ? [`DELETE notification WHERE context = comment:${commentId};`] : []),
             ...(commentId ? [`DELETE comment:${commentId};`] : []),
             `DELETE post:${postId};`,
             `DELETE notification WHERE context = post:${postId};`,
@@ -509,6 +512,7 @@ it("enforces post discussion and direct comment locks", async () => {
     finally {
         await admin.query([
             `DELETE moderation WHERE subject = post:${postId} OR subject IN [${commentIds.map(id => `comment:${id}`).join(", ")}];`,
+            ...(commentIds.length ? [`DELETE notification WHERE context IN [${commentIds.map(id => `comment:${id}`).join(", ")}];`] : []),
             ...commentIds.reverse().map(id => `DELETE comment:${id};`),
             `DELETE notification WHERE context = post:${postId};`,
             `DELETE post:${postId};`,
@@ -576,6 +580,7 @@ it("enforces per-user discussion slow mode for nested and concurrent comments", 
     }
     finally {
         await admin.query([
+            ...(commentIds.length ? [`DELETE notification WHERE context IN [${commentIds.map(id => `comment:${id}`).join(", ")}];`] : []),
             `DELETE notification WHERE context IN [post:${firstPostId}, post:${secondPostId}];`,
             ...commentIds.map(id => `DELETE comment:${id};`),
             `DELETE moderation WHERE subject IN [post:${firstPostId}, post:${secondPostId}];`,

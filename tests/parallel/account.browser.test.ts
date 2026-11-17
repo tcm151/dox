@@ -189,6 +189,160 @@ test("clears previous inbox data when the account refresh fails", async ({ authe
     }
 })
 
+test("renders both inbox empty states", async ({ authenticatedPage: page }) => {
+    await page.route(url => url.pathname === "/api/profile/notifications", async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ total: 0, notifications: [] }),
+        })
+    })
+    await page.goto("/inbox")
+
+    await expect(page.getByText("You have no unread notifications.", { exact: true })).toBeVisible()
+    await page.locator("label.toggle").click()
+    await expect(page.getByText("You don't have any notifications.", { exact: true })).toBeVisible()
+})
+
+test("dismisses inbox notifications individually and in bulk", async ({ authenticatedPage: page }) => {
+    const suffix = Date.now()
+    const singleMarker = `Browser single dismiss ${suffix}`
+    const bulkMarker = `Browser bulk dismiss ${suffix}`
+    const notifications = [
+        {
+            id: `notification:browserSingle${suffix}`,
+            recipient: "user:browser",
+            context: "thread:browserSingle",
+            message: singleMarker,
+            time: new Date().toISOString(),
+            viewed: false,
+        },
+        {
+            id: `notification:browserBulk${suffix}`,
+            recipient: "user:browser",
+            context: "thread:browserBulk",
+            message: bulkMarker,
+            time: new Date().toISOString(),
+            viewed: false,
+        },
+    ]
+
+    await page.route(url => url.pathname.startsWith("/api/profile/notifications"), async (route) => {
+        const url = new URL(route.request().url())
+        if (url.pathname === "/api/profile/notifications") {
+            const showDismissed = url.searchParams.get("dismissed") === "true"
+            const visible = notifications.filter(notification => showDismissed || !notification.viewed)
+            const amount = Number(url.searchParams.get("amount"))
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify({ total: visible.length, notifications: visible.slice(0, amount) }),
+            })
+            return
+        }
+
+        if (url.pathname === "/api/profile/notifications/dismiss") {
+            for (const notification of notifications) notification.viewed = true
+        }
+        else if (url.pathname.endsWith("/dismiss")) {
+            const parts = url.pathname.split("/")
+            const id = parts[4]
+            const notification = notifications.find(item => extractId(item.id) === id)
+            if (notification) notification.viewed = true
+        }
+
+        await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(true),
+        })
+    })
+    await page.goto("/inbox")
+
+    const singleCard = page.locator("section article.box").filter({ hasText: singleMarker })
+    await expect(singleCard).toBeVisible()
+    await singleCard.getByText("Dismiss", { exact: true }).click()
+    await expect(singleCard).toHaveCount(0)
+
+    const dismissedToggle = page.locator("label.toggle")
+    await dismissedToggle.click()
+    await expect(singleCard).toBeVisible()
+    await expect(singleCard.getByText("Dismiss", { exact: true })).toHaveCount(0)
+    await dismissedToggle.click()
+
+    await expect(page.getByText(bulkMarker, { exact: false })).toBeVisible()
+    await page.getByRole("button", { name: "Dismiss All Unread" }).click()
+    await expect(page.getByText(singleMarker, { exact: false })).toHaveCount(0)
+    await expect(page.getByText(bulkMarker, { exact: false })).toHaveCount(0)
+    await expect(page.getByText("You have no unread notifications.", { exact: true })).toBeVisible()
+
+    await dismissedToggle.click()
+    await expect(page.getByText(singleMarker, { exact: false })).toBeVisible()
+    await expect(page.getByText(bulkMarker, { exact: false })).toBeVisible()
+})
+
+test("opens a comment notification at its discussion anchor", async ({ authenticatedPage: page, exampleServer }) => {
+    const adminToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
+    const suffix = Date.now()
+    const marker = `Browser comment notification ${suffix}`
+    let postId: string | undefined
+    let rootCommentId: string | undefined
+    let replyId: string | undefined
+
+    try {
+        await page.goto("/feed/home")
+        const postResponse = await page.request.post(apiUrl(page, "/api/post/add"), {
+            headers: { Authorization: adminToken },
+            data: {
+                title: `Comment notification target ${suffix}`,
+                content: "Comment notification browser test.",
+                topics: [],
+                images: [],
+            },
+        })
+        expect(postResponse.ok()).toBe(true)
+        const post = await postResponse.json() as { id: string }
+        postId = extractId(post.id)
+
+        const rootResponse = await page.request.post(apiUrl(page, "/api/comment/add"), {
+            headers: { Authorization: adminToken },
+            data: { context: post.id, replyTo: post.id, content: `Comment root ${suffix}` },
+        })
+        expect(rootResponse.ok()).toBe(true)
+        const root = await rootResponse.json() as { id: string }
+        rootCommentId = extractId(root.id)
+
+        const replyResponse = await page.request.post(apiUrl(page, "/api/comment/add"), {
+            headers: { Authorization: exampleServer.users.commentAuthor.accessToken },
+            data: { context: post.id, replyTo: root.id, content: marker },
+        })
+        expect(replyResponse.ok()).toBe(true)
+        const reply = await replyResponse.json() as { id: string }
+        replyId = extractId(reply.id)
+
+        await page.goto("/inbox")
+        const notification = page.locator("section article.box").filter({ hasText: marker })
+        await expect(notification).toBeVisible()
+        await notification.getByText("Comment", { exact: true }).click()
+        await expect(page).toHaveURL(new RegExp(`/post/${postId}#comment:${encodeURIComponent(replyId)}`))
+        await expect(page.getByText(marker, { exact: true })).toBeVisible()
+    }
+    finally {
+        const statements = [
+            ...(replyId ? [`DELETE notification WHERE context = comment:${replyId};`, `DELETE comment:${replyId};`] : []),
+            ...(rootCommentId ? [`DELETE notification WHERE context = comment:${rootCommentId};`, `DELETE comment:${rootCommentId};`] : []),
+            ...(postId ? [`DELETE notification WHERE context = post:${postId};`, `DELETE post:${postId};`] : []),
+        ]
+        if (statements.length > 0) {
+            const response = await page.request.post(apiUrl(page, "/api/developer/database/query"), {
+                headers: { Authorization: adminToken },
+                data: { query: statements.join("\n") },
+            })
+            expect(response.ok()).toBe(true)
+        }
+    }
+})
+
 test("updates registration validation as fields change", async ({ page }) => {
     await page.goto("/register")
 

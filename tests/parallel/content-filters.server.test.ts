@@ -410,7 +410,7 @@ async function assertBlockedInteractions(blocker: FilterTestAccount, blocked: Fi
     }
     finally {
         const records = [...commentIds, ...threadIds, ...postIds]
-        const notificationContexts = [...postIds, ...threadIds]
+        const notificationContexts = [...postIds, ...threadIds, ...commentIds]
         const cleanup = [
             notificationContexts.length > 0
                 ? `DELETE notification WHERE context IN [${notificationContexts.join(", ")}];`

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
                 viewed = true;
             }
             ELSE {
-                RETURN false;
+                fn::http(404, "Notification not found.");
             }
         `)
         .addRecord("notification", `notification:${id}`)

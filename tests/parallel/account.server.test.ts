@@ -48,14 +48,15 @@ async function cleanupTestData(
     accessToken: string,
     postIds: string[],
     threadIds: string[],
+    commentIds: string[] = [],
 ) {
-    const ids = [...postIds, ...threadIds]
+    const notificationContexts = [...postIds, ...threadIds, ...commentIds]
     const statements = [
+        ...(notificationContexts.length ? [`DELETE notification WHERE context IN [${notificationContexts.join(", ")}];`] : []),
         `DELETE comment WHERE user = ${user.id}${postIds.length ? ` OR context IN [${postIds.join(", ")}]` : ""};`,
         ...threadIds.slice(1).map(id => `DELETE ${id};`),
         ...threadIds.slice(0, 1).map(id => `DELETE ${id};`),
         ...(postIds.length ? [`DELETE post WHERE id IN [${postIds.join(", ")}];`] : []),
-        ...(ids.length ? [`DELETE notification WHERE context IN [${ids.join(", ")}];`] : []),
         `DELETE session WHERE id = ${accessToken};`,
         `DELETE account WHERE user = ${user.id};`,
         `DELETE userSettings WHERE user = ${user.id};`,
@@ -191,6 +192,7 @@ it("wipes interacted submissions and permanently deletes unreferenced submission
             account.accessToken,
             [retainedPost.id, unreferencedPost.id, otherPost.id],
             [retainedThread.id, quote.id],
+            [otherComment.id],
         )
     }
 })

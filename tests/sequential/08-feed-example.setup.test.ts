@@ -31,6 +31,7 @@ it("seeds representative feed content for browser tests", async () => {
     })
     expectStatus(commentResponse, 200)
     expect(commentResponse._data?.content).toBe("A representative comment seeded for browser integration tests.")
+    await admin.query(`DELETE notification WHERE context = ${commentResponse._data!.id};`)
 
     const threadResponse = await threadAuthor.fetchRaw<Thread>("/api/thread/add", {
         method: "POST",

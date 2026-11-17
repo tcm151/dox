@@ -405,7 +405,7 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
             ...(auditTargets.length ? [`DELETE moderatorLog WHERE target IN [${auditTargets.join(", ")}];`] : []),
             ...(contentSubjects.length ? [`DELETE moderation WHERE subject IN [${contentSubjects.join(", ")}];`] : []),
             ...(threadId ? [`DELETE moderation WHERE subject = thread:${threadId};`, `DELETE thread:${threadId};`] : []),
-            ...(commentId ? [`DELETE notification WHERE context = post:${postId};`, `DELETE comment:${commentId};`] : []),
+            ...(commentId ? [`DELETE notification WHERE context = comment:${commentId};`, `DELETE notification WHERE context = post:${postId};`, `DELETE comment:${commentId};`] : []),
             ...(postId ? [`DELETE post:${postId};`] : []),
             `DELETE gallery:${galleryId};`,
             `DELETE topic:${topicId};`,

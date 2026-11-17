@@ -174,7 +174,9 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             ...(commentId ? [`comment:${commentId}`] : []),
             ...(galleryCommentId ? [`comment:${galleryCommentId}`] : []),
         ]
-        if (commentIds.length) await admin.query(`DELETE [${commentIds.join(", ")}];`)
+        if (commentIds.length) {
+            await admin.query(`DELETE notification WHERE context IN [${commentIds.join(", ")}]; DELETE [${commentIds.join(", ")}];`)
+        }
 
         const recordIds = [
             ...(postId ? [`post:${postId}`] : []),
@@ -412,7 +414,9 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
         expectStatus(reversedRange, 400, await reversedRange.clone().text())
     }
     finally {
-        if (commentId) await admin.query(`DELETE comment:${commentId};`)
+        if (commentId) {
+            await admin.query(`DELETE notification WHERE context = comment:${commentId}; DELETE comment:${commentId};`)
+        }
         if (postId) await admin.query(`DELETE post:${postId};`)
         await admin.query(`DELETE topic:${topicId};`)
     }

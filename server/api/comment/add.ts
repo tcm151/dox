@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const body = await readBody<CreateCommentRequest>(event)
     if (!body.context) {
-        throw createError({ statusCode: 400, statusMessage: "A post or gallery context is required." })
+        throw createError({ statusCode: 400, statusMessage: "A discussion context is required." })
     }
     await UserSettingsManager.isBlocked(auth, [body.context, body.replyTo])
     const { comment, recipient } = await new DatabaseQuery()
@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
     
     await NotificationManager.send({
         recipient,
-        context: comment.context,
+        context: comment.id,
         message: `**${auth.name}** replied to you\n> ${comment.content}\n`,
     })
 

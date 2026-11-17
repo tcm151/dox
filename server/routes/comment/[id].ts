@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
         .queryOne<{ context: string }>()
 
     const discussion = parseRecordId(comment.context)
-    if (!discussion || (discussion.table !== "post" && discussion.table !== "gallery")) {
+    if (!discussion || !["post", "link", "gallery"].includes(discussion.table)) {
         throw createError({
             statusCode: 404,
             statusMessage: "The discussion for this comment could not be found.",

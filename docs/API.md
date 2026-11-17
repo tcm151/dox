@@ -119,11 +119,15 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 ### Notification Inbox
 
 - Access: authenticated user; list results are scoped to the current recipient.
-- Request: `dismissed` is a boolean string; `false` returns unread notifications and `true` includes all. `amount` limits the returned array.
+- Request: `dismissed` must be `"true"` or `"false"`; `false` returns unread notifications and `true` includes all. `amount` must be a non-negative safe integer and limits the returned array.
 - `200`: `{ total, notifications }`; `total` is computed before the `amount` slice.
-- Dismiss actions mark notifications as viewed; they do not delete them. The single-item action only updates a notification belonging to the caller.
+- `amount=0` returns the matching count with an empty `notifications` array, using a count-only query.
+- `400`: missing or invalid list query parameters.
+- Dismiss actions mark notifications as viewed; they do not delete them. The single-item action only updates a notification belonging to the caller; missing or non-owned notifications return `404`.
+- Context links using `comment:id` redirect to the comment anchor on its post, link, or gallery discussion.
+- Notification creation and email-queue failures are logged and do not change the originating action response after it commits.
 - Source: [list handler](../server/api/profile/notifications/index.ts), [dismiss all](../server/api/profile/notifications/dismiss.ts), [dismiss one](../server/api/profile/notifications/[id]/dismiss.ts).
-- Tests: notification delivery is exercised in workflow tests such as [thread tests](../tests/parallel/threads.server.test.ts); no dedicated inbox filtering/dismissal test was found.
+- Tests: [notification workflow tests](../tests/sequential/07-notifications.server.test.ts), [link comment routing](../tests/parallel/links.server.test.ts), [inbox browser tests](../tests/parallel/account.browser.test.ts), and [thread tests](../tests/parallel/threads.server.test.ts).
 
 ## Discovery and Feeds
 
@@ -197,7 +201,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/thread/:id/edit` | Authenticated; thread author | Edits the thread content. |
 | `POST` | `/api/thread/:id/delete` | Authenticated; author or admin | Deletes or redacts the thread according to its discussion links. |
 | `POST` | `/api/thread/:id/quote` | Authenticated | Publishes a quote unless the thread is locked or a selected topic is blocked. |
-| `POST` | `/api/comment/add` | Authenticated; discussion rules | Adds a comment or reply to a post, link, or gallery discussion. |
+| `POST` | `/api/comment/add` | Authenticated; discussion rules | Adds a comment or reply to a post, link, or gallery discussion; reply notifications link to the created comment. |
 | `POST` | `/api/comment/:id/edit` | Authenticated; comment author | Edits the comment content. |
 | `POST` | `/api/comment/:id/delete` | Authenticated; author or admin | Deletes or redacts the comment according to its replies. |
 | `POST` | [`/api/thread/:id/reply`](#thread-reply) | Authenticated; discussion rules | Adds a reply subject to lock and slow-mode rules. |

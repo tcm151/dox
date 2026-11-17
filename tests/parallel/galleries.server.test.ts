@@ -334,7 +334,9 @@ it("supports gallery comments, replies, retrieval, and reference-protected delet
     }
     finally {
         await admin.query([
+            ...(replyId ? [`DELETE notification WHERE context = comment:${replyId};`] : []),
             ...(replyId ? [`DELETE comment:${replyId};`] : []),
+            ...(commentId ? [`DELETE notification WHERE context = comment:${commentId};`] : []),
             ...(commentId ? [`DELETE comment:${commentId};`] : []),
             ...(galleryId ? [`DELETE gallery:${galleryId};`] : []),
             `DELETE image:${imageId};`,

@@ -419,6 +419,7 @@ it("allows only admins to lock and unlock topics without restricting existing di
         const notificationContexts = [
             ...(postId ? [`post:${postId}`] : []),
             ...(replyId ? [`thread:${replyId}`] : []),
+            ...(commentId ? [`comment:${commentId}`] : []),
         ]
         await admin.query([
             ...(notificationContexts.length ? [`DELETE notification WHERE context IN [${notificationContexts.join(", ")}];`] : []),

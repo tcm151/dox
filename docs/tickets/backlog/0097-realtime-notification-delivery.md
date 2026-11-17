@@ -6,7 +6,7 @@
 - Next: Confirm polling is stable and choose the realtime transport and reconnect contract
 
 ## Dependencies
-- [0083](../0083-audit-existing-messaging-workflows.md): Realtime delivery must preserve the audited notification authorization and state behavior.
+- [0083](../completed/0083-audit-existing-messaging-workflows.md): Realtime delivery must preserve the audited notification authorization and state behavior.
 - [0060](../completed/0060-feed-inbox-freshness.md): Realtime delivery is optional and must build on a stable polling fallback.
 
 ## Goal
