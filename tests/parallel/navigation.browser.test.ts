@@ -24,6 +24,21 @@ test("opens and closes the Profiles window from authenticated navigation", async
     await expect(authenticatedPage.getByRole("heading", { name: "Profiles" })).toBeHidden()
 })
 
+test("shows unread notification count on the inbox navigation icon", async ({ authenticatedPage }) => {
+    await authenticatedPage.route("**/api/profile/notifications**", async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ total: 4, notifications: [] }),
+        })
+    })
+    await authenticatedPage.goto("/feed")
+
+    const inbox = authenticatedPage.locator("nav").getByRole("link", { name: "Inbox" })
+    await expect(inbox).toBeVisible()
+    await expect(inbox.locator(".inbox-count")).toHaveText("4")
+})
+
 test("renders a public page and navigates to contact", async ({ page }) => {
     await page.goto("/about")
 

@@ -7,6 +7,21 @@ const session = getSession()
 
 const { public: { site } } = useRuntimeConfig()
 
+const inbox = await useAuthenticatedDatasource<{ total: number }>("/api/profile/notifications", {
+    query: {
+        dismissed: false,
+        amount: 0,
+    },
+    immediate: false,
+    watch: false,
+})
+const unreadCount = computed(() => inbox.data.value?.total ?? 0)
+
+watch(() => session.isAuthenticated ? session.user.id : "", (userId) => {
+    if (userId) void inbox.refresh()
+    else inbox.clear()
+}, { immediate: true })
+
 const accounts = useLocalStorage<any[]>("profiles", [])
 async function login() {
     if (accounts.value.length > 0) {
@@ -56,8 +71,13 @@ function toggleUserManager() {
                     <i class="fa-solid fa-feather"></i>
                     <span>Submit</span>
                 </NuxtLink>
-                <NuxtLink :class="{ selected: route.path.startsWith('/inbox') }" to="/inbox" title="Inbox">
-                    <i class="fa-solid fa-inbox"></i>
+                <NuxtLink class="inbox-link row inline g-1" :class="{ selected: route.path.startsWith('/inbox') }" to="/inbox" title="Inbox">
+                    <div class="inbox-icon">
+                        <i class="fa-solid fa-inbox"></i>
+                        <Tag v-if="unreadCount > 0" class="inbox-count danger inverted py-0 px-1 br-large" aria-hidden="true">
+                            {{ unreadCount > 99 ? "99+" : unreadCount }}
+                        </Tag>
+                    </div>
                     <span>Inbox</span>
                 </NuxtLink>
                 <NuxtLink to="/profile" @contextmenu.prevent="toggleUserManager">
@@ -101,6 +121,27 @@ section.right {
     top: 1px;
     right: 0;
     position: absolute;
+
+    a.inbox-link {
+        .inbox-icon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .inbox-count {
+            position: absolute;
+            top: -0.25rem;
+            left: -0.5rem;
+            display: flex;
+            min-width: 1rem;
+            height: 1rem;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            line-height: 1;
+        }
+    }
 
     @media (max-width: $bp-tablet) {
         span { display: none; }
