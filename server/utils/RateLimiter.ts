@@ -1,6 +1,7 @@
 export class RateLimiter {
     static #maxRequests = 5
     static #requestWindow = 60_000
+    static #feedbackSubmissionPath = "/api/feedback/submit"
     static #reportSubmissionPath = "/api/report-submission"
 
     #routes: Record<string, { ms: number, max: number }>
@@ -22,6 +23,7 @@ export class RateLimiter {
             "/api/profile/password/confirm": { ms: requestWindow, max: maxRequests },
             "/api/profile/confirm": { ms: requestWindow, max: maxRequests },
             "/api/profile/referral": { ms: requestWindow, max: maxRequests },
+            [RateLimiter.#feedbackSubmissionPath]: { ms: requestWindow, max: maxRequests },
             [RateLimiter.#reportSubmissionPath]: { ms: requestWindow, max: maxRequests },
             "/api/image/upload": { ms: requestWindow, max: maxRequests },
             "/api/audio/upload": { ms: requestWindow, max: maxRequests },

@@ -10,6 +10,7 @@ const emit = defineEmits<{
 
 const hints = useHints()
 const session = getSession()
+const settings = useSettings()
 
 let feedback = ref("")
 
@@ -23,9 +24,7 @@ async function submitFeedback() {
     submitting.value = true
     await useApi("/api/feedback/submit", {
         body: {
-            user: session.user.id,
             content: feedback.value,
-            time: new Date(),
         }
     })
     submitting.value = false
@@ -39,11 +38,11 @@ async function submitFeedback() {
     <div class="field">
         <textarea rows="10" :placeholder="placeholder ?? ''" v-model="feedback"></textarea>
         <div class="column mt-3" >
-            <ButtonSpinner v-if="session.isAuthenticated" class="success" :loading="submitting" @click="submitFeedback">
+            <ButtonSpinner v-if="settings.app.misc.feedback.enabled && (session.isAuthenticated || settings.app.misc.feedback.allowAnonymous)" class="success" :loading="submitting" @click="submitFeedback">
                 Submit
             </ButtonSpinner>
-            <button class="negative" v-else>
-                You must be logged in to submit feedback.
+            <button v-else class="negative">
+                {{ settings.app.misc.feedback.enabled ? "You must be logged in to submit feedback." : "Feedback is currently disabled." }}
             </button>
         </div>
     </div>

@@ -466,8 +466,8 @@ These routes are restricted to developers and cover database maintenance and dia
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `POST` | `/api/feedback/submit` | Authenticated | Submits feedback from the current user. |
-| `GET` | `/api/feedback` | Admin/developer | Lists feedback submissions and submitter details. |
+| `POST` | `/api/feedback/submit` | Authenticated, or anonymous when configured | Submits feedback when enabled; all submissions are limited to five per minute per resolved client IP, and anonymous submissions require `allowAnonymous`. |
+| `GET` | `/api/feedback` | Admin/developer | Lists feedback submissions and optional submitter details. |
 | `POST` | `/api/feedback/:id/dismiss` | Admin/developer | Marks a feedback submission as dismissed. |
 
 ## Route Fallback

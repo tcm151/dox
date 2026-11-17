@@ -437,6 +437,10 @@ DEFINE FUNCTION OVERWRITE fn::thread_chain($parent: record<thread>, $remaining: 
     RETURN [$next].concat($tail);
 };
 
+-- Allow anonymous feedback while preserving existing submitter references.
+DEFINE FIELD OVERWRITE user ON feedback
+    TYPE option<record<user>>;
+
 UPSERT migration SET version = '2026.6.3', time = time::now()
 WHERE version = '2026.6.3';
 COMMIT;

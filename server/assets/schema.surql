@@ -662,7 +662,7 @@ DEFINE FIELD notifications.email ON userSettings
 -- ------------------------------
 DEFINE TABLE feedback SCHEMAFULL;
 DEFINE FIELD user ON feedback
-    TYPE record<user>;
+    TYPE option<record<user>>;
 DEFINE FIELD content ON feedback
     TYPE string;
 DEFINE FIELD time ON feedback

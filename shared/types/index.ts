@@ -255,7 +255,7 @@ export interface UserSettings extends Record {
 export type ContentFilterTargetType = "user" | "topic"
 
 export interface Feedback extends Record {
-    user: User & string
+    user?: User & string
     content: string
     time: string
     dismissed: boolean

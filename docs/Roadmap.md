@@ -51,6 +51,7 @@ Goal: make moderation outcomes consistent, reviewable, and fair for small niche 
 ### B2. Abuse Controls and Safety Defaults
 - 🟩 Define anti-spam defaults (posting frequency, media limits, report thresholds). (`M`)
 - 🟩 Expand rate limiting and abuse protections across moderation-adjacent write paths. (`M`)
+- 🟩 Enforce feedback availability and configured anonymous submissions. (`0104`, `M`)
 - 🟩 Add configurable per-topic moderation defaults with documented recommended presets. (`M`)
 - 🟩 Add content tagging and visibility policy controls (NSFW/spoiler defaults and user overrides). (`0016`, `M`)
 

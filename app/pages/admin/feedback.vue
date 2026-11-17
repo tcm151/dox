@@ -38,7 +38,8 @@ async function dismissFeedback(feedback: Feedback) {
                     </blockquote>
                     <div class="tags row g-1 pt-2">
                         <DurationTag :time="item.time" />
-                        <UserTag class="f-1" :user="item.user" />
+                        <UserTag v-if="item.user" class="f-1" :user="item.user" />
+                        <span v-else class="f-1">Anonymous</span>
                         <Tag v-if="!item.dismissed" type="danger" icon="fa-angles-right" label="Dismiss" @click="dismissFeedback(item)" />
                     </div>
                 </article>
