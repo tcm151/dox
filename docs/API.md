@@ -357,7 +357,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `POST` | [`/api/vote/:id/:kind`](#vote) | Authenticated | Sets or resets the current user's vote on a voteable record. |
+| `POST` | [`/api/vote/:id/:kind`](#vote) | Authenticated; voting settings | Sets or resets the current user's vote on a voteable record. |
 | `POST` | `/api/vote/:id/{save,unsave}` | Authenticated; post, link, thread, or gallery target | Saves or removes eligible content from the current user's saved items. |
 | `POST` | `/api/user/:id/{follow,unfollow,save,unsave}` | Authenticated | Manages the current user's relationship with another user; following is rejected if either user blocks the other. |
 | `POST` | `/api/topic/:topic/{follow,unfollow}` | Authenticated | Follows or unfollows a topic; following is rejected if the caller has blocked it. |
@@ -368,13 +368,14 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 ### Vote
 
-- Access: authenticated user; `kind` is `positive`, `misleading`, `negative`, or `reset`.
+- Access: authenticated user; `kind` is `positive`, `misleading`, `negative`, or `reset`. Adding or changing votes requires `voting.enabled`; misleading and negative votes also require their respective setting.
 - Request: target record ID and vote kind in the path; no body.
 - `200`: current vote sets for the target.
-- `401`: no valid session. Target resolution and record constraints are enforced by the database operation.
+- `401`: no valid session. `403`: voting is disabled globally or the requested vote type is disabled. Target resolution and record constraints are enforced by the database operation.
+- Reset is allowed regardless of voting settings and removes only the caller's vote from all vote types. Disabling voting settings does not clear stored votes.
 - Side effects: updates the caller's vote state, removing their vote from the other categories when setting a vote.
 - Source: [positive vote route](../server/api/vote/[id]/positive.ts).
-- Tests: [vote API tests](../tests/parallel/votes.server.test.ts).
+- Tests: [vote API tests](../tests/parallel/votes.server.test.ts) and [voting availability tests](../tests/sequential/11-voting-availability.server.test.ts).
 
 ### Content Saves
 

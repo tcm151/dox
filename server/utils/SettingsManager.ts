@@ -24,6 +24,19 @@ export class SettingsManager {
         }
     }
 
+    static async canVote(kind: "positive" | "misleading" | "negative") {
+        const settings = await this.get()
+        if (!settings.voting.enabled) {
+            throw createError({ statusCode: 403, statusMessage: "Voting is disabled." })
+        }
+        if (kind === "misleading" && !settings.voting.misleading) {
+            throw createError({ statusCode: 403, statusMessage: "Misleading votes are disabled." })
+        }
+        if (kind === "negative" && !settings.voting.negative) {
+            throw createError({ statusCode: 403, statusMessage: "Negative votes are disabled." })
+        }
+    }
+
     static async canPublish(target: "posts" | "threads", topics: string[]) {
         const settings = await this.get()
         const contentType = target === "posts" ? "Post" : "Thread"

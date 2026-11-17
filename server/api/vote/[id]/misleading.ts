@@ -1,7 +1,9 @@
 import type { Voteable } from "@@/shared/types"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
+    await SettingsManager.canVote("misleading")
     const { id } = event.context.params!
 
     const item = await new DatabaseQuery()
