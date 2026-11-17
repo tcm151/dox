@@ -17,6 +17,13 @@ export class SettingsManager {
         return settings.media.images.enabled && settings.media.images.attachments[target]
     }
 
+    static async canViewFeed(feed: keyof AppSettings["feeds"]) {
+        const settings = await this.get()
+        if (!settings.feeds[feed]) {
+            throw createError({ statusCode: 404, statusMessage: "Feed is not available." })
+        }
+    }
+
     static async canPublish(target: "posts" | "threads", topics: string[]) {
         const settings = await this.get()
         const contentType = target === "posts" ? "Post" : "Thread"

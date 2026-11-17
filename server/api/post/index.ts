@@ -1,6 +1,9 @@
 import type { Post } from "@@/shared/types"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 export default defineEventHandler(async (event) => {
+    await SettingsManager.canViewFeed("posts")
+
     let query = getQuery<{ sortBy: string, page: number, pageSize: number }>(event)
     
     const posts = await new DatabaseQuery()

@@ -1,9 +1,12 @@
 import type { Pin } from "@@/shared/types"
 import { authenticateOptionalRequest } from "@@/server/utils/auth"
 import { attachPinModeration } from "@@/server/utils/pinModeration"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
+    await SettingsManager.canViewFeed("discover")
+
     const viewer = await authenticateOptionalRequest(event)
     const excluded = await UserSettingsManager.getFilteredTargets(viewer)
     const pins = await new DatabaseQuery()

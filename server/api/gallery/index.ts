@@ -1,6 +1,9 @@
 import type { Gallery } from "@@/shared/types"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 export default defineEventHandler(async () => {
+    await SettingsManager.canViewFeed("images")
+
     return await new DatabaseQuery()
         .addSql(`
             SELECT id, user.{id, name, roles}, title, description, tags, time, topics,

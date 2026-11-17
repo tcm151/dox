@@ -133,15 +133,16 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `GET` | [`/api/feed/popular`](#feed-pagination) | Public | Returns a paginated aggregate feed. |
-| `GET` | [`/api/feed/following`](#feed-pagination) | Authenticated | Returns a feed filtered by the current user's followed topics and users. |
-| `GET` | `/api/feed/pinned` | Public | Returns active application-wide pinned content. |
-| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments with optional filters. |
+| `GET` | [`/api/feed/popular`](#feed-pagination) | Public | Returns a paginated aggregate feed when `feeds.discover` is enabled. |
+| `GET` | [`/api/feed/following`](#feed-pagination) | Authenticated | Returns followed content when `feeds.discover` is enabled. |
+| `GET` | `/api/feed/pinned` | Public | Returns active application-wide pins when `feeds.discover` is enabled. |
+| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments when `feeds.search` is enabled. |
+| `GET` | `/api/feed/topics` | Public | Lists topics for the dedicated Topics feed when `feeds.topics` is enabled. |
 | `GET` | `/api/trending/topics` | Public | Returns the five topics with the most recent post activity. |
 | `GET` | `/api/trending/users` | Public | Returns the five highest-scoring users. |
 | `GET` | `/api/settings/:id` | Public | Returns application settings for the requested ID. |
-| `GET` | `/api/topic` | Public | Lists topics ordered by score. |
-| `GET` | `/api/topic/available` | Public | Lists active topics available for selection. |
+| `GET` | `/api/topic` | Public | Lists topics ordered by score, independent of the dedicated Topics feed setting. |
+| `GET` | `/api/topic/available` | Public | Lists active topics available for selection, independent of the dedicated Topics feed setting. |
 | `GET` | `/api/topic/:topic` | Public | Returns a topic profile and related gallery data. |
 | `GET` | `/api/topic/:topic/feed?sortBy=` | Public | Returns active posts, top-level threads, and galleries for a topic. |
 | `GET` | `/api/topic/:topic/followers` | Public | Lists users following a topic. |
@@ -157,7 +158,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 ### Feed Pagination
 
 - Methods: `GET /api/feed/popular` and `GET /api/feed/following`.
-- Access: popular feed is public; following feed requires authentication and includes content from followed topics or users.
+- Access: popular feed is public; following feed requires authentication and includes content from followed topics or users. Both require `feeds.discover`; disabled feeds return `404`.
 - Query: `sortBy` accepts `new`, `hot`, or `top` and defaults to `new`. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to a nonnegative maximum.
 - `200`: `{ items, offset, more }`; `items` may contain active posts, links, top-level threads, or galleries, and `more` indicates whether another item exists.
 - Source: [feed handlers](../server/api/feed/popular.ts), [following handler](../server/api/feed/following.ts), [pagination implementation](../server/utils/feedPagination.ts).
@@ -166,7 +167,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 ### Feed Search
 
 - Method: `GET /api/feed/search?text=&type=&topic=&user=&from=&to=`.
-- Access: public.
+- Access: public when `feeds.search` is enabled; disabled search returns `404`.
 - Request: `text` is the search query. Optional `type` is `post`, `thread`, `gallery`, or `comment`; `topic` is a topic ID without the `topic:` prefix; `user` is a case-insensitive partial author-name match; `from` and `to` are inclusive UTC calendar dates in `YYYY-MM-DD` form.
 - Missing or whitespace-only `text` returns `200 []`. Invalid filters or a `from` date after `to` return `400`.
 - `200`: matching active posts, threads, galleries, and comments, ordered by case-insensitive exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Deleted comments and comments under inactive or deleted contexts are excluded. Supplied filters are combined.
@@ -177,10 +178,11 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/api/post` | Public | Lists active posts. |
+| `GET` | `/api/post` | Public | Lists active posts when `feeds.posts` is enabled. |
 | `GET` | `/api/post/:id` | Public | Returns a post and its discussion. |
 | `GET` | `/api/post/:id/visit` | Public | Increments and returns the post visit counter. |
 | `GET` | `/api/link/:id` | Public | Returns a link and its discussion. |
+| `GET` | `/api/link` | Public | Lists active Links; remains unfiltered when the dedicated Links page is disabled. |
 | `GET` | `/api/link/:id/visit` | Public | Increments and returns the link visit counter. |
 | `POST` | `/api/link/:id/edit` | Authenticated; Link author | Updates the authored Link description. |
 | `POST` | `/api/link/:id/delete` | Authenticated; author or admin | Deletes or redacts the Link while preserving its discussion. |
@@ -194,7 +196,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | [`/api/link/add`](#create-link) | Authenticated; resource and blocked-topic checks | Publishes a link for the current user. |
 | `POST` | `/api/post/:id/edit` | Authenticated; post author | Edits the post content. |
 | `POST` | `/api/post/:id/delete` | Authenticated; author or admin | Deletes or redacts the post while preserving referenced discussion. |
-| `GET` | `/api/thread` | Public | Lists active top-level threads. |
+| `GET` | `/api/thread` | Public | Lists active top-level threads when `feeds.threads` is enabled. |
 | `GET` | `/api/thread/:id` | Public | Returns a thread and its reply context. |
 | `GET` | `/api/thread/:id/visit` | Public | Increments and returns the thread visit counter. |
 | `POST` | `/api/thread/add` | Authenticated; publishing, topic-count/allowlist, image-attachment, and blocked-topic checks | Publishes a thread. |
@@ -242,7 +244,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | --- | --- | --- | --- |
 | `POST` | [`/api/image/upload`](#image-upload) | Confirmed account | Uploads an image and charges the applicable token cost. |
 | `POST` | [`/api/gallery/publish`](#gallery-publication) | Confirmed account; gallery setting; image ownership; blocked-topic checks | Publishes owned images as a gallery. |
-| `GET` | `/api/gallery` | Public | Lists active galleries. |
+| `GET` | `/api/gallery` | Public | Lists active galleries when `feeds.images` is enabled. |
 | `GET` | `/api/gallery/:id` | Public | Returns gallery details and comments. |
 | `GET` | `/api/gallery/:id/visit` | Public | Increments and returns the gallery visit counter. |
 | `POST` | [`/api/gallery/:id/edit`](#gallery-edit) | Gallery owner | Updates the gallery description. |
@@ -250,7 +252,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/gallery/:id/delete` | Gallery owner/admin | Deletes a gallery and cleans up unused topic records. |
 | `GET` | `/api/image/:id` | Public | Returns image metadata and owner details. |
 | `POST` | `/api/image/:id/delete` | Image owner/admin | Deletes an image unless it remains attached to content. |
-| `GET` | `/api/audio` | Public | Lists published audio metadata. |
+| `GET` | `/api/audio` | Public | Lists published audio metadata when `feeds.audio` is enabled. |
 | `GET` | `/api/audio/:fileName` | Public | Returns audio metadata for a media filename. |
 | `POST` | `/api/audio/upload` | Confirmed account; token balance | Uploads audio and charges the applicable token cost. |
 

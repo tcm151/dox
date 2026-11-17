@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Topic } from '@@/shared/types'
 
-const { data: topics } = await useDatasource<Topic[]>("/api/topic")
+const { data: topics } = await useDatasource<Topic[]>("/api/feed/topics")
 </script>
 
 <template>

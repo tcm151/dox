@@ -90,6 +90,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 ### C3. Discovery and Inbox Reliability
 - 🟥 Persist feed and comment sorting preferences across devices. (`0070`, `S`)
 - 🟥 Add search filters and URL synchronization for shareable discovery. (`0015`, `M`)
+- 🟩 Enforce configured availability for dedicated feeds and Home routes. (`0102`, `M`)
 - 🟥 Define and implement saved-user content ranking and feed integration after the engagement fundamentals. (`0105`, `M`)
 - 🟩 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`0083`, `M`)
 - 🟩 Refresh feeds and inbox after relevant mutations and on stale fresh navigation, preserving loaded content. (`0060`, `M`)

@@ -1,6 +1,9 @@
 import type { Thread } from "@@/shared/types"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 
 export default defineEventHandler(async (event) => {
+    await SettingsManager.canViewFeed("threads")
+
     let query = getQuery<{ sortBy: string, page: number, pageSize: number }>(event)
     
     const threads = await new DatabaseQuery()

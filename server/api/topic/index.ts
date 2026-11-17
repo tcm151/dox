@@ -1,11 +1,5 @@
-import type { Topic } from "@@/shared/types"
+import { TopicManager } from "@@/server/utils/TopicManager"
 
 export default defineEventHandler(async (event) => {
-    return await new DatabaseQuery()
-        .addSql(`
-            SELECT *
-            FROM topic
-            ORDER BY score DESC
-        `)
-        .queryAll<Topic>()
+    return await TopicManager.list()
 })

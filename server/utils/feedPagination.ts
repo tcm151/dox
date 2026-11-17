@@ -1,5 +1,6 @@
 import type { FeedPage, Sortable } from "@@/shared/types"
 import { authenticateOptionalRequest, authenticateRequest } from "@@/server/utils/auth"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 import { getQuery, type H3Event } from "h3"
 
@@ -48,6 +49,8 @@ interface FeedCandidate {
 }
 
 export async function queryFeedPage<T extends Sortable>(event: H3Event, following = false): Promise<FeedPage<T>> {
+    await SettingsManager.canViewFeed("discover")
+
     const queryParams = getQuery(event)
     const sortBy = queryParams.sortBy === "hot" || queryParams.sortBy === "top" ? queryParams.sortBy : "new"
     const pageSize = Math.max(1, Math.min(MAX_PAGE_SIZE, Math.trunc(Number(queryParams.pageSize) || DEFAULT_PAGE_SIZE)))

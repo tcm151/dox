@@ -1,6 +1,7 @@
 import type { SearchResult } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
 import { authenticateOptionalRequest } from "@@/server/utils/auth"
+import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 const MINIMUM_SEARCH_SCORE = 0.5
@@ -20,6 +21,8 @@ function nextUtcDay(date: string) {
 }
 
 export default defineEventHandler(async (event) => {
+    await SettingsManager.canViewFeed("search")
+
     const query = getQuery(event)
     const { text } = query
     const type = typeof query.type === "string" ? query.type : undefined
