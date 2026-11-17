@@ -26,6 +26,19 @@ async function createAccount() {
     return { accessToken, user, username }
 }
 
+async function getAccountRecordId(user: User) {
+    const accounts = await admin.query<Array<Array<{ id: string }>>>(
+        `SELECT id FROM account WHERE user = ${user.id};`,
+    )
+    const accountId = accounts[0]?.[0]?.id
+    if (!accountId) throw new Error(`No account record found for ${user.id}.`)
+    return accountId
+}
+
+async function createConfirmationRecord(id: string, accountId: string, fields = "") {
+    await admin.query(`CREATE ONLY ${id} SET account = ${accountId}${fields};`)
+}
+
 function accountFetch(accessToken: string, url: string, body?: unknown) {
     return fetch(url, {
         method: body === undefined ? "GET" : "POST",
@@ -34,6 +47,28 @@ function accountFetch(accessToken: string, url: string, body?: unknown) {
             ...(body === undefined ? {} : { "Content-Type": "application/json" }),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    })
+}
+
+function confirmAccount(accessToken: string, id: unknown, clientIp = uniqueTestIp()) {
+    return fetch("/api/profile/confirm", {
+        method: "POST",
+        headers: {
+            Authorization: accessToken,
+            "Content-Type": "application/json",
+            "X-Forwarded-For": clientIp,
+        },
+        body: JSON.stringify({ id }),
+    })
+}
+
+function sendConfirmation(accessToken: string, clientIp = uniqueTestIp()) {
+    return fetch("/api/profile/confirm/send", {
+        method: "POST",
+        headers: {
+            Authorization: accessToken,
+            "X-Forwarded-For": clientIp,
+        },
     })
 }
 
@@ -64,6 +99,168 @@ async function cleanupTestData(
     ]
     await admin.query(statements.join("\n"))
 }
+
+async function cleanupConfirmationAccount(account: { accessToken: string, user: User }) {
+    const accountId = await getAccountRecordId(account.user)
+    await admin.query(`DELETE accountConfirmation WHERE account = ${accountId};`)
+    await cleanupTestData(account.user, account.accessToken, [], [])
+}
+
+it("limits concurrent confirmation sends and retains the token after SMTP failure", async () => {
+    const account = await createAccount()
+    const accountId = await getAccountRecordId(account.user)
+
+    try {
+        const clientIp = uniqueTestIp()
+        const responses = await Promise.all([
+            sendConfirmation(account.accessToken, clientIp),
+            sendConfirmation(account.accessToken, clientIp),
+        ])
+        expect(responses.map(response => response.status).sort()).toEqual([429, 503])
+
+        const deliveryFailure = responses.find(response => response.status === 503)
+        expect(deliveryFailure?.headers.get("Retry-After")).toMatch(/^\d+$/)
+
+        const confirmations = await admin.query<Array<Array<{ id: string, used: boolean }>>>(
+            `SELECT id, used FROM accountConfirmation WHERE account = ${accountId};`,
+        )
+        expect(confirmations[0]).toHaveLength(1)
+        expect(confirmations[0]?.[0]?.used).toBe(false)
+
+        const retry = await sendConfirmation(account.accessToken)
+        expectStatus(retry, 429)
+        expect(retry.headers.get("Retry-After")).toMatch(/^\d+$/)
+
+        const unchanged = await admin.query<Array<Array<{ id: string }>>>(
+            `SELECT id FROM accountConfirmation WHERE account = ${accountId};`,
+        )
+        expect(unchanged[0]).toEqual(confirmations[0]?.map(({ id }) => ({ id })))
+    }
+    finally {
+        await cleanupConfirmationAccount(account)
+    }
+})
+
+it("does not send confirmation mail for an already-confirmed account", async () => {
+    const account = await createAccount()
+    const accountId = await getAccountRecordId(account.user)
+    const confirmationId = `accountConfirmation:alreadyConfirmed${Date.now()}${Math.random().toString(36).slice(2, 8)}`
+
+    try {
+        await createConfirmationRecord(confirmationId, accountId)
+        expectStatus(await confirmAccount(account.accessToken, confirmationId), 200)
+
+        expectStatus(await sendConfirmation(account.accessToken), 409)
+        const confirmations = await admin.query<Array<Array<{ id: string, used: boolean }>>>(
+            `SELECT id, used FROM accountConfirmation WHERE account = ${accountId};`,
+        )
+        expect(confirmations[0]).toEqual([{ id: confirmationId, used: true }])
+    }
+    finally {
+        await cleanupConfirmationAccount(account)
+    }
+})
+
+it("limits confirmation sends by trusted client address", async () => {
+    const accounts: Array<Awaited<ReturnType<typeof createAccount>>> = []
+
+    try {
+        for (let index = 0; index < 6; index++) {
+            accounts.push(await createAccount())
+        }
+
+        const clientIp = uniqueTestIp()
+        for (const account of accounts.slice(0, 5)) {
+            expectStatus(await sendConfirmation(account.accessToken, clientIp), 503)
+        }
+
+        const limitedAccount = accounts[5]
+        if (!limitedAccount) throw new Error("Expected six confirmation test accounts.")
+        expectStatus(await sendConfirmation(limitedAccount.accessToken, clientIp), 429)
+        expectStatus(await sendConfirmation(limitedAccount.accessToken, uniqueTestIp()), 503)
+    }
+    finally {
+        for (const account of accounts) {
+            await cleanupConfirmationAccount(account)
+        }
+    }
+})
+
+it("rejects invalid account confirmation records without confirming an account", async () => {
+    const account = await createAccount()
+    const accountId = await getAccountRecordId(account.user)
+    const suffix = `${Date.now()}${Math.random().toString(36).slice(2, 8)}`
+    const expiredId = `accountConfirmation:expired${suffix}`
+    const usedId = `accountConfirmation:used${suffix}`
+    const missingAccountId = `accountConfirmation:missingAccount${suffix}`
+    const confirmationIds = [expiredId, usedId, missingAccountId]
+
+    try {
+        expect(account.accessToken).toMatch(/^session:/)
+        expectStatus(await confirmAccount(account.accessToken, account.accessToken), 400)
+        expectStatus(await confirmAccount(account.accessToken, "invalid"), 400)
+        expectStatus(await confirmAccount(account.accessToken, 42), 400)
+        expectStatus(await confirmAccount(account.accessToken, `accountConfirmation:missing${suffix}`), 400)
+
+        await createConfirmationRecord(expiredId, accountId, ", time = time::now() - 16m")
+        expectStatus(await confirmAccount(account.accessToken, expiredId), 410)
+
+        await createConfirmationRecord(usedId, accountId, ", used = true")
+        expectStatus(await confirmAccount(account.accessToken, usedId), 409)
+
+        const profileResponse = await accountFetch(account.accessToken, "/api/profile/authenticate")
+        expectStatus(profileResponse, 200)
+        const profile = await profileResponse.json() as User
+        expect(profile.traits).not.toContain("confirmed")
+
+        const uploadResponse = await fetch("/api/image/upload", {
+            method: "POST",
+            headers: { Authorization: account.accessToken, "X-Forwarded-For": uniqueTestIp() },
+            body: new FormData(),
+        })
+        expectStatus(uploadResponse, 403)
+
+        await createConfirmationRecord(missingAccountId, accountId)
+        await admin.query(`DELETE ONLY ${accountId};`)
+        expectStatus(await confirmAccount(account.accessToken, missingAccountId), 400)
+    }
+    finally {
+        await admin.query(confirmationIds.map(id => `DELETE ${id};`).join("\n"))
+        await cleanupTestData(account.user, account.accessToken, [], [])
+    }
+})
+
+it("confirms the linked account once under concurrent redemption", async () => {
+    const account = await createAccount()
+    const accountId = await getAccountRecordId(account.user)
+    const confirmationId = `accountConfirmation:concurrent${Date.now()}${Math.random().toString(36).slice(2, 8)}`
+
+    try {
+        await createConfirmationRecord(confirmationId, accountId)
+
+        const clientIp = uniqueTestIp()
+        const responses = await Promise.all([
+            confirmAccount(account.accessToken, confirmationId, clientIp),
+            confirmAccount(account.accessToken, confirmationId, clientIp),
+        ])
+        expect(responses.map(response => response.status).sort()).toEqual([200, 409])
+
+        const profileResponse = await accountFetch(account.accessToken, "/api/profile/authenticate")
+        expectStatus(profileResponse, 200)
+        const profile = await profileResponse.json() as User
+        expect(profile.traits).toContain("confirmed")
+
+        const confirmation = await admin.query<Array<Array<{ used: boolean }>>>(
+            `SELECT used FROM ${confirmationId};`,
+        )
+        expect(confirmation[0]?.[0]?.used).toBe(true)
+        expectStatus(await confirmAccount(account.accessToken, confirmationId), 409)
+    }
+    finally {
+        await admin.query(`DELETE ${confirmationId};`)
+        await cleanupTestData(account.user, account.accessToken, [], [])
+    }
+})
 
 it("deletes an account while retaining anonymized published content and vote history", async () => {
     const account = await createAccount()

@@ -21,6 +21,57 @@ it("allows 60 link preview requests per minute, then blocks the next", () => {
     }
 })
 
+it("shares report limits across matching route patterns", () => {
+    const limiter = RateLimiter.createDefault()
+    const paths = [
+        "/api/report/send",
+        "/api/post/post-one/report",
+        "/api/gallery/gallery-one/report",
+        "/api/image/image-one/report",
+        "/api/post/post-two/report",
+    ]
+
+    try {
+        for (const path of paths) {
+            expect(limiter.limitExceeded("report-client", path)).toBe(false)
+        }
+
+        expect(limiter.limitExceeded("report-client", "/api/image/image-two/report")).toBe(true)
+        expect(limiter.limitExceeded("report-client", "/api/comment/comment-one/report")).toBe(false)
+    }
+    finally {
+        limiter.destroy()
+    }
+})
+
+it("enforces and expires confirmation resend cooldown windows", () => {
+    const limiter = RateLimiter.createDefault()
+    const now = vi.spyOn(Date, "now").mockReturnValue(1_000_000)
+
+    try {
+        const path = "/api/profile/confirm/send"
+        expect(limiter.limitExceeded("account", path, "account")).toBe(false)
+        expect(limiter.limitExceeded("account", path, "account")).toBe(true)
+        expect(limiter.retryAfter("account", path, "account")).toBe(60)
+
+        now.mockReturnValue(1_060_001)
+        expect(limiter.limitExceeded("account", path, "account")).toBe(false)
+
+        for (let attempt = 0; attempt < 3; attempt++) {
+            expect(limiter.limitExceeded("recipient@example.invalid", path, "recipient")).toBe(false)
+        }
+        expect(limiter.limitExceeded("recipient@example.invalid", path, "recipient")).toBe(true)
+        expect(limiter.retryAfter("recipient@example.invalid", path, "recipient")).toBe(3600)
+
+        now.mockReturnValue(4_660_002)
+        expect(limiter.limitExceeded("recipient@example.invalid", path, "recipient")).toBe(false)
+    }
+    finally {
+        limiter.destroy()
+        now.mockRestore()
+    }
+})
+
 it("extracts and normalizes basic HTML preview metadata", async () => {
     const manager = new LinkPreviewManager(
         async () => [publicAddress],

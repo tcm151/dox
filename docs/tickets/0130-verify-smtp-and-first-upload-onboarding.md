@@ -26,7 +26,7 @@ Verify the real operator/user journey from configured outbound mail to account c
 
 ## Notes
 - Completed [0008](completed/0008-user-notification-preferences.md) explicitly leaves live SMTP unverified. Simulated successful sends do not establish provider delivery or usable public links.
-- Confirmation security and resend limits remain under [0109](0109-validate-email-confirmation-token-records.md) and [0110](0110-limit-confirmation-email-resends.md); media invariants remain under [0108](0108-enforce-media-category-and-cleanup-invariants.md).
+- Confirmation security and resend limits remain under [0109](completed/0109-validate-email-confirmation-token-records.md) and [0110](completed/0110-limit-confirmation-email-resends.md); media invariants remain under [0108](completed/0108-enforce-media-category-and-cleanup-invariants.md).
 - Coordinate the cleared-username password-reset regression with [0123](0123-type-ui-events-and-deferred-action-contracts.md), rather than duplicating its event-bus refactor.
 - An unpublished candidate can be tested before [0127](0127-publish-a-verifiable-pilot-release.md). Do not require public publication to begin validation or treat unverified email-dependent workflows as pilot-ready.
 - Live delivery and deployment access require an execution-enabled environment and explicit authorization; this ticket does not authorize using other users' accounts or mailboxes.

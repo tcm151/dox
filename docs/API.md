@@ -38,8 +38,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/profile/filters/{mute,unmute,block,unblock}` | Authenticated | Adds or removes one user or topic from the caller's filters. |
 | `POST` | [`/api/profile/password/reset`](#password-reset) | Public | Requests a password reset email without disclosing whether the account exists. |
 | `POST` | [`/api/profile/password/confirm`](#password-reset) | Public; reset token required | Sets a new password and invalidates the account's existing sessions. |
-| `POST` | `/api/profile/confirm/send` | Authenticated; email required | Sends an account confirmation link. |
-| `POST` | `/api/profile/confirm` | Public; confirmation token required | Confirms the account email. |
+| `POST` | [`/api/profile/confirm/send`](#request-confirmation-email) | Authenticated; email required | Requests an account confirmation link, subject to resend limits. |
+| `POST` | `/api/profile/confirm` | Public; account-confirmation token required | Confirms the account email. |
 | `POST` | `/api/profile/sessions/invalidate` | Authenticated | Invalidates other sessions while preserving the current session. |
 | `POST` | [`/api/profile/account/{delete,wipe}`](#account-deletion) | Authenticated; password and username confirmation | Deletes the account, retaining or removing eligible authored content. |
 
@@ -83,6 +83,30 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Side effects: transactionally updates the password hash, marks the token used, and invalidates the account's existing sessions. Reset tokens expire after 15 minutes.
 - Source: [reset request](../server/api/profile/password/reset.ts), [confirmation](../server/api/profile/password/confirm.ts), [token schema](../server/assets/schema.surql).
 - Tests: no dedicated password-reset API test is currently present.
+
+### Account Email Confirmation
+
+#### Request Confirmation Email
+
+- Method: `POST /api/profile/confirm/send`.
+- Access: authenticated; the account must have an email address and must not already be confirmed.
+- `200`: the configured SMTP transport accepted the message.
+- `401`: the request is unauthenticated or the account has no usable email address. `409`: the account is already confirmed.
+- `429`: resend limits are exceeded: one request per account per minute, three per normalized recipient address per hour, and five per trusted client address per minute. The response includes a `Retry-After` header in seconds.
+- `503`: the SMTP transport failed. The response includes `Retry-After`; the cooldown and confirmation token remain in place.
+- Side effects: reuses an unused, unexpired confirmation token and refreshes its 15-minute expiry, or creates one if none exists. Rate limits are applied before token or email work.
+- Source: [route](../server/api/profile/confirm/send.ts), [rate limiter](../server/utils/RateLimiter.ts).
+- Tests: [account and confirmation API tests](../tests/parallel/account.server.test.ts).
+
+#### Confirm Account
+
+- Method: `POST /api/profile/confirm`.
+- Access: public; the request body must contain `{ id }` with a full `accountConfirmation` record ID.
+- Success: completes without a response body.
+- `400`: malformed, wrong-table, missing, or accountless confirmation token. `409`: token already used. `410`: token expired.
+- Side effects: transactionally grants the `confirmed` trait to the linked account's user and marks the token used.
+- Source: [route](../server/api/profile/confirm/index.ts), [token schema](../server/assets/schema.surql).
+- Tests: [account and confirmation API tests](../tests/parallel/account.server.test.ts).
 
 ### Account Deletion
 
