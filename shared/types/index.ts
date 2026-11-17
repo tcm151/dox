@@ -21,8 +21,9 @@ export interface Sortable extends Record, Voteable {
     // archived: boolean
 }
 
-export interface FeedPage<T extends Sortable> {
+export interface FeedPage<T> {
     items: T[]
+    pageSize: number
     offset: number
     more: boolean
 }
@@ -230,6 +231,10 @@ export interface Notification extends Record {
     message: string
     time: string
     viewed: boolean
+}
+
+export interface NotificationPage extends FeedPage<Notification> {
+    total: number
 }
 
 export interface UserSettings extends Record {

@@ -1,55 +1,53 @@
-import type { Notification } from "@@/shared/types"
+import type { Notification, NotificationPage } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
+import { useFeedPaging } from "@@/server/utils/feedPagination"
 
 interface NotificationQuery {
     dismissed: string
-    amount: string
 }
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const query = getQuery<NotificationQuery>(event)
-    const amount = Number(query.amount)
+    const paging = useFeedPaging(event)
 
     new Validator("NotificationQuery")
         .string(query.dismissed, "dismissed")
         .in(query.dismissed, "dismissed", ["true", "false"])
-        .string(query.amount, "amount")
-        .notEmpty(query.amount, "amount")
-        .integer(amount, "amount", { min: 0 })
         .confirm()
 
     const dismissed = query.dismissed === "true"
-    if (amount === 0) {
-        const { total } = await new DatabaseQuery()
-            .addSql(`
-                SELECT COUNT() AS total
-                FROM notification
-                WHERE recipient = $user
-                AND ($dismissed = true OR ($dismissed = false AND viewed = false))
-                GROUP ALL
-            `)
-            .addRecord("user", auth.id)
-            .addParameter("dismissed", dismissed)
-            .queryOne<{ total: number }>()
-
-        return { total, notifications: [] }
-    }
-
-    const notifications = await new DatabaseQuery()
+    const { total } = await new DatabaseQuery()
         .addSql(`
-            RETURN SELECT id, recipient, context, message, time, viewed
+            SELECT COUNT() AS total
             FROM notification
             WHERE recipient = $user
-            AND ($dismissed = true OR ($dismissed = false AND viewed = false))
-            ORDER BY time DESC
+            AND ($dismissed = true OR viewed = false)
+            GROUP ALL
         `)
         .addRecord("user", auth.id)
         .addParameter("dismissed", dismissed)
+        .queryOne<{ total: number }>()
+
+    const candidates = await new DatabaseQuery()
+        .addSql(`
+            SELECT id, recipient, context, message, time, viewed
+            FROM notification
+            WHERE recipient = $user
+            AND ($dismissed = true OR viewed = false)
+            ORDER BY time DESC, id ASC
+            LIMIT $limit
+            START $offset
+        `)
+        .addRecord("user", auth.id)
+        .addParameter("dismissed", dismissed)
+        .addParameter("limit", paging.limit)
+        .addParameter("offset", paging.offset)
         .queryAll<Notification>()
 
+    const page = await paging.createPage(candidates)
     return {
-        total: notifications.length,
-        notifications: notifications.slice(0, amount)
-    }
+        total,
+        ...page,
+    } satisfies NotificationPage
 })

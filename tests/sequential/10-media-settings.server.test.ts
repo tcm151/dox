@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { AppSettings, Gallery, Post, Thread } from "../../shared/types"
+import type { AppSettings, FeedPage, Gallery, Post, Thread } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, grabUser } from "../utils/test-server"
 
@@ -88,8 +88,8 @@ it("enforces gallery and attachment policies independently and preserves existin
             body: { images: [imageRecord], title: "Enabled gallery", description: "", topics: [] },
         })
         expectStatus(publishResponse, 200, "allow gallery publishing while post attachments are disabled")
-        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-        const gallery = galleries.find(item => item.images.some(image => image.id === imageRecord))
+        const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === imageRecord))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 

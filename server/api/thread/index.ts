@@ -1,23 +1,32 @@
 import type { Thread } from "@@/shared/types"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { authenticateOptionalRequest } from "@@/server/utils/auth"
+import { useFeedPaging } from "@@/server/utils/feedPagination"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
     await SettingsManager.canViewFeed("threads")
 
-    let query = getQuery<{ sortBy: string, page: number, pageSize: number }>(event)
-    
-    const threads = await new DatabaseQuery()
-        .addSql(`
-            SELECT id, user.{id, name, roles}, content, tags, time,
-            topics, quote.{id, content, tags, time, replies, topics, votes, visits, status, user.{id, name, roles}}, replies, votes, score,
-            edited, timeEdited, visits, images.{id, url},
-            (SELECT locked, slowed FROM ONLY moderation WHERE subject = $parent.id LIMIT 1) AS moderation
-            FROM thread
-            WHERE replyTo = NONE
-            AND status = "active"
-            ORDER BY time DESC
-        `)
-        .queryAll<Thread>()
+    const paging = useFeedPaging(event)
+    const viewer = await authenticateOptionalRequest(event)
+    const excluded = await UserSettingsManager.getFilteredTargets(viewer)
 
-    return sortList(threads, query.sortBy)
+    const candidates = await new DatabaseQuery()
+        .addSql(`
+            SELECT sourceId, fn::sort_hot(score, time, time::now()) AS hot
+            FROM feed
+            WHERE record::tb(sourceId) = "thread"
+            AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+            ORDER BY ${paging.orderBy}
+            LIMIT $limit
+            START $offset
+        `)
+        .addRecords("excluded", excluded)
+        .addParameter("limit", paging.limit)
+        .addParameter("offset", paging.offset)
+        .queryAll<{ sourceId: string }>()
+
+    return await paging.createPage(candidates, selected =>
+        paging.hydrate<Thread>(selected.map(candidate => candidate.sourceId)),
+    )
 })

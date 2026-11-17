@@ -146,8 +146,8 @@ it("creates a thread reply and notifies the thread author", async () => {
         expect(reply.replyTo).toBe(parent.id)
         expect(reply.content).toBe(replyContent)
 
-        const notificationResult = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=10")
-        const notification = notificationResult.notifications.find(item => item.context === reply.id)
+        const notificationResult = await threadAuthor.fetch<{ items: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&pageSize=10")
+        const notification = notificationResult.items.find(item => item.context === reply.id)
         expect(notification?.message).toContain(replyContent)
 
         await setNotificationPreference(false)
@@ -162,8 +162,8 @@ it("creates a thread reply and notifies the thread author", async () => {
         const disabledReply = disabledReplyResponse._data!
         disabledReplyId = extractId(disabledReply.id)
 
-        const disabledNotifications = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=20")
-        expect(disabledNotifications.notifications.some(item => item.context === disabledReply.id)).toBe(false)
+        const disabledNotifications = await threadAuthor.fetch<{ items: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&pageSize=20")
+        expect(disabledNotifications.items.some(item => item.context === disabledReply.id)).toBe(false)
 
         await setNotificationPreference(true)
         const resumedReplyResponse = await replyAuthor.fetchRaw<Thread>(`/api/thread/${parentId}/reply`, {
@@ -174,8 +174,8 @@ it("creates a thread reply and notifies the thread author", async () => {
         const resumedReply = resumedReplyResponse._data!
         resumedReplyId = extractId(resumedReply.id)
 
-        const resumedNotifications = await threadAuthor.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=20")
-        expect(resumedNotifications.notifications.some(item => item.context === resumedReply.id)).toBe(true)
+        const resumedNotifications = await threadAuthor.fetch<{ items: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&pageSize=20")
+        expect(resumedNotifications.items.some(item => item.context === resumedReply.id)).toBe(true)
     }
     finally {
         await saveUserSettings(originalSettings)

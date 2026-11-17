@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Post, SearchResult } from "../../shared/types"
+import type { FeedPage, Post, SearchResult } from "../../shared/types"
 
 const admin = await grabUser("admin")
 
@@ -35,11 +35,11 @@ it("filters low-relevance matches while preserving exact phrase matches", async 
 
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(response, 200, await response.clone().text())
-        const results = await response.json() as SearchResult[]
-        const exactResult = results.find(item => item.id === `post:${exactPostId}`)
+        const results = await response.json() as FeedPage<SearchResult>
+        const exactResult = results.items.find(item => item.id === `post:${exactPostId}`)
         expect(exactResult?.search.exact).toBe(true)
         expect(exactResult?.search.score).toBeLessThan(0.5)
-        expect(results.some(item => item.id === `post:${partialPostId}`)).toBe(false)
+        expect(results.items.some(item => item.id === `post:${partialPostId}`)).toBe(false)
     }
     finally {
         const recordIds = [

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { AppSettings, Comment, Gallery, Link, ModeratorLog, Moderation, Post, Thread, Topic, User } from "../../shared/types"
+import type { AppSettings, Comment, Gallery, Link, ModeratorLog, Moderation, NotificationPage, Post, Thread, Topic, User } from "../../shared/types"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 
@@ -462,8 +462,8 @@ it("notifies the applicant when approved as a topic moderator", async () => {
         const response = await admin.fetchRaw(`/api/moderator/request/${testRequest.requestId}/approve`, { method: "POST" })
         expectStatus(response, 200)
 
-        const notifications = await member.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
-        const notification = notifications.notifications.find(item => item.context === `topic:${testRequest.topicId}`)
+        const notifications = await member.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=100")
+        const notification = notifications.items.find(item => item.context === `topic:${testRequest.topicId}`)
         expect(notification?.message).toContain("request to moderate this topic was approved")
     }
     finally {
@@ -500,8 +500,8 @@ it("reconciles existing approvals when their threshold is met", async () => {
         expect(request?.closed).toBe(true)
         expect(request?.user.roles).toContain("moderator")
 
-        const notifications = await member.fetch<{ notifications: Array<{ context: string, message: string }> }>("/api/profile/notifications?dismissed=false&amount=100")
-        const notification = notifications.notifications.find(item => item.context === `topic:${testRequest.topicId}`)
+        const notifications = await member.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=100")
+        const notification = notifications.items.find(item => item.context === `topic:${testRequest.topicId}`)
         expect(notification?.message).toContain("request to moderate this topic was approved")
     }
     finally {

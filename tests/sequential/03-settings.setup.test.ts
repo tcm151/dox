@@ -1,5 +1,5 @@
 import { beforeAll, expect, it } from "vitest"
-import type { AppSettings, Link } from "../../shared/types"
+import type { AppSettings, FeedPage, Link, Sortable } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, grabUser } from "../utils/test-server"
 
@@ -111,17 +111,17 @@ it("keeps links in existing feeds when the dedicated link feed is disabled", asy
         expect(popularOffset).toBeGreaterThanOrEqual(0)
 
         const [links, userFeed, topicFeed, popularFeed, appPins, topicPins] = await Promise.all([
-            admin.fetch<Link[]>("/api/link?sortBy=new"),
-            admin.fetch<Array<{ id: string }>>(`/api/user/${userId}/feed?sortBy=new`),
-            admin.fetch<Array<{ id: string }>>(`/api/topic/${extractId(topic)}/feed?sortBy=new`),
+            admin.fetch<FeedPage<Link>>("/api/link?sortBy=new"),
+            admin.fetch<FeedPage<Sortable>>(`/api/user/${userId}/feed?sortBy=new`),
+            admin.fetch<FeedPage<Sortable>>(`/api/topic/${extractId(topic)}/feed?sortBy=new`),
             admin.fetch<{ items: Array<{ id: string }> }>(`/api/feed/popular?sortBy=new&pageSize=1&offset=${popularOffset}`),
             admin.fetch<Array<{ item: { id: string } }>>("/api/feed/pinned"),
             admin.fetch<Array<{ item: { id: string } }>>(`/api/topic/${extractId(topic)}/pins`),
         ])
 
-        expect(links.some(item => item.id === `link:${linkId}`)).toBe(true)
-        expect(userFeed.some(item => item.id === `link:${linkId}`)).toBe(true)
-        expect(topicFeed.some(item => item.id === `link:${linkId}`)).toBe(true)
+        expect(links.items.some(item => item.id === `link:${linkId}`)).toBe(true)
+        expect(userFeed.items.some(item => item.id === `link:${linkId}`)).toBe(true)
+        expect(topicFeed.items.some(item => item.id === `link:${linkId}`)).toBe(true)
         expect(popularFeed.items.some(item => item.id === `link:${linkId}`)).toBe(true)
         expect(appPins.some(pin => pin.item.id === `link:${linkId}`)).toBe(true)
         expect(topicPins.some(pin => pin.item.id === `link:${linkId}`)).toBe(true)

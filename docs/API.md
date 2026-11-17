@@ -136,17 +136,16 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/api/profile/notifications?dismissed=&amount=` | Authenticated | Lists the caller's notifications; `dismissed=false` filters to unread and `amount` caps the returned list. |
+| `GET` | `/api/profile/notifications?dismissed=&pageSize=&offset=` | Authenticated | Returns a page of the caller's notifications; `dismissed=false` filters to unread. |
 | `POST` | `/api/profile/notifications/dismiss` | Authenticated | Marks the caller's unread notifications as viewed. |
 | `POST` | `/api/profile/notifications/:id/dismiss` | Authenticated | Marks one of the caller's notifications as viewed. |
 
 ### Notification Inbox
 
 - Access: authenticated user; list results are scoped to the current recipient.
-- Request: `dismissed` must be `"true"` or `"false"`; `false` returns unread notifications and `true` includes all. `amount` must be a non-negative safe integer and limits the returned array.
-- `200`: `{ total, notifications }`; `total` is computed before the `amount` slice.
-- `amount=0` returns the matching count with an empty `notifications` array, using a count-only query.
-- `400`: missing or invalid list query parameters.
+- Request: `dismissed` must be `"true"` or `"false"`; `false` returns unread notifications and `true` includes all. Pagination follows the feed contract: `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is capped at 5,000,000.
+- `200`: `{ items, pageSize, offset, more, total }`; `items` are ordered by notification time and ID, and `total` counts all matching notifications.
+- `400`: missing or invalid `dismissed`.
 - Dismiss actions mark notifications as viewed; they do not delete them. The single-item action only updates a notification belonging to the caller; missing or non-owned notifications return `404`.
 - Context links using `comment:id` redirect to the comment anchor on its post, link, or gallery discussion.
 - Notification creation and email-queue failures are logged and do not change the originating action response after it commits.
@@ -160,7 +159,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | [`/api/feed/popular`](#feed-pagination) | Public | Returns a paginated aggregate feed when `feeds.discover` is enabled. |
 | `GET` | [`/api/feed/following`](#feed-pagination) | Authenticated | Returns followed content when `feeds.discover` is enabled. |
 | `GET` | `/api/feed/pinned` | Public | Returns active application-wide pins when `feeds.discover` is enabled. |
-| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments when `feeds.search` is enabled. |
+| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=&pageSize=&offset=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments when `feeds.search` is enabled. |
 | `GET` | `/api/feed/topics` | Public | Lists topics for the dedicated Topics feed when `feeds.topics` is enabled. |
 | `GET` | `/api/trending/topics` | Public | Returns the five topics with the most recent post activity. |
 | `GET` | `/api/trending/users` | Public | Returns the five highest-scoring users. |
@@ -168,14 +167,14 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/topic` | Public | Lists topics ordered by score, independent of the dedicated Topics feed setting. |
 | `GET` | `/api/topic/available` | Public | Lists active topics available for selection, independent of the dedicated Topics feed setting. |
 | `GET` | `/api/topic/:topic` | Public | Returns a topic profile and related gallery data. |
-| `GET` | `/api/topic/:topic/feed?sortBy=` | Public | Returns active posts, top-level threads, and galleries for a topic. |
+| `GET` | `/api/topic/:topic/feed?sortBy=&pageSize=&offset=` | Public | Returns a page of active posts, top-level threads, and galleries for a topic. |
 | `GET` | `/api/topic/:topic/followers` | Public | Lists users following a topic. |
 | `GET` | `/api/topic/:topic/pins` | Public | Lists active pins for a topic. |
 | `GET` | `/api/topic/:topic/related-topics` | Public | Lists topics related through shared content. |
 | `GET` | `/api/topic/:topic/visit` | Public | Increments and returns the topic visit counter. |
 | `GET` | `/api/user` | Public | Lists user profiles visible to the current viewer; anonymous viewers see public profiles. |
 | `GET` | `/api/user/:id` | Public | Returns a profile with a `visible` flag; controlled details are omitted when the viewer is not allowed. |
-| `GET` | `/api/user/:id/feed?sortBy=` | Public | Returns the user's active posts, top-level threads, and galleries only when their profile is visible to the viewer. |
+| `GET` | `/api/user/:id/feed?sortBy=&pageSize=&offset=` | Public | Returns a page of the user's active posts, top-level threads, and galleries only when their profile is visible to the viewer. |
 | `GET` | `/api/user/:id/{followers,following,topics}` | Public | Lists a user's followers, followed users, or followed topics only when their profile is visible to the viewer. |
 | `GET` | `/api/user/:id/visit` | Public | Increments and returns the profile visit counter. |
 
@@ -183,30 +182,40 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 - Methods: `GET /api/feed/popular` and `GET /api/feed/following`.
 - Access: popular feed is public; following feed requires authentication and includes content from followed topics or users. Both require `feeds.discover`; disabled feeds return `404`.
-- Query: `sortBy` accepts `new`, `hot`, or `top` and defaults to `new`. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to a nonnegative maximum.
-- `200`: `{ items, offset, more }`; `items` may contain active posts, links, top-level threads, or galleries, and `more` indicates whether another item exists.
+- Query: `sortBy` accepts `new`, `hot`, or `top` and defaults to `new`. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to 0-5,000,000.
+- `200`: `{ items, pageSize, offset, more }`; `items` may contain active posts, links, top-level threads, or galleries, and `more` indicates whether another item exists.
 - Source: [feed handlers](../server/api/feed/popular.ts), [following handler](../server/api/feed/following.ts), [pagination implementation](../server/utils/feedPagination.ts).
 - Tests: [feed pagination tests](../tests/sequential/02-feeds.server.test.ts) cover sort modes, offsets, limits, and followed-topic filtering.
 
 ### Feed Search
 
-- Method: `GET /api/feed/search?text=&type=&topic=&user=&from=&to=`.
+- Method: `GET /api/feed/search?text=&type=&topic=&user=&from=&to=&pageSize=&offset=`.
 - Access: public when `feeds.search` is enabled; disabled search returns `404`.
-- Request: `text` is the search query. Optional `type` is `post`, `thread`, `gallery`, or `comment`; `topic` is a topic ID without the `topic:` prefix; `user` is a case-insensitive partial author-name match; `from` and `to` are inclusive UTC calendar dates in `YYYY-MM-DD` form.
-- Missing or whitespace-only `text` returns `200 []`. Invalid filters or a `from` date after `to` return `400`.
-- `200`: matching active posts, threads, galleries, and comments, ordered by case-insensitive exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Deleted comments and comments under inactive or deleted contexts are excluded. Supplied filters are combined.
+- Request: `text` is the search query. Optional `type` is `post`, `thread`, `gallery`, or `comment`; `topic` is a topic ID without the `topic:` prefix; `user` is a case-insensitive partial author-name match; `from` and `to` are inclusive UTC calendar dates in `YYYY-MM-DD` form. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to 0-5,000,000.
+- Missing or whitespace-only `text` returns an empty page. Invalid filters or a `from` date after `to` return `400`.
+- `200`: `{ items, pageSize, offset, more }`, with matching active posts, threads, galleries, and comments ordered by exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Deleted comments and comments under inactive or deleted contexts are excluded. Supplied filters are combined before page selection, and only selected results are hydrated; each result includes its search metadata.
 - Source: [search handler](../server/api/feed/search.ts).
 - Tests: [search API tests](../tests/parallel/search.server.test.ts) cover ranking, exclusion of inactive or deleted content, and optional filters.
+
+### Discovery And Content List Pagination
+
+- Methods: `/api/post`, `/api/thread`, `/api/link`, `/api/gallery`, `/api/topic/:topic/feed`, and `/api/user/:id/feed`.
+- Query: `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to 0-5,000,000. Feed routes accept `sortBy=new|hot|top`, defaulting to `new`.
+- `200`: `{ items, pageSize, offset, more }`; `more` indicates whether another item exists.
+- Visibility, audience, and personal user/topic filters apply before page selection. Ordering uses the selected sort with a record-ID tie-breaker; mixed topic/user feeds hydrate only the selected page.
+- Offset pages are independent reads. Content changes between requests may shift later offsets, so clients append pages and de-duplicate by record ID.
+- Source: [content list handlers](../server/api/post/index.ts), [topic feed](../server/api/topic/%5Btopic%5D/feed.ts), [user feed](../server/api/user/%5Bid%5D/feed.ts), [pagination implementation](../server/utils/feedPagination.ts).
+- Tests: [feed sorting tests](../tests/sequential/09-feeds.server.test.ts) and [content-filter API tests](../tests/parallel/content-filters.server.test.ts).
 
 ## Content and Discussions
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/api/post` | Public | Lists active posts when `feeds.posts` is enabled. |
+| `GET` | `/api/post?sortBy=&pageSize=&offset=` | Public | Returns active posts when `feeds.posts` is enabled; applies signed-in viewers' user/topic mute and block filters, including authors who block them. Anonymous results are unchanged. |
 | `GET` | `/api/post/:id` | Public | Returns a post and its discussion. |
 | `GET` | `/api/post/:id/visit` | Public | Increments and returns the post visit counter. |
 | `GET` | `/api/link/:id` | Public | Returns a link and its discussion. |
-| `GET` | `/api/link` | Public | Lists active Links; remains unfiltered when the dedicated Links page is disabled. |
+| `GET` | `/api/link?sortBy=&pageSize=&offset=` | Public | Returns a page of active Links; applies signed-in viewers' user/topic mute and block filters, including authors who block them. Anonymous results are unchanged. Remains available when dedicated Links navigation is disabled. |
 | `GET` | `/api/link/:id/visit` | Public | Increments and returns the link visit counter. |
 | `POST` | `/api/link/:id/edit` | Authenticated; Link author | Updates the authored Link description. |
 | `POST` | `/api/link/:id/delete` | Authenticated; author or admin | Deletes or redacts the Link while preserving its discussion. |
@@ -220,7 +229,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | [`/api/link/add`](#create-link) | Authenticated; resource and blocked-topic checks | Publishes a link for the current user. |
 | `POST` | `/api/post/:id/edit` | Authenticated; post author | Edits the post content. |
 | `POST` | `/api/post/:id/delete` | Authenticated; author or admin | Deletes or redacts the post while preserving referenced discussion. |
-| `GET` | `/api/thread` | Public | Lists active top-level threads when `feeds.threads` is enabled. |
+| `GET` | `/api/thread?sortBy=&pageSize=&offset=` | Public | Returns active top-level threads when `feeds.threads` is enabled; applies signed-in viewers' user/topic mute and block filters, including authors who block them. Anonymous results are unchanged. |
 | `GET` | `/api/thread/:id` | Public | Returns a thread and its reply context. |
 | `GET` | `/api/thread/:id/visit` | Public | Increments and returns the thread visit counter. |
 | `POST` | `/api/thread/add` | Authenticated; publishing, topic-count/allowlist, image-attachment, and blocked-topic checks | Publishes a thread. |
@@ -268,7 +277,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | --- | --- | --- | --- |
 | `POST` | [`/api/image/upload`](#image-upload) | Confirmed account | Uploads an image and charges the applicable token cost. |
 | `POST` | [`/api/gallery/publish`](#gallery-publication) | Confirmed account; gallery setting; image ownership; blocked-topic checks | Publishes owned images as a gallery. |
-| `GET` | `/api/gallery` | Public | Lists active galleries when `feeds.images` is enabled. |
+| `GET` | `/api/gallery?sortBy=&pageSize=&offset=` | Public | Returns a page of active galleries when `feeds.images` is enabled; applies signed-in viewers' user/topic mute and block filters, including authors who block them. Anonymous results are unchanged. |
 | `GET` | `/api/gallery/:id` | Public | Returns gallery details and comments. |
 | `GET` | `/api/gallery/:id/visit` | Public | Increments and returns the gallery visit counter. |
 | `POST` | [`/api/gallery/:id/edit`](#gallery-edit) | Gallery owner | Updates the gallery description. |

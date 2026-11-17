@@ -191,10 +191,14 @@ test("clears previous inbox data when the account refresh fails", async ({ authe
 
 test("renders both inbox empty states", async ({ authenticatedPage: page }) => {
     await page.route(url => url.pathname === "/api/profile/notifications", async (route) => {
+        const url = new URL(route.request().url())
+        const requestedPageSize = Number(url.searchParams.get("pageSize") ?? 20)
+        const pageSize = Math.min(50, Math.max(1, Math.trunc(requestedPageSize || 20)))
+        const offset = Number(url.searchParams.get("offset")) || 0
         await route.fulfill({
             status: 200,
             contentType: "application/json",
-            body: JSON.stringify({ total: 0, notifications: [] }),
+            body: JSON.stringify({ total: 0, items: [], pageSize, offset, more: false }),
         })
     })
     await page.goto("/inbox")
@@ -202,6 +206,47 @@ test("renders both inbox empty states", async ({ authenticatedPage: page }) => {
     await expect(page.getByText("You have no unread notifications.", { exact: true })).toBeVisible()
     await page.locator("label.toggle").click()
     await expect(page.getByText("You don't have any notifications.", { exact: true })).toBeVisible()
+})
+
+test("loads additional notification pages without replacing existing items", async ({ authenticatedPage: page }) => {
+    const suffix = Date.now()
+    const notifications = Array.from({ length: 21 }, (_, index) => ({
+        id: `notification:page${suffix}${index}`,
+        recipient: "user:browser",
+        context: `thread:page${suffix}${index}`,
+        message: `Inbox page ${index + 1} ${suffix}`,
+        time: new Date().toISOString(),
+        viewed: false,
+    }))
+
+    await page.route(url => url.pathname === "/api/profile/notifications", async (route) => {
+        const url = new URL(route.request().url())
+        const requestedPageSize = Number(url.searchParams.get("pageSize") ?? 20)
+        const pageSize = Math.min(50, Math.max(1, Math.trunc(requestedPageSize || 20)))
+        const offset = Number(url.searchParams.get("offset")) || 0
+        const items = notifications.slice(offset, offset + pageSize)
+        await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+                items,
+                pageSize,
+                offset,
+                more: offset + pageSize < notifications.length,
+                total: notifications.length,
+            }),
+        })
+    })
+    await page.goto("/inbox")
+
+    const firstItem = page.getByText(`Inbox page 1 ${suffix}`, { exact: false })
+    const lastItem = page.getByText(`Inbox page 21 ${suffix}`, { exact: false })
+    await expect(firstItem).toBeVisible()
+    await expect(lastItem).toBeHidden()
+    await page.getByRole("button", { name: "Load More" }).click()
+    await expect(firstItem).toBeVisible()
+    await expect(lastItem).toBeVisible()
+    await expect(page.getByRole("button", { name: "Load More" })).toBeHidden()
 })
 
 test("dismisses inbox notifications individually and in bulk", async ({ authenticatedPage: page }) => {
@@ -232,11 +277,19 @@ test("dismisses inbox notifications individually and in bulk", async ({ authenti
         if (url.pathname === "/api/profile/notifications") {
             const showDismissed = url.searchParams.get("dismissed") === "true"
             const visible = notifications.filter(notification => showDismissed || !notification.viewed)
-            const amount = Number(url.searchParams.get("amount"))
+            const requestedPageSize = Number(url.searchParams.get("pageSize") ?? 20)
+            const pageSize = Math.min(50, Math.max(1, Math.trunc(requestedPageSize || 20)))
+            const offset = Number(url.searchParams.get("offset")) || 0
             await route.fulfill({
                 status: 200,
                 contentType: "application/json",
-                body: JSON.stringify({ total: visible.length, notifications: visible.slice(0, amount) }),
+                body: JSON.stringify({
+                    total: visible.length,
+                    items: visible.slice(offset, offset + pageSize),
+                    pageSize,
+                    offset,
+                    more: visible.length > offset + pageSize,
+                }),
             })
             return
         }

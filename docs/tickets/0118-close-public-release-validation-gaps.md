@@ -6,10 +6,10 @@
 - Next: Reproduce the most recently recorded full-suite failures in an execution-enabled environment.
 
 ## Dependencies
-- [0108](0108-enforce-media-category-and-cleanup-invariants.md): Final candidate evidence must include the corrected media lifecycle.
-- [0109](0109-validate-email-confirmation-token-records.md): Final candidate evidence must include genuine confirmation-token enforcement.
-- [0110](0110-limit-confirmation-email-resends.md): Final candidate evidence must include confirmation-send abuse protection.
-- [0111](0111-apply-personal-filters-to-dedicated-feeds.md): Validate the supported dedicated feeds after their personal-filter correction.
+- [0108](completed/0108-enforce-media-category-and-cleanup-invariants.md): Final candidate evidence must include the corrected media lifecycle.
+- [0109](completed/0109-validate-email-confirmation-token-records.md): Final candidate evidence must include genuine confirmation-token enforcement.
+- [0110](completed/0110-limit-confirmation-email-resends.md): Final candidate evidence must include confirmation-send abuse protection.
+- [0111](completed/0111-apply-personal-filters-to-dedicated-feeds.md): Validate the supported dedicated feeds after their personal-filter correction.
 - [0112](0112-bound-discovery-and-inbox-queries.md): Validate the final bounded public list/inbox contracts.
 - [0113](0113-isolate-account-preference-request-state.md): Validate the candidate after account-preference identity isolation is fixed.
 

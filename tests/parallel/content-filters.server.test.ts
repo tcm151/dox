@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
-import type { Comment, FeedPage, Post, Thread, User } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, Link, Post, Thread, Topic, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 
@@ -69,6 +69,31 @@ async function cleanupTestData(accounts: FilterTestAccount[], postId?: string, t
         ${cleanupUsers}
         ${topicId ? `DELETE topic:${topicId};` : ""}
     `)
+}
+
+async function expectDedicatedFeeds(
+    account: FilterTestAccount | undefined,
+    feeds: Array<{ path: string, id: string }>,
+    visible: boolean,
+    stage: string,
+) {
+    for (const feed of feeds) {
+        const response = account ? await accountFetch(account, feed.path) : await fetch(feed.path)
+        expectStatus(response, 200, `${stage} ${feed.path}`)
+        const items = await response.json() as Array<{ id: string }>
+        expect(items.some(item => item.id === feed.id), `${stage} ${feed.path}`).toBe(visible)
+    }
+}
+
+async function clearFilters(accounts: FilterTestAccount[], targets: string[]) {
+    for (const account of accounts) {
+        for (const action of ["unmute", "unblock"] as const) {
+            for (const target of targets) {
+                const response = await accountFetch(account, `/api/profile/filters/${action}`, { target })
+                expectStatus(response, 200, `clear ${action} ${target}`)
+            }
+        }
+    }
 }
 
 async function expectBlockedInteraction(response: Response, recordIds: string[], stage: string) {
@@ -277,6 +302,146 @@ it("filters content from users who block the viewer without hiding direct links"
     }
     finally {
         await cleanupTestData(accounts, postId)
+    }
+})
+
+it("applies user and topic filters to every dedicated content feed", async () => {
+    const accounts: FilterTestAccount[] = []
+    const topicId = `dedicatedFilter${randomUUID().replaceAll("-", "").slice(0, 12)}`
+    const topic = `topic:${topicId}`
+    const imageId = `dedicatedFilter${randomUUID().replaceAll("-", "").slice(0, 12)}`
+    const image = `image:${imageId}`
+    const records: string[] = []
+    let viewer: FilterTestAccount | undefined
+    let author: FilterTestAccount | undefined
+
+    try {
+        viewer = await createAccount()
+        accounts.push(viewer)
+        author = await createAccount()
+        accounts.push(author)
+
+        await admin.query(`CREATE ONLY ${topic} SET posts = [], threads = [];`)
+
+        const postResponse = await accountFetch(author, "/api/post/add", {
+            title: `Dedicated feed post ${randomUUID().slice(0, 8)}`,
+            content: "Created for dedicated-feed filter coverage.",
+            topics: [topic],
+            images: [],
+        })
+        expectStatus(postResponse, 200, "dedicated-feed post creation stage")
+        const post = await postResponse.json() as Post
+        records.push(post.id)
+
+        const topicSettings = await admin.fetch<Topic>(`/api/topic/${topicId}`)
+        const topicUpdate = await admin.fetchRaw(`/api/topic/${topicId}/update`, {
+            method: "POST",
+            body: {
+                description: topicSettings.description ?? "",
+                moderation: { ...topicSettings.moderation, maxPostInterval: 0 },
+                rules: topicSettings.rules ?? "",
+            },
+        })
+        expectStatus(topicUpdate, 200, "dedicated-feed topic cooldown setup stage")
+
+        const threadResponse = await accountFetch(author, "/api/thread/add", {
+            content: "Created for dedicated-feed filter coverage.",
+            topics: [topic],
+            images: [],
+        })
+        expectStatus(threadResponse, 200, "dedicated-feed thread creation stage")
+        const thread = await threadResponse.json() as Thread
+        records.push(thread.id)
+
+        const linkResponse = await accountFetch(author, "/api/link/add", {
+            title: `Dedicated feed link ${randomUUID().slice(0, 8)}`,
+            url: "http://127.0.0.1/article",
+            topics: [topic],
+        })
+        expectStatus(linkResponse, 200, "dedicated-feed link creation stage")
+        const link = await linkResponse.json() as Link
+        records.push(link.id)
+
+        await admin.query(`
+            UPDATE ${author.user.id} SET traits = array::union(traits, ["confirmed"]);
+            CREATE ONLY ${image} SET user = ${author.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;
+        `)
+        const galleryResponse = await accountFetch(author, "/api/gallery/publish", {
+            images: [image],
+            title: "Dedicated feed gallery",
+            description: "Created for dedicated-feed filter coverage.",
+            topics: [topic],
+        })
+        expectStatus(galleryResponse, 200, "dedicated-feed gallery creation stage")
+        const galleryListResponse = await fetch("/api/gallery")
+        expectStatus(galleryListResponse, 200, "dedicated-feed gallery lookup stage")
+        const galleries = await galleryListResponse.json() as Gallery[]
+        const gallery = galleries.find(item => item.images.some(itemImage => itemImage.id === image))
+        expect(gallery).toBeDefined()
+        records.push(gallery!.id)
+
+        const postId = extractId(post.id)!
+        const feeds = [
+            { path: "/api/post", id: post.id },
+            { path: "/api/thread", id: thread.id },
+            { path: "/api/link", id: link.id },
+            { path: "/api/gallery", id: gallery!.id },
+        ]
+        await expectDedicatedFeeds(viewer, feeds, true, "unfiltered viewer")
+        await expectDedicatedFeeds(undefined, feeds, true, "anonymous viewer")
+
+        const filterCases = [
+            { action: "mute", removal: "unmute", target: author.user.id },
+            { action: "mute", removal: "unmute", target: topic },
+            { action: "block", removal: "unblock", target: author.user.id },
+            { action: "block", removal: "unblock", target: topic },
+        ] as const
+
+        for (const filter of filterCases) {
+            const addFilter = await accountFetch(viewer, `/api/profile/filters/${filter.action}`, { target: filter.target })
+            expectStatus(addFilter, 200, `${filter.action} ${filter.target} stage`)
+            await expectDedicatedFeeds(viewer, feeds, false, `${filter.action} ${filter.target}`)
+            await expectDedicatedFeeds(undefined, feeds, true, `anonymous during ${filter.action} ${filter.target}`)
+
+            const directPostResponse = await accountFetch(viewer, `/api/post/${postId}`)
+            expectStatus(directPostResponse, 200, `direct post access during ${filter.action} ${filter.target}`)
+
+            const removeFilter = await accountFetch(viewer, `/api/profile/filters/${filter.removal}`, { target: filter.target })
+            expectStatus(removeFilter, 200, `${filter.removal} ${filter.target} stage`)
+            await expectDedicatedFeeds(viewer, feeds, true, `${filter.removal} ${filter.target}`)
+        }
+
+        const reverseBlock = await accountFetch(author, "/api/profile/filters/block", { target: viewer.user.id })
+        expectStatus(reverseBlock, 200, "reverse author block stage")
+        await expectDedicatedFeeds(viewer, feeds, false, "author blocks viewer")
+        await expectDedicatedFeeds(undefined, feeds, true, "anonymous while author blocks viewer")
+
+        const removeReverseBlock = await accountFetch(author, "/api/profile/filters/unblock", { target: viewer.user.id })
+        expectStatus(removeReverseBlock, 200, "remove reverse author block stage")
+        await expectDedicatedFeeds(viewer, feeds, true, "reverse block removed")
+    }
+    finally {
+        const targets = [
+            ...(author ? [author.user.id] : []),
+            topic,
+        ]
+        await clearFilters(accounts, targets)
+
+        const userIds = accounts.map(account => account.user.id)
+        const cleanupUsers = userIds.length > 0
+            ? `
+                DELETE session WHERE account IN (SELECT VALUE id FROM account WHERE user IN [${userIds.join(", ")}]);
+                DELETE account WHERE user IN [${userIds.join(", ")}];
+                DELETE userSettings WHERE user IN [${userIds.join(", ")}];
+                DELETE user WHERE id IN [${userIds.join(", ")}];
+            `
+            : ""
+        await admin.query(`
+            ${records.length > 0 ? `DELETE notification WHERE context IN [${records.join(", ")}]; DELETE [${records.join(", ")}];` : ""}
+            DELETE ${image};
+            ${cleanupUsers}
+            DELETE ${topic};
+        `)
     }
 })
 

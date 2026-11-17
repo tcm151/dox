@@ -29,7 +29,20 @@ test("shows unread notification count on the inbox navigation icon", async ({ au
         await route.fulfill({
             status: 200,
             contentType: "application/json",
-            body: JSON.stringify({ total: 4, notifications: [] }),
+            body: JSON.stringify({
+                total: 4,
+                items: [{
+                    id: "notification:badge",
+                    recipient: "user:browser",
+                    context: "thread:badge",
+                    message: "Badge notification",
+                    time: new Date().toISOString(),
+                    viewed: false,
+                }],
+                pageSize: 1,
+                offset: 0,
+                more: true,
+            }),
         })
     })
     await authenticatedPage.goto("/feed")

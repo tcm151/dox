@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { Comment, Link } from "../../shared/types"
+import type { Comment, Link, NotificationPage } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser } from "../utils/test-server"
 
@@ -54,10 +54,10 @@ it("creates and retrieves a link and applies topic cooldowns", async () => {
         const commentId = extractId(comment.id)
         commentIds.push(commentId)
 
-        const notifications = await admin.fetch<{ notifications: Array<{ context: string }> }>(
-            "/api/profile/notifications?dismissed=false&amount=1000",
+        const notifications = await admin.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=1000",
         )
-        expect(notifications.notifications.some(notification => notification.context === comment.id)).toBe(true)
+        expect(notifications.items.some(notification => notification.context === comment.id)).toBe(true)
 
         const commentRouteResponse = await admin.fetchRaw(`/comment/${commentId}`, { redirect: "manual" })
         expectStatus(commentRouteResponse, 302, "link comment redirect stage")

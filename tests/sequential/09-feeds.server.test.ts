@@ -15,7 +15,7 @@ it("paginates popular feed results for each sort mode", async () => {
     let galleryId: string | undefined
 
     try {
-        for (let index = 0; index < 4; index++) {
+        for (let index = 0; index < 6; index++) {
             const response = await admin.fetchRaw<Post>("/api/post/add", {
                 method: "POST",
                 body: {
@@ -66,7 +66,7 @@ it("paginates popular feed results for each sort mode", async () => {
         sourceScores.set(`thread:${threadId}`, thread.score)
 
         imageId = `feedPagination${Date.now()}`
-        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "image/jpeg", origin = "https://example.invalid", tokens = 0;`)
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
 
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
@@ -81,8 +81,8 @@ it("paginates popular feed results for each sort mode", async () => {
 
         const galleryResponse = await fetch("/api/gallery")
         expectStatus(galleryResponse, 200)
-        const galleries = await galleryResponse.json() as Gallery[]
-        const publishedGallery = galleries.find(gallery => gallery.images.some(image => image.id === `image:${imageId}`))
+        const galleryPage = await galleryResponse.json() as FeedPage<Gallery>
+        const publishedGallery = galleryPage.items.find(gallery => gallery.images.some(image => image.id === `image:${imageId}`))
         expect(publishedGallery).toBeDefined()
         galleryId = extractId(publishedGallery!.id)
         expect(Number.isFinite(publishedGallery!.score)).toBe(true)
@@ -108,16 +108,23 @@ it("paginates popular feed results for each sort mode", async () => {
         }
 
         await admin.query(`
-            LET $tieTime = time::now();
-            UPDATE post:${postIds[0]} SET visits = 10, votes.positive = [${admin.user.id}], time = $tieTime;
-            UPDATE post:${postIds[1]} SET visits = 10, votes.positive = [${admin.user.id}], time = $tieTime;
-            UPDATE post:${postIds[2]} SET visits = 20, votes.positive = [${admin.user.id}];
-            UPDATE post:${postIds[3]} SET visits = 30, votes.positive = [${admin.user.id}];
-            UPDATE thread:${threadId} SET visits = 40, votes.positive = [${admin.user.id}];
-            UPDATE gallery:${galleryId} SET visits = 50, votes.positive = [${admin.user.id}];
+            LET $now = time::now();
+            UPDATE post:${postIds[0]} SET visits = 10, votes.positive = [${admin.user.id}], time = $now;
+            UPDATE post:${postIds[1]} SET visits = 100, votes.positive = [${admin.user.id}], time = $now - 2h;
+            UPDATE post:${postIds[2]} SET visits = 500, votes.positive = [${admin.user.id}], time = $now - 6h;
+            UPDATE post:${postIds[3]} SET visits = 80, votes.positive = [${admin.user.id}], time = $now - 1h;
+            UPDATE post:${postIds[4]} SET visits = 200, votes.positive = [${admin.user.id}], time = $now - 30m;
+            UPDATE post:${postIds[5]} SET visits = 1000, votes.positive = [${admin.user.id}], time = $now - 24h;
+            UPDATE thread:${threadId} SET visits = 40, votes.positive = [${admin.user.id}], time = $now - 4h;
+            UPDATE gallery:${galleryId} SET visits = 50, votes.positive = [${admin.user.id}], time = $now - 3h;
         `)
 
         const expectedSourceIdSet = new Set(expectedSourceIds)
+        const expectedFirstSourceIdBySort = {
+            new: `post:${postIds[0]}`,
+            hot: `post:${postIds[4]}`,
+            top: `post:${postIds[5]}`,
+        }
         const sortOrders = {
             new: "time DESC, sourceId ASC",
             hot: "hot DESC, time DESC, sourceId ASC",
@@ -125,11 +132,13 @@ it("paginates popular feed results for each sort mode", async () => {
         }
         const expectedOrders = new Map<"new" | "hot" | "top", string[]>()
         for (const sortBy of ["new", "hot", "top"] as const) {
-            const expectedOrderResults = await admin.query<Array<Array<{ sourceId: string }>>>(
-                `SELECT sourceId FROM feed WHERE sourceId IN [${expectedSourceIds.join(", ")}] ORDER BY ${sortOrders[sortBy]};`,
+            const expectedOrderResults = await admin.query<Array<Array<{ sourceId: string; time: string; score: number; hot: number }>>>(
+                `SELECT sourceId, time, score, fn::sort_hot(score, time, time::now()) AS hot FROM feed WHERE sourceId IN [${expectedSourceIds.join(", ")}] ORDER BY ${sortOrders[sortBy]};`,
             )
-            const expectedOrder = expectedOrderResults[0]?.map(row => row.sourceId) ?? []
+            const expectedRows = expectedOrderResults[0] ?? []
+            const expectedOrder = expectedRows.map(row => row.sourceId)
             expectedOrders.set(sortBy, expectedOrder)
+            expect(expectedOrder[0], `${sortBy}: ${JSON.stringify(expectedRows)}`).toBe(expectedFirstSourceIdBySort[sortBy])
 
             const actualOrder: string[] = []
             for (let offset = 0; ; offset += 2) {
@@ -143,6 +152,7 @@ it("paginates popular feed results for each sort mode", async () => {
             }
 
             expect(actualOrder).toEqual(expectedOrder)
+            expect(actualOrder[0]).toBe(expectedFirstSourceIdBySort[sortBy])
         }
 
         for (const sortBy of ["new", "hot", "top"] as const) {
@@ -157,6 +167,7 @@ it("paginates popular feed results for each sort mode", async () => {
                 expect(page.more).toBe(offset + 2 < expectedSourceIds.length)
             }
             expect(followingOrder).toEqual(expectedOrders.get(sortBy))
+            expect(followingOrder[0]).toBe(expectedFirstSourceIdBySort[sortBy])
         }
 
         const oversizedResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=9999")

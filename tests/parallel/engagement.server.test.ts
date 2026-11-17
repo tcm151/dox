@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, Gallery, Link, Notification, Post, User } from "../../shared/types"
+import type { Comment, Gallery, Link, NotificationPage, Post, User } from "../../shared/types"
 
 const exampleServer = await grabExampleServer("default")
 const awardSender = exampleServer.users.awardSender
@@ -112,9 +112,9 @@ it("awards users and saves or removes saved subscriptions", async () => {
     expect(awardedProfile.tokens).toBe(awardTarget.user.tokens + 256)
     expect(awardedPublicProfile.votes.awards).toContain(awardSender.user.id)
 
-    const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=10")
-    expect(notifications.notifications[0]?.context).toBe(awardTarget.user.id)
-    expect(notifications.notifications[0]?.message).toContain("awarded you 256 tokens")
+    const notifications = await awardTarget.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=10")
+    expect(notifications.items[0]?.context).toBe(awardTarget.user.id)
+    expect(notifications.items[0]?.message).toContain("awarded you 256 tokens")
 })
 
 it("allows only one of two concurrent awards and records one notification", async () => {
@@ -133,8 +133,8 @@ it("allows only one of two concurrent awards and records one notification", asyn
         expect(targetAfter.tokens).toBe(targetBefore.tokens + 256)
         expect(targetAfter.votes.awards.filter(id => id === concurrentAwarder.user.id)).toHaveLength(1)
 
-        const notifications = await concurrentTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
-        expect(notifications.notifications.filter(notification =>
+        const notifications = await concurrentTarget.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=20")
+        expect(notifications.items.filter(notification =>
             notification.context === concurrentTarget.user.id
                 && notification.message === `**${concurrentAwarder.user.name}** awarded you 256 tokens. Don't forget to thank them!`,
         )).toHaveLength(1)
@@ -171,8 +171,8 @@ it("awards galleries with a token transfer and notification", async () => {
         expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
         expect(authorAfter.tokens).toBe(authorBefore.tokens + 256)
 
-        const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
-        const notification = notifications.notifications.find(item => item.context === galleryRecord)
+        const notifications = await awardTarget.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=20")
+        const notification = notifications.items.find(item => item.context === galleryRecord)
         expect(notification?.message).toContain("awarded your gallery")
     }
     finally {
@@ -217,8 +217,8 @@ it("awards links with a token transfer and notification", async () => {
         expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
         expect(authorAfter.tokens).toBe(authorBefore.tokens + 256)
 
-        const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
-        const notification = notifications.notifications.find(item => item.context === linkRecord)
+        const notifications = await awardTarget.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=20")
+        const notification = notifications.items.find(item => item.context === linkRecord)
         expect(notification?.message).toContain("awarded your link")
     }
     finally {
@@ -275,8 +275,8 @@ it("awards comments with a token transfer and notification", async () => {
         expect(senderAfter.tokens).toBe(senderBefore.tokens - 256)
         expect(authorAfter.tokens).toBe(authorBefore.tokens + 256)
 
-        const notifications = await awardTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
-        expect(notifications.notifications.some(notification =>
+        const notifications = await awardTarget.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=20")
+        expect(notifications.items.some(notification =>
             notification.context === comment.id && notification.message.includes("awarded your comment"),
         )).toBe(true)
     }
@@ -305,8 +305,8 @@ it("rejects awards from an empty balance without changing either account", async
         expect(targetAfter.tokens).toBe(targetBefore.tokens)
         expect(targetAfter.votes.awards).not.toContain(insufficientAwarder.user.id)
 
-        const notifications = await insufficientTarget.fetch<{ notifications: Notification[] }>("/api/profile/notifications?dismissed=false&amount=20")
-        expect(notifications.notifications.some(notification =>
+        const notifications = await insufficientTarget.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=20")
+        expect(notifications.items.some(notification =>
             notification.context === insufficientTarget.user.id
                 && notification.message === `**${insufficientAwarder.user.name}** awarded you 256 tokens. Don't forget to thank them!`,
         )).toBe(false)

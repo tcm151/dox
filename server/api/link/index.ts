@@ -1,17 +1,29 @@
 import type { Link } from "@@/shared/types"
+import { authenticateOptionalRequest } from "@@/server/utils/auth"
+import { useFeedPaging } from "@@/server/utils/feedPagination"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
-    const query = getQuery<{ sortBy: string }>(event)
+    const paging = useFeedPaging(event)
+    const viewer = await authenticateOptionalRequest(event)
+    const excluded = await UserSettingsManager.getFilteredTargets(viewer)
 
-    const links = await new DatabaseQuery()
+    const candidates = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.{id, name, roles}, title, description, url, preview, tags, time, edited, timeEdited,
-                topics, comments, votes, score, status, visits, moderation
-            FROM link
-            WHERE status = "active"
-            ORDER BY time DESC
+            SELECT sourceId, fn::sort_hot(score, time, time::now()) AS hot
+            FROM feed
+            WHERE record::tb(sourceId) = "link"
+            AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+            ORDER BY ${paging.orderBy}
+            LIMIT $limit
+            START $offset
         `)
-        .queryAll<Link>()
+        .addRecords("excluded", excluded)
+        .addParameter("limit", paging.limit)
+        .addParameter("offset", paging.offset)
+        .queryAll<{ sourceId: string }>()
 
-    return sortList(links, query.sortBy)
+    return await paging.createPage(candidates, selected =>
+        paging.hydrate<Link>(selected.map(candidate => candidate.sourceId)),
+    )
 })

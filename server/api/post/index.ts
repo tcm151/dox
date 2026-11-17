@@ -1,21 +1,32 @@
 import type { Post } from "@@/shared/types"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { authenticateOptionalRequest } from "@@/server/utils/auth"
+import { useFeedPaging } from "@@/server/utils/feedPagination"
+import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 export default defineEventHandler(async (event) => {
     await SettingsManager.canViewFeed("posts")
 
-    let query = getQuery<{ sortBy: string, page: number, pageSize: number }>(event)
-    
-    const posts = await new DatabaseQuery()
+    const paging = useFeedPaging(event)
+    const viewer = await authenticateOptionalRequest(event)
+    const excluded = await UserSettingsManager.getFilteredTargets(viewer)
+
+    const candidates = await new DatabaseQuery()
         .addSql(`
-            SELECT id, user.{id, name, roles}, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited,
-            replyTo.{id, title, tags}, topics, comments, votes, score,
-            status, images.{id, url}, visits, moderation
-            FROM post
-            WHERE status = "active"
-            ORDER BY time DESC
+            SELECT sourceId, fn::sort_hot(score, time, time::now()) AS hot
+            FROM feed
+            WHERE record::tb(sourceId) = "post"
+            AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+            ORDER BY ${paging.orderBy}
+            LIMIT $limit
+            START $offset
         `)
-        .queryAll<Post>()
-    
-    return sortList(posts, query.sortBy)
+        .addRecords("excluded", excluded)
+        .addParameter("limit", paging.limit)
+        .addParameter("offset", paging.offset)
+        .queryAll<{ sourceId: string }>()
+
+    return await paging.createPage(candidates, selected =>
+        paging.hydrate<Post>(selected.map(candidate => candidate.sourceId)),
+    )
 })

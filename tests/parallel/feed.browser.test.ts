@@ -19,6 +19,67 @@ test("renders and navigates the home and posts feeds with shared sample data", a
     await expect(page.getByText("Browser suite sample post", { exact: true })).toBeVisible()
 })
 
+test("hides posts from a muted topic in the dedicated posts feed", async ({ authenticatedPage: page, exampleServer }) => {
+    const uniqueId = Date.now().toString(36)
+    const title = `Muted topic browser ${uniqueId}`
+    const topic = `topic:mutedTopicBrowser${uniqueId}`
+    const accessToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
+    const authorToken = exampleServer.users.postAuthor.accessToken
+    const apiUrl = (path: string) => new URL(path, page.url()).toString()
+    let postId: string | undefined
+    let filterApplied = false
+
+    try {
+        const createResponse = await page.request.post(apiUrl("/api/post/add"), {
+            headers: { Authorization: authorToken },
+            data: {
+                title,
+                content: "A unique post for the dedicated-feed browser check.",
+                topics: [topic],
+                images: [],
+            },
+        })
+        expect(createResponse.ok()).toBe(true)
+        postId = extractId((await createResponse.json() as { id: string }).id)
+
+        await page.goto("/feed/posts")
+        const post = page.locator(".post.clickable").filter({ hasText: title })
+        await expect(post).toBeVisible()
+
+        const muteResponse = await page.request.post(apiUrl("/api/profile/filters/mute"), {
+            headers: { Authorization: accessToken },
+            data: { target: topic },
+        })
+        expect(muteResponse.ok()).toBe(true)
+        filterApplied = true
+
+        await page.locator("button.refresh").click()
+        await expect(post).toHaveCount(0)
+    }
+    finally {
+        if (filterApplied) {
+            const unmuteResponse = await page.request.post(apiUrl("/api/profile/filters/unmute"), {
+                headers: { Authorization: accessToken },
+                data: { target: topic },
+            })
+            expect(unmuteResponse.ok()).toBe(true)
+        }
+        if (postId) {
+            const cleanupPostResponse = await page.request.post(apiUrl("/api/developer/database/query"), {
+                headers: { Authorization: accessToken },
+                data: { query: `DELETE post:${postId};` },
+            })
+            expect(cleanupPostResponse.ok()).toBe(true)
+
+            const cleanupTopicResponse = await page.request.post(apiUrl("/api/developer/database/query"), {
+                headers: { Authorization: accessToken },
+                data: { query: `DELETE ${topic};` },
+            })
+            expect(cleanupTopicResponse.ok()).toBe(true)
+        }
+    }
+})
+
 test("renders a plain-text excerpt of the first three Markdown sentences", async ({ authenticatedPage: page }) => {
     const uniqueId = Date.now().toString(36)
     const title = `Markdown excerpt ${uniqueId}`

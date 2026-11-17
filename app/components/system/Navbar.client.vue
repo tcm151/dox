@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { NotificationPage } from "@@/shared/types"
 
 const route = useRoute()
 const events = useEvents()
@@ -7,10 +8,10 @@ const session = getSession()
 
 const { public: { site } } = useRuntimeConfig()
 
-const inbox = await useAuthenticatedDatasource<{ total: number }>("/api/profile/notifications", {
+const inbox = await useAuthenticatedDatasource<NotificationPage>("/api/profile/notifications", {
     query: {
         dismissed: false,
-        amount: 0,
+        pageSize: 1,
     },
     immediate: false,
     watch: false,

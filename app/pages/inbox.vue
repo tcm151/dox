@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Notification } from '@@/shared/types'
+import type { Notification, NotificationPage } from '@@/shared/types'
 
 definePageMeta({
     middleware: (to, from) => {
@@ -13,15 +13,16 @@ definePageMeta({
 })
 
 const hints = useHints()
-const pageAmount = ref<number>(5)
 
 const dismissing = ref<boolean>(false)
 const showDismissed = ref<boolean>(false)
-const notificationAmount = ref<number>(pageAmount.value)
-const { data: result, pending, refresh } = await useAuthenticatedDatasource<{ total: number, notifications: Notification[] }>("/api/profile/notifications", {
+const loadingMore = ref<boolean>(false)
+const pageSize = 20
+const { data: result, pending, refresh } = await useAuthenticatedDatasource<NotificationPage>("/api/profile/notifications", {
     query: {
         dismissed: showDismissed,
-        amount: notificationAmount,
+        pageSize,
+        offset: 0,
     }
 })
 
@@ -79,8 +80,37 @@ async function dismiss(notification: Notification) {
     }
 }
 
-function loadMore() {
-    notificationAmount.value += pageAmount.value
+async function loadMore() {
+    const currentPage = result.value
+    if (!currentPage?.more || loadingMore.value) return
+
+    const requestedDismissed = showDismissed.value
+    const requestedOffset = currentPage.offset + pageSize
+    loadingMore.value = true
+    try {
+        const page = await $fetch<NotificationPage>("/api/profile/notifications", {
+            headers: { Authorization: getSession().tokens.access },
+            query: {
+                dismissed: requestedDismissed,
+                pageSize,
+                offset: requestedOffset,
+            },
+        })
+
+        if (requestedDismissed !== showDismissed.value || currentPage !== result.value) return
+
+        const loadedIds = new Set(currentPage.items.map(notification => notification.id))
+        result.value = {
+            ...page,
+            items: [...currentPage.items, ...page.items.filter(notification => !loadedIds.has(notification.id))],
+        }
+    }
+    catch (error: any) {
+        hints.addError(error.message, error)
+    }
+    finally {
+        loadingMore.value = false
+    }
 }
 
 </script>
@@ -102,7 +132,7 @@ function loadMore() {
         </header>
         <section v-if="result && result.total > 0" class="column g-2">
             <TransitionGroup name="notifications">
-                <template v-for="notification in result.notifications" :key="notification.id">
+                <template v-for="notification in result.items" :key="notification.id">
                     <article class="box p-4">
                         <Markdown class="column" :content="notification.message" />
                         <footer class="row g-1 mt-3">
@@ -113,10 +143,10 @@ function loadMore() {
                     </article>
                 </template>
             </TransitionGroup>
-            <template v-if="result.total > result.notifications.length">
-                <button class="link" @click="loadMore">
+            <template v-if="result.more">
+                <button class="link" :disabled="loadingMore || pending" @click="loadMore">
                     <i class="fa-solid fa-angles-down"></i>
-                    Load More
+                    {{ loadingMore ? "Loading..." : "Load More" }}
                 </button>
             </template>
         </section>

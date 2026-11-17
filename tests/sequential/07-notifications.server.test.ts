@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest"
-import type { Account, Comment, Notification, Post, Thread, UserSettings } from "../../shared/types"
+import type { Account, Comment, NotificationPage, Post, Thread, UserSettings } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { stubDatabaseQuery } from "../utils/test-database-query"
 import { expectStatus, grabExampleServer, grabUser } from "../utils/test-server"
@@ -84,10 +84,10 @@ it("queues notification email only when enabled, independently of in-app notific
         expect(firstEmails[0].text).toContain(emailEnabledMarker)
         expect(firstEmails[0].html).toContain(emailEnabledMarker)
 
-        const firstNotifications = await recipient.fetch<{ notifications: Array<{ context: string }> }>(
-            "/api/profile/notifications?dismissed=false&amount=100",
+        const firstNotifications = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=100",
         )
-        expect(firstNotifications.notifications.some(item => item.context === firstReply.id)).toBe(false)
+        expect(firstNotifications.items.some(item => item.context === firstReply.id)).toBe(false)
 
         const emailDisabledSettings = await saveNotifications({ inApp: true, email: false })
         expect(emailDisabledSettings.notifications).toEqual({ inApp: true, email: false })
@@ -101,10 +101,10 @@ it("queues notification email only when enabled, independently of in-app notific
         replyIds.push(secondReply.id)
 
         expect(await getQueuedEmails(emailDisabledMarker)).toHaveLength(0)
-        const secondNotifications = await recipient.fetch<{ notifications: Array<{ context: string }> }>(
-            "/api/profile/notifications?dismissed=false&amount=100",
+        const secondNotifications = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=100",
         )
-        expect(secondNotifications.notifications.some(item => item.context === secondReply.id)).toBe(true)
+        expect(secondNotifications.items.some(item => item.context === secondReply.id)).toBe(true)
     }
     finally {
         const restoreResponse = await recipient.fetchRaw("/api/profile/settings/update", {
@@ -139,17 +139,23 @@ it("validates notification filters and scopes individual and bulk dismissal", as
 
     try {
         for (const path of [
-            "/api/profile/notifications?amount=10",
-            "/api/profile/notifications?dismissed=invalid&amount=10",
-            "/api/profile/notifications?dismissed=false",
-            "/api/profile/notifications?dismissed=false&amount=-1",
-            "/api/profile/notifications?dismissed=false&amount=1.5",
+            "/api/profile/notifications?pageSize=10",
+            "/api/profile/notifications?dismissed=invalid&pageSize=10",
         ]) {
             expectStatus(await recipient.fetchRaw(path), 400, `invalid notification query ${path}`)
         }
 
-        const unreadBefore = await recipient.fetch<{ total: number }>("/api/profile/notifications?dismissed=false&amount=0")
-        const allBefore = await recipient.fetch<{ total: number }>("/api/profile/notifications?dismissed=true&amount=0")
+        const defaultPage = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false")
+        expect(defaultPage.pageSize).toBe(20)
+        const zeroSizePage = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=0")
+        expect(zeroSizePage.pageSize).toBe(20)
+        const minimumPage = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=-1")
+        expect(minimumPage.pageSize).toBe(1)
+        const unreadBefore = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=1")
+        const allBefore = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=true&pageSize=1")
+        expect(unreadBefore.items).toHaveLength(Math.min(unreadBefore.pageSize, unreadBefore.total))
+        expect(unreadBefore.pageSize).toBe(1)
+        expect(allBefore.items).toHaveLength(Math.min(allBefore.pageSize, allBefore.total))
         const oldestUnread = await createNotification(recipient.user.id, messages.oldestUnread, false)
         const viewed = await createNotification(recipient.user.id, messages.viewed, true)
         const newestUnread = await createNotification(recipient.user.id, messages.newestUnread, false)
@@ -161,31 +167,36 @@ it("validates notification filters and scopes individual and bulk dismissal", as
             UPDATE ${newestUnread.id} SET time = time::now() + 3h;
         `)
 
-        const unreadWithoutRows = await recipient.fetch<{ total: number, notifications: Notification[] }>(
-            "/api/profile/notifications?dismissed=false&amount=0",
+        const unreadPage = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=1",
         )
-        expect(unreadWithoutRows.notifications).toEqual([])
-        expect(unreadWithoutRows.total).toBe(unreadBefore.total + 2)
+        expect(unreadPage.items).toHaveLength(1)
+        expect(unreadPage.pageSize).toBe(1)
+        expect(unreadPage.total).toBe(unreadBefore.total + 2)
 
-        const limited = await recipient.fetch<{ total: number, notifications: Notification[] }>(
-            "/api/profile/notifications?dismissed=false&amount=1",
+        const limited = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=1&offset=-1",
         )
         expect(limited.total).toBe(unreadBefore.total + 2)
-        expect(limited.notifications).toHaveLength(1)
-        expect(limited.notifications[0]?.message).toBe(messages.newestUnread)
+        expect(limited.pageSize).toBe(1)
+        expect(limited.offset).toBe(0)
+        expect(limited.items).toHaveLength(1)
+        expect(limited.items[0]?.message).toBe(messages.newestUnread)
 
-        const unread = await recipient.fetch<{ total: number, notifications: Notification[] }>(
-            "/api/profile/notifications?dismissed=false&amount=1000",
+        const unread = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=1000",
         )
         expect(unread.total).toBe(unreadBefore.total + 2)
-        expect(unread.notifications.filter(item => Object.values(messages).includes(item.message)).map(item => item.message))
+        expect(unread.pageSize).toBe(50)
+        expect(unread.items.filter(item => Object.values(messages).includes(item.message)).map(item => item.message))
             .toEqual([messages.newestUnread, messages.oldestUnread])
 
-        const all = await recipient.fetch<{ total: number, notifications: Notification[] }>(
-            "/api/profile/notifications?dismissed=true&amount=1000",
+        const all = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=true&pageSize=1000",
         )
         expect(all.total).toBe(allBefore.total + 3)
-        expect(all.notifications.filter(item => Object.values(messages).includes(item.message)).map(item => item.message))
+        expect(all.pageSize).toBe(50)
+        expect(all.items.filter(item => Object.values(messages).includes(item.message)).map(item => item.message))
             .toEqual([messages.newestUnread, messages.viewed, messages.oldestUnread])
 
         const ownerDismiss = await recipient.fetchRaw<boolean>(
@@ -300,11 +311,11 @@ it("uses the replied-to comment as context and honors in-app preferences", async
 
         expect(await getQueuedEmails(firstMarker)).toHaveLength(1)
         expect(await getQueuedEmails(quoteEmailMarker)).toHaveLength(1)
-        const emailOnlyNotifications = await recipient.fetch<{ notifications: Notification[] }>(
-            "/api/profile/notifications?dismissed=true&amount=1000",
+        const emailOnlyNotifications = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=true&pageSize=1000",
         )
-        expect(emailOnlyNotifications.notifications.some(item => item.context === emailOnlyReply.id)).toBe(false)
-        expect(emailOnlyNotifications.notifications.some(item => item.context === emailOnlyQuote.id)).toBe(false)
+        expect(emailOnlyNotifications.items.some(item => item.context === emailOnlyReply.id)).toBe(false)
+        expect(emailOnlyNotifications.items.some(item => item.context === emailOnlyQuote.id)).toBe(false)
 
         const inAppOnlySettings = await saveNotifications({ inApp: true, email: false })
         expect(inAppOnlySettings.notifications).toEqual({ inApp: true, email: false })
@@ -326,12 +337,12 @@ it("uses the replied-to comment as context and honors in-app preferences", async
 
         expect(await getQueuedEmails(secondMarker)).toHaveLength(0)
         expect(await getQueuedEmails(quoteInAppMarker)).toHaveLength(0)
-        const inAppNotifications = await recipient.fetch<{ notifications: Notification[] }>(
-            "/api/profile/notifications?dismissed=false&amount=1000",
+        const inAppNotifications = await recipient.fetch<NotificationPage>(
+            "/api/profile/notifications?dismissed=false&pageSize=1000",
         )
-        const notification = inAppNotifications.notifications.find(item => item.context === inAppOnlyReply.id)
+        const notification = inAppNotifications.items.find(item => item.context === inAppOnlyReply.id)
         expect(notification?.message).toContain(secondMarker)
-        const quoteNotification = inAppNotifications.notifications.find(item => item.context === inAppOnlyQuote.id)
+        const quoteNotification = inAppNotifications.items.find(item => item.context === inAppOnlyQuote.id)
         expect(quoteNotification?.message).toContain(quoteInAppMarker)
 
         const redirect = await recipient.fetchRaw(`/comment/${extractId(inAppOnlyReply.id)}`, { redirect: "manual" })
