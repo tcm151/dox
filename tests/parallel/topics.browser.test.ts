@@ -104,6 +104,10 @@ test("admins can manage a topic moderator roster from the topic moderators page"
         const publicTools = page.locator("aside.sidebar")
         const profileButton = publicTools.locator("button").filter({ hasText: "Profile" })
         await expect(profileButton).toBeVisible()
+        await page.setViewportSize({ width: 500, height: 800 })
+        await expect(publicTools).toBeHidden()
+        await page.setViewportSize({ width: 800, height: 800 })
+        await expect(publicTools).toBeVisible()
 
         await page.goto(`/topic/${topicId}/tools`, { timeout: 10_000 })
         await expect(page).toHaveURL(new RegExp(`/topic/${topicId}/tools/profile$`))

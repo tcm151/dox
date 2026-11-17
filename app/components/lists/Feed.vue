@@ -65,21 +65,21 @@ function sortFeed(type: string) {
 
 <template>
     <section v-if="items" class="column g-2">
-        <header v-if="props.sorting" class="sorting row center g-2">
+        <header v-if="props.sorting" class="sorting row fill center g-2">
             <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <ClientOnly>
                 <slot name="buttons" />
-                <button @click="sortFeed('new')" :class="{ selected: sortType === 'new' }">
+                <button :class="{ selected: sortType === 'new' }" title="New" @click="sortFeed('new')">
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>
                 </button>
-                <button @click="sortFeed('hot')" :class="{ selected: sortType === 'hot' }">
+                <button :class="{ selected: sortType === 'hot' }" title="Hot" @click="sortFeed('hot')">
                     <i class="fa-solid fa-fire"></i>
                     <span>Hot</span>
                 </button>
-                <button @click="sortFeed('top')" :class="{ selected: sortType === 'top' }">
+                <button :class="{ selected: sortType === 'top' }" title="Top" @click="sortFeed('top')">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Top</span>
                 </button>
@@ -101,10 +101,8 @@ function sortFeed(type: string) {
 <style scoped lang="scss">
 
 header.sorting {
-    button:not(.refresh), :slotted(button) {
-        flex: 1 1;
-        
-        @media (max-width: $bp-compact) {
+    button:not(.refresh, .selected), :slotted(button) {
+        @media (min-width: $bp-compact) {
             span {
                 display: none;
             }    

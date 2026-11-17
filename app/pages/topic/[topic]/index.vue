@@ -87,5 +87,9 @@ article {
 aside.sidebar {
     height: fit-content;
     min-width: 18rem;
+
+    @media (max-width: $bp-tablet) {
+        display: none;
+    }
 }
 </style>

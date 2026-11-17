@@ -237,10 +237,20 @@ nav.tabstrip {
     }
 }
 
-nav.tabstrip.wide {
-    button, a {
-        padding: 0.5rem 1.5rem;
+@media (max-width: $bp-desktop) {
+    nav.tabstrip.wide {
+        button, a {
+            padding: 0.5rem 1.5rem;
+        }
     }
+}
+
+@media (min-width: $bp-compact) {
+    nav.tabstrip.wide {
+        button, a {
+            padding: 0.5rem 1rem;
+        }
+    }   
 }
 
 @media (max-width: $bp-desktop) {

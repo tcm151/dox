@@ -9,9 +9,9 @@ test("renders and navigates the home and posts feeds with shared sample data", a
     await expect(page.getByText("Browser suite sample post", { exact: true })).toBeVisible()
     const samplePost = page.locator(".post.clickable").filter({ hasText: "Browser suite sample post" })
     await expect(samplePost.locator(".content-preview")).toContainText("A representative post seeded for browser integration tests.")
-    await expect(page.getByRole("button", { name: "New" })).toBeVisible()
-    await page.getByRole("button", { name: "Hot" }).click()
-    await expect(page.getByRole("button", { name: "Hot" })).toHaveClass(/selected/)
+    await expect(page.getByTitle("New")).toBeVisible()
+    await page.getByTitle("Hot").click()
+    await expect(page.getByTitle("Hot")).toHaveClass(/selected/)
 
     await page.getByRole("link", { name: /Posts/ }).click()
     await expect(page).toHaveURL(/\/feed\/posts$/)
