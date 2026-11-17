@@ -162,9 +162,11 @@ export interface Thread extends Sortable {
     moderation?: ContentModerationState
 }
 
+export type MediaExtension = "gif" | "webp" | "png" | "jpeg" | "mp3"
+
 export interface Media extends Sortable {
     user: User & string
-    type: string
+    type: MediaExtension
     name: string
     url: string
     tokens: number

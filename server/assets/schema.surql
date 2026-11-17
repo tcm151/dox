@@ -435,7 +435,7 @@ DEFINE TABLE image SCHEMAFULL;
 DEFINE FIELD user ON image
     TYPE record<user>;
 DEFINE FIELD type ON image
-    TYPE string;
+    TYPE string ASSERT $value IN ["gif", "webp", "png", "jpeg", "mp3"];
 DEFINE FIELD name ON image
     TYPE string DEFAULT ALWAYS "";
 DEFINE FIELD time ON image
@@ -468,7 +468,7 @@ DEFINE TABLE audio SCHEMAFULL;
 DEFINE FIELD user ON audio
     TYPE record<user>;
 DEFINE FIELD type ON audio
-    TYPE string;
+    TYPE string ASSERT $value IN ["gif", "webp", "png", "jpeg", "mp3"];
 DEFINE FIELD name ON audio
     TYPE string DEFAULT ALWAYS "";
 DEFINE FIELD time ON audio
@@ -577,11 +577,17 @@ DEFINE FIELD hot ON feed
 -- ------------------------------
 DEFINE TABLE mediaTrash SCHEMAFULL;
 DEFINE FIELD type ON mediaTrash
-    TYPE string;
+    TYPE string ASSERT $value IN ["image", "audio"];
 DEFINE FIELD extension ON mediaTrash
-    TYPE string;
+    TYPE string ASSERT $value IN ["gif", "webp", "png", "jpeg", "mp3"];
 DEFINE FIELD time ON mediaTrash
     TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD attempts ON mediaTrash
+    TYPE int DEFAULT ALWAYS 0 ASSERT $value >= 0;
+DEFINE FIELD retryAfter ON mediaTrash
+    TYPE option<datetime>;
+DEFINE FIELD lastError ON mediaTrash
+    TYPE option<string> ASSERT $value = NONE OR $value.len() <= 1024;
 
 
 -- ------------------------------

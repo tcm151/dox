@@ -82,4 +82,17 @@ Imports can apply statements before a later error; they are not an all-or-nothin
 - If remote import reports errors, assume the target may be partially changed. Restore into a clean target or recover from the pre-restore backup instead of retrying blindly.
 - Do not remove the pre-restore snapshot until account login, representative content, media, and health checks pass.
 
+## Media Cleanup Recovery
+
+The scheduled worker handles up to 100 due `mediaTrash` records per pass. Failed files remain on disk and in the queue; `attempts`, `lastError`, and `retryAfter` are recorded for operator review. Inspect failures with:
+
+```sql
+SELECT id, type, extension, attempts, lastError, retryAfter
+FROM mediaTrash
+WHERE lastError != NONE
+ORDER BY time ASC;
+```
+
+Before correcting a queue row, verify the media record and the file at `<NUXT_DATA_PATH>/<type>/<id>.<extension>`. Historical cross-category combinations are kept in their original table directory, so do not infer `type` from `extension` alone. Once the actual file location and format are confirmed, correct `type` or `extension` if needed and clear `retryAfter` and `lastError` to retry; do not delete the queue row manually. Referenced images are retained by the deletion workflow, and image refunds are committed only when the image record and cleanup entry are created together.
+
 For the app's deployment layout and health endpoint, see the [Production Quickstart](Quickstart.md). For database-mode and credential details, see the [SurrealDB guide](SurrealDB.md).

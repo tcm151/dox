@@ -259,11 +259,22 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 ### Image Upload
 
 - Access: authenticated, confirmed user.
-- Request: multipart form data containing a `file`.
+- Request: multipart form data containing a `file`; supported formats are GIF, WebP, PNG, and JPEG with matching MIME type and file contents.
 - `200`: `{ media: Image, tokens: number }`.
-- `400`: missing or invalid upload. `401`: no valid session. `403`: account is not confirmed or image uploads are disabled. `409`: insufficient tokens.
+- `400`: missing, unsupported, mislabeled, or invalid upload. `401`: no valid session. `403`: account is not confirmed. `503`: image uploads are disabled. `409`: insufficient tokens.
 - Side effects: deducts tokens, creates image metadata, and writes the media file. Deletion/refund behavior is covered separately.
 - Source: [route](../server/api/image/upload.ts), [media processing](../server/utils/media.ts).
+- Tests: [media API tests](../tests/parallel/media.server.test.ts).
+
+### Audio Upload
+
+- Method: `POST /api/audio/upload`.
+- Access: authenticated, confirmed user.
+- Request: multipart form data containing a `file`; supported format is MPEG Layer III audio (`audio/mpeg` and an MP3 frame).
+- `200`: `{ media: Audio, tokens: number }`.
+- `400`: missing, unsupported, mislabeled, or invalid upload. `401`: no valid session. `403`: account is not confirmed. `503`: audio uploads are disabled. `409`: insufficient tokens.
+- Side effects: deducts tokens, creates audio metadata, and writes the media file.
+- Source: [route](../server/api/audio/upload.ts), [media processing](../server/utils/media.ts).
 - Tests: [media API tests](../tests/parallel/media.server.test.ts).
 
 ### Gallery Publication

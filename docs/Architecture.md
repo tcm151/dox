@@ -218,7 +218,9 @@ Flow:
 5. The image editor publishes selected image assets together as one gallery. Galleries own publication descriptions, topics, and feed engagement; images remain reusable media assets.
 6. CDN route serves file and associated metadata/visit flows.
 
-Media changes must keep filesystem cleanup and database deletion consistent.
+Image uploads accept GIF, WebP, PNG, or JPEG; audio uploads accept MPEG Layer III. MIME declarations must match the detected file contents before records or token charges are created.
+
+Media deletion and refunds are transactional; the file is removed later by the `mediaTrash` worker. The worker processes up to 100 due entries per pass, records retry time and diagnostics on failures, and leaves failed queue records and files intact. Historical cross-category media formats remain addressable under their original storage directory and are included in cleanup support.
 
 ## 8. Configuration and Settings
 

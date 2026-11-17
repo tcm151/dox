@@ -441,6 +441,25 @@ DEFINE FUNCTION OVERWRITE fn::thread_chain($parent: record<thread>, $remaining: 
 DEFINE FIELD OVERWRITE user ON feedback
     TYPE option<record<user>>;
 
+-- Restrict persisted media extensions to formats already produced by either upload route.
+DEFINE FIELD OVERWRITE type ON image
+    TYPE string ASSERT $value IN ["gif", "webp", "png", "jpeg", "mp3"];
+DEFINE FIELD OVERWRITE type ON audio
+    TYPE string ASSERT $value IN ["gif", "webp", "png", "jpeg", "mp3"];
+
+-- Preserve legacy cross-category files and persist cleanup retry diagnostics.
+DEFINE FIELD OVERWRITE type ON mediaTrash
+    TYPE string ASSERT $value IN ["image", "audio"];
+DEFINE FIELD OVERWRITE extension ON mediaTrash
+    TYPE string ASSERT $value IN ["gif", "webp", "png", "jpeg", "mp3"];
+DEFINE FIELD IF NOT EXISTS attempts ON mediaTrash
+    TYPE int DEFAULT ALWAYS 0 ASSERT $value >= 0;
+DEFINE FIELD IF NOT EXISTS retryAfter ON mediaTrash
+    TYPE option<datetime>;
+DEFINE FIELD IF NOT EXISTS lastError ON mediaTrash
+    TYPE option<string> ASSERT $value = NONE OR $value.len() <= 1024;
+UPDATE mediaTrash SET attempts = 0 WHERE attempts = NONE;
+
 UPSERT migration SET version = '2026.6.3', time = time::now()
 WHERE version = '2026.6.3';
 COMMIT;

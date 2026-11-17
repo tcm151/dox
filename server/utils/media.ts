@@ -1,35 +1,43 @@
 import fs from "node:fs"
 import sharp from "sharp"
 import type { H3Event, MultiPartData } from "h3"
-import type { User, Media } from "@@/shared/types"
+import type { User, Media, MediaExtension } from "@@/shared/types"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
+import { validateMediaContent } from "./mediaFormat"
+import type { MediaCategory } from "./mediaFormat"
 
-type MediaType = "image" | "audio"
+type ValidatedMedia = {
+    file: MultiPartData
+    extension: MediaExtension
+}
 
-export async function processMedia(event: H3Event, type: MediaType): Promise<{ buffer: Buffer, tokens: number, type: string }> {
-    const media = await validateMedia(event, type)
-    
-    switch (media.type) {
-        case "image/gif":
-            return await handleGif(media)
-        case "image/webp":
-            return await handleWebp(media)
-        case "image/png":
-            return await handlePng(media)
-        case "image/jpeg":
-            return await handleJpeg(media)
-        case "audio/mpeg": {
-            return handleMpeg(media)
+export async function processMedia(event: H3Event, type: MediaCategory): Promise<{ buffer: Buffer, tokens: number, type: string }> {
+    const { file, extension } = await validateMedia(event, type)
+
+    try {
+        switch (extension) {
+            case "gif":
+                return await handleGif(file)
+            case "webp":
+                return await handleWebp(file)
+            case "png":
+                return await handlePng(file)
+            case "jpeg":
+                return await handleJpeg(file)
+            case "mp3":
+                return handleMpeg(file)
         }
-        default:
-            throw createError({
-                status: 400,
-                statusText: "Unsupported media type."
-            })
+    }
+    catch (error) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: "Invalid media contents.",
+            cause: error,
+        })
     }
 }
 
-async function validateMedia(event: H3Event, type: MediaType): Promise<MultiPartData> {
+async function validateMedia(event: H3Event, type: MediaCategory): Promise<ValidatedMedia> {
     const data = await readMultipartFormData(event)
     const settings = await SettingsManager.get()
 
@@ -46,14 +54,15 @@ async function validateMedia(event: H3Event, type: MediaType): Promise<MultiPart
         })
     }
 
-    if (!data || !data[0]) {
+    const file = data?.[0]
+    if (!file) {
         throw createError({
             status: 400,
             statusText: "You did pass any files to be uploaded."
         })
     }
 
-    const fileSize = data[0].data.byteLength / 1_048_576
+    const fileSize = file.data.byteLength / 1_048_576
 
     if (type == "image" && fileSize > settings.media.images.uploadLimit) {
         throw createError({
@@ -68,7 +77,19 @@ async function validateMedia(event: H3Event, type: MediaType): Promise<MultiPart
         })
     }
 
-    return data[0]
+    try {
+        return {
+            file,
+            extension: await validateMediaContent(type, file.type ?? "", file.data),
+        }
+    }
+    catch (error) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: error instanceof Error ? error.message : "Invalid media file.",
+            cause: error,
+        })
+    }
 }
 
 async function handleGif(media: MultiPartData) {
@@ -116,7 +137,7 @@ function handleMpeg(media: MultiPartData) {
     }
 }
 
-export async function writeMedia(user: User, media: Media, buffer: Buffer, type: MediaType) {
+export async function writeMedia(user: User, media: Media, buffer: Buffer, type: MediaCategory) {
     try {
         const config = useRuntimeConfig()
         const basePath = `${config.data.path}/${type}`
