@@ -94,7 +94,7 @@ function loadMore() {
             </ButtonSpinner>
             <ButtonSpinner v-if="!showDismissed && result && result.total > 0" class="dark" :loading="dismissing" @click="dismissAll">
                 <i class="fa-solid fa-angles-right"></i>
-                Dismiss All Unread
+                Dismiss All
             </ButtonSpinner>
             <div class="box px-4 py-2">
                 <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />

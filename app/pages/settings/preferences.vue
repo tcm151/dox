@@ -61,7 +61,7 @@ async function resetPreferences() {
                     <label>hint duration</label>
                     <span class="tip">How long status hints remain visible (milliseconds).</span>
                 </div>
-                <input type="number" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration">
+                <input type="number" class="px-2 py-1" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration">
             </div>
             <hr>
             <div class="field row center py-2">
