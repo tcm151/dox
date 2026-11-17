@@ -102,6 +102,7 @@ Goal: complete a secure, dependable baseline platform before expanding into opti
 - 🟩 Complete thread editor parity with post editor for supported publishing, preview, validation, and upload workflows. (`0011`, `M`)
 - 🟩 Add first-class link publishing. (`0039`, `M`)
 - 🟩 Add link detail and feed integration after the foundation; it does not depend on optional metadata previews. (`0041`, `M`)
+- 🟩 Enforce server-side post/thread publishing rules and moderator request eligibility. (`0101`, `M`)
 - 🟥 Complete audio publication, then detail/feed/playback and cleanup. (`0042`, `0043`, `L`)
 
 **Success metric**: core link and audio publishing paths are complete end to end, including visibility, moderation, feed integration, and media cleanup; deferred content types are not presented as supported workflows.

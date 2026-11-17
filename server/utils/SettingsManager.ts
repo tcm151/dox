@@ -11,10 +11,27 @@ export class SettingsManager {
             .addRecord("settings", `appSettings:${id}`)
             .queryOne<AppSettings>()
     }
+
     static async canAttachImages(target: "posts" | "threads") {
         const settings = await this.get()
         return settings.media.images.enabled && settings.media.images.attachments[target]
     }
+
+    static async canPublish(target: "posts" | "threads", topics: string[]) {
+        const settings = await this.get()
+        const contentType = target === "posts" ? "Post" : "Thread"
+
+        if (!settings[target].enabled) {
+            throw createError({ statusCode: 403, statusMessage: `${contentType} publishing is disabled.` })
+        }
+        if (topics.length > settings.topics.perSubmission) {
+            throw createError({ statusCode: 400, statusMessage: `You can only add ${settings.topics.perSubmission} topics per submission.` })
+        }
+        if (settings.topics.restrict && topics.some(topic => !settings.topics.allowed.includes(topic))) {
+            throw createError({ statusCode: 403, statusMessage: "You must use one of the predefined topics." })
+        }
+    }
+
     static async update(id: string, settings: AppSettings) {
         this.validate(settings)
 
@@ -91,7 +108,7 @@ export class SettingsManager {
             })
             .object(settings.topics, "topics", (v, topics) => {
                 v.keys(topics, ["perSubmission", "restrict", "allowed"])
-                v.integer(topics.perSubmission, "perSubmission", { min: 0, max: 5 })
+                v.integer(topics.perSubmission, "perSubmission", { min: 1, max: 5 })
                 v.boolean(topics.restrict, "restrict")
                 v.array(topics.allowed, "allowed", (v, topic) => {
                     v.string(topic)

@@ -216,7 +216,7 @@ const visibilityOptions = ref([
                     <div class="field row">
                         <div class="column f-1">
                             <label>moderators per topic</label>
-                            <span class="tip">Allows user requests to be a moderator until this amount is reached.</span>
+                            <span class="tip">Users may request moderation while the topic has fewer assigned moderators.</span>
                         </div>
                         <input class="py-1 px-2" type="number" min="0" step="1" v-model="settings.moderation.perTopic">
                     </div>

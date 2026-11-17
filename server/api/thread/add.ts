@@ -2,6 +2,7 @@ import type { Thread } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
+import { Validator } from "@@/shared/utils/Validator"
 
 type CreateThreadRequest = {
     content: string
@@ -13,6 +14,15 @@ type CreateThreadRequest = {
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const thread = await readBody<CreateThreadRequest>(event)
+
+    new Validator("Thread")
+        .array(thread.topics, "topics", (v, topic) => {
+            v.string(topic)
+        })
+        .confirm()
+
+    await SettingsManager.canPublish("threads", thread.topics)
+
     const imageIds = thread.images ?? []
     if (imageIds.length > 0) {
         if (!await SettingsManager.canAttachImages("threads")) {

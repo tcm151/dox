@@ -96,6 +96,13 @@ it("rejects invalid application settings without changing saved settings", async
         },
         {
             ...originalSettings,
+            topics: {
+                ...originalSettings.topics,
+                perSubmission: 0,
+            },
+        },
+        {
+            ...originalSettings,
             media: {
                 ...originalSettings.media,
                 gallery: {

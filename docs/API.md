@@ -190,14 +190,14 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | `/api/profile/drafts` | Authenticated | Lists the current user's drafts. |
 | `POST` | `/api/profile/drafts/add` | Authenticated | Creates a draft for the current user. |
 | `POST` | `/api/profile/drafts/:id/{update,delete}` | Authenticated; draft owner | Updates or deletes an owned draft. |
-| `POST` | [`/api/post/add`](#create-post) | Authenticated; resource, image-attachment, and blocked-topic checks | Publishes a post for the current user. |
+| `POST` | [`/api/post/add`](#create-post) | Authenticated; publishing, topic-count/allowlist, image-attachment, and blocked-topic checks | Publishes a post for the current user. |
 | `POST` | [`/api/link/add`](#create-link) | Authenticated; resource and blocked-topic checks | Publishes a link for the current user. |
 | `POST` | `/api/post/:id/edit` | Authenticated; post author | Edits the post content. |
 | `POST` | `/api/post/:id/delete` | Authenticated; author or admin | Deletes or redacts the post while preserving referenced discussion. |
 | `GET` | `/api/thread` | Public | Lists active top-level threads. |
 | `GET` | `/api/thread/:id` | Public | Returns a thread and its reply context. |
 | `GET` | `/api/thread/:id/visit` | Public | Increments and returns the thread visit counter. |
-| `POST` | `/api/thread/add` | Authenticated; resource, image-attachment, and blocked-topic checks | Publishes a thread. |
+| `POST` | `/api/thread/add` | Authenticated; publishing, topic-count/allowlist, image-attachment, and blocked-topic checks | Publishes a thread. |
 | `POST` | `/api/thread/:id/edit` | Authenticated; thread author | Edits the thread content. |
 | `POST` | `/api/thread/:id/delete` | Authenticated; author or admin | Deletes or redacts the thread according to its discussion links. |
 | `POST` | `/api/thread/:id/quote` | Authenticated | Publishes a quote unless the thread is locked or a selected topic is blocked. |
@@ -208,10 +208,10 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 ### Create Post
 
-- Access: authenticated user. Blocked and locked topic state, image ownership/publication, and the post/reply image-attachment setting are checked server-side.
+- Access: authenticated user. Publishing availability, topic count and allowlist, blocked and locked topic state, image ownership/publication, and the post/reply image-attachment setting are checked server-side. The same publishing and topic-setting checks apply to thread creation.
 - Request body: `title`, `content`, and `topics`; optional `tags`, `replyTo`, and `images`.
 - `200`: created `Post` record.
-- `401`: no valid session. `403`: a selected topic is blocked, image attachment is disabled, or an attached image is unavailable or not permitted. `409`: a selected topic is locked.
+- `400`: malformed topic list or topic count exceeds the configured maximum. `401`: no valid session. `403`: publishing is disabled, a selected topic is disallowed or blocked, image attachment is disabled, or an attached image is unavailable or not permitted. `409`: a selected topic is locked.
 - Side effects: creates the post and initializes the author's positive vote.
 - Source: [route](../server/api/post/add.ts).
 - Tests: [post API tests](../tests/parallel/posts.server.test.ts).
@@ -311,7 +311,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | --- | --- | --- | --- |
 | `GET` | `/api/topic/:topic/profile` | Assigned moderator/admin | Returns topic moderation settings. |
 | `POST` | `/api/topic/:topic/update` | Assigned moderator/admin | Updates topic description, moderation settings, and rules. |
-| `POST` | `/api/topic/:topic/request-moderation` | Confirmed account | Requests moderator access for a topic. |
+| `POST` | `/api/topic/:topic/request-moderation` | Confirmed account; topic below the moderator request threshold | Requests moderator access while the assigned moderator count is below `moderation.perTopic`. |
 | `POST` | `/api/topic/:topic/moderators/remove` | Admin | Removes a moderator from a topic. |
 | `GET` | `/api/moderator/topics` | Moderator | Lists topics assigned to the current moderator. |
 | `GET` | `/api/moderator/request` | Moderator | Lists pending moderator requests after reviewing approval thresholds. |
@@ -325,10 +325,12 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 - Methods: `POST /api/moderator/request/:id/approve` and `POST /api/moderator/request/:id/deny`.
 - Access: moderator or admin. Applicants cannot approve their own requests unless they are admins, and cannot deny their own requests. Closed requests and repeated same-kind decisions return `409`.
+- Request creation: `POST /api/topic/:topic/request-moderation` requires a confirmed account, returns `204` when created, `400` for an existing request, and `409` once the topic reaches its moderator request threshold.
+- Request eligibility: new requests return `409` once the topic's assigned moderator count reaches `moderation.perTopic`. This is not a hard roster cap; requests created earlier may still be approved after the threshold is reached.
 - Response: approval returns `{ approved, user, topic }`; denial records the vote.
 - Side effects: once approvals reach the configured threshold and outnumber denials, the request closes, the applicant gains the moderator role and topic assignment, and receives a notification. Denials close the request when they reach the threshold and outnumber approvals. Reading the queue also reconciles requests against the current threshold.
 - Source: [approval route](../server/api/moderator/request/[id]/approve.ts), [denial route](../server/api/moderator/request/[id]/deny.ts), [moderation manager](../server/utils/ModerationManager.ts).
-- Tests: [moderation tests](../tests/parallel/moderation.server.test.ts) cover duplicate decisions, threshold promotion and closure, notifications, reconciliation, and audit records.
+- Tests: [moderation tests](../tests/parallel/moderation.server.test.ts) cover duplicate decisions, threshold promotion and closure, notifications, reconciliation, and audit records; [publishing settings tests](../tests/sequential/11-publishing-settings.server.test.ts) cover request eligibility and queued approvals.
 
 ### Content Enforcement
 

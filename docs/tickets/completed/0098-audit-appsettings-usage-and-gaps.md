@@ -30,7 +30,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 ## Notes
 - This ticket covers audit and prioritization, not implementation of new settings or behavior changes.
 - Distinct from [Ticket 0079](0079-validate-application-settings.md), which establishes server-side validation, and [Ticket 0090](../0090-core-path-todo-audit.md), which triages TODOs and unfinished core paths.
-- Accepted implementation follow-ups are tracked in [Ticket 0099](0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](0100-strict-appsettings-schema.md), [Ticket 0101](../0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](../0102-enforce-feed-availability-settings.md), [Ticket 0103](../0103-enforce-voting-availability-settings.md), and [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md).
+- Accepted implementation follow-ups are tracked in [Ticket 0099](0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](0100-strict-appsettings-schema.md), [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](../0102-enforce-feed-availability-settings.md), [Ticket 0103](../0103-enforce-voting-availability-settings.md), and [Ticket 0104](../0104-enforce-feedback-settings-and-anonymous-submissions.md).
 - Existing feature work remains in [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md), [Ticket 0039](0039-link-publishing-foundation.md), [Ticket 0041](0041-link-detail-and-feed-integration.md), [Ticket 0042](../0042-audio-publication-lifecycle.md), [Ticket 0043](../0043-audio-detail-feed-and-cleanup.md), [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md), [Ticket 0047](../backlog/0047-poll-creation-model-and-publishing.md), and [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md); this avoids duplicate feature tickets.
 - Dependency order: this audit is complete; strictify AppSettings in Ticket 0100 before Ticket 0099 adds image-policy fields. Tickets 0101-0103 can proceed from this audit, while Ticket 0104 follows Ticket 0100.
 
@@ -58,7 +58,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Medium.
 - Finding: `posts.enabled` and `threads.enabled` hide their editor tabs, but the editor route middleware only checks authentication and the post/thread create APIs do not check these settings. Direct editor/API requests can still publish while disabled. Link and poll publishing are explicitly marked unfinished in the admin UI and should not be treated as operational flags yet.
 - Evidence: `app/pages/editor.vue`, `app/pages/editor/post.vue`, `app/pages/editor/thread.vue`, `server/api/post/add.ts`, `server/api/thread/add.ts`, `app/pages/admin/settings.vue`.
-- Recommendation: Enforce post/thread availability in direct editor routes and create APIs; keep unfinished link/poll controls clearly unavailable until their workflows exist. Tracked in [Ticket 0101](../0101-enforce-publishing-and-moderator-settings.md); link and poll work remains in Tickets 0039 and 0047.
+- Recommendation: Enforce post/thread availability in direct editor routes and create APIs; keep unfinished link/poll controls clearly unavailable until their workflows exist. Tracked in [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md); link and poll work remains in Tickets 0039 and 0047.
 
 ### Video Settings
 - Priority: Low.
@@ -70,13 +70,13 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Medium.
 - Finding: `TopicField.vue` applies `topics.perSubmission`, `topics.restrict`, and `topics.allowed`; post and thread creation accept topic IDs and check topic status/cooldown, but do not enforce these settings. Direct API requests can exceed the configured count or assign topics outside the allowlist. The admin control requires `perSubmission >= 1`, while server settings validation permits zero.
 - Evidence: `app/components/form/fields/TopicField.vue`, `server/api/post/add.ts`, `server/api/thread/add.ts`, `server/utils/SettingsManager.ts`, `app/pages/admin/settings.vue`.
-- Recommendation: Enforce assignment count and allowlist in server publishing workflows, and align the zero-value contract with the admin minimum. Tracked in [Ticket 0101](../0101-enforce-publishing-and-moderator-settings.md).
+- Recommendation: Enforce assignment count and allowlist in server publishing workflows, and align the zero-value contract with the admin minimum. Tracked in [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md).
 
-### Moderator Capacity
+### Moderator Request Threshold
 - Priority: Medium.
-- Finding: `useModeration.canRequestTopic` checks the current moderator count, but the request endpoint does not enforce the limit and the approval endpoint adds a moderator without checking capacity. Direct requests/approvals can exceed the configured per-topic limit.
+- Finding: `useModeration.canRequestTopic` checks the current moderator count, but the request endpoint does not enforce that eligibility rule. `moderation.perTopic` gates new requests; it is not a hard cap, and requests created earlier may still be approved after the threshold is reached.
 - Evidence: `app/utils/moderation.ts`, `server/api/topic/[topic]/request-moderation.ts`, `server/api/moderator/request/[id]/approve.ts`.
-- Recommendation: Enforce capacity in the server approval workflow and cover limit/race cases. Tracked in [Ticket 0101](../0101-enforce-publishing-and-moderator-settings.md).
+- Recommendation: Enforce the request threshold at the server request boundary while preserving approval of existing requests. Tracked in [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md).
 
 ### Email Spool Limits
 - Priority: Medium.
@@ -109,7 +109,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 | `about.summary` | Admin editor; rendered on the About page. | String validated; display-only setting. |
 | `email.support`, `email.additional` | Admin editor; Contact page and support address in confirmation/reset emails. | Strings validated; no address-format or list-entry validation. |
 | `email.spool.dailyLimit`, `batchLimit`, `maxRetries` | Admin numeric controls; consumed by `EmailSpool`. | Runtime-consumed, but not validated by `SettingsManager`; see Email Spool Limits. |
-| `moderation.perTopic` | Admin control; client request-eligibility helper. | Integer validated; request/approval API does not enforce capacity. |
+| `moderation.perTopic` | Admin control; client request-eligibility helper. | Integer validated; the request API did not enforce the eligibility threshold. |
 | `moderation.threshold` | Admin control; moderation-request approve/deny and review workflows. | Integer validated and consumed server-side. |
 | `moderation.slowModes` | Admin interval list; surfaced by moderation actions. | Positive integers validated and permitted intervals enforced by `ModerationManager`. |
 | `content.visibility` | Admin modes; `ContentVisibility` combines them with user preferences. | Supported tags/modes validated; client presentation behavior, not a server access filter. |

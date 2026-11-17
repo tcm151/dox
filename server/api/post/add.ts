@@ -2,6 +2,7 @@ import type { Post } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
+import { Validator } from "@@/shared/utils/Validator"
 
 type CreatePostRequest = {
     title: string
@@ -15,6 +16,15 @@ type CreatePostRequest = {
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const post = await readBody<CreatePostRequest>(event)
+
+    new Validator("Post")
+        .array(post.topics, "topics", (v, topic) => {
+            v.string(topic)
+        })
+        .confirm()
+
+    await SettingsManager.canPublish("posts", post.topics)
+
     const imageIds = post.images ?? []
     if (imageIds.length > 0) {
         if (!await SettingsManager.canAttachImages("posts")) {

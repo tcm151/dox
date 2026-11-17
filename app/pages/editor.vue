@@ -11,6 +11,11 @@ definePageMeta({
             return abortNavigation()
         }
 
+        const settings = useSettings().app
+        if ((to.path === "/editor/post" && !settings.posts.enabled) || (to.path === "/editor/thread" && !settings.threads.enabled)) {
+            return abortNavigation()
+        }
+
         const tabs = useLastTab({ base: "editor", default: "post" })
         if (to.path === "/editor") {
             return navigateTo(tabs.getLastTab())
