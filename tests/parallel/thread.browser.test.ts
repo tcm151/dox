@@ -7,6 +7,7 @@ test("opens the seeded thread from the thread feed", async ({ page }) => {
 
     const threadPreview = page.locator(".thread.clickable").filter({ hasText: sampleThread })
     await expect(threadPreview).toBeVisible()
+    await expect(threadPreview.locator('[title="Responses"]')).toContainText("0")
     await threadPreview.locator(".main").click()
 
     await expect(page).toHaveURL(/\/thread\/[^/]+$/)

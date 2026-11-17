@@ -30,10 +30,10 @@ test("renders the seeded comment and opens its options", async ({ authenticatedP
     await expect(options).toBeHidden()
 })
 
-test("saves eligible content and shows viewer state and save counts", async ({ authenticatedPage }) => {
+test("saves eligible content and reflects save state and counts", async ({ authenticatedPage }) => {
     await authenticatedPage.goto("/feed/posts")
     const postPreview = authenticatedPage.locator(".post.clickable").filter({ hasText: samplePostTitle })
-    await expect(postPreview.locator('[title="Save count"]')).toContainText("0")
+    await expect(postPreview.locator('[title="Saves"]')).toContainText("0")
     await postPreview.locator(".main").click()
 
     await expect(authenticatedPage).toHaveURL(/\/post\/[^/]+$/)
@@ -44,11 +44,11 @@ test("saves eligible content and shows viewer state and save counts", async ({ a
     await options.getByRole("button", { name: "Save" }).click()
 
     await expect(options.getByRole("button", { name: "Unsave" })).toBeVisible()
-    await expect(authenticatedPage.locator('[title="Saved by you"]')).toBeVisible()
+    await expect(authenticatedPage.locator('[title="Saves"]')).toContainText("1")
 
     await authenticatedPage.goto("/feed/posts")
     const savedPostPreview = authenticatedPage.locator(".post.clickable").filter({ hasText: samplePostTitle })
-    await expect(savedPostPreview.locator('[title="Saved by you"]')).toContainText("1")
+    await expect(savedPostPreview.locator('[title="Saves"]')).toContainText("1")
     await savedPostPreview.locator(".main").click()
 
     await authenticatedPage.locator('button.options[title="Options"]').click()
@@ -58,9 +58,9 @@ test("saves eligible content and shows viewer state and save counts", async ({ a
     await options.getByRole("button", { name: "Unsave" }).click()
 
     await expect(options.getByRole("button", { name: "Save" })).toBeVisible()
-    await expect(authenticatedPage.locator('[title="Saved by you"]')).toHaveCount(0)
+    await expect(authenticatedPage.locator('[title="Saves"]')).toContainText("0")
 
     await authenticatedPage.goto("/feed/posts")
     const unsavedPostPreview = authenticatedPage.locator(".post.clickable").filter({ hasText: samplePostTitle })
-    await expect(unsavedPostPreview.locator('[title="Save count"]')).toContainText("0")
+    await expect(unsavedPostPreview.locator('[title="Saves"]')).toContainText("0")
 })

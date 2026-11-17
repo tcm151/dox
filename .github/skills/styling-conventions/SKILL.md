@@ -1,6 +1,6 @@
 ---
 name: styling-conventions
-description: "Use when building or refining ClassicForum Vue templates, UI components, HTML layout, responsive CSS, SCSS, spacing, colors, or shared style utilities. Documents established project conventions and where to verify them."
+description: "Use for any ClassicForum .vue file work, including editing or reviewing Vue components, templates, markup, layout, CSS/SCSS, responsive styling, spacing, colors, badges, tags, and shared UI utilities. Inspect and reuse existing project components, classes, and responsive patterns before adding custom styling."
 argument-hint: "Optional focus: page layout, component styling, forms, responsive behavior, or shared utilities"
 ---
 
@@ -10,10 +10,11 @@ Use this skill to follow patterns already present in ClassicForum. It describes 
 
 ## Workflow
 
-1. Read the nearest Vue component and identify the shared classes it already uses.
-2. Check the owning stylesheet below before adding a new utility or duplicating a global rule.
-3. Compose existing layout, spacing, and semantic classes first. Add component-scoped SCSS only for behavior that is specific to that component.
-4. Follow nearby markup structure and responsive patterns. Check the rendered UI at the relevant viewport sizes when changing layout.
+1. Read the target Vue component and nearby examples; identify existing reusable components and shared classes for the UI being changed.
+2. Check the stylesheet that owns those classes and search for an existing utility or component API before writing replacement markup or styles.
+3. Prefer shared components and semantic classes (for example, `Tag` for labels and badges) over recreating their structure. Use layout, spacing, color, radius, and breakpoint utilities where they fit.
+4. Add component-scoped SCSS only for behavior the shared API does not cover, such as a component-specific overlay position. Keep custom styles limited to that behavior.
+5. Follow nearby markup and responsive patterns. Check the rendered UI at relevant viewport sizes when changing layout.
 
 ## HTML And Vue Layout
 
@@ -50,6 +51,7 @@ Defined mainly in `app/assets/scss/_defaults.scss` and `_elements.scss`:
 - Use `.field` for form controls so input, textarea, select, placeholder, focus, and disabled styles stay consistent. `.field.row`, `.field.invalid`, and `.field-small` are defined variants.
 - `.content` styles rendered rich text and Markdown; `.content.preview` adjusts its outer spacing. Use these classes on rendered content instead of rebuilding Markdown element styles locally.
 - Text helpers include `.text.bold`, `.text.truncate`, `.text.break`, `.text.center`, `.text.left`, `.text.right`, and `.text.capitalize`.
+- For familiar UI roles such as badges, labels, and status indicators, inspect and reuse the owning component (such as `Tag`) before hand-writing its markup. Add local styling only for placement or behavior not handled by that component.
 
 Colors and responsive tokens live in `app/assets/scss/_colors.scss`. Reuse its SCSS variables instead of introducing near-duplicate color or breakpoint values. The current breakpoints are `$bp-compact` (400px), `$bp-mobile` (425px), `$bp-mobile-wide` (500px), `$bp-tablet` (600px), `$bp-laptop` (800px), and `$bp-desktop` (1000px).
 

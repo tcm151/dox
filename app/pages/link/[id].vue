@@ -204,7 +204,7 @@ async function pinLink() {
     <article v-if="link" class="content-width column g-2 p-4">
         <div class="box background br-medium column">
             <section class="link-detail box br-medium p-5">
-                <ContentHeader :content="link" context="detail" />
+                <ContentHeader :content="link" />
                 <ContentVisibility :tags="link.tags" direct>
                     <h1 class="mt-2">{{ link.title }}</h1>
                     <p class="description mt-3">

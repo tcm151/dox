@@ -183,7 +183,7 @@ function copyLink() {
 <template>
     <article v-if="gallery" class="column inline g-2 p-2">
         <main class="gallery box column g-2 p-4">
-            <ContentHeader class="header" :content="gallery" context="detail" />
+            <ContentHeader class="header" :content="gallery" />
             <ContentVisibility class="column f-1" :tags="gallery.tags" direct>
                 <h1 class="title mt-2">{{ gallery.title }}</h1>
                 <section class="mosaic grid" :class="{

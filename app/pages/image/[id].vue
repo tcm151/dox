@@ -36,7 +36,7 @@ async function reportImage() {
 <template v-if="id">
     <article class="p-4">
         <section v-if="image" class="box column g-2 p-4">
-            <ContentHeader :content="image" context="detail">
+            <ContentHeader :content="image">
                 <template #actions>
                     <Tag type="danger" icon="fa-flag" label="Report" @click="reportImage" />
                     <ClientOnly>

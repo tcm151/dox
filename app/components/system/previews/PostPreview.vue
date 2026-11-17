@@ -34,7 +34,7 @@ function updateThumbnailSize(event: Event) {
                 </div>
             </ContentVisibility>
             <div class="main box column g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
-                <ContentHeader :content="post" context="preview" :pinned="pinned" />
+                <ContentHeader :content="post" :pinned="pinned" />
                 <div class="content-row row inline start g-2">
                     <div class="details f-1">
                         <h3 class="title">

@@ -1,83 +1,59 @@
 <script setup lang="ts">
 import type { Gallery, Image, Link, Post, Thread } from "@@/shared/types"
-import { parseRecordId } from "@@/shared/utils/records"
 
 type ContentHeaderItem = Post | Link | Thread | Gallery | Image
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
     content: ContentHeaderItem
-    context?: "preview" | "detail"
     pinned?: boolean
-}>(), {
-    context: "preview",
-})
+}>()
 
-const session = getSession()
-const post = computed(() => "content" in props.content && "title" in props.content ? props.content : undefined)
 const thread = computed(() => "replies" in props.content ? props.content : undefined)
-const gallery = computed(() => "images" in props.content && "description" in props.content ? props.content : undefined)
-const image = computed(() => "type" in props.content ? props.content : undefined)
 const topics = computed(() => "topics" in props.content ? props.content.topics : [])
 const moderation = computed(() => "moderation" in props.content ? props.content.moderation : undefined)
-const moderationType = computed(() => thread.value ? "thread" : "discussion")
-
-const archived = computed(() => props.content.status === "archived"
-    && (post.value !== undefined || (gallery.value !== undefined && props.context === "detail")))
-
+const archived = computed(() => props.content.status === "archived")
 const quarantined = computed(() => props.content.status === "quarantined")
-
-const discussionCount = computed(() => {
-    if ("replies" in props.content) return props.content.replies.length
-    if ("comments" in props.content) return props.content.comments.length
-    return undefined
-})
-
-const awards = computed(() => post.value?.votes.awards.length)
-const saves = computed(() => ["post", "link", "thread", "gallery"].includes(parseRecordId(props.content.id)?.table ?? "")
-    ? props.content.votes.saves.length
-    : undefined)
-const saved = computed(() => ["post", "link", "thread", "gallery"].includes(parseRecordId(props.content.id)?.table ?? "")
-    && props.content.votes.saves.includes(session.user.id))
-const imageCount = computed(() => gallery.value?.images.length)
-const mediaType = computed(() => image.value?.type)
-const tokens = computed(() => image.value?.tokens)
-
-const editedTime = computed(() => props.context === "detail"
-    && "edited" in props.content
-    && props.content.edited
-        ? props.content.timeEdited
-        : undefined)
+const awards = computed(() => props.content?.votes.awards.length)
+const saves = computed(() => props.content?.votes.saves.length)
+const images = computed(() => "images" in props.content ? props.content.images.length : undefined)
+const edited = computed(() => "edited" in props.content && props.content.edited ? props.content.timeEdited : undefined)
 
 const readableTime = computed(() => props.content.time.split(".")[0]?.replace("T", " "))
+
+// TODO could be remove and replaced with table name
+const moderationType = computed(() => thread.value ? "thread" : "discussion")
+
+const responses = computed(() => {
+    if ("replies" in props.content) return props.content.replies.length
+    if ("comments" in props.content) return props.content.comments.length
+    return 0
+})
 
 </script>
 
 <template>
-    <header class="row wrap g-1">
-        <Votes :target="content" />
-        <template v-if="topics.length">
-            <TopicTag v-for="topic in topics" class="f-3 b-0" :key="topic" :topic="topic" />
-        </template>
-        <UserTag v-if="content.user" class="f-2 b-0" :user="content.user" />
-        <Tag v-if="context === 'preview' && pinned" class="meta" icon="fa-thumbtack" />
-        <Tag v-if="archived" class="meta" icon="fa-folder-closed" />
-        <Tag v-if="context === 'preview' && awards" class="meta" icon="fa-crown" :label="awards" />
-        <Tag v-if="context === 'preview' && saves !== undefined" :type="saved ? 'info' : 'meta'" icon="fa-bookmark" :label="saves" :title="saved ? 'Saved by you' : 'Save count'" />
-        <Tag v-if="context === 'detail' && saved" type="info" icon="fa-bookmark" title="Saved by you" />
-        <Tag class="meta" icon="fa-chart-simple" :label="content.visits" />
-        <Tag v-if="discussionCount !== undefined" class="meta" icon="fa-comment" :label="discussionCount" />
-        <Tag class="meta" icon="fa-stopwatch" :label="formatDate(content.time)" :title="readableTime">
-            <template v-if="editedTime">
-                <i class="fa-solid fa-eraser"></i>
-                {{ formatDate(editedTime) }}
+    <header class="row fill wrap g-1">
+        <div class="row wrap g-1">
+            <Votes :target="content" />
+            <template v-if="topics.length">
+                <TopicTag v-for="topic in topics" class="f-3 b-0" :key="topic" :topic="topic" />
             </template>
-        </Tag>
-        <Tag v-if="context === 'detail' && imageCount" class="meta" icon="fa-image" :label="imageCount" />
-        <Tag v-if="context === 'detail' && mediaType" class="meta" icon="fa-image" :label="mediaType" />
-        <Tag v-if="context === 'detail' && tokens !== undefined" class="warning" icon="fa-cube" :label="`${tokens} tokens`" />
-        <Tag v-if="quarantined" type="danger" label="Removed" />
-        <ModerationState v-if="moderation" :moderation="moderation" :content-type="moderationType" />
-        <slot name="actions" />
+        </div>
+        <div class="row wrap g-1">
+            <UserTag v-if="content.user" class="f-2 b-0" :user="content.user" />
+            <Tag v-if="pinned" class="meta" icon="fa-thumbtack" title="Pinned" />
+            <Tag v-if="archived" class="meta" icon="fa-folder-closed" title="Archived" />
+            <Tag v-if="awards" class="meta" icon="fa-crown" :label="awards" title="Awards" />
+            <Tag v-if="saves !== undefined" class="meta" icon="fa-bookmark" :label="saves" title="Saves" />
+            <Tag v-if="images" class="meta" icon="fa-image" :label="images" title="Images" />
+            <Tag class="meta" icon="fa-chart-simple" :label="content.visits" title="Visits" />
+            <Tag class="meta" icon="fa-comment" :label="responses" title="Responses" />
+            <Tag class="meta" icon="fa-stopwatch" :label="formatDate(content.time)" :title="readableTime" />
+            <Tag v-if="edited" class="meta" icon="fa-erase" :label="formatDate(edited)" title="Edited" />
+            <Tag v-if="quarantined" class="danger" icon="fa-trash" label="Removed" title="Quarantined" />
+            <ModerationState v-if="moderation" :moderation="moderation" :content-type="moderationType" />
+            <slot name="actions" />
+        </div>
     </header>
 </template>
 

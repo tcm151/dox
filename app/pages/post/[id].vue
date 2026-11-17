@@ -212,7 +212,7 @@ function toggleOptions() {
                 </aside>
             </ContentVisibility>
             <section class="post box br-medium p-5">
-                <ContentHeader :content="post" context="detail" />
+                <ContentHeader :content="post" />
                 <ContentVisibility :tags="post.tags" direct>
                     <h1 class="mt-2">
                         {{ post.title }}

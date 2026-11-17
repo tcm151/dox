@@ -225,7 +225,7 @@ function toggleOptions() {
     <article v-if="thread" class="content-width column p-4">
         <ThreadChain v-if="thread.ancestors?.length" class="mb-2" :threads="thread.ancestors" load-more-label="Earlier context omitted" />
         <section class="main box column px-4 pt-4">
-            <ContentHeader :content="thread" context="detail" />
+            <ContentHeader :content="thread" />
             <template v-if="!editingThread">
                 <ContentVisibility :tags="thread.tags" direct>
                     <Markdown class="content" :content="thread.content" />
@@ -234,7 +234,7 @@ function toggleOptions() {
                     </aside>
                     <aside v-if="thread.quote" class="br-medium border-subtle column g-2 mb-3 p-3">
                         <ContentVisibility :tags="thread.quote.tags" direct>
-                            <ContentHeader :content="thread.quote" context="preview">
+                            <ContentHeader :content="thread.quote">
                                 <template #actions>
                                     <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
                                 </template>
