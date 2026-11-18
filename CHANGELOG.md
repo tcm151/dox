@@ -2,21 +2,23 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
-## [2026.6.3] - Unreleased
+## [2026.6.3] - 2026-11-18
 
 ### Added
-- Added link publishing with previews, detail pages, and feed integration.
-- Added block/mute, profile privacy, and saved-content controls.
-- Added URL-synced search filters and developer diagnostics.
+- Added first-class link publications with URL metadata, previews, detail pages, and feed integration.
+- Added published links to cross-content search by title and description, with a Links type filter and combined topic, author, and date filters. Search results preserve URL state and history, honor personal exclusions, and render through the shared content preview.
+- Added independent user and topic mute/block controls, profile audience settings, and saved-content controls.
+- Added URL-synced search filters and developer diagnostics for inspecting application and runtime information.
 
 ### Changed
-- Improved settings validation, availability enforcement, content actions, and discovery/inbox limits.
-- Refreshed stale feeds and inboxes; preserved feed position on return.
-- Expanded test diagnostics and reorganized the integration runner.
+- Enforced configured availability and validation rules across publishing, feeds, feedback, and voting; bounded discovery and inbox pagination.
+- Refreshed stale feeds and inboxes after navigation, and restored feed position when returning from a content page.
+- Expanded test-runner phases, focused execution options, failure summaries, and retained browser diagnostics.
 
 ### Fixed
-- Hardened media cleanup and email confirmation.
-- Fixed feed sorting, cancelled edits, and account-switch refresh.
+- Made media cleanup retryable and transactional, preserving shared files and issuing ownership refunds only once across repeated or concurrent deletion.
+- Validated email-confirmation tokens against their stored records and limited confirmation resends.
+- Corrected feed sorting and prevented cancelled edits or stale preference requests from overwriting current account state after navigation, logout, or account switches.
 
 ## [2026.6.2] - 2026-11-12
 
