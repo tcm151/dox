@@ -1,4 +1,4 @@
-import { H3Event } from "h3"
+import { isError, type H3Event } from "h3"
 import type { User } from '@@/shared/types'
 import { ReferralManager } from "@@/server/utils/repos/ReferralManager"
 import { SessionManager } from "@@/server/utils/repos/SessionManager"
@@ -24,12 +24,13 @@ export const registerUser = async (event: H3Event) => {
         const session = await SessionManager.add(account)
         return session.id
     }
-    catch (error: any) {
+    catch (error) {
+        if (isError(error)) {
+            throw error
+        }
         throw createError({
             status: 400,
             statusText: "Failed to register user.",
-            message: error.message,
-            stack: error.stack,
         })
     }
 }
@@ -45,12 +46,13 @@ export const authenticateLogin = async (event: H3Event) => {
             user: session.account.user,
         }
     }
-    catch (error: any) {
+    catch (error) {
+        if (isError(error) && error.statusCode >= 500) {
+            throw error
+        }
         throw createError({
             status: 401,
             statusText: "Failed to authenticate login.",
-            message: error.message,
-            stack: error.stack,
         })
     }
 }
@@ -62,12 +64,13 @@ export const authenticateRequest = async (event: H3Event): Promise<User> => {
         event.context.account = session.account
         return session.account.user
     }
-    catch (error: any) {
+    catch (error) {
+        if (isError(error) && error.statusCode >= 500) {
+            throw error
+        }
         throw createError({
             status: 401,
             statusText: "Failed to authenticate request.",
-            message: error.message,
-            stack: error.stack,
         })
     }
 }
@@ -89,12 +92,13 @@ export const invalidateSession = async (event: H3Event, clear: boolean) => {
             await SessionManager.invalidateToken(token)
         }
     }
-    catch (error: any) {
+    catch (error) {
+        if (isError(error) && error.statusCode >= 500) {
+            throw error
+        }
         throw createError({
             status: 403,
             statusText: "You aren't allowed invalidate this session.",
-            message: error.message,
-            stack: error.stack,
         })
     }
 }

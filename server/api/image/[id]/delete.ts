@@ -26,17 +26,6 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    try {
-        await trashImage(id)
-        return true
-    }
-    catch (error: any) {
-        const imageIsAttached = error.message.includes("Image is still attached to content.")
-        throw createError({
-            status: imageIsAttached ? 409 : 500,
-            statusText: imageIsAttached ? "This image is still attached to content." : `Unable to delete image:${id}`,
-            message: error.message,
-            stack: error.stack,
-        })      
-    }
+    await trashImage(id)
+    return true
 })

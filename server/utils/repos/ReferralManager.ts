@@ -1,3 +1,4 @@
+import { isError } from "h3"
 import type { User } from "@@/shared/types"
 import { NotificationManager } from "@@/server/utils/repos/NotificationManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
@@ -79,16 +80,11 @@ export class ReferralManager {
                 .addRecord("claimant", user.id)
                 .execute()
         }
-        catch (error: any) {
-            if (error.message?.includes("index `claimant` already contains")) {
+        catch (error) {
+            if (isError(error) && error.statusCode === 409) {
                 return "already-claimed"
             }
-            throw createError({
-                status: 400,
-                statusText: "Unable to complete the referral claim.",
-                message: error.message,
-                stack: error.stack,
-            })
+            throw error
         }
 
         await NotificationManager.send({

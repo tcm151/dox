@@ -1,3 +1,5 @@
+import { isError } from "h3"
+
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)    
     const { username } = await readBody<{ username: string }>(event)
@@ -12,11 +14,13 @@ export default defineEventHandler(async (event) => {
             `)
             .addParameter("name", username)
             .addRecord("user", auth.id)
-            .queryOne<string>()
+            .queryOne<{ id: string }>()
 
         return true
-    }
-    catch (error: any) {
-        return false
+    } catch (error) {
+        if (isError(error) && error.statusCode === 404) {
+            return false
+        }
+        throw error
     }
 })

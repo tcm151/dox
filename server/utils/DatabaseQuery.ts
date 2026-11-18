@@ -200,12 +200,12 @@ export class DatabaseQuery {
             return DatabaseQuery.normalizeRecordIds(responses)
         }
         catch (error: any) {
-            const applicationError = error.kind === "Thrown" && typeof error.message === "string"
+            const applicationError = error?.kind === "Thrown" && typeof error.message === "string"
                 ? /^An error occurred: APP_ERROR:(\d{3}):([\s\S]*)$/.exec(error.message)
                 : null
-            const errorMessage = typeof error?.message === "string" && error.message.length > 0
-                ? error.message
-                : String(error)
+            const databaseConflict = error?.kind === "Internal"
+                && typeof error.message === "string"
+                && /^Database index `[^`]+` already contains /.test(error.message)
 
             const applicationStatusCode = Number(applicationError?.[1])
             if (applicationError && applicationStatusCode >= 400 && applicationStatusCode <= 599) {
@@ -213,6 +213,16 @@ export class DatabaseQuery {
                     statusCode: applicationStatusCode,
                     statusMessage: applicationError[2],
                     message: applicationError[2],
+                    stack: error.stack,
+                })
+            }
+
+            if (databaseConflict) {
+                throw createError({
+                    status: 409,
+                    statusText: "A conflicting database record already exists.",
+                    message: "A conflicting database record already exists.",
+                    cause: error,
                     stack: error.stack,
                 })
             }

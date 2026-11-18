@@ -169,6 +169,9 @@ it("gates new moderator requests without limiting approvals already in progress"
         expect(rejectedRequests[0] ?? []).toHaveLength(0)
 
         expectStatus(await member.fetchRaw(`/api/topic/${manualTopicId}/request-moderation`, { method: "POST" }), 204)
+        const duplicateRequest = await member.fetchRaw(`/api/topic/${manualTopicId}/request-moderation`, { method: "POST" })
+        expectStatus(duplicateRequest, 409)
+        expect(JSON.stringify(duplicateRequest._data)).not.toContain("user_topic")
         expectStatus(await member.fetchRaw(`/api/topic/${automaticTopicId}/request-moderation`, { method: "POST" }), 204)
 
         const manualRequestId = await getRequestId(manualTopicId)

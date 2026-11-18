@@ -24,14 +24,14 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
 | `GET` | [`/api/health`](#health) | Public; no authentication | Reports application readiness and database health. |
-| `POST` | `/api/user/register` | Public | Creates an account and initial session. |
+| `POST` | `/api/user/register` | Public | Creates an account and initial session; unexpected database failures return `500`. |
 | `POST` | [`/api/profile/login`](#login) | Public; credentials required | Authenticates credentials and creates an access session. |
 | `POST` | `/api/profile` | Authenticated | Returns the current user's authenticated profile. |
 | `GET` | `/api/profile/authenticate` | Authenticated | Resolves the current access token to the signed-in user. |
 | `POST` | `/api/profile/logout` | Authenticated | Invalidates the supplied session when `clear` is requested. |
 | `GET` | `/api/profile/account` | Authenticated | Returns the current account details. |
 | `POST` | `/api/profile/update` | Authenticated | Updates the current user's name, link, and description. |
-| `POST` | `/api/profile/username-taken` | Authenticated | Checks whether a username is already in use. |
+| `POST` | `/api/profile/username-taken` | Authenticated | Checks whether another account uses the username; unexpected database failures return `500` instead of `false`. |
 | `GET` | `/api/profile/settings` | Authenticated | Returns the current user's settings, including their profile audience. |
 | `PUT` | `/api/profile/settings/update` | Authenticated | Replaces the current user's settings, including their profile audience (`public`, `members`, or `private`). |
 | `GET` | `/api/profile/filters` | Authenticated | Lists the caller's muted and blocked users and topics. |
@@ -60,6 +60,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Request: `Authorization` contains base64-encoded `username:password`; no body.
 - `200`: `{ user, tokens: { access } }`.
 - `401`: credentials cannot be authenticated.
+- `500`: unexpected database failure.
 - Side effects: creates a session and associates the account with the request.
 - Source: [route](../server/api/profile/login.ts), [authentication](../server/utils/auth.ts).
 - Tests: [account and authentication tests](../tests/parallel/account.server.test.ts).
@@ -79,7 +80,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Method: `POST /api/profile/password/confirm`.
 - Access: public; requires the reset token ID, the account email, and a valid new password in `{ id, email, password }`.
 - Success: completes without a response body.
-- `400`: invalid email/password, email mismatch, expired token, or reused token. The handler normalizes transaction failures to `400`.
+- `400`: invalid email/password, invalid or missing reset token, or email mismatch.
+- `409`: reset token was already used. `410`: reset period expired. `500`: unexpected database failure.
 - Side effects: transactionally updates the password hash, marks the token used, and invalidates the account's existing sessions. Reset tokens expire after 15 minutes.
 - Source: [reset request](../server/api/profile/password/reset.ts), [confirmation](../server/api/profile/password/confirm.ts), [token schema](../server/assets/schema.surql).
 - Tests: no dedicated password-reset API test is currently present.
@@ -371,7 +373,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 - Methods: `POST /api/moderator/request/:id/approve` and `POST /api/moderator/request/:id/deny`.
 - Access: moderator or admin. Applicants cannot approve their own requests unless they are admins, and cannot deny their own requests. Closed requests and repeated same-kind decisions return `409`.
-- Request creation: `POST /api/topic/:topic/request-moderation` requires a confirmed account, returns `204` when created, `400` for an existing request, and `409` once the topic reaches its moderator request threshold.
+- Request creation: `POST /api/topic/:topic/request-moderation` requires a confirmed account, returns `204` when created, and `409` for an existing request or when the topic reaches its moderator request threshold.
 - Request eligibility: new requests return `409` once the topic's assigned moderator count reaches `moderation.perTopic`. This is not a hard roster cap; requests created earlier may still be approved after the threshold is reached.
 - Response: approval returns `{ approved, user, topic }`; denial records the vote.
 - Side effects: once approvals reach the configured threshold and outnumber denials, the request closes, the applicant gains the moderator role and topic assignment, and receives a notification. Denials close the request when they reach the threshold and outnumber approvals. Reading the queue also reconciles requests against the current threshold.

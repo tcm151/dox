@@ -50,34 +50,28 @@ export class ReportManager {
             throw createError({ status: 400, statusText: "A report reason is required." })
         }
 
-        try {
-            await new DatabaseQuery()
-                .addSql(`
-                    LET $existing = (
-                        SELECT VALUE id
-                        FROM ONLY report
-                        WHERE subject = $subject
-                        LIMIT 1
-                    );
-                    IF $existing = NONE {
-                        CREATE report SET
-                            subject = $subject,
-                            complaints = [{ user: $reporter, reason: $reason, time: time::now() }];
-                    } ELSE {
-                        UPDATE $existing SET
-                            complaints += { user: $reporter, reason: $reason, time: time::now() };
-                    };
-                `)
-                .addTransaction()
-                .addRecord("subject", subjectId)
-                .addRecord("reporter", reporterId)
-                .addParameter("reason", normalizedReason)
-                .execute()
-        }
-        catch (error: any) {
-            console.error(error)
-            throw createError({ status: 500, statusText: error.message ?? error.toString() })
-        }
+        await new DatabaseQuery()
+            .addSql(`
+                LET $existing = (
+                    SELECT VALUE id
+                    FROM ONLY report
+                    WHERE subject = $subject
+                    LIMIT 1
+                );
+                IF $existing = NONE {
+                    CREATE report SET
+                        subject = $subject,
+                        complaints = [{ user: $reporter, reason: $reason, time: time::now() }];
+                } ELSE {
+                    UPDATE $existing SET
+                        complaints += { user: $reporter, reason: $reason, time: time::now() };
+                };
+            `)
+            .addTransaction()
+            .addRecord("subject", subjectId)
+            .addRecord("reporter", reporterId)
+            .addParameter("reason", normalizedReason)
+            .execute()
     }
 
     static async resolve(options: ReportMessageOptions): Promise<Report[]> {

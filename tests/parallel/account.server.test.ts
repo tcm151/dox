@@ -106,6 +106,33 @@ async function cleanupConfirmationAccount(account: { accessToken: string, user: 
     await cleanupTestData(account.user, account.accessToken, [], [])
 }
 
+it("reports whether another user has the requested username", async () => {
+    const account = await createAccount()
+
+    try {
+        const takenResponse = await accountFetch(account.accessToken, "/api/profile/username-taken", {
+            username: otherUser.user.name,
+        })
+        expectStatus(takenResponse, 200)
+        expect(await takenResponse.json()).toBe(true)
+
+        const availableResponse = await accountFetch(account.accessToken, "/api/profile/username-taken", {
+            username: `${account.username}Available`,
+        })
+        expectStatus(availableResponse, 200)
+        expect(await availableResponse.json()).toBe(false)
+
+        const ownUsernameResponse = await accountFetch(account.accessToken, "/api/profile/username-taken", {
+            username: account.username,
+        })
+        expectStatus(ownUsernameResponse, 200)
+        expect(await ownUsernameResponse.json()).toBe(false)
+    }
+    finally {
+        await cleanupTestData(account.user, account.accessToken, [], [])
+    }
+})
+
 it("limits concurrent confirmation sends and retains the token after SMTP failure", async () => {
     const account = await createAccount()
     const accountId = await getAccountRecordId(account.user)
