@@ -44,7 +44,7 @@ const responses = computed(() => {
             <Tag v-if="pinned" class="meta" icon="fa-thumbtack" title="Pinned" />
             <Tag v-if="archived" class="meta" icon="fa-folder-closed" title="Archived" />
             <Tag v-if="awards" class="meta" icon="fa-crown" :label="awards" title="Awards" />
-            <Tag v-if="saves !== undefined" class="meta" icon="fa-bookmark" :label="saves" title="Saves" />
+            <Tag v-if="saves" class="meta" icon="fa-bookmark" :label="saves" title="Saves" />
             <Tag v-if="images" class="meta" icon="fa-image" :label="images" title="Images" />
             <Tag class="meta" icon="fa-chart-simple" :label="content.visits" title="Visits" />
             <Tag class="meta" icon="fa-comment" :label="responses" title="Responses" />

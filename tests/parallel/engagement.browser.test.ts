@@ -33,7 +33,7 @@ test("renders the seeded comment and opens its options", async ({ authenticatedP
 test("saves eligible content and reflects save state and counts", async ({ authenticatedPage }) => {
     await authenticatedPage.goto("/feed/posts")
     const postPreview = authenticatedPage.locator(".post.clickable").filter({ hasText: samplePostTitle })
-    await expect(postPreview.locator('[title="Saves"]')).toContainText("0")
+    await expect(postPreview.locator('[title="Saves"]')).toHaveCount(0)
     await postPreview.locator(".main").click()
 
     await expect(authenticatedPage).toHaveURL(/\/post\/[^/]+$/)
@@ -58,9 +58,9 @@ test("saves eligible content and reflects save state and counts", async ({ authe
     await options.getByRole("button", { name: "Unsave" }).click()
 
     await expect(options.getByRole("button", { name: "Save" })).toBeVisible()
-    await expect(authenticatedPage.locator('[title="Saves"]')).toContainText("0")
+    await expect(authenticatedPage.locator('[title="Saves"]')).toHaveCount(0)
 
     await authenticatedPage.goto("/feed/posts")
     const unsavedPostPreview = authenticatedPage.locator(".post.clickable").filter({ hasText: samplePostTitle })
-    await expect(unsavedPostPreview.locator('[title="Saves"]')).toContainText("0")
+    await expect(unsavedPostPreview.locator('[title="Saves"]')).toHaveCount(0)
 })
