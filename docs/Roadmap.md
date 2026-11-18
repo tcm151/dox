@@ -21,7 +21,7 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 
 ### A2. Installation
 - 🟩 Add `.env.example` with embedded defaults and remote-mode advanced examples. (`S`)
-- 🟩 Add single “Production Quickstart” doc for a Linux VM service install, with embedded as the default and operator-managed reverse proxy/TLS. Windows x64 packaged setup is validated; Linux-native VPS validation remains a follow-up. (`M`)
+- 🟩 Add single “Production Quickstart” doc for a Linux VM service install, with embedded as the default and operator-managed reverse proxy/TLS. (`M`)
 - 🟩 Add a SurrealDB user guide linking upstream documentation and documenting ClassicForum-specific database configuration. (`M`)
 
 **Success metric**: clean machine setup to running app in <= 30 minutes.
@@ -35,7 +35,7 @@ Goal: make self-hosting reliable, with embedded SurrealDB as the default and rem
 **Success metric**: no known P0 abuse paths in auth/economy endpoints.
 
 ### A4. Operations
-- 🟩 Add [backup/restore runbook](Backups.md) for embedded and remote SurrealDB modes; isolated WSL restore validation is complete. (`M`)
+- 🟩 Add [backup/restore runbook](Backups.md) for embedded and remote SurrealDB modes; isolated WSL restore and backup-first upgrade/recovery validation is complete. (`M`)
 - 🟩 Add health/readiness endpoint docs and operator checks for embedded and remote profiles. (`S`)
 - 🟩 Add release versioning + changelog process. (`S`)
 
@@ -122,10 +122,13 @@ Goal: fix the remaining public-use issues, check the release and installation pr
 
 Fix release-blocking issues before promotion. Code cleanup can run in parallel. Other cleanup and optional features do not block the pilot unless they affect supported workflows.
 
+Current candidate: 2026.6.3. Its Linux x64 package is needed to upgrade the existing production deployment. Isolated WSL service, reverse-proxy, upgrade, and recovery rehearsals passed, but the package is unpublished. Independent installation, live SMTP/onboarding, publication checks, and diagnosis of an unidentified test failure remain open. Production use requires a verified download, fresh backup, and explicit approval.
+
 ### D1. Security and Reliability
-- 🟥 Fix media cleanup, confirmation-token validation, and confirmation-email rate limits without changing ownership or refund rules.
-- 🟥 Apply mute/block filters consistently and limit discovery and inbox query sizes.
-- 🟥 Keep requests tied to the correct account, discard cancelled edits, and handle loading, errors, and retries consistently.
+- 🟩 Fix media cleanup, confirmation-token validation, and confirmation-email rate limits without changing ownership or refund rules.
+- 🟩 Apply mute/block filters consistently and limit discovery and inbox query sizes.
+- 🟩 Keep requests tied to the correct account and discard cancelled edits.
+- 🟥 Normalize remaining mutation loading, error, and retry lifecycles.
 
 **Success metric**: known release-blocking defects are fixed, account data stays isolated, and tests cover failures and limits.
 
@@ -137,8 +140,8 @@ Fix release-blocking issues before promotion. Code cleanup can run in parallel. 
 **Success metric**: a contributor can follow a route from its input types through validation, manager logic, and focused tests.
 
 ### D3. Releases and Installation
-- 🟥 Resolve recorded test failures and add missing media/referral tests for failures, retries, and concurrent requests.
-- 🟥 Have another operator follow the Linux install guide; check upgrades, retained configuration/media, and a full restore on an isolated copy.
+- 🟦 Diagnose the unidentified test-run failure; missing media/referral failure, retry, and concurrency coverage has been added.
+- 🟦 Complete the independent operator's Linux install check; WSL service, reverse-proxy, backup-first upgrade, and isolated restore rehearsals passed.
 - 🟥 Check real SMTP delivery for confirmations, password resets, and opted-in notifications, then test confirmed-account image uploads.
 - 🟥 Publish platform-specific archives with matching source tags, checksums, and release notes. Document tested environments, measured resource use, and known limits.
 

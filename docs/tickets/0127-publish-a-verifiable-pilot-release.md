@@ -10,13 +10,14 @@
 - [0130](0130-verify-smtp-and-first-upload-onboarding.md): Verify the pilot's transactional mail and confirmed-account image journey against the candidate before advertising those workflows.
 
 ## Goal
-Give operators a tested release they can download and verify without using the contributor build workflow. Establish a small repeatable publication checklist rather than a new multi-platform release framework.
+Publish a verified Linux x64 package so it can be downloaded and applied to the existing production deployment. Keep the release process small and repeatable; do not expand to unverified platforms.
 
 ## Requirements
 - [ ] The chosen version, source commit/tag, changelog, published release notes, and packaged runtime version agree.
 - [ ] The public release provides an archive for each explicitly supported OS/architecture and SHA-256 checksums with verification instructions.
 - [x] Each advertised archive is built for its target platform, contains its production dependencies and environment example, and excludes live configuration, credentials, databases, and user media.
 - [ ] A fresh download from the public release is checksum-verified and matched to the validated candidate; archive installation requires no source checkout or contributor dependency installation.
+- [ ] Apply the verified package to the production deployment after a fresh backup and explicit approval; verify the running version, readiness, and persisted data.
 - [ ] Release notes identify pilot/stable status, supported environments, installation/upgrade links, known limitations, and the applicable support policy.
 - [ ] Exact validation evidence is linked, and unavailable or unverified platforms/features are not advertised as supported.
 - [x] The publication and withdrawal/correction procedure is documented without retagging an already published version to different source or silently replacing its artifacts.
@@ -27,11 +28,13 @@ Give operators a tested release they can download and verify without using the c
 - [ ] Stage the native candidate and complete the prerequisite checks before publishing its tag, notes, and assets.
 - [x] Configure CI to create a GitHub Release with generated notes after a version tag passes validation.
 - [ ] Independently download and verify the published archive and record its digest and source identity.
+- [ ] Apply the verified archive to production after backup and explicit approval; record version and readiness.
 - [x] Document how operators learn about a withdrawn or corrected pilot release.
 
 ## Notes
 - Completed [0032](completed/0032-release-versioning-changelog.md) intentionally deferred tagging and the fuller release checklist. Local archive staging is not public publication.
 - Staged 2026.6.3 candidate evidence is recorded in [0118](0118-close-public-release-validation-gaps.md). The Linux x64 archive was built from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a` (SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`) and passed privileged WSL service, reverse-proxy, backup-first upgrade, and isolated recovery rehearsals. It is not published; independent-operator acceptance, live SMTP/onboarding, and the unidentified 31/32 test failure remain open, so candidate acceptance is incomplete.
+- The WSL rehearsals used isolated data; they did not upgrade the existing production deployment. Production use requires the published archive, a fresh backup, and explicit deployment approval.
 - No GitHub release was found on 2026-11-17; check the current release destination before tagging.
 - [0129](0129-complete-public-adoption-entrypoints.md) connects operators to the resulting download. [0130](0130-verify-smtp-and-first-upload-onboarding.md) must verify email-dependent workflows before they are promoted to pilots; it can test an unpublished candidate.
 - Demo reliability, hosting measurements, and support guidance are separate under [0128](0128-verify-demo-navigation-and-hydration.md), [0131](0131-document-pilot-hosting-requirements-and-limits.md), and [0132](0132-publish-operator-support-guidance-and-bug-intake.md).
@@ -49,6 +52,7 @@ Give operators a tested release they can download and verify without using the c
 - SECURITY.md
 
 ## Progress Log
+- 2026-11-18: Clarified that the 2026.6.3 package is needed for the existing production deployment; added post-publication backup, approval, and verification checks. WSL rehearsals remain isolated.
 - 2026-11-18: Added the release procedure to the skill and Contribution Guide, updated CI guidance, and drafted the 2026.6.3 changelog. Gates remain open; no tag or release was created.
 - 2026-11-18: Audited the Linux x64 archive contents and checksum. Live config/data are absent; public download verification remains open.
 - 2026-11-18: Selected Linux x64. CI now checks tag/version, builds the archive, generates a SHA-256 file, and uploads both assets after validation. Local checks passed; no tag was pushed.
