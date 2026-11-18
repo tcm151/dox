@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const hints = useHints()
 const events = useEvents()
-const session = getSession()
 const userSettings = useUserSettings()
 
 const { data: filters, refresh } = await useDatasource<{
@@ -38,16 +37,9 @@ function updateContentVisibility(tag: string, event: Event) {
     }
 }
 
-try {
-    await userSettings.refresh()
-}
-catch (error: any) {
-    hints.addError("Failed to load preferences.", error)
-}
-
 async function savePreferences() {
     try {
-        await userSettings.save()
+        if (!await userSettings.save()) return
         hints.addSuccess("Preferences saved successfully.")
     }
     catch (error: any) {
@@ -56,12 +48,7 @@ async function savePreferences() {
 }
 
 async function resetPreferences() {
-    try {
-        await userSettings.refresh()
-    }
-    catch (error: any) {
-        hints.addError("Failed to reload preferences.", error)
-    }
+    await userSettings.refresh()
 }
 
 function confirmRemoveFilter(action: "unmute" | "unblock", target: { id: string, name: string }) {
@@ -105,12 +92,15 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Save</span>
                 </ButtonSpinner>
-                <button :disabled="userSettings.pending" @click="resetPreferences">
+                <button :disabled="userSettings.loading || userSettings.saving" @click="resetPreferences">
                     <i class="fa-solid fa-rotate"></i>
-                    <span>Reset</span>
+                    <span>{{ userSettings.loaded ? "Reset" : "Retry" }}</span>
                 </button>
             </div>
         </header>
+        <p v-if="userSettings.loadError" class="negative" role="alert">
+            Failed to load preferences. Use Retry to try again.
+        </p>
         <section class="box column p-5">
             <div v-for="tag in contentVisibilityTags" :key="tag.value" class="field row center">
                 <div class="column f-1">

@@ -18,61 +18,106 @@ function defaultSettings(): UserSettings {
 }
 
 export const useUserSettings = defineStore("user.preferences", () => {
+    const events = useEvents()
     const session = getSession()
+
     const preferences = ref<UserSettings>(defaultSettings())
+
     const loading = ref(false)
     const loaded = ref(false)
     const saving = ref(false)
+    const loadError = ref<unknown>()
     const pending = computed(() => loading.value || !loaded.value || saving.value)
+    let generation = 0
 
     watch(() => preferences.value.ui.hoverAnimations, enabled => {
         if (!ENV.isClient()) return
         document.documentElement.dataset.hoverAnimations = String(enabled)
     }, { immediate: true })
 
-    async function refresh() {
-        if (session.user.id === "user:temp") return
+    function isCurrent(userId: string, requestGeneration: number): boolean {
+        return requestGeneration === generation
+            && session.isAuthenticated
+            && session.user.id === userId
+    }
 
+    function resetForIdentity(): void {
+        generation++
+        preferences.value = defaultSettings()
+        loading.value = false
+        loaded.value = false
+        saving.value = false
+        loadError.value = undefined
+    }
+
+    async function refresh(): Promise<boolean> {
+        if (loading.value) return false
+        const userId = session.user.id
+        const token = session.tokens.access
+        if (!session.isAuthenticated || userId === "user:temp" || !token) return false
+
+        const requestGeneration = generation
         loading.value = true
+        loadError.value = undefined
         try {
-            preferences.value = await useApi<UserSettings>("/api/profile/settings", {
+            const result = await useApi<UserSettings>("/api/profile/settings", {
                 method: "GET",
+                headers: { Authorization: token },
             })
+            if (!isCurrent(userId, requestGeneration)) return false
+            preferences.value = result
             loaded.value = true
+            return true
+        }
+        catch (error) {
+            if (!isCurrent(userId, requestGeneration)) return false
+            loadError.value = error
+            return false
         }
         finally {
-            loading.value = false
+            if (isCurrent(userId, requestGeneration)) loading.value = false
         }
     }
 
-    function get(): UserSettings {
-        return preferences.value
-    }
-
-    function set(next: UserSettings): void {
-        preferences.value = next
-    }
-
-    async function save(): Promise<void> {
-        if (!loaded.value) await refresh()
+    async function save(): Promise<boolean> {
+        const userId = session.user.id
+        const token = session.tokens.access
+        const requestGeneration = generation
+        if (!session.isAuthenticated || userId === "user:temp" || !token) return false
+        if (!loaded.value && !await refresh()) return false
+        if (!isCurrent(userId, requestGeneration) || saving.value || !loaded.value) return false
         saving.value = true
 
         try {
-            preferences.value = await useApi<UserSettings>("/api/profile/settings/update", {
+            const result = await useApi<UserSettings>("/api/profile/settings/update", {
                 method: "PUT",
+                headers: { Authorization: token },
                 body: preferences.value,
             })
+            if (!isCurrent(userId, requestGeneration)) return false
+            preferences.value = result
+            return true
+        }
+        catch (error) {
+            if (!isCurrent(userId, requestGeneration)) return false
+            throw error
         }
         finally {
-            saving.value = false
+            if (isCurrent(userId, requestGeneration)) saving.value = false
         }
     }
 
-    watch(() => session.user.id, userId => {
-        preferences.value = defaultSettings()
-        loaded.value = false
-        if (userId !== "user:temp") void refresh().catch(() => {})
-    }, { immediate: true })
+    watch(
+        () => [session.user.id, session.isAuthenticated] as const,
+        resetForIdentity,
+        { flush: "sync", immediate: true },
+    )
+    events.subscribe(Trigger.authenticatedUser, () => {
+        resetForIdentity()
+        void refresh()
+    })
+    events.subscribe(Trigger.userLoggedOut, resetForIdentity)
+    if (session.isAuthenticated && session.user.id !== "user:temp") void refresh()
 
-    return { preferences, pending, get, set, refresh, save }
+    return { preferences, loading, loaded, saving, loadError, pending, refresh, save }
 })

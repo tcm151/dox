@@ -1,9 +1,9 @@
 # Ticket 0113: Isolate Account Preference Request State
 
 ## Status
-- State: Planned
+- State: Paused
 - Priority: High
-- Next: Add a delayed-response browser case that switches accounts while preferences are loading.
+- Next: Investigate why preferences remain pending at their default value after returning to a profile following logout.
 
 ## Goal
 Prevent preference requests started under one identity from overwriting the current account's store after an account switch or logout. Keep privacy and notification controls attached to the identity that owns their data.
@@ -40,4 +40,5 @@ Prevent preference requests started under one identity from overwriting the curr
 - tests/parallel/settings.browser.test.ts
 
 ## Progress Log
+- 2026-11-17: Added identity-scoped preference requests, retryable settings-load UI, delayed account-switch coverage, and focused test diagnostics. `yarn typecheck` passes. The focused account browser test gets through fixture setup but fails after re-authentication: the preference select remains disabled at `public` instead of showing the profile's saved value; artifacts are retained in `.test-output-XOJXya`. The sequential run passes the migration tests but later times out in `09-feeds.server.test.ts` at 5 seconds. Paused with the account-state failure still unresolved.
 - 2026-11-17: Ticket created from the public-launch source review. Response races and persistence were not runtime-verified.

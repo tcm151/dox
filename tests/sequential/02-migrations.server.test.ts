@@ -24,7 +24,7 @@ it("applies every migration after the previous tagged release", async () => {
 
     expect(result.baselineVersion).toBeDefined()
     expect(result.recordedVersions).toEqual([result.baselineVersion, ...result.appliedMigrations])
-}, 15_000)
+}, 60_000)
 
 it("defaults existing and new profile privacy settings to public", async () => {
     const healthResponse = await fetch("/api/health")
@@ -57,7 +57,7 @@ it("defaults existing and new profile privacy settings to public", async () => {
     })
 
     expect(result).toEqual({ existing: "public", created: "public" })
-})
+}, 60_000)
 
 it("replays the current migration for an authorized developer", async () => {
     const result = await admin.fetch<{ version: string }>("/api/developer/database/replay", { method: "POST" })

@@ -13,6 +13,57 @@ test("toggles and resets an unsaved preference", async ({ authenticatedPage }) =
     await expect(animationToggle).toBeChecked()
 })
 
+for (const path of ["/settings/preferences", "/settings/filters"]) {
+    test(`retries failed preference loading on ${path}`, async ({ authenticatedPage: page }) => {
+        let attempts = 0
+        let releaseFailure!: () => void
+        const failureGate = new Promise<void>((resolve) => {
+            releaseFailure = resolve
+        })
+
+        await page.route(url => new URL(url).pathname === "/api/profile/settings", async (route) => {
+            if (route.request().method() !== "GET") {
+                await route.continue()
+                return
+            }
+
+            attempts++
+            if (attempts === 1) {
+                await failureGate
+                await route.fulfill({
+                    status: 400,
+                    contentType: "application/json",
+                    body: JSON.stringify({ statusCode: 503, statusMessage: "Simulated preference load failure" }),
+                })
+                return
+            }
+            await route.continue()
+        })
+
+        try {
+            await page.goto(path)
+            await expect.poll(() => attempts).toBe(1)
+            const control = path.endsWith("/filters")
+                ? page.locator("section.box select").first()
+                : page.locator("input[type='checkbox']").first()
+            await expect(control).toBeDisabled()
+            await expect(page.getByRole("button", { name: "Retry" })).toBeDisabled()
+
+            releaseFailure()
+            await expect(page.getByRole("button", { name: "Retry" })).toBeEnabled()
+            await expect(page.getByRole("button", { name: "Save" })).toBeDisabled()
+            await expect(page.getByRole("alert")).toHaveText("Failed to load preferences. Use Retry to try again.")
+            await page.getByRole("button", { name: "Retry" }).click()
+            await expect.poll(() => attempts).toBe(2)
+            await expect(control).toBeEnabled()
+            await expect(page.getByRole("button", { name: "Save" })).toBeEnabled()
+        }
+        finally {
+            releaseFailure()
+        }
+    })
+}
+
 test("opens and dismisses a settings confirmation through the event bus", async ({ authenticatedPage }) => {
     await authenticatedPage.goto("/settings/misc")
     await authenticatedPage.getByRole("button", { name: /Sign Out Everywhere/ }).click()

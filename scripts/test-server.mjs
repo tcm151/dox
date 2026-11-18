@@ -15,29 +15,48 @@ const timings = []
 const runStartedAt = performance.now()
 let buildWasCached = false
 const testArguments = process.argv.slice(2)
+const keepOutputArguments = testArguments.filter(argument => argument === "--keep-output")
+const unparsedArguments = testArguments.filter(argument => argument !== "--keep-output")
+const fileArguments = []
+const runnerArguments = []
+for (let index = 0; index < unparsedArguments.length; index++) {
+    const argument = unparsedArguments[index]
+    if (argument === "--file") {
+        const fileArgument = unparsedArguments[index + 1]
+        fileArguments.push(fileArgument && !fileArgument.startsWith("--") ? fileArgument : undefined)
+        if (fileArguments[fileArguments.length - 1]) index++
+    }
+    else {
+        runnerArguments.push(argument)
+    }
+}
 const testModeFlags = new Set(["--sequential", "--server", "--browser"])
-const selectedModes = testArguments.filter(argument => testModeFlags.has(argument))
-const selectedTestArguments = testArguments.filter(argument => !testModeFlags.has(argument))
+const selectedModes = runnerArguments.filter(argument => testModeFlags.has(argument))
+const unrecognizedArguments = runnerArguments.filter(argument => !testModeFlags.has(argument))
 const sequentialOnly = selectedModes.includes("--sequential")
 const serverMode = selectedModes.includes("--server")
 const browserMode = selectedModes.includes("--browser")
-const testUsage = "Usage: yarn test [--sequential | --server | --browser | <file>.<type>.test.ts]"
+const selectedFile = fileArguments.length === 1 ? fileArguments[0] : undefined
+const testUsage = "Usage: yarn test [--keep-output] [--sequential | --server | --browser | --file <parallel-test-file>]"
 if (
-    selectedModes.length + selectedTestArguments.length !== testArguments.length
+    keepOutputArguments.length > 1
+    || fileArguments.length > 1
+    || (fileArguments.length === 1 && !selectedFile)
+    || unrecognizedArguments.length > 0
     || selectedModes.length !== new Set(selectedModes).size
-    || selectedTestArguments.length > 1
-    || (sequentialOnly && (serverMode || browserMode || selectedTestArguments.length > 0))
-    || (selectedTestArguments.length > 0 && selectedModes.length > 0)
+    || (sequentialOnly && (serverMode || browserMode))
+    || (fileArguments.length > 0 && selectedModes.length > 0)
 ) {
     throw new Error(testUsage)
 }
-const selectedParallelTest = selectedTestArguments[0] ? getParallelTestPath(selectedTestArguments[0]) : undefined
+const selectedParallelTest = selectedFile ? getParallelTestPath(selectedFile) : undefined
 const testFolder = await mkdtemp(join(projectRoot, ".test-output-"))
 const testRoot = relative(projectRoot, testFolder).split(sep).join("/")
 const vitestPath = join(projectRoot, "node_modules", "vitest", "vitest.mjs")
 const playwrightPath = join(projectRoot, "node_modules", "@playwright", "test", "cli.js")
 const testAdminName = "TestAdmin"
 const testAdminPassword = "integration-test-password"
+const keepTestOutput = keepOutputArguments.length === 1
 let testApp
 
 try {
@@ -109,7 +128,12 @@ finally {
         throw new Error("Refusing to remove a test data directory outside the project root.")
     }
 
-    await rm(testFolder, { recursive: true, force: true })
+    if (keepTestOutput) {
+        console.log(`[test artifacts] ${testFolder}`)
+    }
+    else {
+        await rm(testFolder, { recursive: true, force: true })
+    }
     recordTiming("cleanup", cleanupStartedAt)
     printTimingSummary()
 }
@@ -466,6 +490,13 @@ async function getTestFiles(phase, suffixes) {
 function getParallelTestPath(argument) {
     const normalized = argument.replaceAll("\\", "/").replace(/^\.\//, "")
     const prefix = "tests/parallel/"
+    if (
+        normalized.startsWith("tests/sequential/")
+        || (!normalized.includes("/") && existsSync(join(projectRoot, "tests", "sequential", normalized)))
+    ) {
+        throw new Error(`Individual --file selection only supports tests/parallel; sequential tests must run in order with --sequential or the full suite.\n${testUsage}`)
+    }
+
     const fileName = normalized.startsWith(prefix) ? normalized.slice(prefix.length) : normalized
     const testPath = `${prefix}${fileName}`
     const supportedExtension = fileName.endsWith(".server.test.ts")

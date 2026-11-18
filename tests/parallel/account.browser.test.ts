@@ -1,6 +1,7 @@
 import { expect, test } from "../utils/browser-fixtures"
 import type { Page } from "@playwright/test"
 import { extractId } from "../../shared/utils/records"
+import type { User, UserSettings } from "../../shared/types"
 
 const adminName = process.env.CLASSICFORUM_TEST_ADMIN_NAME!
 const adminPassword = process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD!
@@ -11,8 +12,59 @@ type NotificationFixture = {
     replyId?: string
 }
 
+function deferred() {
+    let release!: () => void
+    const promise = new Promise<void>((resolve) => {
+        release = resolve
+    })
+    return { promise, release }
+}
+
 function apiUrl(page: Page, path: string) {
     return new URL(path, page.url()).toString()
+}
+
+async function getUserSettings(page: Page, token: string): Promise<UserSettings> {
+    const response = await page.request.get(apiUrl(page, "/api/profile/settings"), {
+        headers: { Authorization: token },
+    })
+    expect(response.ok()).toBe(true)
+    return await response.json() as UserSettings
+}
+
+async function updateUserSettings(page: Page, token: string, settings: UserSettings): Promise<UserSettings> {
+    const response = await page.request.put(apiUrl(page, "/api/profile/settings/update"), {
+        headers: { Authorization: token },
+        data: settings,
+    })
+    expect(response.ok()).toBe(true)
+    return await response.json() as UserSettings
+}
+
+function waitForSettingsResponse(page: Page, token: string, method: "GET" | "PUT") {
+    const path = method === "GET" ? "/api/profile/settings" : "/api/profile/settings/update"
+    return page.waitForResponse(response =>
+        new URL(response.url()).pathname === path
+        && response.request().method() === method
+        && response.request().headers()["authorization"] === token,
+    )
+}
+
+async function switchSavedProfile(page: Page, currentName: string, targetName: string) {
+    await page.locator("nav").getByText(currentName, { exact: true }).click({ button: "right" })
+    await expect(page.getByRole("heading", { name: "Profiles" })).toBeVisible()
+    await page.locator("main.window").getByRole("button", { name: targetName, exact: true }).click()
+    await expect(page.locator("nav").getByText(targetName, { exact: true })).toBeVisible()
+}
+
+async function expectPreferenceView(page: Page, settings: UserSettings) {
+    await expect(page.locator("section.box select")).toHaveValue(settings.privacy.profile)
+    const inApp = page.locator("section.box .field.row").filter({ hasText: "in app notifications" })
+    const email = page.locator("section.box .field.row").filter({ hasText: "email notifications" })
+    if (settings.notifications.inApp) await expect(inApp.locator("input[type='checkbox']")).toBeChecked()
+    else await expect(inApp.locator("input[type='checkbox']")).not.toBeChecked()
+    if (settings.notifications.email) await expect(email.locator("input[type='checkbox']")).toBeChecked()
+    else await expect(email.locator("input[type='checkbox']")).not.toBeChecked()
 }
 
 async function createNotification(
@@ -53,6 +105,190 @@ async function cleanupNotifications(page: Page, accessToken: string, fixtures: N
     })
     expect(response.ok()).toBe(true)
 }
+
+test("keeps preference responses and saves scoped to the active profile", async ({ authenticatedPage: page, exampleServer }) => {
+    test.setTimeout(60_000)
+    const adminToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
+    const adminUser = await page.evaluate(() => JSON.parse(sessionStorage.getItem("user") ?? "{}")) as User
+    const profile = exampleServer.users.threadAuthor
+    const adminSettings = await getUserSettings(page, adminToken)
+    const originalProfileSettings = await getUserSettings(page, profile.accessToken)
+    const profileSettings = await updateUserSettings(page, profile.accessToken, {
+        ...originalProfileSettings,
+        privacy: {
+            ...originalProfileSettings.privacy,
+            profile: adminSettings.privacy.profile === "private" ? "members" : "private",
+        },
+        notifications: {
+            inApp: !adminSettings.notifications.inApp,
+            email: !adminSettings.notifications.email,
+        },
+    })
+    const firstAdminGate = deferred()
+    const firstProfileGate = deferred()
+    let adminGate: typeof firstAdminGate | undefined = firstAdminGate
+    let profileGate: typeof firstProfileGate | undefined = firstProfileGate
+    let fulfillAdminGate = false
+    let adminReadsHeld = 0
+    let profileReadsHeld = 0
+    let profileSavesHeld = 0
+    let profileSaveGate: ReturnType<typeof deferred> | undefined
+    const delayedProfileRefreshGate = deferred()
+    const delayedProfileSaveGate = deferred()
+    const delayedLogoutRefreshGate = deferred()
+    let testError: unknown
+    let hasTestError = false
+
+    try {
+        await page.evaluate(({ adminUser, adminToken, profile }) => {
+            sessionStorage.setItem("authenticated", JSON.stringify(true))
+            sessionStorage.setItem("user", JSON.stringify(adminUser))
+            localStorage.setItem("tokens", JSON.stringify({ access: adminToken }))
+            localStorage.setItem("profiles", JSON.stringify([
+                { id: adminUser.id, name: adminUser.name, token: adminToken },
+                { id: profile.user.id, name: profile.user.name, token: profile.accessToken },
+            ]))
+        }, { adminUser, adminToken, profile })
+
+        await page.route(url => new URL(url).pathname.startsWith("/api/profile/settings"), async (route) => {
+            const request = route.request()
+            const token = request.headers()["authorization"]
+            if (request.method() === "GET" && token === adminToken && adminGate) {
+                const gate = adminGate
+                adminGate = undefined
+                adminReadsHeld++
+                await gate.promise
+                if (fulfillAdminGate) {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: "application/json",
+                        body: JSON.stringify(adminSettings),
+                    })
+                }
+                else {
+                    await route.continue()
+                }
+                return
+            }
+            if (request.method() === "GET" && token === profile.accessToken && profileGate) {
+                const gate = profileGate
+                profileGate = undefined
+                profileReadsHeld++
+                await gate.promise
+                await route.continue()
+                return
+            }
+            if (request.method() === "PUT" && token === profile.accessToken && profileSaveGate) {
+                const gate = profileSaveGate
+                profileSaveGate = undefined
+                profileSavesHeld++
+                await gate.promise
+                await route.continue()
+                return
+            }
+            await route.continue()
+        })
+
+        await page.goto("/settings/preferences")
+        await expect.poll(() => adminReadsHeld).toBe(1)
+        await switchSavedProfile(page, adminUser.name, profile.user.name)
+        await expect.poll(() => profileReadsHeld).toBe(1)
+
+        const firstAdminResponse = waitForSettingsResponse(page, adminToken, "GET")
+        firstAdminGate.release()
+        expect((await firstAdminResponse).ok()).toBe(true)
+        await expect(page.locator("section.box select")).toBeDisabled()
+
+        const firstProfileResponse = waitForSettingsResponse(page, profile.accessToken, "GET")
+        firstProfileGate.release()
+        const profileResponse = await firstProfileResponse
+        expect(profileResponse.ok()).toBe(true)
+        expect((await profileResponse.json() as UserSettings).notifications).toEqual(profileSettings.notifications)
+        await expectPreferenceView(page, profileSettings)
+
+        const profileSaveResponse = waitForSettingsResponse(page, profile.accessToken, "PUT")
+        await page.getByRole("button", { name: "Save" }).click()
+        expect((await profileSaveResponse).ok()).toBe(true)
+        expect((await getUserSettings(page, adminToken)).privacy.profile).toBe(adminSettings.privacy.profile)
+        expect((await getUserSettings(page, profile.accessToken)).privacy.profile).toBe(profileSettings.privacy.profile)
+
+        profileGate = delayedProfileRefreshGate
+        await page.getByRole("button", { name: "Reset" }).click()
+        await expect.poll(() => profileReadsHeld).toBe(2)
+        await switchSavedProfile(page, profile.user.name, adminUser.name)
+        await expectPreferenceView(page, adminSettings)
+        const delayedProfileResponse = waitForSettingsResponse(page, profile.accessToken, "GET")
+        delayedProfileRefreshGate.release()
+        expect((await delayedProfileResponse).ok()).toBe(true)
+        await expectPreferenceView(page, adminSettings)
+
+        await switchSavedProfile(page, adminUser.name, profile.user.name)
+        await expectPreferenceView(page, profileSettings)
+        profileSaveGate = delayedProfileSaveGate
+        const inApp = page.locator("section.box .field.row").filter({ hasText: "in app notifications" })
+        await inApp.locator("label.toggle").click()
+        const profileSaveInFlight = waitForSettingsResponse(page, profile.accessToken, "PUT")
+        await page.getByRole("button", { name: "Save" }).click()
+        await expect.poll(() => profileSavesHeld).toBe(1)
+        await switchSavedProfile(page, profile.user.name, adminUser.name)
+        await expectPreferenceView(page, adminSettings)
+        delayedProfileSaveGate.release()
+        expect((await profileSaveInFlight).ok()).toBe(true)
+        await expectPreferenceView(page, adminSettings)
+
+        const savedProfileSettings = await getUserSettings(page, profile.accessToken)
+        expect(savedProfileSettings.notifications.inApp).toBe(!profileSettings.notifications.inApp)
+        expect((await getUserSettings(page, adminToken)).privacy.profile).toBe(adminSettings.privacy.profile)
+
+        adminGate = delayedLogoutRefreshGate
+        fulfillAdminGate = true
+        await page.getByRole("button", { name: "Reset" }).click()
+        await expect.poll(() => adminReadsHeld).toBe(2)
+        await page.locator("nav button[title='Logout']").dispatchEvent("contextmenu", { button: 2 })
+        await expect(page.locator("nav").getByText("Login", { exact: true })).toBeVisible()
+        const lateLogoutResponse = waitForSettingsResponse(page, adminToken, "GET")
+        delayedLogoutRefreshGate.release()
+        expect((await lateLogoutResponse).ok()).toBe(true)
+
+        await page.locator("nav").getByText("Login", { exact: true }).click()
+        await expect(page.getByRole("heading", { name: "Profiles" })).toBeVisible()
+        const profileSettingsResponse = waitForSettingsResponse(page, profile.accessToken, "GET")
+        await page.locator("main.window").getByRole("button", { name: profile.user.name, exact: true }).click()
+        await expect(page.locator("nav").getByText(profile.user.name, { exact: true })).toBeVisible()
+        const profileSettingsResult = await profileSettingsResponse
+        expect(profileSettingsResult.ok()).toBe(true)
+        expect((await profileSettingsResult.json() as UserSettings).privacy.profile).toBe(savedProfileSettings.privacy.profile)
+        await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access)).toBe(profile.accessToken)
+        await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem("user") ?? "{}").id)).toBe(profile.user.id)
+        await page.locator("nav").getByText(profile.user.name, { exact: true }).click()
+        await expect(page).toHaveURL(/\/user\/[^/]+$/)
+        await expect(page.getByRole("heading", { name: profile.user.name, exact: true })).toBeVisible()
+        await page.getByRole("button", { name: /Profile/ }).click()
+        await expect(page).toHaveURL(/\/settings\/profile$/)
+        await page.getByRole("link", { name: /Preferences/ }).click()
+        await expect(page).toHaveURL(/\/settings\/preferences$/)
+        await expectPreferenceView(page, savedProfileSettings)
+    }
+    catch (error) {
+        testError = error
+        hasTestError = true
+    }
+    finally {
+        firstAdminGate.release()
+        firstProfileGate.release()
+        delayedProfileRefreshGate.release()
+        delayedProfileSaveGate.release()
+        delayedLogoutRefreshGate.release()
+        try {
+            await updateUserSettings(page, profile.accessToken, originalProfileSettings)
+        }
+        catch (cleanupError) {
+            if (!hasTestError) throw cleanupError
+            console.error("Failed to restore profile settings after the account-switch test failed.", cleanupError)
+        }
+    }
+    if (hasTestError) throw testError
+})
 
 test("switches to a saved profile without reloading or changing the route", async ({ page, exampleServer }) => {
     const profile = exampleServer.users.threadAuthor

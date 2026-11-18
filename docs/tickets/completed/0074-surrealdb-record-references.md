@@ -43,7 +43,7 @@ Evaluate and adopt SurrealDB record references for cross-table relationships tha
 - tests/parallel/posts.server.test.ts
 - tests/parallel/threads.server.test.ts
 - tests/parallel/topics.server.test.ts
-- tests/sequential/02-migrations.setup.test.ts
+- tests/sequential/02-migrations.server.test.ts
 
 ## Progress Log
 - 2026-10-29: Revisited topic membership after deciding soft-deleted posts and threads need not retain topic links. Converted topic content lists to incoming references, cleared links on soft deletion, and explicitly cleaned up empty topics across delete and moderation workflows. Verified migration replay and lifecycle behavior; next verify supported SurrealDB versions.

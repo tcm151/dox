@@ -1,20 +1,12 @@
 <script setup lang="ts">
 const hints = useHints()
-const events = useEvents()
-const session = getSession()
 const userSettings = useUserSettings()
 
 const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
-try {
-    await userSettings.refresh()
-}
-catch (error: any) {
-    hints.addError("Failed to load preferences.", error)
-}
 
 async function savePreferences() {
     try {
-        await userSettings.save()
+        if (!await userSettings.save()) return
         hints.addSuccess("Preferences saved successfully.")
     }
     catch (error: any) {
@@ -23,12 +15,7 @@ async function savePreferences() {
 }
 
 async function resetPreferences() {
-    try {
-        await userSettings.refresh()
-    }
-    catch (error: any) {
-        hints.addError("Failed to reload preferences.", error)
-    }
+    await userSettings.refresh()
 }
 </script>
 
@@ -42,26 +29,29 @@ async function resetPreferences() {
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Save</span>
                 </ButtonSpinner>
-                <button class="dark" :disabled="userSettings.pending" @click="resetPreferences">
+                <button class="dark" :disabled="userSettings.loading || userSettings.saving" @click="resetPreferences">
                     <i class="fa-solid fa-rotate"></i>
-                    <span>Reset</span>
+                    <span>{{ userSettings.loaded ? "Reset" : "Retry" }}</span>
                 </button>
             </div>
         </header>
+        <p v-if="userSettings.loadError" class="negative" role="alert">
+            Failed to load preferences. Use Retry to try again.
+        </p>
         <section class="box column p-5">
             <div class="field row center py-2">
                 <div class="column f-1">
                     <label>enable animations</label>
                     <span class="tip">Animate interactive elements when hovered.</span>
                 </div>
-                <Toggle v-model:enabled="userSettings.preferences.ui.hoverAnimations" />
+                <Toggle v-model:enabled="userSettings.preferences.ui.hoverAnimations" :disabled="userSettings.pending" />
             </div>
             <div class="field row center">
                 <div class="column f-1">
                     <label>hint duration</label>
                     <span class="tip">How long status hints remain visible (milliseconds).</span>
                 </div>
-                <input type="number" class="px-2 py-1" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration">
+                <input type="number" class="px-2 py-1" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration" :disabled="userSettings.pending">
             </div>
             <hr>
             <div class="field row center py-2">
