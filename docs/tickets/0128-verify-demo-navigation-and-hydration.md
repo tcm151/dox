@@ -1,7 +1,7 @@
 # Ticket 0128: Verify Demo Navigation And Hydration
 
 ## Status
-- State: Planned
+- State: Blocked
 - Priority: High
 - Next: Reproduce the recorded redirects on an authorized demo or equivalent isolated deployment and capture the deployed version/settings.
 
