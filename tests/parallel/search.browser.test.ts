@@ -61,11 +61,15 @@ test("keeps search filters in the URL and restores feed scroll when returning fr
         await expect(page.locator(".feed-items .feed-item")).toHaveCount(postIds.length)
         const searchUrl = page.url()
         const scroller = page.locator("section.page")
-        const previousScroll = await scroller.evaluate((element) => {
-            const container = element as HTMLElement
-            container.scrollTop = Math.min(500, container.scrollHeight - container.clientHeight)
-            return container.scrollTop
-        })
+        const scrollerBounds = await scroller.boundingBox()
+        if (!scrollerBounds) throw new Error("The feed scroller has no visible bounds.")
+        await page.mouse.move(
+            scrollerBounds.x + scrollerBounds.width / 2,
+            scrollerBounds.y + scrollerBounds.height / 2,
+        )
+        await page.mouse.wheel(0, 500)
+        await expect.poll(() => scroller.evaluate(element => (element as HTMLElement).scrollTop)).toBeGreaterThan(0)
+        const previousScroll = await scroller.evaluate(element => (element as HTMLElement).scrollTop)
         expect(previousScroll).toBeGreaterThan(0)
 
         const visibleIndex = await page.locator(".post.clickable").evaluateAll((items) => {

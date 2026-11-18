@@ -32,40 +32,119 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     const scrollPositions = new Map<string, number>()
     const scrollPositionKeys = new WeakMap<HTMLElement, string>()
+    const scrollRestoreObservers = new WeakMap<HTMLElement, MutationObserver>()
+    const pendingScrollRestores = new WeakMap<HTMLElement, string>()
+    const scrollPositionHandlers = new WeakMap<HTMLElement, {
+        save: () => void
+        markUserScroll: () => void
+        cancelRestore: () => void
+        pointerDown: () => void
+        keyDown: (event: KeyboardEvent) => void
+    }>()
 
     function saveScrollPosition(element: HTMLElement, key: string) {
         scrollPositions.set(key, element.scrollTop)
     }
 
+    function stopWatchingScrollPosition(element: HTMLElement) {
+        scrollRestoreObservers.get(element)?.disconnect()
+        scrollRestoreObservers.delete(element)
+        pendingScrollRestores.delete(element)
+    }
+
     function restoreScrollPosition(element: HTMLElement, key: string) {
-        if (element.isConnected && scrollPositionKeys.get(element) === key) {
-            element.scrollTop = scrollPositions.get(key) ?? 0
-        }
+        if (!element.isConnected || scrollPositionKeys.get(element) !== key) return false
+
+        const position = scrollPositions.get(key) ?? 0
+        pendingScrollRestores.set(element, key)
+        element.scrollTop = position
+        if (element.scrollTop !== position) return false
+
+        stopWatchingScrollPosition(element)
+        return true
     }
 
     function scheduleScrollRestore(element: HTMLElement, key: string) {
-        nuxtApp.hooks.hookOnce("page:transition:finish", () => restoreScrollPosition(element, key))
+        nuxtApp.hooks.hookOnce("page:transition:finish", () => {
+            if (scrollPositionKeys.get(element) !== key || restoreScrollPosition(element, key)) return
+
+            const observer = new MutationObserver(() => restoreScrollPosition(element, key))
+            scrollRestoreObservers.set(element, observer)
+            observer.observe(element, { childList: true, subtree: true })
+        })
     }
 
     nuxtApp.vueApp.directive("scrollPosition", {
         mounted(element: HTMLElement, binding: DirectiveBinding<string>) {
             scrollPositionKeys.set(element, binding.value)
+            const handlers = {
+                userScrollKey: undefined as string | undefined,
+                userScrollFrame: undefined as number | undefined,
+                save: () => {
+                    const key = handlers.userScrollKey
+                    if (!key || pendingScrollRestores.get(element) === key) return
+                    saveScrollPosition(element, key)
+                },
+                markUserScroll: () => {
+                    handlers.userScrollKey = scrollPositionKeys.get(element)
+                    if (handlers.userScrollFrame !== undefined) cancelAnimationFrame(handlers.userScrollFrame)
+                    handlers.userScrollFrame = requestAnimationFrame(() => {
+                        handlers.userScrollKey = undefined
+                        handlers.userScrollFrame = undefined
+                    })
+                    stopWatchingScrollPosition(element)
+                },
+                cancelRestore: () => {
+                    stopWatchingScrollPosition(element)
+                    handlers.userScrollKey = undefined
+                    if (handlers.userScrollFrame !== undefined) {
+                        cancelAnimationFrame(handlers.userScrollFrame)
+                        handlers.userScrollFrame = undefined
+                    }
+                },
+                pointerDown: () => {
+                    const key = scrollPositionKeys.get(element)
+                    if (key && pendingScrollRestores.get(element) !== key) saveScrollPosition(element, key)
+                    handlers.cancelRestore()
+                },
+                keyDown: (event: KeyboardEvent) => {
+                    if ([" ", "ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp"].includes(event.key)) {
+                        handlers.markUserScroll()
+                    }
+                    else {
+                        handlers.cancelRestore()
+                    }
+                },
+            }
+            scrollPositionHandlers.set(element, handlers)
+            element.addEventListener("scroll", handlers.save)
+            element.addEventListener("wheel", handlers.markUserScroll, { passive: true })
+            element.addEventListener("touchmove", handlers.markUserScroll, { passive: true })
+            element.addEventListener("pointerdown", handlers.pointerDown)
+            element.addEventListener("keydown", handlers.keyDown)
             requestAnimationFrame(() => restoreScrollPosition(element, binding.value))
             scheduleScrollRestore(element, binding.value)
         },
-        beforeUpdate(element: HTMLElement, binding: DirectiveBinding<string>) {
-            const previousKey = scrollPositionKeys.get(element)
-            if (previousKey && previousKey !== binding.value) saveScrollPosition(element, previousKey)
-        },
         updated(element: HTMLElement, binding: DirectiveBinding<string>) {
-            if (scrollPositionKeys.get(element) === binding.value) return
+            const previousKey = scrollPositionKeys.get(element)
+            if (previousKey === binding.value) return
 
+            stopWatchingScrollPosition(element)
             scrollPositionKeys.set(element, binding.value)
             scheduleScrollRestore(element, binding.value)
         },
         beforeUnmount(element: HTMLElement) {
-            const key = scrollPositionKeys.get(element)
-            if (key) saveScrollPosition(element, key)
+            stopWatchingScrollPosition(element)
+            const handlers = scrollPositionHandlers.get(element)
+            if (handlers) {
+                handlers.cancelRestore()
+                element.removeEventListener("scroll", handlers.save)
+                element.removeEventListener("wheel", handlers.markUserScroll)
+                element.removeEventListener("touchmove", handlers.markUserScroll)
+                element.removeEventListener("pointerdown", handlers.pointerDown)
+                element.removeEventListener("keydown", handlers.keyDown)
+                scrollPositionHandlers.delete(element)
+            }
             scrollPositionKeys.delete(element)
         },
     })
