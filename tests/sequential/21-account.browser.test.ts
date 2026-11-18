@@ -213,7 +213,7 @@ test("keeps preference responses and saves scoped to the active profile", async 
         expect((await getUserSettings(page, profile.accessToken)).privacy.profile).toBe(profileSettings.privacy.profile)
 
         profileGate = delayedProfileRefreshGate
-        await page.getByRole("button", { name: "Reset" }).click()
+        await page.getByRole("button", { name: "Cancel" }).click()
         await expect.poll(() => profileReadsHeld).toBe(2)
         await switchSavedProfile(page, profile.user.name, adminUser.name)
         await expectPreferenceView(page, adminSettings)
@@ -242,7 +242,7 @@ test("keeps preference responses and saves scoped to the active profile", async 
 
         adminGate = delayedLogoutRefreshGate
         fulfillAdminGate = true
-        await page.getByRole("button", { name: "Reset" }).click()
+        await page.getByRole("button", { name: "Cancel" }).click()
         await expect.poll(() => adminReadsHeld).toBe(2)
         await page.locator("nav button[title='Logout']").dispatchEvent("contextmenu", { button: 2 })
         await expect(page.locator("nav").getByText("Login", { exact: true })).toBeVisible()
