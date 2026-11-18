@@ -97,7 +97,7 @@ yarn install
 yarn test
 ```
 
-The test command builds and starts one Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder. Add `--keep-output` to retain the folder, including Playwright traces and screenshots, for debugging; the runner prints the retained path as `[test artifacts]`. It also contains temporary database, media, and session data.
+The test command builds and starts one Nuxt/Nitro server with an embedded SurrealDB database and media directory under a unique `.test-output-*` folder. It does not use the configured development or production database. The runner waits for `/api/health` to report both the app and database as ready, then stops the server and removes the temporary folder. Add `--keep-output` to retain the folder, including Playwright traces and screenshots, for debugging; the runner prints the retained path as `[test artifacts]`. It also contains temporary database, media, and session data. Run `yarn test --cleanup` to remove all root-level `.test-output-*` folders left by test or exploration runs. This standalone command also deletes retained databases, media, sessions, and browser artifacts.
 
 The compiled test server is cached under the ignored `.nuxt/test-runner/` directory using a fingerprint of application, server, shared, public, and build configuration inputs. Source or dependency changes invalidate the cache; each run still gets a fresh database and media directory.
 
@@ -106,6 +106,7 @@ Add sequential setup tests under `tests/sequential/` using `*.setup.test.ts`, an
 Run the full suite with `yarn test` (no arguments). Use `--server` to run sequential and parallel server tests without Playwright, or `--browser` to run the required setup fixtures and all browser/integration tests without the Vitest server suites. The existing `--sequential` option still runs only the ordered sequential server suite. To run one parallel test, use `--file <filename>`; the runner starts the isolated app and runs only the required `*.setup.test.ts` fixtures before the selected file. Individual `--file` runs support only files under `tests/parallel/`; sequential tests are ordered and cannot be selected individually. Use `--sequential` for the ordered sequential suite:
 
 ```bash
+yarn test --cleanup
 yarn test --server
 yarn test --browser
 yarn test --sequential

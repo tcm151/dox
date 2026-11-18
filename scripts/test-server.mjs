@@ -15,8 +15,9 @@ const timings = []
 const runStartedAt = performance.now()
 let buildWasCached = false
 const testArguments = process.argv.slice(2)
+const cleanupArguments = testArguments.filter(argument => argument === "--cleanup")
 const keepOutputArguments = testArguments.filter(argument => argument === "--keep-output")
-const unparsedArguments = testArguments.filter(argument => argument !== "--keep-output")
+const unparsedArguments = testArguments.filter(argument => argument !== "--cleanup" && argument !== "--keep-output")
 const fileArguments = []
 const runnerArguments = []
 for (let index = 0; index < unparsedArguments.length; index++) {
@@ -37,9 +38,11 @@ const sequentialOnly = selectedModes.includes("--sequential")
 const serverMode = selectedModes.includes("--server")
 const browserMode = selectedModes.includes("--browser")
 const selectedFile = fileArguments.length === 1 ? fileArguments[0] : undefined
-const testUsage = "Usage: yarn test [--keep-output] [--sequential | --server | --browser | --file <parallel-test-file>]"
+const testUsage = "Usage: yarn test [--cleanup | --keep-output] [--sequential | --server | --browser | --file <parallel-test-file>]"
 if (
-    keepOutputArguments.length > 1
+    cleanupArguments.length > 1
+    || (cleanupArguments.length === 1 && testArguments.length !== 1)
+    || keepOutputArguments.length > 1
     || fileArguments.length > 1
     || (fileArguments.length === 1 && !selectedFile)
     || unrecognizedArguments.length > 0
@@ -50,92 +53,121 @@ if (
     throw new Error(testUsage)
 }
 const selectedParallelTest = selectedFile ? getParallelTestPath(selectedFile) : undefined
-const testFolder = await mkdtemp(join(projectRoot, ".test-output-"))
-const testRoot = relative(projectRoot, testFolder).split(sep).join("/")
 const vitestPath = join(projectRoot, "node_modules", "vitest", "vitest.mjs")
 const playwrightPath = join(projectRoot, "node_modules", "@playwright", "test", "cli.js")
-const testAdminName = "TestAdmin"
-const testAdminPassword = "integration-test-password"
-const keepTestOutput = keepOutputArguments.length === 1
-let testApp
 
-try {
-    if (!testRoot.startsWith(".test-output-") || testRoot.includes("..")) {
-        throw new Error("Refusing to run tests with an unsafe data directory.")
-    }
-
-    await mkdir(join(testFolder, "database"), { recursive: true })
-    await mkdir(join(testFolder, "media"), { recursive: true })
-    await mkdir(testBuildDirectory, { recursive: true })
-    const buildFingerprint = await getBuildFingerprint()
-    const cachedBuildFingerprint = await readFile(testBuildManifestPath, "utf8").catch(() => undefined)
-    const hasBuiltServer = existsSync(join(testBuildDirectory, "output", "server", "index.mjs"))
-    const shouldBuild = !hasBuiltServer || cachedBuildFingerprint !== buildFingerprint
-    buildWasCached = !shouldBuild
-    process.env.CLASSICFORUM_TEST_DATA_DIRECTORY = testRoot
-    process.env.CLASSICFORUM_TEST_ADMIN_NAME = testAdminName
-    process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD = testAdminPassword
-    testApp = createTest({
-        build: shouldBuild,
-        buildDir: testBuildDirectory,
-        logLevel: 0,
-        nuxtConfig: {
-            vite: {
-                logLevel: "error",
-                build: { rolldownOptions: { checks: { bundlerTimings: false } } },
-            },
-            nitro: {
-                logLevel: 0,
-                logging: { buildSuccess: false },
-            },
-        },
-        rootDir: projectRoot,
-        env: {
-            NUXT_DATA_PATH: `${testRoot}/media`,
-            NUXT_TRUSTED_PROXIES: "127.0.0.1,::1",
-            NUXT_SMTP_HOST: "127.0.0.1",
-            NUXT_SMTP_PORT: "1",
-            NUXT_SURREAL_INFO_TYPE: "embedded",
-            NUXT_SURREAL_INFO_URL: `rocksdb://${testRoot}/database/default.db`,
-            NUXT_SURREAL_INFO_NAMESPACE: "classicforum_test",
-            NUXT_SURREAL_INFO_DATABASE: "integration_test",
-            NUXT_SURREAL_ADMIN_EMAIL: "test@example.invalid",
-            NUXT_SURREAL_ADMIN_NAME: testAdminName,
-            NUXT_SURREAL_ADMIN_PASSWORD: testAdminPassword,
-        },
-    })
-
-    await runTimed("app startup", async () => {
-        setTestContext(testApp.ctx)
-        await loadFixture()
-        if (shouldBuild) await buildFixture()
-        await startServer(testApp.ctx.options.env)
-        const serverUrl = testApp.ctx.url
-        if (!serverUrl) throw new Error("The test server did not provide a URL.")
-
-        process.env.CLASSICFORUM_TEST_SERVER_URL = serverUrl
-        await waitForAppReady(serverUrl, testApp.ctx.serverLogs)
-    })
-    if (shouldBuild) await writeFile(testBuildManifestPath, buildFingerprint, "utf8")
-
-    process.exitCode = await runTestSuite(testFolder)
+if (cleanupArguments.length === 1) {
+    const removedFolders = await cleanupTestOutputFolders()
+    const folderLabel = removedFolders.length === 1 ? "folder" : "folders"
+    console.log(removedFolders.length
+        ? `[test cleanup] Removed ${removedFolders.length} leftover test output ${folderLabel}.`
+        : "[test cleanup] No leftover test output folders found.")
 }
-finally {
-    const cleanupStartedAt = performance.now()
-    if (testApp) await testApp.afterAll()
+else {
+    await runTests()
+}
 
-    if (!testFolder.startsWith(`${projectRoot}${sep}.test-output-`)) {
-        throw new Error("Refusing to remove a test data directory outside the project root.")
+async function cleanupTestOutputFolders() {
+    const entries = await readdir(projectRoot, { withFileTypes: true })
+    const outputFolders = entries.filter(entry => entry.isDirectory() && entry.name.startsWith(".test-output-"))
+
+    for (const entry of outputFolders) {
+        const folderPath = join(projectRoot, entry.name)
+        if (relative(projectRoot, folderPath) !== entry.name) {
+            throw new Error(`Refusing to remove an unsafe test output directory: ${folderPath}`)
+        }
+        await rm(folderPath, { recursive: true, force: true })
     }
 
-    if (keepTestOutput) {
-        console.log(`[test artifacts] ${testFolder}`)
+    return outputFolders
+}
+
+async function runTests() {
+    const testFolder = await mkdtemp(join(projectRoot, ".test-output-"))
+    const testRoot = relative(projectRoot, testFolder).split(sep).join("/")
+    const testAdminName = "TestAdmin"
+    const testAdminPassword = "integration-test-password"
+    const keepTestOutput = keepOutputArguments.length === 1
+    let testApp
+
+    try {
+        if (!testRoot.startsWith(".test-output-") || testRoot.includes("..")) {
+            throw new Error("Refusing to run tests with an unsafe data directory.")
+        }
+
+        await mkdir(join(testFolder, "database"), { recursive: true })
+        await mkdir(join(testFolder, "media"), { recursive: true })
+        await mkdir(testBuildDirectory, { recursive: true })
+        const buildFingerprint = await getBuildFingerprint()
+        const cachedBuildFingerprint = await readFile(testBuildManifestPath, "utf8").catch(() => undefined)
+        const hasBuiltServer = existsSync(join(testBuildDirectory, "output", "server", "index.mjs"))
+        const shouldBuild = !hasBuiltServer || cachedBuildFingerprint !== buildFingerprint
+        buildWasCached = !shouldBuild
+        process.env.CLASSICFORUM_TEST_DATA_DIRECTORY = testRoot
+        process.env.CLASSICFORUM_TEST_ADMIN_NAME = testAdminName
+        process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD = testAdminPassword
+        testApp = createTest({
+            build: shouldBuild,
+            buildDir: testBuildDirectory,
+            logLevel: 0,
+            nuxtConfig: {
+                vite: {
+                    logLevel: "error",
+                    build: { rolldownOptions: { checks: { bundlerTimings: false } } },
+                },
+                nitro: {
+                    logLevel: 0,
+                    logging: { buildSuccess: false },
+                },
+            },
+            rootDir: projectRoot,
+            env: {
+                NUXT_DATA_PATH: `${testRoot}/media`,
+                NUXT_TRUSTED_PROXIES: "127.0.0.1,::1",
+                NUXT_SMTP_HOST: "127.0.0.1",
+                NUXT_SMTP_PORT: "1",
+                NUXT_SURREAL_INFO_TYPE: "embedded",
+                NUXT_SURREAL_INFO_URL: `rocksdb://${testRoot}/database/default.db`,
+                NUXT_SURREAL_INFO_NAMESPACE: "classicforum_test",
+                NUXT_SURREAL_INFO_DATABASE: "integration_test",
+                NUXT_SURREAL_ADMIN_EMAIL: "test@example.invalid",
+                NUXT_SURREAL_ADMIN_NAME: testAdminName,
+                NUXT_SURREAL_ADMIN_PASSWORD: testAdminPassword,
+            },
+        })
+
+        await runTimed("app startup", async () => {
+            setTestContext(testApp.ctx)
+            await loadFixture()
+            if (shouldBuild) await buildFixture()
+            await startServer(testApp.ctx.options.env)
+            const serverUrl = testApp.ctx.url
+            if (!serverUrl) throw new Error("The test server did not provide a URL.")
+
+            process.env.CLASSICFORUM_TEST_SERVER_URL = serverUrl
+            await waitForAppReady(serverUrl, testApp.ctx.serverLogs)
+        })
+        if (shouldBuild) await writeFile(testBuildManifestPath, buildFingerprint, "utf8")
+
+        process.exitCode = await runTestSuite(testFolder)
     }
-    else {
-        await rm(testFolder, { recursive: true, force: true })
+    finally {
+        const cleanupStartedAt = performance.now()
+        if (testApp) await testApp.afterAll()
+
+        if (!testFolder.startsWith(`${projectRoot}${sep}.test-output-`)) {
+            throw new Error("Refusing to remove a test data directory outside the project root.")
+        }
+
+        if (keepTestOutput) {
+            console.log(`[test artifacts] ${testFolder}`)
+        }
+        else {
+            await rm(testFolder, { recursive: true, force: true })
+        }
+        recordTiming("cleanup", cleanupStartedAt)
+        printTimingSummary()
     }
-    recordTiming("cleanup", cleanupStartedAt)
-    printTimingSummary()
 }
 
 async function waitForAppReady(serverUrl, serverLogs) {

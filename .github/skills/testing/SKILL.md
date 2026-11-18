@@ -22,7 +22,7 @@ The focused `--file` command supports only tests under `tests/parallel/`; indivi
 
 Use `docs/API.md` to locate route methods, access expectations, and detailed contracts. Confirm current behavior against the handler and tests; when a test exposes a route-contract change, reconcile the index as part of that change.
 
-`scripts/test-server.mjs` creates a temporary `.test-output-*` directory for the run, including an embedded SurrealDB database and media directory. It starts an isolated Nuxt test app, waits for `/api/health`, runs the test phases, then removes the temporary directory. Add `--keep-output` to retain the directory; the runner prints its path as `[test artifacts]`. Retained output includes temporary database, media, and session data.
+`scripts/test-server.mjs` creates a temporary `.test-output-*` directory for the run, including an embedded SurrealDB database and media directory. It starts an isolated Nuxt test app, waits for `/api/health`, runs the test phases, then removes the temporary directory. Add `--keep-output` to retain the directory; the runner prints its path as `[test artifacts]`. Retained output includes temporary database, media, and session data. Run `yarn test --cleanup` as a standalone command to remove all root-level `.test-output-*` directories left by test or exploration runs, including their retained data and browser artifacts.
 
 The phases are:
 
@@ -47,7 +47,7 @@ For example, after a rejected publish request, check that no gallery with that t
 
 1. Run `yarn test` first so the standard runner reports the failing phase and assertions.
 2. Rerun a failing parallel file with `yarn test --file <file>.server.test.ts`, `yarn test --file <file>.browser.test.ts`, or `yarn test --file <file>.integration.test.ts` to check whether the failure depends on other parallel files. Use only the test filename. Required setup fixtures still run in this mode. Individual sequential files cannot be run with `--file`; use `yarn test --sequential`.
-3. If the console output is insufficient, add `--keep-output` to retain the `.test-output-*` directory and read the printed `[test artifacts]` path. Inspect `phase-*-summary.json` for the test report. For browser failures, use the matching `browser-results/` directory: read `error-context.md`, inspect `test-failed-*.png`, and open `trace.zip` with `yarn playwright show-trace <path-to-trace.zip>`. The trace includes browser actions and network activity. Remove the retained directory after debugging.
+3. If the console output is insufficient, add `--keep-output` to retain the `.test-output-*` directory and read the printed `[test artifacts]` path. Inspect `phase-*-summary.json` for the test report. For browser failures, use the matching `browser-results/` directory: read `error-context.md`, inspect `test-failed-*.png`, and open `trace.zip` with `yarn playwright show-trace <path-to-trace.zip>`. The trace includes browser actions and network activity. Run `yarn test --cleanup` after debugging to remove leftover test and exploration output directories.
 4. If the file passes alone but fails in the full run, inspect shared records, fixture-user mutations, global list snapshots, and assumptions about ordering before changing application behavior or weakening the assertion.
 5. Fix isolation at the narrowest boundary, then rerun the focused file and the full suite.
 
