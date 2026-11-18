@@ -6,7 +6,7 @@ import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 
 const MINIMUM_SEARCH_SCORE = 0.5
-const SEARCH_TYPES = ["post", "thread", "gallery", "comment"] as const
+const SEARCH_TYPES = ["post", "thread", "gallery", "link", "comment"] as const
 
 interface SearchCandidate {
     id: string
@@ -133,7 +133,22 @@ export default defineEventHandler(async (event) => {
                 AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
             );
 
-            RETURN SELECT id, time, exact, score FROM $posts, $threads, $galleries, $comments
+            LET $links = (
+                SELECT id, time,
+                    (string::contains(string::lowercase(title), string::lowercase($text))
+                        OR string::contains(string::lowercase(description), string::lowercase($text))) AS exact,
+                    (search::score(1) * 2 + search::score(2)) AS score
+                FROM link
+                WHERE (title @1@ $text OR description @2@ $text)
+                AND status = "active"
+                AND ($topic IS NULL OR topics CONTAINS $topic)
+                AND ($user IS NULL OR string::contains(string::lowercase(user.name), string::lowercase($user)))
+                AND ($from IS NULL OR time >= type::datetime($from))
+                AND ($to IS NULL OR time < type::datetime($to))
+                AND ($excluded.len() = 0 OR $excluded CONTAINSNONE array::union([user], topics ?? []))
+            );
+
+            RETURN SELECT id, time, exact, score FROM $posts, $threads, $galleries, $links, $comments
                 WHERE ($type IS NULL OR record::tb(id) = $type)
                 AND (exact = true OR score >= $minimumScore)
                 ORDER BY exact DESC, score DESC, time DESC, id ASC
@@ -163,8 +178,9 @@ export default defineEventHandler(async (event) => {
         const postIds = getIds("post")
         const threadIds = getIds("thread")
         const galleryIds = getIds("gallery")
+        const linkIds = getIds("link")
         const commentIds = getIds("comment")
-        const [posts, threads, galleries, comments] = await Promise.all([
+        const [posts, threads, galleries, links, comments] = await Promise.all([
             postIds.length === 0 ? Promise.resolve<SearchResult[]>([]) : new DatabaseQuery()
                 .addSql(`
                     SELECT id, user.{id, name, roles}, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited, score,
@@ -193,6 +209,15 @@ export default defineEventHandler(async (event) => {
                 `)
                 .addRecords("ids", galleryIds)
                 .queryAll<SearchResult>(),
+            linkIds.length === 0 ? Promise.resolve<SearchResult[]>([]) : new DatabaseQuery()
+                .addSql(`
+                    SELECT id, user.{id, name, roles}, title, url, description, preview, tags, time,
+                        topics, comments, votes, score, status, edited, timeEdited, visits, moderation
+                    FROM link
+                    WHERE id IN $ids
+                `)
+                .addRecords("ids", linkIds)
+                .queryAll<SearchResult>(),
             commentIds.length === 0 ? Promise.resolve<SearchResult[]>([]) : new DatabaseQuery()
                 .addSql(`
                     SELECT id, user.{id, name, roles}, context.{id, title, description, url, tags}, moderation,
@@ -205,7 +230,7 @@ export default defineEventHandler(async (event) => {
         ])
 
         const hydrated = new Map<string, SearchResult>()
-        for (const item of [...posts, ...threads, ...galleries, ...comments]) {
+        for (const item of [...posts, ...threads, ...galleries, ...links, ...comments]) {
             hydrated.set(item.id, item)
         }
 

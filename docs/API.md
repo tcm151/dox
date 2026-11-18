@@ -161,7 +161,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | [`/api/feed/popular`](#feed-pagination) | Public | Returns a paginated aggregate feed when `feeds.discover` is enabled. |
 | `GET` | [`/api/feed/following`](#feed-pagination) | Authenticated | Returns followed content when `feeds.discover` is enabled. |
 | `GET` | `/api/feed/pinned` | Public | Returns active application-wide pins when `feeds.discover` is enabled. |
-| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=&pageSize=&offset=`](#feed-search) | Public | Searches active posts, threads, galleries, and comments when `feeds.search` is enabled. |
+| `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=&pageSize=&offset=`](#feed-search) | Public | Searches active posts, threads, galleries, links, and comments when `feeds.search` is enabled. |
 | `GET` | `/api/feed/topics` | Public | Lists topics for the dedicated Topics feed when `feeds.topics` is enabled. |
 | `GET` | `/api/trending/topics` | Public | Returns the five topics with the most recent post activity. |
 | `GET` | `/api/trending/users` | Public | Returns the five highest-scoring users. |
@@ -193,9 +193,9 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 - Method: `GET /api/feed/search?text=&type=&topic=&user=&from=&to=&pageSize=&offset=`.
 - Access: public when `feeds.search` is enabled; disabled search returns `404`.
-- Request: `text` is the search query. Optional `type` is `post`, `thread`, `gallery`, or `comment`; `topic` is a topic ID without the `topic:` prefix; `user` is a case-insensitive partial author-name match; `from` and `to` are inclusive UTC calendar dates in `YYYY-MM-DD` form. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to 0-5,000,000.
+- Request: `text` is the search query. Optional `type` is `post`, `thread`, `gallery`, `link`, or `comment`; `topic` is a topic ID without the `topic:` prefix; `user` is a case-insensitive partial author-name match; `from` and `to` are inclusive UTC calendar dates in `YYYY-MM-DD` form. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to 0-5,000,000.
 - Missing or whitespace-only `text` returns an empty page. Invalid filters or a `from` date after `to` return `400`.
-- `200`: `{ items, pageSize, offset, more }`, with matching active posts, threads, galleries, and comments ordered by exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Deleted comments and comments under inactive or deleted contexts are excluded. Supplied filters are combined before page selection, and only selected results are hydrated; each result includes its search metadata.
+- `200`: `{ items, pageSize, offset, more }`, with matching active posts, threads, galleries, links, and comments ordered by exact substring match, search score, recency, then record ID. Results with neither an exact match nor a score of at least `0.5` are omitted. Archived, quarantined, and deleted content is excluded; deleted comments and comments under inactive or deleted contexts are also excluded. Authenticated viewers' muted or blocked users and topics, and users who block the viewer, are excluded. Supplied filters are combined before page selection, and only selected results are hydrated; each result includes its search metadata.
 - Source: [search handler](../server/api/feed/search.ts).
 - Tests: [search API tests](../tests/parallel/search.server.test.ts) cover ranking, exclusion of inactive or deleted content, and optional filters.
 

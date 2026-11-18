@@ -240,6 +240,8 @@ DEFINE FIELD url ON link
     TYPE string ASSERT $value.len() <= 2048;
 DEFINE FIELD description ON link
     TYPE string ASSERT $value.len() <= 256 DEFAULT ALWAYS "";
+DEFINE INDEX IF NOT EXISTS linkDescriptionSearch ON TABLE link
+    FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD preview ON link
     TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD preview.title ON link

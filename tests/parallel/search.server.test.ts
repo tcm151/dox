@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
-import { expectStatus, fetch, grabUser } from "../utils/test-server"
+import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 import type { Comment, FeedPage, Gallery, Post, SearchResult, Thread } from "../../shared/types"
 
@@ -19,6 +19,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
     let postId: string | undefined
     let threadId: string | undefined
     let galleryId: string | undefined
+    let linkId: string | undefined
     let commentId: string | undefined
     let galleryCommentId: string | undefined
 
@@ -49,6 +50,18 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         const thread = threadResponse._data!
         threadId = extractId(thread.id)
         expect(threadId).toBeDefined()
+
+        linkId = `searchLink${Date.now()}`
+        await admin.query(`
+            CREATE ONLY link:${linkId} SET
+                user = ${admin.user.id},
+                title = "Searchable link ${searchTerm}",
+                description = "Link description",
+                url = "https://example.invalid/search";
+            LET $sharedTime = time::now();
+            UPDATE post:${postId} SET time = $sharedTime;
+            UPDATE link:${linkId} SET time = $sharedTime;
+        `)
 
         await admin.query(`
             CREATE ONLY image:${imageId} SET
@@ -101,7 +114,9 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         const results = [...firstPage.items, ...nextPage.items]
         const orderedResults = [...results].sort((left, right) =>
             Number(right.search.exact) - Number(left.search.exact)
-                || right.search.score - left.search.score,
+                || right.search.score - left.search.score
+                || new Date(right.time).getTime() - new Date(left.time).getTime()
+                || left.id.localeCompare(right.id),
         )
         expect(results.map(item => item.id)).toEqual(orderedResults.map(item => item.id))
         const postResult = results.find(item => item.id === `post:${postId}`)
@@ -115,10 +130,20 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             name: admin.user.name,
             roles: admin.user.roles,
         })
+        const linkResult = results.find(item => item.id === `link:${linkId}`)
+        expect(linkResult).toBeDefined()
+        expect(linkResult!.search.exact).toBe(true)
+        expect(linkResult!.time).toBe(postResult!.time)
         expect(results.find(item => item.id === `thread:${threadId}`)).toMatchObject({
             content: threadContent,
             user: { id: admin.user.id },
             moderation: { locked: "item" },
+        })
+        expect(results.find(item => item.id === `link:${linkId}`)).toMatchObject({
+            title: `Searchable link ${searchTerm}`,
+            description: "Link description",
+            url: "https://example.invalid/search",
+            user: { id: admin.user.id },
         })
         expect(results.find(item => item.id === `gallery:${galleryId}`)).toMatchObject({
             description: galleryDescription,
@@ -168,6 +193,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             UPDATE post:${postId} SET status = "archived";
             UPDATE thread:${threadId} SET status = "archived";
             UPDATE gallery:${galleryId} SET status = "archived";
+            UPDATE link:${linkId} SET status = "archived";
         `)
 
         const archivedSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
@@ -188,6 +214,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             ...(postId ? [`post:${postId}`] : []),
             ...(threadId ? [`thread:${threadId}`] : []),
             ...(galleryId ? [`gallery:${galleryId}`] : []),
+            ...(linkId ? [`link:${linkId}`] : []),
             `image:${imageId}`,
         ]
         const moderationSubjectIds = [
@@ -410,7 +437,7 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
         expectStatus(wrongType, 200, await wrongType.clone().text())
         expect((await wrongType.json() as FeedPage<SearchResult>).items).toEqual([])
 
-        const invalidType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "link" })}`)
+        const invalidType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "video" })}`)
         expectStatus(invalidType, 400, await invalidType.clone().text())
 
         const invalidDate = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, from: "2026-02-31" })}`)
@@ -425,5 +452,195 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
         }
         if (postId) await admin.query(`DELETE post:${postId};`)
         await admin.query(`DELETE topic:${topicId};`)
+    }
+})
+
+it("searches active links by title and description with combined filters and stable pages", async () => {
+    const identifier = randomUUID().replaceAll("-", "")
+    const searchTerm = `linksearch${identifier}`
+    const topicId = `ls${identifier.replace(/\d/g, "a").slice(0, 10)}`
+    const topic = `topic:${topicId}`
+    const titleLinkId = `linkSearchTitle${identifier}`
+    const descriptionLinkId = `linkSearchDescription${identifier}`
+    const archivedLinkId = `linkSearchArchived${identifier}`
+    const quarantinedLinkId = `linkSearchQuarantined${identifier}`
+    const deletedLinkId = `linkSearchDeleted${identifier}`
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${topic};
+            CREATE ONLY link:${titleLinkId} SET
+                user = ${admin.user.id},
+                title = "Title ${searchTerm}",
+                description = "No description match",
+                url = "https://example.invalid/title",
+                topics = [${topic}];
+            CREATE ONLY link:${descriptionLinkId} SET
+                user = ${admin.user.id},
+                title = "Description match",
+                description = "Description ${searchTerm}",
+                url = "https://example.invalid/description",
+                topics = [${topic}];
+            CREATE ONLY link:${archivedLinkId} SET
+                user = ${admin.user.id},
+                title = "Archived ${searchTerm}",
+                url = "https://example.invalid/archived",
+                status = "archived";
+            CREATE ONLY link:${quarantinedLinkId} SET
+                user = ${admin.user.id},
+                title = "Quarantined ${searchTerm}",
+                url = "https://example.invalid/quarantined",
+                status = "quarantined";
+            CREATE ONLY link:${deletedLinkId} SET
+                user = ${admin.user.id},
+                title = "Deleted ${searchTerm}",
+                url = "https://example.invalid/deleted",
+                status = "deleted";
+        `)
+
+        const today = new Date().toISOString().slice(0, 10)
+        const filters = new URLSearchParams({
+            text: searchTerm,
+            type: "link",
+            topic: topicId,
+            user: admin.user.name.toUpperCase(),
+            from: today,
+            to: today,
+            pageSize: "1",
+        })
+        const firstResponse = await fetch(`/api/feed/search?${filters}`)
+        expectStatus(firstResponse, 200, await firstResponse.clone().text())
+        const firstPage = await firstResponse.json() as FeedPage<SearchResult>
+        expect(firstPage).toMatchObject({ pageSize: 1, offset: 0, more: true })
+
+        const nextResponse = await fetch(`/api/feed/search?${filters}&offset=1`)
+        expectStatus(nextResponse, 200, await nextResponse.clone().text())
+        const nextPage = await nextResponse.json() as FeedPage<SearchResult>
+        expect(nextPage).toMatchObject({ pageSize: 1, offset: 1, more: false })
+
+        const results = [...firstPage.items, ...nextPage.items]
+        const orderedResults = [...results].sort((left, right) =>
+            Number(right.search.exact) - Number(left.search.exact)
+                || right.search.score - left.search.score
+                || new Date(right.time).getTime() - new Date(left.time).getTime()
+                || left.id.localeCompare(right.id),
+        )
+        expect(results.map(item => item.id)).toEqual(orderedResults.map(item => item.id))
+        expect(results.map(item => item.id)).toEqual(expect.arrayContaining([
+            `link:${titleLinkId}`,
+            `link:${descriptionLinkId}`,
+        ]))
+        expect(results.every(item => item.id.startsWith("link:") && item.search.exact)).toBe(true)
+        expect(results.find(item => item.id === `link:${titleLinkId}`)).toMatchObject({
+            title: `Title ${searchTerm}`,
+            topics: [topic],
+            user: { id: admin.user.id },
+        })
+        expect(results.find(item => item.id === `link:${descriptionLinkId}`)).toMatchObject({
+            title: "Description match",
+            description: `Description ${searchTerm}`,
+            topics: [topic],
+            user: { id: admin.user.id },
+        })
+
+        const repeatedResponse = await fetch(`/api/feed/search?${filters}`)
+        expectStatus(repeatedResponse, 200, await repeatedResponse.clone().text())
+        const repeatedPage = await repeatedResponse.json() as FeedPage<SearchResult>
+        expect(repeatedPage.items.map(item => item.id)).toEqual(firstPage.items.map(item => item.id))
+    }
+    finally {
+        await admin.query(`
+            DELETE [
+                link:${titleLinkId}, link:${descriptionLinkId}, link:${archivedLinkId},
+                link:${quarantinedLinkId}, link:${deletedLinkId}
+            ];
+            DELETE ${topic};
+        `)
+    }
+})
+
+it("excludes links muted or blocked by their author or topic", async () => {
+    const identifier = randomUUID().replaceAll("-", "").toLowerCase()
+    const searchTerm = `linkfilter${identifier}`
+    const username = `SearchFilter${identifier.slice(0, 12)}`
+    const topicId = `searchfilter${identifier.slice(0, 12)}`
+    const linkId = `searchFilter${identifier}`
+    let accessToken: string | undefined
+    let viewerId: string | undefined
+
+    try {
+        const registerResponse = await fetch("/api/user/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Forwarded-For": uniqueTestIp() },
+            body: JSON.stringify({ username, email: `${username.toLowerCase()}@example.invalid`, password: "SearchFilterTest-password" }),
+        })
+        expectStatus(registerResponse, 200, "search filter viewer registration")
+        accessToken = await registerResponse.text()
+
+        const profileResponse = await fetch("/api/profile/authenticate", {
+            headers: { Authorization: accessToken },
+        })
+        expectStatus(profileResponse, 200, "search filter viewer authentication")
+        viewerId = extractId((await profileResponse.json() as { id: string }).id)
+        expect(viewerId).toBeDefined()
+
+        await admin.query(`
+            CREATE ONLY topic:${topicId};
+            CREATE ONLY link:${linkId} SET
+                user = ${admin.user.id},
+                title = "Filtered link ${searchTerm}",
+                url = "https://example.invalid/filtered",
+                topics = [topic:${topicId}],
+                status = "active";
+        `)
+
+        const query = `/api/feed/search?text=${encodeURIComponent(searchTerm)}`
+        const publicResponse = await fetch(query)
+        expectStatus(publicResponse, 200, "public link search")
+        expect((await publicResponse.json() as FeedPage<SearchResult>).items.map(item => item.id)).toEqual([`link:${linkId}`])
+
+        for (const target of [admin.user.id, `topic:${topicId}`]) {
+            for (const [action, removal] of [["mute", "unmute"], ["block", "unblock"]] as const) {
+                const addFilter = await fetch(`/api/profile/filters/${action}`, {
+                    method: "POST",
+                    headers: { Authorization: accessToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({ target }),
+                })
+                expectStatus(addFilter, 200, `${action} ${target}`)
+
+                const filteredResponse = await fetch(query, { headers: { Authorization: accessToken } })
+                expectStatus(filteredResponse, 200, `${action} link search`)
+                expect((await filteredResponse.json() as FeedPage<SearchResult>).items).toEqual([])
+
+                const removeFilter = await fetch(`/api/profile/filters/${removal}`, {
+                    method: "POST",
+                    headers: { Authorization: accessToken, "Content-Type": "application/json" },
+                    body: JSON.stringify({ target }),
+                })
+                expectStatus(removeFilter, 200, `${removal} ${target}`)
+            }
+        }
+    }
+    finally {
+        if (accessToken) {
+            for (const target of [admin.user.id, `topic:${topicId}`]) {
+                for (const action of ["unmute", "unblock"] as const) {
+                    await fetch(`/api/profile/filters/${action}`, {
+                        method: "POST",
+                        headers: { Authorization: accessToken, "Content-Type": "application/json" },
+                        body: JSON.stringify({ target }),
+                    })
+                }
+            }
+        }
+        await admin.query(`DELETE [link:${linkId}, topic:${topicId}];`)
+        if (viewerId) {
+            await admin.query(`
+                DELETE session WHERE account IN (SELECT VALUE id FROM account WHERE user = user:${viewerId});
+                DELETE account WHERE user = user:${viewerId};
+                DELETE userSettings WHERE user = user:${viewerId};
+                DELETE user:${viewerId};
+            `)
+        }
     }
 })
