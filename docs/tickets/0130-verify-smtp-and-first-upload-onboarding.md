@@ -1,9 +1,9 @@
 # Ticket 0130: Verify SMTP And First-Upload Onboarding
 
 ## Status
-- State: Planned
+- State: In Progress
 - Priority: Medium
-- Next: Define an authorized release-candidate environment with controlled recipient mailboxes and the intended SMTP configuration.
+- Next: Configure an isolated candidate deployment with an approved test recipient and authorized SMTP profile.
 
 ## Goal
 Verify the real operator/user journey from configured outbound mail to account confirmation, password recovery, and a first image publication. Complement existing API and spool tests with evidence that the supported deployment can deliver usable messages.
@@ -18,7 +18,7 @@ Verify the real operator/user journey from configured outbound mail to account c
 - [ ] Routine automated tests remain deterministic and do not send mail to real users; live delivery uses only approved recipients and owned content.
 
 ## Tasks
-- [ ] Review existing account, media, and email-spool coverage before defining the live checklist.
+- [x] Review existing account, media, and email-spool coverage before defining the live checklist.
 - [ ] Validate transactional messages and link origins behind the intended reverse proxy/TLS setup.
 - [ ] Exercise opted-in scheduled delivery and controlled failures without bypassing the worker's normal limits.
 - [ ] Complete the confirmed-account image journey and clean up owned test content.
@@ -26,6 +26,7 @@ Verify the real operator/user journey from configured outbound mail to account c
 
 ## Notes
 - Completed [0008](completed/0008-user-notification-preferences.md) explicitly leaves live SMTP unverified. Simulated successful sends do not establish provider delivery or usable public links.
+- Automated account and email-spool tests cover confirmation-send failure, concurrency limits, retry state, and terminal delivery failure using isolated test fixtures; they do not prove real provider delivery.
 - Confirmation security and resend limits remain under [0109](completed/0109-validate-email-confirmation-token-records.md) and [0110](completed/0110-limit-confirmation-email-resends.md); media invariants remain under [0108](completed/0108-enforce-media-category-and-cleanup-invariants.md).
 - Coordinate the cleared-username password-reset regression with [0123](0123-type-ui-events-and-deferred-action-contracts.md), rather than duplicating its event-bus refactor.
 - An unpublished candidate can be tested before [0127](0127-publish-a-verifiable-pilot-release.md). Do not require public publication to begin validation or treat unverified email-dependent workflows as pilot-ready.
@@ -43,4 +44,5 @@ Verify the real operator/user journey from configured outbound mail to account c
 - docs/Quickstart.md
 
 ## Progress Log
+- 2026-11-18: Reviewed the account and spool tests and reran `yarn.cmd test` (248/248 passed). These checks cover simulated SMTP failure and spool transitions only; live provider delivery, approved recipient mailbox, and confirmed-account onboarding remain unverified.
 - 2026-11-17: Ticket created. SMTP, account actions, uploads, and publication were not executed.
