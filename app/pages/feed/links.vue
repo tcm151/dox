@@ -10,7 +10,7 @@ const links = useFeedDatasource<Link>("/api/link", {
     <section class="content-width feed column g-2 p-4">
         <Feed :items="links">
             <template #buttons>
-                <button v-if="useSettings().app.links.enabled" class="dark px-5" @click="navigateTo('/editor/link')">
+                <button class="dark px-5" @click="navigateTo('/editor/link')">
                     <i class="fa-solid fa-link"></i>
                     <span>Submit</span>
                 </button>
