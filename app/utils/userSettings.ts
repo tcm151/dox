@@ -108,7 +108,7 @@ export const useUserSettings = defineStore("user.preferences", () => {
     }
 
     watch(
-        () => [session.user.id, session.isAuthenticated] as const,
+        [() => session.user.id, () => session.isAuthenticated],
         resetForIdentity,
         { flush: "sync", immediate: true },
     )
