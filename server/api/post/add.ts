@@ -80,5 +80,5 @@ export default defineEventHandler(async (event) => {
         .addRecord('replyTo', post.replyTo ?? "", true)
         .addRecords("topics", post.topics)
         .addRecords("images", imageIds)
-        .queryOne<Post>()
+        .queryOne<Pick<Post, "id" | "score">>()
 })

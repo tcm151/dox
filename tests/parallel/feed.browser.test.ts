@@ -307,7 +307,7 @@ test("appends the next dedicated-feed page and hides load more at the end", asyn
             headers: { Authorization: accessToken },
         })
         expect(listResponse.ok()).toBe(true)
-        const listPage = await listResponse.json() as FeedPage<Post>
+        const listPage = await listResponse.json() as FeedPage<Post<string[]>>
         const firstPost = listPage.items.find(post => extractId(post.id) === postIds[0])
         const secondPost = listPage.items.find(post => extractId(post.id) === postIds[1])
         if (!firstPost || !secondPost) throw new Error("The feed continuation posts were missing from the first API page.")

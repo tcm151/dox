@@ -101,7 +101,7 @@ async function submitComment() {
 
     submitting.value = true
     try {
-        await useApi<Comment>("/api/comment/add", {
+        await useApi("/api/comment/add", {
             body: {
                 user: session.user.id,
                 context: link.value.id,

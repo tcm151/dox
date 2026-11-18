@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CommentSection from "./components/CommentSection.vue"
-import type { Post, Comment } from '@@/shared/types'
+import type { Comment, Post } from '@@/shared/types'
 import { useSlowMode } from '@@/app/utils/slow'
 
 const route = useRoute()
@@ -41,9 +41,16 @@ useSeoMeta({
 })
 
 
-let editingPost = ref(false)
-function toggleEditPost() {
-    editingPost.value = !editingPost.value
+const editingPost = ref(false)
+const editedPostContent = ref("")
+
+function startEditingPost() {
+    editedPostContent.value = post.value?.content ?? ""
+    editingPost.value = true
+}
+
+function cancelEditingPost() {
+    editingPost.value = false
 }
 
 // const showPreview = ref(false)
@@ -59,13 +66,13 @@ async function updatePost(changedPost: Post | null) {
 
     try {
         submitting.value = true
-        await useApi(`/api/post/${id}/edit`, {
+        const updatedPost = await useApi<Pick<Post, "content" | "edited" | "timeEdited">>(`/api/post/${id}/edit`, {
             body: {
-                content: post.value?.content,
+                content: editedPostContent.value,
             }
         })
-        post.value!.edited = true
-        toggleEditPost()
+        if (post.value) Object.assign(post.value, updatedPost)
+        editingPost.value = false
     }
     catch (error: any) {
         hints.addError(error.message, error)
@@ -98,7 +105,7 @@ function toggleCommentBox() {
 
 let comment = ref("")
 const submitting = ref<boolean>(false)
-async function submitComment(replyTo: Post | Comment, content: string) {
+async function submitComment(replyTo: { id: string }, content: string) {
     if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
@@ -111,7 +118,7 @@ async function submitComment(replyTo: Post | Comment, content: string) {
 
     submitting.value = true
     try {
-        await useApi<Comment>("/api/comment/add", {
+        await useApi("/api/comment/add", {
             body: {
                 time: new Date(),
                 user: session.user.id,
@@ -224,7 +231,7 @@ function toggleOptions() {
                 </ContentVisibility>
                 <ClientOnly>
                     <template v-if="editingPost && post.user.id === session.user.id">
-                        <MarkdownEditor class="my-4" :rows="10" v-model="post.content" />
+                        <MarkdownEditor class="my-4" :rows="10" v-model="editedPostContent" />
                     </template>
                 </ClientOnly>
                 <footer class="column g-2">
@@ -250,7 +257,7 @@ function toggleOptions() {
                                         v-if="showOptions"
                                         :target="post"
                                         @updated="refresh"
-                                        @edit="toggleEditPost"
+                                        @edit="startEditingPost"
                                         @award="awardPost"
                                         @report="reportPost"
                                         @delete="deletePost"
@@ -272,7 +279,7 @@ function toggleOptions() {
                             <i v-else class="fa-solid fa-eye-slash"></i>
                             <span>Preview</span>
                         </button> -->
-                        <button class="danger" @click="toggleEditPost()">
+                        <button class="danger" @click="cancelEditingPost">
                             <i class="fa-solid fa-ban"></i>
                             <span>Cancel</span>
                         </button>

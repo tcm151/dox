@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Comment, Post, Link, Gallery } from '@@/shared/types';
+import type { Comment, Gallery, Link, Post } from '@@/shared/types'
 
 const hints = useHints()
 const session = getSession()
@@ -10,12 +10,17 @@ const props = defineProps<{
     discussion: Post | Link | Gallery
     editing: boolean
 }>()
+const editedContent = ref("")
 
 const emit = defineEmits<{
     (event: 'refresh'): void
     (event: 'options', comment: Comment): void
     (event: 'finish-edit'): void
 }>()
+
+watch(() => props.editing, (editing) => {
+    if (editing) editedContent.value = props.comment.content
+})
 
 let replyText = ref("")
 let replyTo = ref(false)
@@ -42,11 +47,11 @@ const replyState = slowMode.submissionState(
     },
 )
 
-async function updateComment(comment: Comment) {
+async function updateComment() {
     try {
-        await useApi(`/api/comment/${extractId(comment.id)}/edit`, {
+        await useApi(`/api/comment/${extractId(props.comment.id)}/edit`, {
             body: {
-                content: comment.content,
+                content: editedContent.value,
             }
         })
         emit("finish-edit")
@@ -57,7 +62,7 @@ async function updateComment(comment: Comment) {
     }
 }
 
-async function submitComment(replyId: Post | Link | Gallery | Comment, content: string) {
+async function submitComment(replyId: { id: string }, content: string) {
     if (submitting.value) return
     if (!session.isAuthenticated) {
         hints.addWarning("You must be logged in to interact with others.")
@@ -70,7 +75,7 @@ async function submitComment(replyId: Post | Link | Gallery | Comment, content: 
     }
     submitting.value = true
     try {
-        await useApi<Comment>("/api/comment/add", {
+        await useApi("/api/comment/add", {
             body: {
                 time: new Date(),
                 user: session.user.id,
@@ -146,9 +151,9 @@ async function submitComment(replyId: Post | Link | Gallery | Comment, content: 
             />
         </CollapseTransition>
         <div class="comment-edit column g-2 px-3 pb-3 mt-2" v-if="editing">
-            <MarkdownEditor :rows="5" v-model="comment.content" />
+            <MarkdownEditor :rows="5" v-model="editedContent" />
             <div class="row g-1">
-                <Tag type="success" icon="fa-save" label="Save" @click="updateComment(comment)" />
+                <Tag type="success" icon="fa-save" label="Save" @click="updateComment" />
                 <Tag type="danger" icon="fa-cancel" label="Cancel" @click="emit('finish-edit')" />
             </div>
         </div>

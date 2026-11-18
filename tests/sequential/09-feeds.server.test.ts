@@ -217,33 +217,33 @@ it("paginates popular feed results for each sort mode", async () => {
 
         const oversizedResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=9999")
         expectStatus(oversizedResponse, 200)
-        const oversizedPage = await oversizedResponse.json() as FeedPage<Post>
+        const oversizedPage = await oversizedResponse.json() as FeedPage<Post<string[]>>
         expect(oversizedPage.pageSize).toBe(50)
         expect(oversizedPage.items.length).toBeLessThanOrEqual(oversizedPage.pageSize)
 
         const zeroSizeResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=0")
         expectStatus(zeroSizeResponse, 200)
-        const zeroSizePage = await zeroSizeResponse.json() as FeedPage<Post>
+        const zeroSizePage = await zeroSizeResponse.json() as FeedPage<Post<string[]>>
         expect(zeroSizePage.pageSize).toBe(1)
 
         const invalidSizeResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=invalid")
         expectStatus(invalidSizeResponse, 200)
-        const invalidSizePage = await invalidSizeResponse.json() as FeedPage<Post>
+        const invalidSizePage = await invalidSizeResponse.json() as FeedPage<Post<string[]>>
         expect(invalidSizePage.pageSize).toBe(20)
 
         const negativeOffsetResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=2&offset=-2")
         expectStatus(negativeOffsetResponse, 200)
-        const negativeOffsetPage = await negativeOffsetResponse.json() as FeedPage<Post>
+        const negativeOffsetPage = await negativeOffsetResponse.json() as FeedPage<Post<string[]>>
         expect(negativeOffsetPage.offset).toBe(0)
 
         const invalidOffsetResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=2&offset=invalid")
         expectStatus(invalidOffsetResponse, 200)
-        const invalidOffsetPage = await invalidOffsetResponse.json() as FeedPage<Post>
+        const invalidOffsetPage = await invalidOffsetResponse.json() as FeedPage<Post<string[]>>
         expect(invalidOffsetPage.offset).toBe(0)
 
         const maximumOffsetResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=2&offset=999999999")
         expectStatus(maximumOffsetResponse, 200)
-        const maximumOffsetPage = await maximumOffsetResponse.json() as FeedPage<Post>
+        const maximumOffsetPage = await maximumOffsetResponse.json() as FeedPage<Post<string[]>>
         expect(maximumOffsetPage.offset).toBe(5_000_000)
 
         const defaultPageResponse = await fetch("/api/feed/popular")

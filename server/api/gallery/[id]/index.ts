@@ -1,4 +1,4 @@
-import type { Comment, Gallery } from "@@/shared/types"
+import type { Gallery } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const query = getQuery<{ sortBy: string }>(event)
@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
         .addRecord("gallery", `gallery:${id}`)
         .queryOne<Gallery>()
 
-    gallery.comments = sortList(gallery.comments as Comment[], query.sortBy) as (Comment & string)[]
+    gallery.comments = sortList(gallery.comments, query.sortBy)
     return gallery
 })

@@ -14,7 +14,7 @@ const props = defineProps<{
         <SearchCommentPreview :comment="(item as SearchComment)" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'post'">
-        <PostPreview :post="(item as Post)" :pinned="pinned" />
+        <PostPreview :post="(item as Post<string[]>)" :pinned="pinned" />
     </template>
     <template v-else-if="item.id?.split(':')[0] == 'link'">
         <LinkPreview :link="(item as Link)" :pinned="pinned" />

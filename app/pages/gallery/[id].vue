@@ -52,7 +52,7 @@ async function submitComment(replyTo: Gallery | Comment, content: string) {
 
     submitting.value = true
     try {
-        await useApi<Comment>("/api/comment/add", {
+        await useApi("/api/comment/add", {
             body: {
                 context: gallery.value?.id,
                 replyTo: replyTo.id,

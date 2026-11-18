@@ -6,7 +6,7 @@ const session = getSession()
 const settings = useSettings()
 
 const props = defineProps<{
-    target: Voteable
+    target: Pick<Voteable, "id" | "votes">
 }>()
 
 </script>

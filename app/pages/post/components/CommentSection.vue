@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Post, Link, Gallery, Comment } from '@@/shared/types'
+import type { Comment, Gallery, Link, Post } from '@@/shared/types'
 
 const session = getSession()
 const events = useEvents()
@@ -116,8 +116,8 @@ watch(() => props.loading, (status) => {
         </header>
         <Tree
             :items="target.comments ?? []"
-            :children="(target.comments as Comment[]).filter(c => c.replyTo === target.id) ?? []"
-            :get-children="(comment: Comment, comments: Comment[]) => comments.filter(c => c.replyTo === comment.id)"
+            :children="target.comments.filter(comment => comment.replyTo === target.id)"
+            :get-children="(comment: Comment, comments: Comment[]) => comments.filter(child => child.replyTo === comment.id)"
         >
             <template #item="{ item: comment }">
                 <CommentPreview

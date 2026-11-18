@@ -8,7 +8,7 @@ export const useVoting = () => {
     const session = getSession()
     const types: Vote[] = ["positive", "misleading", "negative"]
 
-    async function submit(type: Vote, item: Voteable) {
+    async function submit(type: Vote, item: Pick<Voteable, "id" | "votes">) {
         if (!session.isAuthenticated) {
             hints.addWarning("You must be logged in to interact with others.")
             return
@@ -28,15 +28,15 @@ export const useVoting = () => {
         }
     }
 
-    async function positive(item: Voteable) {
+    async function positive(item: Pick<Voteable, "id" | "votes">) {
         await submit("positive", item)
     }
 
-    async function misleading(item: Voteable) {
+    async function misleading(item: Pick<Voteable, "id" | "votes">) {
         await submit("misleading", item)
     }
     
-    async function negative(item: Voteable) {
+    async function negative(item: Pick<Voteable, "id" | "votes">) {
         await submit("negative", item)
     }
 

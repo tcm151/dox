@@ -20,5 +20,5 @@ export default defineEventHandler(async (event) => {
         .addRecord("post", `post:${id}`)
         .addRecord("user", auth.id)
         .addParameter("content", body.content)
-        .queryOne<Post>()
+        .queryOne<Pick<Post, "content" | "edited" | "timeEdited">>()
 })

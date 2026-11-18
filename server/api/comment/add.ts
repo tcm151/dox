@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
         .addRecord("context", body.context)
         .addParameter("content", body.content)
         .addRecord("replyTo", body.replyTo)
-        .queryValue<{ comment: Comment, recipient: string }>()
+        .queryValue<{ comment: Pick<Comment, "id" | "content">, recipient: string }>()
     
     await NotificationManager.send({
         recipient,

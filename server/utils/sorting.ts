@@ -1,8 +1,10 @@
 import { DateTime } from "luxon"
 import type { Sortable } from "@@/shared/types"
 
-export function sortList(items: Sortable[], sortType: string) {
-    return items.sort((first: Sortable, second: Sortable) => {
+type SortableListItem = Pick<Sortable, "time" | "score">
+
+export function sortList<T extends SortableListItem>(items: T[], sortType: string): T[] {
+    return items.sort((first, second) => {
         switch (sortType) {
             case "new":
                 return sortNew(first, second)
@@ -16,13 +18,13 @@ export function sortList(items: Sortable[], sortType: string) {
     })
 }
 
-function sortNew(first: Sortable, second: Sortable) {
+function sortNew(first: SortableListItem, second: SortableListItem) {
     const firstTime = DateTime.fromISO(first.time)
     const secondTime = DateTime.fromISO(second.time)
     return firstTime < secondTime ? 1 : -1
 }
 
-function sortHot(first: Sortable, second: Sortable) {
+function sortHot(first: SortableListItem, second: SortableListItem) {
     const now = DateTime.now()
     const firstDays = Math.max(1, now.diff(DateTime.fromISO(first.time), "hours").hours)
     const secondDays = Math.max(1, now.diff(DateTime.fromISO(second.time), "hours").hours)
@@ -31,7 +33,7 @@ function sortHot(first: Sortable, second: Sortable) {
     return firstHotness < secondHotness ? 1 : -1
 }
 
-function sortTop(first: Sortable, second: Sortable) {
+function sortTop(first: SortableListItem, second: SortableListItem) {
     if (first.score === second.score) {
         return sortNew(first, second)
     }

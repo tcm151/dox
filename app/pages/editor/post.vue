@@ -2,7 +2,7 @@
 import Drafts from "./components/Drafts.client.vue"
 import EditorFrame from "./components/EditorFrame.vue"
 import UploadedImages from "./components/UploadedImages.vue"
-import type { User, Post, Draft } from '@@/shared/types'
+import type { Post, Draft } from '@@/shared/types'
 
 const hints = useHints()
 const valid = useValidation()
@@ -12,22 +12,19 @@ const session = getSession()
 const route = useRoute()
 const replyTo = computedAsync<Post | undefined>(async () => {
     if (route.query['replyTo'] || draft.value.replyTo) {
-        const post = await useApi<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo as string)}`)
-        draft.value.replyTo = post.id as Post & string
+        const post = await useApi<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo ?? "")}`)
+        draft.value.replyTo = post.id
         useRouter().replace({ query: {} })
         return post
     }
 })
 
-let draft = ref<Draft>({
-    id: '',
-    time: '',
-    user: session.user as User & string,
+type PostEditorState = Pick<Draft, "title" | "content" | "tags" | "replyTo"> & { id?: string }
+
+let draft = ref<PostEditorState>({
     title: '',
     content: '',
     tags: [],
-    topics: [],
-    images: [],
 })
 
 let titleFocused = ref(false)
@@ -61,7 +58,7 @@ async function submit() {
     }
     try {
         submitting.value = true
-        const post = await useApi<Post>("/api/post/add", {
+        const post = await useApi<Pick<Post, "id">>("/api/post/add", {
             body: {
                 user: session.user!.id,
                 title: draft.value.title,
@@ -106,7 +103,7 @@ async function saveDraft() {
     }
     try {
         saving.value = true
-        if (draft.value.id !== '') {
+        if (draft.value.id) {
             await useApi<Draft>(`/api/profile/drafts/${extractId(draft.value.id)}/update`, {
                 body: {
                     title: draft.value.title,
@@ -178,7 +175,7 @@ async function saveDraft() {
                 <i class="fa-solid fa-images"></i>
                 <span>Upload</span>
             </button>
-            <ButtonSpinner v-if="draft.id != ''" class="link f-1 b-0" :loading="saving" @click="saveDraft">
+            <ButtonSpinner v-if="draft.id" class="link f-1 b-0" :loading="saving" @click="saveDraft">
                 <i class="fa-solid fa-folder-open"></i>
                 <span>Update</span>
             </ButtonSpinner>

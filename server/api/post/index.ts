@@ -27,6 +27,6 @@ export default defineEventHandler(async (event) => {
         .queryAll<{ sourceId: string }>()
 
     return await paging.createPage(candidates, selected =>
-        paging.hydrate<Post>(selected.map(candidate => candidate.sourceId)),
+        paging.hydrate<Post<string[]>>(selected.map(candidate => candidate.sourceId)),
     )
 })

@@ -1,4 +1,4 @@
-import type { Comment, Link } from "@@/shared/types"
+import type { Link } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const query = getQuery<{ sortBy: string }>(event)
@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
         .addRecord("link", `link:${id}`)
         .queryOne<Link>()
 
-    link.comments = sortList(link.comments as Comment[], query.sortBy) as (Comment & string)[]
+    link.comments = sortList(link.comments, query.sortBy)
     return link
 })

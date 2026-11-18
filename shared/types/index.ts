@@ -49,6 +49,8 @@ export interface User extends Voteable {
     traits: Trait[]
 }
 
+export type UserSummary = Pick<User, "id" | "name" | "roles">
+
 export type Role = "admin" | "developer" | "moderator"
 export type Trait = "confirmed" | "verified"
 export type ContentStatus = "active" | "archived" | "quarantined" | "deleted"
@@ -86,14 +88,14 @@ export interface ContentModerationState {
     slowed?: number
 }
 
-export interface Post extends Sortable {
-    user: User & string
+export interface Post<C extends Comment[] | string[] = Comment[]> extends Sortable {
+    user: UserSummary
     title: string
     content: string
     tags: string[]
-    replyTo?: Post & string
+    replyTo?: Pick<Post, "id" | "title" | "tags">
     topics: string[]
-    comments: (Comment & string)[]
+    comments: C
     images: Attachment[]
     status: ContentStatus
     edited: boolean
@@ -122,21 +124,22 @@ export interface Link extends Sortable {
 }
 
 export interface Draft extends Record {
-    user: User & string
+    user: string
     title: string
     content: string
     tags: string[]
     time: string
-    replyTo?: Post & string
+    replyTo?: string
     topics: string[]
-    images: Image[]
+    images: string[]
 }
 
-export interface Comment extends Sortable {
-    user: User & string
-    context: (Post | Link | Gallery) & string
+export interface Comment extends Voteable {
+    user: UserSummary
+    context: string
+    time: string
     content: string
-    replyTo: (Post | Link | Gallery | Comment) & string
+    replyTo: string
     deleted: boolean
     status: ContentStatus
     edited: boolean
@@ -191,7 +194,7 @@ export interface Gallery extends Sortable {
 }
 
 export interface SearchComment extends Voteable {
-    user: Pick<User, "id" | "name" | "roles">
+    user: UserSummary
     context: Pick<Post, "id" | "title" | "tags">
         | Pick<Link, "id" | "title" | "description" | "url" | "tags">
         | Pick<Gallery, "id" | "title" | "description" | "tags">
@@ -203,7 +206,7 @@ export interface SearchComment extends Voteable {
     moderation?: ContentModerationState
 }
 
-export type SearchResult = (Post | Link | Thread | Gallery | SearchComment) & {
+export type SearchResult = (Post<string[]> | Link | Thread | Gallery | SearchComment) & {
     search: {
         exact: boolean
         score: number

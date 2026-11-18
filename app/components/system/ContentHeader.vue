@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Gallery, Image, Link, Post, Thread } from "@@/shared/types"
 
-type ContentHeaderItem = Post | Link | Thread | Gallery | Image
+type ContentHeaderItem = Post | Post<string[]> | Link | Thread | Gallery | Image
 
 const props = defineProps<{
     content: ContentHeaderItem

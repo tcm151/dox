@@ -284,7 +284,7 @@ it("filters content from users who block the viewer without hiding direct links"
 
         const popularResponse = await accountFetch(viewer, "/api/feed/popular?sortBy=new&pageSize=50")
         expectStatus(popularResponse, 200)
-        const popular = await popularResponse.json() as FeedPage<Post>
+        const popular = await popularResponse.json() as FeedPage<Post<string[]>>
         expect(popular.items.some(post => post.id === `post:${postId}`)).toBe(false)
 
         const searchResponse = await accountFetch(viewer, `/api/feed/search?text=${encodeURIComponent(searchTerm)}`)

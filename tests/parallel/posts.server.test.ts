@@ -348,8 +348,10 @@ it("projects moderation state onto post lists, feed, search, and pinned items", 
             CREATE pin SET item = post:${postId}, user = ${admin.user.id}, scope = "topic", topic = topic:${topicId}, active = true;
         `)
 
-        const posts = await admin.fetch<FeedPage<Post>>("/api/post?sortBy=new")
-        expect(posts.items.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        const posts = await admin.fetch<FeedPage<Post<string[]>>>("/api/post?sortBy=new")
+        const postPreview = posts.items.find(item => item.id === post.id)
+        expect(postPreview).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        expect(Object.keys(postPreview!.user).sort()).toEqual(["id", "name", "roles"])
 
         const topicFeed = await admin.fetch<FeedPage<Sortable>>(`/api/topic/${topicId}/feed?sortBy=new`)
         expect(topicFeed.items.find(item => item.id === post.id)).toMatchObject({
@@ -365,7 +367,7 @@ it("projects moderation state onto post lists, feed, search, and pinned items", 
             moderation: { locked: "item" },
         })
 
-        const feed = await admin.fetch<FeedPage<Post>>("/api/feed/popular?sortBy=new&pageSize=50")
+        const feed = await admin.fetch<FeedPage<Post<string[]>>>("/api/feed/popular?sortBy=new&pageSize=50")
         expect(feed.items.find(item => item.id === post.id)).toMatchObject({
             content: expectedContent,
             user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
@@ -429,6 +431,15 @@ it("traverses post comments and rejects hard deletion while comments remain", as
 
         const postWithComments = await admin.fetch<Post>(`/api/post/${postId}`)
         expect(postWithComments.comments.map(item => item.id)).toContain(comment.id)
+        const commentProjection = postWithComments.comments.find(item => item.id === comment.id)!
+        expect(commentProjection).toMatchObject({
+            user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
+            context: post.id,
+            replyTo: post.id,
+        })
+        expect(Object.keys(commentProjection.user).sort()).toEqual(["id", "name", "roles"])
+        expect(typeof commentProjection.context).toBe("string")
+        expect(typeof commentProjection.replyTo).toBe("string")
         await expect(admin.query(`DELETE ONLY post:${postId};`)).rejects.toThrow()
 
         const deletePostResponse = await admin.fetchRaw(`/api/post/${postId}/delete`)

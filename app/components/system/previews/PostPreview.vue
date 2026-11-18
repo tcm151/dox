@@ -2,7 +2,7 @@
 import type { Post } from '@@/shared/types'
 
 const props = defineProps<{
-    post: Post
+    post: Post<string[]>
     pinned?: boolean
 }>()
 

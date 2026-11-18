@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Post } from '@@/shared/types'
 
-const posts = useFeedDatasource<Post>("/api/post", {
+const posts = useFeedDatasource<Post<string[]>>("/api/post", {
     sorting: true,
 })
 </script>

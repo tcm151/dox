@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
         .addRecord("comment", `comment:${id}`)
         .addRecord("user", auth.id)
         .addParameter("content", body.content)
-        .queryOne<Comment>()
+        .queryOne<Pick<Comment, "timeEdited">>()
 
     return comment.timeEdited
 })
