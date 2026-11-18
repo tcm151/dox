@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
-import type { Comment, FeedPage, Gallery, Link, Post, Thread, Topic, User } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, Link, Post, SearchResult, Thread, Topic, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 
@@ -80,8 +80,8 @@ async function expectDedicatedFeeds(
     for (const feed of feeds) {
         const response = account ? await accountFetch(account, feed.path) : await fetch(feed.path)
         expectStatus(response, 200, `${stage} ${feed.path}`)
-        const items = await response.json() as Array<{ id: string }>
-        expect(items.some(item => item.id === feed.id), `${stage} ${feed.path}`).toBe(visible)
+        const page = await response.json() as FeedPage<{ id: string }>
+        expect(page.items.some(item => item.id === feed.id), `${stage} ${feed.path}`).toBe(visible)
     }
 }
 
@@ -289,13 +289,13 @@ it("filters content from users who block the viewer without hiding direct links"
 
         const searchResponse = await accountFetch(viewer, `/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(searchResponse, 200)
-        const searchResults = await searchResponse.json() as Post[]
-        expect(searchResults.some(post => post.id === `post:${postId}`)).toBe(false)
+        const searchResults = await searchResponse.json() as FeedPage<SearchResult>
+        expect(searchResults.items.some(post => post.id === `post:${postId}`)).toBe(false)
 
         const anonymousSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(anonymousSearchResponse, 200)
-        const anonymousResults = await anonymousSearchResponse.json() as Post[]
-        expect(anonymousResults.some(post => post.id === `post:${postId}`)).toBe(true)
+        const anonymousResults = await anonymousSearchResponse.json() as FeedPage<SearchResult>
+        expect(anonymousResults.items.some(post => post.id === `post:${postId}`)).toBe(true)
 
         const directPostResponse = await accountFetch(viewer, `/api/post/${postId}`)
         expectStatus(directPostResponse, 200)
@@ -375,8 +375,8 @@ it("applies user and topic filters to every dedicated content feed", async () =>
         expectStatus(galleryResponse, 200, "dedicated-feed gallery creation stage")
         const galleryListResponse = await fetch("/api/gallery")
         expectStatus(galleryListResponse, 200, "dedicated-feed gallery lookup stage")
-        const galleries = await galleryListResponse.json() as Gallery[]
-        const gallery = galleries.find(item => item.images.some(itemImage => itemImage.id === image))
+        const galleries = await galleryListResponse.json() as FeedPage<Gallery>
+        const gallery = galleries.items.find(item => item.images.some(itemImage => itemImage.id === image))
         expect(gallery).toBeDefined()
         records.push(gallery!.id)
 

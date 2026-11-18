@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, Gallery, ModeratorLog, Post, Thread } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, ModeratorLog, Post, Thread } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
@@ -1059,8 +1059,8 @@ it("reports comments in inherited topic queues and quarantines only the comment"
             },
         })
         expectStatus(publishGallery, 200, "gallery comment report context stage")
-        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
@@ -1100,8 +1100,8 @@ it("reports comments in inherited topic queues and quarantines only the comment"
         expect(moderatedPost.comments.map(item => item.id)).toEqual(expect.arrayContaining([comment.id, reply.id]))
         expect(moderatedPost.comments.find(item => item.id === comment.id)?.status).toBe("quarantined")
         expect(moderatedPost.topics).toContain(`topic:${topicId}`)
-        const quarantinedSearchResults = await admin.fetch<Array<{ id: string }>>(`/api/feed/search?text=${encodeURIComponent(comment.content)}`)
-        expect(quarantinedSearchResults.map(item => item.id)).not.toContain(comment.id)
+        const quarantinedSearchResults = await admin.fetch<FeedPage<{ id: string }>>(`/api/feed/search?text=${encodeURIComponent(comment.content)}`)
+        expect(quarantinedSearchResults.items.map(item => item.id)).not.toContain(comment.id)
 
         const unauthorizedAppeal = await reporter.fetchRaw(`/api/report/${reportId}/appeal`, {
             method: "POST",
@@ -1124,8 +1124,8 @@ it("reports comments in inherited topic queues and quarantines only the comment"
         expect(restoredPost.status).toBe("active")
         expect(restoredPost.comments.find(item => item.id === comment.id)?.status).toBe("active")
         expect(restoredPost.comments.some(item => item.id === reply.id)).toBe(true)
-        const restoredSearchResults = await admin.fetch<Array<{ id: string }>>(`/api/feed/search?text=${encodeURIComponent(comment.content)}`)
-        expect(restoredSearchResults.map(item => item.id)).toContain(comment.id)
+        const restoredSearchResults = await admin.fetch<FeedPage<{ id: string }>>(`/api/feed/search?text=${encodeURIComponent(comment.content)}`)
+        expect(restoredSearchResults.items.map(item => item.id)).toContain(comment.id)
     }
     finally {
         await admin.query([

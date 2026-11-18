@@ -170,20 +170,88 @@ it("paginates popular feed results for each sort mode", async () => {
             expect(followingOrder[0]).toBe(expectedFirstSourceIdBySort[sortBy])
         }
 
+        for (const sortBy of ["new", "hot", "top"] as const) {
+            const topicOrder: string[] = []
+            let offset = 0
+            while (true) {
+                const response = await fetch(`/api/topic/${topicId}/feed?sortBy=${sortBy}&pageSize=2&offset=${offset}`)
+                expectStatus(response, 200, await response.clone().text())
+                const page = await response.json() as FeedPage<Sortable>
+                expect(page.pageSize).toBe(2)
+                expect(page.offset).toBe(offset)
+                expect(page.items.length).toBeLessThanOrEqual(2)
+                expect(page.items.every(item => expectedSourceIdSet.has(item.id))).toBe(true)
+                topicOrder.push(...page.items.map(item => item.id))
+                expect(page.more).toBe(offset + 2 < expectedSourceIds.length)
+                if (!page.more) break
+                offset += 2
+            }
+
+            expect(topicOrder).toEqual(expectedOrders.get(sortBy))
+            expect(new Set(topicOrder).size).toBe(expectedSourceIds.length)
+        }
+
+        const userOrder: string[] = []
+        const seenUserIds = new Set<string>()
+        const userId = extractId(admin.user.id)
+        if (!userId) throw new Error("Admin user has no ID.")
+        let userOffset = 0
+        while (true) {
+            const response = await fetch(`/api/user/${userId}/feed?sortBy=new&pageSize=2&offset=${userOffset}`)
+            expectStatus(response, 200, await response.clone().text())
+            const page = await response.json() as FeedPage<Sortable>
+            expect(page.pageSize).toBe(2)
+            expect(page.offset).toBe(userOffset)
+            expect(page.items.length).toBeLessThanOrEqual(2)
+            for (const item of page.items) {
+                expect(seenUserIds.has(item.id)).toBe(false)
+                seenUserIds.add(item.id)
+                userOrder.push(item.id)
+            }
+            if (!page.more) break
+            userOffset += 2
+        }
+        for (const id of expectedSourceIds) {
+            expect(userOrder.filter(itemId => itemId === id)).toHaveLength(1)
+        }
+
         const oversizedResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=9999")
         expectStatus(oversizedResponse, 200)
         const oversizedPage = await oversizedResponse.json() as FeedPage<Post>
-        expect(oversizedPage.items.length).toBeLessThanOrEqual(50)
+        expect(oversizedPage.pageSize).toBe(50)
+        expect(oversizedPage.items.length).toBeLessThanOrEqual(oversizedPage.pageSize)
+
+        const zeroSizeResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=0")
+        expectStatus(zeroSizeResponse, 200)
+        const zeroSizePage = await zeroSizeResponse.json() as FeedPage<Post>
+        expect(zeroSizePage.pageSize).toBe(1)
+
+        const invalidSizeResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=invalid")
+        expectStatus(invalidSizeResponse, 200)
+        const invalidSizePage = await invalidSizeResponse.json() as FeedPage<Post>
+        expect(invalidSizePage.pageSize).toBe(20)
 
         const negativeOffsetResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=2&offset=-2")
         expectStatus(negativeOffsetResponse, 200)
         const negativeOffsetPage = await negativeOffsetResponse.json() as FeedPage<Post>
         expect(negativeOffsetPage.offset).toBe(0)
 
+        const invalidOffsetResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=2&offset=invalid")
+        expectStatus(invalidOffsetResponse, 200)
+        const invalidOffsetPage = await invalidOffsetResponse.json() as FeedPage<Post>
+        expect(invalidOffsetPage.offset).toBe(0)
+
+        const maximumOffsetResponse = await fetch("/api/feed/popular?sortBy=new&pageSize=2&offset=999999999")
+        expectStatus(maximumOffsetResponse, 200)
+        const maximumOffsetPage = await maximumOffsetResponse.json() as FeedPage<Post>
+        expect(maximumOffsetPage.offset).toBe(5_000_000)
+
         const defaultPageResponse = await fetch("/api/feed/popular")
         expectStatus(defaultPageResponse, 200)
         const defaultPage = await defaultPageResponse.json() as FeedPage<Sortable>
-        expect(defaultPage.items.length).toBeLessThanOrEqual(20)
+        expect(defaultPage.pageSize).toBe(20)
+        expect(defaultPage.offset).toBe(0)
+        expect(defaultPage.items.length).toBeLessThanOrEqual(defaultPage.pageSize)
 
         const pagedIds: string[] = []
         let finalPage: FeedPage<Sortable> | undefined

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { Post, Sortable, Topic, User, UserSettings } from "../../shared/types"
+import type { FeedPage, Post, Sortable, Topic, User, UserSettings } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 
@@ -116,7 +116,7 @@ it("enforces profile audiences without hiding individually public content", asyn
         expect(publicProfile.following).toContain(member.user.id)
         expect(publicProfile.topics).toContain(topicId)
         expect((await get<User[]>("/api/user")).some(user => user.id === owner.user.id)).toBe(true)
-        expect((await get<Sortable[]>(`/api/user/${id}/feed?sortBy=new`)).some(item => item.id === post.id)).toBe(true)
+        expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`)).items.some(item => item.id === post.id)).toBe(true)
 
         await setProfileVisibility(owner, "members")
         const anonymousMemberProfile = await get<User>(`/api/user/${id}`)
@@ -127,7 +127,7 @@ it("enforces profile audiences without hiding individually public content", asyn
         expect(anonymousMemberProfile.following).toEqual([])
         expect(anonymousMemberProfile.topics).toEqual([])
         expect((await get<User[]>("/api/user")).some(user => user.id === owner.user.id)).toBe(false)
-        expect(await get<Sortable[]>(`/api/user/${id}/feed?sortBy=new`)).toEqual([])
+        expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`)).items).toEqual([])
         expect(await get<User[]>(`/api/user/${id}/followers`)).toEqual([])
         expect(await get<User[]>(`/api/user/${id}/following`)).toEqual([])
         expect(await get<Topic[]>(`/api/user/${id}/topics`)).toEqual([])
@@ -136,7 +136,7 @@ it("enforces profile audiences without hiding individually public content", asyn
         expect(memberProfile.visible).toBe(true)
         expect(memberProfile.link).toBe("https://profile-privacy.example")
         expect((await get<User[]>("/api/user", member.accessToken)).some(user => user.id === owner.user.id)).toBe(true)
-        expect((await get<Sortable[]>(`/api/user/${id}/feed?sortBy=new`, member.accessToken)).some(item => item.id === post.id)).toBe(true)
+        expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`, member.accessToken)).items.some(item => item.id === post.id)).toBe(true)
         expect(await get<User[]>(`/api/user/${id}/followers`, member.accessToken)).toHaveLength(1)
         expect(await get<User[]>(`/api/user/${id}/following`, member.accessToken)).toHaveLength(1)
         expect(await get<Topic[]>(`/api/user/${id}/topics`, member.accessToken)).toHaveLength(1)
@@ -145,9 +145,9 @@ it("enforces profile audiences without hiding individually public content", asyn
         expect((await get<User>(`/api/user/${id}`)).visible).toBe(false)
         expect((await get<User>(`/api/user/${id}`, member.accessToken)).visible).toBe(false)
         expect((await get<User[]>("/api/user", member.accessToken)).some(user => user.id === owner.user.id)).toBe(false)
-        expect(await get<Sortable[]>(`/api/user/${id}/feed?sortBy=new`, member.accessToken)).toEqual([])
+        expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`, member.accessToken)).items).toEqual([])
         expect((await get<User>(`/api/user/${id}`, owner.accessToken)).visible).toBe(true)
-        expect((await get<Sortable[]>(`/api/user/${id}/feed?sortBy=new`, owner.accessToken)).some(item => item.id === post.id)).toBe(true)
+        expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`, owner.accessToken)).items.some(item => item.id === post.id)).toBe(true)
         expect((await get<User[]>("/api/user", owner.accessToken)).some(user => user.id === owner.user.id)).toBe(true)
 
         const publicPost = await fetch(`/api/post/${postId}`)

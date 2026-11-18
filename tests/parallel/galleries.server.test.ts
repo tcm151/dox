@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, Gallery, Topic } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, Topic } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
@@ -48,8 +48,8 @@ it("allows other users to attach an image only after gallery publication", async
             body: { images: [`image:${imageId}`], title: "Attachment gallery", description: "", topics: [] },
         })
         expectStatus(publishResponse, 200)
-        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
@@ -85,7 +85,7 @@ it("returns gallery details, increments visits, and denies deletion by a non-own
 
         const galleriesResponse = await fetch("/api/gallery")
         expectStatus(galleriesResponse, 200)
-        const galleries = await galleriesResponse.json() as Gallery[]
+        const galleries = (await galleriesResponse.json() as FeedPage<Gallery>).items
         const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
@@ -122,8 +122,8 @@ it("allows owners to edit gallery descriptions and denies other users", async ()
             body: { images: [`image:${imageId}`], title: "Gallery edit", description, topics: [] },
         }), 200)
 
-        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
@@ -158,8 +158,8 @@ it("allows admins to add gallery tags and denies regular members", async () => {
         })
         expectStatus(publishResponse, 200, "gallery publication stage")
 
-        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
@@ -194,8 +194,8 @@ it("rejects gallery publishing without images", async () => {
     })
     expectStatus(response, 400)
 
-    const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-    expect(galleries.some(gallery => gallery.description === description)).toBe(false)
+    const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+    expect(galleries.items.some(gallery => gallery.description === description)).toBe(false)
 })
 
 it("removes a gallery-only topic after its gallery is deleted", async () => {
@@ -276,8 +276,8 @@ it("supports gallery comments, replies, retrieval, and reference-protected delet
         })
         expectStatus(publishResponse, 200, "gallery publication stage")
 
-        const galleries = await admin.fetch<Gallery[]>("/api/gallery")
-        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        const galleries = await admin.fetch<FeedPage<Gallery>>("/api/gallery")
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 

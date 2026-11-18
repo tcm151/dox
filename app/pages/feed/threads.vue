@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import type { Thread } from '@@/shared/types'
 
-const cache = useCache()
-
-const sortBy = cache.get<string>("feed.sort", () => "new")
-const threads = useDatasource<Thread[]>("/api/thread", {
-    query: {
-        sortBy: sortBy
-    }
+const threads = useFeedDatasource<Thread>("/api/thread", {
+    sorting: true,
 })
 </script>
 
 <template>
     <article class="content-width column g-2 p-4">
-        <Feed :items="threads" :sorting="true" @refresh="(type) => sortBy = type">
+        <Feed :items="threads">
             <template #buttons>
                 <button class="dark px-5" @click="navigateTo('/editor/thread')">
                     <i class="fa-solid fa-feather"></i>

@@ -148,7 +148,7 @@ it("validates notification filters and scopes individual and bulk dismissal", as
         const defaultPage = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false")
         expect(defaultPage.pageSize).toBe(20)
         const zeroSizePage = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=0")
-        expect(zeroSizePage.pageSize).toBe(20)
+        expect(zeroSizePage.pageSize).toBe(1)
         const minimumPage = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=-1")
         expect(minimumPage.pageSize).toBe(1)
         const unreadBefore = await recipient.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=1")

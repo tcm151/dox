@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import type { Post } from '@@/shared/types'
 
-const cache = useCache()
-
-const sortBy = cache.get<string>("feed.sort", () => "new")
-const posts = useDatasource<Post[]>("/api/post", {
-    query: {
-        sortBy: sortBy
-    }
+const posts = useFeedDatasource<Post>("/api/post", {
+    sorting: true,
 })
 </script>
 
 <template>
     <section class="content-width feed column g-2 p-4">
-        <Feed :items="posts" :sorting="true" @refresh="(type) => sortBy = type">
+        <Feed :items="posts">
             <template #buttons>
                 <button class="dark px-5" @click="navigateTo('/editor/post')">
                     <i class="fa-solid fa-feather"></i>

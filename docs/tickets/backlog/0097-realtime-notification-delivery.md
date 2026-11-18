@@ -8,7 +8,7 @@
 ## Dependencies
 - [0083](../completed/0083-audit-existing-messaging-workflows.md): Realtime delivery must preserve the audited notification authorization and state behavior.
 - [0060](../completed/0060-feed-inbox-freshness.md): Realtime delivery is optional and must build on a stable polling fallback.
-- [0112](../0112-bound-discovery-and-inbox-queries.md): Reconnect and polling fallback must use bounded inbox reads rather than replaying an unbounded notification history.
+- [0112](../completed/0112-bound-discovery-and-inbox-queries.md): Reconnect and polling fallback must use bounded inbox reads rather than replaying an unbounded notification history.
 
 ## Goal
 Add optional realtime in-app notification delivery after existing messaging workflows are audited and the polling baseline is reliable.

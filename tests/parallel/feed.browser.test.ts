@@ -1,6 +1,6 @@
 import { expect, test } from "../utils/browser-fixtures"
 import { extractId } from "../../shared/utils/records"
-import type { AppSettings } from "../../shared/types"
+import type { AppSettings, FeedPage, Pin, Post } from "../../shared/types"
 
 test("renders and navigates the home and posts feeds with shared sample data", async ({ page, exampleServer }) => {
     expect(exampleServer.users.postAuthor.user.name).toMatch(/^Example/)
@@ -15,7 +15,8 @@ test("renders and navigates the home and posts feeds with shared sample data", a
 
     await page.getByRole("link", { name: /Posts/ }).click()
     await expect(page).toHaveURL(/\/feed\/posts$/)
-    await expect(page.getByRole("button", { name: "Submit" })).toBeVisible()
+    await expect(page.locator("header.sorting")).toBeVisible()
+    await expect(page.locator("header.sorting button:has(.fa-feather)")).toBeVisible()
     await expect(page.getByText("Browser suite sample post", { exact: true })).toBeVisible()
 })
 
@@ -242,8 +243,16 @@ test("marks active home pins in the feed", async ({ authenticatedPage: page }) =
             headers: { Authorization: accessToken },
         })
         expect(pinResponse.ok()).toBe(true)
-        const pin = await pinResponse.json() as { id: string }
-        pinId = extractId(pin.id)
+        const pinsResponse = await page.request.get(apiUrl("/api/admin/pin"), {
+            headers: { Authorization: accessToken },
+        })
+        expect(pinsResponse.ok()).toBe(true)
+        const pins = await pinsResponse.json() as Pin[]
+        const pin = pins.find(pin => pin.item.id === `post:${postId}`)
+        if (!pin) throw new Error("The new post pin was not listed for administration.")
+        const id = extractId(pin.id)
+        if (!id) throw new Error("The new post pin did not return a valid ID.")
+        pinId = id
 
         await page.goto("/feed/home")
         await expect(page.locator(".post.pinned").filter({ hasText: title })).toHaveCount(0)
@@ -269,6 +278,82 @@ test("marks active home pins in the feed", async ({ authenticatedPage: page }) =
             await page.request.get(apiUrl(`/api/post/${postId}/delete`), {
                 headers: { Authorization: accessToken },
             })
+        }
+    }
+})
+
+test("appends the next dedicated-feed page and hides load more at the end", async ({ authenticatedPage: page }) => {
+    const marker = Date.now().toString(36)
+    const titles = [`Feed continuation ${marker} first`, `Feed continuation ${marker} second`]
+    const accessToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
+    const apiUrl = (path: string) => new URL(path, page.url()).toString()
+    const postIds: string[] = []
+    const requests: { pageSize: number, offset: number }[] = []
+
+    try {
+        for (const title of titles) {
+            const response = await page.request.post(apiUrl("/api/post/add"), {
+                headers: { Authorization: accessToken },
+                data: { title, content: "A dedicated feed continuation fixture.", topics: [], images: [] },
+            })
+            expect(response.ok()).toBe(true)
+            const post = await response.json() as Post
+            const postId = extractId(post.id)
+            if (!postId) throw new Error("The feed continuation post did not return an ID.")
+            postIds.push(postId)
+        }
+
+        const listResponse = await page.request.get(apiUrl("/api/post?pageSize=50&sortBy=new"), {
+            headers: { Authorization: accessToken },
+        })
+        expect(listResponse.ok()).toBe(true)
+        const listPage = await listResponse.json() as FeedPage<Post>
+        const firstPost = listPage.items.find(post => extractId(post.id) === postIds[0])
+        const secondPost = listPage.items.find(post => extractId(post.id) === postIds[1])
+        if (!firstPost || !secondPost) throw new Error("The feed continuation posts were missing from the first API page.")
+
+        await page.goto("/feed/home")
+        await page.route("**/api/post**", async (route) => {
+            const url = new URL(route.request().url())
+            if (url.pathname !== "/api/post") {
+                await route.continue()
+                return
+            }
+
+            const offset = Number(url.searchParams.get("offset") ?? 0)
+            const pageSize = Number(url.searchParams.get("pageSize"))
+            requests.push({ pageSize, offset })
+            if (offset === 0) {
+                await route.fulfill({
+                    json: { items: [firstPost], pageSize: 1, offset, more: true },
+                })
+            }
+            else if (offset === 1) {
+                await route.fulfill({
+                    json: { items: [secondPost], pageSize: 1, offset, more: false },
+                })
+            }
+            else {
+                await route.continue()
+            }
+        })
+
+        await page.getByRole("link", { name: /Posts/ }).click()
+        await expect(page).toHaveURL(/\/feed\/posts$/)
+        await expect(page.getByText(titles[0]!, { exact: true })).toBeVisible()
+        await expect(page.locator(".feed-items .feed-item")).toHaveCount(1)
+        await page.getByRole("button", { name: "Load More" }).click()
+        await expect(page.getByText(titles[1]!, { exact: true })).toBeVisible()
+        await expect(page.locator(".feed-items .feed-item")).toHaveCount(2)
+        await expect(page.getByRole("button", { name: "Load More" })).toHaveCount(0)
+        expect(requests).toEqual([{ pageSize: 20, offset: 0 }, { pageSize: 1, offset: 1 }])
+    }
+    finally {
+        for (const postId of postIds) {
+            const response = await page.request.get(apiUrl(`/api/post/${postId}/delete`), {
+                headers: { Authorization: accessToken },
+            })
+            expect(response.ok()).toBe(true)
         }
     }
 })

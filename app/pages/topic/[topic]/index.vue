@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Pin, Topic, Sortable } from '@@/shared/types'
 
-const cache = useCache()
 const route = useRoute()
 const session = getSession()
 const moderator = useModeration()
@@ -10,21 +9,17 @@ const isAdmin = computed(() => hasRole(session.user, "admin"))
 
 const id = route.params.topic?.toString()
 await useDatasource(`/api/topic/${id}/visit`)
+
+const related = await useDatasource<{ id: string, count: number }[]>(`/api/topic/${id}/related-topics`)
 const { data: topic, refresh } = await useDatasource<Topic>(`/api/topic/${id}`, {
     key: `topic:${id}`,
 })
 
-const related = await useDatasource<{ id: string, count: number }[]>(`/api/topic/${id}/related-topics`)
-
 const pins = useDatasource<Pin[]>(`/api/topic/${id}/pins`)
 
-const sortBy = cache.get<string>("feed.sort", () => "new")
-const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
-    query: {
-        sortBy: sortBy
-    }
+const feed = useFeedDatasource<Sortable>(`/api/topic/${id}/feed`, {
+    sorting: true,
 })
-
 </script>
 
 <template>
@@ -36,7 +31,7 @@ const feed = useDatasource<Sortable[]>(`/api/topic/${id}/feed`, {
                     <template v-for="pin in pins.data.value" :key="pin.id">
                         <MultiPreview :item="pin.item" pinned />
                     </template>
-                    <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
+                    <Feed :items="feed">
                         <template #item="item">
                             <MultiPreview :item="item" />
                         </template>

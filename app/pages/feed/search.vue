@@ -18,18 +18,17 @@ const filters = reactive({
 })
 
 const topics = useDatasource<Pick<Topic, "id" | "score">[]>("/api/topic/available")
-const feed = useDatasource<SearchResult[]>("/api/feed/search", {
-    watch: false,
-    query: {
-        text: computed(() => filters.text),
-        type: computed(() => filters.type || undefined),
-        topic: computed(() => filters.topic || undefined),
-        user: computed(() => filters.user || undefined),
-        from: computed(() => filters.from || undefined),
-        to: computed(() => filters.to || undefined),
-    },
+const searchQuery = computed(() => ({
+    text: queryValue(route.query.text),
+    type: queryValue(route.query.type) || undefined,
+    topic: queryValue(route.query.topic) || undefined,
+    user: queryValue(route.query.user) || undefined,
+    from: queryValue(route.query.from) || undefined,
+    to: queryValue(route.query.to) || undefined,
+}))
+const feed = useFeedDatasource<SearchResult>("/api/feed/search", {
+    query: searchQuery,
 })
-
 const loading = computed(() => feed.status.value.toString() == "pending")
 
 watch(() => route.fullPath, () => {
@@ -41,7 +40,6 @@ watch(() => route.fullPath, () => {
         from: queryValue(route.query.from),
         to: queryValue(route.query.to),
     })
-    feed.refresh()
 })
 
 async function search() {

@@ -1,29 +1,25 @@
 <script setup lang="ts">
 import type { User, Sortable } from '@@/shared/types'
 
-const cache = useCache()
 const route = useRoute()
 
 const id = route.params.id?.toString()
 await useDatasource(`/api/user/${id}/visit`)
+
 const user = await useDatasource<User>(`/api/user/${id}`, {
     key: `user:${id}`,
 })
-    
-const sortBy = cache.get<string>("feed.sort", () => "new")
-const feed = useDatasource<Sortable[]>(`/api/user/${id}/feed`, {
-    query: {
-        sortBy: sortBy
-    }
-})
 
+const feed = useFeedDatasource<Sortable>(`/api/user/${id}/feed`, {
+    sorting: true,
+})
 </script>
 
 
 <template>
     <article class="content-width column g-2 p-4">
         <UserPreview v-if="user.data.value" :user="user.data.value" @refresh="user.refresh" />
-        <Feed :items="feed" :sorting="true" @refresh="(type) => sortBy = type">
+        <Feed :items="feed">
             <template #item="item">
                 <MultiPreview :item="item" />
             </template>

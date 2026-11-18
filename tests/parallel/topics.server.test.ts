@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser, uniqueTestIp } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, Link, ModeratorLog, Pin, Post, Thread, Topic } from "../../shared/types"
+import type { Comment, FeedPage, Link, ModeratorLog, Pin, Post, Thread, Topic } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const member = (await grabExampleServer("default")).users.sampleUser01
@@ -20,8 +20,8 @@ it("includes published links in the topic feed", async () => {
                 topics = [topic:${topicId}];
         `)
 
-        const feed = await admin.fetch<Link[]>(`/api/topic/${topicId}/feed?sortBy=new`)
-        expect(feed.find(item => item.id === `link:${linkId}`)).toMatchObject({
+        const feed = await admin.fetch<FeedPage<Link>>(`/api/topic/${topicId}/feed?sortBy=new`)
+        expect(feed.items.find(item => item.id === `link:${linkId}`)).toMatchObject({
             title: "Topic feed link",
             url: "https://example.invalid/article",
             preview: {},

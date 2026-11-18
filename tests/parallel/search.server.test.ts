@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, Gallery, Post, SearchResult, Thread } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, Post, SearchResult, Thread } from "../../shared/types"
 
 const admin = await grabUser("admin")
 
@@ -70,8 +70,8 @@ it("searches posts, threads, galleries, and comments in global relevance order",
 
         const galleriesResponse = await fetch("/api/gallery")
         expectStatus(galleriesResponse, 200, await galleriesResponse.clone().text())
-        const galleries = await galleriesResponse.json() as Gallery[]
-        const gallery = galleries.find(item => item.images.some(image => image.id === `image:${imageId}`))
+        const galleries = await galleriesResponse.json() as FeedPage<Gallery>
+        const gallery = galleries.items.find(item => item.images.some(image => image.id === `image:${imageId}`))
         expect(gallery).toBeDefined()
         galleryId = extractId(gallery!.id)
 
@@ -90,9 +90,15 @@ it("searches posts, threads, galleries, and comments in global relevance order",
             CREATE moderation SET subject = comment:${galleryCommentId}, slowed = 15;
         `)
 
-        const searchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
+        const searchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}&pageSize=2`)
         expectStatus(searchResponse, 200, await searchResponse.clone().text())
-        const results = await searchResponse.json() as SearchResult[]
+        const firstPage = await searchResponse.json() as FeedPage<SearchResult>
+        expect(firstPage).toMatchObject({ pageSize: 2, offset: 0, more: true })
+        const nextResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}&pageSize=2&offset=2`)
+        expectStatus(nextResponse, 200, await nextResponse.clone().text())
+        const nextPage = await nextResponse.json() as FeedPage<SearchResult>
+        expect(nextPage).toMatchObject({ pageSize: 2, offset: 2, more: false })
+        const results = [...firstPage.items, ...nextPage.items]
         const orderedResults = [...results].sort((left, right) =>
             Number(right.search.exact) - Number(left.search.exact)
                 || right.search.score - left.search.score,
@@ -122,7 +128,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
 
         const commentSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
         expectStatus(commentSearchResponse, 200, await commentSearchResponse.clone().text())
-        const commentResults = await commentSearchResponse.json() as SearchResult[]
+        const commentResults = (await commentSearchResponse.json() as FeedPage<SearchResult>).items
         expect(commentResults.map(item => item.id)).toEqual([`comment:${commentId}`])
         expect(commentResults[0]).toMatchObject({
             content: commentContent,
@@ -132,7 +138,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
 
         const galleryCommentSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(galleryCommentTerm)}`)
         expectStatus(galleryCommentSearchResponse, 200, await galleryCommentSearchResponse.clone().text())
-        const galleryCommentResults = await galleryCommentSearchResponse.json() as SearchResult[]
+        const galleryCommentResults = (await galleryCommentSearchResponse.json() as FeedPage<SearchResult>).items
         expect(galleryCommentResults.map(item => item.id)).toEqual([`comment:${galleryCommentId}`])
         expect(galleryCommentResults[0]).toMatchObject({
             content: galleryCommentContent,
@@ -143,7 +149,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         await admin.query(`UPDATE post:${postId} SET status = "archived";`)
         const archivedCommentResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
         expectStatus(archivedCommentResponse, 200, await archivedCommentResponse.clone().text())
-        expect(await archivedCommentResponse.json()).toEqual([])
+        expect((await archivedCommentResponse.json() as FeedPage<SearchResult>).items).toEqual([])
         await admin.query(`UPDATE post:${postId} SET status = "active";`)
 
         await admin.query(`UPDATE comment:${commentId} SET deleted = true;`)
@@ -156,7 +162,7 @@ it("searches posts, threads, galleries, and comments in global relevance order",
         }])
         const deletedCommentResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(commentTerm)}`)
         expectStatus(deletedCommentResponse, 200, await deletedCommentResponse.clone().text())
-        expect(await deletedCommentResponse.json()).toEqual([])
+        expect((await deletedCommentResponse.json() as FeedPage<SearchResult>).items).toEqual([])
 
         await admin.query(`
             UPDATE post:${postId} SET status = "archived";
@@ -166,8 +172,8 @@ it("searches posts, threads, galleries, and comments in global relevance order",
 
         const archivedSearchResponse = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(archivedSearchResponse, 200, await archivedSearchResponse.clone().text())
-        const archivedResults = await archivedSearchResponse.json() as SearchResult[]
-        expect(archivedResults).toEqual([])
+        const archivedResults = await archivedSearchResponse.json() as FeedPage<SearchResult>
+        expect(archivedResults.items).toEqual([])
     }
     finally {
         const commentIds = [
@@ -236,7 +242,7 @@ it("prioritizes an exact title match over a partial body-only match", async () =
 
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(response, 200, await response.clone().text())
-        const results = await response.json() as SearchResult[]
+        const results = (await response.json() as FeedPage<SearchResult>).items
         const titleIndex = results.findIndex(item => item.id === `post:${titlePostId}`)
         expect(titleIndex).toBeGreaterThanOrEqual(0)
         expect(results[titleIndex]?.search.exact).toBe(true)
@@ -304,7 +310,7 @@ it("prioritizes a full exact phrase match over partial token matches", async () 
 
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
         expectStatus(response, 200, await response.clone().text())
-        const results = await response.json() as SearchResult[]
+        const results = (await response.json() as FeedPage<SearchResult>).items
         expect(results[0]?.id).toBe(`comment:${commentId}`)
         expect(results[0]?.search.exact).toBe(true)
 
@@ -329,7 +335,7 @@ it("returns empty results for unmatched and empty search terms", async () => {
     for (const text of [`neverfound${randomUUID().replaceAll("-", "")}`, ""]) {
         const response = await fetch(`/api/feed/search?text=${encodeURIComponent(text)}`)
         expectStatus(response, 200, await response.clone().text())
-        expect(await response.json()).toEqual([])
+        expect((await response.json() as FeedPage<SearchResult>).items).toEqual([])
     }
 })
 
@@ -375,7 +381,7 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
         })
         const response = await fetch(`/api/feed/search?${filters}`)
         expectStatus(response, 200, await response.clone().text())
-        const results = await response.json() as SearchResult[]
+        const results = (await response.json() as FeedPage<SearchResult>).items
         expect(results.map(item => item.id)).toEqual([`post:${postId}`])
 
         for (const filters of [
@@ -386,7 +392,7 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
         ]) {
             const filteredResponse = await fetch(`/api/feed/search?${filters}`)
             expectStatus(filteredResponse, 200, await filteredResponse.clone().text())
-            const filteredResults = await filteredResponse.json() as SearchResult[]
+            const filteredResults = (await filteredResponse.json() as FeedPage<SearchResult>).items
             expect(filteredResults.map(item => item.id)).toEqual([`post:${postId}`])
         }
 
@@ -397,12 +403,12 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
         })
         const commentSearchResponse = await fetch(`/api/feed/search?${commentFilters}`)
         expectStatus(commentSearchResponse, 200, await commentSearchResponse.clone().text())
-        const commentResults = await commentSearchResponse.json() as SearchResult[]
+        const commentResults = (await commentSearchResponse.json() as FeedPage<SearchResult>).items
         expect(commentResults.map(item => item.id)).toEqual([`comment:${commentId}`])
 
         const wrongType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "thread" })}`)
         expectStatus(wrongType, 200, await wrongType.clone().text())
-        expect(await wrongType.json()).toEqual([])
+        expect((await wrongType.json() as FeedPage<SearchResult>).items).toEqual([])
 
         const invalidType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "link" })}`)
         expectStatus(invalidType, 400, await invalidType.clone().text())

@@ -1,21 +1,14 @@
 <script setup lang="ts" generic="T extends { id: string }">
-import type { FetchError } from "ofetch"
-import type { AsyncData } from "#app";
+import type { FeedDatasource } from "@@/app/utils/feedDatasource"
 
 const props = defineProps<{
-    items: Pick<AsyncData<T[] | undefined, FetchError<any> | undefined>, "data" | "status" | "refresh">
-    sorting?: boolean
+    items: FeedDatasource<T>
 }>()
 
-const emit = defineEmits<{
-    (event: 'refresh', sortBy: string): void
-}>()
-
-const cache = useCache()
 const settings = useSettings()
 const userSettings = useUserSettings()
 
-let sortType = cache.get("feed.sort", () => "new")
+const sortType = props.items.sortBy
 
 function isStringArray(value: unknown): value is string[] {
     return Array.isArray(value) && value.every(tag => typeof tag === "string")
@@ -23,13 +16,7 @@ function isStringArray(value: unknown): value is string[] {
 
 function contentTags(item: T): readonly string[] {
     if ("tags" in item && isStringArray(item.tags)) return item.tags
-    if (
-        "context" in item
-        && item.context
-        && typeof item.context === "object"
-        && "tags" in item.context
-        && isStringArray(item.context.tags)
-    ) {
+    if ("context" in item && item.context && typeof item.context === "object" && "tags" in item.context && isStringArray(item.context.tags)) {
         return item.context.tags
     }
     return []
@@ -40,11 +27,7 @@ function appVisibilityMode(tag: string) {
 }
 
 const visibleItems = computed(() => (props.items.data.value ?? []).filter(item =>
-    !contentTags(item).some(tag =>
-        (userSettings.preferences.content.visibility[tag]
-            ?? appVisibilityMode(tag)
-            ?? "show") === "filter",
-    ),
+    !contentTags(item).some(tag => (userSettings.preferences.content.visibility[tag] ?? appVisibilityMode(tag) ?? "show") === "filter"),
 ))
 
 const spinRefresh = ref(false)
@@ -56,30 +39,25 @@ watch(() => props.items.status.value, (status) => {
         setTimeout(() => spinRefresh.value = false, 512)
     }
 })
-
-function sortFeed(type: string) {
-    sortType.value = type
-    emit("refresh", sortType.value)
-}
 </script>
 
 <template>
-    <section v-if="items" class="column g-2">
-        <header v-if="props.sorting" class="sorting row fill center g-2">
+    <section class="column g-2">
+        <header v-if="items.sorting" class="sorting row fill center g-2">
             <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <ClientOnly>
                 <slot name="buttons" />
-                <button :class="{ selected: sortType === 'new' }" title="New" @click="sortFeed('new')">
+                <button :class="{ selected: sortType === 'new' }" title="New" @click="items.setSort('new')">
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>
                 </button>
-                <button :class="{ selected: sortType === 'hot' }" title="Hot" @click="sortFeed('hot')">
+                <button :class="{ selected: sortType === 'hot' }" title="Hot" @click="items.setSort('hot')">
                     <i class="fa-solid fa-fire"></i>
                     <span>Hot</span>
                 </button>
-                <button :class="{ selected: sortType === 'top' }" title="Top" @click="sortFeed('top')">
+                <button :class="{ selected: sortType === 'top' }" title="Top" @click="items.setSort('top')">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Top</span>
                 </button>
@@ -95,6 +73,10 @@ function sortFeed(type: string) {
                 </div>
             </TransitionGroup>
         </ClientOnly>
+        <button v-if="items.more.value" class="link" :disabled="items.loading.value || items.pending.value" @click="items.loadMore()">
+            <i class="fa-solid fa-angles-down"></i>
+            {{ items.loading.value ? "Loading..." : "Load More" }}
+        </button>
     </section>
 </template>
 

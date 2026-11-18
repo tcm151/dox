@@ -36,8 +36,8 @@ it("includes published links in the author's feed", async () => {
                 url = "https://example.invalid/article";
         `)
 
-        const feed = await admin.fetch<Link[]>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
-        expect(feed.find(item => item.id === `link:${linkId}`)).toMatchObject({
+        const feed = await admin.fetch<FeedPage<Link>>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
+        expect(feed.items.find(item => item.id === `link:${linkId}`)).toMatchObject({
             title: "Author feed link",
             url: "https://example.invalid/article",
             preview: {},
@@ -348,18 +348,18 @@ it("projects moderation state onto post lists, feed, search, and pinned items", 
             CREATE pin SET item = post:${postId}, user = ${admin.user.id}, scope = "topic", topic = topic:${topicId}, active = true;
         `)
 
-        const posts = await admin.fetch<Post[]>("/api/post?sortBy=new")
-        expect(posts.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        const posts = await admin.fetch<FeedPage<Post>>("/api/post?sortBy=new")
+        expect(posts.items.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
-        const topicFeed = await admin.fetch<Sortable[]>(`/api/topic/${topicId}/feed?sortBy=new`)
-        expect(topicFeed.find(item => item.id === post.id)).toMatchObject({
+        const topicFeed = await admin.fetch<FeedPage<Sortable>>(`/api/topic/${topicId}/feed?sortBy=new`)
+        expect(topicFeed.items.find(item => item.id === post.id)).toMatchObject({
             content: expectedContent,
             user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
             moderation: { locked: "item" },
         })
 
-        const userFeed = await admin.fetch<Sortable[]>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
-        expect(userFeed.find(item => item.id === post.id)).toMatchObject({
+        const userFeed = await admin.fetch<FeedPage<Sortable>>(`/api/user/${extractId(admin.user.id)}/feed?sortBy=new`)
+        expect(userFeed.items.find(item => item.id === post.id)).toMatchObject({
             content: expectedContent,
             user: { id: admin.user.id, name: admin.user.name, roles: admin.user.roles },
             moderation: { locked: "item" },
@@ -372,8 +372,8 @@ it("projects moderation state onto post lists, feed, search, and pinned items", 
             moderation: { locked: "item" },
         })
 
-        const searchResults = await admin.fetch<SearchResult[]>(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
-        expect(searchResults.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
+        const searchResults = await admin.fetch<FeedPage<SearchResult>>(`/api/feed/search?text=${encodeURIComponent(searchTerm)}`)
+        expect(searchResults.items.find(item => item.id === post.id)).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })
 
         const pins = await admin.fetch<Pin[]>("/api/feed/pinned")
         expect(pins.find(pin => pin.item.id === post.id)?.item).toMatchObject({ content: expectedContent, moderation: { locked: "item" } })

@@ -1,11 +1,11 @@
-import type { Gallery } from "../../shared/types"
+import type { FeedPage, Gallery } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expect, test } from "../utils/browser-fixtures"
 
 test("hides gallery options from guests", async ({ page, request }) => {
     const response = await request.get("/api/gallery")
     expect(response.ok()).toBe(true)
-    const galleries = await response.json() as Gallery[]
+    const galleries = (await response.json() as FeedPage<Gallery>).items
     const gallery = galleries.find(item => item.images.some(image => image.id === "image:browserSuiteSampleGallery"))
     expect(gallery).toBeDefined()
 
@@ -17,7 +17,7 @@ test("hides gallery options from guests", async ({ page, request }) => {
 test("shows gallery edit and hides self-award actions from its owner", async ({ authenticatedPage, request }) => {
     const response = await request.get("/api/gallery")
     expect(response.ok()).toBe(true)
-    const galleries = await response.json() as Gallery[]
+    const galleries = (await response.json() as FeedPage<Gallery>).items
     const gallery = galleries.find(item => item.images.some(image => image.id === "image:browserSuiteSampleGallery"))
     expect(gallery).toBeDefined()
 

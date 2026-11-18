@@ -36,8 +36,15 @@ const FEED_FIELDS = [
 
 export function useFeedPaging(event: H3Event) {
     function getPageWindow(requestedSize: unknown, requestedOffset: unknown) {
+        const parsedSize = typeof requestedSize === "string" && requestedSize.trim() !== ""
+            ? Number(requestedSize)
+            : Number.NaN
+        const pageSize = Number.isFinite(parsedSize)
+            ? Math.max(1, Math.min(MAX_PAGE_SIZE, Math.trunc(parsedSize)))
+            : DEFAULT_PAGE_SIZE
+
         return {
-            pageSize: Math.max(1, Math.min(MAX_PAGE_SIZE, Math.trunc(Number(requestedSize) || DEFAULT_PAGE_SIZE))),
+            pageSize,
             offset: Math.max(0, Math.min(MAX_PAGE_OFFSET, Math.trunc(Number(requestedOffset) || 0))),
         }
     }
