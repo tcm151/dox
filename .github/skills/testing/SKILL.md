@@ -9,28 +9,30 @@ argument-hint: "Optional test file or failure"
 ## Commands
 
 - Run the full integration suite with `yarn test` (no arguments).
-- Run only the ordered sequential suite with `yarn test --sequential`.
+- Run the ordered sequential server and browser suites with `yarn test --sequential`.
 - Run sequential and parallel server tests without browser tests with `yarn test --server`.
 - Run browser and integration tests with required setup fixtures, without server test suites, with `yarn test --browser`.
 - Run one parallel test with `yarn test --file <file>.<type>.test.ts`.
+- Inspect a retained Playwright trace with `yarn test --inspect <path-to-trace.zip>`; add `--report <path>` to save the summary.
 - Run `yarn typecheck` when changes affect TypeScript or Vue templates.
 - Run `yarn build` when changes affect route registration, Nuxt configuration, or production output.
 
-The focused `--file` command supports only tests under `tests/parallel/`; individual sequential tests cannot be selected because they run in order. It runs only sequential files named `*.setup.test.ts` before the selected file. These files create fixtures consumed downstream; ordinary sequential tests are skipped. Use `--sequential` to run the ordered sequential suite. The runner caches the production test server under ignored `.nuxt/test-runner/`, keyed by app/server/shared/public source and build configuration; it still creates fresh temporary database and media directories for every run. Timing output summarizes total, startup/cache status, setup, test phases, and cleanup. Browser files are listed only when a file takes at least five seconds.
+The focused `--file` command supports only `tests/parallel/` server/browser/integration files. It executes only the sequential `*.setup.test.ts` fixtures before the selected parallel test; ordinary sequential server and browser tests are skipped. Sequential tests can only run in the full ordered suite with `--sequential` or `yarn test`. The runner caches the production test server under ignored `.nuxt/test-runner/`, keyed by app/server/shared/public source and build configuration; it still creates fresh temporary database and media directories for every run. Timing output summarizes total, startup/cache status, setup, test phases, and cleanup. Browser files are listed only when a file takes at least ten seconds.
 
 ## Test Runner
 
 Use `docs/API.md` to locate route methods, access expectations, and detailed contracts. Confirm current behavior against the handler and tests; when a test exposes a route-contract change, reconcile the index as part of that change.
 
-`scripts/test-server.mjs` creates a temporary `.test-output-*` directory for the run, including an embedded SurrealDB database and media directory. It starts an isolated Nuxt test app, waits for `/api/health`, runs the test phases, then removes the temporary directory. Add `--keep-output` to retain the directory; the runner prints its path as `[test artifacts]`. Retained output includes temporary database, media, and session data. Run `yarn test --cleanup` as a standalone command to remove all root-level `.test-output-*` directories left by test or exploration runs, including their retained data and browser artifacts.
+`scripts/test-runner/index.mjs` is the CLI entry point. `scripts/test-runner/server.mjs` creates a temporary `.test-output-*` directory for the run, including an embedded SurrealDB database and media directory, and starts an isolated Nuxt test app. The runner waits for `/api/health`, runs the test phases, then removes the temporary directory. Add `--keep-output` to retain the directory; the runner prints its path as `[test artifacts]`. Retained output includes temporary database, media, and session data. Run `yarn test --cleanup` as a standalone command to remove all root-level `.test-output-*` directories left by test or exploration runs, including their retained data and browser artifacts.
 
 The phases are:
 
-1. Full runs execute `tests/sequential/*.setup.test.ts` and `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled. `yarn test --sequential` runs only this phase. `--server` runs this phase and parallel server tests; `--browser` runs only the required `*.setup.test.ts` fixtures before the browser suite. Focused runs execute only `*.setup.test.ts` files before the selected parallel test.
-2. `tests/parallel/*.server.test.ts`, run by Vitest with file parallelism enabled.
-3. `tests/parallel/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium, serially within each file and with at most two files running concurrently.
+1. Full runs execute `tests/sequential/*.setup.test.ts` and `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled.
+2. `tests/sequential/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium with one worker. `yarn test --sequential` runs both ordered sequential phases.
+3. `tests/parallel/*.server.test.ts`, run by Vitest with up to two file workers. `--server` runs both sequential server and parallel server files without browser tests.
+4. `tests/parallel/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium with up to two workers and one test at a time per file. `--browser` runs the setup fixtures and both browser phases without server test suites. Focused runs execute only setup files before the selected test.
 
-All phases share the same running app and isolated database. Test files are colocated by phase; suffixes determine the runner. `.integration.test.ts` means one full-stack browser flow, not a file executed twice. Parallel tests are not isolated from each other's records or fixture mutations.
+All phases share the same running app and isolated database. Sequential files run in order; files within the parallel server and browser phases may overlap, with up to two workers per phase. Test files are colocated by phase; suffixes determine the runner. `.integration.test.ts` means one full-stack browser flow, not a file executed twice. Parallel files still share database state, so they must use unique records and clean up mutations.
 
 Shared test helpers live in `tests/utils/`. `test-server.ts` provides `fetch`, `grabUser`, `grabExampleServer`, and `expectStatus`; `browser-fixtures.ts` provides an authenticated browser page initialized from the isolated admin session and seeded example-server data. Use unauthenticated pages when a test needs to exercise the login UI. Example-server sessions and user sessions are stored under the temporary test directory and reused throughout the run. Failed runs still report aggregate phase timings and any slow browser files.
 
@@ -46,8 +48,8 @@ For example, after a rejected publish request, check that no gallery with that t
 ## Diagnosing Failures
 
 1. Run `yarn test` first so the standard runner reports the failing phase and assertions.
-2. Rerun a failing parallel file with `yarn test --file <file>.server.test.ts`, `yarn test --file <file>.browser.test.ts`, or `yarn test --file <file>.integration.test.ts` to check whether the failure depends on other parallel files. Use only the test filename. Required setup fixtures still run in this mode. Individual sequential files cannot be run with `--file`; use `yarn test --sequential`.
-3. If the console output is insufficient, add `--keep-output` to retain the `.test-output-*` directory and read the printed `[test artifacts]` path. Inspect `phase-*-summary.json` for the test report. For browser failures, use the matching `browser-results/` directory: read `error-context.md`, inspect `test-failed-*.png`, and open `trace.zip` with `yarn playwright show-trace <path-to-trace.zip>`. The trace includes browser actions and network activity. Run `yarn test --cleanup` after debugging to remove leftover test and exploration output directories.
+2. Rerun a failing parallel file with `yarn test --file <file>.<type>.test.ts` to check it alone. Use only the test filename; required setup fixtures run before it. Sequential tests cannot be run individually; use `yarn test --sequential` to preserve their order.
+3. If the console output is insufficient, add `--keep-output` to retain the `.test-output-*` directory and read the printed `[test artifacts]` path. Inspect `phase-*-summary.json` for the test report. For browser failures, use the matching `browser-results/` directory: read `error-context.md`, inspect `test-failed-*.png`, and run `yarn test --inspect <path-to-trace.zip>` to summarize the failing assertion, recent browser actions, API requests, and console warnings/errors. Use `--report <path>` to save the summary, or open the full trace with `yarn playwright show-trace <path-to-trace.zip>`. Run `yarn test --cleanup` after debugging to remove leftover test and exploration output directories.
 4. If the file passes alone but fails in the full run, inspect shared records, fixture-user mutations, global list snapshots, and assumptions about ordering before changing application behavior or weakening the assertion.
 5. Fix isolation at the narrowest boundary, then rerun the focused file and the full suite.
 

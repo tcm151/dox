@@ -12,8 +12,13 @@ if (!testDataDirectory || !reportPath) {
 }
 
 export default defineConfig({
-    testDir: "./tests/parallel",
-    testMatch: ["**/*.browser.test.ts", "**/*.integration.test.ts"],
+    testDir: "./tests",
+    testMatch: [
+        "**/parallel/*.browser.test.ts",
+        "**/parallel/*.integration.test.ts",
+        "**/sequential/*.browser.test.ts",
+        "**/sequential/*.integration.test.ts",
+    ],
     outputDir: join(testDataDirectory, "browser-results"),
     fullyParallel: false,
     forbidOnly: Boolean(process.env.CI),

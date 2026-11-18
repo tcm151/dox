@@ -6,7 +6,7 @@
         "predev": "yarn install",
         "dev": "nuxt dev",
         "build": "nuxt build",
-        "test": "node scripts/test-server.mjs",
+        "test": "node scripts/test-runner/index.mjs",
         "standup": "node scripts/standup.mjs",
         "typecheck": "nuxt typecheck",
         "typecheck:golar": "golar typecheck",
@@ -31,7 +31,8 @@
         "ofetch": "1.5.1",
         "typescript": "^5.9.3",
         "vite": "^8.3.4",
-        "vitest": "^5.0.5"
+        "vitest": "^5.0.5",
+        "yauzl": "^3.4.0"
     },
     "dependencies": {
         "@pinia/nuxt": "^1.0.3",
