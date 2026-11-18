@@ -195,7 +195,7 @@ Keep pull requests focused and use the repository template. It asks for a short 
 
 ### CI Checks
 
-CI validates PRs, pushes to `dev`, and `v*` tags with typechecks, a production build, and integration tests. On tags, it verifies the package version, stages the Linux x64 archive, creates a SHA-256 file, and attaches both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md); CI does not replace independent release checks.
+CI validates PRs, pushes to `dev`, and `v*` tags with typechecks, a production build, and integration tests. On tags, it verifies the package version, stages the Linux x64 archive, creates a SHA-256 file, and publishes both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md). Run the CI checks locally, commit all intended source changes, then make the dated changelog update the final commit and tag that exact commit. Pushing the tag triggers CI; do not build or upload release assets manually in the normal workflow. Track external operator, live-service, and production-deployment checks separately, and do not claim they passed based on CI.
 
 Run the same checks locally:
 
@@ -220,7 +220,7 @@ ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a 
 - The third number increments for fixes, docs, and small follow-up deployments within that release line.
 - At the start of a new year, begin again at `<year>.1.0`.
 
-After a patch is complete and verified, review changes since the latest tag and update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. Keep the changelog entry `Unreleased` until publication. Follow the [release skill](../.github/skills/release/SKILL.md) for acceptance checks through publication; a passing CI run does not waive independent gates.
+After a patch is complete, review changes since the latest tag and update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together when the application version changes. Keep the release entry accurate to committed, verified changes. The changelog update is the final source commit and the release tag must point to it; do not add another source commit afterward. A pushed `v*` tag triggers CI validation and publication. Verify CI and the resulting GitHub Release after it completes. Production deployment remains separate and requires a fresh backup and explicit approval.
 
 ## It's Running
 

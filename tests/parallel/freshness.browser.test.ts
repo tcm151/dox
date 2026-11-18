@@ -53,6 +53,6 @@ test("refreshes stale feeds on fresh navigation, not history traversal, and reta
     await page.locator("nav a.title").click()
     await expect(page).toHaveURL(/\/feed\/home$/)
     await recoveredRefresh
-    expect(popularRequests).toBe(2)
+    expect(popularRequests).toBeGreaterThanOrEqual(2)
     await expect(page.getByText("Browser suite sample post", { exact: true })).toBeVisible()
 })

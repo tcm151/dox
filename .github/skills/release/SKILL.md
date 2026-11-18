@@ -4,56 +4,43 @@ description: "Use for ClassicForum release preparation or publication: versionin
 argument-hint: "Optional target version or release ticket"
 ---
 
-# Staged Release Procedure
+# CI-Driven Release Workflow
 
-Follow this workflow from candidate selection through post-release verification. Staging is not publication.
+CI owns release validation, archive creation, checksum generation, and GitHub Release publication. Prepare a clean, tested source commit; do not manually stage or upload release artifacts unless the user specifically asks for a local rehearsal or CI recovery.
 
-## 1. Establish Scope And Authority
+## 1. Establish Scope
 
-- Read the project guide, roadmap, release ticket and dependencies, plus relevant install, support, and demo docs. Check the staging script, CI workflow, package version, and changelog.
-- Check the latest tag, GitHub release state, and dirty/untracked files. Preserve unrelated work and stage only release files.
-- Confirm the version, platform scope, release claims, and authorized actions. Do not tag, push, publish, deploy, or announce until acceptance gates pass and the user authorizes it.
+- Read the project guide, roadmap, release ticket, relevant install/support notes, `.github/workflows/ci.yml`, `package.json`, and `CHANGELOG.md`.
+- Check the latest version tag, its commit, current branch, complete `git status`, and commits since that tag. Preserve unrelated work.
+- Confirm the target version, supported platforms, release claims, and whether the user authorized pushing a tag. A local tag alone does not trigger CI.
+- Treat the CI workflow as the source of truth for release assets and publication. Confirm its current trigger and steps rather than relying on remembered behavior.
 
-## 2. Freeze The Candidate And Resolve Gates
+## 2. Prepare The Candidate
 
-- Pin one source commit. Reconcile all release-blocking ticket requirements. For the current pilot, resolve the unidentified test failure, independent Linux install, live SMTP/upload, and any advertised demo checks.
-- Do not infer external acceptance from local tests or contributor rehearsals.
-- Run `yarn install --frozen-lockfile`, `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test`. Require tag CI to pass on the same source.
-- Record commands, results, environment, blockers, and artifact identity in tickets. Exclude credentials, private addresses, local paths, temporary test IDs, and private backup details.
+- Review every change since the latest release tag. Include only verified, user-relevant changes; keep unfinished work and unverified claims out of the changelog.
+- Use `year.major.patch`. When changing the application version, update `package.json` and `CHANGELOG.md` together.
+- Finish and commit intended code, tests, and documentation changes first. Keep generated output and unrelated changes out of the release source.
+- Update and date the release's changelog entry in a dedicated final commit. That changelog commit must be the exact commit tagged for release; do not add another source commit after it.
+- Before tagging, require `HEAD` to be that commit, the worktree and index to be clean, the changelog version/date to match the package version, and `v<version>` not to exist.
 
-## 3. Prepare Version And Changelog
+## 3. Validate Locally
 
-- Use `year.major.patch`; update `package.json` and `CHANGELOG.md` together.
-- Review commits and diffs since the latest tag. Include only verified, user-relevant changes; do not claim unfinished or untested features.
-- Keep the entry `Unreleased` until publication, then add the release date. Update relevant install, upgrade, and support docs. Keep the roadmap high-level, without ticket links.
+- Run the same required checks as CI: `yarn install --frozen-lockfile`, `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test`.
+- Record exact commands, results, environment, and any remaining limitations in the relevant tickets. Do not claim external installation, provider delivery, demo behavior, or production deployment from local tests.
+- Keep separately tracked operational checks visible. Do not mark them complete without evidence; whether they block a tag is a release-scope decision, not a reason to duplicate CI's package build locally.
 
-## 4. Stage And Audit Artifacts
+## 4. Tag And Let CI Publish
 
-- Build for each advertised OS/architecture. The current pilot target is Linux x64.
-- `yarn stage:release` builds the app and removes `.output` after staging; preserve any build output you still need.
-- Audit the archive for the installer, `.env.example`, Quickstart, server entrypoint, and runtime dependencies. Ensure it excludes live config, credentials, databases, backups, and user media.
-- Generate and verify the SHA-256 checksum. Record the archive name, digest, source commit, platform, and environment in the release ticket.
-- Advertise only platforms and workflows supported by evidence.
+- Confirm the clean candidate commit, matching package/changelog version, passing local checks, and absent tag. Never move or reuse a published tag.
+- Create the version tag on the final changelog commit. Push the tag only when the user has authorized triggering the release workflow; a pushed `v*` tag runs validation, verifies the tag matches `package.json`, builds the configured Linux x64 archive, creates its SHA-256 file, and publishes both through GitHub Releases.
+- Do not run `yarn stage:release` or manually create/upload a GitHub Release as part of the normal workflow. Use those only when explicitly requested or needed to diagnose CI.
+- After CI completes, confirm it passed on the tagged commit and that the GitHub Release contains the expected archive and checksum. Record CI and asset results in the release ticket. Production installation remains a separate operation requiring a fresh backup and explicit approval.
 
-## 5. Update Records And Commit
+## 5. Correct Or Withdraw
 
-- Update tickets and roadmap with verified evidence; leave unmet and publication gates open.
-- Review `git status` and the staged diff. Exclude unrelated changes and generated files.
-- Run relevant checks. Commit only with authorization and follow repo conventions. The release commit must contain the version/changelog and intended release changes; require a clean tree before tagging.
-- Ensure the archive matches the release commit. If source changes, rerun affected checks and restage it.
-
-## 6. Tag And Publish
-
-- Verify all gates pass, the release commit is correct, and `v<version>` does not exist. Never move or reuse a published tag.
-- With user authorization, tag and push the release commit. A `v*` push triggers CI and publishes the GitHub Release.
-- After CI passes, confirm the release points to the right tag and has the expected archive and checksum. Download the asset, verify its checksum, and test the published install instructions.
-- Record actual results in the changelog, tickets, roadmap, release notes, and support entrypoints. Mark publication complete only after verification.
-
-## 7. Correct Or Withdraw
-
-- If validation or publication fails, record it; do not replace assets silently or retag different source.
-- Correct or withdraw a published release with a new version/tag and clear notice. Preserve prior evidence and direct operators to the corrected release.
+- If CI validation or publication fails, record the failure and repair the source through a new commit. Do not silently replace published assets or retag different source.
+- Correct or withdraw a published release with a new version/tag and a clear notice. Preserve prior evidence and direct operators to the corrected release.
 
 ## Completion Report
 
-Report the version, commit/tag, assets and checksums, CI/install results, ticket status, and limitations. Distinguish staging from publication.
+Report the version, final changelog commit and tag, clean-tree status, local checks, CI result, published assets/checksum, ticket status, and remaining operational limitations. Distinguish a local tag from a pushed tag and a prepared candidate from a published release.

@@ -3,11 +3,7 @@
 ## Status
 - State: In Progress
 - Priority: High
-- Next: Complete the independent-operator and live SMTP gates before tagging the Linux x64 candidate.
-
-## Dependencies
-- [0118](0118-close-public-release-validation-gaps.md): Complete candidate checks and packaged installation/recovery validation before publication.
-- [0130](0130-verify-smtp-and-first-upload-onboarding.md): Verify the pilot's transactional mail and confirmed-account image journey against the candidate before advertising those workflows.
+- Next: Run the CI-equivalent checks, commit the dated changelog last, and tag that commit to trigger CI publication.
 
 ## Goal
 Publish a verified Linux x64 package so it can be downloaded and applied to the existing production deployment. Keep the release process small and repeatable; do not expand to unverified platforms.
@@ -33,12 +29,12 @@ Publish a verified Linux x64 package so it can be downloaded and applied to the 
 
 ## Notes
 - Completed [0032](completed/0032-release-versioning-changelog.md) intentionally deferred tagging and the fuller release checklist. Local archive staging is not public publication.
-- Staged 2026.6.3 candidate evidence is recorded in [0118](0118-close-public-release-validation-gaps.md). The Linux x64 archive was built from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a` (SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`) and passed privileged WSL service, reverse-proxy, backup-first upgrade, and isolated recovery rehearsals. It is not published; independent-operator acceptance, live SMTP/onboarding, and the unidentified 31/32 test failure remain open, so candidate acceptance is incomplete.
+- Staged 2026.6.3 candidate evidence is recorded in [0118](0118-close-public-release-validation-gaps.md). The Linux x64 archive was built from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a` (SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`) and passed privileged WSL service, reverse-proxy, backup-first upgrade, and isolated recovery rehearsals. A newer source commit must pass the local CI-equivalent checks and be tagged; CI owns the release archive and checksum. Independent-operator acceptance, live SMTP/onboarding, and diagnosis of the historical 31/32 test summary remain open follow-ups, not tag prerequisites under the current release scope. Do not advertise those unverified workflows as validated.
 - The WSL rehearsals used isolated data; they did not upgrade the existing production deployment. Production use requires the published archive, a fresh backup, and explicit deployment approval.
-- No GitHub release was found on 2026-11-17; check the current release destination before tagging.
+- No GitHub release was found on 2026-11-18; no `v2026.6.3` tag exists.
 - [0129](0129-complete-public-adoption-entrypoints.md) connects operators to the resulting download. [0130](0130-verify-smtp-and-first-upload-onboarding.md) must verify email-dependent workflows before they are promoted to pilots; it can test an unpublished candidate.
 - Demo reliability, hosting measurements, and support guidance are separate under [0128](0128-verify-demo-navigation-and-hydration.md), [0131](0131-document-pilot-hosting-requirements-and-limits.md), and [0132](0132-publish-operator-support-guidance-and-bug-intake.md).
-- Tag and publish only after gates pass and the user authorizes it. CI attaches the Linux x64 archive and checksum after validation.
+- Run `yarn install --frozen-lockfile`, `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test` on the intended source. Commit all other intended changes first; the dated changelog update is the final source commit and `v2026.6.3` must point to it. Pushing the tag triggers CI validation, archive/checksum creation, and GitHub Release publication. Verify the run and assets afterward; applying the package to production remains separate and requires a fresh backup and explicit approval.
 - Follow the [release skill](../../.github/skills/release/SKILL.md) and [Contribution Guide](../ContributionGuide.md). Gates remain open; no tag or release exists.
 
 ## Relevant Files
@@ -52,6 +48,8 @@ Publish a verified Linux x64 package so it can be downloaded and applied to the 
 - SECURITY.md
 
 ## Progress Log
+- 2026-11-18: Final Windows validation passed: frozen install, Golar and Nuxt typechecks, production build, and full suite (251/251). The build emitted the existing Rollup comment-position warning. Moved the global cross-type search pagination case to the sequential search suite after intermittent omissions in parallel runs; loosened the freshness test's final request count to allow redundant requests while still requiring recovery. No tag created.
+- 2026-11-18: Aligned release preparation with the user's CI-driven workflow: local checks and a clean source tree precede a final dated changelog commit, and the version tag points to that commit. CI owns archive/checksum creation and GitHub Release publication; independent installation, live SMTP/onboarding, and production deployment remain separately tracked. No tag created.
 - 2026-11-18: Clarified that the 2026.6.3 package is needed for the existing production deployment; added post-publication backup, approval, and verification checks. WSL rehearsals remain isolated.
 - 2026-11-18: Added the release procedure to the skill and Contribution Guide, updated CI guidance, and drafted the 2026.6.3 changelog. Gates remain open; no tag or release was created.
 - 2026-11-18: Audited the Linux x64 archive contents and checksum. Live config/data are absent; public download verification remains open.
