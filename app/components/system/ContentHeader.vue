@@ -32,14 +32,12 @@ const responses = computed(() => {
 </script>
 
 <template>
-    <header class="row fill wrap g-1">
-        <div class="row wrap g-1">
-            <Votes :target="content" />
-            <template v-if="topics.length">
-                <TopicTag v-for="topic in topics" class="f-3 b-0" :key="topic" :topic="topic" />
-            </template>
+    <header class="row wrap g-1">
+        <Votes class="f-0" :target="content" />
+        <div v-if="topics.length" class="row wrap f-2 g-1">
+            <TopicTag v-for="topic in topics" class="f-3 b-0" :key="topic" :topic="topic" />
         </div>
-        <div class="row wrap g-1">
+        <div class="row f-1 wrap g-1">
             <UserTag v-if="content.user" class="f-2 b-0" :user="content.user" />
             <Tag v-if="pinned" class="meta" icon="fa-thumbtack" title="Pinned" />
             <Tag v-if="archived" class="meta" icon="fa-folder-closed" title="Archived" />
