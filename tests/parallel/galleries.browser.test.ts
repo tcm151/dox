@@ -14,6 +14,17 @@ test("hides gallery options from guests", async ({ page, request }) => {
     await expect(page.getByRole("button", { name: "Options" })).toHaveCount(0)
 })
 
+test("uses image descriptions as alt text on gallery details", async ({ page, request }) => {
+    const response = await request.get("/api/gallery")
+    expect(response.ok()).toBe(true)
+    const galleries = (await response.json() as FeedPage<Gallery>).items
+    const gallery = galleries.find(item => item.images.some(image => image.id === "image:browserSuiteSampleGallery"))
+    expect(gallery).toBeDefined()
+
+    await page.goto(`/gallery/${extractId(gallery!.id)}`)
+    await expect(page.locator("main.gallery img")).toHaveAttribute("alt", "A descriptive browser fixture image.")
+})
+
 test("shows gallery edit and hides self-award actions from its owner", async ({ authenticatedPage, request }) => {
     const response = await request.get("/api/gallery")
     expect(response.ok()).toBe(true)

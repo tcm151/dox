@@ -19,7 +19,7 @@ const imageSlides = computed(() => props.gallery.images.map((image, index) => ({
             <div class="main clickable box column p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
                 <ContentHeader class="mb-2" :content="gallery" :pinned="pinned" />
                 <h3 class="title text left mb-2">{{ gallery.title }}</h3>
-                <ImageSlideshow :images="imageSlides" label="Gallery images" />
+                <ImageSlideshow :images="imageSlides" label="Gallery images" fit-height />
             </div>
         </div>
     </ContentVisibility>

@@ -195,7 +195,7 @@ function copyLink() {
                         <img
                             class="br-small"
                             :src="image.url"
-                            :alt="`${gallery.description || 'Gallery'} image ${index + 1}`"
+                            :alt="image.description ?? ''"
                             :loading="index === 0 ? 'eager' : 'lazy'"
                             decoding="async"
                         >
@@ -283,24 +283,16 @@ article {
 .gallery {
     flex: 1 0 calc(100vh - 40px - 1rem);
     width: 100%;
-    overflow: hidden;
 
     .mosaic {
-        flex: 1 1 auto;
-        min-height: 0;
+        flex: 0 0 auto;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        grid-auto-rows: minmax(0, 1fr);
         grid-auto-flow: dense;
         gap: 2px;
 
         &:not(.single, .pair, .trio) {
             .tile {
                 grid-column: span 2;
-                grid-row: span 1;
-            }
-
-            .tile:nth-child(6n + 1) {
-                grid-row: span 2;
             }
 
             .tile:nth-child(6n + 2),
@@ -311,50 +303,42 @@ article {
 
         &.single {
             grid-template-columns: minmax(0, 1fr);
-            grid-auto-rows: minmax(0, 1fr);
 
-            .tile {
-                aspect-ratio: auto;
+            .tile img {
+                max-height: none;
             }
         }
 
         &.pair {
             .tile {
                 grid-column: span 2;
-                grid-row: span 2;
             }
         }
 
         &.trio {
-            .tile:first-child {
+            .tile {
                 grid-column: span 2;
-                grid-row: span 2;
-            }
-
-            .tile:not(:first-child) {
-                grid-column: span 2;
-                grid-row: span 1;
             }
         }
     }
 
     .tile {
         min-width: 0;
-        overflow: hidden;
+        align-self: start;
         background-color: $white-1;
 
         img {
             display: block;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            max-height: min(80vh, 48rem);
+            object-fit: contain;
         }
     }
 
     @media (max-width: $bp-tablet) {
         .mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-auto-rows: minmax(0, 1fr);
 
             &:not(.single, .pair, .trio) {
                 .tile {
@@ -363,7 +347,6 @@ article {
 
                 .tile:nth-child(6n + 1) {
                     grid-column: span 2;
-                    grid-row: span 2;
                 }
 
                 .tile:nth-child(6n + 4) {
@@ -374,19 +357,16 @@ article {
             &.pair {
                 .tile {
                     grid-column: span 1;
-                    grid-row: span 2;
                 }
             }
 
             &.trio {
                 .tile:first-child {
                     grid-column: span 2;
-                    grid-row: span 2;
                 }
 
                 .tile:not(:first-child) {
                     grid-column: span 1;
-                    grid-row: span 1;
                 }
             }
         }

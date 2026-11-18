@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const gallery = await new DatabaseQuery()
         .addSql(`
             SELECT id, user.{id, name, roles}, title, description, tags, time, topics,
-                images.{id, url}, votes, score, visits, status, moderation,
+                images.{id, url, description}, votes, score, visits, status, moderation,
                 (
                     SELECT id, time, user.{id, name, roles}, context,
                         replyTo, content, votes, score, edited, deleted, status, timeEdited, moderation

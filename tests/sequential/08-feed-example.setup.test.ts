@@ -45,7 +45,7 @@ it("seeds representative feed content for browser tests", async () => {
     expect(threadResponse._data?.content).toBe("A representative thread seeded for browser integration tests.")
 
     const galleryImageId = "browserSuiteSampleGallery"
-    await admin.query(`CREATE ONLY image:${galleryImageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+    await admin.query(`CREATE ONLY image:${galleryImageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0, description = "A descriptive browser fixture image.";`)
     const galleryResponse = await admin.fetchRaw("/api/gallery/publish", {
         method: "POST",
         body: { images: [`image:${galleryImageId}`], title: "Browser sample gallery", description: "Browser suite sample gallery", topics: [] },

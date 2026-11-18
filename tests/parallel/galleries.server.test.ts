@@ -71,11 +71,12 @@ it("allows other users to attach an image only after gallery publication", async
 
 it("returns gallery details, increments visits, and denies deletion by a non-owner", async () => {
     const imageId = `galleryDetail${Date.now()}`
+    const imageDescription = `Gallery image description ${Date.now()}`
     const description = `Gallery detail test ${Date.now()}`
     let galleryId: string | undefined
 
     try {
-        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0;`)
+        await admin.query(`CREATE ONLY image:${imageId} SET user = ${admin.user.id}, type = "jpeg", origin = "https://example.invalid", tokens = 0, description = "${imageDescription}";`)
 
         const publishResponse = await admin.fetchRaw("/api/gallery/publish", {
             method: "POST",
@@ -95,6 +96,7 @@ it("returns gallery details, increments visits, and denies deletion by a non-own
         const detail = await detailResponse.json() as Gallery
         expect(detail.description).toBe(description)
         expect(detail.images.map(image => image.id)).toContain(`image:${imageId}`)
+        expect(detail.images.find(image => image.id === `image:${imageId}`)?.description).toBe(imageDescription)
         expect(detail.user.id).toBe(admin.user.id)
 
         const visitResponse = await fetch(`/api/gallery/${galleryId}/visit`)

@@ -7,7 +7,7 @@ const settings = useSettings()
 
 const images = useImageUploader('editorImages')
 const topics = useTopicManager()
-const title = ref<string>("Gallery")
+const title = ref<string>("")
 const description = ref<string>("")
 const tags = ref<string[]>([])
 const imageSlides = computed(() => images.uploaded.map((image, index) => ({

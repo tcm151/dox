@@ -15,10 +15,11 @@ const emit = defineEmits<{
 }>()
 
 const selectedIndex = ref(0)
-const selectedItem = computed(() => props.media[selectedIndex.value])
+const selectedItem = computed(() => props.media[selectedIndex.value] as MediaFile | undefined)
 const mediaUrls = new Map<File, string>()
 
 function moveSelection(direction: -1 | 1) {
+    if (props.media.length < 2) return
     selectedIndex.value = (selectedIndex.value + direction + props.media.length) % props.media.length
 }
 
@@ -49,7 +50,7 @@ onBeforeUnmount(() => mediaUrls.forEach(url => URL.revokeObjectURL(url)))
         <div v-if="selectedItem" class="media row g-4" :class="{ 'has-image': selectedItem.type.startsWith('image/') }">
                 <section v-if="selectedItem.type.startsWith('image/')" class="preview">
                     <figure class="image br-small border-subtle">
-                        <img :src="getMediaUrl(selectedItem)" :alt="selectedItem.name">
+                    <img :src="getMediaUrl(selectedItem)" :alt="selectedItem.description">
                     </figure>
                 </section>
                 <section v-if="selectedItem.type.startsWith('audio/')">
@@ -60,17 +61,17 @@ onBeforeUnmount(() => mediaUrls.forEach(url => URL.revokeObjectURL(url)))
                         <label>File - {{ getFileSize(selectedItem.size) }}</label>
                         <input type="text" v-model="selectedItem.name">
                     </div>
-                    <MarkdownEditor class="f-1" label="Description" :rows="4" v-model="(selectedItem as MediaFile).description" />
+                    <MarkdownEditor bounded class="f-1" label="Description" :rows="4" v-model="(selectedItem as MediaFile).description" />
                 </section>
         </div>
         <footer class="row inline g-2 mt-4">
-            <button class="link" :disabled="media.length < 2" @click="moveSelection(-1)">
+            <button v-if="media.length > 1" class="link" @click="moveSelection(-1)">
                 <i class="fa-solid fa-caret-left"></i>
             </button>
             <button class="link f-1" :disabled="loading" @click="emit('upload')">
                 <span>Upload <span v-if="media.length > 1">{{ media.length }} files</span></span>
             </button>
-            <button class="link" :disabled="media.length < 2" @click="moveSelection(1)">
+            <button v-if="media.length > 1" class="link" @click="moveSelection(1)">
                 <i class="fa-solid fa-caret-right"></i>
             </button>
         </footer>
@@ -112,7 +113,7 @@ div.media {
 figure.image {
     width: 100%;
     aspect-ratio: 4 / 3;
-    max-height: min(75vh, 48rem);
+    max-height: min(40vh, 32rem);
     overflow: hidden;
     background-color: $white-1;
 

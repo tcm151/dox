@@ -215,6 +215,7 @@ export type SearchResult = (Post<string[]> | Link | Thread | Gallery | SearchCom
 
 export interface Attachment extends Record {
     url: string
+    description?: string
 }
 
 export interface Audio extends Media { }

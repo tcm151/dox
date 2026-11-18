@@ -280,7 +280,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | [`/api/image/upload`](#image-upload) | Confirmed account | Uploads an image and charges the applicable token cost. |
 | `POST` | [`/api/gallery/publish`](#gallery-publication) | Confirmed account; gallery setting; image ownership; blocked-topic checks | Publishes owned images as a gallery. |
 | `GET` | `/api/gallery?sortBy=&pageSize=&offset=` | Public | Returns a page of active galleries when `feeds.images` is enabled; applies signed-in viewers' user/topic mute and block filters, including authors who block them. Anonymous results are unchanged. |
-| `GET` | `/api/gallery/:id` | Public | Returns gallery details and comments. |
+| `GET` | `/api/gallery/:id` | Public | Returns gallery details, image descriptions, and comments. |
 | `GET` | `/api/gallery/:id/visit` | Public | Increments and returns the gallery visit counter. |
 | `POST` | [`/api/gallery/:id/edit`](#gallery-edit) | Gallery owner | Updates the gallery description. |
 | `POST` | [`/api/gallery/:id/award`](#gallery-award) | Authenticated; token balance; not owner or previous awarder | Transfers an award to the gallery author. |
