@@ -32,7 +32,6 @@ Use this workflow for SurrealDB schema and stored-data changes.
 
 - Use table and function comment banners. Match nearby formatting for fields, queries, and events.
 - Use explicit types, `option<T>` for optional fields, and `record<table>` for references. Follow existing `ASSERT`, `REFERENCE`, default, computed-field, and event patterns.
-- Update the shared TypeScript contract with schema changes.
 
 ## Migrations
 
@@ -40,7 +39,7 @@ Use this workflow for SurrealDB schema and stored-data changes.
 - Put a concise, one-line `--` rationale before each logically scoped upgrade block.
 - Wrap changes and the version update in `BEGIN TRANSACTION;` and `COMMIT;`.
 - Make migrations replay-safe. Use conditional schema operations where supported and make data changes tolerate replay.
-- Backfill existing records when new required fields or representations need values. For `SCHEMAFULL` field removal, follow the programming guidance for the `option<T>`, unset, and remove sequence.
+- Backfill existing records when new required fields or representations need values. To remove a `SCHEMAFULL` field, redefine it as `option<T>`, migrate any values, unset it, then remove its definition; verify the sequence in a disposable database.
 - Fresh databases apply `schema.surql` with the app version. Existing databases apply newer migrations in version order; startup fails readiness if a migration fails.
 - The developer replay route runs only the migration matching the app and database versions. Keep the active migration replay-safe from its expected previous-release baseline; do not make it accommodate arbitrary local schema drift.
 

@@ -44,10 +44,7 @@ Use the application's existing database wrapper and verify syntax against the de
 
 - Define tables and fields in `server/assets/schema.surql`; use explicit field types, `option<T>` for optional fields, `record<table>` for references, and `ASSERT`/`REFERENCE` rules where the data contract requires them.
 - Use `DEFAULT ALWAYS` when values must be populated on every write. Use computed fields or database events only where the existing schema already owns that behavior.
-- Migrations must be replay-safe and follow the current in-progress version and release policy. Design each migration as an upgrade from the immediately previous released schema and its supported data, not from intermediate development schemas. Read `docs/Architecture.md` before changing migration behavior.
-- Wrap migration changes and the migration-version update in a transaction. Preserve data through explicit backfills when a schema change affects existing records; verify the sequence in a disposable database.
-- Do not rewrite a released migration by default. Consolidate only into a confirmed in-progress migration; otherwise add a forward migration.
-- Do not encode compatibility steps solely for a local database altered by unreleased development iterations. Repair a divergent development database manually with the developer/admin query or rebuild it from the previous-release baseline, then test the migration against that baseline. Keep backfills for data that can genuinely exist in the previous release.
+- For migration versioning, release baselines, replay safety, and upgrade validation, follow the dedicated migrations skill.
 
 ## Safe Query Probes
 

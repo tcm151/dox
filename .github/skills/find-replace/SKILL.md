@@ -10,16 +10,13 @@ argument-hint: "Optional scope: files, symbols, or requested change"
 - Use Search or `rg --files` to find paths, then `rg -n -F "exact text" path` or `rg -n -C 3 "pattern" path` to verify targets and context.
 - Check `git status --short` and `git diff -- path` first; preserve existing edits.
 - Verify exact paths, imports, aliases, and occurrences from current source; never infer context from memory.
-- Make the smallest coherent edit with the VS Code `apply_patch` tool, passing both required arguments: `input` and `explanation`. Do not write files through shell commands or stage changes unless asked.
-- Format `input` as `*** Begin Patch`, one `*** Update File: <absolute workspace path>` header per file, optional `@@` class/function anchor, exact context, `-` old lines, `+` new lines, then `*** End Patch`. Put all hunks for a file beneath its single header and order them from top to bottom as they appear in the source. Copy context exactly, including whitespace, and use enough unique context to identify each target; do not use line numbers as anchors. Do not send a standard `---`/`+++` unified diff. Prefix every added-file line with `+`.
-- Use one `*** Update File` header per file; duplicate headers for the same path are rejected. Put that file's additional hunks beneath its existing header.
+- Use the patch or editor tool available in the current environment and follow its declared input format; do not assume a signature from another client. Do not write files through shell commands or stage changes unless asked.
+- Keep patch context exact and group hunks by file when the tool supports it.
 - If a patch fails or its result is unknown, stop and inspect the target, `git status --short`, and `git diff` before retrying. A small context mismatch is usually an intervening developer edit or formatter change: preserve it, reread the current source, and rebase only the intended change onto that version. Never restore stale content or undo changes to make a patch apply. If the mismatch looks corrupted (for example, garbled, truncated, or structurally damaged text), stop editing and notify the user instead of guessing at a repair. Use the actual rejection/output to identify format or context issues; do not guess at a cause. Correct only the rejected patch, keep the retry smaller if needed, and do not retry while the original tool call may still be running or assume an ambiguous result means the edit succeeded or failed.
-- After a patch result is known, run the narrowest relevant check immediately, then inspect the resulting diff for unintended or missing changes before continuing.
+- Run the narrowest relevant check after an edit; inspect the focused diff only when a check fails or uncertainty remains.
 
-# A Failed Patch
-Patch tools may apply earlier hunks before a later hunk fails. Inspect status and focused diffs to identify edits already applied, then retry only failed or unattempted hunks against the current contents.
+## Recovering From A Failed Patch
 
-- If a reread confirms the exact target but the same kind of hunk fails again with `Invalid context`, do not keep trying equivalent anchors. Split the work into one file and one small hunk per patch, and anchor on adjacent literal source lines. If that still fails, stop and ask before using another edit method; do not fall back to shell-based text replacement.
-- For a requested file move, confirm the destination does not exist and use a dedicated move operation rather than deleting and recreating the file. Verify the source, destination, and worktree state afterward.
-
-When a patch fails in an active session, reference this file and update it to account for genuinely new guidance.
+- A patch may partially apply. Inspect status and the focused diff, then retry only hunks that did not apply.
+- If exact-context retries still fail, stop rather than broadening the patch or switching to shell-based replacement.
+- For file moves, confirm the destination is absent, use a move operation, and verify the source, destination, and worktree state.

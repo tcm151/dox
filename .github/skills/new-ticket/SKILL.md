@@ -25,8 +25,8 @@ Use this skill to add a project ticket under `docs/tickets/`.
 7. List only tickets that must finish first as dependencies. Use `- [NNNN](relative-ticket-path.md): Reason`; omit the section if none are required. Check all ticket folders for unknown numbers, self-dependencies, and cycles. Put related or parallel work in `Notes`.
 8. Write a short `Goal`, testable `Requirements`, actionable `Tasks`, concise `Notes`, and relevant file paths.
 9. Use indented sub-task checkboxes under a task when it has independently trackable steps; keep simple tasks flat. Leave all new checkboxes unchecked.
-9. Add `YYYY-MM-DD: Ticket created.` to `Progress Log` using today's date. Keep the newest entry first.
-10. Report the ticket number, path, and assumptions to check.
+10. Add `YYYY-MM-DD: Ticket created.` to `Progress Log` using today's date. Keep the newest entry first.
+11. Report the ticket number, path, and assumptions to check.
 
 ## Conventions
 
@@ -37,5 +37,5 @@ Use this skill to add a project ticket under `docs/tickets/`.
 - When editing a ticket, preserve completed checkboxes and progress history. Keep dated entries newest first; do not copy template guidance into the ticket.
 - Mark a parent task complete only when its work and all of its sub-tasks are complete.
 - Transfer intentionally deferred work to a follow-up ticket before completing its parent ticket.
-- Before completing a ticket, finish every Requirements and Tasks checkbox, set `Next: None`, move it to `docs/tickets/completed/`, update relative links, and run `yarn standup` (`yarn standup` if PowerShell blocks the shim).
+- Before completing a ticket, finish every Requirements and Tasks checkbox, set `Next: None`, move it to `docs/tickets/completed/`, update relative links, and run `yarn standup` (`yarn.cmd standup` if PowerShell blocks the `yarn.ps1` shim).
 - If a relevant path is unknown, use `- TBD`; do not invent it.
