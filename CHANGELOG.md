@@ -4,6 +4,20 @@ ClassicForum uses `year.major.patch` versions. The current version is defined in
 
 ## [2026.6.3] - Unreleased
 
+### Added
+- Added link publishing with previews, detail pages, and feed integration.
+- Added block/mute, profile privacy, and saved-content controls.
+- Added URL-synced search filters and developer diagnostics.
+
+### Changed
+- Improved settings validation, availability enforcement, content actions, and discovery/inbox limits.
+- Refreshed stale feeds and inboxes; preserved feed position on return.
+- Expanded test diagnostics and reorganized the integration runner.
+
+### Fixed
+- Hardened media cleanup and email confirmation.
+- Fixed feed sorting, cancelled edits, and account-switch refresh.
+
 ## [2026.6.2] - 2026-11-12
 
 ### Added

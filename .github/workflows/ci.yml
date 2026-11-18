@@ -57,7 +57,47 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify release tag matches package version
+        shell: bash
+        run: |
+          package_version="$(node -p 'require("./package.json").version')"
+          expected_tag="v${package_version}"
+          if [[ "$GITHUB_REF_NAME" != "$expected_tag" ]]; then
+            echo "Release tag $GITHUB_REF_NAME does not match package version $expected_tag"
+            exit 1
+          fi
+
+      - name: Stage Linux x64 archive
+        run: yarn stage:release
+
+      - name: Generate SHA-256 checksum
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          archive="releases/forum-${version}-linux-x64.tar.gz"
+          filename="${archive##*/}"
+          (cd releases && sha256sum "$filename" > "$filename.sha256")
+
       - name: Create release from tag
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          archive="releases/forum-${version}-linux-x64.tar.gz"
+          gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag "$archive" "$archive.sha256"
