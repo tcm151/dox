@@ -13,6 +13,65 @@ test("toggles and cancels an unsaved preference", async ({ authenticatedPage }) 
     await expect(animationToggle).toBeChecked()
 })
 
+test("uses defaults while logged out and reloads preferences after login", async ({ authenticatedPage: page }) => {
+    const session = await page.evaluate(() => ({
+        user: JSON.parse(sessionStorage.getItem("user") ?? "null"),
+        token: JSON.parse(localStorage.getItem("tokens") ?? "{}").access,
+    }))
+    let preferenceRequests = 0
+
+    await page.route(url => new URL(url).pathname === "/api/profile/settings", async (route) => {
+        if (route.request().method() !== "GET") {
+            await route.continue()
+            return
+        }
+
+        preferenceRequests++
+        const response = await route.fetch()
+        const settings = await response.json() as {
+            privacy: { profile: string }
+            ui: { hoverAnimations: boolean }
+        }
+        settings.privacy.profile = "members"
+        settings.ui.hoverAnimations = false
+        await route.fulfill({ response, json: settings })
+    })
+    await page.route(url => new URL(url).pathname === "/api/profile/login", async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ user: session.user, tokens: { access: session.token } }),
+        })
+    })
+
+    await page.goto("/settings/preferences")
+    await expect.poll(() => preferenceRequests).toBe(1)
+    const audience = page.locator("section select")
+    await expect(audience).toHaveValue("members")
+    await expect(audience).toBeEnabled()
+    await expect(page.locator("html")).toHaveAttribute("data-hover-animations", "false")
+
+    await page.locator('nav button[title="Logout"]').click({ button: "right" })
+    await expect(page).toHaveURL(/\/feed\/home$/)
+    await expect(page.locator("nav").getByText("Login", { exact: true })).toBeVisible()
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem("authenticated"))).toBe("false")
+    await expect.poll(() => preferenceRequests).toBe(1)
+    await expect(page.locator("html")).toHaveAttribute("data-hover-animations", "true")
+
+    await page.locator("nav").getByText("Login", { exact: true }).click()
+    await page.locator("main.form input[type='text']").fill(session.user.name)
+    await page.locator("main.form input[type='password']").fill("test")
+    await page.getByRole("button", { name: "Login", exact: true }).click()
+
+    await expect.poll(() => preferenceRequests).toBe(2)
+    await expect(page.locator("html")).toHaveAttribute("data-hover-animations", "false")
+
+    await page.goto("/settings/preferences")
+    const reloadedAudience = page.locator("section select")
+    await expect(reloadedAudience).toHaveValue("members")
+    await expect(reloadedAudience).toBeEnabled()
+})
+
 for (const path of ["/settings/preferences", "/settings/filters"]) {
     test(`retries failed preference loading on ${path}`, async ({ authenticatedPage: page }) => {
         let attempts = 0
