@@ -20,6 +20,7 @@ interface TrackedFreshDatasource extends FreshDatasource {
 const staleAfterMs = 60_000
 const datasources = new Set<TrackedFreshDatasource>()
 const successfulLoads = new Map<string, number>()
+const lastAttempts = new Map<string, number>()
 const invalidations = new Map<string, number>()
 const activeRefreshes = new Map<string, Promise<void>>()
 
@@ -112,12 +113,16 @@ export function getFreshMutationKind(url: string, method = "POST"): FreshDataKin
 export function trackFreshDatasource(source: FreshDatasource) {
     const tracked: TrackedFreshDatasource = { ...source, refreshAfterCurrent: false }
     const key = datasourceKey(tracked)
+    if (tracked.status.value === "pending") lastAttempts.set(key, performance.now())
     if (tracked.status.value === "success" && !successfulLoads.has(key)) {
         successfulLoads.set(key, Date.now())
     }
 
     datasources.add(tracked)
     const stopWatching = watch(tracked.status, (status, previous) => {
+        if (status === "pending") {
+            lastAttempts.set(datasourceKey(tracked), performance.now())
+        }
         if (status === "success" && previous !== "success") {
             successfulLoads.set(datasourceKey(tracked), Date.now())
         }
@@ -148,9 +153,16 @@ export function markFreshDataChanged(kind: FreshDataKind, userId: string) {
     }
 }
 
-export function refreshFreshDataOnNavigation(path: string) {
+export function refreshFreshDataOnNavigation(path: string, navigationStartedAt = performance.now()) {
     for (const source of datasources) {
-        if (source.routePath() === path && source.status.value !== "pending" && isStale(source)) {
+        const key = datasourceKey(source)
+        const lastAttempt = lastAttempts.get(key) ?? 0
+        if (
+            source.routePath() === path
+            && source.status.value !== "pending"
+            && lastAttempt < navigationStartedAt
+            && isStale(source)
+        ) {
             void refreshDatasource(source)
         }
     }

@@ -159,4 +159,31 @@ describe("feed and inbox freshness", () => {
             tracked.scope.stop()
         }
     })
+
+    it("does not retry a failed request during the navigation that started it", async () => {
+        let now = 3_000_000
+        vi.spyOn(Date, "now").mockImplementation(() => now)
+        const status = ref<RequestStatus>("success")
+        const refresh = vi.fn(async () => {
+            status.value = "pending"
+            await Promise.resolve()
+            status.value = "error"
+        })
+        const routePath = "/feed/freshness-navigation-attempt"
+        const tracked = trackSource("feed", "navigation-attempt-user", routePath, "/api/feed/popular", status, refresh)
+
+        try {
+            now += 60_001
+            const navigationStartedAt = performance.now()
+            await tracked.refresh()
+            refreshFreshDataOnNavigation(routePath, navigationStartedAt)
+            expect(refresh).toHaveBeenCalledTimes(1)
+
+            refreshFreshDataOnNavigation(routePath, performance.now() + 1)
+            await vi.waitFor(() => expect(refresh).toHaveBeenCalledTimes(2))
+        }
+        finally {
+            tracked.scope.stop()
+        }
+    })
 })
