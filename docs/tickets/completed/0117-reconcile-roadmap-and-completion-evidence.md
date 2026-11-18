@@ -22,14 +22,14 @@ Make roadmap status and completion claims reflect the current ticket scope and e
 - [x] Update stale roadmap and architecture statements without silently changing product scope.
 - [x] Reconcile the overlapping baseline and deferred-funding referral-hardening descriptions.
 - [x] Cross-reference pilot release/readiness and visitor-facing capability work without treating marketing observations as current runtime validation.
-- [x] Link outstanding media failure/retry/concurrency validation to [0118](../0118-close-public-release-validation-gaps.md) and keep error mapping under [0055](../0055-consistent-database-error-mapping.md).
+- [x] Link outstanding media failure/retry/concurrency validation to [0118](../0118-close-public-release-validation-gaps.md) and keep error mapping under [0055](0055-consistent-database-error-mapping.md).
 - [x] Review affected ticket links, status fields, and checklists against the current template.
 
 ## Notes
 - The review snapshot before creating this batch contained 74 completed tickets, 31 planned tickets, and two paused tickets. Counts include optional backlog features and are not a roadmap completion percentage.
 - The initial review found stale Not Started markers for completed [0015](0015-search-filters-url-sync.md) and [0087](0087-extra-options-action-parity.md); those roadmap markers are now corrected.
 - [0019](0019-referral-redemption-hardening.md) is delivered baseline work. Phase D now covers readiness/consistency/adoption, while deferred Phase E distinguishes future purchase-specific controls from existing referral protections.
-- Outstanding validation from [0001](0001-media-delete-atomicity.md), [0019](0019-referral-redemption-hardening.md), and [0052](0052-image-attachment-ownership-and-refunds.md) is explicitly owned by [0118](../0118-close-public-release-validation-gaps.md); error mapping remains under [0055](../0055-consistent-database-error-mapping.md). Transfers are not test-pass claims.
+- Outstanding validation from [0001](0001-media-delete-atomicity.md), [0019](0019-referral-redemption-hardening.md), and [0052](0052-image-attachment-ownership-and-refunds.md) is explicitly owned by [0118](../0118-close-public-release-validation-gaps.md); error mapping remains under [0055](0055-consistent-database-error-mapping.md). Transfers are not test-pass claims.
 - Deliberately paused [0036](../backlog/0036-generate-image-thumbnails-on-upload.md), [0077](../backlog/0077-recursive-thread-chain-locks.md), and [0084](../backlog/0084-topic-rename-requests.md) remain paused. Audio remains in the agreed full roadmap.
 - The pilot offering can be narrower than the full Phase C exit criteria. [0127](../0127-publish-a-verifiable-pilot-release.md) owns publication, and [0129](../0129-complete-public-adoption-entrypoints.md) owns README/demo feature claims; the roadmap now preserves that distinction.
 

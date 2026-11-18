@@ -16,7 +16,7 @@ Keep image files, database records, and token refunds consistent across direct i
 - [x] Deleting an image cannot leave DB and filesystem in conflicting states.
 - [x] Deleting a post uses the same cleanup path instead of deleting image records without removing files.
 - [x] Partial failures can be retried without duplicate refunds or cleanup work.
-- [x] Transfer remaining error-response consistency work to [0055](../0055-consistent-database-error-mapping.md), without claiming that mapping is implemented.
+- [x] Transfer remaining error-response consistency work to [0055](0055-consistent-database-error-mapping.md), without claiming that mapping is implemented.
 - [x] Auth and role checks still enforce current behavior.
 - [x] Transfer outstanding partial-failure and retry test acceptance to [0118](../0118-close-public-release-validation-gaps.md); historical successful-path evidence remains below.
 
@@ -33,7 +33,7 @@ Keep image files, database records, and token refunds consistent across direct i
 - `trashImage` only refunds and creates a queue row when it successfully deletes an image record. The worker tolerates missing files and removes the queue row only after file removal succeeds.
 - Post deletion queues eligible image files for the same scheduled `mediaTrash` cleanup used by direct image deletion.
 - Retry behavior was reviewed in code but not covered by automated tests. Tests were deferred per user request.
-- Clear and consistent error mapping is tracked separately in [Ticket 0055](../0055-consistent-database-error-mapping.md).
+- Clear and consistent error mapping is tracked separately in [Ticket 0055](0055-consistent-database-error-mapping.md).
 - [Ticket 0052](0052-image-attachment-ownership-and-refunds.md) covers ownership, shared references, and refund eligibility.
 - This ticket's completed scope is the cleanup implementation and documented review. Deferred validation is explicitly transferred, not newly executed or treated as passing.
 
