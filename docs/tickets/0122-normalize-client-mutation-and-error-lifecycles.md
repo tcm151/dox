@@ -28,7 +28,7 @@ Apply the established try/catch/finally mutation lifecycle consistently to older
 - Feedback.client.vue sets submitting before awaiting the request and only clears it afterward; a rejection bypasses that reset.
 - The newer appeal submission flow resets state in finally, and ButtonSpinner disables its button while loading.
 - Status extraction differs between post, gallery, thread, and topic-profile callers. useModeration.requestModerator also omits the original error when adding its hint.
-- [0115](0115-distinguish-feed-loading-error-and-empty-states.md) covers datasource read presentation, [0113](0113-isolate-account-preference-request-state.md) covers identity ownership, and [0114](0114-discard-cancelled-inline-content-edits.md) covers draft cancellation.
+- [0115](0115-distinguish-feed-loading-error-and-empty-states.md) covers datasource read presentation, [0113](0113-isolate-account-preference-request-state.md) covers identity ownership, and [0114](completed/0114-discard-cancelled-inline-content-edits.md) covers draft cancellation.
 - Keep feedback and report reasons plain text where they are rendered as plain text; this is not a Markdown conversion or visual redesign.
 
 ## Relevant Files

@@ -6,7 +6,7 @@
 - Next: Confirm the preview toggle behavior for inline post and thread edits
 
 ## Dependencies
-- [0114](../0114-discard-cancelled-inline-content-edits.md): Preview must build on isolated edit buffers so toggling and cancelling cannot mutate displayed persisted content.
+- [0114](../completed/0114-discard-cancelled-inline-content-edits.md): Preview must build on isolated edit buffers so toggling and cancelling cannot mutate displayed persisted content.
 
 ## Goal
 Let authors inspect rendered Markdown while editing an existing post or thread on its detail page, without saving their changes first.

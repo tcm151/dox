@@ -18,9 +18,16 @@ function isThreadLoadMore(item: Thread): boolean {
     return item.id === "thread:load_more"
 }
 
-let editingThread = ref(false)
-function toggleEditThread() {
-    editingThread.value = !editingThread.value
+const editingThread = ref(false)
+const editedThreadContent = ref("")
+
+function startEditingThread() {
+    editedThreadContent.value = thread.value?.content ?? ""
+    editingThread.value = true
+}
+
+function cancelEditingThread() {
+    editingThread.value = false
 }
 
 // const showPreview = ref(false)
@@ -35,14 +42,12 @@ async function updateThread() {
     }
     try {
         submitting.value = true
-        await useApi(`/api/thread/${id}/edit`, {
+        thread.value = await useApi<Thread>(`/api/thread/${id}/edit`, {
             body: {
-                content: thread.value.content,
+                content: editedThreadContent.value,
             }
         })
-        thread.value.edited = true
-        toggleEditThread()
-        await refresh()
+        editingThread.value = false
     }
     catch (error: any) {
         hints.addError(error.message, error)
@@ -246,7 +251,7 @@ function toggleOptions() {
             </template>
             <ClientOnly>
                 <template v-if="editingThread && thread.user.id === session.user.id">
-                    <MarkdownEditor class="my-4" :rows="10" v-model="thread.content" />
+                    <MarkdownEditor class="my-4" :rows="10" v-model="editedThreadContent" />
                 </template>
             </ClientOnly>
             <footer>
@@ -272,7 +277,7 @@ function toggleOptions() {
                                     v-if="showOptions"
                                     :target="thread"
                                     @updated="refresh"
-                                    @edit="toggleEditThread"
+                                    @edit="startEditingThread"
                                     @award="awardThread"
                                     @report="submitReport(thread.id)"
                                     @delete="deleteThread"
@@ -294,7 +299,7 @@ function toggleOptions() {
                             <i v-else class="fa-solid fa-eye-slash"></i>
                             <span>Preview</span>
                         </button> -->
-                        <button class="danger" @click="toggleEditThread">
+                        <button class="danger" @click="cancelEditingThread">
                             <i class="fa-solid fa-ban"></i>
                             <span>Cancel</span>
                         </button>
