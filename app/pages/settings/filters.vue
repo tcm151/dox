@@ -92,14 +92,14 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Save</span>
                 </ButtonSpinner>
-                <button :disabled="userSettings.loading || userSettings.saving" @click="resetPreferences">
+                <button class="dark" :disabled="userSettings.loading || userSettings.saving" @click="resetPreferences">
                     <i class="fa-solid fa-rotate"></i>
-                    <span>{{ userSettings.loaded ? "Reset" : "Retry" }}</span>
+                    <span>Cancel</span>
                 </button>
             </div>
         </header>
         <p v-if="userSettings.loadError" class="negative" role="alert">
-            Failed to load preferences. Use Retry to try again.
+            Failed to load preferences. Use Cancel to try again.
         </p>
         <section class="box column p-5">
             <div v-for="tag in contentVisibilityTags" :key="tag.value" class="field row center">

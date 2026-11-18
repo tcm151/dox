@@ -1,6 +1,6 @@
 import { expect, test } from "../utils/browser-fixtures"
 
-test("toggles and resets an unsaved preference", async ({ authenticatedPage }) => {
+test("toggles and cancels an unsaved preference", async ({ authenticatedPage }) => {
     await authenticatedPage.goto("/settings/preferences")
 
     const preferenceRow = authenticatedPage.locator(".field.row").filter({ hasText: "enable animations" })
@@ -9,7 +9,7 @@ test("toggles and resets an unsaved preference", async ({ authenticatedPage }) =
     await preferenceRow.locator("label.toggle").click()
     await expect(animationToggle).not.toBeChecked()
 
-    await authenticatedPage.getByRole("button", { name: /Reset/ }).click()
+    await authenticatedPage.getByRole("button", { name: "Cancel" }).click()
     await expect(animationToggle).toBeChecked()
 })
 
@@ -47,13 +47,13 @@ for (const path of ["/settings/preferences", "/settings/filters"]) {
                 ? page.locator("section.box select").first()
                 : page.locator("input[type='checkbox']").first()
             await expect(control).toBeDisabled()
-            await expect(page.getByRole("button", { name: "Retry" })).toBeDisabled()
+            await expect(page.getByRole("button", { name: "Cancel" })).toBeDisabled()
 
             releaseFailure()
-            await expect(page.getByRole("button", { name: "Retry" })).toBeEnabled()
+            await expect(page.getByRole("button", { name: "Cancel" })).toBeEnabled()
             await expect(page.getByRole("button", { name: "Save" })).toBeDisabled()
-            await expect(page.getByRole("alert")).toHaveText("Failed to load preferences. Use Retry to try again.")
-            await page.getByRole("button", { name: "Retry" }).click()
+            await expect(page.getByRole("alert")).toHaveText("Failed to load preferences. Use Cancel to try again.")
+            await page.getByRole("button", { name: "Cancel" }).click()
             await expect.poll(() => attempts).toBe(2)
             await expect(control).toBeEnabled()
             await expect(page.getByRole("button", { name: "Save" })).toBeEnabled()

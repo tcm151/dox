@@ -73,14 +73,13 @@ async function resetProfile() {
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>Update</span>
                 </ButtonSpinner>
-                <button @click="resetProfile">
+                <button class="dark" @click="resetProfile">
                     <i class="fa-solid fa-refresh"></i>
                     <span>Cancel</span>
                 </button>
             </div>
         </header>
         <section class="box column g-4 p-5">
-            <h2>User Information</h2>
             <div class="form">
                 <div v-if="account" class="field">
                     <label>Email</label>
