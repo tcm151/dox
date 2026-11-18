@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { expect, it, vi } from "vitest"
@@ -10,6 +11,30 @@ import { expectStatus, fetch, grabExampleServer, grabUser, uniqueTestIp } from "
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
 const member = exampleServer.users.sampleUser04
+const accountPassword = "MediaOwnershipTest-password"
+
+async function createTestAccount() {
+    const username = `Media${randomUUID().replaceAll("-", "").slice(0, 12)}`
+    const registerResponse = await fetch("/api/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Forwarded-For": uniqueTestIp() },
+        body: JSON.stringify({ username, email: `${username.toLowerCase()}@example.invalid`, password: accountPassword }),
+    })
+    expectStatus(registerResponse, 200, "media owner registration stage")
+    const accessToken = await registerResponse.text()
+    const profileResponse = await fetch("/api/profile/authenticate", { headers: { Authorization: accessToken } })
+    expectStatus(profileResponse, 200, "media owner authentication stage")
+    return { accessToken, user: await profileResponse.json() as User }
+}
+
+async function cleanupTestAccount(user: User) {
+    await admin.query(`
+        DELETE session WHERE account IN (SELECT VALUE id FROM account WHERE user = ${user.id});
+        DELETE account WHERE user = ${user.id};
+        DELETE userSettings WHERE user = ${user.id};
+        DELETE ${user.id};
+    `)
+}
 
 function createMp3Frame() {
     const frame = Buffer.alloc(417)
@@ -82,7 +107,8 @@ it("backs off failed cleanup entries so a later valid file is processed", async 
     const firstFailedMediaId = extractId(firstFailedId)
     if (!firstFailedMediaId) throw new Error(`Invalid test media ID: ${firstFailedId}`)
     const validId = `mediaTrash:cleanupValid${suffix}`
-    const allIds = [...failedIds, validId]
+    const missingId = `mediaTrash:cleanupMissing${suffix}`
+    const allIds = [...failedIds, validId, missingId]
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
     class TestDatabaseQuery {
         private sql = ""
@@ -123,6 +149,7 @@ it("backs off failed cleanup entries so a later valid file is processed", async 
         await admin.query([
             ...failedIds.map(id => `CREATE ONLY ${id} SET type = "image", extension = "mp3", time = time::now() - 2h;`),
             `CREATE ONLY ${validId} SET type = "image", extension = "png", time = time::now() - 1h;`,
+            `CREATE ONLY ${missingId} SET type = "image", extension = "png", time = time::now();`,
         ].join("\n"))
 
         await mkdir(join(cleanupRoot, "image"), { recursive: true })
@@ -152,10 +179,22 @@ it("backs off failed cleanup entries so a later valid file is processed", async 
             item.attempts === 1 && item.lastError.length > 0 && Date.parse(item.retryAfter) > Date.now(),
         )).toBe(true)
 
-        const removedRecord = await admin.query<Array<Array<{ id: string }>>>(
-            `SELECT id FROM mediaTrash WHERE id = ${validId};`,
+        const removedRecords = await admin.query<Array<Array<{ id: string }>>>(
+            `SELECT id FROM mediaTrash WHERE id IN [${validId}, ${missingId}];`,
         )
-        expect(removedRecord[0]).toEqual([])
+        expect(removedRecords[0]).toEqual([])
+
+        const retryFilePath = join(cleanupRoot, "image", `${firstFailedMediaId}.mp3`)
+        await rm(retryFilePath, { recursive: true, force: true })
+        await writeFile(retryFilePath, "recovered file")
+        await admin.query(`UPDATE ONLY ${firstFailedId} SET retryAfter = time::now() - 1s;`)
+        await emptyTrash()
+
+        const retriedRecord = await admin.query<Array<Array<{ id: string }>>>(
+            `SELECT id FROM mediaTrash WHERE id = ${firstFailedId};`,
+        )
+        expect(retriedRecord[0]).toEqual([])
+        await expect(access(retryFilePath)).rejects.toMatchObject({ code: "ENOENT" })
     }
     finally {
         vi.unstubAllGlobals()
@@ -208,6 +247,144 @@ it("uploads an image, charges tokens, and refunds them on deletion", async () =>
         if (imageId && !imageDeleted) {
             await admin.fetchRaw(`/api/image/${imageId}/delete`)
         }
+    }
+})
+
+it("rejects foreign private-image attachments and refunds the uploader once on concurrent admin deletion", async () => {
+    const owner = await createTestAccount()
+    const fetchOwner = async () => {
+        const response = await fetch("/api/profile/authenticate", { headers: { Authorization: owner.accessToken } })
+        expectStatus(response, 200, "media owner profile stage")
+        return await response.json() as User
+    }
+    const ownerBefore = await fetchOwner()
+    const adminBefore = await admin.fetch<User>("/api/profile/authenticate")
+    const imageId = `ownership${randomUUID().replaceAll("-", "")}`
+    const imageRecord = `image:${imageId}`
+    const refund = 731
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${imageRecord} SET
+                user = ${owner.user.id},
+                type = "png",
+                origin = "https://example.invalid",
+                tokens = ${refund};
+        `)
+
+        const crossUserPost = await admin.fetchRaw<Post>("/api/post/add", {
+            method: "POST",
+            body: {
+                title: `Foreign image ${imageId}`,
+                content: "A private image owned by another user must not be attachable.",
+                topics: [],
+                images: [imageRecord],
+            },
+        })
+        expectStatus(crossUserPost, 403, "foreign private-image attachment stage")
+        expect((await fetchOwner()).tokens).toBe(ownerBefore.tokens)
+
+        const deletionResponses = await Promise.all([
+            admin.fetchRaw(`/api/image/${imageId}/delete`),
+            admin.fetchRaw(`/api/image/${imageId}/delete`),
+        ])
+        expect(deletionResponses.some(response => response.status === 200)).toBe(true)
+        expect((await fetchOwner()).tokens).toBe(ownerBefore.tokens + refund)
+        expect((await admin.fetch<User>("/api/profile/authenticate")).tokens).toBe(adminBefore.tokens)
+    }
+    finally {
+        await admin.query(`DELETE ${imageRecord}; DELETE mediaTrash:${imageId};`)
+        await cleanupTestAccount(owner.user)
+    }
+})
+
+it("rolls back image deletion and refund when the cleanup queue insert fails", async () => {
+    const owner = await createTestAccount()
+    const ownerBeforeResponse = await fetch("/api/profile/authenticate", { headers: { Authorization: owner.accessToken } })
+    expectStatus(ownerBeforeResponse, 200, "media owner profile stage")
+    const ownerBefore = await ownerBeforeResponse.json() as User
+    const imageId = `rollback${randomUUID().replaceAll("-", "")}`
+    const imageRecord = `image:${imageId}`
+    const trashRecord = `mediaTrash:${imageId}`
+    const refund = 863
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${imageRecord} SET
+                user = ${owner.user.id},
+                type = "png",
+                origin = "https://example.invalid",
+                tokens = ${refund};
+            CREATE ONLY ${trashRecord} SET type = "image", extension = "png";
+        `)
+
+        const deletionResponse = await admin.fetchRaw(`/api/image/${imageId}/delete`)
+        expect(deletionResponse.status).toBe(500)
+
+        const remainingImage = await admin.query<Array<Array<string>>>(`SELECT VALUE id FROM ${imageRecord};`)
+        expect(remainingImage[0]).toEqual([imageRecord])
+        const ownerAfterResponse = await fetch("/api/profile/authenticate", { headers: { Authorization: owner.accessToken } })
+        expectStatus(ownerAfterResponse, 200, "media owner rollback stage")
+        const ownerAfter = await ownerAfterResponse.json() as User
+        expect(ownerAfter.tokens).toBe(ownerBefore.tokens)
+    }
+    finally {
+        await admin.query(`DELETE ${imageRecord}; DELETE ${trashRecord};`)
+        await cleanupTestAccount(owner.user)
+    }
+})
+
+it("keeps shared images until the last post is deleted and refunds duplicate attachments once", async () => {
+    const owner = await createTestAccount()
+    const ownerBeforeResponse = await fetch("/api/profile/authenticate", { headers: { Authorization: owner.accessToken } })
+    expectStatus(ownerBeforeResponse, 200, "media owner profile stage")
+    const ownerBefore = await ownerBeforeResponse.json() as User
+    const imageId = `shared${randomUUID().replaceAll("-", "")}`
+    const imageRecord = `image:${imageId}`
+    const firstPostId = `sharedFirst${randomUUID().replaceAll("-", "")}`
+    const duplicatePostId = `sharedDuplicate${randomUUID().replaceAll("-", "")}`
+    const refund = 947
+
+    try {
+        await admin.query(`
+            CREATE ONLY ${imageRecord} SET
+                user = ${owner.user.id},
+                type = "png",
+                origin = "https://example.invalid",
+                tokens = ${refund};
+            CREATE ONLY post:${firstPostId} SET
+                user = ${owner.user.id},
+                title = "Shared image first post",
+                content = "This post shares its image.",
+                images = [${imageRecord}];
+            CREATE ONLY post:${duplicatePostId} SET
+                user = ${owner.user.id},
+                title = "Shared image duplicate post",
+                content = "This post references its image twice.",
+                images = [${imageRecord}, ${imageRecord}];
+        `)
+
+        expectStatus(await admin.fetchRaw(`/api/post/${firstPostId}/delete`), 200, "first shared post deletion stage")
+        const sharedImage = await admin.query<Array<Array<string>>>(`SELECT VALUE id FROM ${imageRecord};`)
+        expect(sharedImage[0]).toHaveLength(1)
+
+        expectStatus(await admin.fetchRaw(`/api/post/${duplicatePostId}/delete`), 200, "last shared post deletion stage")
+        const deletedImage = await admin.query<Array<Array<string>>>(`SELECT VALUE id FROM ${imageRecord};`)
+        expect(deletedImage[0]).toEqual([])
+
+        const ownerAfterResponse = await fetch("/api/profile/authenticate", { headers: { Authorization: owner.accessToken } })
+        expectStatus(ownerAfterResponse, 200, "media owner refund stage")
+        const ownerAfter = await ownerAfterResponse.json() as User
+        expect(ownerAfter.tokens).toBe(ownerBefore.tokens + refund)
+    }
+    finally {
+        await admin.query(`
+            DELETE post:${firstPostId};
+            DELETE post:${duplicatePostId};
+            DELETE ${imageRecord};
+            DELETE mediaTrash:${imageId};
+        `)
+        await cleanupTestAccount(owner.user)
     }
 })
 
