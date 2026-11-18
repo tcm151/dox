@@ -6,7 +6,7 @@ For suspected vulnerabilities, use the private reporting process in [SECURITY.md
 
 ## 1. Setup Repository
 
-Clone the repo from GitHub into your development environment. You should use a recent Node.js LTS release and yarn.
+Clone the repo from GitHub into your development environment. You should use Node.js 24 LTS and yarn.
 
 I recommend using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage your Node.js installations. You can install yarn globally with:
 
@@ -193,7 +193,7 @@ Keep pull requests focused and use the repository template. It asks for a short 
 
 ### CI Checks
 
-GitHub Actions runs on pull requests and pushes to `dev`. The `CI / Validate` job installs dependencies, runs Golar's app/shared typecheck, Nuxt's full typecheck, the production build, and the integration suite. The suite starts an isolated embedded database and checks application health before running its tests.
+GitHub Actions validates pull requests, pushes to `dev`, and `v*` tag pushes. The `CI / Validate` job installs dependencies, runs Golar's app/shared typecheck, Nuxt's full typecheck, the production build, and the integration suite. The suite starts an isolated embedded database and checks application health before running its tests. After validation succeeds for a `v*` tag, `CI / Create GitHub release` creates a GitHub Release for that tag with generated notes. It does not publish release archives or checksums; those remain part of the pilot release work in [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md).
 
 Run the same checks locally:
 
@@ -218,7 +218,7 @@ ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a 
 - The third number increments for fixes, docs, and small follow-up deployments within that release line.
 - At the start of a new year, begin again at `<year>.1.0`.
 
-Do not add changelog entries while a patch is in progress. After the patch is complete and verified, prepare the changelog when choosing the next application version. Find the latest release tag, then review the commits and tracked diff since that tag, along with intended untracked files, to summarize the finished changes. Update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. Tagging and a full release checklist will be added when the release process needs them.
+Do not add changelog entries while a patch is in progress. After the patch is complete and verified, prepare the changelog when choosing the next application version. Find the latest release tag, then review the commits and tracked diff since that tag, along with intended untracked files, to summarize the finished changes. Update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together. Push a `v<version>` tag to run CI; after its checks pass, CI creates a GitHub Release with generated notes. This does not publish release archives or checksums; see [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md) for the pilot release checklist.
 
 ## It's Running
 

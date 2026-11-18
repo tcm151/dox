@@ -25,6 +25,7 @@ Give operators a tested release they can download and verify without using the c
 - [ ] Review the existing staging script and versioning process and choose the smallest supported pilot configuration.
 - [ ] Write the release checklist, including source/version checks, safe archive contents, checksum generation, and validation evidence.
 - [ ] Stage the native candidate and complete the prerequisite checks before publishing its tag, notes, and assets.
+- [x] Configure CI to create a GitHub Release with generated notes after a version tag passes validation.
 - [ ] Independently download and verify the published archive and record its digest and source identity.
 - [ ] Document how operators learn about a withdrawn or corrected pilot release.
 
@@ -34,6 +35,7 @@ Give operators a tested release they can download and verify without using the c
 - [0129](0129-complete-public-adoption-entrypoints.md) connects operators to the resulting download. [0130](0130-verify-smtp-and-first-upload-onboarding.md) must verify email-dependent workflows before they are promoted to pilots; it can test an unpublished candidate.
 - Demo reliability, hosting measurements, and support guidance are separate under [0128](0128-verify-demo-navigation-and-hydration.md), [0131](0131-document-pilot-hosting-requirements-and-limits.md), and [0132](0132-publish-operator-support-guidance-and-bug-intake.md).
 - Publication is a future authorized release operation, not permission to tag, upload, or deploy during ticket preparation.
+- CI creates a GitHub Release from a `v*` tag only after validation succeeds. It does not publish release archives or checksums, and configuring the workflow does not mean a pilot release has been published.
 
 ## Relevant Files
 - scripts/stage-release.mjs
@@ -45,5 +47,6 @@ Give operators a tested release they can download and verify without using the c
 - SECURITY.md
 
 ## Progress Log
+- 2026-11-18: Updated CI to use Node.js 24 and create a GitHub Release with generated notes after successful validation of a `v*` tag. No tag was pushed and no release was published.
 - 2026-11-17: Routed security/behavior prerequisites through final candidate acceptance in 0118 and added the staged SMTP/onboarding gate. Publication preparation may proceed; no release was published.
 - 2026-11-17: Ticket created. Publication, downloads, installation, and runtime validation have not been performed.
