@@ -159,7 +159,8 @@ test("admins can manage a topic moderator roster from the topic moderators page"
         await expect(page).toHaveURL(new RegExp(`/topic/${topicId}/tools/profile$`))
 
         await page.goto(`/topic/${topicId}/tools/moderators`, { timeout: 10_000 })
-        await expect(page.getByRole("heading", { name: "Topic moderators", exact: true })).toBeVisible({ timeout: 5_000 })
+        await expect(page.getByRole("heading", { name: "Moderators", exact: true })).toBeVisible({ timeout: 5_000 })
+        await expect(page.getByRole("button", { name: "Refresh" })).toBeVisible()
 
         const tabs = page.locator(".topic-tools nav.tabstrip a")
         await expect(tabs).toHaveCount(5)

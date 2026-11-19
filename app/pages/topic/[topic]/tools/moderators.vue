@@ -9,7 +9,7 @@ const isAdmin = hasRole(session.user, "admin")
 
 const id = route.params.topic?.toString()
 
-const { data: topic, error, refresh } = await useDatasource<Topic>(`/api/topic/${id}/profile`)
+const { data: topic, error, pending, refresh } = await useDatasource<Topic>(`/api/topic/${id}/profile`)
 
 watch(error, async (error) => {
     const status = error?.statusCode ?? error?.status
@@ -39,14 +39,14 @@ async function removeModerator(moderator: User & string) {
 
 <template>
     <article class="content-width column g-2 m-4">
-        <header class="row g-2">
-            <button class="dark" @click="navigateTo(`/topic/${id}`)">
-                <i class="fa-solid fa-arrow-left"></i>
-                View Topic
-            </button>
+        <header class="row wrap inline between g-2">
+            <h1>Moderators</h1>
+            <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Refresh</span>
+            </ButtonSpinner>
         </header>
         <section v-if="topic" class="box column g-2 p-3">
-            <h3>Topic moderators</h3>
             <div v-if="topic.moderators.length > 0" class="column g-1">
                 <div v-for="moderator in topic.moderators" :key="moderator.id" class="moderator-row row wrap inline g-1">
                     <UserTag class="f-1 b-0" :user="moderator" />

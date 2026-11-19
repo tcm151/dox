@@ -6,7 +6,7 @@ const route = useRoute()
 
 const id = route.params.topic?.toString()
 
-const { data: topic, error, refresh } = await useDatasource<Topic>(`/api/topic/${id}/profile`)
+const { data: topic, error, pending, refresh } = await useDatasource<Topic>(`/api/topic/${id}/profile`)
 
 watch(error, async (error) => {
     const status = error?.statusCode ?? error?.status
@@ -51,21 +51,21 @@ async function updateProfile() {
 
 <template>
     <article class="content-width column g-2 m-4">
-        <header class="row g-2">
-            <button class="dark" @click="navigateTo(`/topic/${id}`)">
-                <i class="fa-solid fa-arrow-left"></i>
-                View Topic
-            </button>
-        </header>
-        <section v-if="topic" class="box column g-4 p-5">
-            <div class="row between">
-                <h2>{{ id }}</h2>
+        <header class="row wrap inline between g-2">
+            <h1>{{ id }}</h1>
+            <div class="row g-2">
                 <!-- TODO add functionality for this -->
                 <button @click="">
                     <i class="fa-solid fa-signature"></i>
                     Request Rename
                 </button>
+                <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Refresh</span>
+                </ButtonSpinner>
             </div>
+        </header>
+        <section v-if="topic" class="box column g-4 p-5">
             <MarkdownEditor label="Description" :rows="4" v-model="topic.description" />
             <MarkdownEditor label="Rules" :rows="8" v-model="topic.rules" />
             <div class="field row">
