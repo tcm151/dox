@@ -27,7 +27,7 @@ Make the public demonstration a reliable representation of its enabled workflows
 - The 2026-11-17 review recorded route redirects and a hydration warning. `/` intentionally redirects to `/feed`; `/feed` routes to the last available tab and defaults to Home, falling back to the first enabled feed. A redirect to Home is not a defect by itself; record the actual entry URL and expected destination.
 - The local navigation browser spec passed 4/4, but does not verify demo routes or deployed settings. The owner identifies `forum.tcmdev.ca` as a personal blog and example deployment, not an onboarding site, and authorized read-only checks on 2026-11-18. Wait for feed content to settle before treating an empty state as a failure.
 - Completed [0062](0062-browser-validation-test-suite.md) provides the test infrastructure; it does not establish that a separately deployed demo is correctly configured.
-- Keep known suite failures under [0118](../0118-close-public-release-validation-gaps.md) and read-state presentation under [0115](../0115-distinguish-feed-loading-error-and-empty-states.md).
+- Keep known suite failures under [0118](../0118-close-public-release-validation-gaps.md) and read-state presentation under [0115](0115-distinguish-feed-loading-error-and-empty-states.md).
 - Coordinate the checked introduction/content path with [0129](../0129-complete-public-adoption-entrypoints.md). Do not build a separate marketing application.
 - Production settings/content changes require authorization; prefer isolated reproduction and owned test data.
 

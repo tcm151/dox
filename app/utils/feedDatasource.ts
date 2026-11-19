@@ -1,6 +1,6 @@
 import type { UseFetchOptions } from "#app"
 import type { FeedPage } from "@@/shared/types"
-import { computed, ref, toValue, watch, type MaybeRefOrGetter } from "vue"
+import { computed, ref, shallowRef, toValue, watch, type MaybeRefOrGetter } from "vue"
 
 type FeedDatasourceOptions<T> = Pick<UseFetchOptions<FeedPage<T>>, "query"> & {
     sorting?: boolean
@@ -21,15 +21,25 @@ export function useFeedDatasource<T extends { id: string }>(
     }))
 
     const page = useDatasource<FeedPage<T>>(endpoint, { query })
+    const retainedPage = shallowRef<FeedPage<T>>()
 
     const hints = useHints()
     const loading = ref(false)
-    const data = computed(() => page.data.value?.items)
-    const more = computed(() => page.data.value?.more ?? false)
+    const data = computed(() => (page.data.value ?? retainedPage.value)?.items)
+    const more = computed(() => (page.data.value ?? retainedPage.value)?.more ?? false)
+    watch([() => toValue(endpoint), query], () => {
+        retainedPage.value = undefined
+    }, { flush: "sync" })
     watch(() => toValue(endpoint), () => page.clear(), { flush: "sync" })
 
+    async function refresh() {
+        retainedPage.value = page.data.value ?? retainedPage.value
+        await page.refresh()
+        if (page.status.value === "success") retainedPage.value = undefined
+    }
+
     async function loadMore() {
-        const currentPage = page.data.value
+        const currentPage = page.data.value ?? retainedPage.value
         if (!currentPage?.more || loading.value || page.status.value === "pending") return
 
         const requestUrl = toValue(endpoint)
@@ -48,7 +58,7 @@ export function useFeedDatasource<T extends { id: string }>(
             if (
                 requestUrl !== toValue(endpoint)
                 || requestQuery !== query.value
-                || currentPage !== page.data.value
+                || currentPage !== (page.data.value ?? retainedPage.value)
             ) return
 
             const seenIds = new Set(currentPage.items.map(item => item.id))
@@ -60,6 +70,7 @@ export function useFeedDatasource<T extends { id: string }>(
             }
 
             page.data.value = { ...nextPage, items }
+            retainedPage.value = undefined
         }
         catch (error) {
             hints.addError(
@@ -80,7 +91,7 @@ export function useFeedDatasource<T extends { id: string }>(
         data,
         status: page.status,
         pending: page.pending,
-        refresh: page.refresh,
+        refresh,
         loading,
         more,
         loadMore,

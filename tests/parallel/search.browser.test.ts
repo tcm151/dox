@@ -14,6 +14,55 @@ test("finds the seeded post through the feed search UI", async ({ page }) => {
     await expect(page.locator(".feed-items").getByText(samplePostTitle, { exact: true })).toBeVisible()
 })
 
+test("shows a delayed initial search failure and allows retry", async ({ authenticatedPage: page }) => {
+    let attempts = 0
+    let signalFirstRequest = () => {}
+    let releaseFirstResponse = () => {}
+    const firstRequestStarted = new Promise<void>(resolve => { signalFirstRequest = resolve })
+    const firstResponseGate = new Promise<void>(resolve => { releaseFirstResponse = resolve })
+
+    await page.route(url => url.pathname === "/api/feed/search", async (route) => {
+        attempts++
+        if (attempts === 1) {
+            signalFirstRequest()
+            await firstResponseGate
+            await route.fulfill({
+                status: 400,
+                contentType: "application/json",
+                headers: { "x-request-id": "feed-search-initial-failure" },
+                body: JSON.stringify({ statusCode: 400, statusMessage: "Simulated search failure" }),
+            })
+            return
+        }
+
+        await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ items: [], pageSize: 20, offset: 0, more: false }),
+        })
+    })
+
+    try {
+        await page.locator("nav.tabstrip").getByRole("link", { name: "Search" }).click()
+        await firstRequestStarted
+        await expect(page.locator(".feed-items").getByRole("status")).toHaveText("Loading feed...")
+        await expect(page.locator(".feed-items").getByText("There is nothing here currently.")).toHaveCount(0)
+
+        releaseFirstResponse()
+        const errorState = page.locator(".feed-items").getByRole("alert")
+        await expect(errorState).toContainText("Unable to load this feed.")
+        await expect(errorState.getByRole("button", { name: "Retry" })).toBeVisible()
+        await expect(page.locator(".hint.danger")).toBeVisible()
+
+        await errorState.getByRole("button", { name: "Retry" }).click()
+        await expect(page.getByText("There is nothing here currently.", { exact: true })).toBeVisible()
+        expect(attempts).toBe(2)
+    }
+    finally {
+        releaseFirstResponse()
+    }
+})
+
 test("searches links and all types with collapsed advanced filters and URL history", async ({ authenticatedPage: page }) => {
     const marker = `searchlink${Date.now().toString(36)}`
     const topicId = `searchlink${Date.now().toString(36).replace(/\d/g, "a")}`

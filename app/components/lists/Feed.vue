@@ -29,6 +29,9 @@ function appVisibilityMode(tag: string) {
 const visibleItems = computed(() => (props.items.data.value ?? []).filter(item =>
     !contentTags(item).some(tag => (userSettings.preferences.content.visibility[tag] ?? appVisibilityMode(tag) ?? "show") === "filter"),
 ))
+const showLoading = computed(() => !visibleItems.value.length && ["idle", "pending"].includes(props.items.status.value))
+const showError = computed(() => !visibleItems.value.length && props.items.status.value === "error")
+const showEmpty = computed(() => !visibleItems.value.length && props.items.status.value === "success")
 
 const spinRefresh = ref(false)
 watch(() => props.items.status.value, (status) => {
@@ -68,7 +71,15 @@ watch(() => props.items.status.value, (status) => {
                 <div v-for="item in visibleItems" :key="item.id" class="feed-item">
                     <slot name="item" v-bind="(item as T)" />
                 </div>
-                <div v-if="!visibleItems.length" key="empty" class="box empty-state stacked">
+                <div v-if="showLoading" key="loading" class="box empty-state stacked" role="status">
+                    <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                    <span>Loading feed...</span>
+                </div>
+                <div v-else-if="showError" key="error" class="box empty-state stacked" role="alert">
+                    <span>Unable to load this feed.</span>
+                    <button class="link" @click="items.refresh()">Retry</button>
+                </div>
+                <div v-else-if="showEmpty" key="empty" class="box empty-state stacked">
                     {{ props.items.data.value?.length ? "No content matches your visibility preferences." : "There is nothing here currently." }}
                 </div>
             </TransitionGroup>
