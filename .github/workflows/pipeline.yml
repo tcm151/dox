@@ -1,0 +1,57 @@
+name: Pipeline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check installer Bash syntax
+        shell: bash
+        run: |
+          bash -n scripts/installer.sh
+          bash -n scripts/test-installer.sh
+
+      - name: Test release installer behavior
+        run: sudo env "PATH=$PATH" bash scripts/test-installer.sh
+
+      - name: Install Playwright browser
+        run: yarn playwright install --with-deps chromium
+
+      - name: Golar app and shared typecheck
+        run: yarn typecheck:golar
+
+      - name: Nuxt full typecheck
+        run: yarn typecheck
+
+      - name: Production build
+        run: yarn build
+
+      - name: Server and browser integration tests
+        run: yarn test

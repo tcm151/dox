@@ -66,7 +66,8 @@ Replace deferred or intermittent release-critical validation with reproducible e
 - Deferred referral tests from [0019](completed/0019-referral-redemption-hardening.md) now have an explicit acceptance owner here; [0056](completed/0056-basic-api-test-coverage-and-conventions.md) already established their prerequisite conventions.
 
 ## Relevant Files
-- .github/workflows/ci.yml
+- .github/workflows/pipeline.yml
+- .github/workflows/release.yml
 - docs/Contributing.md
 - docs/Quickstart.md
 - docs/Backups.md

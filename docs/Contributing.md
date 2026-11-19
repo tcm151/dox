@@ -195,7 +195,7 @@ Keep pull requests focused and use the repository template. It asks for a short 
 
 ### CI Checks
 
-CI validates PRs and pushes to `dev` with typechecks, a production build, and integration tests. Push the final release commit to `dev` and wait for CI to pass for that exact commit before tagging it. The `v*` tag workflow verifies that successful `dev` run, checks the package version, stages the Linux x64 archive, creates a SHA-256 file, and publishes both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md). Commit all intended source changes before the dated changelog update; that changelog commit must be the release commit, and no source changes may follow its successful `dev` CI run before tagging. If the commit changes, push it to `dev` and wait for CI again. Do not build or upload release assets manually in the normal workflow. Track external operator, live-service, and production-deployment checks separately, and do not claim they passed based on CI.
+The `Pipeline` workflow runs on pull requests and pushes to `dev`, with typechecks, a production build, and integration tests. Push the final release commit to `dev` and wait for `Pipeline` to pass for that exact commit before tagging it. The separate `Release` workflow runs on `v*` tags, verifies the successful `Pipeline` run for the same commit, checks the package version, stages the Linux x64 archive, creates a SHA-256 file, and publishes both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md). Commit all intended source changes before the dated changelog update; that changelog commit must be the release commit, and no source changes may follow its successful `Pipeline` run before tagging. If the commit changes, push it to `dev` and wait for `Pipeline` again. Do not build or upload release assets manually in the normal workflow. Track external operator, live-service, and production-deployment checks separately, and do not claim they passed based on CI.
 
 Run the same checks locally:
 
@@ -207,7 +207,7 @@ yarn build
 yarn test
 ```
 
-Repository branch protection must require `CI / Validate` before merging; workflow files cannot enable that GitHub setting themselves.
+Repository branch protection must require `Pipeline / Pipeline` before merging; workflow files cannot enable that GitHub setting themselves.
 
 ## 12. Release And Versioning
 
@@ -220,7 +220,7 @@ ClassicForum uses `year.major.patch` versions, such as `2026.5.0`, to support a 
 - The third number increments for fixes, docs, and small follow-up deployments within that release line.
 - At the start of a new year, begin again at `<year>.1.0`.
 
-After a patch is complete, review changes since the latest tag and update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together when the application version changes. Keep the release entry accurate to committed, verified changes. Push the final changelog commit to `dev`, wait for successful CI on that exact commit, and then tag and push it. A `v*` tag triggers the release workflow, which requires that prior `dev` CI success before publishing. Verify the resulting GitHub Release after it completes. Production deployment remains separate and requires a fresh backup and explicit approval.
+After a patch is complete, review changes since the latest tag and update `package.json` and [CHANGELOG.md](../CHANGELOG.md) together when the application version changes. Keep the release entry accurate to committed, verified changes. Push the final changelog commit to `dev`, wait for successful `Pipeline` CI on that exact commit, and then tag and push it. A `v*` tag triggers the separate `Release` workflow, which requires that prior `Pipeline` success before publishing. Verify the resulting GitHub Release after it completes. Production deployment remains separate and requires a fresh backup and explicit approval.
 
 ## It's Running
 

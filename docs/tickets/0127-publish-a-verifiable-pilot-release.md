@@ -41,7 +41,8 @@ Publish a verified Linux x64 package so it can be downloaded and applied to the 
 ## Relevant Files
 - scripts/stage-release.mjs
 - scripts/extract-release-notes.mjs
-- .github/workflows/ci.yml
+- .github/workflows/pipeline.yml
+- .github/workflows/release.yml
 - [release skill](../../.github/skills/release/SKILL.md)
 - scripts/installer.sh
 - package.json
