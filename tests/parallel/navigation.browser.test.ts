@@ -53,7 +53,9 @@ test("shows unread notification count on the inbox navigation icon", async ({ au
 })
 
 test("renders a public page and navigates to contact", async ({ page }) => {
-    await page.goto("/about")
+    const response = await page.goto("/about")
+    expect(response?.status()).toBe(200)
+    await expect(page).toHaveURL(/\/about$/)
 
     await expect(page.locator("main.page article")).toBeVisible()
     await expect(page.getByRole("link", { name: "Contact", exact: true })).toBeVisible()
