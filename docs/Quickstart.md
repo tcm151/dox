@@ -7,6 +7,7 @@ Use this guide to install a forum release on a Linux server. The examples unpack
 - A Linux VM or server with `systemd`.
 - Root shell access.
 - Node.js LTS installed and available as `node`.
+- `flock` from util-linux for serializing installer changes.
 - A Linux release artifact already downloaded to the server, such as `forum-<version>-linux-x64.tar.gz`.
 
 ## Install The Artifact
@@ -91,7 +92,7 @@ Run the packaged installer from your versioned release directory, for example `/
 ./installer.sh install
 ```
 
-The installer creates and starts `forum.service`, which starts automatically when the server boots. To use a different systemd unit name for this instance, prefix the install and every later installer command with the same value, for example `SERVICE_NAME=classicforum ./installer.sh install` and `SERVICE_NAME=classicforum ./installer.sh status`. The default is `forum`.
+The installer creates and starts `forum.service`, which starts automatically when the server boots. To use a different systemd unit name for this instance, prefix the install and every later installer command with the same value, for example `SERVICE_NAME=classicforum ./installer.sh install` and `SERVICE_NAME=classicforum ./installer.sh service status`. The default is `forum`.
 
 For a disposable release copy that should not create or manage a systemd service, use `./installer.sh install --no-service`. This still validates the configuration and prepares data paths; start the copy in the foreground with `./installer.sh run`.
 
@@ -108,7 +109,38 @@ sha256sum -c classicforum-db-<timestamp>-<pid>.tar.gz.sha256
 
 The installer backup includes only the RocksDB database directory, not `.env` or uploaded media. See [Backup And Restore](Backups.md) for remote database backups and media protection.
 
-Unpack the new version alongside the existing release while the current service continues running. When `install` runs, it validates the release and configuration, then stops the current service, points the systemd unit at the new version, and starts it:
+List stable Linux x64 releases, inspect installed versions, then upgrade to the latest or a selected version from the current release directory:
+
+```bash
+cd /srv/forum/<current-version>
+./installer.sh versions --available
+./installer.sh versions --installed
+./installer.sh versions --previous
+./installer.sh upgrade
+./installer.sh upgrade 2026.6.3
+```
+
+`versions --available` lists stable releases with both Linux x64 assets. `versions --installed` lists package directories on this deployment, and `versions --previous` lists those older than the service's configured release. `upgrade` selects the latest stable release; pass a version from the available list to select another. Upgrades refuse downgrades or overwriting an existing version. The command resolves the deployment root from the current installer location, verifies the downloaded checksum and archive paths, extracts the archive's `forum/<version>` directory, and moves that version beside the current release. It reuses the shared `.env`, service name, and Node.js executable, then checks that the app and database report ready at the expected version. The temporary download is removed after installation; previous release directories are kept.
+
+Install, upgrade, and cleanup use a shared deployment lock so they cannot modify the release tree concurrently. If another operation holds the lock, wait for it to finish and retry.
+
+For a custom systemd unit, pass the same `SERVICE_NAME` used during installation to each service or cleanup command, for example `SERVICE_NAME=classicforum ./installer.sh service status` or `SERVICE_NAME=classicforum ./installer.sh cleanup`.
+
+`cleanup` removes older installed release folders, while protecting the release containing the invoked installer and the service's configured release. It retains one previous release by default and prompts before deleting. Use `--keep N` to retain a different number of rollback copies; pass `--yes` for non-interactive cleanup:
+
+```bash
+./installer.sh versions --previous
+./installer.sh cleanup --keep 1
+./installer.sh cleanup --keep 1 --yes
+```
+
+Review `versions --previous` before running cleanup. Cleanup only considers version-named directories that contain both `installer.sh` and `server/index.mjs`. Use the same `SERVICE_NAME` for cleanup when the unit is customized.
+
+`upgrade` does not back up the database or media. Back up the database using the procedure appropriate to its mode before upgrading. The release artifact does not include a live `.env`, so `/srv/forum/.env` remains in place across version folders. The data remains in `/srv/forum/data`.
+
+### Manual Version-Pinned Upgrade
+
+To install a specific, already-downloaded release, unpack it alongside the existing release while the current service continues running. When `install` runs, it validates the release and configuration, then stops the current service, points the systemd unit at the new version, and starts it:
 
 ```bash
 cd /srv
@@ -117,26 +149,26 @@ cd /srv/forum/<new-version>
 ./installer.sh install
 ```
 
-The release artifact does not include a live `.env`, so `/srv/forum/.env` remains in place across version folders. The data remains in `/srv/forum/data`. Keep the old release folder and verified backup until the new release passes its health check.
+Keep the old release folder and verified database backup until the new release passes its health check.
 
 After installation, verify the service and health endpoint:
 
 ```bash
-./installer.sh status
+./installer.sh service status
 curl --fail-with-body http://127.0.0.1:8001/api/health
 ```
 
-Use the configured port in the health URL. Confirm the response reports both `app` and `database` as `ready`. If startup or migration fails, inspect `journalctl -u forum` (replace `forum` with your configured service name); do not start an older app against a database already migrated by the new release. Stop the service and restore the pre-upgrade backup first, following [Backup And Restore](Backups.md#restore-a-backup).
+Use the configured port in the health URL. Confirm the response reports both `app` and `database` as `ready`. If activation or readiness fails, the installer reports the systemd working directory and does not automatically roll back because startup may already have applied database migrations. Inspect `journalctl -u forum` (replace `forum` with your configured service name); do not start an older app against a database already migrated by the new release. Stop the service and restore a compatible pre-upgrade backup first, following [Backup And Restore](Backups.md#restore-a-backup).
 
 ## Service Commands
 
 The installer also wraps common service operations. If you chose a custom `SERVICE_NAME`, set it for these commands too:
 
 ```bash
-./installer.sh status
-./installer.sh start
-./installer.sh stop
-./installer.sh restart
+./installer.sh service status
+./installer.sh service start
+./installer.sh service stop
+./installer.sh service restart
 ./installer.sh run
 ```
 
@@ -147,7 +179,7 @@ Use `run` only when debugging in the foreground.
 Check the service:
 
 ```bash
-./installer.sh status
+./installer.sh service status
 ```
 
 Check the health endpoint:
@@ -173,5 +205,5 @@ tail -f ../logs/installer.log
 After changing `.env`, restart the service:
 
 ```bash
-./installer.sh restart
+./installer.sh service restart
 ```

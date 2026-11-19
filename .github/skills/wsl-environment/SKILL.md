@@ -59,6 +59,14 @@ sha256sum -c releases/forum-<version>-linux-x64.tar.gz.sha256
 
 Use the archive and checksum names printed by the staging command. Copy a release to the Windows checkout only when needed. Keep deployment data under `~/deployments/`, not inside `~/projects/`.
 
+Run the installer behavior tests from the Linux source checkout with:
+
+```bash
+sudo env "PATH=$PATH" bash scripts/test-installer.sh
+```
+
+The tests use temporary release trees and mocked `curl` and `systemctl` commands. They create and remove a uniquely named fixture under `/etc/systemd/system`; they do not contact GitHub or manage real services.
+
 ## 4. Manage A Test Deployment
 
 Keep each example in `~/deployments/<example-name>`, with its release, environment file, and data separated from the source checkout. Use an embedded database and example-specific ports. Bind the app and Nginx to loopback; never connect a local example to the production database.
@@ -66,12 +74,12 @@ Keep each example in `~/deployments/<example-name>`, with its release, environme
 From the packaged release directory, use the installer for the app service and `systemctl` for Nginx:
 
 ```bash
-sudo ./installer.sh status
+sudo ./installer.sh service status
 sudo systemctl status <proxy-service> --no-pager
-sudo ./installer.sh start
+sudo ./installer.sh service start
 sudo systemctl start <proxy-service>
 curl --fail-with-body http://127.0.0.1:<proxy-port>/api/health
-sudo ./installer.sh stop
+sudo ./installer.sh service stop
 sudo systemctl stop <proxy-service>
 ```
 

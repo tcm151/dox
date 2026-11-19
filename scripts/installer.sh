@@ -7,6 +7,7 @@ ENV_FILE="${ENV_FILE:-$ROOT_DIR/../.env}"
 ENV_EXAMPLE_FILE="$ROOT_DIR/.env.example"
 SERVER_ENTRY="$ROOT_DIR/server/index.mjs"
 SERVICE_NAME="${SERVICE_NAME:-forum}"
+RELEASE_REPOSITORY="tcm151/dox"
 LOG_DIR="$(dirname "$ENV_FILE")/logs"
 INSTALLER_LOG_FILE="$LOG_DIR/installer.log"
 APP_LOG_FILE="$LOG_DIR/forum.log"
@@ -15,18 +16,20 @@ cd "$ROOT_DIR"
 
 usage() {
     cat <<USAGE
-Usage: ./installer.sh [install [--no-service]|run|backup|restore [archive]|status|start|stop|restart]
+Usage: ./installer.sh [--help|--version] [install [--no-service]|versions [--available|--installed|--previous]|upgrade [version]|cleanup [--keep count] [--yes]|service {status|start|stop|restart}|run|backup|restore [archive]]
 
 Commands:
     install   Stop any running service, then install and start it. This is the default.
               Use --no-service to prepare a disposable deployment without systemd.
+    versions  List stable releases with --available, installed releases with --installed,
+              or older installed releases with --previous. Defaults to --available.
+    upgrade   Install the latest stable release, or a selected VERSION.
+    cleanup   Remove older installed releases; prompts before deletion unless --yes is used.
+              Use --keep N to retain rollback copies. Defaults to one previous release.
+    service   Manage the systemd service: status, start, stop, or restart.
     run       Start the app in the foreground for debugging.
     backup    Create a verified backup of an embedded database deployment.
     restore   Restore the latest embedded database backup, or a specified archive.
-    status    Show the systemd service status.
-    start     Start the systemd service.
-    stop      Stop the systemd service.
-    restart   Restart the systemd service.
 USAGE
 }
 
@@ -38,6 +41,35 @@ require_service_access() {
 
     if ! command -v systemctl >/dev/null 2>&1; then
         echo "systemctl is required for service installation."
+        exit 1
+    fi
+}
+
+acquire_deployment_lock() {
+    local deployment_root="$1"
+    local lock_file="$deployment_root/.classicforum-deployment.lock"
+    local inherited_lock_file expected_lock_file
+
+    if ! command -v flock >/dev/null 2>&1; then
+        echo "flock is required to safely change this deployment." >&2
+        exit 1
+    fi
+
+    if [ "${CLASSICFORUM_LOCK_FILE:-}" = "$lock_file" ] && [ -e "/proc/self/fd/9" ]; then
+        expected_lock_file="$(realpath -m "$lock_file")"
+        inherited_lock_file="$(readlink -f /proc/self/fd/9 2>/dev/null || true)"
+        if [ "$inherited_lock_file" = "$expected_lock_file" ] && flock -n 9; then
+            return
+        fi
+    fi
+
+    umask 077
+    if ! exec 9>>"$lock_file"; then
+        echo "Unable to open deployment lock: $lock_file" >&2
+        exit 1
+    fi
+    if ! flock -n 9; then
+        echo "Another install, upgrade, or cleanup is already running for $deployment_root." >&2
         exit 1
     fi
 }
@@ -69,6 +101,560 @@ start_service() {
     systemctl start "$SERVICE_NAME"
     echo "Started $SERVICE_NAME.service"
 }
+
+list_available_versions() (
+    local current_version node_binary page release_json page_count
+    current_version="$(basename "$ROOT_DIR")"
+    if [[ ! "$current_version" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
+        current_version=""
+    fi
+    node_binary="${NODE_BIN:-$(command -v node || true)}"
+    if [ -z "$node_binary" ] || [ ! -x "$node_binary" ]; then
+        echo "Node.js is required to parse release metadata." >&2
+        exit 1
+    fi
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "curl is required to list published releases." >&2
+        exit 1
+    fi
+
+    if [ -n "$current_version" ]; then
+        printf 'Stable Linux x64 releases (installed: %s):\n' "$current_version"
+    else
+        printf 'Stable Linux x64 releases:\n'
+    fi
+    page=1
+    while true; do
+        if ! release_json="$(curl --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --header 'Accept: application/vnd.github+json' "https://api.github.com/repos/$RELEASE_REPOSITORY/releases?per_page=100&page=$page")"; then
+            echo "Unable to fetch release metadata from GitHub." >&2
+            exit 1
+        fi
+
+        if ! page_count="$(printf '%s' "$release_json" | "$node_binary" -e '
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", chunk => { input += chunk; });
+process.stdin.on("end", () => {
+    try {
+        const releases = JSON.parse(input);
+        if (!Array.isArray(releases)) throw new Error("release list is not an array");
+        process.stdout.write(String(releases.length));
+    }
+    catch (error) {
+        console.error(`Invalid release list: ${error.message}`);
+        process.exitCode = 1;
+    }
+});
+')"; then
+            echo "Unable to parse the GitHub release list." >&2
+            exit 1
+        fi
+
+        printf '%s' "$release_json" | CURRENT_VERSION="$current_version" "$node_binary" -e '
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", chunk => { input += chunk; });
+process.stdin.on("end", () => {
+    try {
+        const releases = JSON.parse(input);
+        for (const release of releases) {
+            const match = /^v(\d{4}\.\d+\.\d+)$/.exec(release.tag_name || "");
+            if (release.draft || release.prerelease || !match) continue;
+            const version = match[1];
+            const archive = `forum-${version}-linux-x64.tar.gz`;
+            const checksum = `${archive}.sha256`;
+            if (![archive, checksum].every(name => release.assets?.some(asset => asset.name === name && asset.state === "uploaded"))) continue;
+            let state = "";
+            if (process.env.CURRENT_VERSION) {
+                if (version === process.env.CURRENT_VERSION) {
+                    state = " (installed)";
+                }
+                else {
+                    const compare = (left, right) => {
+                        const a = left.split(".").map(Number);
+                        const b = right.split(".").map(Number);
+                        for (let index = 0; index < a.length; index += 1) {
+                            if (a[index] !== b[index]) return a[index] < b[index] ? -1 : 1;
+                        }
+                        return 0;
+                    };
+                    state = compare(version, process.env.CURRENT_VERSION) > 0 ? " (upgrade)" : " (older; not upgradeable)";
+                }
+            }
+            process.stdout.write(`${version}${state}\n`);
+        }
+    }
+    catch (error) {
+        console.error(`Invalid release list: ${error.message}`);
+        process.exitCode = 1;
+    }
+});
+'
+
+        if ((page_count < 100)); then
+            break
+        fi
+        page=$((page + 1))
+    done
+)
+
+list_installed_versions() (
+    local deployment_root current_release service_release candidate version state
+    local -a release_directories=()
+    deployment_root="$(cd "$(dirname "$ROOT_DIR")" && pwd -P)"
+    current_release="$(realpath -e -- "$ROOT_DIR")"
+    service_release=""
+    if command -v systemctl >/dev/null 2>&1; then
+        service_release="$(systemctl show "$SERVICE_NAME" --property=WorkingDirectory --value 2>/dev/null || true)"
+        if [ -n "$service_release" ] && [ -d "$service_release" ]; then
+            service_release="$(realpath -e -- "$service_release")"
+        else
+            service_release=""
+        fi
+    fi
+
+    mapfile -t release_directories < <(find_release_directories "$deployment_root")
+    if [ "${#release_directories[@]}" -eq 0 ]; then
+        echo "No installed release directories found."
+        exit 0
+    fi
+
+    for candidate in "${release_directories[@]}"; do
+        candidate="$(realpath -e -- "$candidate")"
+        version="$(basename "$candidate")"
+        state=""
+        if [ "$candidate" = "$service_release" ]; then
+            state=" (service)"
+        fi
+        if [ "$candidate" = "$current_release" ]; then
+            state="${state} (current)"
+        fi
+        printf '%s%s\n' "$version" "$state"
+    done
+)
+
+upgrade_release() (
+    require_service_access
+
+    local requested_version current_version deployment_root resolved_env_file node_binary release_json release_endpoint latest_version version_relation archive_name checksum_name release_url work_dir archive_path checksum_path checksum_entry checksum_hash checksum_asset_name archive_listing member staged_release target_release health_port health_response attempt configured_release
+    requested_version="${1:-latest}"
+    current_version="$(basename "$ROOT_DIR")"
+    if [[ ! "$current_version" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Run upgrade from an installed versioned release directory." >&2
+        exit 1
+    fi
+    if [ "$requested_version" = "latest" ]; then
+        release_endpoint="latest"
+    elif [[ "$requested_version" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
+        release_endpoint="tags/v$requested_version"
+    else
+        echo "Specify a release version in YYYY.major.patch format, or 'latest'." >&2
+        exit 1
+    fi
+
+    if [ ! -f "$SERVER_ENTRY" ]; then
+        echo "Missing current release server entrypoint: $SERVER_ENTRY" >&2
+        exit 1
+    fi
+
+    if [ ! -f "$ENV_FILE" ]; then
+        echo "Missing shared environment file: $ENV_FILE" >&2
+        exit 1
+    fi
+    resolved_env_file="$(realpath -e -- "$ENV_FILE")"
+
+    if [ ! -f "/etc/systemd/system/$SERVICE_NAME.service" ]; then
+        echo "Missing /etc/systemd/system/$SERVICE_NAME.service; install this deployment before upgrading." >&2
+        exit 1
+    fi
+
+    node_binary="${NODE_BIN:-$(command -v node || true)}"
+    if [ -z "$node_binary" ] || [ ! -x "$node_binary" ]; then
+        echo "Node.js is required to validate release metadata and readiness." >&2
+        exit 1
+    fi
+    for tool in curl sha256sum tar realpath mktemp; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            echo "$tool is required to upgrade this deployment." >&2
+            exit 1
+        fi
+    done
+
+    deployment_root="$(cd "$(dirname "$ROOT_DIR")" && pwd -P)"
+    acquire_deployment_lock "$deployment_root"
+    echo "Checking release '$requested_version' from $RELEASE_REPOSITORY"
+    if ! release_json="$(curl --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --header 'Accept: application/vnd.github+json' "https://api.github.com/repos/$RELEASE_REPOSITORY/releases/$release_endpoint")"; then
+        echo "Unable to fetch release metadata from GitHub." >&2
+        exit 1
+    fi
+
+    if ! latest_version="$(printf '%s' "$release_json" | REQUESTED_VERSION="$requested_version" "$node_binary" -e '
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", chunk => { input += chunk; });
+process.stdin.on("end", () => {
+    try {
+        const release = JSON.parse(input);
+        const match = /^v(\d{4}\.\d+\.\d+)$/.exec(release.tag_name || "");
+        if (release.draft || release.prerelease || !match) {
+            throw new Error("latest release is not a stable versioned release");
+        }
+
+        const version = match[1];
+        if (process.env.REQUESTED_VERSION !== "latest" && process.env.REQUESTED_VERSION !== version) {
+            throw new Error("release tag does not match the requested version");
+        }
+        for (const name of [`forum-${version}-linux-x64.tar.gz`, `forum-${version}-linux-x64.tar.gz.sha256`]) {
+            if (!release.assets?.some(asset => asset.name === name && asset.state === "uploaded")) {
+                throw new Error(`release is missing uploaded asset ${name}`);
+            }
+        }
+
+        process.stdout.write(version);
+    }
+    catch (error) {
+        console.error(`Invalid latest release metadata: ${error.message}`);
+        process.exitCode = 1;
+    }
+});
+')"; then
+        echo "Selected release metadata is invalid or does not include the Linux x64 archive and checksum." >&2
+        exit 1
+    fi
+
+    if ! version_relation="$(CURRENT_VERSION="$current_version" LATEST_VERSION="$latest_version" "$node_binary" -e '
+const parse = value => {
+    if (!/^\d{4}\.\d+\.\d+$/.test(value)) throw new Error("invalid version");
+    return value.split(".").map(Number);
+};
+const current = parse(process.env.CURRENT_VERSION);
+const latest = parse(process.env.LATEST_VERSION);
+let comparison = 0;
+for (let index = 0; index < current.length; index += 1) {
+    if (current[index] !== latest[index]) {
+        comparison = current[index] < latest[index] ? -1 : 1;
+        break;
+    }
+}
+process.stdout.write(comparison === 0 ? "same" : comparison < 0 ? "older" : "newer");
+')"; then
+        echo "Unable to compare installed and published release versions." >&2
+        exit 1
+    fi
+
+    case "$version_relation" in
+        same)
+            echo "Already running the latest stable release: $current_version"
+            exit 0
+            ;;
+        older) ;;
+        newer)
+            echo "Refusing to downgrade from $current_version to older published release $latest_version." >&2
+            exit 1
+            ;;
+        *)
+            echo "Unable to compare installed and published release versions." >&2
+            exit 1
+            ;;
+    esac
+
+    target_release="$deployment_root/$latest_version"
+    if [ -e "$target_release" ] || [ -L "$target_release" ]; then
+        echo "Release target already exists; refusing to overwrite it: $target_release" >&2
+        exit 1
+    fi
+
+    archive_name="forum-$latest_version-linux-x64.tar.gz"
+    checksum_name="$archive_name.sha256"
+    release_url="https://github.com/$RELEASE_REPOSITORY/releases/download/v$latest_version"
+    work_dir="$(mktemp -d "$deployment_root/.classicforum-upgrade.XXXXXX")"
+    trap 'rm -rf -- "$work_dir"' EXIT
+    archive_path="$work_dir/$archive_name"
+    checksum_path="$work_dir/$checksum_name"
+
+    echo "Downloading $archive_name"
+    curl --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --connect-timeout 15 --max-time 300 --retry 3 --output "$archive_path" "$release_url/$archive_name"
+    curl --proto '=https' --proto-redir '=https' --fail --location --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --output "$checksum_path" "$release_url/$checksum_name"
+
+    checksum_entry="$(<"$checksum_path")"
+    if [[ "$checksum_entry" == *$'\n'* ]]; then
+        echo "Release checksum file must contain one entry." >&2
+        exit 1
+    fi
+    read -r checksum_hash checksum_asset_name <<<"$checksum_entry"
+    if [[ ! "$checksum_hash" =~ ^[[:xdigit:]]{64}$ ]] || [ "$checksum_asset_name" != "$archive_name" ]; then
+        echo "Release checksum file does not match $archive_name." >&2
+        exit 1
+    fi
+    (
+        cd "$work_dir"
+        sha256sum -c "$checksum_name"
+    )
+
+    if ! archive_listing="$(tar -tzf "$archive_path")" || [ -z "$archive_listing" ]; then
+        echo "Unable to read the downloaded release archive." >&2
+        exit 1
+    fi
+    while IFS= read -r member; do
+        case "$member" in
+            "forum/$latest_version/"|"forum/$latest_version/"*) ;;
+            *)
+                echo "Release archive contains an unexpected path: $member" >&2
+                exit 1
+                ;;
+        esac
+        case "$member" in
+            /*|../*|*/../*|*/..|*/./*|*/./|*//* )
+                echo "Release archive contains an unsafe path: $member" >&2
+                exit 1
+                ;;
+        esac
+    done <<<"$archive_listing"
+
+    mkdir "$work_dir/unpack"
+    tar --no-same-owner -xzf "$archive_path" -C "$work_dir/unpack"
+    staged_release="$work_dir/unpack/forum/$latest_version"
+    if [ ! -x "$staged_release/installer.sh" ] || [ ! -f "$staged_release/server/index.mjs" ]; then
+        echo "Release archive is missing its installer or server entrypoint." >&2
+        exit 1
+    fi
+
+    mv -- "$staged_release" "$target_release"
+    echo "Installing release $latest_version"
+    rm -rf -- "$work_dir"
+    trap - EXIT
+    if ! ENV_FILE="$resolved_env_file" SERVICE_NAME="$SERVICE_NAME" NODE_BIN="$node_binary" CLASSICFORUM_LOCK_FILE="$deployment_root/.classicforum-deployment.lock" "$target_release/installer.sh" install; then
+        report_upgrade_failure "The installer could not activate release $latest_version."
+        exit 1
+    fi
+
+    health_port="$(ENV_FILE="$resolved_env_file" "$BASH" -c 'set -a; . "$ENV_FILE"; set +a; printf "%s" "${PORT:-8001}"')"
+    if [[ ! "$health_port" =~ ^[0-9]{1,5}$ ]] || (( 10#$health_port < 1 || 10#$health_port > 65535 )); then
+        report_upgrade_failure "Invalid application PORT in $resolved_env_file; release $latest_version was installed but readiness could not be checked."
+        exit 1
+    fi
+
+    for attempt in {1..30}; do
+        if health_response="$(curl --fail --silent --show-error --max-time 5 "http://127.0.0.1:$health_port/api/health" 2>/dev/null)" && \
+            printf '%s' "$health_response" | EXPECTED_VERSION="$latest_version" "$node_binary" -e '
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", chunk => { input += chunk; });
+process.stdin.on("end", () => {
+    try {
+        const health = JSON.parse(input);
+        if (health.app === "ready" && health.database === "ready" && health.version === process.env.EXPECTED_VERSION) {
+            process.exit(0);
+        }
+    }
+    catch {}
+    process.exit(1);
+});
+'; then
+            echo "Upgrade to $latest_version is healthy; app and database are ready."
+            exit 0
+        fi
+        sleep 2
+    done
+
+    report_upgrade_failure "Release $latest_version was installed, but readiness did not report the expected app and database version."
+    exit 1
+)
+
+report_upgrade_failure() {
+    local reason="$1" configured_release
+    echo "$reason" >&2
+    configured_release="$(systemctl show "$SERVICE_NAME" --property=WorkingDirectory --value 2>/dev/null || true)"
+    if [ -n "$configured_release" ]; then
+        echo "Systemd is configured to run: $configured_release" >&2
+    fi
+    echo "No automatic rollback was attempted because startup may already have applied database migrations." >&2
+    echo "Do not start an older release until the database has been restored to a compatible backup." >&2
+    echo "Inspect service logs with: journalctl -u $SERVICE_NAME -n 50 --no-pager" >&2
+}
+
+version_is_older() {
+    local candidate_version="$1" reference_version="$2"
+    local candidate_year candidate_major candidate_patch reference_year reference_major reference_patch
+
+    if [[ ! "$candidate_version" =~ ^([0-9]{4})\.([0-9]+)\.([0-9]+)$ ]]; then
+        return 1
+    fi
+    candidate_year="${BASH_REMATCH[1]}"
+    candidate_major="${BASH_REMATCH[2]}"
+    candidate_patch="${BASH_REMATCH[3]}"
+
+    if [[ ! "$reference_version" =~ ^([0-9]{4})\.([0-9]+)\.([0-9]+)$ ]]; then
+        return 1
+    fi
+    reference_year="${BASH_REMATCH[1]}"
+    reference_major="${BASH_REMATCH[2]}"
+    reference_patch="${BASH_REMATCH[3]}"
+
+    if ((10#$candidate_year < 10#$reference_year)); then return 0; fi
+    if ((10#$candidate_year > 10#$reference_year)); then return 1; fi
+    if ((10#$candidate_major < 10#$reference_major)); then return 0; fi
+    if ((10#$candidate_major > 10#$reference_major)); then return 1; fi
+    ((10#$candidate_patch < 10#$reference_patch))
+}
+
+find_release_directories() (
+    local deployment_root="$1" candidate release_name
+    for candidate in "$deployment_root"/*; do
+        [ -d "$candidate" ] && [ ! -L "$candidate" ] || continue
+        release_name="$(basename "$candidate")"
+        [[ "$release_name" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]] || continue
+        [ -x "$candidate/installer.sh" ] && [ -f "$candidate/server/index.mjs" ] || continue
+        printf '%s\n' "$candidate"
+    done | sort -Vr
+)
+
+release_cleanup_context() {
+    local deployment_root="$1" service_release
+
+    if [[ ! "$(basename "$ROOT_DIR")" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Run this command from an installed versioned release directory." >&2
+        return 1
+    fi
+
+    CURRENT_RELEASE="$(realpath -e -- "$ROOT_DIR")"
+    service_release=""
+    if command -v systemctl >/dev/null 2>&1; then
+        service_release="$(systemctl show "$SERVICE_NAME" --property=WorkingDirectory --value 2>/dev/null || true)"
+    fi
+    if [ -n "$service_release" ] && [ -d "$service_release" ]; then
+        service_release="$(realpath -e -- "$service_release")"
+        case "$service_release" in
+            "$deployment_root"/*) ;;
+            *) service_release="" ;;
+        esac
+    else
+        service_release=""
+    fi
+
+    if [ -n "$service_release" ] && [[ "$(basename "$service_release")" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
+        REFERENCE_RELEASE="$service_release"
+    else
+        REFERENCE_RELEASE="$CURRENT_RELEASE"
+    fi
+}
+
+list_previous_versions() (
+    local deployment_root candidate candidate_version found=false
+    local -a release_directories=()
+    deployment_root="$(cd "$(dirname "$ROOT_DIR")" && pwd -P)"
+    release_cleanup_context "$deployment_root"
+    mapfile -t release_directories < <(find_release_directories "$deployment_root")
+
+    for candidate in "${release_directories[@]}"; do
+        candidate="$(realpath -e -- "$candidate")"
+        if [ "$candidate" = "$CURRENT_RELEASE" ] || [ "$candidate" = "$REFERENCE_RELEASE" ]; then
+            continue
+        fi
+        candidate_version="$(basename "$candidate")"
+        if version_is_older "$candidate_version" "$(basename "$REFERENCE_RELEASE")"; then
+            printf '%s\n' "$candidate_version"
+            found=true
+        fi
+    done
+
+    if [ "$found" = false ]; then
+        echo "No older installed release directories found."
+    fi
+)
+
+cleanup_versions() (
+    local keep_count=1 assume_yes=false deployment_root candidate candidate_version retained_count=0 confirmation
+    local -a release_directories=()
+    local -a releases_to_remove=()
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --keep)
+                if [ "$#" -lt 2 ] || [[ ! "$2" =~ ^[0-9]{1,3}$ ]]; then
+                    echo "Usage: ./installer.sh cleanup [--keep count] [--yes]" >&2
+                    exit 1
+                fi
+                keep_count=$((10#$2))
+                shift 2
+                ;;
+            --yes)
+                assume_yes=true
+                shift
+                ;;
+            *)
+                echo "Usage: ./installer.sh cleanup [--keep count] [--yes]" >&2
+                exit 1
+                ;;
+        esac
+    done
+
+    deployment_root="$(cd "$(dirname "$ROOT_DIR")" && pwd -P)"
+    require_service_access
+    if [ ! -f "/etc/systemd/system/$SERVICE_NAME.service" ]; then
+        echo "Missing /etc/systemd/system/$SERVICE_NAME.service; refusing to remove release directories." >&2
+        exit 1
+    fi
+    acquire_deployment_lock "$deployment_root"
+    release_cleanup_context "$deployment_root"
+    mapfile -t release_directories < <(find_release_directories "$deployment_root")
+
+    for candidate in "${release_directories[@]}"; do
+        candidate="$(realpath -e -- "$candidate")"
+        if [ "$candidate" = "$CURRENT_RELEASE" ] || [ "$candidate" = "$REFERENCE_RELEASE" ]; then
+            continue
+        fi
+        candidate_version="$(basename "$candidate")"
+        if ! version_is_older "$candidate_version" "$(basename "$REFERENCE_RELEASE")"; then
+            echo "Keeping non-previous release: $candidate_version"
+            continue
+        fi
+        if ((retained_count < keep_count)); then
+            echo "Keeping previous release: $candidate"
+            retained_count=$((retained_count + 1))
+            continue
+        fi
+
+        case "$candidate" in
+            "$deployment_root"/*) ;;
+            *)
+                echo "Refusing to remove a path outside the deployment root: $candidate" >&2
+                exit 1
+                ;;
+        esac
+        releases_to_remove+=("$candidate")
+    done
+
+    if [ "${#releases_to_remove[@]}" -eq 0 ]; then
+        echo "No older release directories to remove."
+        exit 0
+    fi
+
+    printf 'Older release directories to remove:\n'
+    printf '  %s\n' "${releases_to_remove[@]}"
+    if [ "$assume_yes" != true ]; then
+        if [ ! -t 0 ]; then
+            echo "Cleanup requires interactive confirmation; pass --yes to run non-interactively." >&2
+            exit 1
+        fi
+        printf 'Remove %s older release(s)? [y/N] ' "${#releases_to_remove[@]}"
+        read -r confirmation
+        case "$confirmation" in
+            y|Y|yes|YES) ;;
+            *)
+                echo "Cleanup cancelled."
+                exit 0
+                ;;
+        esac
+    fi
+
+    for candidate in "${releases_to_remove[@]}"; do
+        rm -rf -- "$candidate"
+        echo "Removed old release: $candidate"
+    done
+    if ((keep_count > 0)); then
+        echo "Retained $retained_count previous release(s)."
+    fi
+)
 
 ensure_environment_file() {
     if [ -f "$ENV_FILE" ]; then
@@ -225,7 +811,7 @@ SERVICE
     systemctl enable --now "$SERVICE_NAME"
 
     echo "Installed and started $SERVICE_NAME.service"
-    echo "Check status with: ./installer.sh status"
+    echo "Check status with: ./installer.sh service status"
     echo "Follow logs with: journalctl -u $SERVICE_NAME -f"
 }
 
@@ -573,6 +1159,7 @@ case "$COMMAND" in
         if [ "${2:-}" = "--no-service" ]; then
             local_install_service=false
         fi
+        acquire_deployment_lock "$(cd "$(dirname "$ROOT_DIR")" && pwd -P)"
         ensure_environment_file
         require_runtime
         load_environment
@@ -585,6 +1172,47 @@ case "$COMMAND" in
         else
             echo "Prepared deployment without installing a systemd service. Start it with: ./installer.sh run"
         fi
+        ;;
+    versions)
+        if [ "$#" -gt 2 ]; then
+            usage
+            exit 1
+        fi
+        case "${2:---available}" in
+            --available) list_available_versions ;;
+            --installed) list_installed_versions ;;
+            --previous) list_previous_versions ;;
+            *)
+                usage
+                exit 1
+                ;;
+        esac
+        ;;
+    upgrade)
+        if [ "$#" -gt 2 ]; then
+            usage
+            exit 1
+        fi
+        upgrade_release "${2:-latest}"
+        ;;
+    cleanup)
+        cleanup_versions "${@:2}"
+        ;;
+    service)
+        if [ "$#" -ne 2 ]; then
+            usage
+            exit 1
+        fi
+        case "$2" in
+            status) status_service ;;
+            start) start_service ;;
+            stop) stop_running_service ;;
+            restart) restart_service ;;
+            *)
+                usage
+                exit 1
+                ;;
+        esac
         ;;
     run)
         ensure_environment_file
@@ -619,6 +1247,14 @@ case "$COMMAND" in
         ;;
     -h|--help|help)
         usage
+        ;;
+    --version)
+        release_version="$(basename "$ROOT_DIR")"
+        if [[ "$release_version" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
+            printf 'ClassicForum %s\n' "$release_version"
+        else
+            printf 'ClassicForum installer (unversioned checkout)\n'
+        fi
         ;;
     *)
         usage

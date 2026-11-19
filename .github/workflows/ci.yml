@@ -34,6 +34,15 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Check installer Bash syntax
+        shell: bash
+        run: |
+          bash -n scripts/installer.sh
+          bash -n scripts/test-installer.sh
+
+      - name: Test release installer behavior
+        run: sudo env "PATH=$PATH" bash scripts/test-installer.sh
+
       - name: Install Playwright browser
         run: yarn playwright install --with-deps chromium
 
