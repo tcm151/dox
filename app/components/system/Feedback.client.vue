@@ -16,21 +16,30 @@ let feedback = ref("")
 
 let submitting = ref<boolean>(false)
 async function submitFeedback() {
+    if (submitting.value) return
+
     if (feedback.value == "") {
         hints.addWarning("You can't submit nothing.")
         return
     }
     
     submitting.value = true
-    await useApi("/api/feedback/submit", {
-        body: {
-            content: feedback.value,
-        }
-    })
-    submitting.value = false
+    try {
+        await useApi("/api/feedback/submit", {
+            body: {
+                content: feedback.value,
+            }
+        })
 
-    feedback.value = ""
-    emit('submit')
+        feedback.value = ""
+        emit('submit')
+    }
+    catch (error: unknown) {
+        hints.addError(error instanceof Error ? error.message : "Unable to submit feedback.", error)
+    }
+    finally {
+        submitting.value = false
+    }
 }
 </script>
 

@@ -1,28 +1,28 @@
 # Ticket 0122: Normalize Client Mutation And Error Lifecycles
 
 ## Status
-- State: Planned
+- State: In Progress
 - Priority: Medium
-- Next: Add a rejected feedback-submission case that verifies the form becomes usable again.
+- Next: Inventory similar legacy mutations and migrate only confirmed lifecycle or error-interpretation inconsistencies.
 
 ## Goal
 Apply the established try/catch/finally mutation lifecycle consistently to older interactive workflows. Make HTTP error interpretation reusable and type-safe while retaining existing hints, warnings, and request correlation.
 
 ## Requirements
-- [ ] Every touched mutation resets pending state on success, rejection, and unexpected failure.
-- [ ] Failed submissions retain user input and remain retryable without emitting success or closing the form.
-- [ ] Repeated activation while pending cannot issue duplicate requests from the affected controls or alternate submission paths.
+- [x] Every touched mutation resets pending state on success, rejection, and unexpected failure.
+- [x] Failed submissions retain user input and remain retryable without emitting success or closing the form.
+- [x] Repeated activation while pending cannot issue duplicate requests from the affected controls or alternate submission paths.
 - [ ] Shared error interpretation accepts unknown and consistently obtains the status and safe message without repeated any casts and property-chain variations.
-- [ ] Existing request IDs and original error objects reach the hint system where available.
+- [x] Existing request IDs and original error objects reach the hint system where available.
 - [ ] Expected 409/429 warning behavior and deliberate optional-feature fallback policies remain explicit rather than becoming generic errors.
-- [ ] Browser coverage checks feedback failure/retry, successful clearing, pending controls, and representative warning and request-correlation cases.
+- [x] Browser coverage checks feedback failure/retry, successful clearing, pending controls, and representative warning and request-correlation cases.
 
 ## Tasks
-- [ ] Repair the feedback submission lifecycle using the existing ButtonSpinner and hint conventions.
+- [x] Repair the feedback submission lifecycle using the existing ButtonSpinner and hint conventions.
 - [ ] Inventory similar legacy mutations and migrate only confirmed lifecycle or error-interpretation inconsistencies.
 - [ ] Reuse or add a small HTTP-error reader at the existing request/hint boundary without creating a universal mutation framework.
 - [ ] Replace duplicated status/message extraction in the affected workflows and preserve diagnostic context.
-- [ ] Add controlled failure and retry coverage.
+- [x] Add controlled failure and retry coverage.
 
 ## Notes
 - Feedback.client.vue sets submitting before awaiting the request and only clears it afterward; a rejection bypasses that reset.
@@ -45,4 +45,5 @@ Apply the established try/catch/finally mutation lifecycle consistently to older
 - tests/parallel/
 
 ## Progress Log
+- 2026-11-18: Fixed the feedback submission lifecycle with an in-flight guard, error hint carrying the original request error, and a `finally` reset. Added browser coverage for empty-input warning, pending disablement, duplicate activation, retained text and request ID on a mocked failure, and successful retry/clearing. `feedback.browser.test.ts` passed 1/1 test and 9/9 including setup; editor diagnostics are clean. Other mutation lifecycles and shared error normalization remain open.
 - 2026-11-17: Ticket created from the developer consistency review. Failure and retry behavior were not runtime-verified.
