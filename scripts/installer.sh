@@ -2,21 +2,71 @@
 
 set -euo pipefail
 
+NAME_ARGUMENT=""
+NAME_ARGUMENT_SET=false
+PROCESSED_ARGS=()
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --service-name)
+            if [ "$NAME_ARGUMENT_SET" = true ] || [ "$#" -lt 2 ]; then
+                echo "Usage: ./installer.sh [--service-name name] [command]" >&2
+                exit 1
+            fi
+            NAME_ARGUMENT="$2"
+            NAME_ARGUMENT_SET=true
+            shift 2
+            ;;
+        --service-name=*)
+            if [ "$NAME_ARGUMENT_SET" = true ]; then
+                echo "Specify --service-name only once." >&2
+                exit 1
+            fi
+            NAME_ARGUMENT="${1#--service-name=}"
+            NAME_ARGUMENT_SET=true
+            shift
+            ;;
+        *)
+            PROCESSED_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+set -- "${PROCESSED_ARGS[@]}"
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEPLOYMENT_ROOT="$(cd "$(dirname "$ROOT_DIR")" && pwd -P)"
 ENV_FILE="${ENV_FILE:-$ROOT_DIR/../.env}"
 ENV_EXAMPLE_FILE="$ROOT_DIR/.env.example"
 SERVER_ENTRY="$ROOT_DIR/server/index.mjs"
-SERVICE_NAME="${SERVICE_NAME:-forum}"
+INSTANCE_NAME="${INSTANCE_NAME:-$(basename "$DEPLOYMENT_ROOT")}"
+if [ "$NAME_ARGUMENT_SET" = true ]; then
+    INSTANCE_NAME="$NAME_ARGUMENT"
+    SERVICE_NAME="$NAME_ARGUMENT"
+else
+    SERVICE_NAME="${SERVICE_NAME:-$INSTANCE_NAME}"
+fi
+if [[ ! "$INSTANCE_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$ ]]; then
+    echo "Instance name must be a simple service-safe name." >&2
+    exit 1
+fi
+if [[ ! "$SERVICE_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.@-]{0,62}$ ]]; then
+    echo "SERVICE_NAME must be a simple systemd service name." >&2
+    exit 1
+fi
+export INSTANCE_NAME SERVICE_NAME
 RELEASE_REPOSITORY="tcm151/dox"
 LOG_DIR="$(dirname "$ENV_FILE")/logs"
-INSTALLER_LOG_FILE="$LOG_DIR/installer.log"
-APP_LOG_FILE="$LOG_DIR/forum.log"
+INSTALLER_LOG_FILE="$LOG_DIR/$SERVICE_NAME-installer.log"
+APP_LOG_FILE="$LOG_DIR/$SERVICE_NAME.log"
 
 cd "$ROOT_DIR"
 
 usage() {
     cat <<USAGE
-Usage: ./installer.sh [--help|--version] [install [--no-service]|versions [--available|--installed|--previous]|upgrade [version]|cleanup [--keep count] [--yes]|service {status|start|stop|restart}|run|backup|restore [archive]]
+Usage: ./installer.sh [--service-name NAME] [--help|--version] [install [--no-service]|versions [--available|--installed|--previous]|upgrade [version]|cleanup [--keep count] [--yes]|service {status|start|stop|restart}|proxy setup --server-name host|run|backup|restore [archive]]
+
+Use --service-name NAME before or after the command to select this instance's systemd service.
+Pass the same name when managing that service or deployment later.
 
 Commands:
     install   Stop any running service, then install and start it. This is the default.
@@ -27,6 +77,7 @@ Commands:
     cleanup   Remove older installed releases; prompts before deletion unless --yes is used.
               Use --keep N to retain rollback copies. Defaults to one previous release.
     service   Manage the systemd service: status, start, stop, or restart.
+    proxy     Generate a per-instance Nginx site with proxy setup --server-name host.
     run       Start the app in the foreground for debugging.
     backup    Create a verified backup of an embedded database deployment.
     restore   Restore the latest embedded database backup, or a specified archive.
@@ -41,6 +92,44 @@ require_service_access() {
 
     if ! command -v systemctl >/dev/null 2>&1; then
         echo "systemctl is required for service installation."
+        exit 1
+    fi
+}
+
+assert_service_instance() {
+    local service_release deployment_root
+    service_release="$(systemctl show "$SERVICE_NAME" --property=WorkingDirectory --value 2>/dev/null || true)"
+    deployment_root="$(realpath -m -- "$DEPLOYMENT_ROOT")"
+
+    if [ -z "$service_release" ]; then
+        if [ -e "/etc/systemd/system/$SERVICE_NAME.service" ]; then
+            echo "Unable to verify that $SERVICE_NAME.service belongs to this deployment." >&2
+            exit 1
+        fi
+        return
+    fi
+
+    service_release="$(realpath -m -- "$service_release")"
+    case "$service_release" in
+        "$deployment_root"|"$deployment_root"/*) ;;
+        *)
+            echo "$SERVICE_NAME.service is configured for another deployment: $service_release" >&2
+            echo "Choose a different --service-name or SERVICE_NAME value." >&2
+            exit 1
+            ;;
+    esac
+}
+
+assert_port_available() {
+    if ! command -v ss >/dev/null 2>&1; then
+        echo "ss from iproute2 is required to check whether PORT is already in use." >&2
+        exit 1
+    fi
+
+    local listeners
+    listeners="$(ss -H -ltn "sport = :$PORT")"
+    if [ -n "$listeners" ]; then
+        echo "PORT $PORT is already in use; choose a different PORT for this instance." >&2
         exit 1
     fi
 }
@@ -76,6 +165,7 @@ acquire_deployment_lock() {
 
 stop_running_service() {
     require_service_access
+    assert_service_instance
 
     if systemctl is-active --quiet "$SERVICE_NAME"; then
         echo "Stopping running $SERVICE_NAME.service"
@@ -87,17 +177,20 @@ stop_running_service() {
 
 restart_service() {
     require_service_access
+    assert_service_instance
     systemctl restart "$SERVICE_NAME"
     echo "Restarted $SERVICE_NAME.service"
 }
 
 status_service() {
     require_service_access
+    assert_service_instance
     systemctl status "$SERVICE_NAME" --no-pager
 }
 
 start_service() {
     require_service_access
+    assert_service_instance
     systemctl start "$SERVICE_NAME"
     echo "Started $SERVICE_NAME.service"
 }
@@ -267,6 +360,7 @@ upgrade_release() (
         echo "Missing /etc/systemd/system/$SERVICE_NAME.service; install this deployment before upgrading." >&2
         exit 1
     fi
+    assert_service_instance
 
     node_binary="${NODE_BIN:-$(command -v node || true)}"
     if [ -z "$node_binary" ] || [ ! -x "$node_binary" ]; then
@@ -594,6 +688,7 @@ cleanup_versions() (
         echo "Missing /etc/systemd/system/$SERVICE_NAME.service; refusing to remove release directories." >&2
         exit 1
     fi
+    assert_service_instance
     acquire_deployment_lock "$deployment_root"
     release_cleanup_context "$deployment_root"
     mapfile -t release_directories < <(find_release_directories "$deployment_root")
@@ -718,6 +813,11 @@ validate_runtime_config() {
         fi
     done
 
+    if [[ ! "$PORT" =~ ^[0-9]{1,5}$ ]] || ((10#$PORT < 1 || 10#$PORT > 65535)); then
+        echo "PORT must be an available TCP port between 1 and 65535." >&2
+        exit 1
+    fi
+
     case "$NUXT_SURREAL_INFO_TYPE" in
         embedded)
             case "$NUXT_SURREAL_INFO_URL" in
@@ -785,12 +885,13 @@ prepare_data_paths() {
 install_service() {
     SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
     require_service_access
+    assert_service_instance
 
     NODE_BIN="${NODE_BIN:-$(command -v node)}"
 
     cat >"$SERVICE_FILE" <<SERVICE
 [Unit]
-Description=forum
+Description=ClassicForum ($INSTANCE_NAME)
 After=network-online.target
 Wants=network-online.target
 
@@ -799,6 +900,8 @@ Type=simple
 WorkingDirectory=$ROOT_DIR
 Environment=NODE_BIN=$NODE_BIN
 Environment=ENV_FILE=$ENV_FILE
+Environment=INSTANCE_NAME=$INSTANCE_NAME
+Environment=SERVICE_NAME=$SERVICE_NAME
 ExecStart=$ROOT_DIR/installer.sh run
 Restart=on-failure
 RestartSec=5
@@ -814,6 +917,65 @@ SERVICE
     echo "Check status with: ./installer.sh service status"
     echo "Follow logs with: journalctl -u $SERVICE_NAME -f"
 }
+
+proxy_setup() (
+    local server_name="$1" proxy_directory="$DEPLOYMENT_ROOT/nginx" config_file temporary_file
+    local hostname_pattern='^([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)([.]([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?))*$'
+
+    if (( ${#server_name} > 253 )) || [[ ! "$server_name" =~ $hostname_pattern ]]; then
+        echo "Server name must be a DNS hostname without wildcards or configuration characters." >&2
+        exit 1
+    fi
+    if [ ! -f "$ENV_FILE" ]; then
+        echo "Missing environment file: $ENV_FILE" >&2
+        exit 1
+    fi
+
+    load_environment
+    if [[ ! "$PORT" =~ ^[0-9]{1,5}$ ]] || ((10#$PORT < 1 || 10#$PORT > 65535)); then
+        echo "PORT must be a TCP port between 1 and 65535." >&2
+        exit 1
+    fi
+
+    if [ -L "$proxy_directory" ]; then
+        echo "Refusing to write through an Nginx config directory symlink: $proxy_directory" >&2
+        exit 1
+    fi
+    mkdir -p "$proxy_directory"
+    config_file="$proxy_directory/$SERVICE_NAME.conf"
+    if [ -e "$config_file" ] || [ -L "$config_file" ]; then
+        echo "Nginx config already exists; refusing to overwrite: $config_file" >&2
+        exit 1
+    fi
+
+    temporary_file="$(mktemp "$proxy_directory/.${SERVICE_NAME}.conf.XXXXXX")"
+    trap 'rm -f -- "$temporary_file"' EXIT
+    cat > "$temporary_file" <<PROXY
+server {
+    listen 80;
+    server_name $server_name;
+    client_max_body_size 256m;
+
+    location / {
+        proxy_pass http://127.0.0.1:$PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$http_host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$remote_addr;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Host \$http_host;
+    }
+}
+PROXY
+    chmod 644 "$temporary_file"
+    if ! ln -- "$temporary_file" "$config_file"; then
+        echo "Unable to create Nginx config without replacing an existing file: $config_file" >&2
+        exit 1
+    fi
+
+    echo "Created per-instance Nginx config: $config_file"
+    echo "Review it, enable it in your Nginx configuration, then run nginx -t before reloading Nginx."
+)
 
 run_foreground() {
     echo "Starting forum on ${NUXT_PUBLIC_BASE_URL}"
@@ -1168,6 +1330,7 @@ case "$COMMAND" in
         prepare_data_paths
         if [ "$local_install_service" = true ]; then
             stop_running_service
+            assert_port_available
             install_service
         else
             echo "Prepared deployment without installing a systemd service. Start it with: ./installer.sh run"
@@ -1213,6 +1376,13 @@ case "$COMMAND" in
                 exit 1
                 ;;
         esac
+        ;;
+    proxy)
+        if [ "$#" -ne 4 ] || [ "${2:-}" != "setup" ] || [ "${3:-}" != "--server-name" ]; then
+            usage
+            exit 1
+        fi
+        proxy_setup "$4"
         ;;
     run)
         ensure_environment_file

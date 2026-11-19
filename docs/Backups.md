@@ -4,11 +4,11 @@ Use this runbook to protect and restore ClassicForum application data. Test each
 
 ## Embedded SurrealDB
 
-The quickstart uses `/srv/forum/.env` as an example shared configuration path, and `NUXT_DATA_PATH=../data` resolves from the versioned app directory to `/srv/forum/data`. Choose your own install root and substitute it in the commands below. That data directory contains the embedded RocksDB database and uploaded image/audio files. The installer backup command includes only the configured RocksDB database directory; it does not include `.env`, media, or other files. Back up uploaded media separately if the recovery plan requires it. If the deployment uses a different database URL, adapt the restore path accordingly.
+All `/srv/forum/...` paths below are examples; replace `/srv/forum` with your actual install root. In this example, the Quickstart uses `/srv/forum/.env` as shared configuration, and `NUXT_DATA_PATH=../data` resolves from the versioned app directory to `/srv/forum/data`. That data directory contains the embedded RocksDB database and uploaded image/audio files. The installer backup command includes only the configured RocksDB database directory; it does not include `.env`, media, or other files. Back up uploaded media separately if the recovery plan requires it. If the deployment uses a different database URL, adapt the restore path accordingly.
 
 ### Create A Backup
 
-Run as root from the versioned release directory. If you customized the systemd unit name, pass the same `SERVICE_NAME` value to installer commands that inspect or manage the service, for example `SERVICE_NAME=classicforum ./installer.sh backup`:
+Run as root from the versioned release directory. If you customized the systemd unit name, pass the same `--service-name` value to installer commands that inspect or manage the service, for example `./installer.sh backup --service-name classicforum`. Existing automation can continue to set `SERVICE_NAME` in the environment.
 
 ```bash
 cd /srv/forum/<current-version>
@@ -30,12 +30,12 @@ Remote SurrealDB is not included. Use the [remote database backup procedure](#re
 
 ### Restore A Backup
 
-Choose a compatible release. Run the restore command as root from its versioned directory, passing the configured `SERVICE_NAME` if it is not the default `forum`. With no archive argument, it restores the newest timestamped backup in `BACKUP_DIR` or the default `backups/` directory beside the shared `.env`. An archive path can be supplied to select a specific restore point:
+Choose a compatible release. Run the restore command as root from its versioned directory, passing the configured `--service-name` if it is not the default `forum`. With no archive argument, it restores the newest timestamped backup in `BACKUP_DIR` or the default `backups/` directory beside the shared `.env`. An archive path can be supplied to select a specific restore point:
 
 ```bash
 cd /srv/forum/<restore-version>
-./installer.sh restore
-# Or: ./installer.sh restore /srv/forum/backups/classicforum-db-<timestamp>-<pid>.tar.gz
+./installer.sh restore --service-name classicforum
+# Or: ./installer.sh restore --service-name classicforum /srv/forum/backups/classicforum-db-<timestamp>-<pid>.tar.gz
 ```
 
 Before changing the database, the command verifies the SHA-256 checksum, gzip stream, archive paths, and configured database directory. It stops an active service for the restore and starts it again only if it was active beforehand. It does not install or enable a systemd service. The restored database takes the ownership of the existing database, or its parent directory if the database does not yet exist. The existing `.env` and media remain in place. If a database already exists, it is preserved as `<database-path>.before-restore-<timestamp>-<pid>` for rollback.

@@ -21,10 +21,16 @@ TEST_ROOT="$(mktemp -d)"
 SERVICE_NAME="classicforum-installer-test-$$"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 SERVICE_FILE_CREATED=false
+SECOND_DEPLOYMENT_ROOT=""
+SECOND_SERVICE_FILE=""
+SECOND_SERVICE_FILE_CREATED=false
 cleanup_test_files() {
     rm -rf -- "$TEST_ROOT"
     if [ "$SERVICE_FILE_CREATED" = true ]; then
         rm -f -- "$SERVICE_FILE"
+    fi
+    if [ "$SECOND_SERVICE_FILE_CREATED" = true ]; then
+        rm -f -- "$SECOND_SERVICE_FILE"
     fi
 }
 trap cleanup_test_files EXIT
@@ -99,6 +105,7 @@ case "${1:-}" in
         service_file="/etc/systemd/system/$SERVICE_NAME.service"
         expected_release="${INSTALLER_TEST_EXPECTED_SERVICE_DIR:?}"
         if ! grep -Fxq "WorkingDirectory=$expected_release" "$service_file" ||
+            ! grep -Fxq "Environment=SERVICE_NAME=$SERVICE_NAME" "$service_file" ||
             ! grep -Fxq "ExecStart=$expected_release/installer.sh run" "$service_file"; then
             echo "Systemd unit does not point to the expected release." >&2
             exit 1
@@ -161,7 +168,15 @@ case "$url" in
 esac
 CURL
 
-chmod +x "$MOCK_BIN/systemctl" "$MOCK_BIN/curl"
+cat > "$MOCK_BIN/ss" <<'SS'
+#!/usr/bin/env bash
+set -euo pipefail
+if [ -n "${INSTALLER_TEST_BUSY_PORT:-}" ] && [[ "$*" == *":$INSTALLER_TEST_BUSY_PORT"* ]]; then
+    printf 'LISTEN 0 128 127.0.0.1:%s 0.0.0.0:*\n' "$INSTALLER_TEST_BUSY_PORT"
+fi
+SS
+
+chmod +x "$MOCK_BIN/systemctl" "$MOCK_BIN/curl" "$MOCK_BIN/ss"
 
 run_success() {
     local output_file="$1"
@@ -237,6 +252,16 @@ if [ -s "$CURL_LOG" ]; then
     echo "Upgrade made network requests while the deployment lock was held." >&2
     exit 1
 fi
+
+FOREIGN_RELEASE="$TEST_ROOT/other-deployment/2026.6.3"
+mkdir -p "$FOREIGN_RELEASE"
+if env "${LOCK_ENV[@]}" "INSTALLER_TEST_SERVICE_DIR=$FOREIGN_RELEASE" "$CURRENT_RELEASE/installer.sh" install > "$TEST_ROOT/cross-instance.log" 2>&1; then
+    cat "$TEST_ROOT/cross-instance.log" >&2
+    echo "Installer replaced a service owned by another deployment." >&2
+    exit 1
+fi
+grep -Fq "$SERVICE_NAME.service is configured for another deployment" "$TEST_ROOT/cross-instance.log"
+
 if [ ! -d "$DEPLOYMENT_ROOT/2026.6.0" ]; then
     echo "Cleanup removed an old release while the deployment lock was held." >&2
     exit 1
@@ -292,5 +317,86 @@ if [ ! -x "$DEPLOYMENT_ROOT/2026.6.4/installer.sh" ]; then
     exit 1
 fi
 grep -Fq 'Upgrade to 2026.6.4 is healthy' "$TEST_ROOT/upgrade.log"
+
+SECOND_DEPLOYMENT_ROOT="$TEST_ROOT/forum-isolated-$$"
+SECOND_SERVICE_NAME="$(basename "$SECOND_DEPLOYMENT_ROOT")"
+SECOND_SERVICE_FILE="/etc/systemd/system/$SECOND_SERVICE_NAME.service"
+SECOND_RELEASE="$SECOND_DEPLOYMENT_ROOT/2026.6.3"
+SECOND_ENV_FILE="$TEST_ROOT/isolated.env"
+SECOND_ACTIVE_RELEASE="$TEST_ROOT/isolated-active-release"
+mkdir -p "$SECOND_RELEASE"
+create_release "$SECOND_RELEASE"
+sed \
+    -e 's/^PORT=8001$/PORT=8002/' \
+    -e "s|^NUXT_DATA_PATH=.*|NUXT_DATA_PATH=$TEST_ROOT/isolated-data|" \
+    -e 's/^NUXT_SURREAL_INFO_NAMESPACE=.*/NUXT_SURREAL_INFO_NAMESPACE=installer_test_isolated/' \
+    -e 's/^NUXT_SURREAL_INFO_DATABASE=.*/NUXT_SURREAL_INFO_DATABASE=installer_test_isolated/' \
+    "$ENV_FILE" > "$SECOND_ENV_FILE"
+if [ -e "$SECOND_SERVICE_FILE" ] || [ -L "$SECOND_SERVICE_FILE" ]; then
+    echo "Refusing to overwrite an existing second-instance test service: $SECOND_SERVICE_FILE" >&2
+    exit 1
+fi
+SECOND_SERVICE_FILE_CREATED=true
+run_success "$TEST_ROOT/isolated-install.log" env \
+    "PATH=$TEST_PATH" \
+    "ENV_FILE=$SECOND_ENV_FILE" \
+    "NODE_BIN=$NODE_BINARY" \
+    "INSTALLER_TEST_SERVICE_DIR=" \
+    "INSTALLER_TEST_EXPECTED_SERVICE_DIR=$SECOND_RELEASE" \
+    "INSTALLER_TEST_ACTIVE_RELEASE=$SECOND_ACTIVE_RELEASE" \
+    "$SECOND_RELEASE/installer.sh" install --service-name "$SECOND_SERVICE_NAME"
+grep -Fxq "WorkingDirectory=$SECOND_RELEASE" "$SECOND_SERVICE_FILE"
+if [ "$(cat "$ACTIVE_RELEASE_FILE")" != "$EXPECTED_SERVICE_RELEASE" ]; then
+    echo "Installing the second instance changed the first instance's active release." >&2
+    exit 1
+fi
+
+SECOND_PROXY_CONFIG="$SECOND_DEPLOYMENT_ROOT/nginx/$SECOND_SERVICE_NAME.conf"
+run_success "$TEST_ROOT/proxy-setup.log" env \
+    "PATH=$TEST_PATH" \
+    "ENV_FILE=$SECOND_ENV_FILE" \
+    "$SECOND_RELEASE/installer.sh" \
+    proxy setup --server-name isolated.example.test --service-name "$SECOND_SERVICE_NAME"
+grep -Fq 'server_name isolated.example.test;' "$SECOND_PROXY_CONFIG"
+grep -Fq 'proxy_pass http://127.0.0.1:8002;' "$SECOND_PROXY_CONFIG"
+grep -Fq 'proxy_set_header X-Forwarded-For $remote_addr;' "$SECOND_PROXY_CONFIG"
+
+if env \
+    "PATH=$TEST_PATH" \
+    "ENV_FILE=$SECOND_ENV_FILE" \
+    "$SECOND_RELEASE/installer.sh" \
+    proxy setup --server-name replacement.example.test --service-name "$SECOND_SERVICE_NAME" > "$TEST_ROOT/proxy-overwrite.log" 2>&1; then
+    cat "$TEST_ROOT/proxy-overwrite.log" >&2
+    echo "Proxy setup overwrote an existing per-instance config." >&2
+    exit 1
+fi
+grep -Fq 'refusing to overwrite' "$TEST_ROOT/proxy-overwrite.log"
+grep -Fq 'server_name isolated.example.test;' "$SECOND_PROXY_CONFIG"
+
+if env \
+    "PATH=$TEST_PATH" \
+    "ENV_FILE=$SECOND_ENV_FILE" \
+    "$SECOND_RELEASE/installer.sh" \
+    proxy setup --server-name 'isolated.example.test; return 301 /;' --service-name invalid-proxy-name > "$TEST_ROOT/proxy-invalid-name.log" 2>&1; then
+    cat "$TEST_ROOT/proxy-invalid-name.log" >&2
+    echo "Proxy setup accepted an unsafe server name." >&2
+    exit 1
+fi
+grep -Fq 'Server name must be a DNS hostname' "$TEST_ROOT/proxy-invalid-name.log"
+
+if env \
+    "PATH=$TEST_PATH" \
+    "ENV_FILE=$SECOND_ENV_FILE" \
+    "NODE_BIN=$NODE_BINARY" \
+    "INSTALLER_TEST_SERVICE_DIR=$SECOND_RELEASE" \
+    "INSTALLER_TEST_EXPECTED_SERVICE_DIR=$SECOND_RELEASE" \
+    "INSTALLER_TEST_ACTIVE_RELEASE=$SECOND_ACTIVE_RELEASE" \
+    "INSTALLER_TEST_BUSY_PORT=8002" \
+    "$SECOND_RELEASE/installer.sh" install --service-name "$SECOND_SERVICE_NAME" > "$TEST_ROOT/port-conflict.log" 2>&1; then
+    cat "$TEST_ROOT/port-conflict.log" >&2
+    echo "Installer accepted a port already used by another process." >&2
+    exit 1
+fi
+grep -Fq 'PORT 8002 is already in use' "$TEST_ROOT/port-conflict.log"
 
 echo "Installer behavior tests passed."

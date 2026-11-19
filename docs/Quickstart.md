@@ -100,9 +100,39 @@ Run the packaged installer from your versioned release directory, for example `/
 ./installer.sh install
 ```
 
-The installer creates and starts `forum.service`, which starts automatically when the server boots. To use a different systemd unit name for this instance, prefix the install and every later installer command with the same value, for example `SERVICE_NAME=classicforum ./installer.sh install` and `SERVICE_NAME=classicforum ./installer.sh service status`. The default is `forum`.
+The installer creates and starts `forum.service`, which starts automatically when the server boots. Use `--service-name` to choose another unit name, and pass the same value to every later installer command for that instance:
+
+```bash
+./installer.sh install --service-name classicforum
+./installer.sh service status --service-name classicforum
+```
+
+The option can appear before or after the command. Existing scripts and deployments can continue to set the `SERVICE_NAME` environment variable; an explicit `--service-name` takes precedence. The default name is the deployment directory basename, `forum` in this example.
 
 For a disposable release copy that should not create or manage a systemd service, use `./installer.sh install --no-service`. This still validates the configuration and prepares data paths; start the copy in the foreground with `./installer.sh run`.
+
+## Nginx Proxy
+
+After configuring the shared `.env`, generate a per-instance HTTP site using the public hostname and the app's configured `PORT`:
+
+```bash
+./installer.sh proxy setup --server-name forum.example.com
+# For a custom service name:
+./installer.sh proxy setup --server-name forum.example.com --service-name classicforum
+```
+
+The installer writes `../nginx/<service-name>.conf` and refuses to replace an existing file. The generated site forwards the host, client address, and scheme to the app on loopback. It listens on HTTP port 80; it does not install Nginx, enable the site, configure TLS, or reload a shared Nginx service.
+
+On Ubuntu, inspect the generated file, then enable it without replacing an existing site:
+
+```bash
+sudo ln -s /srv/forum/nginx/forum.conf /etc/nginx/sites-available/forum
+sudo ln -s /etc/nginx/sites-available/forum /etc/nginx/sites-enabled/forum
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+Configure TLS with your chosen certificate tooling. Set `NUXT_TRUSTED_PROXIES=127.0.0.1` when this Nginx instance connects to the app over loopback. Multiple installations can share Nginx by using distinct service names, hostnames, `.env` files, and app ports.
 
 ## Upgrade
 
@@ -132,7 +162,7 @@ cd /srv/forum/<current-version>
 
 Install, upgrade, and cleanup use a shared deployment lock so they cannot modify the release tree concurrently. If another operation holds the lock, wait for it to finish and retry.
 
-For a custom systemd unit, pass the same `SERVICE_NAME` used during installation to each service or cleanup command, for example `SERVICE_NAME=classicforum ./installer.sh service status` or `SERVICE_NAME=classicforum ./installer.sh cleanup`.
+For a custom systemd unit, pass the same `--service-name` used during installation to each service, upgrade, backup, restore, or cleanup command, for example `./installer.sh service status --service-name classicforum` or `./installer.sh cleanup --service-name classicforum`.
 
 `cleanup` removes older installed release folders, while protecting the release containing the invoked installer and the service's configured release. It retains one previous release by default and prompts before deleting. Use `--keep N` to retain a different number of rollback copies; pass `--yes` for non-interactive cleanup:
 
@@ -142,7 +172,7 @@ For a custom systemd unit, pass the same `SERVICE_NAME` used during installation
 ./installer.sh cleanup --keep 1 --yes
 ```
 
-Review `versions --previous` before running cleanup. Cleanup only considers version-named directories that contain both `installer.sh` and `server/index.mjs`. Use the same `SERVICE_NAME` for cleanup when the unit is customized.
+Review `versions --previous` before running cleanup. Cleanup only considers version-named directories that contain both `installer.sh` and `server/index.mjs`. Use the same `--service-name` for cleanup when the unit is customized.
 
 `upgrade` does not back up the database or media. Back up the database using the procedure appropriate to its mode before upgrading. The release artifact does not include a live `.env`, so `/srv/forum/.env` remains in place across version folders. The data remains in `/srv/forum/data`.
 
@@ -170,7 +200,7 @@ Use the configured port in the health URL. Confirm the response reports both `ap
 
 ## Service Commands
 
-The installer also wraps common service operations. If you chose a custom `SERVICE_NAME`, set it for these commands too:
+The installer also wraps common service operations. If you chose a custom service name, pass it to these commands too:
 
 ```bash
 ./installer.sh service status
@@ -179,6 +209,8 @@ The installer also wraps common service operations. If you chose a custom `SERVI
 ./installer.sh service restart
 ./installer.sh run
 ```
+
+For example, use `./installer.sh service status --service-name classicforum` for a custom unit.
 
 Use `run` only when debugging in the foreground.
 
@@ -207,8 +239,10 @@ The installer and app logs are stored beside the shared `.env` and append across
 tail -f ../logs/forum.log
 
 # Installer logs
-tail -f ../logs/installer.log
+tail -f ../logs/forum-installer.log
 ```
+
+Both log filenames use the configured service name instead of `forum` for a custom instance.
 
 After changing `.env`, restart the service:
 
