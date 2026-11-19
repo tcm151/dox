@@ -102,6 +102,12 @@ jobs:
           filename="${archive##*/}"
           (cd releases && sha256sum "$filename" > "$filename.sha256")
 
+      - name: Extract release notes from changelog
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          node scripts/extract-release-notes.mjs "$version" > release-notes.md
+
       - name: Create release from tag
         env:
           GH_TOKEN: ${{ github.token }}
@@ -109,4 +115,4 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           archive="releases/forum-${version}-linux-x64.tar.gz"
-          gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag "$archive" "$archive.sha256"
+          gh release create "$GITHUB_REF_NAME" --notes-file release-notes.md --verify-tag "$archive" "$archive.sha256"

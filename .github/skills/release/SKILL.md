@@ -32,7 +32,7 @@ CI owns release validation, archive creation, checksum generation, and GitHub Re
 ## 4. Tag And Let CI Publish
 
 - Confirm the clean candidate commit, matching package/changelog version, passing local checks, and absent tag. Never move or reuse a published tag.
-- Create the version tag on the final changelog commit. Push the tag only when the user has authorized triggering the release workflow; a pushed `v*` tag runs validation, verifies the tag matches `package.json`, builds the configured Linux x64 archive, creates its SHA-256 file, and publishes both through GitHub Releases.
+- Create the version tag on the final changelog commit. Push the tag only when the user has authorized triggering the release workflow; a pushed `v*` tag runs validation, verifies the tag matches `package.json`, builds the configured Linux x64 archive, creates its SHA-256 file, and publishes both through GitHub Releases. Release notes use the unique dated `CHANGELOG.md` section matching the tag version; a missing or duplicate section fails publication.
 - Do not run `yarn stage:release` or manually create/upload a GitHub Release as part of the normal workflow. Use those only when explicitly requested or needed to diagnose CI.
 - After CI completes, confirm it passed on the tagged commit and that the GitHub Release contains the expected archive and checksum. Record CI and asset results in the release ticket. Production installation remains a separate operation requiring a fresh backup and explicit approval.
 
