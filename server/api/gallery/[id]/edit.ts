@@ -1,14 +1,10 @@
 import type { Gallery } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
 
-interface EditGalleryRequest {
-    description: string
-}
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
-    const body = await readBody<EditGalleryRequest>(event)
+    const body = await readBody<{ description: string }>(event)
 
     new Validator("Gallery")
         .string(body.description, "description", { maxLength: 256 })

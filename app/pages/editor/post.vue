@@ -2,12 +2,11 @@
 import Drafts from "./components/Drafts.client.vue"
 import EditorFrame from "./components/EditorFrame.vue"
 import UploadedImages from "./components/UploadedImages.vue"
-import type { Post, Draft } from '@@/shared/types'
+import type { CreateDraftRequest, CreatePostRequest, Draft, Post, UpdateDraftRequest } from '@@/shared/types'
 
 const hints = useHints()
 const valid = useValidation()
 const settings = useSettings()
-const session = getSession()
 
 const route = useRoute()
 type PostEditorState = Pick<Draft, "title" | "content" | "tags" | "replyTo"> & { id?: string }
@@ -60,21 +59,13 @@ async function submit() {
         submitting.value = true
         const post = await useApi<Pick<Post, "id">>("/api/post/add", {
             body: {
-                user: session.user!.id,
                 title: draft.value.title,
                 content: draft.value.content,
                 tags: draft.value.tags,
-                time: new Date(),
                 replyTo: draft.value.replyTo,
-                votes: {
-                    positive: [session.user!.id],
-                    misleading: [],
-                    negative: [],
-                },
                 topics: topics.items,
-                comments: [],
                 images: images.uploaded.map(i => i.id)
-            }
+            } satisfies CreatePostRequest
         })
         
         images.uploaded = []
@@ -109,25 +100,21 @@ async function saveDraft() {
                     title: draft.value.title,
                     content: draft.value.content,
                     tags: draft.value.tags,
-                    replyTo: draft.value.replyTo,
                     topics: topics.items,
-                    images: images.uploaded.map(i => i.id)
-                }
+                } satisfies UpdateDraftRequest
             })
             hints.addSuccess("Draft updated.")
         }
         else {
             const response = await useApi<Draft>("/api/profile/drafts/add", {
                 body: {
-                    user: session.user!.id,
                     title: draft.value.title,
                     content: draft.value.content,
                     tags: draft.value.tags,
-                    time: new Date(),
                     replyTo: draft.value.replyTo,
                     topics: topics.items,
                     images: images.uploaded.map(i => i.id)
-                }
+                } satisfies CreateDraftRequest
             })
             draft.value.id = response.id
             hints.addSuccess("Draft saved.")

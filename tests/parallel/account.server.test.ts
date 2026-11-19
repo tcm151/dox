@@ -493,7 +493,7 @@ it("lists users and returns the configured admin", async () => {
     expect(admin?.roles).toEqual(expect.arrayContaining(["admin", "moderator", "developer"]))
 })
 
-it("allows draft owners to delete their drafts and rejects other users", async () => {
+it("updates drafts and allows owners to delete them while rejecting other users", async () => {
     const account = await createAccount()
 
     try {
@@ -507,12 +507,33 @@ it("allows draft owners to delete their drafts and rejects other users", async (
         const draftId = extractId(draft.id)
         if (!draftId) throw new Error("Expected a record ID for the created draft.")
 
+        const updatedTitle = `Updated draft ${Date.now()}`
+        const updatedContent = "Updated draft content."
+        const updated = await accountFetch(account.accessToken, `/api/profile/drafts/${draftId}/update`, {
+            title: updatedTitle,
+            content: updatedContent,
+            tags: ["spoiler"],
+            topics: [],
+        })
+        expectStatus(updated, 200, "draft update stage")
+        expect(await updated.json() as Draft).toMatchObject({
+            title: updatedTitle,
+            content: updatedContent,
+            tags: ["spoiler"],
+            topics: [],
+        })
+
         const deleteUrl = `/api/profile/drafts/${draftId}/delete`
         expectStatus(await accountFetch(otherUser.accessToken, deleteUrl, {}), 403, "other-user deletion stage")
 
         const beforeDelete = await accountFetch(account.accessToken, "/api/profile/drafts")
         expectStatus(beforeDelete, 200, "draft list before owner deletion")
-        expect((await beforeDelete.json() as Draft[]).some(item => extractId(item.id) === draftId)).toBe(true)
+        const drafts = await beforeDelete.json() as Draft[]
+        expect(drafts.find(item => extractId(item.id) === draftId)).toMatchObject({
+            title: updatedTitle,
+            content: updatedContent,
+            tags: ["spoiler"],
+        })
 
         expectStatus(await accountFetch(account.accessToken, deleteUrl, {}), 200, "owner deletion stage")
 

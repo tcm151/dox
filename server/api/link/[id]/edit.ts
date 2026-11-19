@@ -1,14 +1,10 @@
 import type { Link } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
 
-interface EditLinkRequest {
-    description: string
-}
-
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
     const { id } = event.context.params!
-    const body = await readBody<EditLinkRequest>(event)
+    const body = await readBody<{ description: string }>(event)
 
     new Validator("Link")
         .string(body.description, "description", { maxLength: 256 })

@@ -28,7 +28,7 @@ Bring complex older write handlers into the named route-to-manager pattern used 
 - Comment creation still contains moderation SQL, creation, and notification orchestration directly in its handler. Post/thread creation similarly owns publication and attachment transactions.
 - Do not add a pass-through manager for every trivial read or move classes merely to make directories look uniform.
 - Do not collapse materially different post, thread, draft, or comment policies into a universal content-update framework.
-- [0119](0119-align-client-mutation-payloads-with-api-contracts.md) and [0121](0121-unify-shared-validation-rules-and-boundaries.md) improve adjacent contracts; coordinate overlapping files without inventing a dependency where a behavior-preserving move can proceed independently.
+- [0119](completed/0119-align-client-mutation-payloads-with-api-contracts.md) and [0121](0121-unify-shared-validation-rules-and-boundaries.md) improve adjacent contracts; coordinate overlapping files without inventing a dependency where a behavior-preserving move can proceed independently.
 
 ## Relevant Files
 - server/api/comment/add.ts

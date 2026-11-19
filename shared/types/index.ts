@@ -103,6 +103,15 @@ export interface Post<C extends Comment[] | string[] = Comment[]> extends Sortab
     moderation?: ContentModerationState
 }
 
+export interface CreatePostRequest {
+    title: string
+    content: string
+    tags?: string[]
+    replyTo?: string
+    topics: string[]
+    images?: string[]
+}
+
 export interface Link extends Sortable {
     user: User & string
     title: string
@@ -132,6 +141,22 @@ export interface Draft extends Record {
     replyTo?: string
     topics: string[]
     images: string[]
+}
+
+export interface CreateDraftRequest {
+    title: string
+    content: string
+    tags?: string[]
+    replyTo?: string
+    topics: string[]
+    images?: string[]
+}
+
+export interface UpdateDraftRequest {
+    title: string
+    content: string
+    tags?: string[]
+    topics: string[]
 }
 
 export interface Comment extends Voteable {
@@ -164,6 +189,13 @@ export interface Thread extends Sortable {
     edited: boolean
     timeEdited?: string
     moderation?: ContentModerationState
+}
+
+export interface CreateThreadRequest {
+    content: string
+    tags?: string[]
+    topics: string[]
+    images?: string[]
 }
 
 export type MediaExtension = "gif" | "webp" | "png" | "jpeg" | "mp3"

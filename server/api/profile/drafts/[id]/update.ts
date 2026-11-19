@@ -1,8 +1,8 @@
-import type { Draft } from "@@/shared/types"
+import type { Draft, UpdateDraftRequest } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
-    const draft = await readBody<Pick<Draft, "title" | "content" | "topics"> & { tags?: string[] }>(event)
+    const draft = await readBody<UpdateDraftRequest>(event)
     const { id } = event.context.params!
 
     return await new DatabaseQuery()

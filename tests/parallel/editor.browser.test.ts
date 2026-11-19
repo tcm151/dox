@@ -1,3 +1,5 @@
+import type { Draft } from "../../shared/types"
+import { extractId } from "../../shared/utils/records"
 import { expect, test } from "../utils/browser-fixtures"
 
 test("loads the post editor without client initialization errors", async ({ authenticatedPage }) => {
@@ -7,6 +9,85 @@ test("loads the post editor without client initialization errors", async ({ auth
     await authenticatedPage.goto("/editor/post")
     await expect(authenticatedPage.locator("section.editor")).toBeVisible()
     expect(pageErrors).toEqual([])
+})
+
+test("saves and updates post drafts with the supported request fields", async ({ authenticatedPage: page }) => {
+    const accessToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
+    const userId = await page.evaluate(() => JSON.parse(sessionStorage.getItem("user") ?? "{}").id as string)
+    const apiUrl = (path: string) => new URL(path, page.url()).toString()
+    const title = `Draft contract ${Date.now()}`
+    const content = "A draft with a typed creation request."
+    let draftId: string | undefined
+
+    try {
+        await page.goto("/editor/post")
+        const titleInput = page.locator("section.editor .field").filter({ hasText: "Title" }).locator("input[type='text']")
+        const contentInput = page.locator("section.editor textarea")
+        await titleInput.fill(title)
+        await contentInput.fill(content)
+
+        const createResponsePromise = page.waitForResponse(response =>
+            new URL(response.url()).pathname === "/api/profile/drafts/add"
+            && response.request().method() === "POST",
+        )
+        await page.getByRole("button", { name: /Save/ }).click()
+        const createResponse = await createResponsePromise
+        expect(createResponse.ok()).toBe(true)
+
+        const createdDraft = await createResponse.json() as Draft
+        draftId = extractId(createdDraft.id)
+        if (!draftId) throw new Error("The created draft did not return an ID.")
+        expect(createdDraft).toMatchObject({ user: userId, title, content })
+
+        const createBody = createResponse.request().postDataJSON() as Record<string, unknown>
+        expect(Object.keys(createBody).sort()).toEqual(["content", "images", "tags", "title", "topics"])
+        expect(createBody).not.toHaveProperty("user")
+        expect(createBody).not.toHaveProperty("time")
+        await expect(page.locator(".hint.success").filter({ hasText: "Draft saved." })).toBeVisible()
+
+        const updatedTitle = `${title} updated`
+        const updatedContent = "The saved draft was updated."
+        await titleInput.fill(updatedTitle)
+        await contentInput.fill(updatedContent)
+
+        const updateResponsePromise = page.waitForResponse(response =>
+            new URL(response.url()).pathname === `/api/profile/drafts/${draftId}/update`
+            && response.request().method() === "POST",
+        )
+        await page.getByRole("button", { name: /Update/ }).click()
+        const updateResponse = await updateResponsePromise
+        expect(updateResponse.ok()).toBe(true)
+        expect(await updateResponse.json() as Draft).toMatchObject({
+            id: `draft:${draftId}`,
+            user: userId,
+            title: updatedTitle,
+            content: updatedContent,
+        })
+
+        const updateBody = updateResponse.request().postDataJSON() as Record<string, unknown>
+        expect(Object.keys(updateBody).sort()).toEqual(["content", "tags", "title", "topics"])
+        expect(updateBody).not.toHaveProperty("replyTo")
+        expect(updateBody).not.toHaveProperty("images")
+        await expect(page.locator(".hint.success").filter({ hasText: "Draft updated." })).toBeVisible()
+
+        const draftsResponse = await page.request.get(apiUrl("/api/profile/drafts"), {
+            headers: { Authorization: accessToken },
+        })
+        expect(draftsResponse.ok()).toBe(true)
+        const drafts = await draftsResponse.json() as Draft[]
+        expect(drafts.find(draft => extractId(draft.id) === draftId)).toMatchObject({
+            title: updatedTitle,
+            content: updatedContent,
+        })
+    }
+    finally {
+        if (draftId) {
+            const response = await page.request.post(apiUrl(`/api/profile/drafts/${draftId}/delete`), {
+                headers: { Authorization: accessToken },
+            })
+            expect(response.ok()).toBe(true)
+        }
+    }
 })
 
 test("formats selected Markdown and toggles the rendered post preview", async ({ authenticatedPage }) => {

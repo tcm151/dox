@@ -1,15 +1,8 @@
-import type { Thread } from "@@/shared/types"
+import type { CreateThreadRequest, Thread } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 import { Validator } from "@@/shared/utils/Validator"
-
-type CreateThreadRequest = {
-    content: string
-    tags?: string[]
-    topics: string[]
-    images?: string[]
-}
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

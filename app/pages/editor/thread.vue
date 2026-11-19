@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import EditorFrame from "./components/EditorFrame.vue"
 import UploadedImages from "./components/UploadedImages.vue"
-import type { Thread } from '@@/shared/types'
+import type { CreateThreadRequest, Thread } from '@@/shared/types'
 
 const hints = useHints()
 const settings = useSettings()
-const session = getSession()
 
 let newThread = ref<Pick<Thread, "content" | "tags">>({
     content: '',
@@ -41,17 +40,11 @@ async function submit() {
         submitting.value = true
         const thread = await useApi<Pick<Thread, "id">>("/api/thread/add", {
             body: {
-                user: session.user.id,
                 content: newThread.value.content,
                 tags: newThread.value.tags,
                 topics: topics.items,
-                votes: {
-                    positive: [session.user.id],
-                    misleading: [],
-                    negative: [],
-                },
                 images: images.uploaded.map(i => i.id),
-            }
+            } satisfies CreateThreadRequest
         })
 
         images.uploaded = []

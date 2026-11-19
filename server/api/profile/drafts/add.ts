@@ -1,13 +1,4 @@
-import type { Draft } from "@@/shared/types"
-
-type CreateDraftRequest = {
-    title: string
-    content: string
-    tags?: string[]
-    replyTo?: string
-    topics: string[]
-    images?: string[]
-}
+import type { CreateDraftRequest, Draft } from "@@/shared/types"
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)

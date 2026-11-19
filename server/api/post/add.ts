@@ -1,17 +1,8 @@
-import type { Post } from "@@/shared/types"
+import type { CreatePostRequest, Post } from "@@/shared/types"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { UserSettingsManager } from "@@/server/utils/repos/UserSettingsManager"
 import { Validator } from "@@/shared/utils/Validator"
-
-type CreatePostRequest = {
-    title: string
-    content: string
-    tags?: string[]
-    replyTo?: string
-    topics: string[]
-    images?: string[]
-}
 
 export default defineEventHandler(async (event) => {
     const auth = await authenticateRequest(event)
