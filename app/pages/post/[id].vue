@@ -193,8 +193,9 @@ async function reportPost() {
 }
 
 async function archivePost() {
+    const wasArchived = post.value?.status === "archived"
     await useApi(`/api/post/${id}/archive`)
-    hints.addSuccess("This post has been archived.")
+    hints.addSuccess(wasArchived ? "This post has been unarchived." : "This post has been archived.")
     await refresh()
 }
 

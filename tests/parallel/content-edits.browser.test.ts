@@ -194,6 +194,36 @@ test("keeps post edits in a local draft until save succeeds", async ({ page, exa
     })
 })
 
+test("reports the correct state when archiving and restoring a post", async ({ authenticatedPage, exampleServer }) => {
+    test.setTimeout(60_000)
+    const author = exampleServer.users.postAuthor
+    let postId: string | undefined
+
+    await withCleanup(async () => {
+        const post = await createPost(authenticatedPage, author.accessToken, `Archive status ${Date.now()}`)
+        postId = extractId(post.id)
+        await authenticatedPage.goto(`/post/${postId}`)
+        const postPage = authenticatedPage.locator("section.post")
+        const readStatus = async () => {
+            const response = await authenticatedPage.request.get(apiUrl(authenticatedPage, `/api/post/${postId}`))
+            expect(response.ok()).toBe(true)
+            return (await response.json() as Post).status
+        }
+
+        await postPage.locator("button.options").click()
+        await authenticatedPage.getByRole("button", { name: "Archive" }).click()
+        await expect(authenticatedPage.getByText("This post has been archived.", { exact: true })).toBeVisible()
+        await expect.poll(readStatus).toBe("archived")
+
+        await postPage.locator("button.options").click()
+        await authenticatedPage.getByRole("button", { name: "Unarchive" }).click()
+        await expect(authenticatedPage.getByText("This post has been unarchived.", { exact: true })).toBeVisible()
+        await expect.poll(readStatus).toBe("active")
+    }, async () => {
+        if (postId) await deleteRecord(authenticatedPage, author.accessToken, `/api/post/${postId}/delete`)
+    })
+})
+
 test("keeps thread edits in a local draft until save succeeds", async ({ page, exampleServer }) => {
     test.setTimeout(60_000)
     const author = exampleServer.users.threadAuthor

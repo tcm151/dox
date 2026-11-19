@@ -1,5 +1,14 @@
 import { expect, test } from "../utils/browser-fixtures"
 
+test("loads the post editor without client initialization errors", async ({ authenticatedPage }) => {
+    const pageErrors: string[] = []
+    authenticatedPage.on("pageerror", error => pageErrors.push(error.message))
+
+    await authenticatedPage.goto("/editor/post")
+    await expect(authenticatedPage.locator("section.editor")).toBeVisible()
+    expect(pageErrors).toEqual([])
+})
+
 test("formats selected Markdown and toggles the rendered post preview", async ({ authenticatedPage }) => {
     await authenticatedPage.goto("/editor/post")
 

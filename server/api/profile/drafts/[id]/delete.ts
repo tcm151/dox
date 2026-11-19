@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 
     await new DatabaseQuery()
         .addSql(`
-            IF $draft.user != $user {
+            IF $draft.user != $user.id {
                 fn::http(403, "You are not allowed to do this.");
             }
             ELSE {
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
             };
         `)
         .addRecord("draft", `draft:${id}`)
-        .addParameter("user", auth.id)
+        .addRecord("user", auth.id)
         .execute()
 
     return true

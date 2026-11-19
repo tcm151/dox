@@ -10,6 +10,14 @@ const settings = useSettings()
 const session = getSession()
 
 const route = useRoute()
+type PostEditorState = Pick<Draft, "title" | "content" | "tags" | "replyTo"> & { id?: string }
+
+let draft = ref<PostEditorState>({
+    title: '',
+    content: '',
+    tags: [],
+})
+
 const replyTo = computedAsync<Post | undefined>(async () => {
     if (route.query['replyTo'] || draft.value.replyTo) {
         const post = await useApi<Post>(`/api/post/${route.query['replyTo'] ?? extractId(draft.value.replyTo ?? "")}`)
@@ -17,14 +25,6 @@ const replyTo = computedAsync<Post | undefined>(async () => {
         useRouter().replace({ query: {} })
         return post
     }
-})
-
-type PostEditorState = Pick<Draft, "title" | "content" | "tags" | "replyTo"> & { id?: string }
-
-let draft = ref<PostEditorState>({
-    title: '',
-    content: '',
-    tags: [],
 })
 
 let titleFocused = ref(false)

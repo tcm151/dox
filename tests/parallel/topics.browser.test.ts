@@ -1,6 +1,52 @@
 import { expect, test } from "../utils/browser-fixtures"
 import { extractId } from "../../shared/utils/records"
 
+test("refreshes topic follower counts after following and unfollowing from the topics feed", async ({ authenticatedPage: page }) => {
+    const topicId = `topicFollowCountBrowser${Date.now()}`
+    let postId: string | undefined
+    const accessToken = await page.evaluate(() => {
+        const tokens = JSON.parse(localStorage.getItem("tokens") ?? "{}")
+        return tokens.access as string
+    })
+    const apiUrl = (path: string) => new URL(path, page.url()).toString()
+
+    try {
+        const postResponse = await page.request.post(apiUrl("/api/post/add"), {
+            headers: { Authorization: accessToken },
+            data: {
+                title: `Topic follow count browser ${Date.now()}`,
+                content: "Topic follow count refresh browser test.",
+                topics: [`topic:${topicId}`],
+                images: [],
+            },
+        })
+        expect(postResponse.ok()).toBe(true)
+        const post = await postResponse.json() as { id: string }
+        postId = extractId(post.id)
+
+        await page.goto("/feed/topics", { timeout: 10_000 })
+        const topicPreview = page.locator("main.box").filter({ hasText: topicId })
+        const followerCount = topicPreview.locator(".tag.info").filter({ hasText: "followers" })
+        await expect(topicPreview).toBeVisible()
+        await expect(followerCount).toContainText("0 followers")
+
+        await topicPreview.getByRole("button", { name: "Follow", exact: true }).click()
+        await expect(topicPreview.getByRole("button", { name: "Unfollow", exact: true })).toBeVisible()
+        await expect(followerCount).toContainText("1 followers")
+
+        await topicPreview.getByRole("button", { name: "Unfollow", exact: true }).click()
+        await expect(topicPreview.getByRole("button", { name: "Follow", exact: true })).toBeVisible()
+        await expect(followerCount).toContainText("0 followers")
+    }
+    finally {
+        await page.request.post(apiUrl("/api/developer/database/query"), {
+            headers: { Authorization: accessToken },
+            data: { query: `${postId ? `DELETE post:${postId};` : ""} DELETE topic:${topicId};` },
+            timeout: 5_000,
+        })
+    }
+})
+
 test("admins can lock and unlock topics from the admin topics page", async ({ authenticatedPage: page }) => {
     const topicId = `topicLockBrowser${Date.now()}`
     let postId: string | undefined

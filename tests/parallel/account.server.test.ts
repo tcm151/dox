@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { Comment, Post, Thread, User } from "../../shared/types"
+import type { Comment, Draft, Post, Thread, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials, uniqueTestIp } from "../utils/test-server"
 
@@ -491,4 +491,37 @@ it("lists users and returns the configured admin", async () => {
     const admin = users.find(user => user.name === testAdminCredentials.name)
     expect(admin).toBeDefined()
     expect(admin?.roles).toEqual(expect.arrayContaining(["admin", "moderator", "developer"]))
+})
+
+it("allows draft owners to delete their drafts and rejects other users", async () => {
+    const account = await createAccount()
+
+    try {
+        const created = await accountFetch(account.accessToken, "/api/profile/drafts/add", {
+            title: `Draft deletion ${Date.now()}`,
+            content: "Draft deletion regression test.",
+            topics: [],
+        })
+        expectStatus(created, 200, "draft creation stage")
+        const draft = await created.json() as Draft
+        const draftId = extractId(draft.id)
+        if (!draftId) throw new Error("Expected a record ID for the created draft.")
+
+        const deleteUrl = `/api/profile/drafts/${draftId}/delete`
+        expectStatus(await accountFetch(otherUser.accessToken, deleteUrl, {}), 403, "other-user deletion stage")
+
+        const beforeDelete = await accountFetch(account.accessToken, "/api/profile/drafts")
+        expectStatus(beforeDelete, 200, "draft list before owner deletion")
+        expect((await beforeDelete.json() as Draft[]).some(item => extractId(item.id) === draftId)).toBe(true)
+
+        expectStatus(await accountFetch(account.accessToken, deleteUrl, {}), 200, "owner deletion stage")
+
+        const afterDelete = await accountFetch(account.accessToken, "/api/profile/drafts")
+        expectStatus(afterDelete, 200, "draft list after owner deletion")
+        expect((await afterDelete.json() as Draft[]).some(item => extractId(item.id) === draftId)).toBe(false)
+    }
+    finally {
+        await admin.query(`DELETE draft WHERE user = ${account.user.id};`)
+        await cleanupTestData(account.user, account.accessToken, [], [])
+    }
 })
