@@ -19,6 +19,8 @@ CI owns release validation, archive creation, checksum generation, and GitHub Re
 
 - Review every change since the latest release tag. Include only verified, user-relevant changes; keep unfinished work and unverified claims out of the changelog.
 - Use `year.major.patch`. When changing the application version, update `package.json` and `CHANGELOG.md` together.
+- Keep `server/assets/migrations/<version>.surql` aligned with each application release. If a release has no schema or data changes, add a transactional version-marker-only migration with a replay-safe `UPSERT` so existing databases advance to the release version and the current-migration replay route has a file to run.
+- Keep changelog sections focused on product changes under the existing `Added`, `Changed`, `Fixed`, and `Security` categories as relevant. Do not add a separate `Release` metadata section; put operator scope, limitations, and support guidance in their owning documentation.
 - Finish and commit intended code, tests, and documentation changes first. Keep generated output and unrelated changes out of the release source.
 - For a new application release, update and date the changelog entry in a dedicated final source commit and tag that commit. For an authorized CI-only recovery before publication, a fix commit may follow the existing release changelog commit without a new changelog entry, provided the package version and existing changelog section remain accurate; follow Section 5.
 - Push the final release commit to `dev` and wait for the Pipeline workflow to pass before tagging. The tag must point to that exact validated commit.

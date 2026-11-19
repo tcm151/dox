@@ -17,7 +17,7 @@
 Replace deferred or intermittent release-critical validation with reproducible evidence for the intended public release. Cover media failure handling and the clean Linux deployment path without expanding optional product features.
 
 ## Requirements
-- [ ] The intended release candidate passes the documented CI checks and standard full suite, with exact commands and results recorded.
+- [x] The intended release candidate passes the documented CI checks and standard full suite, with exact commands and results recorded.
 - [x] Previously recorded concurrency, Submit visibility, pin activation, and search scroll-restoration failures are reproduced and resolved or explicitly diagnosed; rerunning until green does not establish a fix.
 - [x] Media cleanup coverage includes filesystem failure, database rollback, missing files, retry, shared references, refund recipient, and repeated or concurrent deletion without duplicate refunds.
 - [x] Ownership/refund acceptance includes cross-user attachment requests, shared images, administrator deletion, and duplicate attachment IDs; existing successful cases are reused rather than duplicated.
@@ -71,6 +71,7 @@ Replace deferred or intermittent release-critical validation with reproducible e
 - docs/Contributing.md
 - docs/Quickstart.md
 - docs/Backups.md
+- server/assets/migrations/2026.6.5.surql
 - scripts/installer.sh
 - scripts/stage-release.mjs
 - tests/parallel/media.server.test.ts
@@ -79,6 +80,7 @@ Replace deferred or intermittent release-critical validation with reproducible e
 - tests/parallel/feed.browser.test.ts
 
 ## Progress Log
+- 2026-11-19: The 2026.6.5 local candidate passed `yarn install --frozen-lockfile`, `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test` (256/256). The new version-only migration was applied twice to a disposable embedded SurrealDB; it left exactly one `2026.6.5` marker, and the production build included the migration asset. The earlier feed-availability timeout did not recur. This does not resolve the separately recorded, unidentified 31/32 run or the open independent-operator acceptance.
 - 2026-11-18: Production Info reports `v2026.6.3` at commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`; health reports app/database ready. Host/runtime/database details and elapsed time remain unknown. The remote DB backup was skipped at the user's direction; independent-operator acceptance remains open.
 - 2026-11-18: Reran the standard `yarn.cmd test` suite: sequential phase 18/18, parallel phase 32/32, 248/248 total. The recorded historical failures did not reproduce; this does not establish their original causes or fix the unidentified earlier 31/32 result. Confirmed the media and referral requirement coverage against their isolated tests.
 - 2026-11-18: Completed the backup-first WSL upgrade/recovery rehearsal using isolated systemd services and dedicated test account/content. The pre-upgrade database archive passed checksum and gzip-integrity verification. Installed the 2026.6.3 candidate from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a` (artifact SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`) over the same isolated service and data. The journal recorded migration from 2026.6.2 to 2026.6.3; health reported ready, and login, session, post, and media persisted. An explicit systemd restart briefly refused the first immediate health connection; retry returned ready and persistence checks passed again (image HTTP 200, 363591 bytes). Restored the pre-upgrade archive with the 2026.6.2 release into a separate isolated target, retaining configuration and media separately as documented; checksum, health, login, post, and media checks passed. Temporary services were removed; the original forum service remained active. WSL was not a fresh host, and no independent operator participated, so those limitations remain recorded.
