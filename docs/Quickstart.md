@@ -6,7 +6,7 @@ Use this guide to install a Linux release. Examples use `/srv/forum/<version>` f
 
 - A Linux VM or server with `systemd`.
 - Root shell access.
-- Node.js LTS installed and available as `node`.
+- Node.js 24 LTS or newer, available as `node`. Earlier versions are unsupported and may fail SSR route resolution. Node `22.14.0` redirected `/about` and `/feed/threads`; Node `24.18.0` and production Node `24.22.3` returned 200.
 - `flock` from util-linux for serializing installer changes.
 - A Linux release artifact already downloaded to the server, such as `forum-<version>-linux-x64.tar.gz`.
 

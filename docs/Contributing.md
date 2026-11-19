@@ -6,7 +6,7 @@ For suspected vulnerabilities, use the private reporting process in [SECURITY.md
 
 ## 1. Setup Repository
 
-Clone the repo from GitHub into your development environment. You should use Node.js 24 LTS and yarn.
+Clone the repo from GitHub. Use Node.js 24 LTS or newer and `yarn`.
 
 I recommend using [nvm-windows](https://github.com/coreybutler/nvm-windows) to manage your Node.js installations. You can install yarn globally with:
 

@@ -2,24 +2,27 @@
 
 Hosting profile, limits, and measurement plan. No capacity guarantees.
 
+## Runtime Requirement
+
+Node.js 24 LTS or newer is required. Earlier versions are unsupported and may fail SSR route resolution; see the comparison below.
+
 ## Evidence To Date
 
-- WSL validation candidate: Linux x64 package `2026.6.3`, built from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a`; SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`. This is not the published archive.
-- Environment: WSL2 Ubuntu 24.04. This was not a fresh host and is not equivalent to independent installation on a clean server.
-- Database: embedded SurrealDB with RocksDB. Remote SurrealDB is an advanced configuration and was not part of this deployment baseline.
+- WSL runtime comparison: The Linux x64 `2026.6.5` build from `v2026.6.5` (`c536431d`) ran with an isolated embedded database under Node `22.14.0` and `24.18.0`. `/about` and `/feed/threads` redirected to `/feed` on `22.14.0` and returned 200 on `24.18.0`. This locally staged archive is not the published release asset.
+- WSL environment: WSL2 Ubuntu 24.04.5 LTS, Linux x64. This was not a fresh host and is not equivalent to independent installation on a clean server.
+- Database: the WSL comparison used embedded SurrealDB with RocksDB. Production uses remote SurrealDB; these results do not measure that database mode's capacity.
 - Operations exercised: isolated install, systemd service restart, reverse-proxy health checks, previous-release upgrade, and database recovery. Details and limits are tracked in [Ticket 0118](tickets/0118-close-public-release-validation-gaps.md).
-- Published release asset: GitHub lists the `v2026.6.3` Linux x64 archive at commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`, with SHA-256 `994e14da79db8cad6f1465687ed273fa5b470f96a00203b03ba9f8ef5d9d5aa1`. This release-asset digest does not verify which archive was installed on production.
-- Production: Developer Info reports version `2026.6.3`, ref `v2026.6.3`, commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`, and build date `2026-11-18T22:15:01.408Z`. The local `v2026.6.3` tag resolves to the same commit. The health endpoint reported app and database `ready` at `2026-11-19T01:18:21.590Z`. Host OS/architecture, Node.js version, database mode, production artifact checksum, and workload measurements remain unknown.
-- The WSL Node.js version was not recorded.
+- Historical published release asset: GitHub lists the `v2026.6.3` Linux x64 archive at commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`, with SHA-256 `994e14da79db8cad6f1465687ed273fa5b470f96a00203b03ba9f8ef5d9d5aa1`. This older release-asset digest does not verify which archive is installed on production.
+- Production: on 2026-11-19, `/root/forum/2026.6.5` was reinstalled under Node `24.22.3` on Ubuntu 22.04.4 LTS, x86_64. `forum.service` is active with `/root/.nvm/versions/node/v24.22.3/bin/node`; the remote database and app health endpoint reported `ready` at version `2026.6.5`. Direct-origin and public HTTPS GETs to `/about`, `/feed/threads`, and `/contact` all returned 200 without redirects. The production artifact checksum and workload measurements are not recorded.
 - CPU, memory, disk growth, concurrent-user capacity, and backup-storage measurements have not been collected. No capacity or cost estimate is currently supported by evidence.
 
-Release support follows published scope; host details and capacity remain unverified.
+Production host, Node.js, and database details are recorded. Independent installation and capacity remain unverified.
 
 ## Profile For The Next Measurement
 
-Use one Linux x64 host with Ubuntu 24.04, Node.js 24 LTS, one service, and embedded SurrealDB. `/srv/forum/*` paths are examples; use the actual install location. Terminate TLS at a reverse proxy, trust only its source address, and do not expose app or database ports directly to untrusted networks.
+Use one Linux x64 host with Ubuntu 24.04, Node.js 24 LTS or newer, one service, and embedded SurrealDB. `/srv/forum/*` paths are examples; use the actual install location. Terminate TLS at a reverse proxy, trust only its source address, and do not expose app or database ports directly to untrusted networks.
 
-This is a candidate measurement profile, not a minimum requirement. Record the actual CPU model/count, memory, storage type/capacity, filesystem, OS image, Node.js version, package version, commit, and database mode for every run. Do not treat results from this profile as evidence for remote-database deployments, other operating systems, or other architectures.
+This is a measurement profile, not a minimum hardware requirement. Record the CPU model and count, memory, storage type and capacity, filesystem, OS image, Node.js version, package version, commit, and database mode for each run. Do not apply these results to remote-database deployments, other operating systems, or other architectures.
 
 ## Current Limits And Responsibilities
 

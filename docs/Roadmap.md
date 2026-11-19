@@ -122,7 +122,7 @@ Goal: fix the remaining public-use issues, check the release and installation pr
 
 Fix release-blocking issues before promotion. Code cleanup can run in parallel. Other cleanup and optional features do not block the pilot unless they affect supported workflows.
 
-Current release: 2026.6.4. Release follow-up remains active, including the public demo navigation investigation tracked in [ticket 0128](tickets/0128-verify-demo-navigation-and-hydration.md). Independent installation, live SMTP/onboarding, hosting measurements, publication checks for a future candidate, and diagnosis of an unidentified test failure remain open. Production use of a new release requires a verified download, fresh backup, and explicit approval.
+Current release: 2026.6.5. The demo redirects stopped after production moved from Node `22.14.0` to `24.22.3`. [Ticket 0128](tickets/completed/0128-verify-demo-navigation-and-hydration.md) records the investigation. Independent installation, live SMTP/onboarding, hosting measurements, future release checks, and diagnosis of an unidentified test failure remain open. Verify the download, take a fresh backup, and get approval before deploying a future release.
 
 ### D1. Security and Reliability
 - 🟩 Fix media cleanup, confirmation-token validation, and confirmation-email rate limits without changing ownership or refund rules.

@@ -69,7 +69,7 @@ For a dedicated sample deployment, representative fixtures may be left in place 
 - [API inventory](../../../docs/API.md) documents route methods, access rules, side effects, and tests. Relevant sections include [Identity and Sessions](../../../docs/API.md#identity-and-sessions), [Account Email Confirmation](../../../docs/API.md#account-email-confirmation), [Account Deletion](../../../docs/API.md#account-deletion), [Discovery and Feeds](../../../docs/API.md#discovery-and-feeds), [Content and Discussions](../../../docs/API.md#content-and-discussions), [Notifications and Inbox](../../../docs/API.md#notifications-and-inbox), [Moderation](../../../docs/API.md#moderation), [Submit Report](../../../docs/API.md#submit-report), [Engagement](../../../docs/API.md#engagement), [Platform Settings](../../../docs/API.md#application-settings-read-and-update), and [Feedback and Support](../../../docs/API.md#feedback-and-support).
 - [Production Quickstart](../../../docs/Quickstart.md#configure-environment) covers deployment `.env`, proxy settings, and runtime restart requirements; [SurrealDB modes](../../../docs/SurrealDB.md#classicforum-database-modes) explains embedded versus remote database configuration.
 - [Hosting limits](../../../docs/Hosting.md#current-limits-and-responsibilities) records unfinished media features, SMTP responsibilities, and data/backup boundaries.
-- [Ticket 0128](../../../docs/tickets/0128-verify-demo-navigation-and-hydration.md) tracks direct entry, refresh, in-app navigation, route redirects, and hydration checks for the public demo.
+- [Ticket 0128](../../../docs/tickets/completed/0128-verify-demo-navigation-and-hydration.md) records the public demo navigation, route redirect, and hydration investigation.
 
 ## 3. Inspect the Browser
 

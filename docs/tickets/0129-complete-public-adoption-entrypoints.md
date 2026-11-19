@@ -7,7 +7,7 @@
 
 ## Dependencies
 - [0127](0127-publish-a-verifiable-pilot-release.md): The completed operator journey must link to an actual supported download rather than a placeholder.
-- [0128](0128-verify-demo-navigation-and-hydration.md): Final anonymous demo/walkthrough verification requires the recorded navigation and rendering issues to be resolved or explained.
+- [0128](completed/0128-verify-demo-navigation-and-hydration.md): Final anonymous demo/walkthrough verification requires the recorded navigation and rendering issues to be resolved or explained.
 
 ## Goal
 Connect the repository and public demonstration to a clear self-hosting journey. Describe what operators can actually install and use without confusing the project with its host site's identity or unfinished features.
@@ -30,7 +30,7 @@ Connect the repository and public demonstration to a clear self-hosting journey.
 ## Notes
 - The 2026-11-17 adoption review identified a contributor-only README Quick Start, an audio-support claim, and a demo introduction that was not immediately discoverable.
 - The owner identifies `forum.tcmdev.ca` as a personal-blog example deployment, not an onboarding site. Do not treat its content or Contact page as official project onboarding or support destinations without approval.
-- Use the existing configured About summary, topics, and pins where appropriate; verify affected routes through [0128](0128-verify-demo-navigation-and-hydration.md) before relying on them.
+- Use the existing configured About summary, topics, and pins where appropriate; verify affected routes through [0128](completed/0128-verify-demo-navigation-and-hydration.md) before relying on them.
 - Completed [0117](completed/0117-reconcile-roadmap-and-completion-evidence.md) reconciles the roadmap. This ticket owns the visitor-facing description and adoption path, not removal of unfinished work from the roadmap.
 - A pilot can have a narrower supported feature set than the full roadmap. Do not promise importers, managed hosting, unlimited media, or a particular community capacity.
 

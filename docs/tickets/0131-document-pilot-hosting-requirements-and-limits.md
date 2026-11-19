@@ -3,13 +3,13 @@
 ## Status
 - State: `In Progress`
 - Priority: Medium
-- Next: `Record the production host/runtime/database profile and collect the bounded baseline.`
+- Next: `Collect the bounded resource and backup baseline in an authorized test environment.`
 
 ## Goal
 Help prospective operators estimate whether the supported configuration suits their small community. Publish observed requirements and clear limits rather than unsupported capacity, cost, migration, or discoverability claims.
 
 ## Requirements
-- [ ] Guidance identifies the tested OS/architecture, Node.js version, database mode, storage layout, and reverse-proxy/TLS responsibilities.
+- [x] Guidance identifies the tested OS/architecture, Node.js version, database mode, storage layout, and reverse-proxy/TLS responsibilities.
 - [ ] A repeatable bounded measurement records idle and representative text/image workload memory, CPU, disk use/growth, and backup storage needs with the hardware, dataset, duration, and candidate version.
 - [ ] Measured observations are distinguished from minimum requirements or capacity guarantees; untested community sizes, platforms, and media-heavy workloads remain explicitly unverified.
 - [ ] Operators can find applicable upload sizes, media/token constraints, email-spool behavior, and configuration references without relying on broad unlimited-media claims.
@@ -41,6 +41,7 @@ Help prospective operators estimate whether the supported configuration suits th
 - nuxt.config.ts
 
 ## Progress Log
+- 2026-11-19: Recorded the production profile in [Hosting](../Hosting.md): Ubuntu 22.04.4 x86_64, Node `24.22.3`, release `2026.6.5`, and remote SurrealDB. WSL reproduced redirects on Node `22.14.0`; Node `24.18.0` passed. Resource and backup measurements remain open.
 - 2026-11-18: Read-only production inspection reported version `2026.6.3`, ref `v2026.6.3`, commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`, and app/database readiness. Host/runtime/database details, production artifact checksum, and capacity measurements remain unknown.
 - 2026-11-18: Added the hosting profile, workload plan, and source-backed limits. User reports a successful full production install at `forum.tcmdev.ca`; exact deployment details and capacity remain unknown.
 - 2026-11-17: Ticket created. No hosting measurements, cost estimates, indexing checks, or capacity validation were performed.
