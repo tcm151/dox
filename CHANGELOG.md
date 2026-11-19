@@ -2,6 +2,18 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
+## [2026.6.5] - 2026-11-19
+
+### Added
+- Added per-instance systemd service names, port-conflict checks, and Nginx proxy configuration generation to the Linux installer.
+- Added query-free SSR route-resolution diagnostics for selected public routes.
+
+### Changed
+- Expanded browser-validation guidance and clarified deployment, proxy, backup, and restore instructions.
+
+### Fixed
+- Corrected draft ownership checks, post-editor initialization, topic follower-count refreshes, and archive/unarchive success messages.
+
 ## [2026.6.4] - 2026-11-18
 
 ### Added
