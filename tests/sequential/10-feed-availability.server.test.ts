@@ -82,4 +82,4 @@ it("enforces dedicated feed availability without blocking shared or aggregate re
             expectStatus(await updateFeeds(originalSettings.feeds), 200, "restore app feed settings")
         }
     }
-}, 15_000)
+}, 60_000)

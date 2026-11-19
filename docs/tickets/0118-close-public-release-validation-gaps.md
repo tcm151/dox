@@ -78,8 +78,10 @@ Replace deferred or intermittent release-critical validation with reproducible e
 - tests/parallel/engagement.server.test.ts
 - tests/parallel/search.browser.test.ts
 - tests/parallel/feed.browser.test.ts
+- tests/sequential/10-feed-availability.server.test.ts
 
 ## Progress Log
+- 2026-11-19: The intermittent feed-availability timeout was in `tests/sequential/10-feed-availability.server.test.ts`, already in the ordered sequential phase, not a parallel test. Raised its per-test timeout from 15 to 60 seconds without changing assertions or cleanup. `yarn test --sequential` passed 99/99 and `yarn test` passed 256/256 afterward. The earlier unidentified 31/32 result remains open.
 - 2026-11-19: The 2026.6.5 local candidate passed `yarn install --frozen-lockfile`, `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test` (256/256). The new version-only migration was applied twice to a disposable embedded SurrealDB; it left exactly one `2026.6.5` marker, and the production build included the migration asset. The earlier feed-availability timeout did not recur. This does not resolve the separately recorded, unidentified 31/32 run or the open independent-operator acceptance.
 - 2026-11-18: Production Info reports `v2026.6.3` at commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`; health reports app/database ready. Host/runtime/database details and elapsed time remain unknown. The remote DB backup was skipped at the user's direction; independent-operator acceptance remains open.
 - 2026-11-18: Reran the standard `yarn.cmd test` suite: sequential phase 18/18, parallel phase 32/32, 248/248 total. The recorded historical failures did not reproduce; this does not establish their original causes or fix the unidentified earlier 31/32 result. Confirmed the media and referral requirement coverage against their isolated tests.
