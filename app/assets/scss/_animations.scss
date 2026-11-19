@@ -40,6 +40,18 @@
     }
 }
 
+@keyframes vote-state-change {
+    0% {
+        outline-width: 1px;
+    }
+    50% {
+        outline-width: 4px;
+    }
+    100% {
+        outline-width: 1px;
+    }
+}
+
 .spin {
     animation: spin var(--motion-duration-slow) linear infinite;
 }

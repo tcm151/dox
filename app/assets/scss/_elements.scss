@@ -31,7 +31,7 @@
     background-color: $green;
 }
 
-.positive.voted {
+.positive.voted, .positive.vote-state-change {
     outline: 1px solid $green;
 }
 
@@ -47,7 +47,7 @@
     background-color: $yellow;
 }
 
-.misleading.voted {
+.misleading.voted, .misleading.vote-state-change {
     outline: 1px solid $yellow;
 }
 
@@ -69,7 +69,7 @@
     background-color: $red;
 }
 
-.negative.voted {
+.negative.voted, .negative.vote-state-change {
     outline: 1px solid $red;
 }
 
@@ -101,8 +101,8 @@
         background-color var(--motion-duration-quick) var(--motion-easing-standard);
 }
 
-.voted {
-    animation: voted var(--motion-duration-quick) ease-in-out;
+.vote-state-change {
+    animation: vote-state-change var(--motion-duration-quick) ease-in-out;
 }
 
 .box {

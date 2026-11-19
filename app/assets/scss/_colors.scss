@@ -54,17 +54,3 @@ $info:    $purple;
 $success: $green;
 $warning: $yellow;
 $danger: $red;
-
-
-// TODO re-enable voting animations once vote state transitions are finalized.
-// @keyframes voted {
-//     0% {
-//         outline-width: 1px;
-//     }
-//     50% {
-//         outline-width: 4px;
-//     }
-//     100% {
-//         outline-width: 1px;
-//     }
-// }
