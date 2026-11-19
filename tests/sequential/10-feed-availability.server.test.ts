@@ -27,31 +27,43 @@ it("enforces dedicated feed availability without blocking shared or aggregate re
     let postId: string | undefined
 
     try {
-        for (const { setting, route, apis } of feedCases) {
-            const disabledFeeds = { ...originalSettings.feeds, [setting]: false }
-            expectStatus(await updateFeeds(disabledFeeds), 200, `disable feeds.${setting}`)
-            const routeResponse = await fetch(route)
-            expectStatus(routeResponse, 404, `disabled route ${route}`)
-            for (const api of apis) {
-                expectStatus(await admin.fetchRaw(api), 404, `disabled API ${api}`)
-            }
+        const enabledFeeds = { ...originalSettings.feeds, ...Object.fromEntries(feedCases.map(({ setting }) => [setting, true])) }
+        expectStatus(await updateFeeds(enabledFeeds), 200, "enable dedicated feeds")
 
-            const enabledFeeds = { ...originalSettings.feeds, [setting]: true }
-            expectStatus(await updateFeeds(enabledFeeds), 200, `enable feeds.${setting}`)
-            expectStatus(await fetch(route), 200, `enabled route ${route}`)
-            for (const api of apis) {
-                expectStatus(await admin.fetchRaw(api), 200, `enabled API ${api}`)
+        for (const { setting, route, apis } of feedCases) {
+            const [routeResponse, apiResponses] = await Promise.all([
+                fetch(route),
+                Promise.all(apis.map(api => admin.fetchRaw(api))),
+            ])
+            expectStatus(routeResponse, 200, `enabled route ${route}`)
+            for (const [index, response] of apiResponses.entries()) {
+                expectStatus(response, 200, `enabled API ${apis[index]}`)
             }
         }
 
-        expectStatus(await updateFeeds({ ...originalSettings.feeds, topics: false }), 200)
-        expectStatus(await admin.fetchRaw("/api/topic"), 200, "shared topic listing remains available")
-        expectStatus(await admin.fetchRaw("/api/topic/available"), 200, "topic selection remains available")
+        for (const { setting, route, apis } of feedCases) {
+            expectStatus(await updateFeeds({ ...enabledFeeds, [setting]: false }), 200, `disable feeds.${setting}`)
+            const [routeResponse, disabledApiResponses] = await Promise.all([
+                fetch(route),
+                Promise.all(apis.map(api => admin.fetchRaw(api))),
+            ])
+            expectStatus(routeResponse, 404, `disabled route ${route}`)
+            for (const [index, response] of disabledApiResponses.entries()) {
+                expectStatus(response, 404, `disabled API ${apis[index]}`)
+            }
+            if (setting === "topics") {
+                const [topicResponse, availableTopicsResponse] = await Promise.all([
+                    admin.fetchRaw("/api/topic"),
+                    admin.fetchRaw("/api/topic/available"),
+                ])
+                expectStatus(topicResponse, 200, "shared topic listing remains available")
+                expectStatus(availableTopicsResponse, 200, "topic selection remains available")
+            }
+            if (setting === "links") {
+                expectStatus(await admin.fetchRaw("/api/link"), 200, "general link listing remains unfiltered")
+            }
+        }
 
-        expectStatus(await updateFeeds({ ...originalSettings.feeds, links: false }), 200)
-        expectStatus(await admin.fetchRaw("/api/link"), 200, "general link listing remains unfiltered")
-
-        expectStatus(await updateFeeds({ ...originalSettings.feeds, discover: true, posts: true }), 200)
         const postResponse = await admin.fetchRaw<Post>("/api/post/add", {
             method: "POST",
             body: {
@@ -66,9 +78,13 @@ it("enforces dedicated feed availability without blocking shared or aggregate re
         expect(postId).toBeDefined()
 
         expectStatus(await updateFeeds({ ...originalSettings.feeds, discover: true, posts: false }), 200)
-        expectStatus(await admin.fetchRaw("/api/post"), 404, "dedicated post list is unavailable")
-        expectStatus(await admin.fetchRaw(`/api/post/${postId}`), 200, "post detail remains available")
-        const aggregateFeed = await admin.fetchRaw<FeedPage<Sortable>>("/api/feed/popular?sortBy=new&pageSize=50")
+        const [dedicatedPostsResponse, postDetailResponse, aggregateFeed] = await Promise.all([
+            admin.fetchRaw("/api/post"),
+            admin.fetchRaw(`/api/post/${postId}`),
+            admin.fetchRaw<FeedPage<Sortable>>("/api/feed/popular?sortBy=new&pageSize=50"),
+        ])
+        expectStatus(dedicatedPostsResponse, 404, "dedicated post list is unavailable")
+        expectStatus(postDetailResponse, 200, "post detail remains available")
         expectStatus(aggregateFeed, 200)
         expect(aggregateFeed._data?.items.some(item => item.id === `post:${postId}`)).toBe(true)
     }
