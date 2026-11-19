@@ -2,6 +2,19 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
+## [2026.6.4] - 2026-11-18
+
+### Added
+- Added stable-release listing, checksum-verified upgrades, and rollback-aware cleanup commands to the Linux installer.
+- Added server-side diagnostics for non-root requests that unexpectedly resolve to the root redirect, recording only the request ID, method, query-free path, and resolved path.
+
+### Changed
+- Updated operator and contributor guidance, including installation and support entrypoints, hosting limits, and a structured bug-report form.
+- GitHub release publication now uses the unique dated changelog section matching the tag.
+
+### Fixed
+- Made feedback failures retryable without losing the draft, while preventing duplicate in-flight submissions.
+
 ## [2026.6.3] - 2026-11-18
 
 ### Added
