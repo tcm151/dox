@@ -29,7 +29,7 @@ Document practical backup/restore steps so operators can recover service and dat
 - docs/Backups.md
 - docs/Quickstart.md
 - docs/SurrealDB.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - docs/.env.example
 - server/plugins/01.startup.server.ts
 

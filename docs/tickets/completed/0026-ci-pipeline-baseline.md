@@ -30,7 +30,7 @@ Add a baseline CI pipeline that validates install, type-check, build, and core s
 - golar.config.ts
 - .github/workflows/ci.yml
 - .github/copilot-instructions.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 
 ## Progress Log
 - 2026-10-25: Configured GitHub branch protection rules to require CI; all ticket requirements are complete.

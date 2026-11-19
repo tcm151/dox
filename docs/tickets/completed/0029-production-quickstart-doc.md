@@ -45,7 +45,7 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - Packaged default account credentials are blank by default. Fresh installations must configure all three `DEFAULT_USER_*` values or startup fails; existing installations with an account may leave all three blank. Partial values and known placeholder passwords are rejected.
 
 ## Relevant Files
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - docs/Quickstart.md
 - scripts/installer.sh
 - scripts/release.env

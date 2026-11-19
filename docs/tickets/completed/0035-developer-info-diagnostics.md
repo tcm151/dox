@@ -34,7 +34,7 @@ Expand the developer info page with non-sensitive build, deployment, and runtime
 - package.json
 - deploy.sh
 - docs/Architecture.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - tests/parallel/developer-info.browser.test.ts
 
 ## Progress Log

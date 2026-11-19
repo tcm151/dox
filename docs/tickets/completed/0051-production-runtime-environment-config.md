@@ -39,7 +39,7 @@ Make installed releases use the operator's environment configuration at startup 
 - scripts/stage-release.mjs
 - docs/.env.example
 - docs/Quickstart.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - server/plugins/01.startup.server.ts
 - server/utils/DatabaseQuery.ts
 - server/utils/media.ts

@@ -38,7 +38,7 @@ yarn --version
 
 The WSL clone is separate from the Windows checkout. Review its branch, commit, version, and working tree before building; Windows-only uncommitted changes are not included. Keep Linux source, build output, and test data in the WSL filesystem under `/home/`; use `/mnt/c` only when deliberately exchanging files with Windows.
 
-Use a recent Node.js LTS release and Yarn as described in the [Contribution Guide](../../../docs/ContributionGuide.md). In Ubuntu, use `nvm` rather than `nvm-windows` to manage Node.js. If `node` is missing or resolves under `/mnt/c`, install Linux Node with [nvm](https://github.com/nvm-sh/nvm#installing-and-updating), then set up the project runtime:
+Use a recent Node.js LTS release and Yarn as described in the [Contributing](../../../docs/Contributing.md). In Ubuntu, use `nvm` rather than `nvm-windows` to manage Node.js. If `node` is missing or resolves under `/mnt/c`, install Linux Node with [nvm](https://github.com/nvm-sh/nvm#installing-and-updating), then set up the project runtime:
 
 ```bash
 nvm install --lts

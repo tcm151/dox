@@ -25,7 +25,7 @@ Standardize pull requests with a lightweight template and required checks for te
 ## Relevant Files
 - .github/PULL_REQUEST_TEMPLATE.md
 - .gitignore
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - docs/Roadmap.md
 
 ## Progress Log

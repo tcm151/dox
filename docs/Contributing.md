@@ -1,4 +1,4 @@
-# Contribution Guide
+# Contributing
 
 Follow these steps to build and run the site on your local machine.
 
@@ -158,7 +158,7 @@ ClassicForum includes a built-in query portal at `/developer/query` (see [app/pa
 
 ## 9. Default Account
 
-On an empty database, set all three `DEFAULT_USER_*` values before starting the app. Startup creates the default account with the `moderator`, `admin`, and `developer` roles.
+On an empty database, set all three `NUXT_SURREAL_ADMIN_*` values before starting the app. Startup creates the default account with the `moderator`, `admin`, and `developer` roles.
 
 Once the app is running:
 
@@ -166,7 +166,7 @@ Once the app is running:
 2. Open `/profile` to confirm authentication is working.
 3. Open `/developer/query` to confirm developer access.
 
-If the database already contains an account, leave all three `DEFAULT_USER_*` values blank. Startup will not create another default account.
+If the database already contains an account, leave all three `NUXT_SURREAL_ADMIN_*` values blank. Startup will not create another default account.
 
 ## 10. Troubleshooting
 

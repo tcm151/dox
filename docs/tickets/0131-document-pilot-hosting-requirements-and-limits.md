@@ -1,9 +1,9 @@
 # Ticket 0131: Document Pilot Hosting Requirements And Limits
 
 ## Status
-- State: Planned
+- State: `In Progress`
 - Priority: Medium
-- Next: Select one pilot deployment profile and define the measurements needed for a bounded operator baseline.
+- Next: `Record the production host/runtime/database profile and collect the bounded baseline.`
 
 ## Goal
 Help prospective operators estimate whether the supported configuration suits their small community. Publish observed requirements and clear limits rather than unsupported capacity, cost, migration, or discoverability claims.
@@ -18,11 +18,11 @@ Help prospective operators estimate whether the supported configuration suits th
 - [ ] Manual migration/import limitations and operator-owned hosting/backup responsibilities are clear, and the guide is linked from the installation/adoption documentation.
 
 ## Tasks
-- [ ] Reuse the deployment profile and evidence from [0118](0118-close-public-release-validation-gaps.md) where applicable and define a small representative workload.
+- [x] Reuse the deployment profile and evidence from [0118](0118-close-public-release-validation-gaps.md) where applicable and define a small representative workload.
 - [ ] Collect the bounded baseline in an authorized environment and retain reproducible measurement details.
-- [ ] Reconcile actual configured media/email limits with existing architectural recommendations.
-- [ ] Check the supported release's public-content indexing behavior before describing it.
-- [ ] Publish operator-facing requirements, limitations, and cost considerations and link them from the Quickstart/adoption path.
+- [x] Reconcile actual configured media/email limits with existing architectural recommendations.
+- [x] Check the supported release's public-content indexing behavior before describing it.
+- [x] Publish operator-facing requirements, limitations, and cost considerations and link them from the Quickstart/adoption path.
 
 ## Notes
 - Hosting costs, media limits, migration effort, search-engine indexing, and capacity need documentation or measurement.
@@ -33,6 +33,7 @@ Help prospective operators estimate whether the supported configuration suits th
 
 ## Relevant Files
 - docs/Quickstart.md
+- docs/Hosting.md
 - docs/Backups.md
 - docs/SurrealDB.md
 - docs/Architecture.md
@@ -40,4 +41,6 @@ Help prospective operators estimate whether the supported configuration suits th
 - nuxt.config.ts
 
 ## Progress Log
+- 2026-11-18: Read-only production inspection reported version `2026.6.3`, ref `v2026.6.3`, commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`, and app/database readiness. Host/runtime/database details, production artifact checksum, and capacity measurements remain unknown.
+- 2026-11-18: Added the hosting profile, workload plan, and source-backed limits. User reports a successful full production install at `forum.tcmdev.ca`; exact deployment details and capacity remain unknown.
 - 2026-11-17: Ticket created. No hosting measurements, cost estimates, indexing checks, or capacity validation were performed.

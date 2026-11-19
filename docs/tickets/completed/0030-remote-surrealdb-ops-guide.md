@@ -23,7 +23,7 @@ Create a general-purpose SurrealDB user guide that links to authoritative upstre
 - Live remote database provisioning and connectivity validation remain deployment-specific.
 
 ## Relevant Files
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - docs/Architecture.md
 - docs/SurrealDB.md
 - server/utils/DatabaseQuery.ts

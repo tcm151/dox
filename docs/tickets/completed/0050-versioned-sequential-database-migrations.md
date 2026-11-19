@@ -52,7 +52,7 @@ Keep migrations compatible with the fresh schema and supported database upgrades
 - server/utils/DatabaseQuery.ts
 - server/utils/health.ts
 - docs/Architecture.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 
 ## Progress Log
 - 2026-10-21: Changed latest migration selection to applied timestamp and removed `OVERWRITE` from the fresh schema. Repeated startup against the disposable embedded database passed.

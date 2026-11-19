@@ -1,9 +1,9 @@
 # Ticket 0129: Complete Public Adoption Entrypoints
 
 ## Status
-- State: Planned
+- State: `In Progress`
 - Priority: Medium
-- Next: Inventory the README and demo paths an anonymous visitor follows to understand, install, and get help with ClassicForum.
+- Next: `Confirm the approved demo and public support destinations.`
 
 ## Dependencies
 - [0127](0127-publish-a-verifiable-pilot-release.md): The completed operator journey must link to an actual supported download rather than a placeholder.
@@ -22,13 +22,14 @@ Connect the repository and public demonstration to a clear self-hosting journey.
 
 ## Tasks
 - [ ] Identify the canonical project/repository destination and the supported release's actual feature scope.
-- [ ] Update the README's operator/contributor entrypoints and unsupported feature claims.
+- [x] Update the README's operator/contributor entrypoints and unsupported feature claims.
 - [ ] Prepare an introduction and clearly identified examples with existing demo organization features, obtaining approval before publishing site content.
 - [ ] Create or refresh the checked screenshots/walkthrough and verify every advertised link.
 - [ ] Coordinate hosting and support links with [0131](0131-document-pilot-hosting-requirements-and-limits.md) and [0132](0132-publish-operator-support-guidance-and-bug-intake.md).
 
 ## Notes
 - The 2026-11-17 adoption review identified a contributor-only README Quick Start, an audio-support claim, and a demo introduction that was not immediately discoverable.
+- The owner identifies `forum.tcmdev.ca` as a personal-blog example deployment, not an onboarding site. Do not treat its content or Contact page as official project onboarding or support destinations without approval.
 - Use the existing configured About summary, topics, and pins where appropriate; verify affected routes through [0128](0128-verify-demo-navigation-and-hydration.md) before relying on them.
 - Completed [0117](completed/0117-reconcile-roadmap-and-completion-evidence.md) reconciles the roadmap. This ticket owns the visitor-facing description and adoption path, not removal of unfinished work from the roadmap.
 - A pilot can have a narrower supported feature set than the full roadmap. Do not promise importers, managed hosting, unlimited media, or a particular community capacity.
@@ -39,8 +40,11 @@ Connect the repository and public demonstration to a clear self-hosting journey.
 - app/pages/about.vue
 - app/pages/contact.vue
 - docs/Quickstart.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
+- docs/Support.md
 
 ## Progress Log
+- 2026-11-18: In-app About and a public post opened from the feed, but direct GETs to `/about` and an existing `/post/...` URL returned HTTP 302 to `/feed` from Nginx. The introduction-to-content path remains unverified pending proxy inspection; checks were signed in.
+- 2026-11-18: README separates production install from source setup, uses canonical config names, avoids claiming unfinished audio support, and links Operator Help. The supported v2026.6.3 Linux x64 archive and checksum are now linked; demo verification and approved public support destinations remain open.
 - 2026-11-17: Recorded demo reliability as a completion prerequisite alongside the actual download; content drafting and unrelated support/hosting work remain parallel.
 - 2026-11-17: Ticket created. No README, demo content, branding, or deployment changes were made.

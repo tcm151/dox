@@ -16,7 +16,7 @@ ClassicForum is a self-hosted, modern forum platform for people who want an alte
 - **Forum + feeds** with posts, threads, topics, discover views, and search.
 - **Richer thread conversations** with replies, quoting, editing, and thread chains.
 - **Profiles and authentication** with multi-login session flows and account switching.
-- **Media support** for image and audio uploads, browsing, and detail pages.
+- **Image media** for uploads, browsing, and detail pages. Audio publishing is disabled and unfinished.
 - **Voting, reporting, and moderation tools** for healthy public communities.
 - **Admin and developer areas** for role management, reports, feedback, configuration, and database operations.
 - **Self-host friendly architecture** powered by Nuxt and SurrealDB 3, with support for local embedded setups or remote database deployments.
@@ -30,7 +30,7 @@ ClassicForum is a self-hosted, modern forum platform for people who want an alte
 
 ## Quick Start
 
-If you want to run or contribute locally, follow the [Contribution Guide](./docs/ContributionGuide.md).
+For operators, download the supported [v2026.6.3 Linux x64 archive](https://github.com/tcm151/dox/releases/download/v2026.6.3/forum-2026.6.3-linux-x64.tar.gz) and its [SHA-256 file](https://github.com/tcm151/dox/releases/download/v2026.6.3/forum-2026.6.3-linux-x64.tar.gz.sha256), then follow the [Production Quickstart](./docs/Quickstart.md) and [Operator Help](./docs/Support.md). To build from source, see [Contributing](./docs/Contributing.md).
 
 ## Deployment Types
 
@@ -38,13 +38,13 @@ If you want to run or contribute locally, follow the [Contribution Guide](./docs
 
 - Best for: dedicated database hosts, shared infrastructure, or multi-service deployments.
 - App connects over RPC with configured credentials.
-- Configure: set `SURREAL_TYPE=remote` and `SURREAL_URL=http://<host>:<port>/rpc`.
+- Configure: set `NUXT_SURREAL_INFO_TYPE=remote` and `NUXT_SURREAL_INFO_URL=http://<host>:<port>/rpc`.
 
 ### Embedded SurrealDB
 
 - Best for: single-node self-hosting and simpler local deployments.
 - App starts SurrealDB via embedded engines inside the server process.
-- Configure: set `SURREAL_TYPE=embedded` and `SURREAL_URL=rocksdb://<path-to-db-file>`.
+- Configure: set `NUXT_SURREAL_INFO_TYPE=embedded` and `NUXT_SURREAL_INFO_URL=rocksdb://<path-to-db-file>`.
 
 ## Project Status
 

@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a reproducible problem with ClassicForum.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include passwords, access tokens, private database files or contents, or `.env` files.
+        Report suspected vulnerabilities through the private process in `SECURITY.md`, not in a public issue.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Include the ClassicForum release version or source commit.
+      placeholder: 2026.6.3 or commit SHA
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and architecture
+      placeholder: Ubuntu 24.04, x64
+    validations:
+      required: true
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database mode
+      options:
+        - Embedded SurrealDB
+        - Remote SurrealDB
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the smallest steps that reproduce the problem.
+      placeholder: 1. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Redacted diagnostics
+      description: Remove credentials, tokens, private URLs, and user data before posting logs.

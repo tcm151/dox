@@ -1,6 +1,6 @@
 # Production Quickstart
 
-Use this guide to install a forum release on a Linux server. The examples unpack the archive under `/srv`, creating `/srv/forum/<version>` for the app, with shared configuration and persistent data under `/srv/forum`. Choose a parent directory appropriate for your host and replace `/srv` throughout. The archive itself contains the `forum/<version>` directory structure.
+Use this guide to install a Linux release. Examples use `/srv/forum/<version>` for the app, with shared configuration and data under `/srv/forum`. All `/srv/forum/*` paths are placeholders; replace `/srv/forum` with your actual install location. The archive contains `forum/<version>`.
 
 ## Prerequisites
 
@@ -12,7 +12,13 @@ Use this guide to install a forum release on a Linux server. The examples unpack
 
 ## Install The Artifact
 
-Log in as root, then unpack the release under `/srv` (replace this with your chosen parent directory):
+Download the Linux x64 archive and its `.sha256` file from the [latest GitHub release](https://github.com/tcm151/dox/releases/latest). From the directory containing both files, verify the archive before unpacking:
+
+```bash
+sha256sum -c forum-<version>-linux-x64.tar.gz.sha256
+```
+
+Log in as root, then unpack the release under your chosen parent directory (shown as `/srv` below):
 
 ```bash
 cd /srv
@@ -40,6 +46,8 @@ The installed layout is:
 ```
 
 Release archives include production dependencies and are specific to the OS and architecture they were built for. Build and stage a separate archive on each target platform, then install the matching archive.
+
+See [Hosting](Hosting.md) for the candidate environment, current limits, and capacity measurements that remain outstanding.
 
 ## Configure Environment
 

@@ -359,7 +359,7 @@ When adding features:
 ## 14. Practical Onboarding Path
 
 Recommended order for new contributors:
-1. Read `docs/ContributionGuide.md`
+1. Read `docs/Contributing.md`
 2. Read this document (`docs/Architecture.md`)
 3. Inspect `nuxt.config.ts` and `shared/types/index.ts`
 4. Trace one end-to-end flow:

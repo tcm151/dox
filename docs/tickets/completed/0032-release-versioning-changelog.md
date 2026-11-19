@@ -28,7 +28,7 @@ Establish a lightweight release process with clear versioning and a maintained c
 - README.md
 - CHANGELOG.md
 - docs/Roadmap.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - package.json
 - nuxt.config.ts
 

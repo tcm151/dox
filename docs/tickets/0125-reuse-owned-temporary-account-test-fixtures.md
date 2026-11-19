@@ -36,7 +36,7 @@ Extend existing test helpers with a small, reliable lifecycle for ordinary per-t
 - tests/utils/browser-fixtures.ts
 - tests/parallel/content-filters.server.test.ts
 - tests/parallel/profile-privacy.server.test.ts
-- docs/ContributionGuide.md
+- docs/Contributing.md
 
 ## Progress Log
 - 2026-11-17: Ticket created from the developer consistency review. The test runner and fixture lifecycle were not executed.

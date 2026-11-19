@@ -23,7 +23,7 @@ Publish a project security policy with clear vulnerability reporting and disclos
 
 ## Relevant Files
 - SECURITY.md
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - package.json
 
 ## Progress Log

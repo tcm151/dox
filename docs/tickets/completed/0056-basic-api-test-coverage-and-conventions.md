@@ -36,7 +36,7 @@ Expand the starter integration suite beyond health checks with a few representat
 - tests/
 - scripts/test-server.mjs
 - server/utils/repos/SessionManager.ts
-- docs/ContributionGuide.md
+- docs/Contributing.md
 
 ## Progress Log
 - 2026-10-23: Completed the baseline after `yarn test` passed, including authenticated post deletion cleanup; fixed post deletion's user record binding and used the shared `extractId` helper in the test.

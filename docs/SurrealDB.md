@@ -13,7 +13,7 @@ This guide links to the official SurrealDB documentation and records the configu
 
 ## ClassicForum Database Modes
 
-ClassicForum supports an embedded database and a separately operated remote database. Embedded SurrealDB is the default and simplest single-host deployment. See the [Production Quickstart](Quickstart.md) for packaged installation and service setup, or the [Contribution Guide](ContributionGuide.md) for development configuration.
+ClassicForum supports an embedded database and a separately operated remote database. Embedded SurrealDB is the default and simplest single-host deployment. See the [Production Quickstart](Quickstart.md) for packaged installation and service setup, or the [Contributing](Contributing.md) for development configuration.
 
 For the embedded mode, the environment selects the in-process engine and a persistent RocksDB path:
 
