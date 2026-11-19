@@ -100,7 +100,7 @@ Goal: finish the core account, discovery, and publishing workflows before expand
 - 🟥 Rank content from saved users without changing which content appears in the following feed. (`M`)
 - 🟩 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`M`)
 - 🟩 Refresh feeds and inbox after relevant changes and on new navigation when data is stale, without clearing loaded content. (`M`)
-- 🟥 Triage high-visibility TODOs in feed/search/settings and create linked follow-up work. (`S`)
+- 🟥 Restore signed-out password reset access and cancellation ([Ticket 0140](tickets/0140-restore-password-reset-flow.md)). (`M`)
 - 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`S`)
 
 **Success metric**: feed and inbox state stays understandable and current, with shareable discovery and reliable polling as the baseline.
