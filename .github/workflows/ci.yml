@@ -12,8 +12,36 @@ permissions:
   contents: read
 
 jobs:
+  check-release-tag:
+    name: Check for release tag
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    outputs:
+      tagged: ${{ steps.check.outputs.tagged }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          fetch-tags: true
+
+      - name: Check for release tag on commit
+        id: check
+        shell: bash
+        run: |
+          if [[ -n "$(git tag --points-at "$GITHUB_SHA" --list 'v*')" ]]; then
+            echo "tagged=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tagged=false" >> "$GITHUB_OUTPUT"
+          fi
+
   validate:
     name: Validate
+    needs: check-release-tag
+    if: |
+      always() &&
+      (needs.check-release-tag.result == 'skipped' ||
+       (needs.check-release-tag.result == 'success' && needs.check-release-tag.outputs.tagged != 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

@@ -397,7 +397,7 @@ process.stdout.write(comparison === 0 ? "same" : comparison < 0 ? "older" : "new
     fi
     while IFS= read -r member; do
         case "$member" in
-            "forum/$latest_version/"|"forum/$latest_version/"*) ;;
+            "forum/"|"forum/$latest_version/"|"forum/$latest_version/"*) ;;
             *)
                 echo "Release archive contains an unexpected path: $member" >&2
                 exit 1

@@ -195,7 +195,7 @@ Keep pull requests focused and use the repository template. It asks for a short 
 
 ### CI Checks
 
-CI validates PRs, pushes to `dev`, and `v*` tags with typechecks, a production build, and integration tests. On tags, it verifies the package version, stages the Linux x64 archive, creates a SHA-256 file, and publishes both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md). Run the CI checks locally, commit all intended source changes, then make the dated changelog update the final commit and tag that exact commit. Pushing the tag triggers CI; do not build or upload release assets manually in the normal workflow. Track external operator, live-service, and production-deployment checks separately, and do not claim they passed based on CI.
+CI validates PRs, pushes to `dev`, and `v*` tags with typechecks, a production build, and integration tests. When a `dev` push points to a commit with a `v*` tag, that run skips validation; the tag-triggered run validates and publishes. On tags, CI verifies the package version, stages the Linux x64 archive, creates a SHA-256 file, and publishes both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md). Run the CI checks locally, commit all intended source changes, then make the dated changelog update the final commit and tag that exact commit. Pushing the tag triggers CI; do not build or upload release assets manually in the normal workflow. Track external operator, live-service, and production-deployment checks separately, and do not claim they passed based on CI.
 
 Run the same checks locally:
 
