@@ -234,11 +234,18 @@ test("topic pins are created from Extra Options and managed from topic tools", a
 
         await page.goto(`/topic/${topicId}/tools/pins`, { timeout: 10_000 })
         const activeToggle = page.locator("label.toggle input[type='checkbox']")
+        const toggleActive = async (checked: boolean) => {
+            const pinsRefresh = page.waitForResponse(response =>
+                response.request().method() === "GET"
+                && new URL(response.url()).pathname === `/api/topic/${topicId}/pins/manage`,
+            )
+            await page.locator("label.toggle").click()
+            expect((await pinsRefresh).ok()).toBe(true)
+            await expect(activeToggle).toBeChecked({ checked })
+        }
         await expect(activeToggle).toBeChecked()
-        await page.locator("label.toggle").click()
-        await expect(activeToggle).not.toBeChecked()
-        await page.locator("label.toggle").click()
-        await expect(activeToggle).toBeChecked()
+        await toggleActive(false)
+        await toggleActive(true)
 
         await page.getByText("Remove", { exact: true }).click()
         await expect(page.getByText("There are currently no pins.", { exact: true })).toBeVisible()
