@@ -122,7 +122,7 @@ Goal: fix the remaining public-use issues, check the release and installation pr
 
 Fix release-blocking issues before promotion. Code cleanup can run in parallel. Other cleanup and optional features do not block the pilot unless they affect supported workflows.
 
-Current release: 2026.6.3. Its published Linux x64 package is installed at `forum.tcmdev.ca`; Developer Info matches the published commit and health reports app/database ready. A 2026.6.4 hotfix candidate is being prepared from committed work above the release tag. Independent installation, live SMTP/onboarding, hosting measurements, publication checks for the new candidate, and diagnosis of an unidentified test failure remain open. The production direct-route redirect is unexplained; route diagnostics are committed but not deployed. Production use of a new release requires a verified download, fresh backup, and explicit approval.
+Current release: 2026.6.4. Release follow-up remains active, including the public demo navigation investigation tracked in [ticket 0128](tickets/0128-verify-demo-navigation-and-hydration.md). Independent installation, live SMTP/onboarding, hosting measurements, publication checks for a future candidate, and diagnosis of an unidentified test failure remain open. Production use of a new release requires a verified download, fresh backup, and explicit approval.
 
 ### D1. Security and Reliability
 - 🟩 Fix media cleanup, confirmation-token validation, and confirmation-email rate limits without changing ownership or refund rules.
