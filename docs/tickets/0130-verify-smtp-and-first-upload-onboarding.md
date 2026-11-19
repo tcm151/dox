@@ -44,5 +44,6 @@ Verify the real operator/user journey from configured outbound mail to account c
 - docs/Quickstart.md
 
 ## Progress Log
+- 2026-11-18: Production inspection confirmed version `2026.6.3` at the published tag/commit and app/database readiness. It did not inspect SMTP configuration or exercise mail delivery or uploads; deployment mode and provider profile remain unknown.
 - 2026-11-18: Reviewed the account and spool tests and reran `yarn.cmd test` (248/248 passed). These checks cover simulated SMTP failure and spool transitions only; live provider delivery, approved recipient mailbox, and confirmed-account onboarding remain unverified.
 - 2026-11-17: Ticket created. SMTP, account actions, uploads, and publication were not executed.

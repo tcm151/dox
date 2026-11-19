@@ -58,6 +58,7 @@ Replace deferred or intermittent release-critical validation with reproducible e
 - Keep independent installation and upgrade/recovery acceptance in this ticket instead of opening a duplicate deployment-validation ticket. Compare observed setup time with the roadmap's 30-minute target without claiming success when assistance was required.
 - [0127](0127-publish-a-verifiable-pilot-release.md) owns public publication and independent download verification. Candidate installation/upgrade checks can run on a staged archive before publication; record the exact source identity and digest so evidence remains tied to the delivered artifact.
 - The WSL upgrade and recovery rehearsals used isolated data, not the existing production deployment. Ticket 0127 tracks applying the published package after a fresh backup and explicit approval.
+- The WSL upgrade and recovery rehearsals used isolated data, not production. The published `v2026.6.3` build is now installed at `forum.tcmdev.ca`; Developer Info matches the published commit and health reports app/database ready. The remote database backup was skipped at the user's direction. Archive provenance and persisted-data comparison remain under [0127](0127-publish-a-verifiable-pilot-release.md); the production-owner installation does not satisfy independent-operator acceptance.
 - Demo-specific redirects/hydration, live SMTP onboarding, and hosting measurements are separate under [0128](0128-verify-demo-navigation-and-hydration.md), [0130](0130-verify-smtp-and-first-upload-onboarding.md), and [0131](0131-document-pilot-hosting-requirements-and-limits.md).
 - Documented CI commands are `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test`.
 - This ticket does not authorize running tools in a source-inspection-only workspace. Execution requires an environment where those checks are permitted.
@@ -66,7 +67,7 @@ Replace deferred or intermittent release-critical validation with reproducible e
 
 ## Relevant Files
 - .github/workflows/ci.yml
-- docs/ContributionGuide.md
+- docs/Contributing.md
 - docs/Quickstart.md
 - docs/Backups.md
 - scripts/installer.sh
@@ -77,6 +78,7 @@ Replace deferred or intermittent release-critical validation with reproducible e
 - tests/parallel/feed.browser.test.ts
 
 ## Progress Log
+- 2026-11-18: Production Info reports `v2026.6.3` at commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`; health reports app/database ready. Host/runtime/database details and elapsed time remain unknown. The remote DB backup was skipped at the user's direction; independent-operator acceptance remains open.
 - 2026-11-18: Reran the standard `yarn.cmd test` suite: sequential phase 18/18, parallel phase 32/32, 248/248 total. The recorded historical failures did not reproduce; this does not establish their original causes or fix the unidentified earlier 31/32 result. Confirmed the media and referral requirement coverage against their isolated tests.
 - 2026-11-18: Completed the backup-first WSL upgrade/recovery rehearsal using isolated systemd services and dedicated test account/content. The pre-upgrade database archive passed checksum and gzip-integrity verification. Installed the 2026.6.3 candidate from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a` (artifact SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`) over the same isolated service and data. The journal recorded migration from 2026.6.2 to 2026.6.3; health reported ready, and login, session, post, and media persisted. An explicit systemd restart briefly refused the first immediate health connection; retry returned ready and persistence checks passed again (image HTTP 200, 363591 bytes). Restored the pre-upgrade archive with the 2026.6.2 release into a separate isolated target, retaining configuration and media separately as documented; checksum, health, login, post, and media checks passed. Temporary services were removed; the original forum service remained active. WSL was not a fresh host, and no independent operator participated, so those limitations remain recorded.
 - 2026-11-18: Ran an unprivileged WSL upgrade smoke test from tagged 2026.6.2 to 2026.6.3 using the same isolated `.env` and data directory. Migration completed; readiness, login, post, and uploaded image persisted. No pre-upgrade backup or system service was exercised, so full upgrade/recovery acceptance remains open.
