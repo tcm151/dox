@@ -183,7 +183,7 @@ export default defineEventHandler(async (event) => {
         const [posts, threads, galleries, links, comments] = await Promise.all([
             postIds.length === 0 ? Promise.resolve<SearchResult[]>([]) : new DatabaseQuery()
                 .addSql(`
-                    SELECT id, user.{id, name, roles}, title, string::slice(content, 0, 512) AS content, tags, time, edited, timeEdited, score,
+                    SELECT id, user.{id, name, roles}, title, string::slice(content, 0, 1024) AS content, tags, time, edited, timeEdited, score,
                         replyTo.{id, title, tags}, topics, comments, votes, status, images.{id, url}, visits, moderation
                     FROM post
                     WHERE id IN $ids

@@ -11,7 +11,7 @@ const FEED_FIELDS = [
     "id",
     "user.{id, name, roles}",
     "title",
-    `string::slice(content ?? "", 0, 512) AS content`,
+    `string::slice(content ?? "", 0, 1024) AS content`,
     "tags",
     "time",
     "edited",

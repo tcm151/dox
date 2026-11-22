@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
                     replyTo.{id, title, tags}, topics, comments, images.{id, url}, status, edited, timeEdited, moderation,
                     description, url, preview, quote.{id, content, tags, time, replies, topics, votes, visits, status, user.{id, name, roles}},
                     quotes, replies, ancestors, chain, deleted },
-                IF record::tb(item) = "post" THEN string::slice(item.content ?? "", 0, 512) ELSE item.content END AS item.content,
+                IF record::tb(item) = "post" THEN string::slice(item.content ?? "", 0, 1024) ELSE item.content END AS item.content,
                 scope, topic.{id}, user.{id, name, roles}, active, time
             FROM pin
             WHERE scope = "topic" AND topic = $topic
