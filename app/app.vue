@@ -67,7 +67,9 @@ if (ENV.isClient()) {
 </script>
 
 <template>
-    <NuxtPage v-if="appUnavailable" />
+    <NuxtLayout v-if="appUnavailable">
+        <NuxtPage />
+    </NuxtLayout>
     <template v-else>
         <NuxtLoadingIndicator />
         <Navbar />

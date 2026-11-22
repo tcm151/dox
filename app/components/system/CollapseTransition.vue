@@ -69,6 +69,7 @@ function afterLeave(element: Element) {
 </script>
 
 <template>
+    <!-- TODO need to use TransitionGroup when there are multiple child components -->
     <Transition
         name="collapse-height"
         :mode="props.mode"

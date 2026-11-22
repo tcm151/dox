@@ -116,6 +116,10 @@ function awardUser() {
     })
 }
 
+function viewProfile() {
+    navigateTo(`/topic/${extractId(targetId.value)}/tools`)
+}
+
 function muteTarget() {
     showOptions.value = false
     void changeFilter("mute")
@@ -172,6 +176,12 @@ function unblockTarget() {
                         <button v-else type="button" :disabled="loading || userSettings.pending">
                             <i class="fa-solid fa-crown"></i>
                             <span>Awarded</span>
+                        </button>
+                    </template>
+                    <template v-if="hasRole(session.user, 'admin')">
+                        <button type="button" @click="viewProfile">
+                            <i class="fa-solid fa-address-card"></i>
+                            <span>Profile</span>
                         </button>
                     </template>
                     <button v-if="!muted" type="button" :disabled="loading || userSettings.pending" @click="muteTarget">

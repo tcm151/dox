@@ -70,8 +70,8 @@ async function search() {
                     <i :class="advancedFiltersExpanded ? 'fa-solid fa-angles-up' : 'fa-solid fa-angles-down'" aria-hidden="true" />
                 </button>
             </div>
-            <div v-show="advancedFiltersExpanded" class="filters row wrap fill g-2">
-                <div class="field f-1">
+            <div v-show="advancedFiltersExpanded" class="filters row wrap fill-even g-2">
+                <div class="field">
                     <label for="search-type">Type</label>
                     <select id="search-type" class="px-2 py-1" v-model="filters.type">
                         <option value="">All Content</option>
@@ -82,7 +82,7 @@ async function search() {
                         <option value="comment">Comments</option>
                     </select>
                 </div>
-                <div class="field f-1">
+                <div class="field">
                     <label for="search-topic">Topic</label>
                     <select id="search-topic" class="px-2 py-1" v-model="filters.topic">
                         <option value="">All Topics</option>
@@ -91,7 +91,7 @@ async function search() {
                         </option>
                     </select>
                 </div>
-                <div class="field f-1">
+                <div class="field">
                     <label for="search-user">Author</label>
                     <input id="search-user" class="px-2 py-1" type="search" maxlength="32" placeholder="Username" v-model="filters.user">
                 </div>

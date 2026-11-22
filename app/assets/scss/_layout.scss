@@ -27,6 +27,11 @@
     flex-grow: 1;
 }
 
+.row.fill-even > * {
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
 .column {
     display: flex;
     flex-flow: column nowrap;

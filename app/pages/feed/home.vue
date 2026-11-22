@@ -10,6 +10,7 @@ const feedPage = useFeedDatasource<Sortable>(() => `/api/feed/${feedType.value}`
     sorting: true,
 })
 
+// TODO switching between feed types doesn't work currently
 const feeds = ["popular", "following"]
 
 function toggleFeedType() {
@@ -26,7 +27,7 @@ function toggleFeedType() {
         <Feed :items="feedPage">
             <template #buttons>
                 <template v-for="type in feeds">
-                    <button v-if="feedType == type" class="dark text capitalize" @click="toggleFeedType">
+                    <button v-if="feedType == type" class="dark text capitalize f-1 b-0" @click="toggleFeedType">
                         {{ type }}
                     </button>
                 </template>

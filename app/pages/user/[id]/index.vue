@@ -19,7 +19,7 @@ const feed = useFeedDatasource<Sortable>(`/api/user/${id}/feed`, {
 <template>
     <article class="content-width column g-2 p-4">
         <UserPreview v-if="user.data.value" :user="user.data.value" @refresh="user.refresh" />
-        <Feed :items="feed">
+        <Feed v-if="user.data.value?.visible === true" :items="feed">
             <template #item="item">
                 <MultiPreview :item="item" />
             </template>

@@ -2,6 +2,7 @@
 const route = useRoute()
 
 definePageMeta({
+    layout: 'simple',
     middleware: (to) => {
         if (!ENV.isClient()) return
 
@@ -34,7 +35,7 @@ const tabs = computed<TabItem[]>(() => {
 
 <template>
     <article class="topic-tools column inline tabbed-shell">
-        <PagedTabstrip :tabs="tabs" />
+        <PagedTabstrip class="medium" :tabs="tabs" />
         <section class="page column inline tabbed-content">
             <NuxtPage :key="route.path" />
         </section>

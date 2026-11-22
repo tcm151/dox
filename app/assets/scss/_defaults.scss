@@ -6,6 +6,7 @@
     --fw-thin: 400;
     --fw-normal: 500;
     --fw-bold: 600;
+    --fw-thick: 700;
     --fw-heavy: 800;
 }
 
@@ -29,6 +30,10 @@ html {
 
 .fw-bold {
     font-weight: var(--fw-bold);
+}
+
+.fw-thick {
+    font-weight: var(--fw-thick);
 }
 
 .fw-heavy {
@@ -265,13 +270,14 @@ h1 {
 
 h2 {
     font-size: 1.5rem;
-    font-weight: var(--fw-bold);
+    font-weight: var(--fw-thick);
     letter-spacing: -0.5px;
     word-spacing: -1.5px;
 }
 
 h3 {
     font-size: 1.25rem;
+    font-weight: var(--fw-bold);
     letter-spacing: -0.33px;
     word-spacing: -1px;
 }
@@ -345,6 +351,17 @@ pre {
         flex-direction: column;
         gap: 0.5rem; 
         margin-block: 1rem;
+        padding-inline-start: 2rem;
+
+        li {
+            ul, ol {
+                margin-bottom: 0;
+            }
+    
+            p {
+                margin-block: 0;
+            }
+        }
     }
 
     li > ul {
@@ -385,6 +402,7 @@ pre {
     }
 
     table {
+        width: 100%;
         margin-block: 1rem;
         border-collapse: collapse;
         border: 1px solid $white-2;

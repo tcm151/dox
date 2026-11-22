@@ -14,18 +14,16 @@ definePageMeta({
 
 const hints = useHints()
 
-const dismissing = ref<boolean>(false)
 const showDismissed = ref<boolean>(false)
-const loadingMore = ref<boolean>(false)
-const pageSize = 20
-const { data: result, pending, refresh } = await useAuthenticatedDatasource<NotificationPage>("/api/profile/notifications", {
+const { data: notifications, pending, refresh } = await useAuthenticatedDatasource<NotificationPage>("/api/profile/notifications", {
     query: {
         dismissed: showDismissed,
-        pageSize,
+        pageSize: 20,
         offset: 0,
     }
 })
 
+const dismissing = ref<boolean>(false)
 async function dismissAll() {
     if (dismissing.value) return
 
@@ -80,27 +78,28 @@ async function dismiss(notification: Notification) {
     }
 }
 
+const loading = ref<boolean>(false)
 async function loadMore() {
-    const currentPage = result.value
-    if (!currentPage?.more || loadingMore.value) return
+    const currentPage = notifications.value
+    if (!currentPage?.more || loading.value) return
 
     const requestedDismissed = showDismissed.value
-    const requestedOffset = currentPage.offset + pageSize
-    loadingMore.value = true
+    const requestedOffset = currentPage.offset + 20
+    loading.value = true
     try {
         const page = await $fetch<NotificationPage>("/api/profile/notifications", {
             headers: { Authorization: getSession().tokens.access },
             query: {
                 dismissed: requestedDismissed,
-                pageSize,
+                pageSize: 20,
                 offset: requestedOffset,
             },
         })
 
-        if (requestedDismissed !== showDismissed.value || currentPage !== result.value) return
+        if (requestedDismissed !== showDismissed.value || currentPage !== notifications.value) return
 
         const loadedIds = new Set(currentPage.items.map(notification => notification.id))
-        result.value = {
+        notifications.value = {
             ...page,
             items: [...currentPage.items, ...page.items.filter(notification => !loadedIds.has(notification.id))],
         }
@@ -109,30 +108,33 @@ async function loadMore() {
         hints.addError(error.message, error)
     }
     finally {
-        loadingMore.value = false
+        loading.value = false
     }
 }
 
 </script>
 
 <template>
-    <article class="content-width p-4">
-        <header class="row end g-2 mb-2">
-            <ButtonSpinner class="dark f-1" :loading="pending" @click="refresh">
-                <i class="fa-solid fa-refresh"></i>
-                Refresh
-            </ButtonSpinner>
-            <ButtonSpinner v-if="!showDismissed && result && result.total > 0" class="dark" :loading="dismissing" @click="dismissAll">
-                <i class="fa-solid fa-angles-right"></i>
-                Dismiss All
-            </ButtonSpinner>
-            <div class="box px-4 py-2">
-                <Toggle v-model:enabled="showDismissed" label="Show Dismissed" />
+    <article v-if="notifications" class="content-width p-4">
+        <header class="row inline between g-2 mb-2">
+            <h1>Inbox</h1>
+            <div class="row g-2">
+                <div class="box px-4 py-2">
+                    <Toggle v-model:enabled="showDismissed" label="Show All" />
+                </div>
+                <ButtonSpinner v-if="notifications.total > 0" class="dark" :loading="dismissing" @click="dismissAll">
+                    <i class="fa-solid fa-angles-right"></i>
+                    <span>Dismiss Unread</span>
+                </ButtonSpinner>
+                <ButtonSpinner class="dark" :loading="pending" @click="refresh">
+                    <i class="fa-solid fa-refresh"></i>
+                    <span>Refresh</span>
+                </ButtonSpinner>
             </div>
         </header>
-        <section v-if="result && result.total > 0" class="column g-2">
+        <section v-if="notifications.total > 0" class="column g-2">
             <TransitionGroup name="notifications">
-                <template v-for="notification in result.items" :key="notification.id">
+                <template v-for="notification in notifications.items" :key="notification.id">
                     <article class="box p-4">
                         <Markdown class="column" :content="notification.message" />
                         <footer class="row g-1 mt-3">
@@ -143,10 +145,10 @@ async function loadMore() {
                     </article>
                 </template>
             </TransitionGroup>
-            <template v-if="result.more">
-                <button class="link" :disabled="loadingMore || pending" @click="loadMore">
+            <template v-if="notifications.more">
+                <button class="link" :disabled="loading || pending" @click="loadMore">
                     <i class="fa-solid fa-angles-down"></i>
-                    {{ loadingMore ? "Loading..." : "Load More" }}
+                    {{ loading ? "Loading..." : "Load More" }}
                 </button>
             </template>
         </section>

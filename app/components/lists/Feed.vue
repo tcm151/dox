@@ -46,21 +46,21 @@ watch(() => props.items.status.value, (status) => {
 
 <template>
     <section class="column g-2">
-        <header v-if="items.sorting" class="sorting row fill center g-2">
+        <header v-if="items.sorting" class="sorting row center g-2">
             <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
             <ClientOnly>
                 <slot name="buttons" />
-                <button :class="{ selected: sortType === 'new' }" title="New" @click="items.setSort('new')">
+                <button class="f-1 b-0" :class="{ selected: sortType === 'new' }" title="New" @click="items.setSort('new')">
                     <i class="fa-solid fa-egg"></i>
                     <span>New</span>
                 </button>
-                <button :class="{ selected: sortType === 'hot' }" title="Hot" @click="items.setSort('hot')">
+                <button class="f-1 b-0" :class="{ selected: sortType === 'hot' }" title="Hot" @click="items.setSort('hot')">
                     <i class="fa-solid fa-fire"></i>
                     <span>Hot</span>
                 </button>
-                <button :class="{ selected: sortType === 'top' }" title="Top" @click="items.setSort('top')">
+                <button class="f-1 b-0" :class="{ selected: sortType === 'top' }" title="Top" @click="items.setSort('top')">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Top</span>
                 </button>
@@ -94,8 +94,8 @@ watch(() => props.items.status.value, (status) => {
 <style scoped lang="scss">
 
 header.sorting {
-    button:not(.refresh, .selected), :slotted(button) {
-        @media (min-width: $bp-compact) {
+    @media (min-width: $bp-compact) {
+        button:not(.refresh, .selected), :slotted(button) {
             span {
                 display: none;
             }    

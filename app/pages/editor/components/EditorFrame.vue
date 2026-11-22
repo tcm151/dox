@@ -17,7 +17,7 @@ function togglePreview() {
 </script>
 
 <template>
-    <article class="content-width column p-4">
+    <article class="column p-4">
         <div class="box column g-3 p-5">
             <div class="editor-stage">
                 <Transition name="editor-mode">
@@ -42,12 +42,12 @@ function togglePreview() {
                     </section>
                 </Transition>
             </div>
-            <footer class="row wrap g-2 mt-3">
-                <ButtonSpinner class="success f-2 b-0" :loading="submitting" :disabled="unavailable" @click="emit('submit')">
+            <footer class="row fill-even wrap g-2 mt-3">
+                <ButtonSpinner class="success" :loading="submitting" :disabled="unavailable" @click="emit('submit')">
                     <i class="fa-solid fa-share"></i>
                     <span>Submit</span>
                 </ButtonSpinner>
-                <button v-if="$slots.preview" class="info f-1 b-0" @click="togglePreview">
+                <button v-if="$slots.preview" class="info" @click="togglePreview">
                     <i v-if="!preview" class="fa-solid fa-eye"></i>
                     <i v-else class="fa-solid fa-eye-slash"></i>
                     <span>Preview</span>
@@ -61,6 +61,7 @@ function togglePreview() {
 
 <style scoped lang="scss">
 article {
+    width: 100%;
     flex: 1 1 auto;
     min-height: 0;
     box-sizing: border-box;
@@ -100,6 +101,16 @@ div.editor-stage {
 section.editor > header,
 footer.row {
     flex: 0 0 auto;
+}
+
+@media (min-width: $bp-compact) {
+    footer.row {
+        button, :slotted(button) {
+            span {
+                display: none;
+            }
+        }
+    }
 }
 
 section.preview {

@@ -21,7 +21,7 @@ type Cursor = {
 const props = defineProps<{
     label?: string
     tip?: string
-    rows?: number
+    rows?: string | number
     maxLength?: number
     placeholder?: string
     disabled?: boolean

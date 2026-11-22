@@ -47,7 +47,7 @@ const responses = computed(() => {
             <Tag class="meta" icon="fa-chart-simple" :label="content.visits" title="Visits" />
             <Tag class="meta" icon="fa-comment" :label="responses" title="Responses" />
             <Tag class="meta" icon="fa-stopwatch" :label="formatDate(content.time)" :title="readableTime" />
-            <Tag v-if="edited" class="meta" icon="fa-erase" :label="formatDate(edited)" title="Edited" />
+            <Tag v-if="edited" class="meta" icon="fa-eraser" :label="formatDate(edited)" title="Edited" />
             <Tag v-if="quarantined" class="danger" icon="fa-trash" label="Removed" title="Quarantined" />
             <ModerationState v-if="moderation" :moderation="moderation" :content-type="moderationType" />
             <slot name="actions" />

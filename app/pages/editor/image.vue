@@ -64,7 +64,7 @@ async function submit() {
 </script>
 
 <template>
-    <EditorFrame title="Upload Gallery" :submitting="submitting" @submit="submit">
+    <EditorFrame title="New Gallery" :submitting="submitting" @submit="submit">
         <template #header-actions>
             <ContentTagSelector v-model="tags" />
             <button v-if="settings.app.media.images.enabled" @click="images.select">

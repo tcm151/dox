@@ -73,33 +73,41 @@ async function unfollowUser() {
                 </Authenticated>
             </div>
         </section>
-        <p v-if="user.visible === false" class="tip">
-            This profile's details, social information, and profile feed are restricted by the user's audience setting.
-        </p>
         <section class="row wrap g-1">
             <Votes :target="user" />
-            <Tag class="f-1 fw-normal" type="info" icon="fa-crown" :label="user.votes.awards.length.toString()" />
-            <Tag class="f-1 fw-normal" type="info" icon="fa-box-archive" :label="user.votes.saves.length.toString()" />
             <Tag class="f-1 fw-normal" type="link">
                 <strong>{{ user.visits }}</strong> visits
+            </Tag>
+            <Tag v-if="user.votes.awards.length" class="f-1 fw-normal" type="link">
+                <strong>{{ user.votes.awards.length }}</strong> awards
+            </Tag>
+            <Tag v-if="user.votes.saves.length" class="f-1 fw-normal" type="link">
+                <strong>{{ user.votes.saves.length }}</strong> saves
             </Tag>
             <template v-if="user.visible !== false">
                 <Tag class="f-1 fw-normal" type="link" @click="navigateTo(`/user/${extractId(user.id)}/topics`)">
                     <strong>{{ user.topics.length }}</strong> topics
                 </Tag>
-                <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
-                    <strong>{{ user.followers.length }}</strong> followers
-                </Tag>
-                <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
-                    <strong>{{ user.following.length }}</strong> following
-                </Tag>
             </template>
-            <Tag class="f-1 fw-normal" type="info">
-                joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong> ago
-            </Tag>
+            <div class="row fill f-1 g-1">
+                <template v-if="user.visible !== false">
+                    <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/followers`)">
+                        <strong>{{ user.followers.length }}</strong> followers
+                    </Tag>
+                    <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/user/${extractId(user.id)}/following`)">
+                        <strong>{{ user.following.length }}</strong> following
+                    </Tag>
+                </template>
+                <Tag class="f-1 fw-normal" type="info">
+                    joined <strong>{{ formatDate(user.dateJoined ?? "") }}</strong> ago
+                </Tag>
+            </div>
         </section>
-        <section v-if="user.visible !== false && user.description" class="column g-2">
+        <section v-if="user.visible == true && user.description" class="column g-2">
             <p>{{ user.description }}</p>
+        </section>
+        <section v-if="user.visible === false">
+            <p>This users profile is private.</p>
         </section>
     </main>
 </template>

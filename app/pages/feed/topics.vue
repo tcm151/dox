@@ -18,3 +18,23 @@ const { data: topics, refresh } = await useDatasource<Topic[]>("/api/feed/topics
         </template>
     </article>
 </template>
+
+<!-- TODO setup topics as feed -->
+<!-- <script setup lang="ts">
+import type { Topic } from '@@/shared/types'
+
+const topics = useFeedDatasource<Topic>("/api/feed/topics", {
+    sorting: true,
+})
+</script>
+
+<template>
+    <section class="content-width feed column g-2 p-4">
+        <Feed :items="topics">
+            <template #item="topic">
+                <TopicPreview :topic="topic" />
+            </template>
+        </Feed>
+    </section>
+</template> -->
+

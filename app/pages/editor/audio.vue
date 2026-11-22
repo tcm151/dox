@@ -102,7 +102,7 @@ async function submit() {
             <Markdown class="content" :content="description" />
         </template>
         <template #footer-actions>
-            <button class="link f-1 b-0" disabled @click="selectAudio">
+            <button class="link" disabled @click="selectAudio">
                 <i class="fa-solid fa-music"></i>
                 <span>Upload</span>
             </button>

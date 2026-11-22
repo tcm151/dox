@@ -66,12 +66,12 @@ async function updatePost(changedPost: Post | null) {
 
     try {
         submitting.value = true
-        const updatedPost = await useApi<Pick<Post, "content" | "edited" | "timeEdited">>(`/api/post/${id}/edit`, {
+        await useApi(`/api/post/${id}/edit`, {
             body: {
                 content: editedPostContent.value,
             }
         })
-        if (post.value) Object.assign(post.value, updatedPost)
+        await refresh()
         editingPost.value = false
     }
     catch (error: any) {

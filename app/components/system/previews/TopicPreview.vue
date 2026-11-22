@@ -41,15 +41,15 @@ let showFollow = computed(() => {
                 <img class="br-small" src="https://bulma.io/assets/images/placeholders/64x64.png">
             </figure>
             <div class="row inline between f-1 g-4">
-                <h2 class="clickable" @click="navigateTo(`/topic/${extractId(topic.id)}`)">
+                <h2 class="fw-thick clickable" @click="navigateTo(`/topic/${extractId(topic.id)}`)">
                     {{ extractId(topic.id) }}
                 </h2>
                 <Authenticated>
-                    <div class="row g-2">
+                    <div class="row g-1">
                         <ButtonSpinner v-if="showFollow" class="success small" :loading="loading" @click="followTopic">
                             Follow
                         </ButtonSpinner>
-                        <ButtonSpinner v-if="!showFollow && !moderator.forTopic(topic)" class="danger small" :loading="loading" @click="unfollowTopic">
+                        <ButtonSpinner v-if="!showFollow && !session.moderates(topic.id)" class="danger small" :loading="loading" @click="unfollowTopic">
                             Unfollow
                         </ButtonSpinner>
                         <TargetOptions :target="topic" :name="extractId(topic.id) ?? topic.id" />
@@ -59,21 +59,31 @@ let showFollow = computed(() => {
         </section>
         <section class="row wrap g-1">
             <Votes :target="topic" />
-            <Tag class="f-1 fw-normal" type="link">
-                <strong>{{ topic.visits }}</strong> visits
-            </Tag>
-            <Tag class="f-1 fw-normal" type="link">
-                <strong>{{ topic.posts.length }}</strong> posts
-            </Tag>
-            <Tag class="f-1 fw-normal" type="link">
-                <strong>{{ topic.threads.length }}</strong> threads
-            </Tag>
-            <Tag class="f-1 fw-normal" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
-                <strong>{{ topic.followers.length }}</strong> followers
-            </Tag>
-            <Tag class="f-1 fw-normal" type="info">
-                first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
-            </Tag>
+            <div class="row fill g-1 f-1">
+                <Tag class="fw-normal" type="link">
+                    <strong>{{ topic.posts.length }}</strong> posts
+                </Tag>
+                <Tag class="fw-normal" type="link">
+                    <strong>{{ topic.links.length }}</strong> links
+                </Tag>
+                <Tag class="fw-normal" type="link">
+                    <strong>{{ topic.threads.length }}</strong> threads
+                </Tag>
+                <Tag class="fw-normal" type="link">
+                    <strong>{{ topic.galleries.length }}</strong> galleries
+                </Tag>
+            </div>
+            <div class="row fill g-1 f-1">
+                <Tag class="fw-normal" type="info">
+                    <strong>{{ topic.visits }}</strong> visits
+                </Tag>
+                <Tag class="fw-normal" type="info" @click="navigateTo(`/topic/${extractId(topic.id)}/followers`)">
+                    <strong>{{ topic.followers.length }}</strong> followers
+                </Tag>
+                <Tag class="fw-normal" type="info">
+                    first used <strong>{{ formatDate(topic.firstUsed) }}</strong> ago
+                </Tag>
+            </div>
         </section>
         <section v-if="topic.description">
             <Markdown compact class="content" :content="topic.description" />

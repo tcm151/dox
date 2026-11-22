@@ -64,7 +64,7 @@ const replyTags = ref<string[]>([])
 const quoting = ref<boolean>(false)
 const replyState = slowMode.submissionState(() => thread.value)
 const quoteState = slowMode.submissionState(() => thread.value, { quote: true })
-const activeSubmissionState = computed(() => quoting.value ? quoteState.value : replyState.value)
+const activeSubmission = computed(() => quoting.value ? quoteState.value : replyState.value)
 const actionWarning = computed(() => quoteState.value.warning ?? replyState.value.warning)
 
 function quoteThread() {
@@ -95,8 +95,8 @@ async function submitThread() {
         hints.addWarning("You must be logged in to interact with others.")
         return
     }
-    if (activeSubmissionState.value.disabled) {
-        if (activeSubmissionState.value.warning) hints.addWarning(activeSubmissionState.value.warning)
+    if (activeSubmission.value.disabled) {
+        if (activeSubmission.value.warning) hints.addWarning(activeSubmission.value.warning)
         return
     }
     
@@ -312,10 +312,10 @@ function toggleOptions() {
                             :rows="5"
                             autofocus
                             :submitting="submitting"
-                            :submit-label="quoting ? 'Submit quote' : 'Reply'"
+                            :submit-label="quoting ? 'Quote' : 'Reply'"
                             :submit-icon="quoting ? 'fa-quote-left' : 'fa-reply'"
-                            :disabled="activeSubmissionState.disabled"
-                            :warning="activeSubmissionState.warning"
+                            :disabled="activeSubmission.disabled"
+                            :warning="activeSubmission.warning"
                             v-model:tags="replyTags"
                             @submit="submitThread"
                             @cancel="cancelThreadReply"

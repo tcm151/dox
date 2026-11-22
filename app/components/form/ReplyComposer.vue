@@ -2,7 +2,7 @@
 const props = withDefaults(defineProps<{
     modelValue: string
     submitting?: boolean
-    rows?: number
+    rows?: string | number
     autofocus?: boolean
     submitLabel?: string
     submitIcon?: string
