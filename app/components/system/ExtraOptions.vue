@@ -34,7 +34,7 @@ const actions = computed(() => {
 
     const type = targetType.value
     const isLocked = props.target.moderation?.locked
-    const isTopicModerator = isModerator && session.moderates(targetTopics.value)
+    const isTopicModerator = session.moderatesAny(targetTopics.value)
     const isReply = "replyTo" in props.target && props.target.replyTo !== undefined
 
     return {

@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import type { Report } from "@@/shared/types"
-import type { ReportModerationView } from "@@/app/utils/moderation"
 
 const props = defineProps<{
-    report: Report & {
-        moderation: ReportModerationView
-        stage: { label: string, type: string }
-    }
+    report: Report
 }>()
 
 const emit = defineEmits<{
@@ -14,19 +10,11 @@ const emit = defineEmits<{
 }>()
 
 const hints = useHints()
-const showReasons = ref<boolean>()
-const moderationAction = ref<"resolve" | "remove" | "remove-topic" | "reopen">()
-const actionMessage = ref("")
-const topicRemovalScope = ref<string>()
-const appealResolution = ref("")
-const reasonsVisible = computed(() => showReasons.value ?? props.report.status === "pending")
-const submittedAppeal = computed(() => [...props.report.history].reverse().find(entry => entry.action === "report.appeal.submitted"))
-const isComment = computed(() => props.report.subject.id.startsWith("comment:"))
+const session = getSession()
 
-function commentContextId() {
-    const context = props.report.subject.context
-    return typeof context === "string" ? context : context?.id
-}
+const message = ref("")
+const removedTopic = ref<string>()
+const action = ref<"resolve" | "remove" | "topic.remove" | "reopen" | "reviewing" | "appeal.accept" | "appeal.reject">()
 
 function actionLabel(action: string) {
     const labels: Record<string, string> = {
@@ -34,7 +22,6 @@ function actionLabel(action: string) {
         "report.removed": "Removed",
         "report.reopened": "Reopened",
         "report.topic.removed": "Topic Removed",
-        "report.topic_removed": "Topic Removed",
         "report.appeal.submitted": "Appealed",
         "report.appeal.accepted": "Accepted",
         "report.appeal.rejected": "Denied",
@@ -42,196 +29,234 @@ function actionLabel(action: string) {
     return labels[action] ?? action
 }
 
-const actionForm = computed(() => {
-    if (moderationAction.value === "reopen") {
-        return { placeholder: "Provide a reason for reopening this report...", submitLabel: "Reopen" }
-    }
-    if (moderationAction.value === "remove-topic") {
-        return {
-            placeholder: `Explain removing ${topicLabel(topicRemovalScope.value ?? "")} from this submission...`,
-            submitLabel: "Remove Topic",
-        }
-    }
-    if (moderationAction.value === "remove") {
-        return { placeholder: "Provide a content removal reason...", submitLabel: "Remove Content" }
-    }
-    return { placeholder: "Provide an approval reason...", submitLabel: "Submit" }
-})
-
-function topicLabel(topic: string) {
-    return extractId(topic) ?? topic
-}
-
 function viewSubject() {
     const subject = props.report.subject
-    const contextId = isComment.value ? commentContextId() : undefined
-    if (contextId) {
-        navigateTo(`/${contextId.replace(":", "/")}#${encodeURIComponent(subject.id)}`)
-        return
+    const context = props.report.subject.context
+    if (context) {
+        navigateTo(`/${context.replace(":", "/")}#${subject.id}`)
     }
-    navigateTo(`/${subject.id.replace(":", "/")}`)
+    else {
+        navigateTo(`/${subject.id.replace(":", "/")}`)
+    }
 }
 
-function startResolution() {
-    if (!props.report.moderation.canApprove) return
-    actionMessage.value = ""
-    moderationAction.value = "resolve"
-}
+const canModerate = computed(() => {
+    return props.report.owner.id !== session.user.id
+        && (session.moderatesAny(props.report.topics) || hasRole(session.user, "admin"))
+})
 
-function startRemoval() {
-    if (!props.report.moderation.canRemoveContent) return
-    actionMessage.value = ""
-    moderationAction.value = "remove"
-}
+const canClose = computed(() => {
+    return canModerate.value
+        && props.report.status === "pending"
+})
 
-function startTopicRemoval(topic: string) {
-    if (!props.report.moderation.removableTopics.includes(topic)) return
-    actionMessage.value = ""
-    topicRemovalScope.value = topic
-    moderationAction.value = "remove-topic"
-}
+// return `/api/topic/${topicId}/reports/${reportId}/${action}`
+// return `/api/report/${reportId}/${action}`
 
-function startReopen() {
-    if (!props.report.moderation.canReopen) return
-    actionMessage.value = ""
-    moderationAction.value = "reopen"
-}
-
-function cancelModerationAction() {
-    actionMessage.value = ""
-    topicRemovalScope.value = undefined
-    moderationAction.value = undefined
-}
-
-async function runReportAction(action: () => Promise<boolean>) {
+const submitting = ref<boolean>(false)
+async function handleAction() {
     try {
-        const completed = await action()
-        if (completed) emit("refresh")
-        return completed
+        submitting.value = true
+        const reportId = extractId(props.report.id)
+        await useApi(`/api/report/${reportId}/${action.value!.replace(".", "/")}`, {
+            body: {
+                message: message.value
+            }
+        })
+        hints.addSuccess(`Report ${action.value} successfully.`)
+        emit("refresh")
     }
     catch (error: any) {
-        hints.addError(error.message, error)
-        return false
+        console.log(error)
+        hints.addError(`Failed to ${action.value} report.`, error)
+    }
+    finally {
+        submitting.value = false
     }
 }
 
-async function submitModerationAction() {
-    const action = moderationAction.value
-    if (!action) return
-
-    const completed = await runReportAction(() => action === "reopen"
-        ? props.report.moderation.reopen(actionMessage.value)
-        : props.report.moderation.submitResolution(action, actionMessage.value, topicRemovalScope.value))
-    if (completed) cancelModerationAction()
+async function closeReport() {
+    action.value = "resolve"
 }
 
-function toggleReasons() {
-    showReasons.value = !reasonsVisible.value
+const canRemove = computed(() => {
+    return props.report.owner.id !== session.user.id
+        && hasRole(session.user, "admin")
+        && props.report.status === "pending"
+})
+
+function removeReport() {
+    action.value = "remove"
+}
+
+function canRemoveTopic(topic: string) {
+    return canModerate.value
+        && session.moderates(topic)
+        && !props.report.subject.id.startsWith("topic:")
+        && !props.report.subject.id.startsWith("comment:")
+        && props.report.status === "pending"
+}
+
+function removeTopic(topic: string) {
+    removedTopic.value = topic
+    action.value = "topic.remove"
+}
+
+const canReopen = computed(() => {
+    return canModerate.value
+        && ["closed", "removed", "denied"].includes(props.report.status)
+})
+
+function reopenReport() {
+    action.value = "reopen"
+}
+
+const canReview = computed(() => {
+    return canModerate.value
+        && props.report.status === "appealed"
+        && props.report.moderator?.id !== session.user.id
+})
+
+function reviewAppeal() {
+    action.value = "reviewing"
+}
+
+async function acceptAppeal() {
+    action.value = "appeal.accept"
+    await handleAction()
+}
+
+async function rejectAppeal() {
+    action.value = "appeal.reject"
+    await handleAction()
+}
+
+function cancelAction() {
+    message.value = ""
+    action.value = undefined
+    removedTopic.value = undefined
+}
+
+const showComplaints = ref(true)
+function toggleComplaints() {
+    showComplaints.value = !showComplaints.value
+}
+
+const showHistory = ref<boolean>(true)
+function toggleHistory() {
+    showHistory.value = !showHistory.value
 }
 </script>
 
 <template>
     <article class="report box hover-shadow column g-1 p-3">
-        <header class="row g-1">
-            <template v-for="topic in report.moderation.topics" :key="topic">
-                <TopicTag class="b-0" :topic="topic" />
+        <header v-if="report.topics.length" class="row g-1">
+            <template v-for="topic in report.topics" :key="topic">
+                <TopicTag class="f-1 b-0" :topic="topic" />
             </template>
+            <Tag v-if="report.complaints.length > 0" class="link b-0" @click="toggleComplaints">
+                <i v-if="showComplaints" class="fa fa-angles-up"></i>
+                <i v-else class="fa fa-angles-down"></i>
+            </Tag>
         </header>
-        <section class="row wrap g-1" :aria-busy="report.moderation.isUpdating">
-            <Tag class="f-1" :type="report.stage.type" :label="report.stage.label" />
-            <Tag class="f-1" type="danger" :label="report.subject.id" @click="viewSubject" />
-            <Tag v-if="report.priority" type="warning" icon="fa-star" label="Priority" />
-            <Tag class="f-1" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
-            <Spinner v-if="report.moderation.isUpdating" :showText="false" role="status" />
-            <Tag v-if="report.complaints.length > 0" class="danger" @click="toggleReasons">
-                <i v-if="reasonsVisible" class="fa fa-angles-up"></i>
+        <CollapseTransition>
+            <template v-if="showComplaints">
+                <blockquote v-for="(complaint, index) in report.complaints" :key="index">
+                    <strong>{{ complaint.user.name }}:</strong>
+                    {{ complaint.reason }}
+                </blockquote>
+            </template>
+        </CollapseTransition>
+        <section class="row wrap g-1">
+            <Tag class="f-1 b-0 capitalize" type="danger" :label="report.status" />
+            <Tag class="f-2 b-0" type="danger" :label="report.subject.id" @click="viewSubject" />
+            <Tag v-if="report.priority" class="warning f-1 b-0" icon="fa-star" label="Priority" />
+            <Tag class="f-1 b-0" type="danger" icon="fa-flag" :label="`${report.complaints.length} complaints`" />
+            <Tag v-if="report.history.length > 0" class="danger b-0" @click="toggleHistory">
+                <i v-if="showHistory" class="fa fa-angles-up"></i>
                 <i v-else class="fa fa-angles-down"></i>
             </Tag>
         </section>
         <CollapseTransition>
-            <section v-show="reasonsVisible" class="f-1 column g-1">
-                <template v-for="(complaint, index) in report.complaints" :key="index">
-                    <blockquote>
-                        <strong>{{ complaint.user.name }}:</strong>
-                        {{ complaint.reason }}
-                    </blockquote>
-                </template>
+            <section v-if="report.history.length && showHistory" class="f-1 column g-1">
                 <template v-for="entry in report.history" :key="`${entry.action}:${entry.time}`">
-                    <span class="timestamp my-1">{{ actionLabel(entry.action) }} • {{ formatDate(entry.time) }} ago</span>
+                    <!-- <p class="timestamp">
+                        {{ actionLabel(entry.action) }} • {{ formatDate(entry.time) }} ago
+                    </p> -->
                     <blockquote>
-                        <strong>{{ entry.user.name }}</strong>:
+                        <strong>{{ entry.user.name }}:</strong>
                         {{ entry.message }}
                     </blockquote>
                 </template>
             </section>
         </CollapseTransition>
         <CollapseTransition mode="out-in" :speed="200">
-            <section v-if="moderationAction && (report.moderation.canApprove || (moderationAction === 'reopen' && report.moderation.canReopen))" class="field g-2">
-                <textarea v-model="actionMessage" :placeholder="actionForm.placeholder" rows="3" />
-                <div class="row g-2">
-                    <button type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="submitModerationAction">
-                        <i class="fa fa-check"></i>
-                        <span>{{ actionForm.submitLabel }}</span>
-                    </button>
-                    <button type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="cancelModerationAction">
-                        <i class="fa fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
-                </div>
-            </section>
-            <section v-else-if="report.status === 'appealed' && submittedAppeal" class="column g-1">
-                <blockquote>
-                    <strong>Appeal ({{ report.owner.name }}):</strong>
-                    {{ submittedAppeal.message }}
-                </blockquote>
-                <template v-if="report.moderation.canReviewAppeal">
-                    <label class="field">
-                        <textarea v-model="appealResolution" placeholder="Provide an appeal decision reason..." rows="3" />
-                    </label>
+            <template v-if="canModerate">
+                <section v-if="action && action !== 'reviewing'" class="field g-2">
+                    <textarea v-model="message" rows="3" />
                     <div class="row g-2">
-                        <button type="button" class="small f-1" @click="viewSubject">
-                            <i class="fa fa-eye"></i>
-                            <span>View</span>
+                        <button type="button" class="small f-1" @click="handleAction">
+                            <i class="fa fa-check"></i>
+                            <span>Submit</span>
                         </button>
-                        <button type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="runReportAction(() => report.moderation.reviewAppeal('accept', appealResolution))">
+                        <button type="button" class="small f-1" @click="cancelAction">
+                            <i class="fa fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </div>
+                </section>
+                <section v-else-if="action === 'reviewing'" class="column g-1">
+                    <label class="field">
+                        <textarea v-model="message" rows="3" />
+                    </label>
+                    <div class="row g-1">
+                        <button type="button" class="small f-1" @click="acceptAppeal">
                             <i class="fa-solid fa-check"></i>
                             <span>Accept</span>
                         </button>
-                        <button type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="runReportAction(() => report.moderation.reviewAppeal('reject', appealResolution))">
+                        <button type="button" class="small f-1" @click="rejectAppeal">
                             <i class="fa-solid fa-xmark"></i>
                             <span>Reject</span>
                         </button>
+                        <button type="button" class="small f-1" @click="cancelAction">
+                            <i class="fa fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
                     </div>
-                </template>
-            </section>
-            <section v-else-if="report.moderation.hasActions" class="row wrap g-1">
-                <button v-if="report.moderation.canApprove" type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="startResolution">
-                    <i class="fa fa-archive"></i>
-                    <span>Close</span>
-                </button>
-                <button v-if="report.moderation.canRemoveContent" type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="startRemoval">
-                    <i class="fa fa-trash"></i>
-                    Remove
-                </button>
-                <template v-for="topic in report.moderation.removableTopics" :key="topic">
-                    <button type="button" class="small" :disabled="report.moderation.isUpdating" :title="`Remove ${topicLabel(topic)} from this submission`" @click="startTopicRemoval(topic)">
-                        <i class="fa fa-ban"></i>
-                        <span>{{ topicLabel(topic) }}</span>
+                </section>
+                <section class="row wrap g-1">
+                    <button v-if="canReview" type="button" class="small f-1" @click="reviewAppeal">
+                        <i class="fa fa-archive"></i>
+                        <span>Review</span>
                     </button>
-                </template>
-                <button v-if="report.moderation.canReopen" type="button" class="small f-1" :disabled="report.moderation.isUpdating" @click="startReopen">
-                    <i class="fa fa-undo"></i>
-                    <span>Reopen</span>
-                </button>
-            </section>
+                    <button v-if="canClose" type="button" class="small f-1" @click="closeReport">
+                        <i class="fa fa-archive"></i>
+                        <span>Close</span>
+                    </button>
+                    <button v-if="canRemove" type="button" class="small f-1" @click="removeReport">
+                        <i class="fa fa-trash"></i>
+                        <span>Remove</span>
+                    </button>
+                    <template v-for="topic in report.topics" :key="topic">
+                        <button v-if="canRemoveTopic(topic)" type="button" class="small"  @click="removeTopic(topic)">
+                            <i class="fa fa-ban"></i>
+                            <span>{{ extractId(topic) }}</span>
+                        </button>
+                    </template>
+                    <button v-if="canReopen" type="button" class="small f-1"  @click="reopenReport">
+                        <i class="fa fa-undo"></i>
+                        <span>Reopen</span>
+                    </button>
+                </section>
+            </template>
         </CollapseTransition>
     </article>
 </template>
 
 <style scoped lang="scss">
-span.timestamp {
-    // font-style: italic;
-    font-weight: var(--fw-bold);
+.timestamp {
+    font-size: 0.8em;
     text-align: center;
+    font-weight: var(--fw-normal);
 }
 </style>

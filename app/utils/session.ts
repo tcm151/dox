@@ -36,8 +36,13 @@ export const getSession = defineStore("session", () => {
 
     const moderator = useSessionStorage<{ topics: string[] }>("moderator", { topics: [] })
 
-    function moderates(topicIds: string[]): boolean {
-        return topicIds.some(t => moderator.value.topics.some(m => m === t))
+    function moderates(topicIds: string | string[]): boolean {
+        const topics = Array.isArray(topicIds) ? topicIds : [topicIds]
+        return topics.every(t => moderator.value.topics.includes(t)) || hasRole(user.value, "admin")
+    }
+
+    function moderatesAny(topicIds: string[]): boolean {
+        return topicIds.some(t => moderator.value.topics.some(m => m === t)) || hasRole(user.value, "admin")
     }
 
     async function getModeratorTopics(): Promise<void> {
@@ -150,6 +155,7 @@ export const getSession = defineStore("session", () => {
         moderator: skipHydrate(moderator),
         isAuthenticated: skipHydrate(isAuthenticated),
         moderates,
+        moderatesAny,
         refreshProfile,
         authenticate,
         login,

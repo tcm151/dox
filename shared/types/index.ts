@@ -317,7 +317,7 @@ export interface Report extends Record {
         user?: User & string
         name?: string
         content?: string
-        context?: string | { id: string }
+        context?: string
     }
     owner: Pick<User, "id" | "name">
     topics: string[]

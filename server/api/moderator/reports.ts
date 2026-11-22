@@ -7,33 +7,22 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             LET $topics = (
-                SELECT id
+                SELECT VALUE id
                 FROM topic
                 WHERE moderators CONTAINS $user
                 ORDER BY score DESC
             );
-            LET $topicIds = $topics.id;
-            LET $reports = (
-                SELECT id, subject.{id, content, context.{id}}, topics,
-                    time, status, complaints.{user.{id, name, roles}, reason, time},
-                    moderator.{id, name, roles},
-                    history.{action, message, user.{id, name, roles}, time, changes},
-                    owner
-                FROM report
-                WHERE record::exists(subject)
-                    AND topics CONTAINSANY $topicIds
-                    AND (
-                        $user.roles CONTAINS "admin"
-                        OR (
-                            subject != $user
-                            AND subject.user != $user
-                            AND (status != "appealed" OR moderator != $user)
-                        )
-                    )
-                ORDER BY time DESC
-            );
-
-            RETURN $reports;
+            RETURN SELECT id, topics, time, status, owner,
+                moderator.{id, name, roles},
+                subject.{id, content, context},
+                complaints.{user.{id, name, roles}, reason, time},
+                history.{action, message, user.{id, name, roles}, time, changes}
+            FROM report
+            WHERE record::exists(subject)
+            AND (subject != $user AND subject.user != $user)
+            AND (topics CONTAINSANY $topics OR $user.roles CONTAINS "admin")
+            AND (status = "appealed" AND moderator != $user)
+            ORDER BY time DESC
         `)
         .addTransaction()
         .addRecord("user", auth.id)

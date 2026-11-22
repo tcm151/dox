@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import type { Report, Topic } from "@@/shared/types"
+import type { Report } from "@@/shared/types"
 
-type ModeratorReport = Report & { topics: string[] }
+const session = getSession()
 
-const topics = await useAuthenticatedDatasource<Topic[]>("/api/moderator/topics")
-const reports = await useAuthenticatedDatasource<ModeratorReport[]>("/api/moderator/reports")
-const pending = computed(() => topics.pending.value || reports.pending.value)
+const { data: reports, pending, refresh } = await useAuthenticatedDatasource<Report[]>("/api/moderator/reports")
 
-async function refresh() {
-    await Promise.all([topics.refresh(), reports.refresh()])
-}
 </script>
 
 <template>
@@ -21,13 +16,8 @@ async function refresh() {
                 <span>Refresh</span>
             </ButtonSpinner>
         </header>
-        <ReportQueue
-            v-if="topics.data.value && reports.data.value && topics.data.value.length > 0"
-            :reports="reports.data.value"
-            :topics="topics.data.value"
-            @refresh="refresh()"
-        />
-        <section v-else-if="topics.data.value && reports.data.value" class="box empty-state" aria-live="polite">
+        <ReportQueue v-if="reports" :reports="reports" :topics="session.moderator.topics" @refresh="refresh" />
+        <section v-else class="box empty-state" aria-live="polite">
             <p>You aren't moderating any topics.</p>
         </section>
     </article>

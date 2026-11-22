@@ -1,65 +1,36 @@
 <script setup lang="ts">
-import type { Report, Topic } from "@@/shared/types"
+import type { Report } from "@@/shared/types"
 import ReportQueueItem from "./ReportQueueItem.vue"
-
-type TopicScope = Pick<Topic, "id">
-type ReportStage = { status: Report["status"], label: string, type: string }
 
 const props = defineProps<{
     reports: Report[]
-    topics?: TopicScope[]
+    topics?: string[]
 }>()
 
 const emit = defineEmits<{
     (event: "refresh"): void
 }>()
 
-const moderation = useModeration()
-
-const reportStages = [
+const reportStatuses = [
     { status: "pending", label: "Pending", type: "danger" },
     { status: "appealed", label: "Appealed", type: "info" },
     { status: "denied", label: "Denied", type: "danger" },
     { status: "closed", label: "Closed", type: "success" },
     { status: "removed", label: "Removed", type: "warning" },
-] satisfies ReportStage[]
-
-type ReportView = Report & {
-    moderation: ReturnType<typeof moderation.forReport>
-    stage: ReportStage
-}
+]
 
 const selectedTopic = ref("")
-const selectedStatus = ref<Report["status"] | undefined>("pending")
-const reportViews = computed(() => props.reports.map(report => ({
-    ...report,
-    moderation: moderation.forReport(report, props.topics),
-    stage: reportStages.find(stage => stage.status === report.status)!,
-})))
-
-const topicFilteredReports = computed(() => {
-    const reports = (props.topics?.length ?? 0) > 1 && selectedTopic.value
-        ? reportViews.value.filter(report => report.moderation.topics.includes(selectedTopic.value))
-        : reportViews.value
-
-    if (props.topics?.length !== 1) return reports
-    return [...reports].sort((left, right) => Number(right.priority ?? false) - Number(left.priority ?? false))
-})
+const selectedStatus = ref<string>("pending")
 
 const filteredReports = computed(() => {
-    if (!selectedStatus.value) return []
-    return topicFilteredReports.value.filter(report => report.status === selectedStatus.value)
+    return props.reports.filter(report => report.status === selectedStatus.value)
 })
 
-function countReports(status: Report["status"]) {
-    return topicFilteredReports.value.filter(report => report.status === status).length
+function statusCount(status: string) {
+    return props.reports.filter(r => r.status === status).length
 }
 
-function toggleStatus(status: Report["status"]) {
-    if (selectedStatus.value === status) {
-        selectedStatus.value = undefined
-        return
-    }
+function setStatus(status: string) {
     selectedStatus.value = status
 }
 
@@ -68,20 +39,20 @@ function toggleStatus(status: Report["status"]) {
 <template>
     <section class="column g-3">
         <header class="row wrap g-2">
-            <template v-if="topics && topics.length > 1">
+            <template v-if="topics && topics.length">
                 <div class="field row topic-filter">
                     <select v-model="selectedTopic">
                         <option value="">All Topics</option>
-                        <template v-for="topic in topics" :key="topic.id">
-                            <option :value="topic.id">{{ extractId(topic.id) }}</option>
+                        <template v-for="topic in topics" :key="topic">
+                            <option :value="topic">{{ extractId(topic) }}</option>
                         </template>
                     </select>
                 </div>
             </template>
-            <template v-for="stage in reportStages" :key="stage.status">
-                <button type="button" class="f-1 b-0" :class="{ selected: selectedStatus === stage.status }" @click="toggleStatus(stage.status)">
+            <template v-for="stage in reportStatuses" :key="stage.status">
+                <button v-if="statusCount(stage.status)" type="button" class="f-1" :class="{ selected: selectedStatus === stage.status }" @click="setStatus(stage.status)">
                     <span>{{ stage.label }}</span>
-                    <span>{{ countReports(stage.status) }}</span>
+                    <span>{{ statusCount(stage.status) }}</span>
                 </button>
             </template>
         </header>
@@ -91,8 +62,7 @@ function toggleStatus(status: Report["status"]) {
             </template>
         </section>
         <section v-else class="box empty-state">
-            <p v-if="selectedStatus">There are no reports in this stage.</p>
-            <p v-else>Select a status to view reports.</p>
+            <p>There are no reports in this stage.</p>
         </section>
     </section>
 </template>
