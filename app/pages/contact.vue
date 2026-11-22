@@ -20,6 +20,7 @@ const additionalEmails = computed(() => {
                     <li v-else class="mb-2">
                         No contact emails have been configured yet.
                     </li>
+                    <!-- TODO showing when no emails have been configured -->
                     <template v-for="email in additionalEmails">
                         <li class="mb-2">
                             <a :href="`mailto:${email}`">

@@ -37,6 +37,7 @@ const feed = useFeedDatasource<Sortable>(`/api/topic/${id}/feed`, {
                         </template>
                     </Feed>
                 </section>
+                <!-- TODO need to make this a component so the information can still be displayed on mobile -->
                 <aside class="sidebar box column g-2 p-4">
                     <Tag v-if="topic.status === 'locked'" type="warning" icon="fa-lock" label="Locked" />
                     <Authenticated>
@@ -63,6 +64,7 @@ const feed = useFeedDatasource<Sortable>(`/api/topic/${id}/feed`, {
                     </section>
                     <section v-if="topic.rules" class="column g-1">
                         <h3>Rules</h3>
+                        <!-- TODO the rules need to be collapsible -->
                         <Markdown compact class="content" :content="topic.rules" />
                     </section>
                 </aside>

@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
             WHERE record::exists(subject)
             AND (subject != $user AND subject.user != $user)
             AND (topics CONTAINSANY $topics OR $user.roles CONTAINS "admin")
-            AND (status = "appealed" AND moderator != $user)
+            // AND (status = "appealed" AND moderator != $user)
             ORDER BY time DESC
         `)
         .addTransaction()

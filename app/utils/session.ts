@@ -64,6 +64,7 @@ export const getSession = defineStore("session", () => {
         await getModeratorTopics()
     })
 
+    // TODO this doesn't seem to update when a user switches profiles
     if (ENV.isClient() && isAuthenticated.value && hasRole(user.value, "moderator")) {
         void getModeratorTopics()
     }

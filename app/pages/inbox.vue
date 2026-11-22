@@ -119,6 +119,7 @@ async function loadMore() {
         <header class="row inline between g-2 mb-2">
             <h1>Inbox</h1>
             <div class="row g-2">
+                <!-- TODO need a better way to display this on mobile -->
                 <div class="box px-4 py-2">
                     <Toggle v-model:enabled="showDismissed" label="Show All" />
                 </div>
