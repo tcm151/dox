@@ -91,6 +91,8 @@ DEFINE FIELD traits ON user
     TYPE array<string> DEFAULT ALWAYS [];
 DEFINE FIELD visits ON user
     TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes ON user
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD votes.positive ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON user
@@ -101,8 +103,6 @@ DEFINE FIELD votes.awards ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD votes ON user
-    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON user
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
@@ -133,7 +133,7 @@ DEFINE FIELD rules ON topic
 DEFINE FIELD status ON topic
     TYPE string ASSERT $value IN ["active", "locked"] DEFAULT ALWAYS "active";
 DEFINE FIELD moderation ON topic
-    TYPE object DEFAULT ALWAYS { maxPostInterval: 60, priorityReportThreshold: 5 };
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD moderation.maxPostInterval ON topic
     TYPE number DEFAULT ALWAYS 60 ASSERT $value >= 0 AND $value <= 3600;
 DEFINE FIELD moderation.priorityReportThreshold ON topic
@@ -204,6 +204,8 @@ DEFINE FIELD timeEdited ON post
     TYPE option<datetime>;
 DEFINE FIELD visits ON post
     TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes ON post
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD votes.positive ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON post
@@ -214,8 +216,6 @@ DEFINE FIELD votes.awards ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON post
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD votes ON post
-    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON post
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 
@@ -278,6 +278,8 @@ DEFINE FIELD timeEdited ON link
     TYPE option<datetime>;
 DEFINE FIELD visits ON link
     TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes ON link
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD votes.positive ON link
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON link
@@ -288,8 +290,6 @@ DEFINE FIELD votes.awards ON link
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON link
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD votes ON link
-    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON link
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
 
@@ -418,6 +418,8 @@ DEFINE FIELD timeEdited ON thread
     TYPE option<datetime>;
 DEFINE FIELD visits ON thread
     TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes ON thread
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD votes.positive ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON thread
@@ -428,8 +430,6 @@ DEFINE FIELD votes.awards ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON thread
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD votes ON thread
-    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON thread
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
@@ -544,6 +544,8 @@ DEFINE FIELD status ON gallery
     TYPE string ASSERT $value IN ["active", "archived", "quarantined", "deleted"] DEFAULT ALWAYS "active";
 DEFINE FIELD visits ON gallery
     TYPE number DEFAULT ALWAYS 1;
+DEFINE FIELD votes ON gallery
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD votes.positive ON gallery
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.misleading ON gallery
@@ -554,8 +556,6 @@ DEFINE FIELD votes.awards ON gallery
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD votes.saves ON gallery
     TYPE array<record<user>> DEFAULT ALWAYS [];
-DEFINE FIELD votes ON gallery
-    TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON gallery
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
 
@@ -666,13 +666,13 @@ DEFINE FIELD privacy ON userSettings
 DEFINE FIELD privacy.profile ON userSettings
     TYPE string DEFAULT ALWAYS "public" ASSERT $value IN ["public", "members", "private"];
 DEFINE FIELD ui ON userSettings
-    TYPE object DEFAULT ALWAYS { hoverAnimations: true, hintDuration: 2500 };
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD ui.hoverAnimations ON userSettings
     TYPE bool DEFAULT ALWAYS true;
 DEFINE FIELD ui.hintDuration ON userSettings
     TYPE number DEFAULT ALWAYS 2500;
 DEFINE FIELD notifications ON userSettings
-    TYPE object DEFAULT ALWAYS { inApp: true, email: false };
+    TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD notifications.inApp ON userSettings
     TYPE bool DEFAULT ALWAYS true;
 DEFINE FIELD notifications.email ON userSettings
