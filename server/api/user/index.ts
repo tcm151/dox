@@ -10,10 +10,7 @@ export default defineEventHandler(async (event) => {
                 followers, following, topics, roles, traits
             FROM user
             WHERE id != user:deleted
-            AND id IN (
-                SELECT VALUE user FROM userSettings
-                WHERE fn::can_view_profile(privacy.profile, $viewer, user)
-            )
+            AND fn::can_view_profile(id, $viewer)
             ORDER BY dateJoined DESC
         `)
         .addRecord("viewer", viewer?.id)

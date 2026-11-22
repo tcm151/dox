@@ -53,6 +53,7 @@ export default defineNuxtConfig({
                 'isomorphic-dompurify',
                 'html-entities',
                 'highlight.js/lib/common',
+                'parse5',
             ],
         },
     },

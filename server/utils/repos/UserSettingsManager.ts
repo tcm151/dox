@@ -58,18 +58,13 @@ export class UserSettingsManager {
     }
 
     static async canViewProfile(target: string, viewer?: User): Promise<boolean> {
-        const { canView } = await new DatabaseQuery()
+        return await new DatabaseQuery()
             .addSql(`
-                SELECT fn::can_view_profile(privacy.profile, $viewer, user) AS canView
-                FROM userSettings
-                WHERE user = $target
-                LIMIT 1
+                RETURN fn::can_view_profile($target, $viewer)
             `)
             .addRecord("target", target)
             .addRecord("viewer", viewer?.id)
-            .queryOne<{ canView: boolean }>()
-
-        return canView
+            .queryValue<boolean>()
     }
 
     static async list(user: string) {

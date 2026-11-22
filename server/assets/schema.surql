@@ -30,14 +30,16 @@ DEFINE FUNCTION fn::calculate_score(
 DEFINE FUNCTION fn::http($status: int, $message: string) {
     THROW string::concat("APP_ERROR:", <string>$status, ":", $message);
 };
-DEFINE FUNCTION fn::can_view_profile(
-    $visibility: string,
-    $viewer: option<record<user>>,
-    $owner: record<user>
-) -> bool {
+DEFINE FUNCTION fn::can_view_profile($owner: record<user>, $viewer: option<record<user>>) -> bool {
+    LET $visibility = (
+        SELECT VALUE privacy.profile
+        FROM ONLY userSettings
+        WHERE user = $owner
+    );
     RETURN $visibility = "public"
-        OR ($visibility = "members" AND $viewer != NONE)
-        OR ($visibility = "private" AND $viewer = $owner);
+    OR ($visibility = "members" AND $viewer != NONE)
+    OR ($visibility = "private" AND $viewer = $owner)
+    OR ($viewer != NONE AND $viewer.roles CONTAINS "admin");
 };
 
 DEFINE ANALYZER IF NOT EXISTS relevanceSearch
