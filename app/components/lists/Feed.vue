@@ -94,7 +94,7 @@ watch(() => props.items.status.value, (status) => {
 <style scoped lang="scss">
 
 header.sorting {
-    @media (min-width: $bp-compact) {
+    @media (max-width: $bp-mobile) {
         button:not(.refresh, .selected), :slotted(button) {
             span {
                 display: none;

@@ -249,7 +249,7 @@ nav.tabstrip {
     }
 }
 
-@media (min-width: $bp-compact) {
+@media (max-width: $bp-compact) {
     nav.tabstrip.wide {
         button, a {
             padding: 0.5rem 1rem;
