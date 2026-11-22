@@ -41,7 +41,7 @@ const feed = useFeedDatasource<Sortable>(`/api/topic/${id}/feed`, {
                 <aside class="sidebar box column g-2 p-4">
                     <Tag v-if="topic.status === 'locked'" type="warning" icon="fa-lock" label="Locked" />
                     <Authenticated>
-                        <button v-if="session.moderates([topic.id])" class="small" @click="navigateTo(`/topic/${id}/tools/profile`)">
+                        <button v-if="session.moderates(topic.id) || isAdmin" class="small" @click="navigateTo(`/topic/${id}/tools/profile`)">
                             <i class="fa-solid fa-address-card"></i>
                             Profile
                         </button>

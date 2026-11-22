@@ -53,7 +53,7 @@ test("hides profile details and feed information for a restricted viewer", async
 
         const profile = page.locator("main.box")
         await expect(profile.getByRole("heading", { name, exact: true })).toBeVisible()
-        await expect(profile.getByText("This profile's details, social information, and profile feed are restricted by the user's audience setting.")).toBeVisible()
+        await expect(profile.getByText("This users profile is private.")).toBeVisible()
         await expect(profile.getByText(/visits/)).toBeVisible()
         await expect(profile.getByRole("link", { name: "https://profile-privacy.invalid" })).toHaveCount(0)
         await expect(profile.getByText("Private profile description", { exact: true })).toHaveCount(0)

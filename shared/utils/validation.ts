@@ -14,7 +14,7 @@ export const useValidation = () => {
     }
 
     const topic = {
-        name: (v: string) => /^\b[A-Za-z]{3,24}\b$/.test(v)
+        name: (v: string) => /^[A-Za-z][A-Za-z0-9]{2,31}$/.test(v)
     }
 
     const record = {

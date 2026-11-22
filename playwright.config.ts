@@ -22,7 +22,7 @@ export default defineConfig({
     outputDir: join(testDataDirectory, "browser-results"),
     fullyParallel: false,
     forbidOnly: Boolean(process.env.CI),
-    workers: 2,
+    workers: 5,
     reporter: [["dot"], ["json", { outputFile: reportPath }]],
     use: {
         baseURL,

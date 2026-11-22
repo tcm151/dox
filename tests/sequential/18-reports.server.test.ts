@@ -1,12 +1,13 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
-import type { Comment, FeedPage, Gallery, ModeratorLog, Post, Thread } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, ModeratorLog, Post, Thread, Report } from "../../shared/types"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
 const threadAuthor = exampleServer.users.threadAuthor
 const reporter = exampleServer.users.commentAuthor
+const sampleUser = exampleServer.users.sampleUser01
 
 async function getModeratorLogs(target: string) {
     const results = await admin.query<ModeratorLog[][]>(`SELECT * FROM moderatorLog WHERE target = ${target} ORDER BY time ASC;`)
@@ -142,7 +143,7 @@ it("returns each moderator report once with its assigned topic associations", as
             UPDATE topic:${secondTopicId} SET moderators += ${reporter.user.id};
         `)
 
-        const reportResponse = await reporter.fetchRaw("/api/report/send", {
+        const reportResponse = await sampleUser.fetchRaw("/api/report/send", {
             method: "POST",
             body: { subject: thread.id, reason: "This thread should appear once in the aggregate queue." },
             headers: { "X-Forwarded-For": "192.0.2.80" },
@@ -277,7 +278,7 @@ it("lists a report in administrator and topic queues", async () => {
             },
         })
 
-        const laterCloseResponse = await admin.fetchRaw(`/api/report/${reportId}/resolve`, {
+        const laterCloseResponse = await admin.fetchRaw<Report[]>(`/api/report/${reportId}/resolve`, {
             method: "POST",
             body: { message: "Updated decision note." },
         })

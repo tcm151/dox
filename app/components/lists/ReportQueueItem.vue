@@ -91,7 +91,7 @@ function removeReport() {
 
 function canRemoveTopic(topic: string) {
     return canModerate.value
-        && session.moderates(topic)
+        && (session.moderates(topic) || hasRole(session.user, "admin"))
         && !props.report.subject.id.startsWith("topic:")
         && !props.report.subject.id.startsWith("comment:")
         && props.report.status === "pending"

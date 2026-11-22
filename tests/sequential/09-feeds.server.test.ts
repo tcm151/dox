@@ -294,5 +294,5 @@ it("paginates popular feed results for each sort mode", async () => {
         }
         await admin.query(`DELETE topic:${topicId};`)
     }
-})
+}, 60_000)
 

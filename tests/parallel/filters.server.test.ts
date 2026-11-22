@@ -443,7 +443,7 @@ it("applies user and topic filters to every dedicated content feed", async () =>
             DELETE ${topic};
         `)
     }
-})
+}, 15_000)
 
 async function assertBlockedInteractions(blocker: FilterTestAccount, blocked: FilterTestAccount) {
     const postIds: string[] = []

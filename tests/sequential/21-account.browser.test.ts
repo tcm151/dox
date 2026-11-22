@@ -560,7 +560,7 @@ test("dismisses inbox notifications individually and in bulk", async ({ authenti
     await dismissedToggle.click()
 
     await expect(page.getByText(bulkMarker, { exact: false })).toBeVisible()
-    await page.getByRole("button", { name: "Dismiss All" }).click()
+    await page.getByRole("button", { name: "Dismiss Unread" }).click()
     await expect(page.getByText(singleMarker, { exact: false })).toHaveCount(0)
     await expect(page.getByText(bulkMarker, { exact: false })).toHaveCount(0)
     await expect(page.getByText("You have no unread notifications.", { exact: true })).toBeVisible()

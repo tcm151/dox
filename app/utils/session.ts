@@ -38,11 +38,11 @@ export const getSession = defineStore("session", () => {
 
     function moderates(topicIds: string | string[]): boolean {
         const topics = Array.isArray(topicIds) ? topicIds : [topicIds]
-        return topics.every(t => moderator.value.topics.includes(t)) || hasRole(user.value, "admin")
+        return topics.every(t => moderator.value.topics.includes(t))
     }
 
     function moderatesAny(topicIds: string[]): boolean {
-        return topicIds.some(t => moderator.value.topics.some(m => m === t)) || hasRole(user.value, "admin")
+        return topicIds.some(t => moderator.value.topics.some(m => m === t))
     }
 
     async function getModeratorTopics(): Promise<void> {

@@ -103,7 +103,7 @@ footer.row {
     flex: 0 0 auto;
 }
 
-@media (min-width: $bp-compact) {
+@media (max-width: $bp-compact) {
     footer.row {
         button, :slotted(button) {
             span {

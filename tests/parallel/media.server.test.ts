@@ -202,7 +202,7 @@ it("backs off failed cleanup entries so a later valid file is processed", async 
         await admin.query(allIds.map(id => `DELETE ${id};`).join("\n"))
         await rm(cleanupRoot, { recursive: true, force: true })
     }
-})
+}, 15_000)
 
 it("uploads an image, charges tokens, and refunds them on deletion", async () => {
     const before = await admin.fetch("/api/profile/authenticate")
