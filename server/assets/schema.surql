@@ -6,6 +6,7 @@ DEFINE FIELD version ON migration
     TYPE string;
 DEFINE FIELD time ON migration
     TYPE datetime DEFAULT ALWAYS time::now();
+
 DEFINE INDEX version ON migration
     FIELDS version UNIQUE;
 
@@ -53,12 +54,13 @@ DEFINE ANALYZER IF NOT EXISTS relevanceSearch
 DEFINE TABLE account SCHEMAFULL;
 DEFINE FIELD email ON account
     TYPE string ASSERT string::is_email($value);
-DEFINE INDEX email ON account
-    FIELDS email UNIQUE;
 DEFINE FIELD password ON account
     TYPE string;
 DEFINE FIELD user ON account
     TYPE record<user>;
+
+DEFINE INDEX email ON account
+    FIELDS email UNIQUE;
 DEFINE INDEX user ON account
     FIELDS user UNIQUE;
 
@@ -69,8 +71,6 @@ DEFINE INDEX user ON account
 DEFINE TABLE user SCHEMAFULL;
 DEFINE FIELD name ON user
     TYPE string ASSERT $value = /^[\w]{3,32}$/;
-DEFINE INDEX name ON user
-    FIELDS name UNIQUE;
 DEFINE FIELD link ON user
     TYPE option<string>;
 DEFINE FIELD description on user
@@ -105,6 +105,9 @@ DEFINE FIELD votes ON user
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON user
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
+
+DEFINE INDEX name ON user
+    FIELDS name UNIQUE;
 
 
 -- ------------------------------
@@ -169,15 +172,11 @@ DEFINE FIELD user ON post
     TYPE record<user>;
 DEFINE FIELD title ON post
     TYPE string ASSERT $value = /.{4,128}/;
-DEFINE INDEX IF NOT EXISTS postTitleSearch ON TABLE post
-    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD content ON post
     TYPE string;
 DEFINE FIELD tags ON post
     TYPE array<string> DEFAULT ALWAYS []
     ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
-DEFINE INDEX IF NOT EXISTS postContentSearch ON TABLE post
-    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON post
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON post
@@ -219,6 +218,12 @@ DEFINE FIELD votes ON post
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON post
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+
+DEFINE INDEX IF NOT EXISTS postTitleSearch ON TABLE post
+    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS postContentSearch ON TABLE post
+    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+
 DEFINE EVENT ensureTopics ON post WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
@@ -226,7 +231,6 @@ DEFINE EVENT ensureTopics ON post WHEN $event = 'CREATE' THEN {
         }
     };
 };
-
 
 -- ------------------------------
 -- TABLE: link
@@ -236,14 +240,10 @@ DEFINE FIELD user ON link
     TYPE record<user>;
 DEFINE FIELD title ON link
     TYPE string ASSERT $value.len() >= 4 AND $value.len() <= 128;
-DEFINE INDEX IF NOT EXISTS linkTitleSearch ON TABLE link
-    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD url ON link
     TYPE string ASSERT $value.len() <= 2048;
 DEFINE FIELD description ON link
     TYPE string ASSERT $value.len() <= 256 DEFAULT ALWAYS "";
-DEFINE INDEX IF NOT EXISTS linkDescriptionSearch ON TABLE link
-    FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD preview ON link
     TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD preview.title ON link
@@ -292,6 +292,12 @@ DEFINE FIELD votes ON link
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON link
     COMPUTED (votes.positive.len() - (<float>votes.misleading.len()/2) - votes.negative.len()) * visits;
+
+DEFINE INDEX IF NOT EXISTS linkTitleSearch ON TABLE link
+    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS linkDescriptionSearch ON TABLE link
+    FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+
 DEFINE EVENT ensureTopics ON link WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
@@ -335,8 +341,6 @@ DEFINE FIELD context ON comment
     REFERENCE ON DELETE REJECT;
 DEFINE FIELD content ON comment
     TYPE string;
-DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
-    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON comment
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD replyTo ON comment
@@ -365,6 +369,11 @@ DEFINE FIELD moderation ON comment COMPUTED (
     WHERE subject = $parent.id
     LIMIT 1
 );
+
+DEFINE INDEX IF NOT EXISTS commentContentSearch ON TABLE comment
+    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+
+
 -- ------------------------------
 -- TABLE: thread
 -- ------------------------------
@@ -376,8 +385,6 @@ DEFINE FIELD content ON thread
 DEFINE FIELD tags ON thread
     TYPE array<string> DEFAULT ALWAYS []
     ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
-DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
-    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON thread
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD quote ON thread
@@ -425,6 +432,10 @@ DEFINE FIELD votes ON thread
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON thread
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
+
+DEFINE INDEX IF NOT EXISTS threadContentSearch ON TABLE thread
+    FIELDS content FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+
 DEFINE EVENT ensureTopics ON thread WHEN $event = 'CREATE' THEN {
     FOR $topic in $after.topics {
         IF !record::exists($topic) {
@@ -432,6 +443,8 @@ DEFINE EVENT ensureTopics ON thread WHEN $event = 'CREATE' THEN {
         }
     };
 };
+
+
 -- ------------------------------
 -- TABLE: image
 -- ------------------------------
@@ -507,15 +520,11 @@ DEFINE FIELD user ON gallery
     TYPE record<user>;
 DEFINE FIELD title ON gallery
     TYPE string ASSERT $value.len() >= 4 AND $value.len() <= 128 DEFAULT ALWAYS "Gallery";
-DEFINE INDEX IF NOT EXISTS galleryTitleSearch ON TABLE gallery
-    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD description ON gallery
     TYPE string ASSERT $value.len() <= 256 DEFAULT ALWAYS "";
 DEFINE FIELD tags ON gallery
     TYPE array<string> DEFAULT ALWAYS []
     ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
-DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
-    FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
 DEFINE FIELD time ON gallery
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD topics ON gallery
@@ -549,6 +558,12 @@ DEFINE FIELD votes ON gallery
     TYPE object DEFAULT ALWAYS { positive: [], misleading: [], negative: [], awards: [], saves: [] };
 DEFINE FIELD score ON gallery
     COMPUTED fn::calculate_score(votes.positive, votes.misleading, votes.negative, visits);
+
+DEFINE INDEX IF NOT EXISTS galleryTitleSearch ON TABLE gallery
+    FIELDS title FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+DEFINE INDEX IF NOT EXISTS galleryDescriptionSearch ON TABLE gallery
+    FIELDS description FULLTEXT ANALYZER relevanceSearch BM25 HIGHLIGHTS;
+
 DEFINE EVENT ensureTopics ON gallery WHEN $event = 'CREATE' THEN {
     FOR $topic IN $after.topics {
         IF !record::exists($topic) {
@@ -556,7 +571,6 @@ DEFINE EVENT ensureTopics ON gallery WHEN $event = 'CREATE' THEN {
         }
     };
 };
-
 
 -- ------------------------------
 -- TABLE: feed
@@ -651,8 +665,6 @@ DEFINE FIELD privacy ON userSettings
     TYPE object DEFAULT ALWAYS {};
 DEFINE FIELD privacy.profile ON userSettings
     TYPE string DEFAULT ALWAYS "public" ASSERT $value IN ["public", "members", "private"];
-DEFINE INDEX userSettingsUser ON TABLE userSettings
-    FIELDS user UNIQUE;
 DEFINE FIELD ui ON userSettings
     TYPE object DEFAULT ALWAYS { hoverAnimations: true, hintDuration: 2500 };
 DEFINE FIELD ui.hoverAnimations ON userSettings
@@ -665,6 +677,9 @@ DEFINE FIELD notifications.inApp ON userSettings
     TYPE bool DEFAULT ALWAYS true;
 DEFINE FIELD notifications.email ON userSettings
     TYPE bool DEFAULT ALWAYS false;
+
+DEFINE INDEX userSettingsUser ON TABLE userSettings
+    FIELDS user UNIQUE;
 
 
 -- ------------------------------
@@ -687,8 +702,6 @@ DEFINE FIELD dismissed ON feedback
 DEFINE TABLE report SCHEMAFULL;
 DEFINE FIELD subject ON report
     TYPE record;
-DEFINE INDEX subject ON TABLE report
-    FIELDS subject UNIQUE;
 DEFINE FIELD owner ON report
     COMPUTED IF subject.user != NONE THEN subject.user.{ id, name } ELSE subject.{ id, name } END;
 DEFINE FIELD topics ON report
@@ -720,6 +733,9 @@ DEFINE FIELD history.*.time ON report
 DEFINE FIELD history.*.changes ON report
     TYPE object FLEXIBLE;
 
+DEFINE INDEX subject ON TABLE report
+    FIELDS subject UNIQUE;
+
 
 -- ------------------------------
 -- TABLE: moderation
@@ -729,13 +745,18 @@ DEFINE FIELD subject ON moderation
     TYPE record<post | link | gallery | comment | thread>
     ASSERT record::exists($value)
     REFERENCE ON DELETE CASCADE;
-DEFINE INDEX subject ON TABLE moderation
-    FIELDS subject UNIQUE;
 DEFINE FIELD locked ON moderation
     TYPE option<string> ASSERT $value = NONE OR $value = "item";
 DEFINE FIELD slowed ON moderation
     TYPE option<int> ASSERT $value = NONE OR $value > 0;
 
+DEFINE INDEX subject ON TABLE moderation
+    FIELDS subject UNIQUE;
+
+
+-- ------------------------------
+-- FUNCTIONS: thread
+-- ------------------------------
 DEFINE FUNCTION fn::thread_ancestors($threadId: record<thread>, $remaining: int) -> array<object> {
     IF $remaining <= 0 {
         LET $parent = (SELECT VALUE replyTo FROM ONLY $threadId);
@@ -799,6 +820,7 @@ DEFINE FIELD details ON moderatorLog
     TYPE object FLEXIBLE DEFAULT {};
 DEFINE FIELD time ON moderatorLog
     TYPE datetime DEFAULT ALWAYS time::now();
+
 DEFINE INDEX moderatorLogTime ON TABLE moderatorLog
     FIELDS time;
 DEFINE INDEX moderatorLogActor ON TABLE moderatorLog
@@ -859,10 +881,11 @@ DEFINE FIELD claimant ON referralClaim
     TYPE record<user>;
 DEFINE FIELD recipient ON referralClaim
     TYPE record<user>;
-DEFINE INDEX claimant ON referralClaim
-    FIELDS claimant UNIQUE;
 DEFINE FIELD time ON referralClaim
     TYPE datetime DEFAULT ALWAYS time::now();
+
+DEFINE INDEX claimant ON referralClaim
+    FIELDS claimant UNIQUE;
 
 
 -- ------------------------------
@@ -873,14 +896,16 @@ DEFINE FIELD user ON moderationRequest
     TYPE record<user>;
 DEFINE FIELD topic ON moderationRequest
     TYPE record<topic>;
-DEFINE INDEX user_topic ON moderationRequest
-    FIELDS user, topic UNIQUE;
 DEFINE FIELD approvals ON moderationRequest
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD denials ON moderationRequest
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD closed ON moderationRequest
     TYPE bool DEFAULT ALWAYS false;
+
+DEFINE INDEX user_topic ON moderationRequest
+    FIELDS user, topic UNIQUE;
+
 DEFINE EVENT moderatorLogRequestApproval ON moderationRequest
     WHEN $event = 'UPDATE' AND $after.approvals.len() > $before.approvals.len()
     THEN {
