@@ -23,7 +23,7 @@ Bring the existing inbox and notification workflows to a consistent, verified st
 ## Notes
 - This ticket covers existing in-app messaging and notification behavior; real-time delivery and new delivery channels are out of scope.
 - Ticket 0067 covers the immediate moderation and inbox UI completeness work.
-- Notification preference controls and delivery gating are implemented in [Ticket 0008](0008-user-notification-preferences.md); this ticket verifies their interaction with existing workflows rather than rebuilding those controls.
+- Notification preference controls and delivery gating are implemented in Ticket 0008; this ticket verifies their interaction with existing workflows rather than rebuilding those controls.
 - Blocked interactions remain enforced at their action routes; notification delivery is not separately filtered for blocked users.
 
 ## Audit Findings

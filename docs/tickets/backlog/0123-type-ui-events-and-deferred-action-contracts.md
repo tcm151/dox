@@ -1,7 +1,7 @@
 # Ticket 0123: Type UI Events And Deferred Action Contracts
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Low
 - Next: Inventory active Trigger payloads and their component versus store subscription lifetimes.
 

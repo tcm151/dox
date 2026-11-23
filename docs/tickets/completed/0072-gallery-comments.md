@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0074](0074-surrealdb-record-references.md): Verify record-reference behavior against supported SurrealDB versions before closing this ticket.
-
 ## Goal
 Give galleries the same commenting and reply capabilities as posts, using the existing comment experience where practical.
 

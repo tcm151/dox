@@ -41,7 +41,7 @@ Let users control notification behavior from settings without requiring moderato
 - Keep SMTP credentials in environment configuration, not app settings. Account confirmation and password-reset emails are transactional and should not be disabled by notification preferences.
 - The worker is scheduled every 10 minutes and currently assumes one worker; multi-worker claiming/leases are deferred.
 - The thread-reply integration test verifies the email preference default and independent in-app/email queueing behavior.
-- The email spool tests cover successful delivery, retry scheduling, and terminal failure after the configured retry count. Live SMTP delivery is not exercised by the integration suite; [0130](../0130-verify-smtp-and-first-upload-onboarding.md) tracks real confirmation/reset/notification delivery and first-upload onboarding.
+- The email spool tests cover successful delivery, retry scheduling, and terminal failure after the configured retry count. Live SMTP delivery is not exercised by the integration suite; Ticket 0130 tracks real confirmation/reset/notification delivery and first-upload onboarding.
 - `tests/utils/test-database-query.ts` provides configurable query handlers and captures SQL and bindings for reusable tests.
 
 ## Relevant Files

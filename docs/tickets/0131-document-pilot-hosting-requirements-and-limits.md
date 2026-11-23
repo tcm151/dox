@@ -26,10 +26,10 @@ Help prospective operators estimate whether the supported configuration suits th
 
 ## Notes
 - Hosting costs, media limits, migration effort, search-engine indexing, and capacity need documentation or measurement.
-- Completed [0064](completed/0064-anti-spam-defaults.md) supplies recommended policy defaults, not a measured hosting baseline.
+- Completed Ticket 0064 supplies recommended policy defaults, not a measured hosting baseline.
 - Keep embedded mode as the initial baseline and remote SurrealDB as an advanced option unless the pilot configuration is explicitly changed.
 - This is not a broad load-testing program, SEO implementation project, importer, or automatic cloud-cost calculator. Record unknowns rather than adding optional features to satisfy a marketing claim.
-- Coordinate public links with [0129](0129-complete-public-adoption-entrypoints.md) and distinguish this evidence from basic install/recovery acceptance.
+- Coordinate public links with Ticket 0129 and distinguish this evidence from basic install/recovery acceptance.
 
 ## Relevant Files
 - docs/Quickstart.md

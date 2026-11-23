@@ -27,11 +27,11 @@ Make roadmap status and completion claims reflect the current ticket scope and e
 
 ## Notes
 - The review snapshot before creating this batch contained 74 completed tickets, 31 planned tickets, and two paused tickets. Counts include optional backlog features and are not a roadmap completion percentage.
-- The initial review found stale Not Started markers for completed [0015](0015-search-filters-url-sync.md) and [0087](0087-extra-options-action-parity.md); those roadmap markers are now corrected.
-- [0019](0019-referral-redemption-hardening.md) is delivered baseline work. Phase D now covers readiness/consistency/adoption, while deferred Phase E distinguishes future purchase-specific controls from existing referral protections.
-- Outstanding validation from [0001](0001-media-delete-atomicity.md), [0019](0019-referral-redemption-hardening.md), and [0052](0052-image-attachment-ownership-and-refunds.md) is explicitly owned by [0118](../0118-close-public-release-validation-gaps.md); error mapping remains under [0055](0055-consistent-database-error-mapping.md). Transfers are not test-pass claims.
-- Deliberately paused [0036](../backlog/0036-generate-image-thumbnails-on-upload.md), [0077](../backlog/0077-recursive-thread-chain-locks.md), and [0084](../backlog/0084-topic-rename-requests.md) remain paused. Audio remains in the agreed full roadmap.
-- The pilot offering can be narrower than the full Phase C exit criteria. [0127](../0127-publish-a-verifiable-pilot-release.md) owns publication, and [0129](../0129-complete-public-adoption-entrypoints.md) owns README/demo feature claims; the roadmap now preserves that distinction.
+- The initial review found stale Not Started markers for completed Tickets 0015 and 0087; those roadmap markers are now corrected.
+- Ticket 0019 is delivered baseline work. Phase D now covers readiness/consistency/adoption, while deferred Phase E distinguishes future purchase-specific controls from existing referral protections.
+- Outstanding validation from Tickets 0001, 0019, and 0052 is explicitly owned by Ticket 0118; error mapping remains under Ticket 0055. Transfers are not test-pass claims.
+- Tickets 0036, 0077, and 0084 remain deferred. Audio remains in the agreed full roadmap.
+- The pilot offering can be narrower than the full Phase C exit criteria. Ticket 0127 owns publication, and Ticket 0129 owns README/demo feature claims; the roadmap now preserves that distinction.
 
 ## Relevant Files
 - docs/Roadmap.md

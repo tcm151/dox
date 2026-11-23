@@ -28,9 +28,9 @@ Make types describe actual record IDs, hydrated projections, and editor state ra
 - Post.user, Post.comments, Comment.context, and several other relationships currently use object-and-string intersections.
 - The post detail handler explicitly projects author fields and comment objects, then casts sorted comments to an array of Comment-and-string intersections.
 - The thread editor constructs a complete Thread with placeholder persisted fields and casts its author, while the newer link editor keeps direct editable state.
-- Completed [0076](completed/0076-explicit-surrealql-field-projections.md) changed query projections; this follow-up aligns their TypeScript representations. Completed [0074](completed/0074-surrealdb-record-references.md) concerns database reference ownership, not this type distinction.
+- Completed Ticket 0076 changed query projections; this follow-up aligns their TypeScript representations. Completed Ticket 0074 concerns database reference ownership, not this type distinction.
 - Keep profile access represented by User.visible; do not introduce a separate UserProfile type as part of this cleanup.
-- Shared write contracts remain under [0119](0119-align-client-mutation-payloads-with-api-contracts.md). Do not require a repository-wide type rewrite before improving one boundary.
+- Shared write contracts remain under Ticket 0119. Do not require a repository-wide type rewrite before improving one boundary.
 
 ## Relevant Files
 - shared/types/index.ts
@@ -43,5 +43,5 @@ Make types describe actual record IDs, hydrated projections, and editor state ra
 - app/pages/post/components/CommentSection.vue
 
 ## Progress Log
-- 2026-11-17: Ticket created from the developer consistency review. Types and runtime payloads were inspected statically only.
 - 2026-11-18: Added explicit post feed/detail and comment projection contracts, represented stored draft references as string IDs, removed unnecessary sorting casts, and reduced post/thread editor state to the fields each form owns. `yarn.cmd typecheck`, `yarn.cmd test --file posts.server.test.ts` (20/20), and `git diff --check` passed.
+- 2026-11-17: Ticket created from the developer consistency review. Types and runtime payloads were inspected statically only.

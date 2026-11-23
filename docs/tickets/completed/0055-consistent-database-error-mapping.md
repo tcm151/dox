@@ -27,8 +27,8 @@ Complete consistent database-error classification and call-site handling on top 
 - `DatabaseQuery.execute` preserves `APP_ERROR` statuses, maps native unique-index conflicts to sanitized `409` errors, and keeps unexpected database failures as generic `500` responses.
 - Call sites now preserve centrally classified errors instead of parsing driver messages or converting database failures into ordinary negative results.
 - Username availability treats only a genuine `queryOne` `404` as available; password-reset confirmation explicitly handles a missing token.
-- Shared input rules are separate under [0121](../0121-unify-shared-validation-rules-and-boundaries.md), and client HTTP-error presentation is separate under [0122](../0122-normalize-client-mutation-and-error-lifecycles.md).
-- Related cleanup behavior is tracked in [Ticket 0001](0001-media-delete-atomicity.md) and [Ticket 0052](0052-image-attachment-ownership-and-refunds.md).
+- Shared input rules are separate under Ticket 0121, and client HTTP-error presentation is separate under Ticket 0122.
+- Related cleanup behavior is tracked in Tickets 0001 and 0052.
 
 ## Relevant Files
 - server/utils/DatabaseQuery.ts

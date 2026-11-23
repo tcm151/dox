@@ -21,7 +21,7 @@ Let users save and unsave eligible content from its detail and options surfaces,
 - [x] Add focused integration coverage for the supported types and failure cases.
 
 ## Notes
-- User-profile save/subscription behavior is tracked separately in [Ticket 0058](0058-user-awards-and-saved-subscriptions.md).
+- User-profile save/subscription behavior is tracked separately in Ticket 0058.
 - Eligible content types already define `votes.saves` in the current schema and use the shared options menu. Comments lack the persisted save field; audio has a field but no corresponding content options surface and is outside this scope.
 - A saved-content listing is not assumed by this ticket; decide whether it is needed before expanding beyond save actions and state feedback.
 

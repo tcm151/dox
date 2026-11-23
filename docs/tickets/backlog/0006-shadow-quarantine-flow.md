@@ -1,7 +1,7 @@
 # Ticket 0006: Implement Shadow Quarantine Flow
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: High
 - Next: Define trigger rules and review-first versus automatic enforcement behavior
 

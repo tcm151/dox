@@ -1,16 +1,14 @@
 # Ticket XXXX: `Short Title`
-<!-- Read this template before every ticket edit. Keep guidance comments and placeholder instructions here; real tickets contain ticket-specific content only -->
+<!-- Read before editing a ticket. Leave these comments in the template. -->
 
 ## Status
-<!-- Use Paused when work is intentionally on hold; keep Next as the resumption step. Use Next: None for completed work. -->
-<!-- Transfer intentionally deferred work to a follow-up ticket before completing this one. -->
-<!-- Before completing: check every Requirements and Tasks item, set Next: None, move this file to completed/, update relative links, and run yarn standup (or yarn standup if PowerShell blocks the shim). -->
-- State: `Planned | In Progress | Paused | Blocked | Completed`
+<!-- Deferred is for backlog/. Paused is for active work on hold. Completed tickets go in completed/ with Next: None. -->
+- State: `Planned | In Progress | Paused | Blocked | Deferred | Completed`
 - Priority: `High | Medium | Low`
 - Next: `single immediate next step`
 
 ## Dependencies
-<!-- Link to prerequisite tickets that must be completed first; omit this section if there are none. Use relative paths and avoid self-dependencies or cycles -->
+<!-- Link only to unfinished prerequisites. Omit this section when none remain. -->
 - [XXXX](relative-ticket-path.md): `reason this ticket must be completed first`
 
 ## Goal
@@ -33,7 +31,7 @@
 - [ ] `task 3`
 
 ## Notes
-<!-- Keep items concise and separated by bullet points -->
+<!-- Refer to related tickets by number (e.g. 0142), not by link. -->
 - `relevant information, context, or notes about the ticket`
 
 ## `additional section`

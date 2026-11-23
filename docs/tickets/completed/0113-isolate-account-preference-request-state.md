@@ -27,8 +27,8 @@ Prevent preference requests started under one identity from overwriting the curr
 - The current store resets preferences on logout and identity changes, and applies refresh/save results only when their account and request generation still match.
 - The logout/login flow has focused browser coverage. The sequential account-switch test also covers both response orders, an in-flight save, and persistence for each account.
 - This is an asynchronous client-state issue, not a demonstrated server authorization bypass.
-- Related completed work: [0061](0061-account-switch-data-refresh.md), [0008](0008-user-notification-preferences.md), and [0107](0107-account-profile-privacy-controls.md).
-- Cross-device feed preferences remain separate under [0070](../backlog/0070-sync-feed-preferences-across-devices.md).
+- Related completed work: Tickets 0061, 0008, and 0107.
+- Cross-device feed preferences remain separate under Ticket 0070.
 
 ## Relevant Files
 - app/utils/userSettings.ts

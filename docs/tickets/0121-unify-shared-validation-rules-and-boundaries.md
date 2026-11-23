@@ -29,7 +29,7 @@ Keep client feedback and server input validation aligned through shared pure rul
 - The profile update and post/thread/comment edit handlers parse typed bodies but omit the explicit field-validation step used by link and gallery edits.
 - UI-only limits and database assertions are not necessarily equivalent; this ticket must not silently change policy while extracting helpers.
 - Input validation complements database constraints. Stored-schema changes, if genuinely required by an agreed policy, need their own schema/migration review.
-- [0055](completed/0055-consistent-database-error-mapping.md) covers database-error classification, not a second definition of input rules.
+- Ticket 0055 covers database-error classification, not a second definition of input rules.
 
 ## Relevant Files
 - shared/utils/validation.ts

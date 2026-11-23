@@ -1,7 +1,7 @@
 # Ticket 0093: Content Revision History Foundation
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Define immutable revision snapshots and retention behavior for posts and threads
 
@@ -23,8 +23,8 @@ Create a shared, durable revision-history contract for posts and threads so late
 - [ ] Test atomicity, immutability, migration behavior, and access control.
 
 ## Notes
-- User-facing post and thread history, moderator review, and revert behavior are split into [Ticket 0094](0094-post-revision-history.md) and [Ticket 0095](0095-thread-revision-history.md).
-- Topic rule history remains separate in [Ticket 0017](0017-topic-rules-history-page.md).
+- User-facing post and thread history, moderator review, and revert behavior are split into Tickets 0094 and 0095.
+- Topic rule history remains separate in Ticket 0017.
 
 ## Relevant Files
 - shared/types/index.ts

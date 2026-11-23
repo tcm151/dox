@@ -1,7 +1,7 @@
 # Ticket 0088: Keyword Mute Controls
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Define keyword matching semantics and the initial supported surfaces
 
@@ -21,8 +21,8 @@ Let users hide feed, search, and inbox content that matches keywords they choose
 - [ ] Test matching boundaries, settings updates, and filtered results.
 
 ## Notes
-- User and topic blocking/muting are tracked separately in [Ticket 0014](../completed/0014-block-mute-controls.md).
-- Keep keyword matching distinct from user/topic relationship checks; coordinate the settings UX with [Ticket 0014](../completed/0014-block-mute-controls.md).
+- User and topic blocking/muting are tracked separately in Ticket 0014.
+- Keep keyword matching distinct from user/topic relationship checks; coordinate the settings UX with Ticket 0014.
 
 ## Relevant Files
 - app/pages/settings/preferences.vue

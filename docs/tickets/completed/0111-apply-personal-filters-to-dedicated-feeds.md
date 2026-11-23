@@ -23,11 +23,11 @@ Make personal mute and block preferences consistent across dedicated and aggrega
 - [x] Clarify the cross-feed filter contract in the API documentation.
 
 ## Notes
-- Completed [0014](0014-block-mute-controls.md) promises feed and search filtering. Aggregate, topic, and user feeds apply the shared exclusion list, but the inspected dedicated collection handlers do not.
+- Completed Ticket 0014 promises feed and search filtering. Aggregate, topic, and user feeds apply the shared exclusion list, but the inspected dedicated collection handlers do not.
 - The shared Feed component filters content tags, not muted or blocked user/topic targets.
-- The unfiltered Links setting contract in [0041](0041-link-detail-and-feed-integration.md) and [0102](0102-enforce-feed-availability-settings.md) concerns feeds.links availability, not personal mute/block preferences.
+- The unfiltered Links setting contract in Tickets 0041 and 0102 concerns feeds.links availability, not personal mute/block preferences.
 - These are public records that remain available by direct link; this finding is inconsistent personal safety controls, not access to private content.
-- Coordinate query changes with [0112](0112-bound-discovery-and-inbox-queries.md); neither ticket requires the other to start.
+- Coordinate query changes with Ticket 0112; neither ticket requires the other to start.
 
 ## Relevant Files
 - server/api/post/index.ts

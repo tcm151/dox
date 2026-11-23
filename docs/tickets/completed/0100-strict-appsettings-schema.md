@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0098](0098-audit-appsettings-usage-and-gaps.md): Complete the settings inventory and resolve contract mismatches before locking the database schema.
-
 ## Goal
 Make the database enforce the complete nested AppSettings contract instead of accepting arbitrary fields inside flexible settings objects.
 
@@ -28,7 +25,7 @@ Make the database enforce the complete nested AppSettings contract instead of ac
 
 ## Notes
 - The table is already declared `SCHEMAFULL`, but most nested settings objects are `TYPE object FLEXIBLE`; `Validator.object` validates only the fields listed by its callback and does not reject additional keys.
-- Establish the strict schema before [Ticket 0099](0099-separate-image-upload-gallery-and-attachment-settings.md) adds image-policy fields.
+- Establish the strict schema before Ticket 0099 adds image-policy fields.
 - Preserve the audited AppSettings contract; do not make nested objects strict until schema-only and legacy fields have been classified.
 
 ## Relevant Files

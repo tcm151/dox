@@ -25,7 +25,7 @@ Expand the starter integration suite beyond health checks with a few representat
 ## Notes
 - Keep this as a deliberately small baseline, not comprehensive route or contract coverage.
 - The baseline covers the public user list, default-user login/session reuse, and minimal post publishing. Ticket 0027 retains the broader auth/content/moderation smoke workflow.
-- Ticket 0019's deferred referral replay/concurrency validation is now tracked in [0118](../0118-close-public-release-validation-gaps.md); this completed baseline supplies its test conventions.
+- Ticket 0019's deferred referral replay/concurrency validation is now tracked in Ticket 0118; this completed baseline supplies its test conventions.
 
 ## Relevant Files
 - tests/sequential/00-health.setup.test.ts

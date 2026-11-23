@@ -23,9 +23,9 @@ Make first-class published links discoverable through All types search and a ded
 - [x] Update the search API inventory and supported-type documentation.
 
 ## Notes
-- This is a proposed product-polish expansion, not a regression against [0015](0015-search-filters-url-sync.md), whose documented scope covers posts, threads, galleries, and comments.
-- Links are already published and rendered through the detail/feed work in [0041](0041-link-detail-and-feed-integration.md), and the shared SearchResult type already includes Link.
-- Coordinate with query bounds in [0112](0112-bound-discovery-and-inbox-queries.md); neither ticket needs to finish before the other's independent work can begin.
+- This is a proposed product-polish expansion, not a regression against Ticket 0015, whose documented scope covers posts, threads, galleries, and comments.
+- Links are already published and rendered through the detail/feed work in Ticket 0041, and the shared SearchResult type already includes Link.
+- Coordinate with query bounds in Ticket 0112; neither ticket needs to finish before the other's independent work can begin.
 
 ## Relevant Files
 - server/api/feed/search.ts

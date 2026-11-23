@@ -23,8 +23,8 @@ Expand ClassicForum to support wiki-style community forums with structured, coll
 ## Notes
 - The scope above reflects the requested capabilities: structured pages/articles, edit history and restore, collaborative editing and permissions, hierarchical/category navigation, and page-attached discussion.
 - This is the umbrella ticket; no implementation child tickets are created yet. Add links as scope is agreed and work is split.
-- Related backlog: [0092](0092-series-collection-grouping.md) covers ordered post/thread collections; [0093](0093-content-revision-history-foundation.md), [0094](0094-post-revision-history.md), and [0095](0095-thread-revision-history.md) cover post/thread history, not wiki pages; [0017](0017-topic-rules-history-page.md) covers topic rule history. These are context, not prerequisites.
-- [0129](../0129-complete-public-adoption-entrypoints.md) says unfinished wiki workflows must not be presented as supported.
+- Related backlog: Ticket 0092 covers ordered post/thread collections; Tickets 0093, 0094, and 0095 cover post/thread history, not wiki pages; Ticket 0017 covers topic rule history. These are context, not prerequisites.
+- Ticket 0129 says unfinished wiki workflows must not be presented as supported.
 
 ## Relevant Files
 - docs/Roadmap.md

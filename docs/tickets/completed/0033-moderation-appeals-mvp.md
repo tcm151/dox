@@ -26,7 +26,7 @@ Add a basic appeals workflow so moderated users can request review and moderator
 - Store appeal data as an optional field on `report`; do not create a separate appeal table.
 - Use report status and resolution for the appeal outcome and decision note; do not duplicate them in `report.appeal`.
 - The accepted/rejected outcomes and inclusion in the in-progress `2026.6.1` migration are confirmed.
-- These completion-time storage/status decisions were superseded by [0071](0071-history-based-report-workflows.md). Use its history-based contract for current implementation; the older results below remain historical evidence.
+- These completion-time storage/status decisions were superseded by Ticket 0071. Use its history-based contract for current implementation; the older results below remain historical evidence.
 
 ## Relevant Files
 - app/components/lists/ReportQueue.vue

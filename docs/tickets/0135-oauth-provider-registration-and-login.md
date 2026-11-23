@@ -26,7 +26,7 @@ Let people register and sign in to a ClassicForum instance with Google, Apple, o
 
 ## Notes
 - Use OpenID Connect for identity where supported; OAuth authorization alone is not proof of a user's identity.
-- [0133](0133-invite-only-registration.md) is related: federated registration must respect any registration restrictions enabled by an instance, but it is not a prerequisite.
+- Ticket 0133 is related: federated registration must respect any registration restrictions enabled by an instance, but it is not a prerequisite.
 - Keep provider scopes limited to identity and profile data required for account creation and sign-in; do not retain provider tokens unless a documented feature requires them.
 
 ## Relevant Files

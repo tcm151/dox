@@ -5,9 +5,6 @@
 - Priority: High
 - Next: None
 
-## Dependencies
-- [0064](0064-anti-spam-defaults.md): Baseline anti-spam values should guide enforcement limits.
-
 ## Goal
 Apply appropriate rate limits and abuse protections to moderation-adjacent write paths, including report submission and report handling.
 

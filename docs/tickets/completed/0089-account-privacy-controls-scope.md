@@ -22,14 +22,14 @@ Define the first account-level privacy controls and their defaults before implem
 
 ## Notes
 - This is a scoping ticket; it does not change current visibility behavior.
-- Content tags and user/community visibility modes are already covered by completed [Ticket 0016](0016-content-visibility-controls.md).
+- Content tags and user/community visibility modes are already covered by completed Ticket 0016.
 - Public profile APIs expose profile metadata (name, link, description, join date), activity/reputation metrics, followed topics, and follower/following lists. Public user feeds expose active authored content; the public profile page also displays these fields and metrics.
 - The authenticated account endpoint returns the current user's email while omitting the password. Profile and preference APIs require authentication; user profile, listing, feed, follower/following, and topic endpoints are public.
 - No account privacy controls currently exist in `UserSettings`; adding persisted controls would affect the shared type, schema, and a forward migration.
 - Agreed control: one profile-level audience setting with `public`, `members`, and `private` values. Public is visible to anyone, members to authenticated users, and private to the profile owner; existing and new users default to public.
 - The setting gates link and description fields, follower/following relationships and followed topics (including their list/count surfaces), and the profile-feed aggregation. It does not hide usernames or author attribution, alter individual authored-content visibility, hide join/activity/reputation metrics, or change account-email access.
 - The API directory and profile/detail/social/feed endpoints must apply the selected audience consistently without leaking controlled data. The profile UI must explain restricted data while individual authored content remains governed by existing content-visibility rules.
-- Implementation is tracked in [Ticket 0107](0107-account-profile-privacy-controls.md).
+- Implementation is tracked in Ticket 0107.
 
 ## Relevant Files
 - docs/Architecture.md

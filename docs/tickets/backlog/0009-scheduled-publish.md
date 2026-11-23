@@ -1,7 +1,7 @@
 # Ticket 0009: Add Scheduled Publish Support
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Choose scheduling execution model (polling job vs request-time release)
 

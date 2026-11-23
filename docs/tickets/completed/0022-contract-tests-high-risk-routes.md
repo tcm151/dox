@@ -5,9 +5,6 @@
 - Priority: High
 - Next: None
 
-## Dependencies
-- [0026](0026-ci-pipeline-baseline.md): Completion requires CI to run the contract tests reliably.
-
 ## Goal
 Add tests around critical API contracts to catch regressions in auth, moderation, media, and vote/report flows.
 

@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0089](0089-account-privacy-controls-scope.md): Implement the agreed profile privacy scope, audience behavior, and defaults.
-
 ## Goal
 Let users control who can see their profile details and social information. Keep authored-content visibility governed by the existing content visibility controls.
 
@@ -26,7 +23,7 @@ Let users control who can see their profile details and social information. Keep
 - [x] Add focused migration, authorization, privacy-leak, and browser coverage; update the API documentation.
 
 ## Notes
-- Scope and audience behavior are agreed in [Ticket 0089](0089-account-privacy-controls-scope.md).
+- Scope and audience behavior are agreed in Ticket 0089.
 - Audience values: `public` permits any viewer, `members` requires authentication, and `private` permits only the profile owner.
 - The setting covers link, description, followers/following relationships and counts, followed topics, and the aggregated feed on the user's profile. Hiding the profile feed does not hide or restrict direct access to the user's individual public content.
 - Usernames and attribution, date joined, visits, votes, and score remain unaffected.

@@ -26,8 +26,8 @@ Publish discoverable support guidance and useful, safe bug intake. Keep limited 
 
 ## Notes
 - The support policy, public contact paths, and intake materials still need to be published and checked.
-- Completed [0031](completed/0031-security-policy-disclosure.md) supplies the private vulnerability process. Reuse it rather than creating a competing security contact or disclosure policy.
-- Coordinate help links with [0129](0129-complete-public-adoption-entrypoints.md), SMTP guidance with [0130](0130-verify-smtp-and-first-upload-onboarding.md), and operator limits with [0131](0131-document-pilot-hosting-requirements-and-limits.md).
+- Completed Ticket 0031 supplies the private vulnerability process. Reuse it rather than creating a competing security contact or disclosure policy.
+- Coordinate help links with Ticket 0129, SMTP guidance with Ticket 0130, and operator limits with Ticket 0131.
 - Keep outreach invitations, adoption spreadsheets, and recurring support scheduling separate from application implementation work. No helpdesk service, app telemetry, or managed-hosting offering is required.
 - Publishing contact details or changing demo topics/settings requires approval; do not infer consent from this ticket.
 

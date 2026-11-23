@@ -32,7 +32,7 @@ Replace the existing report resolution and appeal storage model with the agreed 
 ## Notes
 - The target schema keeps `time`; its meaning is report creation time. Each complaint and history entry has its own event time.
 - History entries use the agreed fields: `action`, optional `message`, `user`, `time`, and flexible `changes`. The schema does not constrain `action` to a fixed enum.
-- Preserve the existing product behavior from [Ticket 0033](0033-moderation-appeals-mvp.md) and [Ticket 0063](0063-report-queue-triage.md), except where this ticket explicitly replaces the storage contract or statuses.
+- Preserve the existing product behavior from Tickets 0033 and 0063, except where this ticket explicitly replaces the storage contract or statuses.
 - Review the in-progress `2026.6.1` migration before implementation. Consolidate only if it is still the intended unreleased target; otherwise add a forward migration without rewriting a released migration.
 
 ## Relevant Files

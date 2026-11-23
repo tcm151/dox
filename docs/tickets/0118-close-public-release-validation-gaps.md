@@ -5,14 +5,6 @@
 - Priority: Medium
 - Next: Arrange an independent operator to complete the packaged Linux installation and record elapsed time and blockers.
 
-## Dependencies
-- [0108](completed/0108-enforce-media-category-and-cleanup-invariants.md): Final candidate evidence must include the corrected media lifecycle.
-- [0109](completed/0109-validate-email-confirmation-token-records.md): Final candidate evidence must include genuine confirmation-token enforcement.
-- [0110](completed/0110-limit-confirmation-email-resends.md): Final candidate evidence must include confirmation-send abuse protection.
-- [0111](completed/0111-apply-personal-filters-to-dedicated-feeds.md): Validate the supported dedicated feeds after their personal-filter correction.
-- [0112](completed/0112-bound-discovery-and-inbox-queries.md): Validate the final bounded public list/inbox contracts.
-- [0113](completed/0113-isolate-account-preference-request-state.md): Validate the candidate after account-preference identity isolation is fixed.
-
 ## Goal
 Replace deferred or intermittent release-critical validation with reproducible evidence for the intended public release. Cover media failure handling and the clean Linux deployment path without expanding optional product features.
 
@@ -44,26 +36,26 @@ Replace deferred or intermittent release-critical validation with reproducible e
 
 ## Notes
 - The ticket logs contain historical failures and deferred tests; the source-only review did not reproduce them or establish that they still fail.
-- [0015](completed/0015-search-filters-url-sync.md) records intermittent browser and feed-test failures, [0083](completed/0083-audit-existing-messaging-workflows.md) records a parallel engagement conflict, and [0102](completed/0102-enforce-feed-availability-settings.md) records full-suite failures on 2026-11-17.
+- Ticket 0015 records intermittent browser and feed-test failures, Ticket 0083 records a parallel engagement conflict, and Ticket 0102 records full-suite failures on 2026-11-17.
 - Media tests cover successful upload/refund, attached-image rejection, filesystem failure/backoff, missing-file cleanup, retry recovery, database rollback, cross-user private attachment rejection, uploader refunds under concurrent administrator deletion, shared references, and duplicate attachment IDs.
 - Referral coverage exercises self-claim rejection, first claim/reward, same and alternate recipient retries, competing concurrent claims, exactly one reward, claim records, notifications, and cleanup.
-- The historical failures recorded by [0015](completed/0015-search-filters-url-sync.md), [0083](completed/0083-audit-existing-messaging-workflows.md), and [0102](completed/0102-enforce-feed-availability-settings.md) did not reproduce in the latest full run; this is not a claim that their original causes were fixed.
+- The historical failures recorded by Tickets 0015, 0083, and 0102 did not reproduce in the latest full run; this is not a claim that their original causes were fixed.
 - One combined validation run summarized the test phase as 31/32 without exposing the failing test or assertion. The immediate standard rerun passed 248/248; identify the earlier failure before treating the run history as fully diagnosed.
 - A direct rerun of the full documented sequence on 2026-11-18 (`yarn.cmd typecheck:golar`, `yarn.cmd typecheck`, `yarn.cmd build`, `yarn.cmd test`) passed; the standard suite reported 248/248. The earlier 31/32 summary remains unidentifiable and is not considered fixed by rerunning.
 - Linux package `forum-2026.6.3-linux-x64.tar.gz` was staged from commit `dd9a38914bd803fd83dc2ac9220ea019d51ea77a` in WSL Ubuntu 24.04 and verified with SHA-256 `aecf492a8aca9a551e45e964780faf3dc9f66765af9f33a1ab7648dcedafd44f`. The source was the committed tree; uncommitted Windows test/documentation changes were not included.
 - The isolated WSL no-service install and subsequent privileged systemd/reverse-proxy rehearsals used Ubuntu 24.04; `nginx -t` passed. This WSL distro was not fresh; the user selected it as the production-style Linux target. No independent operator run has occurred.
 - The earlier no-backup upgrade smoke test used 2026.6.2 rebuilt from tag `v2026.6.2` at commit `08e925a87aa65aed415403fa13df16490808462c` (SHA-256 `e527681b5ef1a656b9579c7b8c0e68ea182b1a36d3b5ee1a9d240047ba689846`) and the 2026.6.3 candidate. Its migration and persistence results are retained; the backup-first systemd upgrade and recovery evidence is recorded below.
 - Backup-first rehearsal details and remaining limitations are in the newest Progress Log entry. Temporary services and proxy were removed; the original forum service remained active. Isolated test data and backups were retained in WSL for inspection.
-- [0029](completed/0029-production-quickstart-doc.md) leaves clean native Linux installation as a follow-up. [0024](completed/0024-backup-restore-runbook.md) already documents an isolated WSL database restore, which is not the same validation target.
+- Ticket 0029 leaves clean native Linux installation as a follow-up. Ticket 0024 already documents an isolated WSL database restore, which is not the same validation target.
 - Keep independent installation and upgrade/recovery acceptance in this ticket instead of opening a duplicate deployment-validation ticket. Compare observed setup time with the roadmap's 30-minute target without claiming success when assistance was required.
-- [0127](0127-publish-a-verifiable-pilot-release.md) owns public publication and independent download verification. Candidate installation/upgrade checks can run on a staged archive before publication; record the exact source identity and digest so evidence remains tied to the delivered artifact.
+- Ticket 0127 owns public publication and independent download verification. Candidate installation/upgrade checks can run on a staged archive before publication; record the exact source identity and digest so evidence remains tied to the delivered artifact.
 - The WSL upgrade and recovery rehearsals used isolated data, not the existing production deployment. Ticket 0127 tracks applying the published package after a fresh backup and explicit approval.
-- The WSL upgrade and recovery rehearsals used isolated data, not production. The published `v2026.6.3` build is now installed at `forum.tcmdev.ca`; Developer Info matches the published commit and health reports app/database ready. The remote database backup was skipped at the user's direction. Archive provenance and persisted-data comparison remain under [0127](0127-publish-a-verifiable-pilot-release.md); the production-owner installation does not satisfy independent-operator acceptance.
-- Demo-specific redirects/hydration, live SMTP onboarding, and hosting measurements are separate under [0128](completed/0128-verify-demo-navigation-and-hydration.md), [0130](0130-verify-smtp-and-first-upload-onboarding.md), and [0131](0131-document-pilot-hosting-requirements-and-limits.md).
+- The WSL upgrade and recovery rehearsals used isolated data, not production. The published `v2026.6.3` build is now installed at `forum.tcmdev.ca`; Developer Info matches the published commit and health reports app/database ready. The remote database backup was skipped at the user's direction. Archive provenance and persisted-data comparison remain under Ticket 0127; the production-owner installation does not satisfy independent-operator acceptance.
+- Demo-specific redirects/hydration, live SMTP onboarding, and hosting measurements are separate under Tickets 0128, 0130, and 0131.
 - Documented CI commands are `yarn typecheck:golar`, `yarn typecheck`, `yarn build`, and `yarn test`.
 - This ticket does not authorize running tools in a source-inspection-only workspace. Execution requires an environment where those checks are permitted.
-- Preliminary reproduction and test preparation can proceed while prerequisites are open; final candidate acceptance must include their fixes. This ticket does not replace their focused regression requirements.
-- Deferred referral tests from [0019](completed/0019-referral-redemption-hardening.md) now have an explicit acceptance owner here; [0056](completed/0056-basic-api-test-coverage-and-conventions.md) already established their prerequisite conventions.
+- Final candidate evidence must include the media lifecycle, confirmation token and resend protections, dedicated feed filters, bounded discovery and inbox reads, and account-preference isolation from Tickets 0108, 0109, 0110, 0111, 0112, and 0113. This ticket does not replace their focused regression requirements.
+- Deferred referral tests from Ticket 0019 now have an explicit acceptance owner here; Ticket 0056 already established their prerequisite conventions.
 
 ## Relevant Files
 - .github/workflows/pipeline.yml

@@ -27,8 +27,8 @@ Extend existing test helpers with a small, reliable lifecycle for ordinary per-t
 ## Notes
 - Both inspected specs define a local account type and repeat registration followed by profile authentication. TSession already represents that user/access-token pair.
 - tests/utils/test-server.ts already owns named sessions, authenticated request wrappers, unique client addresses, and response-status helpers; build on it rather than creating another harness.
-- Completed [0054](completed/0054-general-purpose-automated-test-harness.md) and [0056](completed/0056-basic-api-test-coverage-and-conventions.md) establish the runner and conventions.
-- This is a developer-facing fixture reuse improvement, not a claim that the inspected tests currently fail. [0118](0118-close-public-release-validation-gaps.md) separately tracks recorded runtime validation gaps.
+- Completed Tickets 0054 and 0056 establish the runner and conventions.
+- This is a developer-facing fixture reuse improvement, not a claim that the inspected tests currently fail. Ticket 0118 separately tracks recorded runtime validation gaps.
 
 ## Relevant Files
 - tests/utils/test-server.ts

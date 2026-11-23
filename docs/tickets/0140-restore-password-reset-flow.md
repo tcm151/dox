@@ -22,7 +22,7 @@ Make emailed password-reset links usable without an authenticated session while 
 ## Notes
 - The reset email links to `/settings/reset-password?id=...`, but `app/pages/settings.vue` aborts navigation to every `/settings` path for signed-out users.
 - The reset form's Cancel button currently has no handler.
-- Preserve the password-reset guarantees covered by completed [0012](completed/0012-revoke-all-sessions.md).
+- Preserve the password-reset guarantees covered by completed Ticket 0012.
 
 ## Relevant Files
 - app/pages/settings.vue

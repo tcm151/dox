@@ -24,11 +24,11 @@ Bring complex older write handlers into the named route-to-manager pattern used 
 - [ ] Preserve transactional and best-effort side-effect behavior with focused API tests and update the architectural map where needed.
 
 ## Notes
-- Report resolution routes already delegate to ReportManager, and completed [0106](completed/0106-consolidate-shared-target-actions.md) centralizes equivalent award, visit, archive, and pin work.
+- Report resolution routes already delegate to ReportManager, and completed Ticket 0106 centralizes equivalent award, visit, archive, and pin work.
 - Comment creation still contains moderation SQL, creation, and notification orchestration directly in its handler. Post/thread creation similarly owns publication and attachment transactions.
 - Do not add a pass-through manager for every trivial read or move classes merely to make directories look uniform.
 - Do not collapse materially different post, thread, draft, or comment policies into a universal content-update framework.
-- [0119](completed/0119-align-client-mutation-payloads-with-api-contracts.md) and [0121](0121-unify-shared-validation-rules-and-boundaries.md) improve adjacent contracts; coordinate overlapping files without inventing a dependency where a behavior-preserving move can proceed independently.
+- Tickets 0119 and 0121 improve adjacent contracts; coordinate overlapping files without inventing a dependency where a behavior-preserving move can proceed independently.
 
 ## Relevant Files
 - server/api/comment/add.ts

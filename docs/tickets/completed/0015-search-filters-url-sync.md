@@ -21,7 +21,7 @@ Add practical search filters and keep filter state synchronized in the URL for s
 - [x] Add focused API and browser coverage for combined filters, URL history, and feed scroll restoration.
 
 ## Notes
-- This ticket establishes the filter and query-string contract for saved presets in [Ticket 0010](../backlog/0010-saved-custom-feeds.md).
+- This ticket establishes the filter and query-string contract for saved presets in Ticket 0010.
 - Type filtering covers the current search result types: posts, threads, galleries, and comments. Date boundaries use UTC calendar days.
 
 ## Relevant Files

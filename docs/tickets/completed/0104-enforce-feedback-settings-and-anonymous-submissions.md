@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0100](0100-strict-appsettings-schema.md): The AppSettings feedback fields and validator must agree before the feedback workflow relies on them.
-
 ## Goal
 Honor the feedback controls at the submission API and support anonymous submissions when enabled, as promised by the admin setting.
 

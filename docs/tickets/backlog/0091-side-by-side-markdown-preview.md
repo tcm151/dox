@@ -1,7 +1,7 @@
 # Ticket 0091: Side-by-Side Markdown Preview
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Define preview layout and debounce behavior for post and thread editors
 
@@ -21,8 +21,8 @@ Let authors edit Markdown and inspect its rendered output side by side in the po
 - [ ] Cover preview updates, state preservation, accessibility, and narrow layouts.
 
 ## Notes
-- This is editor-route preview work; inline detail-page editing is tracked separately in [Ticket 0081](0081-inline-edit-markdown-preview.md).
-- Existing thread editor preview behavior is documented in completed [Ticket 0011](../completed/0011-thread-editor-parity.md).
+- This is editor-route preview work; inline detail-page editing is tracked separately in Ticket 0081.
+- Existing thread editor preview behavior is documented in completed Ticket 0011.
 
 ## Relevant Files
 - app/pages/editor/post.vue

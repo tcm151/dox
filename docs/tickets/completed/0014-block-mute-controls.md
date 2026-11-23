@@ -26,7 +26,7 @@ Let users reduce unwanted content by blocking or muting other users and topics t
 - [x] Block user/topic interactions at the server action level instead of filtering notification creation or reads.
 
 ## Notes
-- Keyword muting is a deferred extension tracked in [Ticket 0088](../backlog/0088-keyword-mute-controls.md) because text matching has distinct semantics and query costs.
+- Keyword muting is a deferred extension tracked in Ticket 0088 because text matching has distinct semantics and query costs.
 - `UserSettingsManager.getFilteredTargets(viewer)` returns one flat array of muted/blocked user and topic IDs plus users who blocked the viewer. An empty array means no filtering; query predicates use `$excluded.len()` and `CONTAINSNONE`.
 - Notifications are not filtered at creation or read time. Server-side action checks block interactions involving blocked users/topics before notification sends; moderation/admin actions remain available. Mutes continue to hide content without rejecting actions.
 - User blocks remove existing follows and prevent either user from following, commenting, replying, awarding, or claiming referrals with the other. Topic blocks hide the topic page, remove the caller's follow, and prevent following, publishing new content, or awarding content associated with the topic.

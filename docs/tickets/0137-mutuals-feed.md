@@ -5,6 +5,9 @@
 - Priority: `Medium`
 - Next: Define signed-out behavior and confirm the Mutuals feed's content scope.
 
+## Dependencies
+- [0142](0142-fix-home-feed-type-switching.md): Verify that the Home feed can switch among all three options without showing results from the previous selection.
+
 ## Goal
 Add a Mutuals option alongside Popular and Following on the Home feed. Mutuals shows content from users who follow the viewer and whom the viewer follows in return.
 
@@ -23,8 +26,8 @@ Add a Mutuals option alongside Popular and Following on the Home feed. Mutuals s
 
 ## Notes
 - The existing Following feed includes content from either followed authors or followed topics; Mutuals is specifically author-based and requires both follow directions.
-- Keep saved-user ranking from [0105](backlog/0105-saved-user-feed-ranking.md) separate; it changes ranking, not feed eligibility.
-- The Home feed selector and paged query patterns are established by [0003](completed/0003-feed-home-pagination.md).
+- Keep saved-user ranking from Ticket 0105 separate; it changes ranking, not feed eligibility.
+- The Home feed selector and paged query patterns are established by Ticket 0003.
 
 ## Relevant Files
 - app/pages/feed/home.vue
@@ -42,4 +45,5 @@ Add a Mutuals option alongside Popular and Following on the Home feed. Mutuals s
 - docs/Roadmap.md
 
 ## Progress Log
+- 2026-11-23: Recorded the Home feed switching fix as a completion prerequisite. Mutuals design and query work can proceed in parallel.
 - 2026-11-19: Ticket created.

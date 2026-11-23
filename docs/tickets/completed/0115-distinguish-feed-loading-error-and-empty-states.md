@@ -25,8 +25,8 @@ Avoid telling visitors that a community has no content when a feed is still load
 ## Notes
 - The inspected shared Feed template renders its empty state whenever visibleItems is empty, without checking whether the request succeeded.
 - useDatasource already publishes error hints; the missing behavior is accurate persistent feed presentation, not a claim that requests fail silently.
-- This is an actionable follow-up for [0090](0090-core-path-todo-audit.md), not a prerequisite for performing that audit.
-- Preserve the loaded-content freshness behavior from [0060](0060-feed-inbox-freshness.md).
+- This is an actionable follow-up for Ticket 0090, not a prerequisite for performing that audit.
+- Preserve the loaded-content freshness behavior from Ticket 0060.
 
 ## Relevant Files
 - app/components/lists/Feed.vue

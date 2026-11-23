@@ -1,7 +1,7 @@
 # Ticket 0092: Series and Collection Grouping
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Define membership and ordering rules for post/thread series
 

@@ -1,7 +1,7 @@
 # Ticket 0095: Thread Revision History
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Define author and moderator history views and restore permissions
 

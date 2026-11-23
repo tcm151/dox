@@ -1,12 +1,9 @@
 # Ticket 0077: Recursive Thread Chain Locks
 
 ## Status
-- State: Paused
+- State: Deferred
 - Priority: Medium
 - Next: Define the chain-lock contract and bounded ancestor semantics.
-
-## Dependencies
-- [0018](../completed/0018-thread-comment-lock-slowmode.md): Complete local thread lock and slow-mode moderation controls first.
 
 ## Goal
 Allow moderators to apply a lock to a thread and its descendants without changing local item-lock behavior. Make inherited lock state visible and enforce it consistently for descendant replies and quotes.

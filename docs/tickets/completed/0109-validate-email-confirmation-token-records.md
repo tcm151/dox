@@ -26,7 +26,7 @@ Grant the confirmed trait only after redeeming a genuine, unexpired, unused emai
 - Static review found that the handler binds an arbitrary record ID and follows its account.user relationship. A session has that relationship without the confirmation-specific expired and used fields.
 - The reported impact is bypassing mailbox ownership verification, not administrator access or another account's takeover.
 - This is a source-based high-severity security finding; database execution and the exploit were not runtime-verified.
-- Related baseline coverage is tracked by completed [0022](0022-contract-tests-high-risk-routes.md). Resend abuse is separate under [0110](0110-limit-confirmation-email-resends.md).
+- Related baseline coverage is tracked by completed Ticket 0022. Resend abuse is separate under Ticket 0110.
 
 ## Relevant Files
 - server/api/profile/confirm/index.ts

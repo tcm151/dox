@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0100](0100-strict-appsettings-schema.md): Establish the strict AppSettings schema before adding image-policy fields.
-
 ## Goal
 Give admins independent control over image uploads, gallery publishing, and attaching images to supported submission types without conflating those policies with gallery feed visibility.
 

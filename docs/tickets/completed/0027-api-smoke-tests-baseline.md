@@ -5,10 +5,6 @@
 - Priority: High
 - Next: None
 
-## Dependencies
-- [0026](0026-ci-pipeline-baseline.md): CI must run the API smoke tests reliably.
-- [0054](0054-general-purpose-automated-test-harness.md): Provides the shared test runner and reusable setup/example users.
-
 ## Goal
 Add minimal API smoke tests for auth and core content/moderation flows.
 

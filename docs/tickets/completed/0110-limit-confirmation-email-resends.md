@@ -28,7 +28,7 @@ Prevent confirmation-email bombing, SMTP quota abuse, and unnecessary confirmati
 - Registration supplies a session before mailbox verification, so authentication alone does not prevent an attacker from targeting an unregistered recipient address.
 - Notification-spool limits do not protect the direct confirmation-mail path.
 - The original source-based finding was medium severity and prioritized High because it exposed an operator's email service to public abuse. Real provider delivery remains unverified.
-- Related work: [0053](0053-trusted-proxy-rate-limit-client-addresses.md), [0064](0064-anti-spam-defaults.md), and independent token validation in [0109](0109-validate-email-confirmation-token-records.md).
+- Related work: Tickets 0053 and 0064, and independent token validation in Ticket 0109.
 
 ## Relevant Files
 - server/api/profile/confirm/send.ts

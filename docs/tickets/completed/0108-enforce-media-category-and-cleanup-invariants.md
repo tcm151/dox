@@ -27,7 +27,7 @@ Reject cross-category uploads and ensure every accepted media file has a valid d
 ## Notes
 - Upload routes now validate category-specific MIME types and actual content before charging tokens or persisting records; cleanup supports known legacy cross-category suffixes in each table's original directory.
 - Failed cleanup attempts retain their files and queue records, record diagnostics, and become eligible again after ten minutes. Operators can inspect and safely requeue repaired entries using [Backups.md](../../Backups.md).
-- Related completed work: [0001](0001-media-delete-atomicity.md) and [0052](0052-image-attachment-ownership-and-refunds.md). Audio publication remains separate under [0042](../backlog/0042-audio-publication-lifecycle.md).
+- Related completed work: Tickets 0001 and 0052. Audio publication remains separate under Ticket 0042.
 
 ## Relevant Files
 - server/utils/media.ts

@@ -27,10 +27,10 @@ Avoid loading an entire growing community into application memory for one discov
 ## Notes
 - Dedicated content lists, search, topic feeds, and user feeds select bounded candidates before hydrating results. Their clients now share `useFeedDatasource` for continuation, de-duplication, sorting, and refresh behavior.
 - Notifications now share the `FeedPage` items/pageSize/offset/more contract and include the total matching count; the inbox badge requests a one-item page.
-- Completed [0003](0003-feed-home-pagination.md) bounds Home feeds, not these other lists. Preserve its documented offset-pagination tradeoffs unless deliberately changing that contract.
+- Completed Ticket 0003 bounds Home feeds, not these other lists. Preserve its documented offset-pagination tradeoffs unless deliberately changing that contract.
 - Use the existing offset continuation style with a server default of 20 items, maximum of 50, offset default of 0, and maximum offset of 5,000,000. Pages are independent reads; clients append and de-duplicate by record ID, but content changes between requests may shift later offsets.
-- [0075](../backlog/0075-thread-append-pagination-server-limits.md) separately covers direct-reply breadth and reply-chain continuation on thread detail pages; do not duplicate that scope.
-- Coordinate personal filtering with [0111](0111-apply-personal-filters-to-dedicated-feeds.md). This review establishes source-level scaling exposure, not a measured runtime denial-of-service result.
+- Ticket 0075 separately covers direct-reply breadth and reply-chain continuation on thread detail pages; do not duplicate that scope.
+- Coordinate personal filtering with Ticket 0111. This review establishes source-level scaling exposure, not a measured runtime denial-of-service result.
 - The default two-worker server and browser runs each reported two parallel-phase failures. The failing test files passed when run individually, and the full browser phase passed with a temporary one-worker diagnostic configuration; the repository's two-worker configuration was restored.
 
 ## Relevant Files

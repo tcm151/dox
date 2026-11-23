@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0039](0039-link-publishing-foundation.md): Detail pages and feed previews need the Link contract and published records.
-
 ## Goal
 Make published links readable, discoverable, and actionable through a canonical detail page and the same feed surfaces used by other content types.
 
@@ -27,7 +24,7 @@ Make published links readable, discoverable, and actionable through a canonical 
 - [x] Validate detail loading, missing records, permissions, disabled settings, and mixed-feed rendering.
 
 ## Notes
-- Optional metadata enrichment is handled by active [Ticket 0040](0040-safe-link-metadata-previews.md); it is not required for basic detail and feed rendering.
+- Optional metadata enrichment is handled by Ticket 0040; it is not required for basic detail and feed rendering.
 - Reuse the generic vote and report endpoints where their record-level authorization and schema assumptions hold.
 - The `feeds.links` setting is reserved for dedicated Links navigation; link feed APIs remain unfiltered like other content APIs.
 

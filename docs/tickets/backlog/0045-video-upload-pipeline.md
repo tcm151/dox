@@ -1,7 +1,7 @@
 # Ticket 0045: Video Upload Pipeline
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Implement the `Video` contract and schema from the decisions recorded in Ticket 0044.
 

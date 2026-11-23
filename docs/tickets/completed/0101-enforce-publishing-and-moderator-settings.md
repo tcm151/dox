@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0098](0098-audit-appsettings-usage-and-gaps.md): The settings audit identified the client-only publishing and moderator-request threshold controls.
-
 ## Goal
 Enforce post/thread availability, topic-submission rules, and moderator-request eligibility at server boundaries so direct requests cannot bypass community settings.
 

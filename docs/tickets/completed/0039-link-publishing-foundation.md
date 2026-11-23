@@ -26,7 +26,7 @@ Make links a first-class content type with a title, URL, and optional metadata p
 
 ## Notes
 - The editor submits title, URL, topics, and tags, then navigates to `/link/:id`; the detail page supports visits, votes, and discussion.
-- The Link record includes optional preview metadata. Safe remote metadata fetching and preview generation are tracked in [Ticket 0040](0040-safe-link-metadata-previews.md).
+- The Link record includes optional preview metadata. Safe remote metadata fetching and preview generation are tracked in Ticket 0040.
 - Restrict the initial URL scheme to HTTP and HTTPS.
 - Draft support remains out of scope per completed Ticket 0011.
 

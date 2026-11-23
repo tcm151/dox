@@ -5,10 +5,6 @@
 - Priority: High
 - Next: None
 
-## Dependencies
-- [0051](0051-production-runtime-environment-config.md): Packaged runtime configuration was validated before completing the quickstart scope.
-- [0053](0053-trusted-proxy-rate-limit-client-addresses.md): Trusted-proxy configuration and setup guidance are complete.
-
 ## Goal
 Create a single production quickstart guide for a Linux VM with embedded mode as the default path. Operators are expected to configure their own reverse proxy/TLS and provide the correct `BASE_URL` for that setup.
 
@@ -25,9 +21,9 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 - [x] Add trusted-proxy configuration guidance from Ticket 0053.
 
 ## Notes
-- Runtime configuration was validated using the packaged Windows x64 release under two isolated deployment configurations; see [Ticket 0051](0051-production-runtime-environment-config.md).
-- [Ticket 0053](0053-trusted-proxy-rate-limit-client-addresses.md) implements trusted-proxy client addresses and its setup guidance is included in the quickstart.
-- Follow-up: [0118](../0118-close-public-release-validation-gaps.md) tracks clean Linux-native installation, independent guide-following, previous-release upgrade, and recovery validation. Public download/README entrypoints and measured hosting guidance are separate under [0129](../0129-complete-public-adoption-entrypoints.md) and [0131](../0131-document-pilot-hosting-requirements-and-limits.md).
+- Runtime configuration was validated using the packaged Windows x64 release under two isolated deployment configurations; see Ticket 0051.
+- Ticket 0053 implements trusted-proxy client addresses and its setup guidance is included in the quickstart.
+- Follow-up: Ticket 0118 tracks clean Linux-native installation, independent guide-following, previous-release upgrade, and recovery validation. Public download/README entrypoints and measured hosting guidance are separate under Tickets 0129 and 0131.
 - Keep this practical and copy-paste friendly.
 - Warning: do not package a live `.env`; upgrades rely on shared `/root/forum/.env` remaining outside versioned release folders.
 - Installer commands: `install` default, `run`, `status`, `stop`, and `restart`.

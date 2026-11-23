@@ -30,7 +30,7 @@ Prevent a post author from deleting another user's images or collecting their up
 - `DELETE ONLY` gates refund and queue creation on successful record deletion, preventing repeated deletion from refunding twice.
 - The single-refund and concurrent-request requirement is supported by transaction and delete-result checks, but concurrency behavior is not runtime-verified.
 - Automated tests were deferred per user request; completion is based on code review and diagnostics, not runtime test coverage.
-- [Ticket 0001](0001-media-delete-atomicity.md) covers filesystem/database consistency and cleanup retries.
+- Ticket 0001 covers filesystem/database consistency and cleanup retries.
 - The test task above records an explicit transfer, not newly completed runtime coverage. Existing tests must be inventoried before filling the remaining cases.
 
 ## Relevant Files

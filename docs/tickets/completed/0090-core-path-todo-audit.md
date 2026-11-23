@@ -21,7 +21,7 @@ Replace the open-ended roadmap TODO item with a bounded audit that identifies co
 
 ## Notes
 - Keep this audit time-boxed; it is not authorization for broad cleanup or unrelated refactoring.
-- No TODO/FIXME markers or unfinished feed/search behavior were found. The settings audit found that emailed reset links target a page blocked by its parent authentication guard, and the page's Cancel button is inert; both are tracked in [0140](../0140-restore-password-reset-flow.md).
+- No TODO/FIXME markers or unfinished feed/search behavior were found. The settings audit found that emailed reset links target a page blocked by its parent authentication guard, and the page's Cancel button is inert; both are tracked in Ticket 0140.
 
 ## Relevant Files
 - app/pages/feed.vue

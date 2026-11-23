@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0014](0014-block-mute-controls.md): Complete block enforcement in the affected award routes before consolidating them.
-
 ## Goal
 Consolidate action workflows whose behavior is identical apart from the target record type, while keeping target-specific contracts and behavior explicit.
 

@@ -1,7 +1,7 @@
 # Ticket 0042: Audio Publication Lifecycle
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Low
 - Next: Define the schemafull audio record and staged-upload state used before publication.
 

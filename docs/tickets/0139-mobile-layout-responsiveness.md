@@ -22,9 +22,9 @@ Make ClassicForum's core workflows usable on phones and other narrow viewports b
 - [ ] Add browser regressions for the fixed issues and verify tablet and desktop layouts remain usable.
 
 ## Notes
-- This ticket focuses on responsive layout and sizing, not a general accessibility audit; coordinate related findings with [0138](0138-accessibility-baseline-core-workflows.md).
-- Feed loading, error, and empty-state behavior is tracked separately in [0115](completed/0115-distinguish-feed-loading-error-and-empty-states.md).
-- Build on completed [0034](completed/0034-fullscreen-editor-viewport-bounds.md), which covers editor viewport bounds, rather than duplicating that work.
+- This ticket focuses on responsive layout and sizing, not a general accessibility audit; coordinate related findings with Ticket 0138.
+- Feed loading, error, and empty-state behavior is tracked separately in Ticket 0115.
+- Build on completed Ticket 0034, which covers editor viewport bounds, rather than duplicating that work.
 
 ## Relevant Files
 - app/app.vue

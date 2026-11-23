@@ -29,9 +29,9 @@ Audit application settings and nearby hard-coded behavior to identify options th
 
 ## Notes
 - This ticket covers audit and prioritization, not implementation of new settings or behavior changes.
-- Distinct from [Ticket 0079](0079-validate-application-settings.md), which establishes server-side validation, and [Ticket 0090](../0090-core-path-todo-audit.md), which triages TODOs and unfinished core paths.
-- Accepted implementation follow-ups are tracked in [Ticket 0099](0099-separate-image-upload-gallery-and-attachment-settings.md), [Ticket 0100](0100-strict-appsettings-schema.md), [Ticket 0101](0101-enforce-publishing-and-moderator-settings.md), [Ticket 0102](0102-enforce-feed-availability-settings.md), [Ticket 0103](0103-enforce-voting-availability-settings.md), and [Ticket 0104](0104-enforce-feedback-settings-and-anonymous-submissions.md).
-- Existing feature work remains in [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md), [Ticket 0039](0039-link-publishing-foundation.md), [Ticket 0041](0041-link-detail-and-feed-integration.md), [Ticket 0042](../backlog/0042-audio-publication-lifecycle.md), [Ticket 0043](../backlog/0043-audio-detail-feed-and-cleanup.md), [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md), [Ticket 0047](../backlog/0047-poll-creation-model-and-publishing.md), and [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md); this avoids duplicate feature tickets.
+- Distinct from Ticket 0079, which establishes server-side validation, and Ticket 0090, which triages TODOs and unfinished core paths.
+- Accepted implementation follow-ups are tracked in Tickets 0099, 0100, 0101, 0102, 0103, and 0104.
+- Existing feature work remains in Tickets 0020, 0039, 0041, 0042, 0043, 0046, 0047, and 0049; this avoids duplicate feature tickets.
 - Dependency order: this audit is complete; strictify AppSettings in Ticket 0100 before Ticket 0099 adds image-policy fields. Tickets 0101-0103 can proceed from this audit, while Ticket 0104 follows Ticket 0100.
 
 ## Preliminary Findings
@@ -40,7 +40,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 - Priority: Low.
 - Finding: The admin describes `media.tokens.enabled` as reserved for future media token support. It currently controls only the `/store` navbar link; Store, referral, and upload token behavior is not gated by it, so it is not yet a defined switch for the token economy.
 - Evidence: `shared/types/index.ts`, `app/pages/admin/settings.vue`, `app/components/system/Navbar.client.vue`, `app/pages/store.vue`, `server/api/profile/referral.ts`, `server/utils/media.ts`, `server/api/image/upload.ts`, `server/api/audio/upload.ts`.
-- Recommendation: Defer the flag's behavior to checkout work in [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md); do not treat it as an active token-workflow gate before that contract is defined.
+- Recommendation: Defer the flag's behavior to checkout work in [Ticket 0020](../backlog/0020-store-checkout.md); do not treat it as an active token-workflow gate before that contract is defined.
 
 ### Voting Flags
 - Priority: Medium.
@@ -121,7 +121,7 @@ Audit application settings and nearby hard-coded behavior to identify options th
 | `posts.enabled`, `threads.enabled` | Admin toggles; hide editor tabs. | Booleans validated; direct editor routes and create APIs do not enforce them. |
 | `links.enabled`, `polls.enabled` | Admin toggles; link/poll editor pages are marked unavailable. | Booleans validated; publishing workflows are unfinished. |
 | `media.tokens.enabled` | Admin toggle; controls Store navbar link. | Boolean validated; does not gate token workflows. |
-| `media.tokens.enabled` | Admin placeholder reserved for future token support; currently controls the Store navbar link. | Boolean validated; token workflow semantics are deferred to [Ticket 0020](../backlog/0020-checkout-feature-flag-foundation.md). |
+| `media.tokens.enabled` | Admin placeholder reserved for future token support; currently controls the Store navbar link. | Boolean validated; token workflow semantics are deferred to [Ticket 0020](../backlog/0020-store-checkout.md). |
 | `media.images.enabled`, `uploadLimit` | Admin controls; editor and upload utility. | Boolean and integer validated; upload enablement/size enforced in `processMedia`; gallery and attachment policies are not separately gated. |
 | `media.audio.enabled`, `uploadLimit` | Admin controls; editor and upload utility. | Boolean and integer validated; upload enablement/size enforced in `processMedia`. |
 | `media.video.enabled`, `uploadLimit` | Admin controls; editor tab opens an unavailable page. | Values validated; no video upload API or runtime consumer found. |

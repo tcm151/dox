@@ -1,13 +1,9 @@
 # Ticket 0084: Topic Rename Requests
 
 ## Status
-- State: Paused
+- State: Deferred
 - Priority: Medium
 - Next: Resume canonical-ID rename design and migration after the data/reference impact is reviewed
-
-## Dependencies
-- [0007](../completed/0007-topic-governance-tools.md): Rename requests extend the existing role-gated topic governance workflow.
-- [0074](../completed/0074-surrealdb-record-references.md): Canonical-ID changes must preserve the adopted relationship ownership and traversal behavior.
 
 ## Goal
 Allow topic moderators to request a rename and authorized reviewers to decide that request without losing the topic's content or history.

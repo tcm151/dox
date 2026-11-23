@@ -24,7 +24,7 @@ Allow an installation to restrict new account creation to people with valid invi
 ## Notes
 - Assumption: invitations are operator-issued and single-use, and invitation-only mode is opt-in to preserve current open-registration behavior by default.
 - The existing optional referral value is not an access credential. Preserve its separate semantics.
-- Related work: [0006](0006-shadow-quarantine-flow.md), [0128](../completed/0128-verify-demo-navigation-and-hydration.md), and [0019](../completed/0019-referral-redemption-hardening.md). These are not prerequisites.
+- Related work: Tickets 0006, 0128, and 0019. These are not prerequisites.
 
 ## Relevant Files
 - app/pages/register.vue

@@ -21,9 +21,9 @@ Give user records the same award and save engagement fields as other voteable re
 - [x] Add focused integration tests for the user engagement behavior.
 
 ## Notes
-Following currently affects inclusion in the authenticated following feed. Saved-user ranking is explicitly outside this ticket and is tracked in [Ticket 0105](../backlog/0105-saved-user-feed-ranking.md).
+Following currently affects inclusion in the authenticated following feed. Saved-user ranking is explicitly outside this ticket and is tracked in Ticket 0105.
 - Content award handlers transfer 256 tokens and create a notification. The notification schema accepts user contexts, and inbox context navigation opens the corresponding profile.
-- Content-level save actions are separate from saved-user subscriptions and are tracked in [Ticket 0080](0080-content-save-actions.md).
+- Content-level save actions are separate from saved-user subscriptions and are tracked in Ticket 0080.
 ## Relevant Files
 - shared/types/index.ts
 - server/assets/schema.surql

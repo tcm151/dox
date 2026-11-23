@@ -1,12 +1,9 @@
 # Ticket 0096: Individual Session Management
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Define safe session-list metadata and individual revocation behavior
-
-## Dependencies
-- [0012](../completed/0012-revoke-all-sessions.md): Reuse the established session expiry and invalidation behavior.
 
 ## Goal
 Let users review their active sessions and revoke a selected session without exposing session credentials.
@@ -26,7 +23,7 @@ Let users review their active sessions and revoke a selected session without exp
 - [ ] Add focused server and UI coverage for authorization and state transitions.
 
 ## Notes
-- Revoke-other-sessions and password-reset invalidation are already implemented in [Ticket 0012](../completed/0012-revoke-all-sessions.md).
+- Reuse the session expiry and invalidation behavior from Ticket 0012, which implemented revoke-other-sessions and password-reset invalidation.
 - Do not add IP or device fingerprint collection as part of this ticket.
 
 ## Relevant Files

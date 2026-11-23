@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0098](0098-audit-appsettings-usage-and-gaps.md): The settings audit verified that active feed switches currently hide navigation only.
-
 ## Goal
 Make active feed settings control direct access to their dedicated feed pages and data endpoints, including the Home feed, rather than only hiding navigation tabs.
 
@@ -26,8 +23,8 @@ Make active feed settings control direct access to their dedicated feed pages an
 
 ## Notes
 - Admin descriptions distinguish dedicated feeds from the aggregate Home feed; a disabled dedicated feed must not implicitly disable content publishing or aggregate discovery.
-- The dedicated Links page follows `feeds.links`, but `/api/link` remains unfiltered as specified by completed [Ticket 0041](0041-link-detail-and-feed-integration.md). Polls and video do not yet have complete feed workflows; their settings remain with [Ticket 0049](../backlog/0049-poll-detail-feed-and-lifecycle.md) and [Ticket 0046](../backlog/0046-video-authoring-playback-and-discovery.md).
-- Audio feed behavior remains with [Ticket 0043](../backlog/0043-audio-detail-feed-and-cleanup.md).
+- The dedicated Links page follows `feeds.links`, but `/api/link` remains unfiltered as specified by completed Ticket 0041. Polls and video do not yet have complete feed workflows; their settings remain with Tickets 0049 and 0046.
+- Audio feed behavior remains with Ticket 0043.
 
 ## Relevant Files
 - app/pages/feed.vue

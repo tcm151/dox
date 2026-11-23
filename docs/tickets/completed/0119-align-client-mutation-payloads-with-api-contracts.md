@@ -27,8 +27,8 @@ Carry meaningful request contracts through both client payload construction and 
 - The post editor sends user, time, votes, and comments fields outside CreatePostRequest. The thread editor similarly supplies user and votes outside CreateThreadRequest.
 - useApi's generic currently expresses the response; adding a response annotation alone does not make these editor objects a shared request contract.
 - Prefer straightforward typed objects or satisfies checks before extending the request helper or introducing generated route registries.
-- Server-side runtime validation remains necessary and is tracked separately in [0121](../0121-unify-shared-validation-rules-and-boundaries.md).
-- Coordinate with projected/form types in [0120](../0120-align-record-reference-and-projection-types.md) and workflow placement in [0124](../0124-align-complex-routes-with-domain-workflows.md); these are related work, not prerequisites.
+- Server-side runtime validation remains necessary and is tracked separately in Ticket 0121.
+- Coordinate with projected/form types in Ticket 0120 and workflow placement in Ticket 0124; these are related work, not prerequisites.
 
 ## Relevant Files
 - app/utils/data.ts

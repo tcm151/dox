@@ -1,12 +1,9 @@
 # Ticket 0017: Topic Rules Revision History
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Low
 - Next: Define the revision record, including the editor and timestamp for each rules or summary change
-
-## Dependencies
-- [0007](../completed/0007-topic-governance-tools.md): Revision capture and history views build on the current topic rules and summary workflow.
 
 ## Goal
 Provide an auditable, user-visible revision history for topic rules and summary changes. Current rules and summary editing and display are covered by topic governance work; this ticket covers their history.

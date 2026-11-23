@@ -1,12 +1,9 @@
 # Ticket 0037: User Post Email Subscriptions
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Draft the subscription preference data model and matching rules for subscribed users and post topics.
-
-## Dependencies
-- [0008](../completed/0008-user-notification-preferences.md): Subscription emails must respect the shared notification and email preference model.
 
 ## Goal
 Let users subscribe to another user and receive email when that user publishes matching posts. Subscriptions should be configurable so a subscriber can choose all posts from a user or only posts that include selected topics.

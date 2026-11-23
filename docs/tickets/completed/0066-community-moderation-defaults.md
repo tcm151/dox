@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0064](0064-anti-spam-defaults.md): Community settings should start from the documented baseline recommendations.
-
 ## Goal
 Let topic moderators configure supported per-topic moderation defaults using documented recommended presets.
 

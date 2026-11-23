@@ -5,9 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0098](0098-audit-appsettings-usage-and-gaps.md): The settings audit confirmed that vote APIs do not enforce the voting controls.
-
 ## Goal
 Enforce the global and per-vote-type AppSettings in vote APIs so hidden vote controls cannot be bypassed with direct requests.
 

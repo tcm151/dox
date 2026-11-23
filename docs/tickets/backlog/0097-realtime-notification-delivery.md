@@ -1,14 +1,9 @@
 # Ticket 0097: Realtime Notification Delivery
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Low
 - Next: Confirm polling is stable and choose the realtime transport and reconnect contract
-
-## Dependencies
-- [0083](../completed/0083-audit-existing-messaging-workflows.md): Realtime delivery must preserve the audited notification authorization and state behavior.
-- [0060](../completed/0060-feed-inbox-freshness.md): Realtime delivery is optional and must build on a stable polling fallback.
-- [0112](../completed/0112-bound-discovery-and-inbox-queries.md): Reconnect and polling fallback must use bounded inbox reads rather than replaying an unbounded notification history.
 
 ## Goal
 Add optional realtime in-app notification delivery after existing messaging workflows are audited and the polling baseline is reliable.
@@ -30,6 +25,7 @@ Add optional realtime in-app notification delivery after existing messaging work
 ## Notes
 - This is a deferred enhancement, not a prerequisite for the baseline inbox experience.
 - Keep the connection scoped to in-app notifications; email delivery is handled separately.
+- Preserve notification access and state from Ticket 0083, the polling fallback from Ticket 0060, and bounded inbox reads from Ticket 0112.
 
 ## Relevant Files
 - app/pages/inbox.vue

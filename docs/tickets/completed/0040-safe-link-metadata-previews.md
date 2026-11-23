@@ -26,7 +26,7 @@ Generate a simple, best-effort preview from public HTTP or HTTPS pages without e
 - [x] Extract representative image metadata from HTML, structured data, and oEmbed, validating URLs before rendering them.
 
 ## Notes
-- The Link contract and publication path are complete in [Ticket 0039](0039-link-publishing-foundation.md).
+- The Link contract and publication path are complete in Ticket 0039.
 - Remote fetching adds SSRF and resource-exhaustion risks; keep all network and response limits even for the simple preview.
 - Publication must remain usable when metadata extraction fails.
 - Canonical URL extraction is an optional enhancement and is not part of this completed ticket.

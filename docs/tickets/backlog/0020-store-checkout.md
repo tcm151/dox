@@ -1,7 +1,7 @@
 # Ticket 0020: Checkout Flow Feature Flag Foundation
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Low
 - Next: Define feature flag name and default disabled behavior
 

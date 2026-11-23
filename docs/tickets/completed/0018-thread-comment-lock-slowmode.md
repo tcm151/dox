@@ -5,10 +5,6 @@
 - Priority: High
 - Next: None
 
-## Dependencies
-- [0072](0072-gallery-comments.md): Establishes post and gallery comment support before comment controls are added.
-- [0073](0073-report-comments.md): Establishes comment reporting and moderation status behavior before this ticket adds conversation controls.
-
 ## Goal
 Give moderators controls to limit replies on posts, galleries, comments, and threads, with clear lock scope and configurable slow mode.
 
@@ -44,7 +40,7 @@ Give moderators controls to limit replies on posts, galleries, comments, and thr
 - Each user can submit once per selected interval on the moderated item. Comments on a post/gallery share that item's cooldown; replies share the cooldown of the exact thread item they target. Quotes are separate root threads and are not rate-limited as replies.
 - Thread and comment reporting already use the shared report workflow; this ticket focuses on interaction controls.
 - Comment context is a post or gallery; comment replies use `replyTo`. Thread chains use `replyTo`, while quotes create a separate root thread.
-- Recursive thread-chain locking is deferred to [Ticket 0077](../backlog/0077-recursive-thread-chain-locks.md); thread locks in this ticket are item-only.
+- Recursive thread-chain locking is deferred to Ticket 0077; thread locks in this ticket are item-only.
 
 ## Relevant Files
 - app/pages/thread/[id].vue

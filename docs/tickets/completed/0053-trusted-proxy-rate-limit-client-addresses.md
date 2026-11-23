@@ -25,7 +25,7 @@ Keep per-client authentication limits working behind a reverse proxy without let
 - `NUXT_TRUSTED_PROXIES` is empty by default. The shared resolver only follows `X-Forwarded-For` when the socket peer is trusted, walking the chain from right to left and stopping at the first untrusted address.
 - The reverse proxy must replace or consistently append the client address to `X-Forwarded-For`; do not trust forwarded headers from untrusted socket peers.
 - This ticket addresses client identity for the existing limits. Broader write-endpoint rate-limit coverage remains separate roadmap work.
-- Coordinate proxy setup guidance with [Ticket 0029](0029-production-quickstart-doc.md).
+- Coordinate proxy setup guidance with Ticket 0029.
 
 ## Relevant Files
 - server/middleware/protection.ts

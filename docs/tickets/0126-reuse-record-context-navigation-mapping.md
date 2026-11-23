@@ -26,7 +26,7 @@ Give inbox, report, and appeal navigation one small, explicit mapping from recor
 ## Notes
 - Inbox already special-cases reports and comments before replacing the delimiter for other contexts. Appeal and report queue code construct related destinations independently.
 - Not every raw record-type check needs this helper; leave local display-only type checks alone unless reusing the parser clearly improves their contract.
-- Completed [0074](completed/0074-surrealdb-record-references.md) concerns database relationships, and [0083](completed/0083-audit-existing-messaging-workflows.md) covers existing inbox behavior. Preserve that behavior rather than redesigning notification navigation.
+- Completed Ticket 0074 concerns database relationships, and Ticket 0083 covers existing inbox behavior. Preserve that behavior rather than redesigning notification navigation.
 
 ## Relevant Files
 - shared/utils/records.ts

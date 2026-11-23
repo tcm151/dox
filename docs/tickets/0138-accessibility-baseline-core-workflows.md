@@ -22,7 +22,7 @@ Establish and improve accessibility across sign-in, feed browsing, publishing, a
 - [ ] Add focused browser regressions for corrected accessibility barriers and document the review results.
 
 ## Notes
-- Reuse the existing isolated browser validation infrastructure from completed [0062](completed/0062-browser-validation-test-suite.md); keep automated checks focused on actionable regressions rather than treating an automated scan as proof of full conformance.
+- Reuse the existing isolated browser validation infrastructure from completed Ticket 0062; keep automated checks focused on actionable regressions rather than treating an automated scan as proof of full conformance.
 - Assumption to confirm during scope definition: use WCAG 2.2 AA as the review target.
 
 ## Relevant Files

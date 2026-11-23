@@ -5,10 +5,6 @@
 - Priority: Medium
 - Next: None
 
-## Dependencies
-- [0085](0085-topic-lock-controls.md): Complete admin-only topic locking and new-content enforcement.
-- [0086](0086-topic-moderator-assignment-management.md): Complete topic moderator roster management.
-
 ## Goal
 Deliver moderator topic governance controls for lifecycle, safety, and content curation. Rules and summary history are tracked separately in Ticket 0017.
 
@@ -25,7 +21,7 @@ Deliver moderator topic governance controls for lifecycle, safety, and content c
 
 ## Notes
 - Existing moderation-request approvals can add a user to a topic's moderator list; Ticket 0086 covers roster management outside that workflow.
-- Topic rename remains paused in the backlog as [Ticket 0084](../backlog/0084-topic-rename-requests.md) and is not required for this work.
+- Topic rename is deferred to Ticket 0084 and is not required for this work.
 - App-wide pins are admin-managed; topic-scoped pins are managed by assigned topic moderators and admins.
 - Topic rules revision history remains tracked separately in Ticket 0017.
 

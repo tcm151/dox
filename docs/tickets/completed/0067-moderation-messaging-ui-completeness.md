@@ -24,7 +24,7 @@ Ensure moderation and messaging screens expose only complete, usable workflows b
 
 ## Notes
 - This ticket covers workflow completeness; consistent empty, loading, and error states are tracked in Ticket 0069.
-- Topic rename is outside this moderation and messaging UI scope; request and approval work is deferred in [Ticket 0084](../backlog/0084-topic-rename-requests.md), a focused sub-feature of Ticket 0007.
+- Topic rename is outside this moderation and messaging UI scope; request and approval work is deferred in Ticket 0084, a focused sub-feature of Ticket 0007.
 - Broader review of existing inbox and notification workflows is tracked in Ticket 0083.
 
 ## Relevant Files

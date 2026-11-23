@@ -22,8 +22,8 @@ Let readers play supported YouTube and Streamable links within ClassicForum's li
 - [ ] Add focused server and browser coverage for URL parsing, accessibility, provider failures, and unaffected non-video links.
 
 ## Notes
-- Completed [0040](completed/0040-safe-link-metadata-previews.md) extracts link metadata but does not render video players; completed [0041](completed/0041-link-detail-and-feed-integration.md) provides the Link detail and feed surfaces.
-- Backlog [0046](backlog/0046-video-authoring-playback-and-discovery.md) explicitly places rich external video embeds with link previews; hosted video uploads and playback remain out of scope here.
+- Completed Ticket 0040 extracts link metadata but does not render video players; completed Ticket 0041 provides the Link detail and feed surfaces.
+- Deferred Ticket 0046 explicitly places rich external video embeds with link previews; hosted video uploads and playback remain out of scope here.
 
 ## Relevant Files
 - app/components/system/previews/LinkPreview.vue

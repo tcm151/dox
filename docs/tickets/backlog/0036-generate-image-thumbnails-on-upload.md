@@ -1,7 +1,7 @@
 # Ticket 0036: Generate Image Thumbnails On Upload
 
 ## Status
-- State: Paused
+- State: Deferred
 - Priority: Medium
 - Next: Resume implementation with the agreed 480px WebP thumbnail policy.
 

@@ -1,7 +1,7 @@
 # Ticket 0044: Video Delivery Architecture
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Medium
 - Next: Test representative video files against the current single-process deployment and filesystem media model.
 

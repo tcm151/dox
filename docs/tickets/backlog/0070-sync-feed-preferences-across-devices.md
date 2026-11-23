@@ -1,7 +1,7 @@
 # Ticket 0070: Sync Feed Preferences Across Devices
 
 ## Status
-- State: Planned
+- State: Deferred
 - Priority: Low
 - Next: Define the persisted feed preference fields and defaults
 

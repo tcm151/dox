@@ -25,7 +25,7 @@ Make Cancel discard inline post, thread, and comment drafts instead of displayin
 ## Notes
 - Post, thread, and comment editors now keep draft content separate from datasource records until the save succeeds.
 - Cancel and failed saves leave the persisted presentation unchanged; reopening an editor reloads the current content.
-- Preview controls are a separate feature under [0081](backlog/0081-inline-edit-markdown-preview.md); this correctness fix does not require adding previews.
+- Preview controls are a separate feature under Ticket 0081; this correctness fix does not require adding previews.
 
 ## Relevant Files
 - app/pages/post/[id].vue
