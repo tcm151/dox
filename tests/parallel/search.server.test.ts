@@ -144,7 +144,7 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
     const identifier = randomUUID().replaceAll("-", "")
     const searchTerm = `searchfilters${identifier}`
     const commentSearchTerm = `searchfiltercomment${identifier}`
-    const topicId = `search${identifier.replace(/\d/g, "a").slice(0, 12)}`
+    const topicId = `search1${identifier.slice(0, 25)}`
     const postTitle = `Search filters ${identifier}`
     let postId: string | undefined
     let commentId: string | undefined
@@ -213,6 +213,9 @@ it("filters search results by type, topic, author, and inclusive UTC date range"
 
         const invalidType = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, type: "video" })}`)
         expectStatus(invalidType, 400, await invalidType.clone().text())
+
+        const invalidTopic = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, topic: `${topicId}a` })}`)
+        expectStatus(invalidTopic, 400, await invalidTopic.clone().text())
 
         const invalidDate = await fetch(`/api/feed/search?${new URLSearchParams({ text: searchTerm, from: "2026-02-31" })}`)
         expectStatus(invalidDate, 400, await invalidDate.clone().text())

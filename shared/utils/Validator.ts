@@ -24,7 +24,7 @@ export class Validator {
 
         "post.title": (v: string) => /^[\s\S]{4,128}$/.test(v),
 
-        "topic.id": (v: string) => /^\b[A-Za-z]{3,24}\b$/.test(v),
+        "topic.id": (v: string) => /^[A-Za-z][A-Za-z0-9]{2,31}$/.test(v),
         "record.id": (v: string) => /^\w+:[\w-]+$/.test(v),
     }
 
