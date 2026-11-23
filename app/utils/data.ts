@@ -4,7 +4,8 @@ import { getFreshDataKind, getFreshMutationKind, markFreshDataChanged, trackFres
 
 export function useDatasource<T>(
     url: string | Ref<string> | (() => string),
-    options: UseFetchOptions<T> = {}
+    options: UseFetchOptions<T> = {},
+    wrapRefresh?: (refresh: () => Promise<void>) => Promise<void>,
 ) {
     const session = getSession()
     const datasource = useFetch(url, {
@@ -26,9 +27,11 @@ export function useDatasource<T>(
         watch(() => session.user.id, () => datasource.clear(), { flush: "sync" })
     }
 
+    const executeRefresh = () => datasource.refresh({ dedupe: "defer" })
+    const refreshDatasource = wrapRefresh ? () => wrapRefresh(executeRefresh) : executeRefresh
     const sourceUrl = () => typeof url === "function" ? url() : unref(url)
     const kind = ENV.isClient() ? getFreshDataKind(sourceUrl()) : undefined
-    if (!kind) return datasource
+    if (!kind) return wrapRefresh ? { ...datasource, refresh: refreshDatasource } : datasource
 
     const route = useRoute()
     const refresh = trackFreshDatasource({
@@ -37,7 +40,7 @@ export function useDatasource<T>(
         routePath: () => route.path,
         url: sourceUrl,
         status: datasource.status,
-        refresh: () => datasource.refresh({ dedupe: "defer" }),
+        refresh: refreshDatasource,
     })
 
     return { ...datasource, refresh }

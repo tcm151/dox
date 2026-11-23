@@ -20,8 +20,12 @@ export function useFeedDatasource<T extends { id: string }>(
         ...(sorting ? { sortBy: sortBy.value } : {}),
     }))
 
-    const page = useDatasource<FeedPage<T>>(endpoint, { query })
     const retainedPage = shallowRef<FeedPage<T>>()
+    const page = useDatasource<FeedPage<T>>(endpoint, { query }, async (refresh): Promise<void> => {
+        retainedPage.value = page.data.value ?? retainedPage.value
+        await refresh()
+        if (page.status.value === "success") retainedPage.value = undefined
+    })
 
     const hints = useHints()
     const loading = ref(false)
@@ -31,12 +35,8 @@ export function useFeedDatasource<T extends { id: string }>(
         retainedPage.value = undefined
     }, { flush: "sync" })
     watch(() => toValue(endpoint), () => page.clear(), { flush: "sync" })
-
-    async function refresh() {
-        retainedPage.value = page.data.value ?? retainedPage.value
-        await page.refresh()
-        if (page.status.value === "success") retainedPage.value = undefined
-    }
+    const session = getSession()
+    watch(() => session.user.id, () => { retainedPage.value = undefined }, { flush: "sync" })
 
     async function loadMore() {
         const currentPage = page.data.value ?? retainedPage.value
@@ -91,7 +91,7 @@ export function useFeedDatasource<T extends { id: string }>(
         data,
         status: page.status,
         pending: page.pending,
-        refresh,
+        refresh: page.refresh,
         loading,
         more,
         loadMore,
