@@ -149,6 +149,10 @@ it("enforces profile audiences without hiding individually public content", asyn
         expect((await get<User>(`/api/user/${id}`, owner.accessToken)).visible).toBe(true)
         expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`, owner.accessToken)).items.some(item => item.id === post.id)).toBe(true)
         expect((await get<User[]>("/api/user", owner.accessToken)).some(user => user.id === owner.user.id)).toBe(true)
+        const adminProfile = await get<User>(`/api/user/${id}`, admin.accessToken)
+        expect(adminProfile).toMatchObject({ visible: true, link: "https://profile-privacy.example" })
+        expect((await get<User[]>("/api/user", admin.accessToken)).some(user => user.id === owner.user.id)).toBe(true)
+        expect((await get<FeedPage<Sortable>>(`/api/user/${id}/feed?sortBy=new`, admin.accessToken)).items.some(item => item.id === post.id)).toBe(true)
 
         const publicPost = await fetch(`/api/post/${postId}`)
         expectStatus(publicPost, 200, "direct public post after profile feed is hidden")
