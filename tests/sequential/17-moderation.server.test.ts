@@ -1,19 +1,11 @@
 import { expect, it } from "vitest"
-import type { AppSettings, Comment, Gallery, Link, ModeratorLog, Moderation, NotificationPage, Post, Thread, Topic, User } from "../../shared/types"
+import type { AppSettings, Comment, Gallery, Link, ModeratorLog, Moderation, ModerationRequest, NotificationPage, Post, Thread } from "../../shared/types"
 import { expectStatus, fetch, grabExampleServer, grabUser } from "../utils/test-server"
 import { extractId } from "../../shared/utils/records"
 
 const admin = await grabUser("admin")
 const exampleServer = await grabExampleServer("default")
 const member = exampleServer.users.sampleUser03
-type ModerationRequest = {
-    id: string
-    topic: Topic
-    user: User
-    approvals: string[]
-    denials: string[]
-    closed: boolean
-}
 
 async function createModerationRequest(suffix: string) {
     const topicId = `contractTopic${suffix}`
@@ -55,6 +47,27 @@ it("restricts moderation requests to moderators", async () => {
 
     const approvalResponse = await member.fetchRaw("/api/moderator/request/missing/approve", { method: "POST" })
     expectStatus(approvalResponse, 403)
+})
+
+it("lists other users' moderation requests only for assigned topics", async () => {
+    const moderator = exampleServer.users.unassignedModerator
+    const suffix = Date.now()
+    const fixtures: Array<Awaited<ReturnType<typeof createModerationRequest>>> = []
+
+    try {
+        const assigned = await createModerationRequest(`${suffix}Assigned`)
+        fixtures.push(assigned)
+        const unassigned = await createModerationRequest(`${suffix}Unassigned`)
+        fixtures.push(unassigned)
+        await admin.query(`UPDATE topic:${assigned.topicId} SET moderators = [${moderator.user.id}];`)
+
+        const requests = await moderator.fetch<ModerationRequest[]>("/api/moderator/request")
+        expect(requests.map(request => request.id)).toContain(`moderationRequest:${assigned.requestId}`)
+        expect(requests.map(request => request.id)).not.toContain(`moderationRequest:${unassigned.requestId}`)
+    }
+    finally {
+        await removeModerationRequests(fixtures)
+    }
 })
 
 it("restricts the moderator log to administrators", async () => {
@@ -415,21 +428,23 @@ it("authorizes lock controls by topic and audits lock and unlock transitions", a
 
 it("records approvals and rejects duplicate approvals", async () => {
     const testRequest = await createModerationRequest(`Approval${Date.now()}`)
+    const moderator = exampleServer.users.unassignedModerator
 
     try {
-        const approve = () => admin.fetchRaw(`/api/moderator/request/${testRequest.requestId}/approve`, { method: "POST" })
+        await admin.query(`UPDATE topic:${testRequest.topicId} SET moderators = [${moderator.user.id}];`)
+        const approve = () => moderator.fetchRaw(`/api/moderator/request/${testRequest.requestId}/approve`, { method: "POST" })
         expectStatus((await approve()), 200)
         expectStatus((await approve()), 409)
 
         const requests = await admin.fetch<ModerationRequest[]>("/api/moderator/request")
         const request = requests.find(item => item.id === `moderationRequest:${testRequest.requestId}`)
-        expect(request?.approvals).toContain(admin.user.id)
+        expect(request?.approvals).toEqual([moderator.user.id])
         expect(request?.denials).toEqual([])
         expect(request?.closed).toBe(false)
         const logs = await getModeratorLogs(testRequest.requestId)
         expect(logs).toHaveLength(1)
         expect(logs[0]).toMatchObject({
-            actor: admin.user.id,
+            actor: moderator.user.id,
             action: "moderation.request.approved",
             target: `moderationRequest:${testRequest.requestId}`,
             details: { topic: `topic:${testRequest.topicId}`, applicant: member.user.id },
@@ -440,27 +455,25 @@ it("records approvals and rejects duplicate approvals", async () => {
     }
 })
 
-it("notifies the applicant when approved as a topic moderator", async () => {
+it("lets an admin approve below the threshold and notifies the applicant", async () => {
     const testRequest = await createModerationRequest(`ApprovalNotice${Date.now()}`)
     const memberWasModerator = member.user.roles.includes("moderator")
     const settingsResponse = await fetch("/api/settings/default")
     expectStatus(settingsResponse, 200)
     const settings = await settingsResponse.json() as AppSettings
-    const priorApprovals = Object.values(exampleServer.users)
-        .map(session => session.user.id)
-        .filter(userId => userId !== member.user.id)
-        .slice(0, settings.moderation.threshold - 1)
-
-    expect(priorApprovals).toHaveLength(settings.moderation.threshold - 1)
 
     try {
-        await admin.query(`
-            UPDATE moderationRequest:${testRequest.requestId} SET
-                approvals = [${priorApprovals.join(", ")}];
-        `)
-
-        const response = await admin.fetchRaw(`/api/moderator/request/${testRequest.requestId}/approve`, { method: "POST" })
+        expect(settings.moderation.threshold).toBeGreaterThan(1)
+        const response = await admin.fetchRaw<{ approved: boolean }>(`/api/moderator/request/${testRequest.requestId}/approve`, { method: "POST" })
         expectStatus(response, 200)
+        expect(response._data?.approved).toBe(true)
+
+        const requests = await admin.fetch<ModerationRequest[]>("/api/moderator/request")
+        expect(requests.find(request => request.id === `moderationRequest:${testRequest.requestId}`)).toMatchObject({
+            approvals: [admin.user.id],
+            closed: true,
+            user: { roles: expect.arrayContaining(["moderator"]) },
+        })
 
         const notifications = await member.fetch<NotificationPage>("/api/profile/notifications?dismissed=false&pageSize=100")
         const notification = notifications.items.find(item => item.context === `topic:${testRequest.topicId}`)
@@ -474,22 +487,26 @@ it("notifies the applicant when approved as a topic moderator", async () => {
     }
 })
 
-it("reconciles existing approvals when their threshold is met", async () => {
-    const testRequest = await createModerationRequest(`Reconcile${Date.now()}`)
+it.each([
+    { rule: "the threshold is met", adminApproval: false },
+    { rule: "an admin already approved below the threshold", adminApproval: true },
+])("reconciles existing approvals when $rule", async ({ adminApproval }) => {
+    const testRequest = await createModerationRequest(`Reconcile${Date.now()}${adminApproval ? "Admin" : "Threshold"}`)
     const memberWasModerator = member.user.roles.includes("moderator")
     const settingsResponse = await fetch("/api/settings/default")
     expectStatus(settingsResponse, 200)
     const settings = await settingsResponse.json() as AppSettings
-    const approvalIds = [
-        admin.user.id,
-        ...Object.values(exampleServer.users).map(session => session.user.id),
-    ]
-        .filter(userId => userId !== member.user.id)
-        .slice(0, settings.moderation.threshold)
-
-    expect(approvalIds).toHaveLength(settings.moderation.threshold)
+    const approvalIds = adminApproval
+        ? [admin.user.id]
+        : Object.values(exampleServer.users)
+            .filter(session => session.user.id !== member.user.id && !session.user.roles.includes("admin"))
+            .slice(0, settings.moderation.threshold)
+            .map(session => session.user.id)
 
     try {
+        if (adminApproval) expect(approvalIds.length).toBeLessThan(settings.moderation.threshold)
+        else expect(approvalIds).toHaveLength(settings.moderation.threshold)
+
         await admin.query(`
             UPDATE moderationRequest:${testRequest.requestId} SET
                 approvals = [${approvalIds.join(", ")}];
@@ -497,6 +514,7 @@ it("reconciles existing approvals when their threshold is met", async () => {
 
         const requests = await admin.fetch<ModerationRequest[]>("/api/moderator/request")
         const request = requests.find(item => item.id === `moderationRequest:${testRequest.requestId}`)
+        expect(request?.approvals).toEqual(approvalIds)
         expect(request?.closed).toBe(true)
         expect(request?.user.roles).toContain("moderator")
 

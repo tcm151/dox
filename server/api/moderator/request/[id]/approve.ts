@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
                     approvals += $user
             );
 
-            LET $approved = array::len($request.approvals) >= $threshold
+            LET $approved = ($user.roles CONTAINS "admin" OR array::len($request.approvals) >= $threshold)
                 AND array::len($request.approvals) > array::len($request.denials);
 
             IF $approved {

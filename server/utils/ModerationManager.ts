@@ -294,11 +294,17 @@ export class ModerationManager {
     static async reviewApprovals(threshold: number) {
         const approvedRequests = await new DatabaseQuery()
             .addSql(`
+                LET $admins = (
+                    SELECT VALUE id
+                    FROM user
+                    WHERE roles CONTAINS "admin"
+                );
+
                 LET $approvals = (
                     SELECT id, user, topic
                     FROM moderationRequest
                     WHERE closed = false
-                    AND approvals.len() >= $threshold
+                    AND (approvals.len() >= $threshold OR approvals CONTAINSANY $admins)
                     AND approvals.len() > denials.len()
                 );
 

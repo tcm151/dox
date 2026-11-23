@@ -362,8 +362,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/topic/:topic/request-moderation` | Confirmed account; topic below the moderator request threshold | Requests moderator access while the assigned moderator count is below `moderation.perTopic`. |
 | `POST` | `/api/topic/:topic/moderators/remove` | Admin | Removes a moderator from a topic. |
 | `GET` | `/api/moderator/topics` | Moderator | Lists topics assigned to the current moderator. |
-| `GET` | `/api/moderator/request` | Moderator | Lists pending moderator requests after reviewing approval thresholds. |
-| `POST` | [`/api/moderator/request/:id/{approve,deny}`](#moderator-request-decisions) | Moderator/admin | Records an approval or denial toward the configured threshold. |
+| `GET` | `/api/moderator/request` | Moderator | After reviewing approval thresholds, lists the caller's own requests and requests for assigned topics. Moderators with the admin role see all requests. |
+| `POST` | [`/api/moderator/request/:id/{approve,deny}`](#moderator-request-decisions) | Moderator/admin | Records a decision; admins can approve below the configured threshold. |
 | `GET` | `/api/topic/:topic/pins/manage` | Assigned moderator/admin | Lists manageable pins for a topic. |
 | `POST` | `/api/topic/:topic/pins/add` | Assigned moderator/admin | Pins active top-level posts, threads, galleries, or Links in a topic. |
 | `POST` | `/api/topic/:topic/pins/:id/{update,delete}` | Assigned moderator/admin | Updates or removes a topic pin. |
@@ -376,9 +376,9 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Request creation: `POST /api/topic/:topic/request-moderation` requires a confirmed account, returns `204` when created, and `409` for an existing request or when the topic reaches its moderator request threshold.
 - Request eligibility: new requests return `409` once the topic's assigned moderator count reaches `moderation.perTopic`. This is not a hard roster cap; requests created earlier may still be approved after the threshold is reached.
 - Response: approval returns `{ approved, user, topic }`; denial records the vote.
-- Side effects: once approvals reach the configured threshold and outnumber denials, the request closes, the applicant gains the moderator role and topic assignment, and receives a notification. Denials close the request when they reach the threshold and outnumber approvals. Reading the queue also reconciles requests against the current threshold.
+- Side effects: an approval closes the request if approvals outnumber denials and either reach the threshold or the current vote is from an admin. The applicant gains the moderator role and topic assignment and receives a notification. Denials close the request when they reach the threshold and outnumber approvals. Reading the queue or updating application settings also reconciles pending requests, counting existing approvals from current admins toward the exception without recording another vote.
 - Source: [approval route](../server/api/moderator/request/[id]/approve.ts), [denial route](../server/api/moderator/request/[id]/deny.ts), [moderation manager](../server/utils/ModerationManager.ts).
-- Tests: [moderation tests](../tests/parallel/moderation.server.test.ts) cover duplicate decisions, threshold promotion and closure, notifications, reconciliation, and audit records; [publishing settings tests](../tests/sequential/11-publishing-settings.server.test.ts) cover request eligibility and queued approvals.
+- Tests: [moderation tests](../tests/sequential/17-moderation.server.test.ts) cover duplicate decisions, threshold promotion and closure, notifications, reconciliation, and audit records; [publishing settings tests](../tests/sequential/13-publishing.server.test.ts) cover request eligibility and queued approvals.
 
 ### Content Enforcement
 
@@ -482,9 +482,9 @@ These endpoints manage privileged roles and application-wide content curation.
 
 - Methods: `GET /api/settings/:id` reads settings publicly; `POST /api/admin/settings/:id/update` requires an admin and accepts the complete `AppSettings` object.
 - Response: reads and successful updates return the settings object. Invalid update payloads or values return `400` without changing the saved settings.
-- Side effects: after persisting valid settings, the update re-evaluates pending moderator requests using the new approval threshold; qualifying approvals can grant moderator roles and topic assignments, close requests, and send notifications.
+- Side effects: after persisting valid settings, the update re-evaluates pending moderator requests using the new threshold and the [admin approval exception](#moderator-request-decisions); qualifying approvals can grant moderator roles and topic assignments, close requests, and send notifications.
 - Source: [public settings route](../server/api/settings/[id]/index.ts), [admin update route](../server/api/admin/settings/[id]/update.ts), [settings manager](../server/utils/SettingsManager.ts), [moderation manager](../server/utils/ModerationManager.ts).
-- Tests: [settings tests](../tests/parallel/settings.server.test.ts) cover valid persistence and invalid-update safety; [moderation tests](../tests/parallel/moderation.server.test.ts) cover threshold reconciliation and promotion.
+- Tests: [settings tests](../tests/sequential/19-settings.server.test.ts) cover valid persistence and invalid-update safety; [moderation tests](../tests/sequential/17-moderation.server.test.ts) cover threshold reconciliation and promotion.
 
 ## Developer Operations
 

@@ -367,8 +367,8 @@ export interface ReferralClaim extends Record {
 }
 
 export interface ModerationRequest extends Record {
-    topic: Topic & string
-    user: User & string
+    topic: Pick<Topic, "id">
+    user: UserSummary
     approvals: string[]
     denials: string[]
     closed: boolean

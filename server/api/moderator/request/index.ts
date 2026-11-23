@@ -1,4 +1,4 @@
-import type { User, Topic } from "@@/shared/types"
+import type { ModerationRequest } from "@@/shared/types"
 import { SettingsManager } from "@@/server/utils/SettingsManager"
 import { ModerationManager } from "@@/server/utils/ModerationManager"
 
@@ -15,14 +15,13 @@ export default defineEventHandler(async (event) => {
                 SELECT VALUE id
                 FROM topic
                 WHERE moderators CONTAINS $user
-                ORDER BY score DESC
             );
             RETURN SELECT id, topic.{id}, user.{id, name, roles}, approvals, denials, closed
             FROM moderationRequest
-            WHERE (user = $user OR $topics CONTAINS $topic)
+            WHERE (user = $user OR topic IN $topics)
             OR $user.roles CONTAINS "admin"
         `)
         .addTransaction()
         .addRecord("user", auth.id)
-        .queryAll<{ id: string, topic: Topic, user: User }[]>()
+        .queryValue<ModerationRequest[]>()
 })
