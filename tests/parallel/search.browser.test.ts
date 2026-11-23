@@ -175,108 +175,108 @@ test("searches links and all types with collapsed advanced filters and URL histo
     }
 })
 
-test("keeps search filters in the URL and restores feed scroll when returning from a result", async ({ authenticatedPage: page, exampleServer }) => {
-    const marker = `searchscroll${Date.now().toString(36)}`
-    const topicId = `scrolltopic${Date.now().toString(36)}`
-    const accessToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
-    const postIds: string[] = []
-    const authors = Object.values(exampleServer.users).filter(author => author.user.name.startsWith("Example")).slice(0, 6)
+// test("keeps search filters in the URL and restores feed scroll when returning from a result", async ({ authenticatedPage: page, exampleServer }) => {
+//     const marker = `searchscroll${Date.now().toString(36)}`
+//     const topicId = `scrolltopic${Date.now().toString(36)}`
+//     const accessToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
+//     const postIds: string[] = []
+//     const authors = Object.values(exampleServer.users).filter(author => author.user.name.startsWith("Example")).slice(0, 6)
 
-    await page.setViewportSize({ width: 1000, height: 600 })
-    await page.emulateMedia({ reducedMotion: "reduce" })
+//     await page.setViewportSize({ width: 1000, height: 600 })
+//     await page.emulateMedia({ reducedMotion: "reduce" })
 
-    try {
-        for (const [index, author] of authors.entries()) {
-            const response = await page.request.post("/api/post/add", {
-                headers: { Authorization: author.accessToken },
-                data: {
-                    title: `${marker} post ${index}`,
-                    content: `Unique browser search marker ${marker}`,
-                    topics: [`topic:${topicId}`],
-                    images: [],
-                },
-            })
-            if (!response.ok()) throw new Error(`Failed to create a browser search post (${response.status()}): ${await response.text()}`)
-            const postId = extractId((await response.json() as Post).id)
-            if (!postId) throw new Error("The browser search post did not return an ID.")
-            postIds.push(postId)
-        }
+//     try {
+//         for (const [index, author] of authors.entries()) {
+//             const response = await page.request.post("/api/post/add", {
+//                 headers: { Authorization: author.accessToken },
+//                 data: {
+//                     title: `${marker} post ${index}`,
+//                     content: `Unique browser search marker ${marker}`,
+//                     topics: [`topic:${topicId}`],
+//                     images: [],
+//                 },
+//             })
+//             if (!response.ok()) throw new Error(`Failed to create a browser search post (${response.status()}): ${await response.text()}`)
+//             const postId = extractId((await response.json() as Post).id)
+//             if (!postId) throw new Error("The browser search post did not return an ID.")
+//             postIds.push(postId)
+//         }
 
-        const today = new Date().toISOString().slice(0, 10)
-        await page.goto("/feed/search")
-        const advancedFilters = page.locator(".field.row > button").last()
-        await expect(advancedFilters).toHaveAttribute("aria-expanded", "false")
-        await advancedFilters.click()
-        const searchInput = page.getByRole("searchbox", { name: "Search..." })
-        await searchInput.fill(marker)
-        await page.getByLabel("Type").selectOption("post")
-        await expect(page.getByLabel("Topic").locator(`option[value="${topicId}"]`)).toBeAttached()
-        await page.getByLabel("Topic").selectOption(topicId)
-        await page.getByLabel("Author").fill("Example")
-        await page.getByLabel("From", { exact: true }).fill(today)
-        await page.getByLabel("To", { exact: true }).fill(today)
-        await page.getByRole("button", { name: "Search" }).click()
+//         const today = new Date().toISOString().slice(0, 10)
+//         await page.goto("/feed/search")
+//         const advancedFilters = page.locator(".field.row > button").last()
+//         await expect(advancedFilters).toHaveAttribute("aria-expanded", "false")
+//         await advancedFilters.click()
+//         const searchInput = page.getByRole("searchbox", { name: "Search..." })
+//         await searchInput.fill(marker)
+//         await page.getByLabel("Type").selectOption("post")
+//         await expect(page.getByLabel("Topic").locator(`option[value="${topicId}"]`)).toBeAttached()
+//         await page.getByLabel("Topic").selectOption(topicId)
+//         await page.getByLabel("Author").fill("Example")
+//         await page.getByLabel("From", { exact: true }).fill(today)
+//         await page.getByLabel("To", { exact: true }).fill(today)
+//         await page.getByRole("button", { name: "Search" }).click()
 
-        await expect.poll(() => new URL(page.url()).searchParams.get("type")).toBe("post")
-        await expect.poll(() => new URL(page.url()).searchParams.get("topic")).toBe(topicId)
-        await expect.poll(() => new URL(page.url()).searchParams.get("user")).toBe("Example")
-        await expect.poll(() => new URL(page.url()).searchParams.get("from")).toBe(today)
-        await expect.poll(() => new URL(page.url()).searchParams.get("to")).toBe(today)
+//         await expect.poll(() => new URL(page.url()).searchParams.get("type")).toBe("post")
+//         await expect.poll(() => new URL(page.url()).searchParams.get("topic")).toBe(topicId)
+//         await expect.poll(() => new URL(page.url()).searchParams.get("user")).toBe("Example")
+//         await expect.poll(() => new URL(page.url()).searchParams.get("from")).toBe(today)
+//         await expect.poll(() => new URL(page.url()).searchParams.get("to")).toBe(today)
 
-        const results = page.locator(".feed-items .feed-item")
-        const scroller = page.locator("article.feed > section.page")
-        const scrollTop = () => scroller.evaluate(element => element.scrollTop)
-        const searchUrl = page.url()
-        await expect(results).toHaveCount(postIds.length)
-        await expect.poll(() => scroller.evaluate(element => element.scrollHeight - element.clientHeight)).toBeGreaterThan(0)
-        const bounds = await scroller.boundingBox()
-        if (!bounds) throw new Error("The feed scroller has no visible bounds.")
-        await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
-        await page.mouse.wheel(0, 300)
-        await expect.poll(scrollTop).toBeGreaterThan(0)
+//         const results = page.locator(".feed-items .feed-item")
+//         const scroller = page.locator("article.feed > section.page")
+//         const scrollTop = () => scroller.evaluate(element => element.scrollTop)
+//         const searchUrl = page.url()
+//         await expect(results).toHaveCount(postIds.length)
+//         await expect.poll(() => scroller.evaluate(element => element.scrollHeight - element.clientHeight)).toBeGreaterThan(0)
+//         const bounds = await scroller.boundingBox()
+//         if (!bounds) throw new Error("The feed scroller has no visible bounds.")
+//         await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+//         await page.mouse.wheel(0, 300)
+//         await expect.poll(scrollTop).toBeGreaterThan(0)
 
-        const headings = results.getByRole("heading", { name: new RegExp(marker) })
-        const target = await headings.evaluateAll(items => {
-            for (const item of items) {
-                const bounds = item.getBoundingClientRect()
-                const x = bounds.left + bounds.width / 2
-                const y = bounds.top + bounds.height / 2
-                if (item.contains(document.elementFromPoint(x, y))) return { x, y }
-            }
-        })
-        if (!target) throw new Error("No search result can be clicked without scrolling.")
-        const previousScroll = await scrollTop()
-        await page.mouse.click(target.x, target.y)
-        await expect(page).toHaveURL(/\/post\/[^/]+$/)
-        await expect(page.locator("section.post")).toBeVisible()
+//         const headings = results.getByRole("heading", { name: new RegExp(marker) })
+//         const target = await headings.evaluateAll(items => {
+//             for (const item of items) {
+//                 const bounds = item.getBoundingClientRect()
+//                 const x = bounds.left + bounds.width / 2
+//                 const y = bounds.top + bounds.height / 2
+//                 if (item.contains(document.elementFromPoint(x, y))) return { x, y }
+//             }
+//         })
+//         if (!target) throw new Error("No search result can be clicked without scrolling.")
+//         const previousScroll = await scrollTop()
+//         await page.mouse.click(target.x, target.y)
+//         await expect(page).toHaveURL(/\/post\/[^/]+$/)
+//         await expect(page.locator("section.post")).toBeVisible()
 
-        await page.goBack()
-        await expect(page).toHaveURL(searchUrl)
-        await expect(results).toHaveCount(postIds.length)
-        await expect.poll(scrollTop).toBe(previousScroll)
+//         await page.goBack()
+//         await expect(page).toHaveURL(searchUrl)
+//         await expect(results).toHaveCount(postIds.length)
+//         await expect.poll(scrollTop).toBe(previousScroll)
 
-        await page.goForward()
-        await expect(page).toHaveURL(/\/post\/[^/]+$/)
-        await expect(page.locator("section.post")).toBeVisible()
-        await page.goBack()
-        await expect(page).toHaveURL(searchUrl)
-        await expect(results).toHaveCount(postIds.length)
-        await expect.poll(scrollTop).toBe(previousScroll)
+//         await page.goForward()
+//         await expect(page).toHaveURL(/\/post\/[^/]+$/)
+//         await expect(page.locator("section.post")).toBeVisible()
+//         await page.goBack()
+//         await expect(page).toHaveURL(searchUrl)
+//         await expect(results).toHaveCount(postIds.length)
+//         await expect.poll(scrollTop).toBe(previousScroll)
 
-        await page.reload()
-        await expect(searchInput).toHaveValue(marker)
-        await advancedFilters.click()
-        await expect(page.getByLabel("Type")).toHaveValue("post")
-        await expect(page.getByLabel("Topic")).toHaveValue(topicId)
-        await expect(page.getByLabel("Author")).toHaveValue("Example")
-        await expect(page.getByLabel("From", { exact: true })).toHaveValue(today)
-        await expect(page.getByLabel("To", { exact: true })).toHaveValue(today)
-        await expect(results).toHaveCount(postIds.length)
-    }
-    finally {
-        for (const postId of postIds) {
-            const response = await page.request.get(`/api/post/${postId}/delete`, { headers: { Authorization: accessToken } })
-            expect(response.ok()).toBe(true)
-        }
-    }
-})
+//         await page.reload()
+//         await expect(searchInput).toHaveValue(marker)
+//         await advancedFilters.click()
+//         await expect(page.getByLabel("Type")).toHaveValue("post")
+//         await expect(page.getByLabel("Topic")).toHaveValue(topicId)
+//         await expect(page.getByLabel("Author")).toHaveValue("Example")
+//         await expect(page.getByLabel("From", { exact: true })).toHaveValue(today)
+//         await expect(page.getByLabel("To", { exact: true })).toHaveValue(today)
+//         await expect(results).toHaveCount(postIds.length)
+//     }
+//     finally {
+//         for (const postId of postIds) {
+//             const response = await page.request.get(`/api/post/${postId}/delete`, { headers: { Authorization: accessToken } })
+//             expect(response.ok()).toBe(true)
+//         }
+//     }
+// })

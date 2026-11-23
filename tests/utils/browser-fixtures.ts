@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { expect, test as base, type Page } from "@playwright/test"
-import packageJson from "../../package.json"
+import packageJson from "../../package.json" with { type: "json" }
 import type { TExampleServer, TSession } from "./test-sessions"
 
 export async function seedBrowserSession(page: Page, session: TSession) {
