@@ -15,7 +15,8 @@ if (!appUnavailable.value) {
     await callOnce("app.settings", () => settings.refresh())
 }
 
-// REFACTOR replace full router reload auth refresh with targeted state hydration.
+// TODO might want to reestablish this behavior for reloading the app on authentication changes
+// removing this adds a lot of complexity for switching between accounts
 // events.subscribe(Trigger.authenticatedUser, () => useRouter().go(0))
 
 let showLogin = ref(false)

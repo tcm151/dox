@@ -38,7 +38,7 @@ const tabs = ref<TabItem[]>([
     { route: '/editor/poll', icon: 'fa-list', label: 'Poll', hide: () => !settings.app.polls.enabled },
 ])
 
-// REFACTOR consolidate unfinished editor variant actions (drafts/upload/preview) behind shared placeholder components.
+// TODO consolidate unfinished editor variant actions (drafts/upload/preview) behind shared placeholder components.
 </script>
 
 <template>
