@@ -30,7 +30,6 @@ const targetTopics = computed(() => {
 const actions = computed(() => {
     const isOwner = props.target.user.id === session.user.id
     const isAdmin = hasRole(session.user, "admin")
-    const isModerator = hasRole(session.user, "moderator")
 
     const type = targetType.value
     const isLocked = props.target.moderation?.locked

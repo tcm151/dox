@@ -11,28 +11,39 @@ const emit = defineEmits<{
     (event: "refresh"): void
 }>()
 
-const reportStatuses = [
-    { status: "pending", label: "Pending", type: "danger" },
-    { status: "appealed", label: "Appealed", type: "info" },
-    { status: "denied", label: "Denied", type: "danger" },
-    { status: "closed", label: "Closed", type: "success" },
-    { status: "removed", label: "Removed", type: "warning" },
+const reportStatuses: { status: Report["status"], label: string }[] = [
+    { status: "pending", label: "Pending" },
+    { status: "appealed", label: "Appealed" },
+    { status: "denied", label: "Denied" },
+    { status: "closed", label: "Closed" },
+    { status: "removed", label: "Removed" },
 ]
 
 const selectedTopic = ref("")
-const selectedStatus = ref<string>("pending")
+const selectedStatus = ref<Report["status"]>("pending")
+
+const topicReports = computed(() => selectedTopic.value
+    ? props.reports.filter(report => report.topics.includes(selectedTopic.value))
+    : props.reports)
 
 const filteredReports = computed(() => {
-    return props.reports.filter(report => report.status === selectedStatus.value)
+    return topicReports.value.filter(report => report.status === selectedStatus.value)
+        .sort((left, right) => Number(right.priority ?? false) - Number(left.priority ?? false))
 })
 
-function statusCount(status: string) {
-    return props.reports.filter(r => r.status === status).length
+function statusCount(status: Report["status"]) {
+    return topicReports.value.filter(report => report.status === status).length
 }
 
-function setStatus(status: string) {
-    selectedStatus.value = status
-}
+watchEffect(() => {
+    if (selectedTopic.value && !props.topics?.includes(selectedTopic.value)) {
+        selectedTopic.value = ""
+    }
+
+    if (!statusCount(selectedStatus.value)) {
+        selectedStatus.value = reportStatuses.find(stage => statusCount(stage.status))?.status ?? "pending"
+    }
+})
 
 </script>
 
@@ -50,7 +61,7 @@ function setStatus(status: string) {
                 </div>
             </template>
             <template v-for="stage in reportStatuses" :key="stage.status">
-                <button v-if="statusCount(stage.status)" type="button" class="f-1" :class="{ selected: selectedStatus === stage.status }" @click="setStatus(stage.status)">
+                <button v-if="statusCount(stage.status)" type="button" class="f-1" :class="{ selected: selectedStatus === stage.status }" @click="selectedStatus = stage.status">
                     <span>{{ stage.label }}</span>
                     <span>{{ statusCount(stage.status) }}</span>
                 </button>
@@ -62,7 +73,7 @@ function setStatus(status: string) {
             </template>
         </section>
         <section v-else class="box empty-state">
-            <p>There are no reports in this stage.</p>
+            <p>There are no reports.</p>
         </section>
     </section>
 </template>

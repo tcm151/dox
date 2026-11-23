@@ -86,7 +86,7 @@ export class ReportManager {
                 IF $report.subject = $user OR $report.subject.user = $user {
                     fn::http(403, "You cannot moderate reports about your own content.");
                 };
-                IF $topic IS NOT NULL {
+                IF $topic != NONE {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
@@ -125,7 +125,7 @@ export class ReportManager {
             .addTransaction()
             .addRecord("report", `report:${reportId}`)
             .addRecord("user", actorId)
-            .addRecord("topic", topicId ?? "", true)
+            .addRecord("topic", topicId)
             .addParameter("message", normalizedMessage)
             .queryValue<ReportRestoreResult>()
 
@@ -152,7 +152,7 @@ export class ReportManager {
                 IF $report.subject = $user OR $report.subject.user = $user {
                     fn::http(403, "You cannot moderate reports about your own content.");
                 };
-                IF $topic IS NOT NULL {
+                IF $topic != NONE {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
@@ -191,7 +191,7 @@ export class ReportManager {
             .addTransaction()
             .addRecord("report", `report:${reportId}`)
             .addRecord("user", actorId)
-            .addRecord("topic", topicId ?? "", true)
+            .addRecord("topic", topicId)
             .addParameter("message", normalizedMessage)
             .queryValue<ReportRestoreResult>()
 
@@ -218,7 +218,7 @@ export class ReportManager {
                 IF $report.subject = $user OR $report.subject.user = $user {
                     fn::http(403, "You cannot moderate reports about your own content.");
                 };
-                IF $topic IS NOT NULL {
+                IF $topic != NONE {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
@@ -262,7 +262,7 @@ export class ReportManager {
             .addTransaction()
             .addRecord("report", `report:${reportId}`)
             .addRecord("user", actorId)
-            .addRecord("topic", topicId ?? "", true)
+            .addRecord("topic", topicId)
             .addParameter("message", normalizedMessage)
             .queryValue<ReportRemovalResult>()
 
@@ -414,7 +414,7 @@ export class ReportManager {
                 IF $report.subject = $user OR $report.subject.user = $user {
                     fn::http(403, "You cannot moderate reports about your own content.");
                 };
-                IF $topic IS NOT NULL {
+                IF $topic != NONE {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
@@ -452,7 +452,7 @@ export class ReportManager {
             .addTransaction()
             .addRecord("report", `report:${reportId}`)
             .addRecord("user", actorId)
-            .addRecord("topic", topicId ?? "", true)
+            .addRecord("topic", topicId)
             .addParameter("message", normalizedMessage)
             .queryValue<ReportResult>()
 
@@ -477,7 +477,7 @@ export class ReportManager {
                 IF $report.subject = $user OR $report.subject.user = $user {
                     fn::http(403, "You cannot moderate reports about your own content.");
                 };
-                IF $topic IS NOT NULL {
+                IF $topic != NONE {
                     IF NOT ($topic.moderators CONTAINS $user) {
                         fn::http(403, "You cannot moderate this topic.");
                     };
@@ -511,7 +511,7 @@ export class ReportManager {
             .addTransaction()
             .addRecord("report", `report:${reportId}`)
             .addRecord("user", actorId)
-            .addRecord("topic", topicId ?? "", true)
+            .addRecord("topic", topicId)
             .addParameter("message", normalizedMessage)
             .queryValue<ReportResult>()
 

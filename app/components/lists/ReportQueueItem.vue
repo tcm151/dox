@@ -14,7 +14,7 @@ const session = getSession()
 
 const message = ref("")
 const removedTopic = ref<string>()
-const action = ref<"resolve" | "remove" | "topic.remove" | "reopen" | "reviewing" | "appeal.accept" | "appeal.reject">()
+const action = ref<"resolve" | "remove" | "topic.remove" | "reopen" | "reviewing">()
 
 function actionLabel(action: string) {
     const labels: Record<string, string> = {
@@ -50,33 +50,37 @@ const canClose = computed(() => {
         && props.report.status === "pending"
 })
 
-// return `/api/topic/${topicId}/reports/${reportId}/${action}`
-// return `/api/report/${reportId}/${action}`
-
 const submitting = ref<boolean>(false)
-async function handleAction() {
+async function handleAction(decision: typeof action.value | "appeal.accept" | "appeal.reject" = action.value) {
+    if (!decision || decision === "reviewing" || submitting.value) return
+
     try {
         submitting.value = true
         const reportId = extractId(props.report.id)
-        await useApi(`/api/report/${reportId}/${action.value!.replace(".", "/")}`, {
+        const path = decision === "topic.remove" ? "remove-topic" : decision.replace(".", "/")
+        let endpoint = `/api/report/${reportId}/${path}`
+        if (decision === "topic.remove" || !hasRole(session.user, "admin")) {
+            const topic = decision === "topic.remove" ? removedTopic.value : props.report.topics.find(topic => session.moderates(topic))
+            const topicId = extractId(topic)
+            if (!topicId) throw new Error("No assigned topic for this report action.")
+            endpoint = `/api/topic/${topicId}/reports/${reportId}/${path}`
+        }
+        await useApi(endpoint, {
             body: {
                 message: message.value
             }
         })
-        hints.addSuccess(`Report ${action.value} successfully.`)
+        hints.addSuccess(`Report ${decision} successfully.`)
+        cancelAction()
         emit("refresh")
     }
     catch (error: any) {
         console.log(error)
-        hints.addError(`Failed to ${action.value} report.`, error)
+        hints.addError(`Failed to ${decision} report.`, error)
     }
     finally {
         submitting.value = false
     }
-}
-
-async function closeReport() {
-    action.value = "resolve"
 }
 
 const canRemove = computed(() => {
@@ -85,21 +89,13 @@ const canRemove = computed(() => {
         && props.report.status === "pending"
 })
 
-function removeReport() {
-    action.value = "remove"
-}
-
 function canRemoveTopic(topic: string) {
     return canModerate.value
-        && (session.moderates(topic) || hasRole(session.user, "admin"))
+        && hasRole(session.user, "moderator")
+        && session.moderates(topic)
         && !props.report.subject.id.startsWith("topic:")
         && !props.report.subject.id.startsWith("comment:")
         && props.report.status === "pending"
-}
-
-function removeTopic(topic: string) {
-    removedTopic.value = topic
-    action.value = "topic.remove"
 }
 
 const canReopen = computed(() => {
@@ -107,28 +103,17 @@ const canReopen = computed(() => {
         && ["closed", "removed", "denied"].includes(props.report.status)
 })
 
-function reopenReport() {
-    action.value = "reopen"
-}
-
 const canReview = computed(() => {
     return canModerate.value
         && props.report.status === "appealed"
         && props.report.moderator?.id !== session.user.id
 })
 
-function reviewAppeal() {
-    action.value = "reviewing"
-}
-
-async function acceptAppeal() {
-    action.value = "appeal.accept"
-    await handleAction()
-}
-
-async function rejectAppeal() {
-    action.value = "appeal.reject"
-    await handleAction()
+function selectAction(nextAction: NonNullable<typeof action.value>, topic?: string) {
+    if (action.value === nextAction && removedTopic.value === topic) return
+    message.value = ""
+    action.value = nextAction
+    removedTopic.value = topic
 }
 
 function cancelAction() {
@@ -160,12 +145,12 @@ function toggleHistory() {
             </Tag>
         </header>
         <CollapseTransition>
-            <template v-if="showComplaints">
+            <section v-if="showComplaints" class="column g-1">
                 <blockquote v-for="(complaint, index) in report.complaints" :key="index">
                     <strong>{{ complaint.user.name }}:</strong>
                     {{ complaint.reason }}
                 </blockquote>
-            </template>
+            </section>
         </CollapseTransition>
         <section class="row wrap g-1">
             <Tag class="f-1 b-0 capitalize" type="danger" :label="report.status" />
@@ -180,9 +165,9 @@ function toggleHistory() {
         <CollapseTransition>
             <section v-if="report.history.length && showHistory" class="f-1 column g-1">
                 <template v-for="entry in report.history" :key="`${entry.action}:${entry.time}`">
-                    <!-- <p class="timestamp">
+                    <p class="timestamp">
                         {{ actionLabel(entry.action) }} • {{ formatDate(entry.time) }} ago
-                    </p> -->
+                    </p>
                     <blockquote>
                         <strong>{{ entry.user.name }}:</strong>
                         {{ entry.message }}
@@ -190,16 +175,16 @@ function toggleHistory() {
                 </template>
             </section>
         </CollapseTransition>
-        <CollapseTransition mode="out-in" :speed="200">
-            <template v-if="canModerate">
+        <template v-if="canModerate">
+            <CollapseTransition mode="out-in" :speed="200">
                 <section v-if="action && action !== 'reviewing'" class="field g-2">
-                    <textarea v-model="message" rows="3" />
+                    <textarea v-model="message" rows="3" :disabled="submitting" />
                     <div class="row g-2">
-                        <button type="button" class="small f-1" @click="handleAction">
+                        <button type="button" class="small f-1" :disabled="submitting" @click="handleAction()">
                             <i class="fa fa-check"></i>
                             <span>Submit</span>
                         </button>
-                        <button type="button" class="small f-1" @click="cancelAction">
+                        <button type="button" class="small f-1" :disabled="submitting" @click="cancelAction">
                             <i class="fa fa-ban"></i>
                             <span>Cancel</span>
                         </button>
@@ -207,49 +192,49 @@ function toggleHistory() {
                 </section>
                 <section v-else-if="action === 'reviewing'" class="column g-1">
                     <label class="field">
-                        <textarea v-model="message" rows="3" />
+                        <textarea v-model="message" rows="3" :disabled="submitting" />
                     </label>
                     <div class="row g-1">
-                        <button type="button" class="small f-1" @click="acceptAppeal">
+                        <button type="button" class="small f-1" :disabled="submitting" @click="handleAction('appeal.accept')">
                             <i class="fa-solid fa-check"></i>
                             <span>Accept</span>
                         </button>
-                        <button type="button" class="small f-1" @click="rejectAppeal">
+                        <button type="button" class="small f-1" :disabled="submitting" @click="handleAction('appeal.reject')">
                             <i class="fa-solid fa-xmark"></i>
                             <span>Reject</span>
                         </button>
-                        <button type="button" class="small f-1" @click="cancelAction">
+                        <button type="button" class="small f-1" :disabled="submitting" @click="cancelAction">
                             <i class="fa fa-ban"></i>
                             <span>Cancel</span>
                         </button>
                     </div>
                 </section>
-                <section class="row wrap g-1">
-                    <button v-if="canReview" type="button" class="small f-1" @click="reviewAppeal">
-                        <i class="fa fa-archive"></i>
-                        <span>Review</span>
+            </CollapseTransition>
+            <section class="row wrap g-1">
+                <button v-if="canReview" type="button" class="small f-1" :disabled="submitting" @click="selectAction('reviewing')">
+                    <i class="fa fa-archive"></i>
+                    <span>Review</span>
+                </button>
+                <button v-if="canClose" type="button" class="small f-1" :disabled="submitting" @click="selectAction('resolve')">
+                    <i class="fa fa-archive"></i>
+                    <span>Close</span>
+                </button>
+                <button v-if="canRemove" type="button" class="small f-1" :disabled="submitting" @click="selectAction('remove')">
+                    <i class="fa fa-trash"></i>
+                    <span>Remove</span>
+                </button>
+                <template v-for="topic in report.topics" :key="topic">
+                    <button v-if="canRemoveTopic(topic)" type="button" class="small" :disabled="submitting" @click="selectAction('topic.remove', topic)">
+                        <i class="fa fa-ban"></i>
+                        <span>{{ extractId(topic) }}</span>
                     </button>
-                    <button v-if="canClose" type="button" class="small f-1" @click="closeReport">
-                        <i class="fa fa-archive"></i>
-                        <span>Close</span>
-                    </button>
-                    <button v-if="canRemove" type="button" class="small f-1" @click="removeReport">
-                        <i class="fa fa-trash"></i>
-                        <span>Remove</span>
-                    </button>
-                    <template v-for="topic in report.topics" :key="topic">
-                        <button v-if="canRemoveTopic(topic)" type="button" class="small"  @click="removeTopic(topic)">
-                            <i class="fa fa-ban"></i>
-                            <span>{{ extractId(topic) }}</span>
-                        </button>
-                    </template>
-                    <button v-if="canReopen" type="button" class="small f-1"  @click="reopenReport">
-                        <i class="fa fa-undo"></i>
-                        <span>Reopen</span>
-                    </button>
-                </section>
-            </template>
-        </CollapseTransition>
+                </template>
+                <button v-if="canReopen" type="button" class="small f-1" :disabled="submitting" @click="selectAction('reopen')">
+                    <i class="fa fa-undo"></i>
+                    <span>Reopen</span>
+                </button>
+            </section>
+        </template>
     </article>
 </template>
 

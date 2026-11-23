@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
                 SELECT VALUE id
                 FROM topic
                 WHERE moderators CONTAINS $user
-                ORDER BY score DESC
             );
             RETURN SELECT id, topics, time, status, owner,
                 moderator.{id, name, roles},
@@ -20,8 +19,10 @@ export default defineEventHandler(async (event) => {
             FROM report
             WHERE record::exists(subject)
             AND (subject != $user AND subject.user != $user)
-            AND (topics CONTAINSANY $topics OR $user.roles CONTAINS "admin")
-            // AND (status = "appealed" AND moderator != $user)
+            AND (
+                (topics CONTAINSANY $topics AND (status != "appealed" OR moderator != $user))
+                OR $user.roles CONTAINS "admin"
+            )
             ORDER BY time DESC
         `)
         .addTransaction()

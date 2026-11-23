@@ -171,6 +171,10 @@ it("returns each moderator report once with its assigned topic associations", as
             `topic:${secondTopicId}`,
             `topic:${unassignedTopicId}`,
         ]))
+
+        await admin.query(`UPDATE ${adminReport!.id} SET status = "appealed", moderator = ${reporter.user.id};`)
+        const appealQueue = await reporter.fetch<Report[]>("/api/moderator/reports")
+        expect(appealQueue.some(report => report.id === adminReport!.id)).toBe(false)
     }
     finally {
         await admin.query([
@@ -751,6 +755,7 @@ it("lets a topic moderator remove one topic without removing the submission or r
 it("allows content owners to appeal removal for distinct-moderator review", async () => {
     const content = `Appeal test subject ${Date.now()}`
     const topicId = `appeal${Date.now()}`
+    const unrelatedTopicId = `${topicId}other`
     const originalRoles = JSON.stringify(reporter.user.roles)
     const reportIds: string[] = []
     const threadIds: string[] = []
@@ -783,8 +788,6 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
         expectStatus(secondThreadResponse, 200, "second appeal subject creation stage")
         const secondThread = secondThreadResponse._data!
         threadIds.push(extractId(secondThread.id)!)
-
-        await admin.query(`UPDATE topic:${topicId} SET moderators += ${reporter.user.id};`)
 
         for (const thread of [firstThread, secondThread]) {
             const reportResponse = await admin.fetchRaw("/api/report/send", {
@@ -881,6 +884,28 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
         })
         expectStatus(originalModeratorReview, 403, "distinct moderator review stage")
 
+        for (const decision of ["accept", "reject"]) {
+            const globalDecision = await reporter.fetchRaw(`/api/report/${firstReportId}/appeal/${decision}`, {
+                method: "POST",
+                body: { message: "Topic moderators must use the scoped route." },
+            })
+            expectStatus(globalDecision, 403, `global appeal ${decision} requires admin`)
+        }
+
+        const unassignedModerator = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${firstReportId}/appeal/accept`, {
+            method: "POST",
+            body: { message: "Review the appeal." },
+        })
+        expectStatus(unassignedModerator, 403, "topic appeal requires a moderator assigned to the topic")
+
+        await admin.query(`CREATE ONLY topic:${unrelatedTopicId} SET moderators = [${reporter.user.id}];`)
+        const unrelatedTopic = await reporter.fetchRaw(`/api/topic/${unrelatedTopicId}/reports/${firstReportId}/appeal/reject`, {
+            method: "POST",
+            body: { message: "Review the appeal." },
+        })
+        expectStatus(unrelatedTopic, 404, "topic appeal requires the report to belong to the topic")
+
+        await admin.query(`UPDATE topic:${topicId} SET moderators += ${reporter.user.id};`)
         const emptyAppealDecision = await reporter.fetchRaw(`/api/topic/${topicId}/reports/${firstReportId}/appeal/reject`, {
             method: "POST",
             body: { message: " " },
@@ -968,6 +993,7 @@ it("allows content owners to appeal removal for distinct-moderator review", asyn
             ...reportIds.map(reportId => `DELETE report:${reportId};`),
             ...threadIds.map(threadId => `DELETE thread:${threadId};`),
             `DELETE topic:${topicId};`,
+            `DELETE topic:${unrelatedTopicId};`,
         ].join("\n"))
     }
 })

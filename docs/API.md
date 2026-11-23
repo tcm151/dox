@@ -336,11 +336,11 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `POST` | `/api/report/:id/appeal/{accept,reject}` | Admin | Decides a global report appeal. |
 | `GET` | `/api/profile/appeals/:id` | Authenticated; report owner | Returns the owner's view of a report appeal. |
 | `GET` | [`/api/topic/:topic/reports`](#topic-report-queue) | Moderator/admin; topic-scoped | Lists reports visible in a topic moderation queue. |
-| `POST` | `/api/topic/:topic/reports/:id/{resolve,reopen}` | Assigned moderator/admin | Resolves or reopens a report within a topic. |
+| `POST` | `/api/topic/:topic/reports/:id/{resolve,reopen}` | Assigned moderator for reports in that topic; admin with global scope | Resolves or reopens a report. |
 | `POST` | `/api/topic/:topic/reports/:id/remove-topic` | Assigned moderator | Removes the report subject from one topic. |
 | `POST` | `/api/topic/:topic/reports/:id/remove` | Admin | Removes a report subject through the topic route. |
-| `POST` | `/api/topic/:topic/reports/:id/appeal/{accept,reject}` | Assigned moderator/admin | Decides an appeal in the topic moderation queue. |
-| `GET` | `/api/moderator/reports` | Moderator | Lists visible reports across the current moderator's assigned topics. |
+| `POST` | `/api/topic/:topic/reports/:id/appeal/{accept,reject}` | Assigned moderator for reports in that topic; admin with global scope | Decides a report appeal. |
+| `GET` | `/api/moderator/reports` | Moderator | Lists reports on others' content across assigned topics, excluding appeals of the moderator's own decisions. Moderators with the admin role can see reports outside their assignments and are not filtered by appeal recusal. |
 | `GET` | `/api/admin/logs/moderator` | Admin | Returns the latest 100 moderator log records. |
 
 ### Submit Report
