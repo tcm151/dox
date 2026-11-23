@@ -114,7 +114,7 @@ export function createTestReporter() {
         printTestSummary(testSummaries) {
             const passedTests = testSummaries.reduce((total, summary) => total + summary.passedTests, 0)
             const totalTests = testSummaries.reduce((total, summary) => total + summary.totalTests, 0)
-            console.log(`\n[tests] ${passedTests}/${totalTests} tests passed`)
+            console.log(`\n[results] ${passedTests}/${totalTests} tests passed`)
             return 0
         },
         printTimingSummary({ selectedTestPath, browserMode }) {
@@ -129,21 +129,21 @@ export function createTestReporter() {
             const summary = [
                 `total ${formatDuration(performance.now() - runStartedAt)}`,
                 `startup ${formatDuration(appStartupDuration)}${buildWasCached ? " (cached)" : ""}`,
-                `${selectedTestPath || browserMode ? "fixtures" : "sequential"} ${formatDuration(setupDuration)}`,
+                `${selectedTestPath || browserMode ? "setup" : "sequential"} ${formatDuration(setupDuration)}`,
             ]
-            if (serverTestDuration > 0) summary.push(`server tests ${formatDuration(serverTestDuration)}`)
+            if (serverTestDuration > 0) summary.push(`server ${formatDuration(serverTestDuration)}`)
             if (browserDuration > 0) summary.push(`browser ${formatDuration(browserDuration)}`)
             summary.push(`cleanup ${formatDuration(cleanupDuration)}`)
-            console.log(`\n[test timing] ${summary.join(" | ")}`)
+            console.log(`\n[timings] ${summary.join(" | ")}`)
 
-            const slowFiles = timings
-                .filter(({ label, durationMs }) => label.startsWith("browser file ") && durationMs >= slowFileThresholdMs)
-                .sort((left, right) => right.durationMs - left.durationMs)
-                .slice(0, 5)
-            if (slowFiles.length > 0) {
-                const details = slowFiles.map(({ label, durationMs }) => `${label.replaceAll("\\", "/")}: ${formatDuration(durationMs)}`)
-                console.log(`[slow files >= ${formatDuration(slowFileThresholdMs)}] ${details.join(" | ")}`)
-            }
+            // const slowFiles = timings
+            //     .filter(({ label, durationMs }) => label.startsWith("browser file ") && durationMs >= slowFileThresholdMs)
+            //     .sort((left, right) => right.durationMs - left.durationMs)
+            //     .slice(0, 5)
+            // if (slowFiles.length > 0) {
+            //     const details = slowFiles.map(({ label, durationMs }) => `${label.replaceAll("\\", "/")}: ${formatDuration(durationMs)}`)
+            //     console.log(`[slow files >= ${formatDuration(slowFileThresholdMs)}] ${details.join(" | ")}`)
+            // }
         },
     }
 }

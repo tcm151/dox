@@ -6,7 +6,7 @@ import { performance } from "node:perf_hooks"
 import { createTestReporter, reportVitestFailure } from "./reporting.mjs"
 import { createTestServer } from "./server.mjs"
 
-const parallelWorkers = 2
+const parallelWorkers = 5
 
 export async function runTests({ projectRoot, options }) {
     const { keepOutput, selectedTestPath } = options
