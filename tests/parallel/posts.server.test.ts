@@ -329,7 +329,7 @@ it("allows admins to add post tags without allowing members or authors to remove
 
 it("projects moderation state onto post lists, feed, search, and pinned items", async () => {
     const searchTerm = `projectionmarker${Date.now()}`
-    const previewContent = `${searchTerm} ${"preview text ".repeat(60)}`
+    const previewContent = `${searchTerm} ${"preview text ".repeat(90)}`
     const expectedContent = previewContent.slice(0, 1024)
     const topicId = `projectionTopic${Date.now()}`
     const response = await admin.fetchRaw<Post>("/api/post/add", {
