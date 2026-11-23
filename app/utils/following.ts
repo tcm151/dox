@@ -19,7 +19,7 @@ export const useFollowing = () => {
         }
         if (target.startsWith("topic")) {
             await useApi(`/api/topic/${extractId(target)}/follow`)
-            session.user.topics.push(target)
+            session.user.topics.following.push(target)
         }
         return true
     }
@@ -39,7 +39,7 @@ export const useFollowing = () => {
         }
         if (target.startsWith("topic")) {
             await useApi(`/api/topic/${extractId(target)}/unfollow`)
-            session.user.topics = session.user.topics.filter(t => t !== target)
+            session.user.topics.following = session.user.topics.following.filter(t => t !== target)
         }
         return true
     }

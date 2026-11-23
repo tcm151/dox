@@ -47,7 +47,7 @@ export function useFeedDatasource<T extends { id: string }>(
         loading.value = true
         try {
             const nextPage = await $fetch<FeedPage<T>>(requestUrl, {
-                headers: { Authorization: getSession().tokens.access },
+                headers: { Authorization: session.isAuthenticated ? session.tokens.access : "" },
                 query: {
                     ...requestQuery,
                     pageSize: currentPage.pageSize,

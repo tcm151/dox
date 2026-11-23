@@ -1,7 +1,21 @@
-import type { User, Account } from "@@/shared/types"
+import type { User, Account, Profile, Topic } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
 
 export class UserManager {
+    static async profile(user: User): Promise<Profile> {
+        const moderatedTopics = await new DatabaseQuery()
+            .addSql(`
+                SELECT id, score
+                FROM topic
+                WHERE moderators CONTAINS $user
+                ORDER BY score DESC
+            `)
+            .addRecord("user", user.id)
+            .queryAll<Pick<Topic, "id" | "score">>()
+
+        return { ...user, topics: { following: user.topics, moderates: moderatedTopics.map(topic => topic.id) } }
+    }
+
     static async create(email: string, name: string, password: string): Promise<{ user: User, account: Account }> {
         
         new Validator("User")

@@ -1,5 +1,40 @@
 import { expect, test } from "../utils/browser-fixtures"
 
+test("clears tab state on an app update and preserves local storage", async ({ page, exampleServer }) => {
+    const { user, accessToken } = exampleServer.users.threadAuthor
+    const cacheKey = `cache:${user.id}`
+    const tokens = JSON.stringify({ access: accessToken })
+    const profiles = JSON.stringify([{ id: user.id, name: user.name, token: accessToken }])
+
+    await page.goto("/feed/home")
+    await expect(page.locator("nav").getByText("Login", { exact: true })).toBeVisible()
+    await page.evaluate(({ user, tokens, profiles }) => {
+        sessionStorage.setItem("authenticated", "true")
+        sessionStorage.setItem("user", JSON.stringify(user))
+        localStorage.setItem("tokens", tokens)
+        localStorage.setItem("profiles", profiles)
+    }, { user, tokens, profiles })
+
+    await page.reload()
+    await expect(page.locator("nav").getByText(user.name, { exact: true })).toBeVisible()
+    const top = page.locator('button[title="Top"]')
+    await top.click()
+    await expect.poll(() => page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? "{}")["feed.sort"], cacheKey)).toBe("top")
+
+    await page.reload()
+    await expect(page.locator("nav").getByText(user.name, { exact: true })).toBeVisible()
+    await expect(top).toHaveClass(/\bselected\b/)
+
+    await page.evaluate(() => sessionStorage.setItem("appVersion", "previous-version"))
+    await page.reload()
+    await expect(page.locator("nav").getByText("Login", { exact: true })).toBeVisible()
+    expect(await page.evaluate(key => ({
+        cache: sessionStorage.getItem(key),
+        tokens: localStorage.getItem("tokens"),
+        profiles: localStorage.getItem("profiles"),
+    }), cacheKey)).toEqual({ cache: null, tokens, profiles })
+})
+
 test("closes the Login popup without authenticating", async ({ page }) => {
     await page.goto("/feed")
     await page.locator("nav").getByText("Login", { exact: true }).click()

@@ -30,7 +30,7 @@ async function unfollowTopic() {
 }
 
 let showFollow = computed(() => {
-    return !session.user.topics.includes(props.topic.id)
+    return !session.user.topics.following.includes(props.topic.id)
 })
 </script>
 

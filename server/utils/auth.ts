@@ -1,5 +1,5 @@
 import { isError, type H3Event } from "h3"
-import type { User } from '@@/shared/types'
+import type { Profile, User } from '@@/shared/types'
 import { ReferralManager } from "@@/server/utils/repos/ReferralManager"
 import { SessionManager } from "@@/server/utils/repos/SessionManager"
 import { UserManager } from "@@/server/utils/repos/UserManager"
@@ -43,7 +43,7 @@ export const authenticateLogin = async (event: H3Event) => {
         event.context.account = session.account
         return {
             tokens: { access: session.id },
-            user: session.account.user,
+            user: await UserManager.profile(session.account.user),
         }
     }
     catch (error) {
@@ -81,8 +81,8 @@ export const authenticateOptionalRequest = async (event: H3Event): Promise<User 
     return await authenticateRequest(event)
 }
 
-export const authenticateProfile = async (event: H3Event): Promise<User> => {
-    return await authenticateRequest(event)
+export const authenticateProfile = async (event: H3Event): Promise<Profile> => {
+    return await UserManager.profile(await authenticateRequest(event))
 }
 
 export const invalidateSession = async (event: H3Event, clear: boolean) => {

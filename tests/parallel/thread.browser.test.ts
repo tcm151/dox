@@ -1,4 +1,4 @@
-import { expect, test } from "../utils/browser-fixtures"
+import { expect, seedBrowserSession, test } from "../utils/browser-fixtures"
 
 const sampleThread = "A representative thread seeded for browser integration tests."
 
@@ -59,11 +59,7 @@ test("shows a sign-in hint when a guest tries to reply", async ({ page }) => {
 
 test("shows the edit action to the thread author", async ({ page, exampleServer }) => {
     const threadAuthor = exampleServer.users.threadAuthor
-    await page.addInitScript((session) => {
-        window.sessionStorage.setItem("authenticated", JSON.stringify(true))
-        window.sessionStorage.setItem("user", JSON.stringify(session.user))
-        window.localStorage.setItem("tokens", JSON.stringify({ access: session.accessToken }))
-    }, threadAuthor)
+    await seedBrowserSession(page, threadAuthor)
     await page.goto("/feed/threads")
 
     const threadPreview = page.locator(".thread.clickable").filter({ hasText: sampleThread })
@@ -84,11 +80,7 @@ test("hides thread tag actions from moderators without topic assignment", async 
         const thread = await response.json()
         await route.fulfill({ response, json: { ...thread, topics: ["topic:unassignedBrowserTest"] } })
     })
-    await page.addInitScript((session) => {
-        window.sessionStorage.setItem("authenticated", JSON.stringify(true))
-        window.sessionStorage.setItem("user", JSON.stringify(session.user))
-        window.localStorage.setItem("tokens", JSON.stringify({ access: session.accessToken }))
-    }, session)
+    await seedBrowserSession(page, session)
     await page.goto("/feed/threads")
 
     const threadPreview = page.locator(".thread.clickable").filter({ hasText: sampleThread })

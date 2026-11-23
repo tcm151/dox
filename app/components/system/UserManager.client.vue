@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import type { User } from '@@/shared/types'
+import type { Profile } from '@@/shared/types'
 
 const hints = useHints()
 const events = useEvents()
 const session = getSession()
 
-interface Profile {
+interface SavedProfile {
     id: string
     name: string
     token: string
 }
 
-const accounts = useLocalStorage<Profile[]>("profiles", [])
+const accounts = useLocalStorage<SavedProfile[]>("profiles", [])
 const otherAccounts = computed(() => {
     return (session.isAuthenticated)
         ? accounts.value.filter(u => u.id != session.user.id)
         : accounts.value
 })
 
-events.subscribe(Trigger.authenticatedUser, (payload: { user: User, token: string }): void => {
+events.subscribe(Trigger.authenticatedUser, (payload: { user: Profile, token: string }): void => {
     accounts.value = accounts.value.filter(u => u.id != payload.user.id)
     accounts.value.unshift({
         id: payload.user.id,
@@ -27,14 +27,14 @@ events.subscribe(Trigger.authenticatedUser, (payload: { user: User, token: strin
     })
 })
 
-events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: User, clear: boolean }) => {
+events.subscribe(Trigger.userLoggedOut, ({ user, clear }: { user: Profile, clear: boolean }) => {
     if (clear) {
         accounts.value = accounts.value.filter(u => u.id != user.id)
     }
 })
 
 const waiting = ref<string>("")
-async function useLogin(profile: Profile) {
+async function useLogin(profile: SavedProfile) {
     try {
         waiting.value = profile.id
         await session.authenticate(profile.token)
@@ -50,7 +50,7 @@ async function useLogin(profile: Profile) {
     }
 }
 
-async function removeLogin(profile: Profile) {
+async function removeLogin(profile: SavedProfile) {
     try {
         await useApi("/api/profile/logout", {
             headers: {

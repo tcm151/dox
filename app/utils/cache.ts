@@ -6,7 +6,7 @@ export const useCache = defineStore("cache", () => {
     const session = getSession()
 
     function refresh() {
-        return useLocalStorage<Record<string, any>>(`cache:${session.user.id}`, {})
+        return useSessionStorage<Record<string, any>>(`cache:${session.user.id}`, {})
     }
         
     let cache = refresh()

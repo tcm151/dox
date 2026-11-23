@@ -1,10 +1,10 @@
 import { expect, it } from "vitest"
 import { expectStatus, fetch, stashUser, testAdminCredentials } from "../utils/test-server"
-import type { User } from "../../shared/types"
+import type { Profile } from "../../shared/types"
 
 type LoginResponse = {
     tokens: { access: string }
-    user: User
+    user: Profile
 }
 
 it("logs in with the configured default account", async () => {
@@ -26,8 +26,10 @@ it("logs in with the configured default account", async () => {
     })
     expectStatus(profileResponse, 200)
 
-    const profile = await profileResponse.json() as User
+    const profile = await profileResponse.json() as Profile
     expect(profile.id).toBe(result.user.id)
+    expect(profile.topics).toEqual(result.user.topics)
+    expect(profile.topics).toMatchObject({ following: expect.any(Array), moderates: expect.any(Array) })
     expect(profile.votes.awards).toEqual([])
     expect(profile.votes.saves).toEqual([])
 

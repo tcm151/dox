@@ -26,8 +26,8 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | `GET` | [`/api/health`](#health) | Public; no authentication | Reports application readiness and database health. |
 | `POST` | `/api/user/register` | Public | Creates an account and initial session; unexpected database failures return `500`. |
 | `POST` | [`/api/profile/login`](#login) | Public; credentials required | Authenticates credentials and creates an access session. |
-| `POST` | `/api/profile` | Authenticated | Returns the current user's authenticated profile. |
-| `GET` | `/api/profile/authenticate` | Authenticated | Resolves the current access token to the signed-in user. |
+| `POST` | `/api/profile` | Authenticated | Returns the signed-in profile, including followed and moderated topic IDs. |
+| `GET` | `/api/profile/authenticate` | Authenticated | Resolves the current access token to the same signed-in profile. |
 | `POST` | `/api/profile/logout` | Authenticated | Invalidates the supplied session when `clear` is requested. |
 | `GET` | `/api/profile/account` | Authenticated | Returns the current account details. |
 | `POST` | `/api/profile/update` | Authenticated | Updates the current user's name, link, and description. |
@@ -58,7 +58,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Method: the client uses `POST` through `useApi`; the current authentication test sends `GET`, which the generic handler also accepts. Align the test and handler with the intended `POST` contract.
 - Access: no existing session is required; credentials are supplied in the `Authorization` header.
 - Request: `Authorization` contains base64-encoded `username:password`; no body.
-- `200`: `{ user, tokens: { access } }`.
+- `200`: `{ user, tokens: { access } }`. The `user` is the same `Profile` returned by `/api/profile` and `/api/profile/authenticate`: `topics` is `{ following: string[], moderates: string[] }`, containing record IDs. `moderates` reports topic assignments, not authorization to perform moderation actions. Public user responses still use an array of followed topic IDs.
 - `401`: credentials cannot be authenticated.
 - `500`: unexpected database failure.
 - Side effects: creates a session and associates the account with the request.

@@ -1,5 +1,5 @@
 import { skipHydrate } from "pinia"
-import type { Topic, User } from "@@/shared/types"
+import type { Profile } from "@@/shared/types"
 
 interface Tokens {
     access: string
@@ -12,10 +12,10 @@ export const getSession = defineStore("session", () => {
     //> SESSION
     const isAuthenticated = useSessionStorage<boolean>("authenticated", false)
     const tokens = useLocalStorage<Tokens>("tokens", { access: "" })
-    const user = useSessionStorage<User>("user", () => ({
+    const user = useSessionStorage<Profile>("user", () => ({
         id: 'user:temp',
         name: '',
-        topics: [],
+        topics: { following: [], moderates: [] },
         followers: [],
         following: [],
         time: "",
@@ -34,58 +34,28 @@ export const getSession = defineStore("session", () => {
         },
     }))
 
-    const moderator = useSessionStorage<{ topics: string[] }>("moderator", { topics: [] })
-
     function moderates(topicIds: string | string[]): boolean {
+        if (!hasRole(user.value, "moderator")) return false
         const topics = Array.isArray(topicIds) ? topicIds : [topicIds]
-        return topics.every(t => moderator.value.topics.includes(t))
+        return topics.every(topic => user.value.topics.moderates.includes(topic))
     }
 
     function moderatesAny(topicIds: string[]): boolean {
-        return topicIds.some(t => moderator.value.topics.some(m => m === t))
-    }
-
-    async function getModeratorTopics(): Promise<void> {
-        if (!hasRole(user.value, "moderator")) {
-            moderator.value = { topics: [] }
-            return
-        }
-
-        try {
-            const topics = await useApi<Topic[]>("/api/moderator/topics")
-            moderator.value = { topics: topics.map(topic => topic.id) }
-        }
-        catch (error: any) {
-            moderator.value = { topics: [] }
-        }
-    }
-
-    events.subscribe(Trigger.authenticatedUser, async () => {
-        await getModeratorTopics()
-    })
-
-    // TODO this doesn't seem to update when a user switches profiles
-    if (ENV.isClient() && isAuthenticated.value && hasRole(user.value, "moderator")) {
-        void getModeratorTopics()
+        return topicIds.some(topic => moderates(topic))
     }
 
     async function refreshProfile(): Promise<void> {
-        try {
-            user.value = await useApi<User>('/api/profile')
-            await getModeratorTopics()
-        }
-        catch (error: any) {
-            throw createError({
-                status: 401,
-                statusText: "You don't exist."
-            })
+        const accessToken = tokens.value.access
+        const profile = await useApi<Profile>("/api/profile")
+        if (isAuthenticated.value && tokens.value.access === accessToken && user.value.id === profile.id) {
+            user.value = profile
         }
     }
 
     //> AUTH
     async function authenticate(existingToken?: string): Promise<void> {
         let token = existingToken ?? tokens.value.access
-        user.value = await useApi<User>("/api/profile/authenticate", {
+        user.value = await useApi<Profile>("/api/profile/authenticate", {
             headers: {
                 Authorization: token
             }
@@ -99,7 +69,7 @@ export const getSession = defineStore("session", () => {
     }
 
     async function login(id: string, password: string): Promise<void> {
-        let result = await useApi<{ user: User, tokens: Tokens }>("/api/profile/login", {
+        let result = await useApi<{ user: Profile, tokens: Tokens }>("/api/profile/login", {
             headers: {
                 Authorization: btoa(`${id}:${password}`),
             }
@@ -119,7 +89,7 @@ export const getSession = defineStore("session", () => {
                 clear: clear
             }
         })
-        moderator.value = { topics: [] }
+        user.value.topics.moderates = []
         events.publish(Trigger.userLoggedOut, { user: user.value, clear: clear })
         isAuthenticated.value = false
         if (clear == true) {
@@ -129,7 +99,7 @@ export const getSession = defineStore("session", () => {
             user.value = {
                 id: 'user:temp',
                 name: '',
-                topics: [],
+                topics: { following: [], moderates: [] },
                 followers: [],
                 following: [],
                 visits: 0,
@@ -153,7 +123,6 @@ export const getSession = defineStore("session", () => {
     return {
         user: skipHydrate(user),
         tokens: skipHydrate(tokens),
-        moderator: skipHydrate(moderator),
         isAuthenticated: skipHydrate(isAuthenticated),
         moderates,
         moderatesAny,

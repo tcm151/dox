@@ -11,7 +11,7 @@ export function useDatasource<T>(
     const datasource = useFetch(url, {
         deep: true,
         headers: computed(() => ({
-            Authorization: session.tokens.access
+            Authorization: session.isAuthenticated ? session.tokens.access : ""
         })),
         ...options
     })
@@ -64,7 +64,7 @@ export async function useApi<T>(
     const response = await $fetch<T>(url, {
         method: "POST",
         headers: {
-            Authorization: session.tokens.access
+            Authorization: session.isAuthenticated ? session.tokens.access : ""
         },
         ...options
     })

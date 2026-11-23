@@ -5,8 +5,7 @@ import { inspect } from "node:util"
 import { expect } from "vitest"
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { dirname, join } from "node:path"
-import type { User } from "../../shared/types"
-import { isObject, isValidUser } from "../../shared/utils/validation"
+import { isObject, isValidProfile } from "../../shared/utils/validation"
 import type { TExampleServer, TSession } from "./test-sessions"
 
 export type { TExampleServer, TSession }
@@ -136,7 +135,7 @@ function isValidSession(value: unknown): value is TSession {
     if (!isObject(value)) return false
 
     const session = value as Record<string, unknown>
-    return typeof session.accessToken === "string" && isValidUser(session.user)
+    return typeof session.accessToken === "string" && isValidProfile(session.user)
 }
 
 export { fetch }

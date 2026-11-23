@@ -1,7 +1,7 @@
-import type { User } from "../../shared/types"
+import type { Profile } from "../../shared/types"
 
 export type TSession = {
-    user: User
+    user: Profile
     accessToken: string
 }
 

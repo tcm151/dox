@@ -1,18 +1,15 @@
-import { expect, test } from "../utils/browser-fixtures"
+import { expect, seedBrowserSession, test } from "../utils/browser-fixtures"
 import type { Locator, Page } from "@playwright/test"
 import type { Comment, Post, Thread } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
+import type { TSession } from "../utils/test-sessions"
 
 function apiUrl(page: Page, path: string) {
     return new URL(path, page.url()).toString()
 }
 
-async function signInAs(page: Page, session: { user: { id: string, name: string }, accessToken: string }) {
-    await page.addInitScript((profile) => {
-        window.sessionStorage.setItem("authenticated", JSON.stringify(true))
-        window.sessionStorage.setItem("user", JSON.stringify(profile.user))
-        window.localStorage.setItem("tokens", JSON.stringify({ access: profile.accessToken }))
-    }, session)
+async function signInAs(page: Page, session: TSession) {
+    await seedBrowserSession(page, session)
     await page.goto("/feed")
     await expect(page.locator("nav").getByText(session.user.name, { exact: true })).toBeVisible()
 }

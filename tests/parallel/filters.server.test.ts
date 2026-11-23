@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { expect, it } from "vitest"
-import type { Comment, FeedPage, Gallery, Link, Post, SearchResult, Thread, Topic, User } from "../../shared/types"
+import type { Comment, FeedPage, Gallery, Link, Post, Profile, SearchResult, Thread, Topic, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabUser, uniqueTestIp } from "../utils/test-server"
 
@@ -246,7 +246,7 @@ it("mutes and blocks topics, and does not restore a follow after unblocking", as
         expect(filters.muted.map(topic => topic.id)).toContain(`topic:${topicId}`)
         expect(filters.blocked.map(topic => topic.id)).toContain(`topic:${topicId}`)
         let profile = await accountFetch(actor, "/api/profile/authenticate")
-        expect((await profile.json() as User).topics).not.toContain(`topic:${topicId}`)
+        expect((await profile.json() as Profile).topics.following).not.toContain(`topic:${topicId}`)
 
         expectStatus(await accountFetch(actor, "/api/profile/filters/unblock", { target: `topic:${topicId}` }), 200)
         expectStatus(await accountFetch(actor, "/api/profile/filters/unmute", { target: `topic:${topicId}` }), 200)
@@ -254,7 +254,7 @@ it("mutes and blocks topics, and does not restore a follow after unblocking", as
         expect(filters.blocked).toHaveLength(0)
         expect(filters.muted).toHaveLength(0)
         profile = await accountFetch(actor, "/api/profile/authenticate")
-        expect((await profile.json() as User).topics).not.toContain(`topic:${topicId}`)
+        expect((await profile.json() as Profile).topics.following).not.toContain(`topic:${topicId}`)
     }
     finally {
         await cleanupTestData(accounts, postId, topicId, threadId)

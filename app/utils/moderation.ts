@@ -1,6 +1,4 @@
-import type { Report, Topic } from "#shared/types"
-
-type ResolutionAction = "resolve" | "remove" | "remove-topic"
+import type { Topic } from "#shared/types"
 
 export const useModeration = () => {
 
@@ -10,7 +8,7 @@ export const useModeration = () => {
 
     function canRequestTopic(topic: Topic) {
         return topic.moderators.length < settings.app.moderation.perTopic
-            && session.user.topics.includes(topic.id)
+            && session.user.topics.following.includes(topic.id)
             && hasTrait(session.user, "confirmed")
             && !session.moderates(topic.id)
     }

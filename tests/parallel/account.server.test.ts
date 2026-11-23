@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import type { Comment, Draft, Post, Thread, User } from "../../shared/types"
+import type { Comment, Draft, Post, Profile, Thread, User } from "../../shared/types"
 import { extractId } from "../../shared/utils/records"
 import { expectStatus, fetch, grabExampleServer, grabUser, testAdminCredentials, uniqueTestIp } from "../utils/test-server"
 
@@ -22,11 +22,11 @@ async function createAccount() {
         headers: { Authorization: accessToken },
     })
     expectStatus(profileResponse, 200, "account authentication stage")
-    const user = await profileResponse.json() as User
+    const user = await profileResponse.json() as Profile
     return { accessToken, user, username }
 }
 
-async function getAccountRecordId(user: User) {
+async function getAccountRecordId(user: Pick<User, "id">) {
     const accounts = await admin.query<Array<Array<{ id: string }>>>(
         `SELECT id FROM account WHERE user = ${user.id};`,
     )
@@ -79,7 +79,7 @@ async function createPost(accessToken: string, title: string, content: string) {
 }
 
 async function cleanupTestData(
-    user: User,
+    user: Pick<User, "id">,
     accessToken: string,
     postIds: string[],
     threadIds: string[],
@@ -100,7 +100,7 @@ async function cleanupTestData(
     await admin.query(statements.join("\n"))
 }
 
-async function cleanupConfirmationAccount(account: { accessToken: string, user: User }) {
+async function cleanupConfirmationAccount(account: { accessToken: string, user: Pick<User, "id"> }) {
     const accountId = await getAccountRecordId(account.user)
     await admin.query(`DELETE accountConfirmation WHERE account = ${accountId};`)
     await cleanupTestData(account.user, account.accessToken, [], [])
@@ -237,7 +237,7 @@ it("rejects invalid account confirmation records without confirming an account",
 
         const profileResponse = await accountFetch(account.accessToken, "/api/profile/authenticate")
         expectStatus(profileResponse, 200)
-        const profile = await profileResponse.json() as User
+        const profile = await profileResponse.json() as Profile
         expect(profile.traits).not.toContain("confirmed")
 
         const uploadResponse = await fetch("/api/image/upload", {
@@ -274,7 +274,7 @@ it("confirms the linked account once under concurrent redemption", async () => {
 
         const profileResponse = await accountFetch(account.accessToken, "/api/profile/authenticate")
         expectStatus(profileResponse, 200)
-        const profile = await profileResponse.json() as User
+        const profile = await profileResponse.json() as Profile
         expect(profile.traits).toContain("confirmed")
 
         const confirmation = await admin.query<Array<Array<{ used: boolean }>>>(
@@ -423,26 +423,37 @@ it("wipes interacted submissions and permanently deletes unreferenced submission
 
 it("reuses the admin session saved during sequential setup", async () => {
     const admin = await grabUser("admin")
-    const user = await admin.fetch<User>("/api/profile/authenticate")
+    const user = await admin.fetch<Profile>("/api/profile/authenticate")
     expect(user.id).toBe(admin.user.id)
     expect(user.name).toBe(admin.user.name)
-    expect(user).not.toHaveProperty("moderatedTopics")
 })
 
-it("keeps moderator topics separate from the authenticated user", async () => {
-    const admin = await grabUser("admin")
-    const topicId = `sessionModeratorTopic${Date.now()}`
-
-    await admin.query(`CREATE ONLY topic:${topicId} SET moderators = [${admin.user.id}];`)
+it("groups followed and moderated topics only in the authenticated profile", async () => {
+    const { accessToken, user } = await createAccount()
+    const followed = `topic:followed${user.name}`
+    const moderated = `topic:moderated${user.name}`
     try {
-        const user = await admin.fetch<User>("/api/profile/authenticate")
-        expect(user).not.toHaveProperty("moderatedTopics")
+        await admin.query(`
+            CREATE ONLY ${followed};
+            CREATE ONLY ${moderated} SET moderators = [${user.id}];
+            UPDATE ${user.id} SET topics = [${followed}], roles = ["moderator"];
+        `)
+        const profile = await accountFetch(accessToken, "/api/profile", {})
+        expectStatus(profile, 200)
+        expect((await profile.json() as Profile).topics).toEqual({ following: [followed], moderates: [moderated] })
 
-        const topics = await admin.fetch<Array<{ id: string }>>("/api/moderator/topics")
-        expect(topics.map(topic => topic.id)).toContain(`topic:${topicId}`)
+        const publicProfile = await accountFetch(accessToken, `/api/user/${extractId(user.id)}`)
+        expectStatus(publicProfile, 200)
+        expect((await publicProfile.json() as User).topics).toEqual([followed])
+
+        await admin.query(`UPDATE ${moderated} SET moderators = [];`)
+        const refreshed = await accountFetch(accessToken, "/api/profile", {})
+        expectStatus(refreshed, 200)
+        expect((await refreshed.json() as Profile).topics).toEqual({ following: [followed], moderates: [] })
     }
     finally {
-        await admin.query(`DELETE topic:${topicId};`)
+        await cleanupTestData(user, accessToken, [], [])
+        await admin.query(`DELETE ${followed}; DELETE ${moderated};`)
     }
 })
 

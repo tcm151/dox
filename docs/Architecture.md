@@ -144,7 +144,8 @@ Auth implementation resides in `server/utils/auth.ts`:
 - `invalidateSession`: logout/invalidation path
 
 Client auth state is managed in `app/utils/session.ts`:
-- Token persistence in local/session storage
+- Access tokens and saved profiles persist in local storage. Ordinary client requests only use the active token when the tab is signed in.
+- The client clears session storage before initializing the app when a tab has no app-version marker or its marker differs from the running package version. This resets the active sign-in and `useCache()` values for that tab without clearing local storage. Reloads on the same version keep the tab's state.
 - Profile hydration via `/api/profile`
 - Login/logout flows and event publication
 

@@ -49,6 +49,13 @@ export interface User extends Voteable {
     traits: Trait[]
 }
 
+export interface Profile extends Omit<User, "topics"> {
+    topics: {
+        following: string[]
+        moderates: string[]
+    }
+}
+
 export type UserSummary = Pick<User, "id" | "name" | "roles">
 
 export type Role = "admin" | "developer" | "moderator"

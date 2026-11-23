@@ -1,7 +1,17 @@
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { expect, test as base, type Page } from "@playwright/test"
+import packageJson from "../../package.json"
 import type { TExampleServer, TSession } from "./test-sessions"
+
+export async function seedBrowserSession(page: Page, session: TSession) {
+    await page.addInitScript(({ session, version }) => {
+        window.sessionStorage.setItem("appVersion", version)
+        window.sessionStorage.setItem("authenticated", JSON.stringify(true))
+        window.sessionStorage.setItem("user", JSON.stringify(session.user))
+        window.localStorage.setItem("tokens", JSON.stringify({ access: session.accessToken }))
+    }, { session, version: packageJson.version })
+}
 
 function getTestDataDirectory() {
     const directory = process.env.CLASSICFORUM_TEST_DATA_DIRECTORY
@@ -43,11 +53,7 @@ export const test = base.extend<BrowserFixtures>({
             throw new Error("The browser admin session was not seeded by the sequential setup phase.")
         }
 
-        await page.addInitScript((session) => {
-            window.sessionStorage.setItem("authenticated", JSON.stringify(true))
-            window.sessionStorage.setItem("user", JSON.stringify(session.user))
-            window.localStorage.setItem("tokens", JSON.stringify({ access: session.accessToken }))
-        }, adminSession)
+        await seedBrowserSession(page, adminSession)
         await page.goto("/feed")
         await expect(page.locator("nav").getByText(adminSession.user.name, { exact: true })).toBeVisible()
         await use(page)

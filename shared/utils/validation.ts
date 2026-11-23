@@ -1,4 +1,4 @@
-import type { User } from "../types"
+import type { Profile, User } from "../types"
 import { parseRecordId } from "./records"
 
 export const useValidation = () => {
@@ -47,6 +47,13 @@ export function isValidUser(value: unknown): value is User {
         && isTraitArray(value.traits)
         && (value.link === undefined || typeof value.link === "string")
         && (value.description === undefined || typeof value.description === "string")
+}
+
+export function isValidProfile(value: unknown): value is Profile {
+    return isObject(value)
+        && isObject(value.topics)
+        && isStringArray(value.topics.moderates)
+        && isValidUser({ ...value, topics: value.topics.following })
 }
 
 export function isRecordWithValidId(value: unknown): value is { id: string } {

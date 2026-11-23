@@ -1,7 +1,7 @@
 import { expect, test } from "../utils/browser-fixtures"
 import type { Page } from "@playwright/test"
 import { extractId } from "../../shared/utils/records"
-import type { User, UserSettings } from "../../shared/types"
+import type { Profile, UserSettings } from "../../shared/types"
 
 const adminName = process.env.CLASSICFORUM_TEST_ADMIN_NAME!
 const adminPassword = process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD!
@@ -109,7 +109,7 @@ async function cleanupNotifications(page: Page, accessToken: string, fixtures: N
 test("keeps preference responses and saves scoped to the active profile", async ({ authenticatedPage: page, exampleServer }) => {
     test.setTimeout(60_000)
     const adminToken = await page.evaluate(() => JSON.parse(localStorage.getItem("tokens") ?? "{}").access as string)
-    const adminUser = await page.evaluate(() => JSON.parse(sessionStorage.getItem("user") ?? "{}")) as User
+    const adminUser = await page.evaluate(() => JSON.parse(sessionStorage.getItem("user") ?? "{}")) as Profile
     const profile = exampleServer.users.threadAuthor
     const adminSettings = await getUserSettings(page, adminToken)
     const originalProfileSettings = await getUserSettings(page, profile.accessToken)
