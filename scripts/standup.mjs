@@ -24,6 +24,7 @@ const requiredSections = [
     "Relevant Files",
     "Progress Log",
 ]
+const rootStates = ["Planned", "In Progress", "Paused", "Blocked"]
 const laneNames = ["In Progress", "Paused", "Blocked", "Planned", "Backlog", "Completed", "Invalid"]
 
 function usage() {
@@ -206,7 +207,9 @@ function parseTicket(file, ticketsRoot, text) {
     const relativeDirectory = relative(ticketsRoot, dirname(file))
     const folder = relativeDirectory ? relativeDirectory.split(/[\\/]/)[0] : "root"
     const statusSection = getSectionContent(text, "Status")
+    const state = getStatusField(statusSection, "State")
     const dependencyData = getDependencies(getSectionContent(text, "Dependencies"))
+    const notes = getSectionContent(text, "Notes")
     const headings = [...text.matchAll(/^##\s+(.+?)\s*$/gm)].map(match => match[1].trim())
     const missingSections = requiredSections.filter(section => !headings.includes(section))
     const presentExpected = expectedSections.filter(section => headings.includes(section))
@@ -236,12 +239,14 @@ function parseTicket(file, ticketsRoot, text) {
         title: heading.groups.title.trim(),
         file,
         folder,
-        state: getStatusField(statusSection, "State"),
+        state,
         priority: getStatusField(statusSection, "Priority"),
         next: getStatusField(statusSection, "Next"),
         dependencies: dependencyData.dependencies,
         invalidDependencyEntries: dependencyData.invalidEntries,
-        lane: getLane(getStatusField(statusSection, "State"), folder),
+        hasDependenciesSection: headings.includes("Dependencies"),
+        hasLinkedTicketInNotes: /\[[^\]\n]+\]\((?:[^)\s]*\/)?\d{4}-[^)\s/#]+\.md(?:#[^)\s]*)?\)/.test(notes),
+        lane: getLane(state, folder),
         missingSections,
         unexpectedSections,
         sectionOrderValid: presentExpected.join("|") === actualExpected.join("|"),
@@ -257,12 +262,9 @@ function parseTicket(file, ticketsRoot, text) {
 }
 
 function getLane(state, folder) {
-    if (["In Progress", "Paused", "Blocked", "Completed"].includes(state)) return state
-    if (state === "Planned") {
-        if (folder === "root") return "Planned"
-        if (folder === "backlog") return "Backlog"
-        return "Invalid"
-    }
+    if (folder === "root" && rootStates.includes(state)) return state
+    if (folder === "backlog" && state === "Deferred") return "Backlog"
+    if (folder === "completed" && state === "Completed") return "Completed"
     return "Invalid"
 }
 
@@ -305,7 +307,7 @@ function addTicketIssues(ticket, ticketsById, duplicateIds) {
         ticket.issues.push(`duplicate ticket ID '${ticket.id}' appears in ${duplicateIds.get(ticket.id)} files`)
     }
     if (!ticket.state) ticket.issues.push("missing State")
-    else if (!["Planned", "In Progress", "Paused", "Blocked", "Completed"].includes(ticket.state)) {
+    else if (![...rootStates, "Deferred", "Completed"].includes(ticket.state)) {
         ticket.issues.push(`invalid State '${ticket.state}'`)
     }
     if (!ticket.priority) ticket.issues.push("missing Priority")
@@ -327,6 +329,11 @@ function addTicketIssues(ticket, ticketsById, duplicateIds) {
     if (ticket.folder !== "completed" && ticket.state === "Completed") {
         ticket.issues.push("completed but outside folder")
     }
+    if (ticket.folder === "backlog" && ticket.state !== "Deferred") {
+        ticket.issues.push("backlog ticket must use State: Deferred")
+    } else if (ticket.folder !== "backlog" && ticket.state === "Deferred") {
+        ticket.issues.push("deferred ticket must be in backlog")
+    }
     if (ticket.missingSections.length) {
         ticket.issues.push(`missing sections: ${ticket.missingSections.join(", ")}`)
     }
@@ -341,11 +348,20 @@ function addTicketIssues(ticket, ticketsById, duplicateIds) {
     if (ticket.state === "Completed" && ticket.uncheckedTasks.length) {
         ticket.issues.push(`completed ticket has unchecked Tasks: ${ticket.uncheckedTasks.join("; ")}`)
     }
+    if (ticket.hasDependenciesSection && ticket.state === "Completed") {
+        ticket.issues.push("completed ticket should not have a Dependencies section")
+    } else if (ticket.hasDependenciesSection && !ticket.dependencies.length && !ticket.invalidDependencyEntries.length) {
+        ticket.issues.push("empty Dependencies section should be removed")
+    }
+    if (ticket.hasLinkedTicketInNotes) ticket.issues.push("use plain ticket numbers instead of ticket links in Notes")
     for (const entry of ticket.invalidDependencyEntries) {
         ticket.issues.push(`invalid dependency entry: ${entry}`)
     }
 
     for (const dependency of ticket.dependencies) {
+        if (ticket.state !== "Completed" && !duplicateIds.has(dependency.id) && ticketsById.get(dependency.id)?.lane === "Completed") {
+            ticket.issues.push(`remove completed prerequisite ${dependency.id}`)
+        }
         if (isAbsolute(dependency.path) || /^[A-Za-z]:[\\/]/.test(dependency.path)) {
             ticket.issues.push(`dependency path must be relative: ${dependency.path}`)
             continue
@@ -412,10 +428,10 @@ function getCandidates(tickets, duplicateIds, selectedPriority) {
 function printPriorityCounts(tickets) {
     const priorityBuckets = [
         ["Active/root", tickets.filter(ticket => ticket.folder === "root" && ["Planned", "In Progress"].includes(ticket.state))],
-        ["Paused", tickets.filter(ticket => ticket.state === "Paused")],
-        ["Blocked", tickets.filter(ticket => ticket.state === "Blocked")],
-        ["Backlog", tickets.filter(ticket => ticket.folder === "backlog" && ticket.state === "Planned")],
-        ["Completed", tickets.filter(ticket => ticket.state === "Completed")],
+        ["Paused", tickets.filter(ticket => ticket.lane === "Paused")],
+        ["Blocked", tickets.filter(ticket => ticket.lane === "Blocked")],
+        ["Backlog", tickets.filter(ticket => ticket.lane === "Backlog")],
+        ["Completed", tickets.filter(ticket => ticket.lane === "Completed")],
     ]
     console.log("Priority counts (High/Medium/Low):")
     for (const [name, bucket] of priorityBuckets) {
@@ -429,7 +445,7 @@ function printCurrentWork(tickets, selectedPriority) {
     console.log("Current work:")
     const currentWork = tickets
         .filter(ticket => (
-            ["In Progress", "Paused", "Blocked"].includes(ticket.state)
+            ["In Progress", "Paused", "Blocked"].includes(ticket.lane)
             && (!selectedPriority || ticket.priority === selectedPriority)
         ))
         .sort((first, second) => Number(first.id) - Number(second.id))
@@ -467,8 +483,7 @@ function printBacklog(tickets, selectedPriority, limit) {
     const priorityOrder = new Map([["High", 0], ["Medium", 1], ["Low", 2]])
     const backlog = tickets
         .filter(ticket => (
-            ticket.folder === "backlog"
-            && ticket.state === "Planned"
+            ticket.lane === "Backlog"
             && (!selectedPriority || ticket.priority === selectedPriority)
         ))
         .sort((first, second) => (
@@ -508,14 +523,19 @@ function getDependencyWarnings(tickets, ticketsById, duplicateIds) {
     const dependencyWarnings = []
     for (const ticket of tickets) {
         for (const dependency of ticket.dependencies) {
+            const prerequisite = ticketsById.get(dependency.id)
             if (dependency.id === ticket.id) {
                 dependencyWarnings.push(`${ticket.id} depends on itself`)
             } else if (duplicateIds.has(dependency.id)) {
                 dependencyWarnings.push(`${ticket.id} depends on ambiguous ID ${dependency.id} (duplicate ticket IDs)`)
-            } else if (!ticketsById.has(dependency.id)) {
+            } else if (!prerequisite) {
                 dependencyWarnings.push(`${ticket.id} has unknown dependency ${dependency.id}`)
-            } else if (ticketsById.get(dependency.id).state !== "Completed") {
-                dependencyWarnings.push(`${ticket.id} depends on ${dependency.id} (${ticketsById.get(dependency.id).state})`)
+            } else if (prerequisite.lane === "Completed") {
+                dependencyWarnings.push(`${ticket.id} should remove completed prerequisite ${dependency.id}`)
+            } else if (prerequisite.lane === "Invalid") {
+                dependencyWarnings.push(`${ticket.id} depends on ${dependency.id} (invalid folder or state)`)
+            } else {
+                dependencyWarnings.push(`${ticket.id} depends on ${dependency.id} (${prerequisite.state})`)
             }
         }
     }
@@ -551,9 +571,10 @@ function printTicketDetail(ticket, ticketsRoot, ticketsById, duplicateIds) {
         console.log("  None recorded")
     } else {
         for (const dependency of ticket.dependencies) {
+            const prerequisite = ticketsById.get(dependency.id)
             let state = "unknown"
             if (duplicateIds.has(dependency.id)) state = "duplicate ID"
-            else if (ticketsById.has(dependency.id)) state = ticketsById.get(dependency.id).state
+            else if (prerequisite) state = prerequisite.lane === "Invalid" ? "invalid folder or state" : prerequisite.state
             console.log(`  ${dependency.id} [${state}] ${dependency.reason}`)
         }
     }
@@ -658,8 +679,7 @@ async function main() {
     for (const ticket of tickets) {
         ticket.pendingDependencies = ticket.dependencies.filter(dependency => (
             duplicateIds.has(dependency.id)
-            || !ticketsById.has(dependency.id)
-            || ticketsById.get(dependency.id).state !== "Completed"
+            || ticketsById.get(dependency.id)?.lane !== "Completed"
         ))
         addTicketIssues(ticket, ticketsById, duplicateIds)
     }
