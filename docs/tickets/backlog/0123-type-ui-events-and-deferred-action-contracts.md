@@ -2,7 +2,7 @@
 
 ## Status
 - State: Planned
-- Priority: Medium
+- Priority: Low
 - Next: Inventory active Trigger payloads and their component versus store subscription lifetimes.
 
 ## Goal
