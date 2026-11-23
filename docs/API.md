@@ -261,7 +261,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - `400`: invalid URL or a target/redirect resolving to a private or reserved address. `401`: no valid session. `429`: more than 60 requests per minute from the same client address.
 - Side effects: performs a remote HTML/JSON request and caches its result in memory for ten minutes. DNS lookups, idle socket timeouts, redirect count, and response size are limited; an absolute request deadline remains tracked in [Ticket 0040](tickets/completed/0040-safe-link-metadata-previews.md).
 - Source: [route](../server/api/link/preview.ts), [preview manager](../server/utils/LinkPreviewManager.ts).
-- Tests: [preview manager and endpoint tests](../tests/parallel/link-preview.server.test.ts).
+- Tests: [preview manager and endpoint tests](../tests/parallel/links.server.test.ts).
 
 ### Thread Reply
 

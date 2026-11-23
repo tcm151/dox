@@ -29,10 +29,10 @@ The phases are:
 
 1. Full runs execute `tests/sequential/*.setup.test.ts` and `tests/sequential/*.server.test.ts`, ordered by filename and run serially with Vitest file parallelism disabled.
 2. `tests/sequential/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium with one worker. `yarn test --sequential` runs both ordered sequential phases.
-3. `tests/parallel/*.server.test.ts`, run by Vitest with up to two file workers. `--server` runs both sequential server and parallel server files without browser tests.
-4. `tests/parallel/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium with up to two workers and one test at a time per file. `--browser` runs the setup fixtures and both browser phases without server test suites. Focused runs execute only setup files before the selected test.
+3. `tests/parallel/*.server.test.ts`, run by Vitest with up to five file workers. `--server` runs both sequential server and parallel server files without browser tests.
+4. `tests/parallel/*.browser.test.ts` and `*.integration.test.ts`, run by Playwright in Chromium with up to five workers and one test at a time per file. `--browser` runs the setup fixtures and both browser phases without server test suites. Focused runs execute only setup files before the selected test.
 
-All phases share the same running app and isolated database. Sequential files run in order; files within the parallel server and browser phases may overlap, with up to two workers per phase. Test files are colocated by phase; suffixes determine the runner. `.integration.test.ts` means one full-stack browser flow, not a file executed twice. Parallel files still share database state, so they must use unique records and clean up mutations.
+All phases share the same running app and isolated database. Sequential files run in order; files within the parallel server and browser phases may overlap. Test files are colocated by phase; suffixes determine the runner. `.integration.test.ts` means one full-stack browser flow, not a file executed twice. Parallel files still share database state, so they must use unique records and clean up mutations.
 
 Shared test helpers live in `tests/utils/`. `test-server.ts` provides `fetch`, `grabUser`, `grabExampleServer`, and `expectStatus`; `browser-fixtures.ts` provides an authenticated browser page initialized from the isolated admin session and seeded example-server data. Use unauthenticated pages when a test needs to exercise the login UI. Example-server sessions and user sessions are stored under the temporary test directory and reused throughout the run. Failed runs still report aggregate phase timings and any slow browser files.
 
