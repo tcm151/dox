@@ -9,8 +9,7 @@ const props = defineProps<{
 const thumbnailSize = ref({ width: '96px', height: '72px' })
 
 const contentPreview = computed(() => {
-    const text = renderMarkdownText(props.post.content ?? "")
-    return (text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? []).slice(0, 3).join("").trim()
+    return renderMarkdownText(props.post.content ?? "")
 })
 
 function updateThumbnailSize(event: Event) {

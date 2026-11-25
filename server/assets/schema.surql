@@ -79,6 +79,7 @@ DEFINE FIELD dateJoined ON user
     TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD topics ON user
     TYPE array<record<topic>> DEFAULT ALWAYS [];
+-- TODO use <~(user FIELD following) to automatically update followers
 DEFINE FIELD followers ON user
     TYPE array<record<user>> DEFAULT ALWAYS [];
 DEFINE FIELD following ON user
@@ -179,6 +180,7 @@ DEFINE FIELD tags ON post
     ASSERT $value.all(|$tag| $tag IN ["nsfw", "spoiler"]);
 DEFINE FIELD time ON post
     TYPE datetime DEFAULT ALWAYS time::now();
+-- TODO allow replyTo for link or gallery
 DEFINE FIELD replyTo ON post
     TYPE option<record<post>>;
 DEFINE FIELD topics ON post

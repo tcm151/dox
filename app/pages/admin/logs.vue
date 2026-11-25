@@ -34,10 +34,10 @@ function toggle(id: string) {
                 <template v-for="log in logs" :key="log.id">
                     <article class="column g-1">
                         <div class="row wrap g-1">
-                            <Tag type="danger f-1 b-0" :label="actionLabel(log.action)" @click="toggle(log.id)" />
-                            <Tag class="link f-1 b-0" :label="log.target" />
-                            <UserTag :user="log.actor" />
-                            <DurationTag :time="log.time" />
+                            <Tag type="danger f-2 b-0" :label="actionLabel(log.action)" @click="toggle(log.id)" />
+                            <Tag class="link f-2 b-0" :label="log.target" />
+                            <UserTag class="f-1 b-0" :user="log.actor" />
+                            <DurationTag width="4rem" :time="log.time" />
                         </div>
                         <CollapseTransition>
                             <template v-if="expanded.includes(log.id)" class="column g-2">
