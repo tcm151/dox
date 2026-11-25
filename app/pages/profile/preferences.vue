@@ -2,8 +2,6 @@
 const hints = useHints()
 const userSettings = useUserSettings()
 
-const { data: account } = await useAuthenticatedDatasource<Account>("/api/profile/account")
-
 async function savePreferences() {
     try {
         if (!await userSettings.save()) return
@@ -21,7 +19,7 @@ async function resetPreferences() {
 
 
 <template>
-    <article class="column g-4 p-4">
+    <article class="content-width column g-4 p-4">
         <header class="row wrap inline between g-2">
             <h1>Preferences</h1>
             <div class="row wrap g-2">
@@ -74,30 +72,16 @@ async function resetPreferences() {
                     :disabled="userSettings.pending"
                 />
             </div>
-            <hr>
-            <div class="field row center">
-                <div class="column f-1">
-                    <label>profile audience</label>
-                    <span class="tip">Choose who can see your profile details, social information, and feed.</span>
-                </div>
-                <select class="px-2 py-1" v-model="userSettings.preferences.privacy.profile" :disabled="userSettings.pending">
-                    <option value="public">Public</option>
-                    <option value="members">Members</option>
-                    <option value="private">Private</option>
-                </select>
-            </div>
         </section>
     </article>
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(40rem, 1rem);
-}
-
 section {
-    input {
-        max-width: 8rem;
+    input, select {
+        box-sizing: border-box;
+        max-width: 10rem;
+        width: 100%;
     }
 }
 

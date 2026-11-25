@@ -64,7 +64,7 @@ export default defineNuxtConfig({
         "/topic/*/**": { ssr: false },
         "/admin/**": { ssr: false },
         "/developer/**": { ssr: false },
-        "/settings/**": { ssr: false },
+        "/profile/**": { ssr: false },
     },
     nitro: {
         errorHandler: "server/plugins/errorHandler"

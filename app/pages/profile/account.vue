@@ -65,9 +65,9 @@ async function resetProfile() {
 </script>
 
 <template>
-    <article class="column g-4 m-4">
+    <article class="content-width column g-4 m-4">
         <header class="row wrap inline between g-2">
-            <h1>Profile</h1>
+            <h1>Account</h1>
             <div class="row wrap g-2">
                 <ButtonSpinner class="success" :loading="loading" @click="updateProfile">
                     <i class="fa-solid fa-floppy-disk"></i>
@@ -81,14 +81,16 @@ async function resetProfile() {
         </header>
         <section class="box column g-4 p-5">
             <div class="form">
-                <div v-if="account" class="field">
-                    <label>Email</label>
-                    <input disabled type="text" :value="account.email"/>
-                </div>
-                <div class="field" :class="{ invalid: invalidUsername() }">
-                    <label>Username</label>
-                    <input type="text" v-model="username" @change="checkUsernameTaken" />
-                    <span v-if="usernameTaken" class="tip">That username has already been taken.</span>
+                <div class="row fill g-2">
+                    <div v-if="account" class="field">
+                        <label>Email</label>
+                        <input disabled type="text" :value="account.email"/>
+                    </div>
+                    <div class="field" :class="{ invalid: invalidUsername() }">
+                        <label>Username</label>
+                        <input type="text" v-model="username" @change="checkUsernameTaken" />
+                        <span v-if="usernameTaken" class="tip">That username has already been taken.</span>
+                    </div>
                 </div>
                 <div class="field">
                     <label>Link</label>
@@ -104,10 +106,6 @@ async function resetProfile() {
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(50rem, 1rem);
-}
-
 textarea {
     resize: none !important;
 }

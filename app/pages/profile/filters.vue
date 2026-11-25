@@ -84,7 +84,7 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
 </script>
 
 <template>
-    <article class="column g-4 p-4">
+    <article class="content-width column g-4 p-4">
         <header class="row wrap inline between g-2">
             <h1>Filters</h1>
             <div class="row wrap g-2">
@@ -102,6 +102,18 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
             Failed to load preferences. Use Cancel to try again.
         </p>
         <section class="box column p-5">
+            <div class="field row center">
+                <div class="column f-1">
+                    <label>profile audience</label>
+                    <span class="tip">Choose who can see your profile details, social information, and feed.</span>
+                </div>
+                <select class="px-3 py-1" v-model="userSettings.preferences.privacy.profile" :disabled="userSettings.pending">
+                    <option value="public">Public</option>
+                    <option value="members">Members</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            <hr>
             <div v-for="tag in contentVisibilityTags" :key="tag.value" class="field row center">
                 <div class="column f-1">
                     <label>{{ tag.label }}</label>
@@ -121,7 +133,7 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
                         <label class="mb-0">muted</label>
                         <span class="tip">hides content from feeds and search, but doesn't prevent interactions.</span>
                     </div>
-                    <div v-if="filters.muted.length" class="row wrap g-1">
+                    <div v-if="filters.muted.length" class="muted row wrap g-1">
                         <Tag v-for="target in filters.muted" :key="target.id" class="f-1 b-half" type="link" :label="target.name" @click="confirmRemoveFilter('unmute', target)" />
                     </div>
                 </div>
@@ -133,7 +145,7 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
                         <label class="mb-0">blocked</label>
                         <span class="tip">hides content and restrict interactions.</span>
                     </div>
-                    <div v-if="filters.blocked.length" class="row wrap g-1">
+                    <div v-if="filters.blocked.length" class="blocked row wrap g-1">
                         <Tag v-for="target in filters.blocked" :key="target.id" class="f-1 b-half" type="link" :label="target.name" @click="confirmRemoveFilter('unblock', target)" />
                     </div>
                 </div>
@@ -143,11 +155,15 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
 </template>
 
 <style scoped lang="scss">
-article {
-    @include fit-width(40rem, 1rem);
+section {
+    input, select {
+        box-sizing: border-box;
+        max-width: 10rem;
+        width: 100%;
+    }
 }
 
-div.field {
+div.field:has(+ :not(hr)) {
     margin-bottom: 0.75rem;
 }
 
