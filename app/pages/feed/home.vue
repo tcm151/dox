@@ -6,7 +6,7 @@ const cache = useCache()
 const pins = await useDatasource<Pin[]>("/api/feed/pinned")
 
 const feedType = cache.get<string>("feed.type", () => "popular")
-const feeds = ["popular", "following"]
+const feeds = ["popular", "following", "mutuals"]
 
 function toggleFeedType() {
     const index = feeds.findIndex(f => f == feedType.value)
