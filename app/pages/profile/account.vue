@@ -11,7 +11,10 @@ function validDescription() {
     return session.user.description !== '' ? valid.user.description(session.user.description!) : true
 }
 
+// TODO finish work on setting up the user display name
 const username = ref<string>(session.user.name)
+const displayName = ref<string>(session.user.name)
+
 function invalidUsername() {
     return usernameTaken.value || !valid.user.name(username.value)
 }
@@ -48,7 +51,12 @@ async function updateProfile() {
         await session.refreshProfile()
     }
     catch (error: any) {
-        hints.addError("Failed to update your profile.", error)
+        if (error.response.status == 409) {
+            hints.addWarning(error.statusMessage);
+        }
+        else {
+            hints.addError("Failed to update your profile.", error)
+        }
     }
     finally {
         loading.value = false
@@ -81,15 +89,19 @@ async function resetProfile() {
         </header>
         <section class="box column g-4 p-5">
             <div class="form">
-                <div class="row fill g-2">
-                    <div v-if="account" class="field">
-                        <label>Email</label>
-                        <input disabled type="text" :value="account.email"/>
-                    </div>
+                <div v-if="account" class="field">
+                    <label>Email</label>
+                    <input disabled type="text" :value="account.email"/>
+                </div>
+                <div class="row fill-even g-2">
                     <div class="field" :class="{ invalid: invalidUsername() }">
                         <label>Username</label>
                         <input type="text" v-model="username" @change="checkUsernameTaken" />
                         <span v-if="usernameTaken" class="tip">That username has already been taken.</span>
+                    </div>
+                    <div class="field">
+                        <label>Display Name</label>
+                        <input type="text" v-model="displayName" />
                     </div>
                 </div>
                 <div class="field">
