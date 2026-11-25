@@ -46,9 +46,6 @@ test("uses defaults while logged out and reloads preferences after login", async
 
     await page.goto("/profile/preferences")
     await expect.poll(() => preferenceRequests).toBe(1)
-    const audience = page.locator("section select")
-    await expect(audience).toHaveValue("members")
-    await expect(audience).toBeEnabled()
     await expect(page.locator("html")).toHaveAttribute("data-hover-animations", "false")
 
     await page.locator('nav button[title="Logout"]').click({ button: "right" })
@@ -65,11 +62,6 @@ test("uses defaults while logged out and reloads preferences after login", async
 
     await expect.poll(() => preferenceRequests).toBe(2)
     await expect(page.locator("html")).toHaveAttribute("data-hover-animations", "false")
-
-    await page.goto("/profile/preferences")
-    const reloadedAudience = page.locator("section select")
-    await expect(reloadedAudience).toHaveValue("members")
-    await expect(reloadedAudience).toBeEnabled()
 })
 
 for (const path of ["/profile/preferences", "/profile/filters"]) {

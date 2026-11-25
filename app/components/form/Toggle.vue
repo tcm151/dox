@@ -2,6 +2,7 @@
 
 const props = defineProps<{
     enabled: boolean
+    name?: string
     label?: string
     disabled?: boolean
 }>()
@@ -18,6 +19,7 @@ const emit = defineEmits<{
             <input
                 type="checkbox"
                 :checked="enabled"
+                :name="name"
                 :disabled="disabled"
                 @change="emit('update:enabled', ($event.target as HTMLInputElement).checked)"
             />

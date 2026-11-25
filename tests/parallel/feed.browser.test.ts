@@ -59,13 +59,14 @@ test("isolates Home feed results and pagination when switching types", async ({ 
 
     // Navigate to Home on the client so Playwright can intercept the feed and pin requests.
     await page.goto("/feed/search")
-    await page.locator("nav.tabstrip").getByRole("link", { name: "Home", exact: true }).click()
+    await page.locator("nav.tabstrip").getByRole("link", { name: "Home" }).click()
     const feedItems = page.locator(".feed-items")
     const titles = feedItems.getByRole("heading")
     const pinned = page.locator(".post.pinned").getByRole("heading", { name: "Pinned across feed switches", exact: true })
     const popular = page.getByRole("button", { name: /^popular$/i })
     const following = page.getByRole("button", { name: /^following$/i })
-    const loadMore = page.getByRole("button", { name: "Load More", exact: true })
+    const mutuals = page.getByRole("button", { name: /^mutuals$/i })
+    const loadMore = page.getByRole("button", { name: "Load More" })
 
     await expect(titles).toHaveText(["Popular page 1"])
     await expect(pinned).toBeVisible()
@@ -83,6 +84,7 @@ test("isolates Home feed results and pagination when switching types", async ({ 
         await loadMore.click()
         await expect(titles).toHaveText(["Following page 1", "Following page 2"])
         await following.click()
+        await mutuals.click()
         await expect(titles).toHaveText(["Popular page 1"])
 
         followingResponse = "delayed"
@@ -93,6 +95,7 @@ test("isolates Home feed results and pagination when switching types", async ({ 
         await expect(feedItems.getByRole("status")).toHaveText("Loading feed...")
         await expect(titles).toHaveCount(0)
         await following.click()
+        await mutuals.click()
         await expect(titles).toHaveText(["Popular page 1"])
         releaseStaleResponse()
         const staleResponse = await staleRequest.response()
@@ -105,6 +108,7 @@ test("isolates Home feed results and pagination when switching types", async ({ 
         await expect(titles).toHaveCount(0)
 
         await following.click()
+        await mutuals.click()
         await expect(titles).toHaveText(["Popular page 1"])
         followingResponse = "error"
         await popular.click()
@@ -159,8 +163,8 @@ test("distinguishes content filtered by visibility preferences from an empty fee
         await route.fulfill({ response, json: settings })
     })
 
-    await page.goto("/settings/filters")
-    await expect(page.locator("section.box select").first()).toHaveValue("filter")
+    await page.goto("/profile/filters")
+    await expect(page.locator("select[name='content.visibility.nsfw']")).toHaveValue("filter")
 
     await page.route(url => url.pathname === "/api/post", async (route) => {
         await route.fulfill({

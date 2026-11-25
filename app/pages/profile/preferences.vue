@@ -42,14 +42,17 @@ async function resetPreferences() {
                     <label>enable animations</label>
                     <span class="tip">Animate interactive elements when hovered.</span>
                 </div>
-                <Toggle v-model:enabled="userSettings.preferences.ui.hoverAnimations" :disabled="userSettings.pending" />
+                <Toggle name="ui.hoverAnimations"
+                    :disabled="userSettings.pending"
+                    v-model:enabled="userSettings.preferences.ui.hoverAnimations"
+                />
             </div>
             <div class="field row center">
                 <div class="column f-1">
                     <label>hint duration</label>
                     <span class="tip">How long status hints remain visible (milliseconds).</span>
                 </div>
-                <input type="number" class="px-2 py-1" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration" :disabled="userSettings.pending">
+                <input type="number" class="px-2 py-1" name="ui.hintDuration" size="4" step="1000" v-model="userSettings.preferences.ui.hintDuration" :disabled="userSettings.pending">
             </div>
             <hr>
             <div class="field row center py-2">
@@ -57,7 +60,7 @@ async function resetPreferences() {
                     <label>in app notifications</label>
                     <span class="tip">Receive notifications in the app.</span>
                 </div>
-                <Toggle
+                <Toggle name="notifications.inApp"
                     v-model:enabled="userSettings.preferences.notifications.inApp"
                     :disabled="userSettings.pending"
                 />
@@ -67,7 +70,7 @@ async function resetPreferences() {
                     <label>email notifications</label>
                     <span class="tip">Receive notifications by email.</span>
                 </div>
-                <Toggle
+                <Toggle name="notifications.email"
                     v-model:enabled="userSettings.preferences.notifications.email"
                     :disabled="userSettings.pending"
                 />

@@ -107,7 +107,7 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
                     <label>profile audience</label>
                     <span class="tip">Choose who can see your profile details, social information, and feed.</span>
                 </div>
-                <select class="px-3 py-1" v-model="userSettings.preferences.privacy.profile" :disabled="userSettings.pending">
+                <select class="px-3 py-1" name="profile.audience" :disabled="userSettings.pending" v-model="userSettings.preferences.privacy.profile">
                     <option value="public">Public</option>
                     <option value="members">Members</option>
                     <option value="private">Private</option>
@@ -119,7 +119,7 @@ async function removeFilter(action: "unmute" | "unblock", target: string) {
                     <label>{{ tag.label }}</label>
                     <span class="tip">{{ tag.tip }}</span>
                 </div>
-                <select class="px-2 py-1" :value="contentVisibilityMode(tag.value)" :disabled="userSettings.pending" @change="updateContentVisibility(tag.value, $event)">
+                <select class="px-2 py-1" :name="`content.visibility.${tag.value}`" :value="contentVisibilityMode(tag.value)" :disabled="userSettings.pending" @change="updateContentVisibility(tag.value, $event)">
                     <option value="inherit">Default</option>
                     <option v-for="mode in contentVisibilityModes" :key="mode.value" :value="mode.value">
                         {{ mode.label }}
