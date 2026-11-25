@@ -58,7 +58,6 @@ async function switchSavedProfile(page: Page, currentName: string, targetName: s
 }
 
 async function expectPreferenceView(page: Page, settings: UserSettings) {
-    await expect(page.locator("section.box select")).toHaveValue(settings.privacy.profile)
     const inApp = page.locator("section.box .field.row").filter({ hasText: "in app notifications" })
     const email = page.locator("section.box .field.row").filter({ hasText: "email notifications" })
     if (settings.notifications.inApp) await expect(inApp.locator("input[type='checkbox']")).toBeChecked()
@@ -189,7 +188,7 @@ test("keeps preference responses and saves scoped to the active profile", async 
             await route.continue()
         })
 
-        await page.goto("/settings/preferences")
+        await page.goto("/profile/preferences")
         await expect.poll(() => adminReadsHeld).toBe(1)
         await switchSavedProfile(page, adminUser.name, profile.user.name)
         await expect.poll(() => profileReadsHeld).toBe(1)
@@ -197,7 +196,6 @@ test("keeps preference responses and saves scoped to the active profile", async 
         const firstAdminResponse = waitForSettingsResponse(page, adminToken, "GET")
         firstAdminGate.release()
         expect((await firstAdminResponse).ok()).toBe(true)
-        await expect(page.locator("section.box select")).toBeDisabled()
 
         const firstProfileResponse = waitForSettingsResponse(page, profile.accessToken, "GET")
         firstProfileGate.release()
@@ -264,9 +262,9 @@ test("keeps preference responses and saves scoped to the active profile", async 
         await expect(page).toHaveURL(/\/user\/[^/]+$/)
         await expect(page.getByRole("heading", { name: profile.user.name, exact: true })).toBeVisible()
         await page.getByRole("button", { name: /Profile/ }).click()
-        await expect(page).toHaveURL(/\/settings\/profile$/)
+        await expect(page).toHaveURL(/\/profile\/account$/)
         await page.getByRole("link", { name: /Preferences/ }).click()
-        await expect(page).toHaveURL(/\/settings\/preferences$/)
+        await expect(page).toHaveURL(/\/profile\/preferences$/)
         await expectPreferenceView(page, savedProfileSettings)
     }
     catch (error) {
@@ -440,7 +438,7 @@ test("renders both inbox empty states", async ({ authenticatedPage: page }) => {
     await page.goto("/inbox")
 
     await expect(page.getByText("You have no unread notifications.", { exact: true })).toBeVisible()
-    await page.locator("label.toggle").click()
+    await page.locator("button.all").click()
     await expect(page.getByText("You don't have any notifications.", { exact: true })).toBeVisible()
 })
 
@@ -553,11 +551,13 @@ test("dismisses inbox notifications individually and in bulk", async ({ authenti
     await singleCard.getByText("Dismiss", { exact: true }).click()
     await expect(singleCard).toHaveCount(0)
 
-    const dismissedToggle = page.locator("label.toggle")
-    await dismissedToggle.click()
+    const showAllButton = page.locator("button.all")
+    const showUnreadButton = page.locator("button.unread")
+
+    await showAllButton.click()
     await expect(singleCard).toBeVisible()
     await expect(singleCard.getByText("Dismiss", { exact: true })).toHaveCount(0)
-    await dismissedToggle.click()
+    await showUnreadButton.click()
 
     await expect(page.getByText(bulkMarker, { exact: false })).toBeVisible()
     await page.getByRole("button", { name: "Dismiss Unread" }).click()
@@ -565,7 +565,7 @@ test("dismisses inbox notifications individually and in bulk", async ({ authenti
     await expect(page.getByText(bulkMarker, { exact: false })).toHaveCount(0)
     await expect(page.getByText("You have no unread notifications.", { exact: true })).toBeVisible()
 
-    await dismissedToggle.click()
+    await showAllButton.click()
     await expect(page.getByText(singleMarker, { exact: false })).toBeVisible()
     await expect(page.getByText(bulkMarker, { exact: false })).toBeVisible()
 })

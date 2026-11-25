@@ -30,8 +30,8 @@ export default defineEventHandler(async (event) => {
         let template = await useStorage("assets:server").getItem("templates/reset-password.html") as string
         template = template.replace('{{user.email}}', account.email)
         template = template.replace('{{user.name}}', account.user.name)
-        template = template.replace('{{resetPasswordLink}}', `${baseUrl}/settings/reset-password?id=${extractId(passwordReset.id)}`)
-        template = template.replace('{{reportLink}}', `${baseUrl}/settings/reset-password?report=${extractId(passwordReset.id)}`)
+        template = template.replace('{{resetPasswordLink}}', `${baseUrl}/profile/reset-password?id=${extractId(passwordReset.id)}`)
+        template = template.replace('{{reportLink}}', `${baseUrl}/profile/reset-password?report=${extractId(passwordReset.id)}`)
         template = template.replace('{{supportEmail}}', settings.email.support ?? "support@example.com")
         
         await sendEmail({

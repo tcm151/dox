@@ -1,7 +1,7 @@
 import { expect, test } from "../utils/browser-fixtures"
 
 test("toggles and cancels an unsaved preference", async ({ authenticatedPage }) => {
-    await authenticatedPage.goto("/settings/preferences")
+    await authenticatedPage.goto("/profile/preferences")
 
     const preferenceRow = authenticatedPage.locator(".field.row").filter({ hasText: "enable animations" })
     const animationToggle = preferenceRow.locator("input[type='checkbox']")
@@ -44,7 +44,7 @@ test("uses defaults while logged out and reloads preferences after login", async
         })
     })
 
-    await page.goto("/settings/preferences")
+    await page.goto("/profile/preferences")
     await expect.poll(() => preferenceRequests).toBe(1)
     const audience = page.locator("section select")
     await expect(audience).toHaveValue("members")
@@ -66,13 +66,13 @@ test("uses defaults while logged out and reloads preferences after login", async
     await expect.poll(() => preferenceRequests).toBe(2)
     await expect(page.locator("html")).toHaveAttribute("data-hover-animations", "false")
 
-    await page.goto("/settings/preferences")
+    await page.goto("/profile/preferences")
     const reloadedAudience = page.locator("section select")
     await expect(reloadedAudience).toHaveValue("members")
     await expect(reloadedAudience).toBeEnabled()
 })
 
-for (const path of ["/settings/preferences", "/settings/filters"]) {
+for (const path of ["/profile/preferences", "/profile/filters"]) {
     test(`retries failed preference loading on ${path}`, async ({ authenticatedPage: page }) => {
         let attempts = 0
         let releaseFailure!: () => void
@@ -124,7 +124,7 @@ for (const path of ["/settings/preferences", "/settings/filters"]) {
 }
 
 test("opens and dismisses a settings confirmation through the event bus", async ({ authenticatedPage }) => {
-    await authenticatedPage.goto("/settings/misc")
+    await authenticatedPage.goto("/profile/misc")
     await authenticatedPage.getByRole("button", { name: /Sign Out Everywhere/ }).click()
 
     const confirmation = authenticatedPage.getByRole("heading", { name: "Sign Out Everywhere?" })

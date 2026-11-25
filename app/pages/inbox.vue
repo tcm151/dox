@@ -132,11 +132,11 @@ async function loadMore() {
             </div>
         </header>
         <nav class="row wrap g-2 mb-2">
-            <button type="button" class="f-1 b-0" :class="{ selected: !showDismissed }" @click="showDismissed = false">
+            <button type="button" class="unread f-1 b-0" :class="{ selected: !showDismissed }" @click="showDismissed = false">
                 <i class="fa-solid fa-eye"></i>
                 <span>Unread</span>
             </button>
-            <button type="button" class="f-1 b-0" :class="{ selected: showDismissed }" @click="showDismissed = true">
+            <button type="button" class="all f-1 b-0" :class="{ selected: showDismissed }" @click="showDismissed = true">
                 <i class="fa-solid fa-box"></i>
                 <span>All</span>
             </button>
