@@ -1,9 +1,9 @@
 # Ticket 0142: Fix Home Feed Type Switching
 
 ## Status
-- State: Planned
+- State: In Progress
 - Priority: Medium
-- Next: Reproduce switching from Popular to Following and back on the Home feed.
+- Next: Run `yarn test --file feed.browser.test.ts` when executable validation is available.
 
 ## Goal
 Restore switching between Popular and Following so the selected feed and its results stay in sync.
@@ -15,19 +15,21 @@ Restore switching between Popular and Following so the selected feed and its res
 - [ ] Pinned items remain unchanged, and an empty or failed request for the selected feed uses the existing empty or error state rather than showing the previous feed's results.
 
 ## Tasks
-- [ ] Trace the cached `feed.type` selection through the datasource to reproduce the regression and identify its cause.
-- [ ] Fix the switch and remove the resolved TODO.
-- [ ] Add focused browser regression coverage using distinct results for each feed, including switching back, pagination, and delayed responses.
+- [x] Trace the cached `feed.type` selection through the datasource and identify where the new request is cancelled.
+- [x] Isolate the datasource per selected feed and remove the resolved TODO.
+- [x] Add focused browser regression coverage using distinct results for each feed, including switching back, pagination, and delayed responses.
 
 ## Notes
-- The Home feed already cycles between Popular and Following and builds its endpoint from `feedType`. The source TODO reports that switching is broken; the cause has not been verified.
+- Nuxt starts the request for the new URL before the synchronous endpoint watcher calls `clear()` on that same request. The keyed Home list now gives each selection a datasource with a fixed endpoint. Pins remain in the page outside that list.
 - Ticket 0137 builds on this fix. This ticket covers the two existing feed types only.
 
 ## Relevant Files
 - app/pages/feed/home.vue
+- app/components/lists/HomeFeed.vue
 - app/utils/feedDatasource.ts
 - app/components/lists/Feed.vue
 - tests/parallel/feed.browser.test.ts
 
 ## Progress Log
+- 2026-11-25: Traced the cancellation in source, isolated requests by selection, and added a browser regression. Runtime verification is pending.
 - 2026-11-23: Ticket created.

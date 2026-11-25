@@ -1,13 +1,13 @@
 import type { UseFetchOptions } from "#app"
 import type { FeedPage } from "@@/shared/types"
-import { computed, ref, shallowRef, toValue, watch, type MaybeRefOrGetter } from "vue"
+import { computed, onScopeDispose, ref, shallowRef, toValue, watch } from "vue"
 
 type FeedDatasourceOptions<T> = Pick<UseFetchOptions<FeedPage<T>>, "query"> & {
     sorting?: boolean
 }
 
 export function useFeedDatasource<T extends { id: string }>(
-    endpoint: MaybeRefOrGetter<string>,
+    endpoint: string,
     options: FeedDatasourceOptions<T> = {},
 ) {
     const { query: queryOptions, sorting = false } = options
@@ -28,25 +28,27 @@ export function useFeedDatasource<T extends { id: string }>(
     })
 
     const hints = useHints()
+    const session = getSession()
+
     const loading = ref(false)
     const data = computed(() => (page.data.value ?? retainedPage.value)?.items)
     const more = computed(() => (page.data.value ?? retainedPage.value)?.more ?? false)
-    watch([() => toValue(endpoint), query], () => {
-        retainedPage.value = undefined
-    }, { flush: "sync" })
-    watch(() => toValue(endpoint), () => page.clear(), { flush: "sync" })
-    const session = getSession()
+    
+    watch(query, () => { retainedPage.value = undefined }, { flush: "sync" })
     watch(() => session.user.id, () => { retainedPage.value = undefined }, { flush: "sync" })
+
+    const pagination = new AbortController()
+    onScopeDispose(() => pagination.abort())
 
     async function loadMore() {
         const currentPage = page.data.value ?? retainedPage.value
         if (!currentPage?.more || loading.value || page.status.value === "pending") return
 
-        const requestUrl = toValue(endpoint)
         const requestQuery = query.value
         loading.value = true
         try {
-            const nextPage = await $fetch<FeedPage<T>>(requestUrl, {
+            const nextPage = await $fetch<FeedPage<T>>(endpoint, {
+                signal: pagination.signal,
                 headers: { Authorization: session.isAuthenticated ? session.tokens.access : "" },
                 query: {
                     ...requestQuery,
@@ -56,7 +58,7 @@ export function useFeedDatasource<T extends { id: string }>(
             })
 
             if (
-                requestUrl !== toValue(endpoint)
+                pagination.signal.aborted
                 || requestQuery !== query.value
                 || currentPage !== (page.data.value ?? retainedPage.value)
             ) return
@@ -73,6 +75,7 @@ export function useFeedDatasource<T extends { id: string }>(
             retainedPage.value = undefined
         }
         catch (error) {
+            if (pagination.signal.aborted) return
             hints.addError(
                 error instanceof Error ? error.message : "Unable to load more feed items.",
                 error,
