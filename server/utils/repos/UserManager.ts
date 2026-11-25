@@ -2,7 +2,7 @@ import type { User, Account, Profile, Topic } from "@@/shared/types"
 import { Validator } from "@@/shared/utils/Validator"
 
 export class UserManager {
-    static async profile(user: User): Promise<Profile> {
+    static async getProfile(user: User): Promise<Profile> {
         const moderatedTopics = await new DatabaseQuery()
             .addSql(`
                 SELECT id, score

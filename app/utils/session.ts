@@ -7,6 +7,7 @@ interface Tokens {
 }
 
 export const getSession = defineStore("session", () => {
+    const hints = useHints()
     const events = useEvents()
 
     //> SESSION
@@ -54,18 +55,25 @@ export const getSession = defineStore("session", () => {
 
     //> AUTH
     async function authenticate(existingToken?: string): Promise<void> {
-        let token = existingToken ?? tokens.value.access
-        user.value = await useApi<Profile>("/api/profile/authenticate", {
-            headers: {
-                Authorization: token
+        try {
+            let token = existingToken ?? tokens.value.access
+            user.value = await useApi<Profile>("/api/profile/authenticate", {
+                headers: {
+                    Authorization: token
+                }
+            })
+            tokens.value = { access: token }
+            isAuthenticated.value = true
+            events.publish(Trigger.authenticatedUser, {
+                user: user.value,
+                token: tokens.value.access,
+            })
+        }
+        catch (error: any) {
+            if (isError(error) && error.statusCode !== 401) {
+                hints.addError(error.message, error)
             }
-        })
-        tokens.value = { access: token }
-        isAuthenticated.value = true
-        events.publish(Trigger.authenticatedUser, {
-            user: user.value,
-            token: tokens.value.access,
-        })
+        }
     }
 
     async function login(id: string, password: string): Promise<void> {

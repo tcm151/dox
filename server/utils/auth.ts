@@ -43,7 +43,7 @@ export const authenticateLogin = async (event: H3Event) => {
         event.context.account = session.account
         return {
             tokens: { access: session.id },
-            user: await UserManager.profile(session.account.user),
+            user: await UserManager.getProfile(session.account.user),
         }
     }
     catch (error) {
@@ -82,7 +82,19 @@ export const authenticateOptionalRequest = async (event: H3Event): Promise<User 
 }
 
 export const authenticateProfile = async (event: H3Event): Promise<Profile> => {
-    return await UserManager.profile(await authenticateRequest(event))
+    try {
+        const user = await authenticateRequest(event)
+        return await UserManager.getProfile(user)
+    }
+    catch (error) {
+        if (isError(error) && error.statusCode >= 500) {
+            throw error
+        }
+        throw createError({
+            status: 401,
+            statusText: "This session is expired.",
+        })
+    }
 }
 
 export const invalidateSession = async (event: H3Event, clear: boolean) => {
