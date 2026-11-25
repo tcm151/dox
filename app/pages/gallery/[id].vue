@@ -184,8 +184,8 @@ function copyLink() {
     <article v-if="gallery" class="column inline g-2 p-2">
         <main class="gallery box column g-2 p-4">
             <ContentHeader class="header" :content="gallery" />
+            <h1 class="title mt-2">{{ gallery.title }}</h1>
             <ContentVisibility class="column f-1" :tags="gallery.tags" direct>
-                <h1 class="title mt-2">{{ gallery.title }}</h1>
                 <section class="mosaic grid" :class="{
                     single: gallery.images.length === 1,
                     pair: gallery.images.length === 2,
@@ -202,8 +202,8 @@ function copyLink() {
                     </figure>
                 </section>
                 <Markdown v-if="!editingGallery && gallery.description" compact class="content" :content="gallery.description" />
-                <MarkdownEditor v-if="editingGallery" :rows="5" v-model="editedDescription" />
             </ContentVisibility>
+            <MarkdownEditor v-if="editingGallery" :rows="5" v-model="editedDescription" />
             <footer class="actions">
                 <div class="column g-2">
                     <div v-if="!editingGallery" class="interactions row wrap g-1">
@@ -265,9 +265,7 @@ function copyLink() {
                 </div>
             </footer>
         </main>
-        <ContentVisibility v-if="gallery.comments.length > 0" :tags="gallery.tags" direct>
-            <CommentSection class="content-width" :target="gallery" :sort-type="sortBy" :loading="status" @refresh="refreshGallery" />
-        </ContentVisibility>
+        <CommentSection class="content-width" :target="gallery" :sort-type="sortBy" :loading="status" @refresh="refreshGallery" />
 </article>
     <article v-else class="content-width column p-4">
         <footer class="box text center p-4">

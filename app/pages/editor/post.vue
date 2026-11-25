@@ -152,10 +152,8 @@ async function saveDraft() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <ContentVisibility :tags="draft.tags" direct>
-                <h1 class="mb-2">{{ draft.title }}</h1>
-                <Markdown class="content" :content="draft.content" />
-            </ContentVisibility>
+            <h1 class="mb-2">{{ draft.title }}</h1>
+            <Markdown class="content" :content="draft.content" />
         </template>
         <template #footer-actions>
             <button v-if="settings.app.media.images.attachments.posts" class="link f-1 b-0" @click="images.select">

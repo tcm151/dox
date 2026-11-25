@@ -85,13 +85,11 @@ async function submit() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <ContentVisibility :tags="tags" direct>
-                <div class="column g-3">
-                    <h2 class="title text left">{{ title }}</h2>
-                    <ImageSlideshow :images="imageSlides" label="Uploaded images" />
-                    <Markdown compact class="content" :content="description" />
-                </div>
-            </ContentVisibility>
+            <div class="column g-3">
+                <h2 class="title text left">{{ title }}</h2>
+                <ImageSlideshow :images="imageSlides" label="Uploaded images" />
+                <Markdown compact class="content" :content="description" />
+            </div>
         </template>
         <OverlayTransition>
             <MediaUploader v-if="images.files" :media="images.files" :loading="images.uploading" @upload="images.upload" @close="images.cancel" />

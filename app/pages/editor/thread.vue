@@ -71,12 +71,10 @@ async function submit() {
             <TopicField :topics="topics" />
         </template>
         <template #preview>
-            <ContentVisibility :tags="newThread.tags" direct>
-                <Markdown class="content" :content="newThread.content" />
-                <aside v-if="images.uploaded.length > 0" class="preview-images row wrap g-2 mt-3">
-                    <img v-for="image in images.uploaded" class="br-small border-subtle" :src="image.url">
-                </aside>
-            </ContentVisibility>
+            <Markdown class="content" :content="newThread.content" />
+            <aside v-if="images.uploaded.length > 0" class="preview-images row wrap g-2 mt-3">
+                <img v-for="image in images.uploaded" class="br-small border-subtle" :src="image.url">
+            </aside>
         </template>
         <template #footer-actions>
             <button v-if="settings.app.media.images.attachments.threads" class="link" @click="images.select">

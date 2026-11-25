@@ -161,26 +161,24 @@ async function submit() {
         <template #preview>
             <div class="box background br-medium">
                 <section class="link-detail box br-medium" :aria-busy="previewLoading">
-                    <ContentVisibility :tags="tags" direct>
-                        <h1 class="mt-2">{{ displayTitle }}</h1>
-                        <p class="description mt-3">
-                            <span v-if="displayDescription" class="mr-3">{{ displayDescription }} </span>
-                            <a v-if="validUrl()" class="destination" :href="url" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
-                                <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
-                                {{ domain }}
-                            </a>
-                        </p>
-                        <img
-                            v-if="imageUrl"
-                            class="link-image mt-3"
-                            :src="imageUrl"
-                            :alt="preview.title || displayTitle"
-                            loading="lazy"
-                            decoding="async"
-                            referrerpolicy="no-referrer"
-                        >
-                        <p v-if="previewLoading" class="muted mt-2" role="status">Loading preview...</p>
-                    </ContentVisibility>
+                    <h1 class="mt-2">{{ displayTitle }}</h1>
+                    <p class="description mt-3">
+                        <span v-if="displayDescription" class="mr-3">{{ displayDescription }} </span>
+                        <a v-if="validUrl()" class="destination" :href="url" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
+                            {{ domain }}
+                        </a>
+                    </p>
+                    <img
+                        v-if="imageUrl"
+                        class="link-image mt-3"
+                        :src="imageUrl"
+                        :alt="preview.title || displayTitle"
+                        loading="lazy"
+                        decoding="async"
+                        referrerpolicy="no-referrer"
+                    >
+                    <p v-if="previewLoading" class="muted mt-2" role="status">Loading preview...</p>
                 </section>
             </div>
         </template>

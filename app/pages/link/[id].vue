@@ -205,8 +205,8 @@ async function pinLink() {
         <div class="box background br-medium column">
             <section class="link-detail box br-medium p-5">
                 <ContentHeader :content="link" />
+                <h1 class="mt-2">{{ link.title }}</h1>
                 <ContentVisibility :tags="link.tags" direct>
-                    <h1 class="mt-2">{{ link.title }}</h1>
                     <p class="description mt-3">
                         <span v-if="displayDescription && !editingDescription" class="mr-3">{{ displayDescription }} </span>
                         <a class="destination" :href="link.url" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
@@ -214,9 +214,7 @@ async function pinLink() {
                             {{ domain }}
                         </a>
                     </p>
-                    <MarkdownEditor v-if="editingDescription" class="mt-3" :rows="5" :max-length="256" v-model="editedDescription" />
-                    <img
-                        v-if="imageUrl"
+                    <img v-if="imageUrl"
                         class="link-image mt-3"
                         :src="imageUrl"
                         :alt="link.preview.title || link.title"
@@ -225,6 +223,7 @@ async function pinLink() {
                         referrerpolicy="no-referrer"
                     >
                 </ContentVisibility>
+                <MarkdownEditor v-if="editingDescription" class="mt-3" :rows="5" :max-length="256" v-model="editedDescription" />
                 <footer class="column g-2 mt-3">
                     <div v-if="!editingDescription" class="interactions row wrap g-1">
                         <button class="comment" :disabled="commentState.disabled" @click="toggleCommentBox">
@@ -284,9 +283,7 @@ async function pinLink() {
                 </footer>
             </section>
         </div>
-        <ContentVisibility v-if="link.comments.length > 0" :tags="link.tags" direct>
-            <CommentSection :target="link" :sort-type="sortBy" :loading="status" @refresh="refreshLink" />
-        </ContentVisibility>
+        <CommentSection :target="link" :sort-type="sortBy" :loading="status" @refresh="refreshLink" />
     </article>
     <article v-else class="content-width column p-4">
         <footer class="box text center p-4">
@@ -298,6 +295,10 @@ async function pinLink() {
 <style scoped lang="scss">
 .interactions button {
     flex: 1 1 auto;
+}
+
+.link-detail:has(button.small.warning) h1 {
+    margin-bottom: 0.5rem;
 }
 
 .link-detail {

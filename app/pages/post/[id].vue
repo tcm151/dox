@@ -213,18 +213,16 @@ function toggleOptions() {
 <template>
     <article v-if="post" class="content-width column g-2 p-4">
         <div class="box background br-medium column">
-            <ContentVisibility v-if="post.replyTo && post.replyTo.id" :tags="post.replyTo.tags" direct>
+            <template v-if="post.replyTo && post.replyTo.id">
                 <aside class="reply-to clickable row inline g-2 py-2 px-3" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p class="text truncate bold">{{ post.replyTo.title }}</p>
                 </aside>
-            </ContentVisibility>
+            </template>
             <section class="post box br-medium p-5">
                 <ContentHeader :content="post" />
+                <h1 class="mt-2">{{ post.title }}</h1>
                 <ContentVisibility :tags="post.tags" direct>
-                    <h1 class="mt-2">
-                        {{ post.title }}
-                    </h1>
                     <Markdown v-if="!editingPost"
                         class="content my-4"
                         :content="post.content"
@@ -304,14 +302,7 @@ function toggleOptions() {
                 </footer>
             </section>
         </div>
-        <ContentVisibility v-if="post.comments.length > 0" :tags="post.tags" direct>
-            <CommentSection
-                :target="post"
-                :sort-type="sortBy"
-                :loading="status"
-                @refresh="refreshPost"
-            />
-        </ContentVisibility>
+        <CommentSection :target="post" :sort-type="sortBy" :loading="status" @refresh="refreshPost" />
     </article>
     <article v-else class="content-width column p-4">
         <footer class="box text center p-4">
@@ -328,6 +319,15 @@ aside.reply-to {
 aside.reply-to + section.post {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+}
+
+section.post:has(button.small.warning) {
+    h1 {
+        margin-bottom: 0.5rem;
+    }
+    footer {
+        margin-top: 0.5rem;
+    }
 }
 
 section.post {

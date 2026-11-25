@@ -237,17 +237,17 @@ function toggleOptions() {
                     <aside v-if="thread.images[0]" class="thread-images row wrap g-2 mb-3">
                         <img v-for="image in thread.images" class="br-small border-subtle" :src="image.url">
                     </aside>
-                    <aside v-if="thread.quote" class="br-medium border-subtle column g-2 mb-3 p-3">
-                        <ContentVisibility :tags="thread.quote.tags" direct>
-                            <ContentHeader :content="thread.quote">
-                                <template #actions>
-                                    <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
-                                </template>
-                            </ContentHeader>
-                            <Markdown compact class="content preview" :content="thread.quote.content" />
-                        </ContentVisibility>
-                    </aside>
                 </ContentVisibility>
+                <aside v-if="thread.quote" class="br-medium border-subtle column g-2 mb-3 p-3">
+                    <ContentHeader :content="thread.quote">
+                        <template #actions>
+                            <Tag type="link" icon="fa-right-to-bracket" label="View" @click="navigateTo(`/thread/${extractId(thread.quote.id)}`)" />
+                        </template>
+                    </ContentHeader>
+                    <ContentVisibility :tags="thread.quote.tags" direct>
+                        <Markdown compact class="content preview" :content="thread.quote.content" />
+                    </ContentVisibility>
+                </aside>
             </template>
             <ClientOnly>
                 <template v-if="editingThread && thread.user.id === session.user.id">
@@ -256,72 +256,72 @@ function toggleOptions() {
             </ClientOnly>
             <footer>
                 <div v-if="!thread.deleted && !editingThread" class="f-1 row wrap g-1 mb-4">
-                        <button class="f-1" :disabled="replyState.disabled" @click="toggleReplyBox">
-                            <i aria-hidden="true" class="fa-solid fa-reply-all fa-flip-horizontal"></i>
-                            <span>Reply</span>
+                    <button class="f-1" :disabled="replyState.disabled" @click="toggleReplyBox">
+                        <i aria-hidden="true" class="fa-solid fa-reply-all fa-flip-horizontal"></i>
+                        <span>Reply</span>
+                    </button>
+                    <button class="f-1" :disabled="quoteState.disabled" @click="quoteThread">
+                        <i aria-hidden="true" class="fa-solid fa-quote-left"></i>
+                        <span>Quote</span>
+                    </button>
+                    <button class="f-1" @click="copyLink">
+                        <i aria-hidden="true" class="fa-solid fa-copy"></i>
+                        <span>Share</span>
+                    </button>
+                    <ClientOnly>
+                        <button v-if="session.isAuthenticated" title="Options" @click="toggleOptions">
+                            <i aria-hidden="true" class="fa-solid fa-ellipsis"></i>
                         </button>
-                        <button class="f-1" :disabled="quoteState.disabled" @click="quoteThread">
-                            <i aria-hidden="true" class="fa-solid fa-quote-left"></i>
-                            <span>Quote</span>
-                        </button>
-                        <button class="f-1" @click="copyLink">
-                            <i aria-hidden="true" class="fa-solid fa-copy"></i>
-                            <span>Share</span>
-                        </button>
-                        <ClientOnly>
-                            <button v-if="session.isAuthenticated" title="Options" @click="toggleOptions">
-                                <i aria-hidden="true" class="fa-solid fa-ellipsis"></i>
-                            </button>
-                            <OverlayTransition>
-                                <ExtraOptions
-                                    v-if="showOptions"
-                                    :target="thread"
-                                    @updated="refresh"
-                                    @edit="startEditingThread"
-                                    @award="awardThread"
-                                    @report="submitReport(thread.id)"
-                                    @delete="deleteThread"
-                                    @archive="archiveThread"
-                                    @pin="pinThread"
-                                    @close="showOptions = false"
-                                />
-                            </OverlayTransition>
-                        </ClientOnly>
-                    </div>
-                    <p v-if="!showReplyBox && !editingThread && actionWarning" class="warning mb-4" role="status">{{ actionWarning }}</p>
-                    <div v-if="editingThread" key="edit-actions" class="row wrap f-1 g-1 mb-4">
-                        <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
-                            <i class="fa-solid fa-folder-open"></i>
-                            <span>Save</span>
-                        </ButtonSpinner>
-                        <!-- <button class="info f-1" @click="togglePreview">
-                            <i v-if="!showPreview" class="fa-solid fa-eye"></i>
-                            <i v-else class="fa-solid fa-eye-slash"></i>
-                            <span>Preview</span>
-                        </button> -->
-                        <button class="danger" @click="cancelEditingThread">
-                            <i class="fa-solid fa-ban"></i>
-                            <span>Cancel</span>
-                        </button>
-                    </div>
-                    <CollapseTransition>
-                        <ReplyComposer
-                            v-if="showReplyBox && !thread.deleted && !editingThread"
-                            show-content-tags
-                            class="mb-4"
-                            :rows="5"
-                            autofocus
-                            :submitting="submitting"
-                            :submit-label="quoting ? 'Quote' : 'Reply'"
-                            :submit-icon="quoting ? 'fa-quote-left' : 'fa-reply'"
-                            :disabled="activeSubmission.disabled"
-                            :warning="activeSubmission.warning"
-                            v-model:tags="replyTags"
-                            @submit="submitThread"
-                            @cancel="cancelThreadReply"
-                            v-model="replyText"
-                        />
-                    </CollapseTransition>
+                        <OverlayTransition>
+                            <ExtraOptions
+                                v-if="showOptions"
+                                :target="thread"
+                                @updated="refresh"
+                                @edit="startEditingThread"
+                                @award="awardThread"
+                                @report="submitReport(thread.id)"
+                                @delete="deleteThread"
+                                @archive="archiveThread"
+                                @pin="pinThread"
+                                @close="showOptions = false"
+                            />
+                        </OverlayTransition>
+                    </ClientOnly>
+                </div>
+                <p v-if="!showReplyBox && !editingThread && actionWarning" class="warning mb-4" role="status">{{ actionWarning }}</p>
+                <div v-if="editingThread" key="edit-actions" class="row wrap f-1 g-1 mb-4">
+                    <ButtonSpinner class="success f-1" :loading="submitting" @click="updateThread">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Save</span>
+                    </ButtonSpinner>
+                    <!-- <button class="info f-1" @click="togglePreview">
+                        <i v-if="!showPreview" class="fa-solid fa-eye"></i>
+                        <i v-else class="fa-solid fa-eye-slash"></i>
+                        <span>Preview</span>
+                    </button> -->
+                    <button class="danger" @click="cancelEditingThread">
+                        <i class="fa-solid fa-ban"></i>
+                        <span>Cancel</span>
+                    </button>
+                </div>
+                <CollapseTransition>
+                    <ReplyComposer
+                        v-if="showReplyBox && !thread.deleted && !editingThread"
+                        show-content-tags
+                        class="mb-4"
+                        :rows="5"
+                        autofocus
+                        :submitting="submitting"
+                        :submit-label="quoting ? 'Quote' : 'Reply'"
+                        :submit-icon="quoting ? 'fa-quote-left' : 'fa-reply'"
+                        :disabled="activeSubmission.disabled"
+                        :warning="activeSubmission.warning"
+                        v-model:tags="replyTags"
+                        @submit="submitThread"
+                        @cancel="cancelThreadReply"
+                        v-model="replyText"
+                    />
+                </CollapseTransition>
             </footer>
         </section>
         <section class="column g-2 mt-2">
@@ -336,6 +336,10 @@ function toggleOptions() {
 </template>
 
 <style scoped lang="scss">
+section.main:has(button.small.warning) {
+    gap: 0.5rem;
+}
+
 aside.thread-images {
     img {
         max-width: 100%;

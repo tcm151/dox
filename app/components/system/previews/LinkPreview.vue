@@ -56,7 +56,6 @@ function openLink() {
 </script>
 
 <template>
-    <ContentVisibility :tags="link.tags">
         <article
             class="link-preview box background animate hover-shadow"
             :class="{ pinned }"
@@ -65,36 +64,37 @@ function openLink() {
         >
             <div class="main box column g-2 p-3 text break" :class="{ clickable: interactive }" @click="openLink">
                 <ContentHeader :content="link" :pinned="pinned" :inert="!interactive" />
-                <div class="content-row row inline start g-2">
-                    <div class="details f-1">
-                        <h3 v-if="displayTitle" class="title text left">{{ displayTitle }}</h3>
-                        <p v-if="displayDescription || url" class="description mt-1">
-                            <span v-if="displayDescription" class="mr-3">{{ displayDescription }} </span>
-                            <a v-if="url" class="destination" :href="url" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" @click.stop>
-                                <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
-                                {{ domain }}
-                            </a>
-                        </p>
-                        <p v-if="loading" class="loading muted mt-1" role="status">Loading preview...</p>
+                <ContentVisibility :tags="link.tags">
+                    <div class="content-row row inline start g-2">
+                        <div class="details f-1">
+                            <h3 v-if="displayTitle" class="title text left">{{ displayTitle }}</h3>
+                            <p v-if="displayDescription || url" class="description mt-1">
+                                <span v-if="displayDescription" class="mr-3">{{ displayDescription }} </span>
+                                <a v-if="url" class="destination" :href="url" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" @click.stop>
+                                    <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>
+                                    {{ domain }}
+                                </a>
+                            </p>
+                            <p v-if="loading" class="loading muted mt-1" role="status">Loading preview...</p>
+                        </div>
+                        <img
+                            v-if="imageUrl"
+                            class="thumbnail br-medium border-subtle"
+                            :src="imageUrl"
+                            :alt="displayTitle || `${domain} preview image`"
+                            loading="lazy"
+                            decoding="async"
+                            referrerpolicy="no-referrer"
+                            :style="thumbnailSize"
+                            @load="updateThumbnailSize"
+                        >
+                        <div v-else class="thumbnail br-medium placeholder grid center border-subtle" aria-hidden="true">
+                            <i class="fa-solid fa-link"></i>
+                        </div>
                     </div>
-                    <img
-                        v-if="imageUrl"
-                        class="thumbnail br-medium border-subtle"
-                        :src="imageUrl"
-                        :alt="displayTitle || `${domain} preview image`"
-                        loading="lazy"
-                        decoding="async"
-                        referrerpolicy="no-referrer"
-                        :style="thumbnailSize"
-                        @load="updateThumbnailSize"
-                    >
-                    <div v-else class="thumbnail br-medium placeholder grid center border-subtle" aria-hidden="true">
-                        <i class="fa-solid fa-link"></i>
-                    </div>
-                </div>
+                </ContentVisibility>
             </div>
         </article>
-    </ContentVisibility>
 </template>
 
 <style scoped lang="scss">

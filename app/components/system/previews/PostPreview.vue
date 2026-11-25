@@ -24,37 +24,37 @@ function updateThumbnailSize(event: Event) {
 </script>
 
 <template>
-    <ContentVisibility :tags="post.tags">
         <div class="post clickable box background animate hover-shadow" :class="{'pinned': pinned }">
-            <ContentVisibility v-if="post.replyTo && post.replyTo.id" :tags="post.replyTo.tags">
+            <template v-if="post.replyTo && post.replyTo.id">
                 <div class="reply-to row inline g-2 py-1 px-2" @click="navigateTo(`/post/${extractId(post.replyTo.id)}`)">
                     <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                     <p class="text truncate bold">{{ post.replyTo.title }}</p>
                 </div>
-            </ContentVisibility>
+            </template>
             <div class="main box column g-2 p-3 text break" @click="navigateTo(`/post/${extractId(post.id)}`)">
                 <ContentHeader :content="post" :pinned="pinned" />
-                <div class="content-row row inline start g-2">
-                    <div class="details f-1">
-                        <h3 class="title">
-                            {{ post.title }}
-                        </h3>
-                        <p class="description content-preview mt-1">{{ contentPreview }}</p>
+                <ContentVisibility :tags="post.tags">
+                    <div class="content-row row inline start g-2">
+                        <div class="details f-1">
+                            <h3 class="title">
+                                {{ post.title }}
+                            </h3>
+                            <p class="description content-preview mt-1">{{ contentPreview }}</p>
+                        </div>
+                        <img
+                            v-if="post.images[0]"
+                            class="thumbnail br-medium border-subtle"
+                            :src="post.images[0].url"
+                            :alt="post.title"
+                            loading="lazy"
+                            decoding="async"
+                            :style="thumbnailSize"
+                            @load="updateThumbnailSize"
+                        >
                     </div>
-                    <img
-                        v-if="post.images[0]"
-                        class="thumbnail br-medium border-subtle"
-                        :src="post.images[0].url"
-                        :alt="post.title"
-                        loading="lazy"
-                        decoding="async"
-                        :style="thumbnailSize"
-                        @load="updateThumbnailSize"
-                    >
-                </div>
+                </ContentVisibility>
             </div>
         </div>
-    </ContentVisibility>
 </template>
 
 <style scoped lang="scss">

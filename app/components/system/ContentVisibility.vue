@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import type { ContentVisibilityMode } from "@@/shared/types"
 
-const props = withDefaults(defineProps<{
-    tags?: string[]
+const props = defineProps<{
+    tags: string[]
     direct?: boolean
-}>(), {
-    tags: () => [],
-    direct: false,
-})
+}>()
 
 const settings = useSettings()
 const userSettings = useUserSettings()
@@ -33,16 +30,23 @@ watch(mode, () => {
     revealed.value = false
 })
 
-const tagLabels = computed(() => props.tags.join(", "))
+const labels = [
+    { tag: "nsfw", label: "NSFW" },
+    { tag: "spoiler", label: "Spoiler" }
+]
+
+const tagLabels = computed(() => {
+    return props.tags.map(t => labels.find(l => l.tag === t)?.label).join(", ")
+})
 
 </script>
 
 <template>
     <template v-if="mode !== 'filter' || direct">
         <template v-if="mode !== 'show' && !revealed">
-            <section class="box column g-2 py-3" @click.stop>
+            <section class="box column g-2" @click.stop>
                 <button type="button" class="small warning" @click.stop="revealed = true">
-                    Reveal {{ tagLabels }}
+                    Reveal ({{ tagLabels }})
                 </button>
             </section>
         </template>

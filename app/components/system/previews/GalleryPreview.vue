@@ -14,15 +14,15 @@ const imageSlides = computed(() => props.gallery.images.map((image, index) => ({
 </script>
 
 <template>
-    <ContentVisibility :tags="gallery.tags">
-        <div class="gallery box background animate hover-shadow" :class="{ pinned }">
-            <div class="main clickable box column p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
-                <ContentHeader class="mb-2" :content="gallery" :pinned="pinned" />
+    <div class="gallery box background animate hover-shadow" :class="{ pinned }">
+        <div class="main clickable box column p-3" @click="navigateTo(`/gallery/${extractId(gallery.id)}`)">
+            <ContentHeader class="mb-2" :content="gallery" :pinned="pinned" />
+            <ContentVisibility :tags="gallery.tags">
                 <h3 class="title text left mb-2">{{ gallery.title }}</h3>
                 <ImageSlideshow :images="imageSlides" label="Gallery images" fit-height />
-            </div>
+            </ContentVisibility>
         </div>
-    </ContentVisibility>
+    </div>
 </template>
 
 <style scoped lang="scss">
