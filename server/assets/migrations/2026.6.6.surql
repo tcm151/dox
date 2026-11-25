@@ -13,6 +13,16 @@ DEFINE FUNCTION OVERWRITE fn::can_view_profile($owner: record<user>, $viewer: op
     OR ($viewer != NONE AND $viewer.roles CONTAINS "admin");
 };
 
+// following a topic gives them a positive vote
+UPDATE topic SET
+    votes.positive = array::union(votes.positive, followers)
+WHERE votes.positive != array::union(votes.positive, followers);
+
+// following a user gives them a positive vote
+UPDATE user SET
+    votes.positive = array::union(votes.positive, followers)
+WHERE votes.positive != array::union(votes.positive, followers);
+
 UPSERT migration SET version = '2026.6.6', time = time::now()
 WHERE version = '2026.6.6';
 COMMIT;

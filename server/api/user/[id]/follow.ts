@@ -15,7 +15,8 @@ export default defineEventHandler(async (event) => {
                 following = array::union(following, [$follower]);
 
             UPDATE $follower SET
-                followers = array::union(followers, [$user]);
+                followers = array::union(followers, [$user]),
+                votes.positive = array::union(votes.positive, [$user]);
 
             RETURN true;
         `)

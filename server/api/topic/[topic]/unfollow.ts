@@ -5,9 +5,9 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             UPDATE $user SET
-            topics = array::difference(topics, [$topic])
+                topics = array::difference(topics, [$topic]);
         `)
         .addRecord("user", auth.id)
         .addRecord("topic", `topic:${topic}`)
-        .queryOne()
+        .execute()
 })

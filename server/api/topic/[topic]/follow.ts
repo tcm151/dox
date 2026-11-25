@@ -9,9 +9,13 @@ export default defineEventHandler(async (event) => {
     return await new DatabaseQuery()
         .addSql(`
             UPDATE $user SET
-            topics = array::union(topics, [$topic])
+                topics = array::union(topics, [$topic]);
+
+            UPDATE $topic SET
+                votes.positive = array::union(votes.positive, [$user]);
         `)
+        .addTransaction()
         .addRecord("user", auth.id)
         .addRecord("topic", `topic:${topic}`)
-        .queryOne()
+        .execute()
 })
