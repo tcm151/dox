@@ -29,10 +29,14 @@ onBeforeUnmount(() => {
 
 <template>
     <button :disabled="loading || disabled" :aria-busy="loading">
-        <span class="button-spinner-state" :class="{ spinning }">
-            <span class="button-spinner-content row inline g-1"><slot /></span>
-            <span v-if="spinning" class="button-spinner-indicator" aria-hidden="true"><Spinner :showText="false" /></span>
-        </span>
+        <div class="button-spinner-state" :class="{ spinning }">
+            <div class="button-spinner-content row inline g-2">
+                <slot />
+            </div>
+            <div v-if="spinning" class="button-spinner-indicator" aria-hidden="true">
+                <Spinner :showText="false" />
+            </div>
+        </div>
     </button>
 </template>
 

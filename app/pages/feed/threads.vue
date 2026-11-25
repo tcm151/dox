@@ -21,19 +21,3 @@ const threads = useFeedDatasource<Thread>("/api/thread", {
         </Feed>
     </article>
 </template>
-
-<style scoped lang="scss">
-header.box {
-    outline: 2px solid $white-2;
-
-    @media (max-width: $bp-desktop) {
-        button:not(.success) {
-            flex: 0.25 1;
-
-            span {
-                display: none;
-            }
-        }
-    }
-}
-</style>

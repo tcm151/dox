@@ -23,6 +23,8 @@ const { data: notifications, pending, refresh } = await useAuthenticatedDatasour
     }
 })
 
+const someUnread = computed(() => notifications.value?.items.some(notification => !notification.viewed))
+
 const dismissing = ref<boolean>(false)
 async function dismissAll() {
     if (dismissing.value) return
@@ -119,11 +121,7 @@ async function loadMore() {
         <header class="row inline between g-2 mb-2">
             <h1>Inbox</h1>
             <div class="row g-2">
-                <!-- TODO need a better way to display this on mobile -->
-                <div class="box px-4 py-2">
-                    <Toggle v-model:enabled="showDismissed" label="Show All" />
-                </div>
-                <ButtonSpinner v-if="notifications.total > 0" class="dark" :loading="dismissing" @click="dismissAll">
+                <ButtonSpinner v-if="someUnread" class="dark" :loading="dismissing" @click="dismissAll">
                     <i class="fa-solid fa-angles-right"></i>
                     <span>Dismiss Unread</span>
                 </ButtonSpinner>
@@ -133,6 +131,16 @@ async function loadMore() {
                 </ButtonSpinner>
             </div>
         </header>
+        <nav class="row wrap g-2 mb-2">
+            <button type="button" class="f-1 b-0" :class="{ selected: !showDismissed }" @click="showDismissed = false">
+                <i class="fa-solid fa-eye"></i>
+                <span>Unread</span>
+            </button>
+            <button type="button" class="f-1 b-0" :class="{ selected: showDismissed }" @click="showDismissed = true">
+                <i class="fa-solid fa-box"></i>
+                <span>All</span>
+            </button>
+        </nav>
         <section v-if="notifications.total > 0" class="column g-2">
             <TransitionGroup name="notifications">
                 <template v-for="notification in notifications.items" :key="notification.id">

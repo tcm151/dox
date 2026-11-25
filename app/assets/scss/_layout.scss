@@ -32,6 +32,16 @@
     flex-basis: 0;
 }
 
+.row.adaptive {
+  container-type: inline-size;
+
+  >.compact {
+    button:not(.selected, .active) span, a:not(.selected, .active) span {
+            display: none;
+        }
+    }
+}
+
 .column {
     display: flex;
     flex-flow: column nowrap;
@@ -92,6 +102,27 @@
 .row.inline.end, .column.inline.end {
     align-items: flex-end;
 }
+
+// .button-group {
+//   display: flex;
+//   gap: 0.5rem;
+//   container-type: inline-size; /* Enables width queries on this parent */
+// }
+
+// .button-group button {
+//   display: inline-flex;
+//   align-items: center;
+//   gap: 0.5rem;
+// }
+
+// /* Adjust 400px to the width where your buttons start feeling cramped */
+// @container (max-width: 400px) {
+//   .button-group button span {
+//     display: none;
+//   }
+// }
+
+
 
 .grid {
     display: grid;

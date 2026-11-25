@@ -106,7 +106,7 @@ function toggleUserManager() {
 <style scoped lang="scss">
 section.left {
     a.title {
-        @media (max-width: $bp-mobile-wide) {
+        @media (max-width: $bp-mobile) {
             span { display: none; }
         }
     }

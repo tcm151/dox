@@ -58,7 +58,7 @@ async function unfollowUser() {
                 </div>
                 <Authenticated v-if="!isDeletedUser">
                     <div class="row wrap g-2">
-                        <button v-if="isOwnProfile" class="small" @click="navigateTo('/settings')">
+                        <button v-if="isOwnProfile" class="small" @click="navigateTo('/profile/account')">
                             <i class="fa-solid fa-address-card"></i>
                             <span>Profile</span>
                         </button>
@@ -125,17 +125,4 @@ async function unfollowUser() {
         text-decoration: underline;
     }
 }
-
-div.buttons {
-    @media (max-width: $bp-tablet) {
-        span {
-            display: none;
-        }
-    }
-
-    button {
-        min-width: 6rem;
-    }
-}
-
 </style>

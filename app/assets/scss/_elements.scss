@@ -241,7 +241,7 @@ nav.tabstrip {
     }
 }
 
-@media (max-width: $bp-desktop) {
+@media (min-width: $bp-desktop) {
     nav.tabstrip.wide {
         button, a {
             padding: 0.5rem 1.5rem;
@@ -249,7 +249,7 @@ nav.tabstrip {
     }
 }
 
-@media (max-width: $bp-compact) {
+@media (max-width: $bp-desktop) {
     nav.tabstrip.wide {
         button, a {
             padding: 0.5rem 1rem;
@@ -257,24 +257,11 @@ nav.tabstrip {
     }   
 }
 
-@media (max-width: $bp-desktop) {
-    nav.tabstrip.large button:not(.selected) span,
-    nav.tabstrip.large a:not(.selected) span {
-        display: none;
-    }
-}
-
-@media (max-width: $bp-tablet) {
-    nav.tabstrip.medium button:not(.selected) span,
-    nav.tabstrip.medium a:not(.selected) span {
-        display: none;
-    }
-}
-
-@media (max-width: $bp-compact) {
-    nav.tabstrip.small button:not(.selected) span,
-    nav.tabstrip.small a:not(.selected) span {
-        display: none;
+@media (max-width: $bp-mobile) {
+    nav.tabstrip {
+        button, a {
+            padding: 0.5rem 0.75rem;
+        }
     }
 }
 

@@ -7,7 +7,7 @@ const route = useRoute()
 </script>
 
 <template>
-    <nav class="row tabstrip wide">
+    <nav class="row tabstrip">
         <TransitionGroup name="tabs">
             <template v-for="tab in tabs" :key="tab.route">
                 <NuxtLink v-if="!tab.hide?.()"

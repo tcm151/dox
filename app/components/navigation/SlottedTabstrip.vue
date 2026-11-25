@@ -15,7 +15,7 @@ const emit = defineEmits<{
 
 <template>
     <main class="column inline">
-        <nav class="row tabstrip large">
+        <nav class="row tabstrip">
             <TransitionGroup name="tabs">
                 <button v-for="tab in tabs"
                     :class="{ selected: tab.label == currentTab }"

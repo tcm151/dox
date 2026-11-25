@@ -43,7 +43,7 @@ const tabs = ref<TabItem[]>([
 
 <template>
     <article class="editor column inline">
-        <PagedTabstrip :tabs="tabs" />
+        <PagedTabstrip class="wide" v-adaptive :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage :key="route.path" />
         </section>

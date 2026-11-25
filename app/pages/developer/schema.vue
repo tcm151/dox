@@ -33,24 +33,20 @@ async function replayMigration() {
 
 <template>
     <article class="content-width column g-2 p-4">
-        <header class="row wrap inline between g-2">
+        <header class="row wrap inline between">
             <h1>Schema</h1>
-            <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
-                <i class="fa-solid fa-rotate"></i>
-                <span>Refresh</span>
-            </ButtonSpinner>
+            <div class="row g-2">
+                <ButtonSpinner class="danger" :loading="syncing" @click="syncDatabase">
+                    <i class="fa-solid fa-cloud-arrow-down" />
+                    <span>Sync</span>
+                </ButtonSpinner>
+                <ButtonSpinner class="dark" :loading="pending" @click="refresh()">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Refresh</span>
+                </ButtonSpinner>
+            </div>
         </header>
         <section class="box column g-2 p-4">
-            <header class="row wrap g-2">
-                <ButtonSpinner class="danger f-1" :loading="syncing" @click="syncDatabase">
-                    <i class="fa-solid fa-cloud-arrow-down" />
-                    <span>Sync Database</span>
-                </ButtonSpinner>
-                <ButtonSpinner class="danger f-1" :loading="loading" @click="replayMigration">
-                    <i class="fa-solid fa-rotate-right" />
-                    <span>Replay Migration</span>
-                </ButtonSpinner>
-            </header>
             <Codeblock v-if="schema" language="sql" :code="schema" />
         </section>
     </article>

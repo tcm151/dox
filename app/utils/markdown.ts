@@ -29,6 +29,7 @@ export function renderMarkdownText(text: string | undefined) {
         if (node.nodeName === "br" || node.nodeName === "hr") return " "
         if (/^h[1-6]$/.test(node.nodeName)) return ""
         if (node.nodeName === "table") return ""
+        if (node.nodeName === "pre") return ""
         if ("content" in node) return extractText(node.content)
         if (!("childNodes" in node)) return ""
 

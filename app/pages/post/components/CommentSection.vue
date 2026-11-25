@@ -97,19 +97,19 @@ watch(() => props.loading, (status) => {
 
 <template>
     <section v-if="target && target.comments.length > 0" class="comments br-medium p-5">
-        <header class="sorting row g-1 mb-3">
+        <header v-adaptive:sm class="sorting row g-1 mb-3">
             <button class="refresh dark" @click="emit('refresh', sortType)">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
-            <button class="f-1" @click="emit('refresh', 'new')" :class="{ selected: sortType === 'new' }">
+            <button class="f-1 b-0" @click="emit('refresh', 'new')" :class="{ selected: sortType === 'new' }">
                 <i class="fa-solid fa-egg"></i>
                 <span>New</span>
             </button>
-            <button class="f-1" @click="emit('refresh', 'hot')" :class="{ selected: sortType === 'hot' }">
+            <button class="f-1 b-0" @click="emit('refresh', 'hot')" :class="{ selected: sortType === 'hot' }">
                 <i class="fa-solid fa-fire"></i>
                 <span>Hot</span>
             </button>
-            <button class="f-1" @click="emit('refresh', 'top')" :class="{ selected: sortType === 'top' }">
+            <button class="f-1 b-0" @click="emit('refresh', 'top')" :class="{ selected: sortType === 'top' }">
                 <i class="fa-solid fa-ranking-star"></i>
                 <span>Top</span>
             </button>

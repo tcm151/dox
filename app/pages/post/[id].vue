@@ -236,21 +236,21 @@ function toggleOptions() {
                     </template>
                 </ClientOnly>
                 <footer class="column g-2">
-                    <div v-if="!editingPost" class="interactions row wrap g-1">
-                            <button class="comment" :disabled="commentState.disabled" @click="toggleCommentBox">
+                    <div v-if="!editingPost" v-adaptive class="row g-1">
+                            <button class="comment active f-2 b-0" :disabled="commentState.disabled" @click="toggleCommentBox">
                                 <i class="fa-solid fa-comment"></i>
                                 <span>Comment</span>
                             </button>
-                            <button class="reply" :disabled="commentState.disabled" @click="writePostReply">
+                            <button class="reply f-1 b-0" :disabled="commentState.disabled" @click="writePostReply">
                                 <i class="fa-solid fa-reply-all fa-flip-horizontal"></i>
                                 <span>Reply</span>
                             </button>
-                            <button class="share" @click="copyLink">
+                            <button class="share f-1 b-0" @click="copyLink">
                                 <i class="fa-solid fa-copy"></i>
                                 <span>Share</span>
                             </button>
                             <ClientOnly>
-                                <button v-if="session.isAuthenticated" class="options" title="Options" @click="toggleOptions">
+                                <button v-if="session.isAuthenticated" class="options b-0" title="Options" @click="toggleOptions">
                                     <i class="fa-solid fa-ellipsis"></i>
                                 </button>
                                 <OverlayTransition>
@@ -333,22 +333,6 @@ aside.reply-to + section.post {
 section.post {
     @media (max-width: $bp-tablet) {
         padding: 1rem !important;
-    }
-}
-
-div.interactions {
-    button:not(.options) {
-        flex: 1 1 auto;
-    }
-
-    @media (max-width: $bp-mobile) {
-        button:is(.reply, .share) {
-            flex: 1 0;
-
-            span {
-                display: none;
-            }
-        }
     }
 }
 </style>

@@ -20,6 +20,12 @@ html {
     color: $black-0;
 }
 
+@media (max-width: $bp-mobile) {
+    html {
+        font-size: 10pt;
+    }
+}
+
 .fw-thin {
     font-weight: var(--fw-thin);
 }
@@ -266,6 +272,7 @@ h1 {
     font-weight: var(--fw-heavy);
     letter-spacing: -1px;
     word-spacing: -2px;
+    line-height: 2rem;
 }
 
 h2 {
@@ -308,25 +315,22 @@ pre {
     }
 
     h1 {
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
+        margin-block: 1.5rem 0.5rem;
         font-size: 2rem;
     }
     
     h2 {
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
+        margin-block: 1.5rem 0.5rem;
         font-size: 1.5rem;
     }
     
     h3 {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
+        margin-block: 1rem 0.5rem;
         font-size: 1.25rem;
     }
     
     p {
-        margin-block: 1rem;
+        margin-block: 0.5rem 1rem;
         hyphens: auto;
     }
 
@@ -350,7 +354,7 @@ pre {
         display: flex;
         flex-direction: column;
         gap: 0.5rem; 
-        margin-block: 1rem;
+        margin-block: 0.5rem 1rem;
         padding-inline-start: 2rem;
 
         li {
@@ -365,14 +369,14 @@ pre {
     }
 
     li > ul {
-        margin-block: 0.5rem;
+        margin-block: 0.5rem 1rem;
     }
 
     blockquote {
-        margin-block: 1rem;
+        margin-block: 0.5rem 1rem;
         
         p {
-            margin-block: 0.5rem;
+            margin-block: 0.5rem 1rem;
         }
     }
     
@@ -384,6 +388,7 @@ pre {
         
         img {
             width: 100%;
+            max-width: fit-content;
             margin-inline: auto;
             border-radius: 0.5rem;
             border: 0.25rem solid $white-1;
@@ -392,7 +397,7 @@ pre {
     }
 
     pre:has(code) {
-        margin-block: 1rem;
+        margin-block: 0.5rem 1rem;
 
         code {
             display: block;
@@ -403,7 +408,7 @@ pre {
 
     table {
         width: 100%;
-        margin-block: 1rem;
+        margin-block: 0.5rem 1rem;
         border-collapse: collapse;
         border: 1px solid $white-2;
     }

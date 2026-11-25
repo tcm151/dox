@@ -35,7 +35,7 @@ const tabs = computed<TabItem[]>(() => {
 
 <template>
     <article class="topic-tools column inline tabbed-shell">
-        <PagedTabstrip class="medium" :tabs="tabs" />
+        <PagedTabstrip v-adaptive class="wide" :tabs="tabs" />
         <section class="page column inline tabbed-content">
             <NuxtPage :key="route.path" />
         </section>

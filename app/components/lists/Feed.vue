@@ -46,7 +46,7 @@ watch(() => props.items.status.value, (status) => {
 
 <template>
     <section class="column g-2">
-        <header v-if="items.sorting" class="sorting row center g-2">
+        <header v-if="items.sorting" v-adaptive:sm class="sorting row center g-2">
             <button class="refresh dark" @click="items.refresh()">
                 <i class="fa-solid fa-rotate" :class="{ spin: spinRefresh }"></i>
             </button>
@@ -94,14 +94,6 @@ watch(() => props.items.status.value, (status) => {
 <style scoped lang="scss">
 
 header.sorting {
-    @media (max-width: $bp-mobile) {
-        button:not(.refresh, .selected), :slotted(button) {
-            span {
-                display: none;
-            }    
-        }
-    }
-
     .selected {
         color: $white-0;
         background-color: $white-3;

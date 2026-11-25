@@ -109,7 +109,7 @@ async function submitComment(replyId: { id: string }, content: string) {
 
 <template>
     <main v-if="comment" class="comment" :id="comment.id">
-        <header class="row g-1">
+        <header class="row wrap g-1">
             <Votes :target="comment" />
             <UserTag :user="comment.user" />
             <Tag v-if="comment.edited" type="info">
@@ -167,12 +167,6 @@ main.comment {
         border-radius: 0.25rem;
     }
 
-    header.row {
-        @media (max-width: $bp-tablet) {
-            flex-wrap: wrap;
-        }
-    }
-    
     .comment-reply, .comment-edit {
         textarea {
             max-height: 256px;

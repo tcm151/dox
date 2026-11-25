@@ -1,7 +1,6 @@
 import type { DirectiveBinding } from "vue"
 
 export default defineNuxtPlugin((nuxtApp) => {
-    
     nuxtApp.vueApp.directive("focusSelect", (element: HTMLInputElement) => {
         element.onfocus = () => {
             element.select()
@@ -34,13 +33,16 @@ export default defineNuxtPlugin((nuxtApp) => {
     const scrollPositionKeys = new WeakMap<HTMLElement, string>()
     const scrollRestoreObservers = new WeakMap<HTMLElement, MutationObserver>()
     const pendingScrollRestores = new WeakMap<HTMLElement, string>()
-    const scrollPositionHandlers = new WeakMap<HTMLElement, {
-        save: () => void
-        markUserScroll: () => void
-        cancelRestore: () => void
-        pointerDown: () => void
-        keyDown: (event: KeyboardEvent) => void
-    }>()
+    const scrollPositionHandlers = new WeakMap<
+        HTMLElement,
+        {
+            save: () => void
+            markUserScroll: () => void
+            cancelRestore: () => void
+            pointerDown: () => void
+            keyDown: (event: KeyboardEvent) => void
+        }
+    >()
 
     function saveScrollPosition(element: HTMLElement, key: string) {
         scrollPositions.set(key, element.scrollTop)
@@ -110,8 +112,7 @@ export default defineNuxtPlugin((nuxtApp) => {
                 keyDown: (event: KeyboardEvent) => {
                     if ([" ", "ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp"].includes(event.key)) {
                         handlers.markUserScroll()
-                    }
-                    else {
+                    } else {
                         handlers.cancelRestore()
                     }
                 },
@@ -173,7 +174,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     function startDragScroll(event: PointerEvent) {
         const element = event.currentTarget as HTMLElement
         const state = dragScrollStates.get(element)
-        if (!state || event.pointerType !== "mouse" || event.button !== 0 || element.scrollWidth <= element.clientWidth) return
+        if (!state || event.pointerType !== "mouse" || event.button !== 0 || element.scrollWidth <= element.clientWidth)
+            return
 
         finishDragScroll(element, state)
         state.pointerId = event.pointerId
@@ -292,6 +294,108 @@ export default defineNuxtPlugin((nuxtApp) => {
             element.removeEventListener("pointercancel", endDragScroll)
             element.removeEventListener("click", preventDragScrollClick, true)
             dragScrollStates.delete(element)
+        },
+    })
+
+
+    // $bp-compact: 400px;
+    // $bp-mobile: 500px;
+    // $bp-tablet: 600px;
+    // $bp-laptop: 800px;
+    // $bp-desktop: 1000px;
+    const BREAKPOINTS = {
+        sm: 500, // match $bp-mobile
+        md: 600, // match $bp-tablet
+        lg: 1000, // match $bp-desktop
+    } as const
+
+    type BreakpointKey = keyof typeof BREAKPOINTS | "auto"
+
+    nuxtApp.vueApp.directive("adaptive", {
+        mounted(element: HTMLElement, binding: any) {
+            const tier: BreakpointKey = (binding.arg as BreakpointKey) || binding.value || "auto"
+            element.classList.add("adaptive", tier)
+
+            let requiredWidth = 0
+
+            const measureNaturalWidth = () => {
+                const wasCompact = element.classList.contains("compact")
+                if (wasCompact) element.classList.remove("compact")
+
+                const children = Array.from(element.children) as HTMLElement[]
+                if (children.length === 0) {
+                    requiredWidth = 0
+                    if (wasCompact) element.classList.add("compact")
+                    return
+                }
+
+                const prevShrinks = children.map((c) => c.style.flexShrink)
+                const prevWrap = element.style.flexWrap
+
+                element.style.flexWrap = "nowrap"
+                children.forEach((c) => (c.style.flexShrink = "0"))
+
+                const parentStyle = getComputedStyle(element)
+                const padLeft = parseFloat(parentStyle.paddingLeft) || 0
+                const padRight = parseFloat(parentStyle.paddingRight) || 0
+
+                const first = children[0]!
+                const last = children[children.length - 1]!
+                const firstMarginLeft = parseFloat(getComputedStyle(first).marginLeft) || 0
+                const lastMarginRight = parseFloat(getComputedStyle(last).marginRight) || 0
+
+                // Exact span from the first child's outer left edge to the last child's outer right edge
+                const contentSpan =
+                    last.getBoundingClientRect().right -
+                    first.getBoundingClientRect().left +
+                    firstMarginLeft +
+                    lastMarginRight
+
+                // Total inner width needed (matches clientWidth box model + 1px sub-pixel buffer)
+                requiredWidth = Math.ceil(contentSpan + padLeft + padRight) + 1
+
+                children.forEach((c, i) => (c.style.flexShrink = prevShrinks[i]!))
+                element.style.flexWrap = prevWrap
+                if (wasCompact) element.classList.add("compact")
+            }
+
+            const update = () => {
+                if (tier === "auto" && requiredWidth === 0) {
+                    measureNaturalWidth()
+                }
+                // clientWidth is the exact inner width before horizontal overflow starts
+                const availableWidth = element.clientWidth
+                const threshold = tier === "auto" ? requiredWidth : BREAKPOINTS[tier]
+                element.classList.toggle("compact", availableWidth < threshold)
+            }
+
+            update()
+            document.fonts?.ready.then(() => {
+                if (tier === "auto") {
+                    measureNaturalWidth()
+                    update()
+                }
+            })
+
+            const resizeObserver = new ResizeObserver(() => update())
+            resizeObserver.observe(element)
+
+            let mutationObserver: MutationObserver | undefined
+            if (tier === "auto") {
+                mutationObserver = new MutationObserver(() => {
+                    measureNaturalWidth()
+                    update()
+                })
+                mutationObserver.observe(element, { childList: true, subtree: true, characterData: true })
+            }
+
+            ;(element as any).adaptiveCleanup = () => {
+                resizeObserver.disconnect()
+                mutationObserver?.disconnect()
+            }
+        },
+        unmounted(element: HTMLElement) {
+            ;(element as any).adaptiveCleanup?.()
         },
     })
 })

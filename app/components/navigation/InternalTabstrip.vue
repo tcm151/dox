@@ -13,7 +13,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <nav class="row tabstrip small">
+    <nav class="row tabstrip">
         <TransitionGroup name="tabs">
             <button v-for="tab in tabs"
                 :class="{ selected: tab.label.toLowerCase() == selected.toLowerCase() }"

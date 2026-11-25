@@ -44,8 +44,8 @@ const tabs = ref<TabItem[]>([
 </script>
 
 <template>
-    <article class="feed column inline">
-        <PagedTabstrip class="medium" :tabs="tabs" />
+    <article class="admin column inline tabbed-shell">
+        <PagedTabstrip v-adaptive class="wide" :tabs="tabs" />
         <section v-scroll-position="route.fullPath" class="page column inline">
             <NuxtPage :key="route.path" />
         </section>
@@ -53,11 +53,6 @@ const tabs = ref<TabItem[]>([
 </template>
 
 <style scoped lang="scss">
-article.feed {
-    width: 100%;
-    overflow-y: hidden;
-}
-
 section.page {
     width: 100%;
     overflow-y: auto;
