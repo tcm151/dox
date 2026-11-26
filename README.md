@@ -17,11 +17,11 @@ The internet works best when communities can be independently operatred, publicl
 
 - **Discoverablity** for posts, links, threads, topics, images, and search; with filters for new, hot, or top ranking content.
 - **Threaded Discussions** with nested replies, direct quoting, inline editing, and threaded chains of conversation.
-- **Images & Media** upload images and attach them to other content; with ongoing development to support audio and video.
-- **User Engagement** follow other users, vote on their content submissions, and get notifications for interactions.
+- **Image & Media** uploads and attach them to other content; with ongoing development to support audio and video.
+- **User Engagement** to follow other users, vote on their content submissions, and get notifications for interactions.
 - **Tooling** includes a suite of reporting, moderation, and content filtering tools to maintain a healthy community.
 - **Roles** to give users configurable permissions, and allow them to help you manage the community.
-- **Self-Hosted** powered by Nuxt and SurrealDB, with support for embedded or remote database deployments.
+- **Self-Hosted** and powered by Nuxt and SurrealDB, with support for embedded or remote database deployments.
 
 # Quick Start
 
