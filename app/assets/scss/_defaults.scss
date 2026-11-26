@@ -396,6 +396,15 @@ pre {
         }
     }
 
+    code:not([class*="language-"]) {
+        color: $purple;
+    }
+    
+    :not(pre) > code {
+        border-radius: 0.25rem;
+        padding-inline: 0.25rem;
+    }
+
     pre:has(code) {
         margin-block: 0.5rem 1rem;
 
