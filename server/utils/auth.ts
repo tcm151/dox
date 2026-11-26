@@ -57,6 +57,7 @@ export const authenticateLogin = async (event: H3Event) => {
     }
 }
 
+// TODO add optional confirmed account requirement for interactions
 export const authenticateRequest = async (event: H3Event): Promise<User> => {
     try {
         const token = getHeader(event, 'Authorization') ?? ""

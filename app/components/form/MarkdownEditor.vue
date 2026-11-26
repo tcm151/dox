@@ -54,6 +54,7 @@ const tools: Tool[] = [
     { label: "Image", icon: "fa-image", title: "Image", action: applyImage },
     { label: "Row", icon: "fa-table-columns", title: "Row", action: applyRow },
     { label: "Horizontal rule", icon: "fa-minus", title: "Horizontal rule", action: applyHorizontalRule },
+    { label: "Maximize", icon: "fa-expand", title: "Maximize", action: toggleMaximize },
 ]
 
 function getCursor(): Cursor {
@@ -198,6 +199,10 @@ function applyHorizontalRule() {
     const replacement = `${leadingBreak}---${trailingBreak}`
     const ruleEnd = cursor.start + leadingBreak.length + 3
     replaceText(cursor.start, cursor.end, replacement, ruleEnd)
+}
+
+function toggleMaximize() {
+    // TODO open a full screen editor for the markdown content
 }
 
 function applyRow() {
