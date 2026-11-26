@@ -2,6 +2,20 @@
 
 ClassicForum uses `year.major.patch` versions. The current version is defined in `package.json`.
 
+## [2026.6.6] - 2026-11-25
+
+### Added
+- A new mutuals feed for users who follow each other.
+
+### Changed
+- Reporting workflows streamlined for moderators and admins.
+- Adjust user preferences and filters for better organization.
+
+### Fixed
+- Clarified Node 24 version requirement.
+- Improved animations and overall UX.
+- Fixed issue with feed availability and failed refreshes.
+
 ## [2026.6.5] - 2026-11-19
 
 ### Added
