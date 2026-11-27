@@ -160,6 +160,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 | --- | --- | --- | --- |
 | `GET` | [`/api/feed/popular`](#feed-pagination) | Public | Returns a paginated aggregate feed when `feeds.discover` is enabled. |
 | `GET` | [`/api/feed/following`](#feed-pagination) | Authenticated | Returns followed content when `feeds.discover` is enabled. |
+| `GET` | [`/api/feed/mutuals`](#feed-pagination) | Authenticated | Returns content by users who follow the viewer and whom the viewer follows, when `feeds.discover` is enabled. |
 | `GET` | `/api/feed/pinned` | Public | Returns active application-wide pins when `feeds.discover` is enabled. |
 | `GET` | [`/api/feed/search?text=&type=&topic=&user=&from=&to=&pageSize=&offset=`](#feed-search) | Public | Searches active posts, threads, galleries, links, and comments when `feeds.search` is enabled. |
 | `GET` | `/api/feed/topics` | Public | Lists topics for the dedicated Topics feed when `feeds.topics` is enabled. |
@@ -182,12 +183,12 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 
 ### Feed Pagination
 
-- Methods: `GET /api/feed/popular` and `GET /api/feed/following`.
-- Access: popular feed is public; following feed requires authentication and includes content from followed topics or users. Both require `feeds.discover`; disabled feeds return `404`.
+- Methods: `GET /api/feed/popular`, `GET /api/feed/following`, and `GET /api/feed/mutuals`.
+- Access: Popular is public. Following and Mutuals require authentication. Following includes content from followed topics or users; Mutuals includes only reciprocal follows between users and applies the viewer's personal mute and block filters. All three require `feeds.discover`; disabled feeds return `404`.
 - Query: `sortBy` accepts `new`, `hot`, or `top` and defaults to `new`. `pageSize` defaults to 20 and is clamped to 1-50; `offset` defaults to 0 and is clamped to 0-5,000,000.
 - `200`: `{ items, pageSize, offset, more }`; `items` may contain active posts, links, top-level threads, or galleries, and `more` indicates whether another item exists.
-- Source: [feed handlers](../server/api/feed/popular.ts), [following handler](../server/api/feed/following.ts), [pagination implementation](../server/utils/feedPagination.ts).
-- Tests: [feed pagination tests](../tests/sequential/02-feeds.server.test.ts) cover sort modes, offsets, limits, and followed-topic filtering.
+- Source: [Popular](../server/api/feed/popular.ts), [Following](../server/api/feed/following.ts), [Mutuals](../server/api/feed/mutuals.ts), and [shared pagination](../server/utils/feedPagination.ts).
+- Tests: [feed pagination tests](../tests/sequential/09-feeds.server.test.ts) cover sort modes, offsets, limits, and followed-topic filtering.
 
 ### Feed Search
 
@@ -259,7 +260,7 @@ Inventory of feature handlers under `server/api/`. Every feature handler has a r
 - Request body: `{ url }` (at most 2048 characters).
 - `200`: `{ title?, description?, imageUrl? }`; descriptions are limited to 256 characters, and unavailable or non-HTML metadata returns an empty object.
 - `400`: invalid URL or a target/redirect resolving to a private or reserved address. `401`: no valid session. `429`: more than 60 requests per minute from the same client address.
-- Side effects: performs a remote HTML/JSON request and caches its result in memory for ten minutes. DNS lookups, idle socket timeouts, redirect count, and response size are limited; an absolute request deadline remains tracked in [Ticket 0040](tickets/completed/0040-safe-link-metadata-previews.md).
+- Side effects: performs a remote HTML/JSON request and caches its result in memory for ten minutes. DNS lookups, idle socket timeouts, redirect count, and response size are limited.
 - Source: [route](../server/api/link/preview.ts), [preview manager](../server/utils/LinkPreviewManager.ts).
 - Tests: [preview manager and endpoint tests](../tests/parallel/links.server.test.ts).
 
