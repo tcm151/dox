@@ -32,6 +32,7 @@ const props = defineProps<{
 
 const content = defineModel<string>({ default: "" })
 const textarea = useTemplateRef<HTMLTextAreaElement>("textarea")
+const textareaId = useId()
 
 onMounted(() => {
     if (props.autofocus) textarea.value?.focus({ preventScroll: true })
@@ -235,7 +236,7 @@ function handleKeydown(event: KeyboardEvent) {
 
 <template>
     <div class="field markdown-editor" :class="{ bounded }">
-        <label v-if="label">{{ label }}</label>
+        <label v-if="label" :for="textareaId">{{ label }}</label>
         <header class="toolbar row inline wrap g-1 p-1">
             <button
                 v-for="tool in tools"
@@ -243,6 +244,7 @@ function handleKeydown(event: KeyboardEvent) {
                 type="button"
                 class="tool small p-0"
                 :title="tool.title"
+                :aria-label="tool.label"
                 :disabled="disabled"
                 @mousedown.prevent
                 @click.prevent="tool.action"
@@ -253,6 +255,7 @@ function handleKeydown(event: KeyboardEvent) {
         </header>
         <textarea
             ref="textarea"
+            :id="textareaId"
             :rows="rows ?? 8"
             :maxlength="maxLength"
             :placeholder="placeholder"

@@ -134,3 +134,15 @@ test("blocks direct post and thread editor routes when publishing is disabled", 
     await page.goto("/editor/thread")
     await expect(page.getByRole("heading", { name: "New Thread" })).toHaveCount(0)
 })
+
+test("labels the editor fields for assistive technology", async ({ authenticatedPage: page }) => {
+    await page.goto("/editor/post")
+    await expect(page.getByRole("textbox", { name: "Title", exact: true })).toBeVisible()
+    await expect(page.getByRole("textbox", { name: "Content", exact: true })).toBeVisible()
+    await expect(page.getByRole("button", { name: "Bold", exact: true })).toBeVisible()
+
+    await page.goto("/editor/link")
+    await expect(page.getByRole("textbox", { name: "Link", exact: true })).toBeVisible()
+    await expect(page.getByRole("textbox", { name: "Title", exact: true })).toBeVisible()
+    await expect(page.getByRole("textbox", { name: "Description", exact: true })).toBeVisible()
+})

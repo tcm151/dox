@@ -66,7 +66,7 @@ async function search() {
                     <i class="fa-solid fa-magnifying-glass" />
                 </ButtonSpinner>
                 <input class="f-1" type="search" placeholder="Search..." aria-label="Search..." v-model="filters.text">
-                <button type="button" class="link" :aria-expanded="advancedFiltersExpanded" @click="advancedFiltersExpanded = !advancedFiltersExpanded" @keyup.enter.stop>
+                <button type="button" class="link" aria-label="Search filters" :aria-expanded="advancedFiltersExpanded" @click="advancedFiltersExpanded = !advancedFiltersExpanded" @keyup.enter.stop>
                     <i :class="advancedFiltersExpanded ? 'fa-solid fa-angles-up' : 'fa-solid fa-angles-down'" aria-hidden="true" />
                 </button>
             </div>

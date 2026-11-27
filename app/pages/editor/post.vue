@@ -144,8 +144,8 @@ async function saveDraft() {
         </template>
         <template #form>
             <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
-                <label>Title</label>
-                <input type="text" v-model="draft.title" @focus="titleFocused = true" @blur="titleFocused = false">
+                <label for="post-title">Title</label>
+                <input id="post-title" type="text" v-model="draft.title" @focus="titleFocused = true" @blur="titleFocused = false">
             </div>
             <UploadedImages size="small" :images="images" />
             <MarkdownEditor bounded class="f-1" label="Content" :rows="12" v-model="draft.content" />

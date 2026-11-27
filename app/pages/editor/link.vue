@@ -145,17 +145,14 @@ async function submit() {
         </template>
         <template #form>
             <div class="field" :class="{ 'invalid': urlFocused && !validUrl() }">
-                <label>Link</label>
-                <input type="url" v-model="url" @focus="urlFocused = true" @blur="urlFocused = false" />
+                <label for="link-url">Link</label>
+                <input id="link-url" type="url" v-model="url" @focus="urlFocused = true" @blur="urlFocused = false" />
             </div>
             <div class="field" :class="{ 'invalid': titleFocused && !validTitle() }">
-                <label>Title</label>
-                <input v-model="title" @focus="titleFocused = true" @blur="titleFocused = false" />
+                <label for="link-title">Title</label>
+                <input id="link-title" v-model="title" @focus="titleFocused = true" @blur="titleFocused = false" />
             </div>
-            <div class="field f-1">
-                <label>Description</label>
-                <MarkdownEditor bounded class="f-1" :rows="3" :max-length="256" v-model="description" />
-            </div>
+            <MarkdownEditor bounded class="f-1" label="Description" :rows="3" :max-length="256" v-model="description" />
             <TopicField :topics="topics" />
         </template>
         <template #preview>

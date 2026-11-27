@@ -125,3 +125,20 @@ test("opens and dismisses a settings confirmation through the event bus", async 
     await expect(confirmation).toBeHidden()
     await expect(authenticatedPage.locator("nav").getByText("TestAdmin", { exact: true })).toBeVisible()
 })
+
+test("exposes focusable, named preference controls to assistive technology", async ({ authenticatedPage: page }) => {
+    await page.goto("/profile/preferences")
+
+    const animationToggle = page.getByRole("checkbox", { name: "enable animations" })
+    await expect(animationToggle).toBeChecked()
+    await animationToggle.focus()
+    await expect(animationToggle).toBeFocused()
+    await page.keyboard.press("Space")
+    await expect(animationToggle).not.toBeChecked()
+    await page.getByRole("button", { name: "Cancel" }).click()
+    await expect(animationToggle).toBeChecked()
+
+    await expect(page.getByRole("checkbox", { name: "in app notifications" })).toBeVisible()
+    await expect(page.getByRole("checkbox", { name: "email notifications" })).toBeVisible()
+    await expect(page.getByRole("spinbutton", { name: "hint duration" })).toBeVisible()
+})

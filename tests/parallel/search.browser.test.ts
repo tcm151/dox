@@ -280,3 +280,14 @@ test("searches links and all types with collapsed advanced filters and URL histo
 //         }
 //     }
 // })
+
+test("names the advanced filters toggle and expands it with the keyboard", async ({ page }) => {
+    await page.goto("/feed/search")
+
+    const filtersToggle = page.getByRole("button", { name: "Search filters" })
+    await expect(filtersToggle).toHaveAttribute("aria-expanded", "false")
+    await filtersToggle.focus()
+    await page.keyboard.press("Space")
+    await expect(filtersToggle).toHaveAttribute("aria-expanded", "true")
+    await expect(page.getByLabel("Type", { exact: true })).toBeVisible()
+})

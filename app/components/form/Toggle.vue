@@ -4,6 +4,7 @@ const props = defineProps<{
     enabled: boolean
     name?: string
     label?: string
+    ariaLabel?: string
     disabled?: boolean
 }>()
 
@@ -20,6 +21,7 @@ const emit = defineEmits<{
                 type="checkbox"
                 :checked="enabled"
                 :name="name"
+                :aria-label="ariaLabel ?? label"
                 :disabled="disabled"
                 @change="emit('update:enabled', ($event.target as HTMLInputElement).checked)"
             />
@@ -48,8 +50,14 @@ label.toggle {
     cursor: pointer;
     
     input {
+        // visually hidden but still focusable and exposed to assistive technology
         margin: 0;
-        display: none;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: inherit;
     }
     
     span.slider {
@@ -69,6 +77,10 @@ label.toggle {
         transform: translateX(100%);
     }
 
+}
+
+label.toggle:has(input:focus-visible) {
+    outline: 2px solid $blue;
 }
 
 label.toggle:has(input:checked) {
