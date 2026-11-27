@@ -1,6 +1,10 @@
 import type { FeedPage, Post } from "../../shared/types"
 import { expect, test } from "../utils/browser-fixtures"
 
+function isMemberFeed(url: URL) {
+    return url.pathname === "/api/feed/following" || url.pathname === "/api/feed/mutuals"
+}
+
 test("isolates Home feed results and pagination when switching types", async ({ authenticatedPage: page }) => {
     function post(id: string, title: string): Post<string[]> {
         return {
@@ -24,13 +28,11 @@ test("isolates Home feed results and pagination when switching types", async ({ 
     let followingResponse: "items" | "delayed" | "empty" | "error" = "items"
     let releaseStaleResponse = () => {}
     const staleResponseGate = new Promise<void>(resolve => { releaseStaleResponse = resolve })
-    const isFollowing = (url: URL) => url.pathname === "/api/feed/following"
-
     await page.emulateMedia({ reducedMotion: "reduce" })
     await page.route(url => url.pathname === "/api/feed/pinned", route => route.fulfill({
         json: [{ id: "pin:feed-switch", item: post("pin", "Pinned across feed switches") }],
     }))
-    await page.route(url => url.pathname === "/api/feed/popular" || isFollowing(url), async (route) => {
+    await page.route(url => url.pathname === "/api/feed/popular" || isMemberFeed(url), async (route) => {
         const url = new URL(route.request().url())
         const offset = url.searchParams.get("offset")
         if (offset !== "0" && offset !== "20") {
@@ -38,15 +40,16 @@ test("isolates Home feed results and pagination when switching types", async ({ 
             return
         }
 
-        const following = isFollowing(url)
-        const response = following ? followingResponse : "items"
+        let feed = "Popular"
+        if (url.pathname === "/api/feed/following") feed = "Following"
+        else if (url.pathname === "/api/feed/mutuals") feed = "Mutuals"
+        const response = feed === "Following" ? followingResponse : "items"
         if (response === "error") {
             await route.fulfill({ status: 400, json: { statusMessage: "Simulated Following feed failure" } })
             return
         }
         if (response === "delayed") await staleResponseGate
 
-        const feed = following ? "Following" : "Popular"
         const pageNumber = offset === "0" ? 1 : 2
         const result: FeedPage<Post<string[]>> = {
             items: response === "empty" ? [] : [post(`${feed}-${pageNumber}`, `${feed} page ${pageNumber}`)],
@@ -84,12 +87,13 @@ test("isolates Home feed results and pagination when switching types", async ({ 
         await loadMore.click()
         await expect(titles).toHaveText(["Following page 1", "Following page 2"])
         await following.click()
+        await expect(titles).toHaveText(["Mutuals page 1"])
         await mutuals.click()
         await expect(titles).toHaveText(["Popular page 1"])
 
         followingResponse = "delayed"
         const [staleRequest] = await Promise.all([
-            page.waitForRequest(request => isFollowing(new URL(request.url()))),
+            page.waitForRequest(request => new URL(request.url()).pathname === "/api/feed/following"),
             popular.click(),
         ])
         await expect(feedItems.getByRole("status")).toHaveText("Loading feed...")
@@ -120,6 +124,58 @@ test("isolates Home feed results and pagination when switching types", async ({ 
     finally {
         releaseStaleResponse()
     }
+})
+
+test("keeps signed-out Home on Popular with a remembered member feed", async ({ page }) => {
+    const memberRequests: string[] = []
+    const hydrationErrors: string[] = []
+    page.on("request", (request) => {
+        if (isMemberFeed(new URL(request.url()))) memberRequests.push(request.url())
+    })
+    page.on("console", (message) => {
+        if (message.text().includes("Hydration completed but contains mismatches")) hydrationErrors.push(message.text())
+    })
+
+    await page.goto("/feed/home")
+    const popular = page.getByRole("button", { name: /^popular$/i })
+    const sample = page.locator(".feed-items").getByRole("heading", { name: "Browser suite sample post", exact: true })
+    await expect(popular).toBeDisabled()
+    await expect(sample).toBeVisible()
+
+    for (const feedType of ["following", "mutuals"]) {
+        await page.evaluate((type) => {
+            sessionStorage.setItem("cache:user:temp", JSON.stringify({ "feed.type": type }))
+        }, feedType)
+        await page.reload()
+        await expect(popular).toBeDisabled()
+        await expect(sample).toBeVisible()
+    }
+
+    expect(memberRequests).toEqual([])
+    expect(hydrationErrors).toEqual([])
+})
+
+test("returns to Popular when signing out with Mutuals selected", async ({ authenticatedPage: page }) => {
+    await page.route(url => url.pathname === "/api/feed/mutuals", async (route) => {
+        await route.fulfill({ json: { items: [], pageSize: 20, offset: 0, more: false } })
+    })
+    // The authenticated fixture shares its server session with other browser tests.
+    await page.route(url => url.pathname === "/api/profile/logout", route => route.fulfill({ status: 204 }))
+
+    await page.getByRole("button", { name: /^popular$/i }).click()
+    await page.getByRole("button", { name: /^following$/i }).click()
+    await expect(page.getByRole("button", { name: /^mutuals$/i })).toBeVisible()
+    await expect(page.locator(".feed-items").getByText("There is nothing here currently.", { exact: true })).toBeVisible()
+
+    const memberRequests: string[] = []
+    page.on("request", (request) => {
+        if (isMemberFeed(new URL(request.url()))) memberRequests.push(request.url())
+    })
+
+    await page.locator("nav button[title='Logout']").click()
+    await expect(page.getByRole("button", { name: /^popular$/i })).toBeDisabled()
+    await expect(page.locator(".feed-items").getByRole("heading", { name: "Browser suite sample post", exact: true })).toBeVisible()
+    expect(memberRequests).toEqual([])
 })
 
 test("shows pending feed loading before a successful empty result", async ({ authenticatedPage: page }) => {

@@ -15,7 +15,7 @@ it("enforces dedicated feed availability without blocking shared or aggregate re
         { method: "POST", body: { ...originalSettings, feeds } },
     )
     const feedCases: { setting: keyof AppSettings["feeds"], route: string, apis: string[] }[] = [
-        { setting: "discover", route: "/feed/home", apis: ["/api/feed/pinned", "/api/feed/popular", "/api/feed/following"] },
+        { setting: "discover", route: "/feed/home", apis: ["/api/feed/pinned", "/api/feed/popular", "/api/feed/following", "/api/feed/mutuals"] },
         { setting: "search", route: "/feed/search", apis: ["/api/feed/search?text=feedAvailability"] },
         { setting: "topics", route: "/feed/topics", apis: ["/api/feed/topics"] },
         { setting: "posts", route: "/feed/posts", apis: ["/api/post"] },
