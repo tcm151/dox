@@ -13,6 +13,11 @@ definePageMeta({
             return navigateTo("/feed")
         }
 
+        // emailed reset links must work signed out and skip last-tab tracking
+        if (to.path === "/profile/reset-password") {
+            return
+        }
+
         if (to.path.startsWith("/profile")) {
             if (!session.isAuthenticated) {
                 return abortNavigation()
@@ -47,6 +52,8 @@ definePageMeta({
 //     }
 // })
 
+const route = useRoute()
+
 const tabs = ref<TabItem[]>([
     { route: `/profile`, icon: 'fa-arrow-left', label: 'Back' },
     { route: '/profile/account', icon: 'fa-address-card', label: 'Account' },
@@ -58,7 +65,7 @@ const tabs = ref<TabItem[]>([
 
 <template>
     <article class="admin column inline tabbed-shell">
-        <PagedTabstrip v-adaptive class="wide" :tabs="tabs" />
+        <PagedTabstrip v-if="route.path !== '/profile/reset-password'" v-adaptive class="wide" :tabs="tabs" />
         <section class="page column inline">
             <NuxtPage />
         </section>

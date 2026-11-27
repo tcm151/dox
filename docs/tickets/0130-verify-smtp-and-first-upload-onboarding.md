@@ -23,6 +23,7 @@ Verify the real operator/user journey from configured outbound mail to account c
 ## Tasks
 - [x] Review existing account, media, and email-spool coverage before defining the live checklist.
 - [ ] Validate transactional messages and link origins behind the intended reverse proxy/TLS setup.
+- [ ] Verify and fix the Login popup reset-request identifier and the confirmation link's incoming-query handling before signing off on the live flows.
 - [ ] Exercise opted-in scheduled delivery and controlled failures without bypassing the worker's normal limits.
 - [ ] Complete the confirmed-account image journey and clean up owned test content.
 - [ ] Fix confirmed gaps in focused changes or link blocking work, then document operator SMTP troubleshooting and the actual results.
@@ -31,8 +32,10 @@ Verify the real operator/user journey from configured outbound mail to account c
 - Completed Ticket 0008 explicitly leaves live SMTP unverified. Simulated successful sends do not establish provider delivery or usable public links.
 - Automated account and email-spool tests cover confirmation-send failure, concurrency limits, retry state, and terminal delivery failure using isolated test fixtures; they do not prove real provider delivery.
 - Confirmation security and resend limits remain under Tickets 0109 and 0110; media invariants remain under Ticket 0108.
-- Coordinate the separate cleared-username password-reset regression with Ticket 0123, rather than duplicating its event-bus refactor.
-- An unpublished candidate can be tested before Ticket 0127. Do not require public publication to begin validation or treat unverified email-dependent workflows as pilot-ready.
+- The Login popup closes and clears `username` before the confirmation callback reads it for the reset request. Keep the functional regression here; Ticket 0123 is deferred and is not required for a focused fix.
+- The confirmation sender still links to `/profile?confirmation=...`, but the profile middleware reads the previous route's `from.query`, not the incoming URL. The new `/profile/confirm` child is not the emailed destination and also reads `from.query`. Verify direct entry in the intended account state before claiming confirmation works.
+- Pilot publication is complete in Ticket 0127. Live SMTP can also be validated on an unpublished candidate; the published release does not establish that email-dependent workflows are pilot-ready.
+- The reset email template also renders a `{{reportLink}}` pointing at `/profile/reset-password?report=<id>`, but the reset page only reads the `id` query and shows the normal empty form for report links. Verify or scope the report path while validating live reset delivery.
 - Live delivery and deployment access require an execution-enabled environment and explicit authorization; this ticket does not authorize using other users' accounts or mailboxes.
 
 ## Relevant Files
@@ -42,11 +45,16 @@ Verify the real operator/user journey from configured outbound mail to account c
 - server/api/profile/password/
 - server/api/image/upload.ts
 - app/components/system/Login.client.vue
+- app/pages/profile.vue
+- app/pages/profile/confirm.vue
 - tests/sequential/05-email-spool.server.test.ts
-- tests/parallel/account.browser.test.ts
+- tests/sequential/21-account.browser.test.ts
+- tests/parallel/account.server.test.ts
 - docs/Quickstart.md
 
 ## Progress Log
+- 2026-11-27: Source-traced the reset email template while fixing 0140: it emails both an `id` reset link and a `report` link the reset page never handles. The signed-out reset fix is implemented under 0140 but awaits a test run.
+- 2026-11-27: Traced the Login popup and confirmation-link handoff in source. Neither direct confirmation nor actual message delivery was tested; Ticket 0140 still gates signed-out reset completion.
 - 2026-11-23: Recorded signed-out password reset as a completion prerequisite. SMTP setup and other onboarding checks can proceed in parallel.
 - 2026-11-18: Production inspection confirmed version `2026.6.3` at the published tag/commit and app/database readiness. It did not inspect SMTP configuration or exercise mail delivery or uploads; deployment mode and provider profile remain unknown.
 - 2026-11-18: Reviewed the account and spool tests and reran `yarn.cmd test` (248/248 passed). These checks cover simulated SMTP failure and spool transitions only; live provider delivery, approved recipient mailbox, and confirmed-account onboarding remain unverified.

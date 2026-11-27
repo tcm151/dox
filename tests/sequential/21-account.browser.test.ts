@@ -1,7 +1,10 @@
 import { expect, test } from "../utils/browser-fixtures"
 import type { Page } from "@playwright/test"
+import { readFile } from "node:fs/promises"
+import { join } from "node:path"
 import { extractId } from "../../shared/utils/records"
 import type { Profile, UserSettings } from "../../shared/types"
+import type { TSession } from "../utils/test-sessions"
 
 const adminName = process.env.CLASSICFORUM_TEST_ADMIN_NAME!
 const adminPassword = process.env.CLASSICFORUM_TEST_ADMIN_PASSWORD!
@@ -651,4 +654,101 @@ test("updates registration validation as fields change", async ({ page }) => {
     await passwordFields.nth(0).locator("input").fill("valid-password")
     await passwordFields.nth(1).locator("input").fill("different-password")
     await expect(passwordFields.nth(1)).toHaveClass(/invalid/)
+})
+
+test("completes the emailed password reset flow while signed out", async ({ page }) => {
+    test.setTimeout(60_000)
+    const adminSessionPath = join(process.env.CLASSICFORUM_TEST_DATA_DIRECTORY!, "state", "users", "admin.json")
+    const adminToken = (JSON.parse(await readFile(adminSessionPath, "utf8")) as TSession).accessToken
+
+    const suffix = Date.now()
+    const username = `ResetFlow${suffix}`
+    const email = `resetflow${suffix}@example.invalid`
+    const originalPassword = "ResetFlow-original-password"
+    const newPassword = "ResetFlow-updated-password"
+
+    const confirmRequests: string[] = []
+    page.on("request", (request) => {
+        if (new URL(request.url()).pathname === "/api/profile/password/confirm") {
+            confirmRequests.push(request.method())
+        }
+    })
+
+    await page.goto("/feed/home")
+    try {
+        const registerResponse = await page.request.post(apiUrl(page, "/api/user/register"), {
+            headers: { "X-Forwarded-For": "192.0.2.140" },
+            data: { username, email, password: originalPassword },
+        })
+        expect(registerResponse.ok()).toBe(true)
+        const originalToken = await registerResponse.text()
+
+        // Request a reset, then read the emailed token from the database like the email recipient would.
+        const resetResponse = await page.request.post(apiUrl(page, "/api/profile/password/reset"), {
+            data: { id: username },
+        })
+        expect(resetResponse.ok()).toBe(true)
+        const tokenResponse = await page.request.post(apiUrl(page, "/api/developer/database/query"), {
+            headers: { Authorization: adminToken },
+            data: { query: `SELECT id FROM passwordReset WHERE account.user.name = '${username}';` },
+        })
+        expect(tokenResponse.ok()).toBe(true)
+        const [resets] = await tokenResponse.json() as [{ id: string }[]]
+        expect(resets).toHaveLength(1)
+        const resetToken = extractId(resets[0]!.id)
+
+        // The emailed link renders the reset form signed out, without the profile tab strip.
+        await page.goto(`/profile/reset-password?id=${resetToken}`)
+        const form = page.locator("section.form")
+        await expect(form.getByRole("heading", { name: "Reset Password" })).toBeVisible()
+        await expect(page.getByRole("link", { name: "Preferences" })).toHaveCount(0)
+        await expect(page.getByRole("link", { name: "Account" })).toHaveCount(0)
+
+        // Cancel leaves for the feed without sending a confirmation request.
+        await page.getByRole("button", { name: "Cancel" }).click()
+        await expect(page).toHaveURL(/\/feed(\/|$)/)
+        expect(confirmRequests).toHaveLength(0)
+
+        // Other profile pages stay blocked while signed out.
+        await page.goto("/profile/account")
+        await expect(page.getByRole("heading", { name: /ERR: 404/ })).toBeVisible()
+
+        // Returning with the token completes the reset.
+        await page.goto(`/profile/reset-password?id=${resetToken}`)
+        await form.locator("input[type='email']").fill(email)
+        await form.locator("input[type='password']").nth(0).fill(newPassword)
+        await form.locator("input[type='password']").nth(1).fill(newPassword)
+        await form.getByRole("button", { name: "Confirm Password" }).click()
+        await expect(page).toHaveURL(/\/feed(\/|$)/)
+        expect(confirmRequests).toEqual(["POST"])
+
+        // The new password logs in, the old password fails, and prior sessions are invalidated.
+        const newLogin = await page.request.get(apiUrl(page, "/api/profile/login"), {
+            headers: { Authorization: Buffer.from(`${username}:${newPassword}`).toString("base64") },
+        })
+        expect(newLogin.ok()).toBe(true)
+        const oldLogin = await page.request.get(apiUrl(page, "/api/profile/login"), {
+            headers: { Authorization: Buffer.from(`${username}:${originalPassword}`).toString("base64") },
+        })
+        expect(oldLogin.status()).toBe(401)
+        const oldSession = await page.request.get(apiUrl(page, "/api/profile/authenticate"), {
+            headers: { Authorization: originalToken },
+        })
+        expect(oldSession.status()).toBe(401)
+    }
+    finally {
+        const cleanupResponse = await page.request.post(apiUrl(page, "/api/developer/database/query"), {
+            headers: { Authorization: adminToken },
+            data: {
+                query: `
+                    DELETE passwordReset WHERE account.user.name = '${username}';
+                    DELETE session WHERE account.user.name = '${username}';
+                    DELETE account WHERE user.name = '${username}';
+                    DELETE userSettings WHERE user.name = '${username}';
+                    DELETE user WHERE name = '${username}';
+                `,
+            },
+        })
+        expect(cleanupResponse.ok()).toBe(true)
+    }
 })

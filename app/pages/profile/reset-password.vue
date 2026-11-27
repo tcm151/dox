@@ -75,7 +75,7 @@ function differentPasswords() {
                     <i class="fa-solid fa-key"></i>
                     <span>Confirm Password</span>
                 </button>
-                <button class="danger">
+                <button class="danger" @click="navigateTo('/feed')">
                     <i class="fa-solid fa-ban"></i>
                     <span>Cancel</span>
                 </button>
