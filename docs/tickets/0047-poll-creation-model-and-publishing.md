@@ -25,7 +25,7 @@ Define and implement a durable poll contract so the existing poll editor can pub
 
 ## Notes
 - The editor UI currently offers radio, checkbox, and input modes, but there is no poll type, schema, or API.
-- This ticket establishes poll creation only. Response mutation and result calculation belong to backlog Tickets 0048 and 0049.
+- This ticket establishes poll creation only. Response mutation and result calculation belong to Ticket 0048; detail, feed, and lifecycle work belongs to Ticket 0049. Both are now in the planned lane.
 - Draft support remains out of scope per completed Ticket 0011.
 
 ## Relevant Files

@@ -12,20 +12,20 @@ Help prospective operators estimate whether the supported configuration suits th
 - [x] Guidance identifies the tested OS/architecture, Node.js version, database mode, storage layout, and reverse-proxy/TLS responsibilities.
 - [ ] A repeatable bounded measurement records idle and representative text/image workload memory, CPU, disk use/growth, and backup storage needs with the hardware, dataset, duration, and candidate version.
 - [ ] Measured observations are distinguished from minimum requirements or capacity guarantees; untested community sizes, platforms, and media-heavy workloads remain explicitly unverified.
-- [ ] Operators can find applicable upload sizes, media/token constraints, email-spool behavior, and configuration references without relying on broad unlimited-media claims.
-- [ ] Hosting, storage, email, and off-server backup cost considerations are documented without presenting the project's budget or unverified vendor prices as an operator quote.
-- [ ] Public-content indexing expectations and limitations are checked and documented; in-app search is not presented as proof of external search-engine indexing.
-- [ ] Manual migration/import limitations and operator-owned hosting/backup responsibilities are clear, and the guide is linked from the installation/adoption documentation.
+- [x] Operators can find applicable upload sizes, media/token constraints, email-spool behavior, and configuration references without relying on broad unlimited-media claims.
+- [x] Hosting, storage, email, and off-server backup cost considerations are documented without presenting the project's budget or unverified vendor prices as an operator quote.
+- [x] Public-content indexing expectations and limitations are checked and documented; in-app search is not presented as proof of external search-engine indexing.
+- [x] Manual migration/import limitations and operator-owned hosting/backup responsibilities are clear, and the guide is linked from the installation/adoption documentation.
 
 ## Tasks
-- [x] Reuse the deployment profile and evidence from [0118](0118-close-public-release-validation-gaps.md) where applicable and define a small representative workload.
+- [x] Reuse the deployment profile and evidence from Ticket 0118 where applicable and define a small representative workload.
 - [ ] Collect the bounded baseline in an authorized environment and retain reproducible measurement details.
 - [x] Reconcile actual configured media/email limits with existing architectural recommendations.
 - [x] Check the supported release's public-content indexing behavior before describing it.
 - [x] Publish operator-facing requirements, limitations, and cost considerations and link them from the Quickstart/adoption path.
 
 ## Notes
-- Hosting costs, media limits, migration effort, search-engine indexing, and capacity need documentation or measurement.
+- Hosting documents default media and spool limits, out-of-scope imports, backup ownership, and a bounded measurement plan. The released `robots.txt` still lists `/settings/` and does not list `/profile/`. This is a crawler directive, not an access control or evidence of external indexing. Resource and backup measurements remain open.
 - Completed Ticket 0064 supplies recommended policy defaults, not a measured hosting baseline.
 - Keep embedded mode as the initial baseline and remote SurrealDB as an advanced option unless the pilot configuration is explicitly changed.
 - This is not a broad load-testing program, SEO implementation project, importer, or automatic cloud-cost calculator. Record unknowns rather than adding optional features to satisfy a marketing claim.
@@ -39,8 +39,12 @@ Help prospective operators estimate whether the supported configuration suits th
 - docs/Architecture.md
 - README.md
 - nuxt.config.ts
+- app/app.vue
+- public/robots.txt
 
 ## Progress Log
+- 2026-11-27: Opened `/robots.txt` on the `2026.6.6` example deployment and compared the served rules with source. Updated Hosting to explain the old `/settings/` rule and what operators need to budget for. Did not check external search-engine indexing or collect workload measurements.
+- 2026-11-27: Confirmed the documented limits and backup responsibilities and their links from Quickstart. No hosting measurements or crawler checks were performed.
 - 2026-11-19: Recorded the production profile in [Hosting](../Hosting.md): Ubuntu 22.04.4 x86_64, Node `24.22.3`, release `2026.6.5`, and remote SurrealDB. WSL reproduced redirects on Node `22.14.0`; Node `24.18.0` passed. Resource and backup measurements remain open.
 - 2026-11-18: Read-only production inspection reported version `2026.6.3`, ref `v2026.6.3`, commit `20c02b9b5b83645ed7165838ca29dd6e3272b77c`, and app/database readiness. Host/runtime/database details, production artifact checksum, and capacity measurements remain unknown.
 - 2026-11-18: Added the hosting profile, workload plan, and source-backed limits. User reports a successful full production install at `forum.tcmdev.ca`; exact deployment details and capacity remain unknown.

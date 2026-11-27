@@ -3,7 +3,7 @@
 ## Status
 - State: In Progress
 - Priority: Medium
-- Next: Inventory similar legacy mutations and migrate only confirmed lifecycle or error-interpretation inconsistencies.
+- Next: Start the remaining error-reader inventory with the new profile-update 409 warning and preserve the original error for diagnostics.
 
 ## Goal
 Apply the established try/catch/finally mutation lifecycle consistently to older interactive workflows. Make HTTP error interpretation reusable and type-safe while retaining existing hints, warnings, and request correlation.
@@ -25,9 +25,9 @@ Apply the established try/catch/finally mutation lifecycle consistently to older
 - [x] Add controlled failure and retry coverage.
 
 ## Notes
-- Feedback.client.vue sets submitting before awaiting the request and only clears it afterward; a rejection bypasses that reset.
+- The feedback submit failure/reset path is already fixed. Keep it as a reference, not as pending work.
 - The newer appeal submission flow resets state in finally, and ButtonSpinner disables its button while loading.
-- Status extraction differs between post, gallery, thread, and topic-profile callers. useModeration.requestModerator also omits the original error when adding its hint.
+- Status extraction differs between post, gallery, thread, and topic-profile callers. The moved account form adds another variant: it assumes `error.response` exists before checking for the expected username-cooldown `409`.
 - Ticket 0115 covers datasource read presentation, Ticket 0113 covers identity ownership, and Ticket 0114 covers draft cancellation.
 - Keep feedback and report reasons plain text where they are rendered as plain text; this is not a Markdown conversion or visual redesign.
 
@@ -41,9 +41,11 @@ Apply the established try/catch/finally mutation lifecycle consistently to older
 - app/pages/post/[id].vue
 - app/pages/thread/[id].vue
 - app/pages/gallery/[id].vue
+- app/pages/profile/account.vue
 - app/pages/topic/[topic]/tools/profile.vue
 - tests/parallel/
 
 ## Progress Log
+- 2026-11-27: Updated the remaining error-handling work for the account route move and new cooldown warning. Feedback completion evidence is unchanged.
 - 2026-11-18: Fixed the feedback submission lifecycle with an in-flight guard, error hint carrying the original request error, and a `finally` reset. Added browser coverage for empty-input warning, pending disablement, duplicate activation, retained text and request ID on a mocked failure, and successful retry/clearing. `feedback.browser.test.ts` passed 1/1 test and 9/9 including setup; editor diagnostics are clean. Other mutation lifecycles and shared error normalization remain open.
 - 2026-11-17: Ticket created from the developer consistency review. Failure and retry behavior were not runtime-verified.

@@ -31,7 +31,6 @@ Let readers play supported YouTube and Streamable links within ClassicForum's li
 - app/pages/link/[id].vue
 - app/utils/markdown.ts
 - server/utils/LinkPreviewManager.ts
-- tests/parallel/link-preview.server.test.ts
 - tests/parallel/links.server.test.ts
 - tests/parallel/feed.browser.test.ts
 

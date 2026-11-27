@@ -20,7 +20,7 @@ Prevent a post author from deleting another user's images or collecting their up
 - [x] Separate permission to delete a post from permission to delete each attached image.
 - [x] Check remaining references before deleting shared media, or prevent reuse if that is the chosen policy.
 - [x] Calculate refunds from the stored uploader and upload cost rather than the post author or acting user.
-- [x] Transfer outstanding cross-user attachment, shared-image, administrator deletion, duplicate-ID, and repeated/concurrent deletion test acceptance to [0118](../0118-close-public-release-validation-gaps.md).
+- [x] Transfer outstanding cross-user attachment, shared-image, administrator deletion, duplicate-ID, and repeated/concurrent deletion test acceptance to [0118](0118-close-public-release-validation-gaps.md).
 - [x] Coordinate record deletion and refund handling with the cleanup strategy in Ticket 0001.
 
 ## Notes

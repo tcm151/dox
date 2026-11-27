@@ -24,7 +24,7 @@ Give inbox, report, and appeal navigation one small, explicit mapping from recor
 - [ ] Migrate the inspected callers and add destination/anchor regression coverage.
 
 ## Notes
-- Inbox already special-cases reports and comments before replacing the delimiter for other contexts. Appeal and report queue code construct related destinations independently.
+- Inbox still special-cases reports and comments. The report queue now receives the comment context as a record ID and still constructs the containing discussion path and anchor independently; appeal still constructs its own destination.
 - Not every raw record-type check needs this helper; leave local display-only type checks alone unless reusing the parser clearly improves their contract.
 - Completed Ticket 0074 concerns database relationships, and Ticket 0083 covers existing inbox behavior. Preserve that behavior rather than redesigning notification navigation.
 
@@ -34,7 +34,8 @@ Give inbox, report, and appeal navigation one small, explicit mapping from recor
 - app/pages/appeal/[id].vue
 - app/components/lists/ReportQueueItem.vue
 - server/routes/comment/[id].ts
-- tests/parallel/account.browser.test.ts
+- tests/sequential/21-account.browser.test.ts
+- tests/sequential/18-reports.server.test.ts
 - tests/parallel/navigation.browser.test.ts
 
 ## Progress Log

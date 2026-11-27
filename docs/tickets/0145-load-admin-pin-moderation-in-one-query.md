@@ -21,6 +21,7 @@ Have `GET /api/admin/pin` return pins and their moderation controls from a singl
 
 ## Notes
 - `attachPinModeration` currently runs a second query when the result contains a thread or gallery pin. If it finds no matching record for a pin, it leaves that pin unchanged.
+- The current admin pin query truncates post content at 1,024 characters. Preserve that limit in the query and regression coverage.
 - Scope is limited to listing admin pins. Pin mutations and the shared helper's other callers are out of scope.
 
 ## Relevant Files

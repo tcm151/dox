@@ -14,13 +14,13 @@ Keep image files, database records, and token refunds consistent across direct i
 - [x] Partial failures can be retried without duplicate refunds or cleanup work.
 - [x] Transfer remaining error-response consistency work to [0055](0055-consistent-database-error-mapping.md), without claiming that mapping is implemented.
 - [x] Auth and role checks still enforce current behavior.
-- [x] Transfer outstanding partial-failure and retry test acceptance to [0118](../0118-close-public-release-validation-gaps.md); historical successful-path evidence remains below.
+- [x] Transfer outstanding partial-failure and retry test acceptance to [0118](0118-close-public-release-validation-gaps.md); historical successful-path evidence remains below.
 
 ## Tasks
 - [x] Choose strategy (DB-first with a durable mediaTrash cleanup queue).
 - [x] Use the shared cleanup strategy from the image and post delete handlers.
 - [x] Make cleanup and refund retries safe, including when the file is already missing.
-- [x] Record filesystem failure, database failure, retry, and post attachment cleanup tests in [0118](../0118-close-public-release-validation-gaps.md).
+- [x] Record filesystem failure, database failure, retry, and post attachment cleanup tests in [0118](0118-close-public-release-validation-gaps.md).
 - [x] Update docs only if runtime behavior changes.
 
 ## Notes

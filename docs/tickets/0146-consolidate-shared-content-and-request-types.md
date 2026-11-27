@@ -22,12 +22,16 @@ Define a reusable `Content` type for code that handles multiple content kinds, o
 
 ## Notes
 - Distinguish request payloads from persisted workflow records: `ModerationRequest` is a record, not an API request body.
+- The newly introduced authenticated `Profile` projection is distinct from the stored/public `User` shape. Preserve that boundary while reorganizing declarations.
 - Preserve the shared mutation contracts established in Ticket 0119. This ticket changes where they live, not what the endpoints accept.
 
 ## Relevant Files
 - shared/types/index.ts
 - app/components/system/ExtraOptions.vue
-- TBD
+- server/api/post/add.ts
+- server/api/thread/add.ts
+- server/api/profile/drafts/add.ts
+- server/api/profile/drafts/[id]/update.ts
 
 ## Progress Log
 - 2026-11-23: Ticket created.

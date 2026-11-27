@@ -28,7 +28,7 @@ Make polls discoverable and understandable across detail and feed surfaces while
 - [ ] Validate keyboard interaction, screen-reader labels, narrow layouts, stale responses, missing records, and mixed feeds.
 
 ## Notes
-- Poll creation, responses/results, and detail/lifecycle are a deferred feature chain; keep these states consistent across compact and full views when implementation begins.
+- Poll creation, responses/results, and detail/lifecycle are a planned feature chain. Keep the states consistent across compact and full views once the prerequisites land.
 
 ## Relevant Files
 - app/components/system/previews/MultiPreview.vue

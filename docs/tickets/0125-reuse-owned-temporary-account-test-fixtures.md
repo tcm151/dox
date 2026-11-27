@@ -3,7 +3,7 @@
 ## Status
 - State: Planned
 - Priority: Medium
-- Next: Compare duplicated account setup and cleanup in content-filter and profile-privacy tests.
+- Next: Compare account setup and cleanup in the renamed `filters.server.test.ts` and `privacy.server.test.ts` specs.
 
 ## Goal
 Extend existing test helpers with a small, reliable lifecycle for ordinary per-test accounts. Reduce repeated registration/authentication boilerplate without making parallel tests depend on mutable shared users.
@@ -25,7 +25,7 @@ Extend existing test helpers with a small, reliable lifecycle for ordinary per-t
 - [ ] Verify cleanup after failures and isolation under the standard parallel runner in an execution-enabled environment.
 
 ## Notes
-- Both inspected specs define a local account type and repeat registration followed by profile authentication. TSession already represents that user/access-token pair.
+- Both specs still define a local account type and repeat registration followed by profile authentication. `TSession` now pairs an authenticated `Profile` with the access token; a reusable helper must return that shape, not the public `User` shape.
 - tests/utils/test-server.ts already owns named sessions, authenticated request wrappers, unique client addresses, and response-status helpers; build on it rather than creating another harness.
 - Completed Tickets 0054 and 0056 establish the runner and conventions.
 - This is a developer-facing fixture reuse improvement, not a claim that the inspected tests currently fail. Ticket 0118 separately tracks recorded runtime validation gaps.
@@ -34,8 +34,8 @@ Extend existing test helpers with a small, reliable lifecycle for ordinary per-t
 - tests/utils/test-server.ts
 - tests/utils/test-sessions.ts
 - tests/utils/browser-fixtures.ts
-- tests/parallel/content-filters.server.test.ts
-- tests/parallel/profile-privacy.server.test.ts
+- tests/parallel/filters.server.test.ts
+- tests/parallel/privacy.server.test.ts
 - docs/Contributing.md
 
 ## Progress Log

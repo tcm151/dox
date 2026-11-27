@@ -22,7 +22,7 @@ Make roadmap status and completion claims reflect the current ticket scope and e
 - [x] Update stale roadmap and architecture statements without silently changing product scope.
 - [x] Reconcile the overlapping baseline and deferred-funding referral-hardening descriptions.
 - [x] Cross-reference pilot release/readiness and visitor-facing capability work without treating marketing observations as current runtime validation.
-- [x] Link outstanding media failure/retry/concurrency validation to [0118](../0118-close-public-release-validation-gaps.md) and keep error mapping under [0055](0055-consistent-database-error-mapping.md).
+- [x] Link outstanding media failure/retry/concurrency validation to [0118](0118-close-public-release-validation-gaps.md) and keep error mapping under [0055](0055-consistent-database-error-mapping.md).
 - [x] Review affected ticket links, status fields, and checklists against the current template.
 
 ## Notes

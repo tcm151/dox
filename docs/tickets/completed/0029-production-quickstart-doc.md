@@ -23,7 +23,7 @@ Create a single production quickstart guide for a Linux VM with embedded mode as
 ## Notes
 - Runtime configuration was validated using the packaged Windows x64 release under two isolated deployment configurations; see Ticket 0051.
 - Ticket 0053 implements trusted-proxy client addresses and its setup guidance is included in the quickstart.
-- Follow-up: Ticket 0118 tracks clean Linux-native installation, independent guide-following, previous-release upgrade, and recovery validation. Public download/README entrypoints and measured hosting guidance are separate under Tickets 0129 and 0131.
+- Follow-up: Ticket 0118 records Linux install, previous-release upgrade, and recovery validation. Ticket 0147 tracks independent guide-following. Public download/README entrypoints and measured hosting guidance are separate under Tickets 0129 and 0131.
 - Keep this practical and copy-paste friendly.
 - Warning: do not package a live `.env`; upgrades rely on shared `/root/forum/.env` remaining outside versioned release folders.
 - Installer commands: `install` default, `run`, `status`, `stop`, and `restart`.
