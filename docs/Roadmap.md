@@ -3,8 +3,6 @@
 Marker legend: 🟥 `Not Started` | 🟦 `In Progress` | 🟩 `Done`  
 Effort legend: `S` (1-2 days), `M` (3-5 days), `L` (1-2 weeks)  
 
-See [tickets](tickets/) for individual tasks, dependencies, and validation results.
-
 Done means the listed work is complete, not that every release or deployment check has passed.
 
 ## Phase A: Self-Hosting Basics
@@ -100,7 +98,7 @@ Goal: finish the core account, discovery, and publishing workflows before expand
 - 🟥 Rank content from saved users without changing which content appears in the following feed. (`M`)
 - 🟩 Audit existing inbox and notification workflows for consistent state, authorization, navigation, and test coverage. (`M`)
 - 🟩 Refresh feeds and inbox after relevant changes and on new navigation when data is stale, without clearing loaded content. (`M`)
-- 🟥 Restore signed-out password reset access and cancellation ([Ticket 0140](tickets/0140-restore-password-reset-flow.md)). (`M`)
+- 🟥 Restore signed-out password reset access and cancellation. (`M`)
 - 🟥 Restore vote-state animation after confirming vote transitions retrigger the feedback. (`S`)
 
 **Success metric**: feed and inbox state stays understandable and current, with shareable discovery and reliable polling as the baseline.
@@ -118,11 +116,11 @@ Goal: finish the core account, discovery, and publishing workflows before expand
 
 ## Phase D: Release Preparation and Early Adoption
 
-Goal: fix the remaining public-use issues, check the release and installation process, and help a small group of operators try ClassicForum.
+Goal: make it easier for a small group of people to install and run ClassicForum on their own servers.
 
-Fix release-blocking issues before promotion. Code cleanup can run in parallel. Other cleanup and optional features do not block the pilot unless they affect supported workflows.
+Fix problems that affect what pilot operators can install and use. Code cleanup and optional features can continue separately.
 
-Current release: 2026.6.5. The demo redirects stopped after production moved from Node `22.14.0` to `24.22.3`. [Ticket 0128](tickets/completed/0128-verify-demo-navigation-and-hydration.md) records the investigation. Independent installation, live SMTP/onboarding, hosting measurements, future release checks, and diagnosis of an unidentified test failure remain open. Verify the download, take a fresh backup, and get approval before deploying a future release.
+The Linux x64 pilot release, `2026.6.6`, is available to download and is running in production.
 
 ### D1. Security and Reliability
 - 🟩 Fix media cleanup, confirmation-token validation, and confirmation-email rate limits without changing ownership or refund rules.
@@ -140,10 +138,11 @@ Current release: 2026.6.5. The demo redirects stopped after production moved fro
 **Success metric**: a contributor can follow a route from its input types through validation, manager logic, and focused tests.
 
 ### D3. Releases and Installation
-- 🟦 Diagnose the unidentified test-run failure; missing media/referral failure, retry, and concurrency coverage has been added.
-- 🟦 Complete the independent operator's Linux install check; WSL service, reverse-proxy, backup-first upgrade, and isolated restore rehearsals passed.
-- 🟥 Check real SMTP delivery for confirmations, password resets, and opted-in notifications, then test confirmed-account image uploads.
-- 🟥 Publish platform-specific archives with matching source tags, checksums, and release notes. Document tested environments, measured resource use, and known limits.
+- 🟩 Run the full test suite, including database migrations from the previous release.
+- 🟦 Have a new operator follow the Linux install guide, and test restoring a remote database.
+- 🟥 Test confirmation emails, password resets, and notifications with a real mail provider. Check that a confirmed account can upload images.
+- 🟩 Publish the Linux x64 pilot archive with a matching source tag, checksum, and release notes.
+- 🟥 Document tested hosting environments, measured resource use, and known limits.
 
 **Success metric**: an operator can download and verify the correct archive, then install, upgrade, and restore the app using the published instructions.
 

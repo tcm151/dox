@@ -1,5 +1,9 @@
 # Operator Help
 
+## What We Support
+
+We offer best-effort help with the [latest Linux x64 release](https://github.com/tcm151/dox/releases/latest) and the setups covered by the [Production Quickstart](Quickstart.md). We can help with setup questions and reproducible problems. We do not set up or run your server, manage your backups, or moderate your forum. There are no guaranteed response times, uptime commitments, or emergency support.
+
 ## Setup
 Start with the [Production Quickstart](Quickstart.md). For startup or health failures, check `../logs/installer.log`, `../logs/forum.log`, and `journalctl -u forum`.
 
@@ -16,6 +20,7 @@ Back up before upgrading. If readiness fails after activation, do not start an o
 The embedded installer backup contains the database, not `.env` or media. Remote databases use a separate procedure. See [Backup And Restore](Backups.md).
 
 ## Reports
+- Setup questions: ask in [GitHub Issues](https://github.com/tcm151/dox/issues).
 - Reproducible bugs: use the [bug report form](https://github.com/tcm151/dox/issues/new?template=bug_report.yml).
 - Feature proposals: use [GitHub issues](https://github.com/tcm151/dox/issues).
 - Suspected vulnerabilities: use the private process in [SECURITY.md](../SECURITY.md).

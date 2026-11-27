@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the latest stable release is supported for security fixes. The current release is `2026.6.0`; older releases may not receive fixes, so update before reporting an issue.
+Only the [latest stable release](https://github.com/tcm151/dox/releases/latest) is supported for security fixes. Older releases may not receive fixes, so update before reporting an issue.
 
 ## Reporting a Vulnerability
 

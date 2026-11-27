@@ -195,7 +195,13 @@ Keep pull requests focused and use the repository template. It asks for a short 
 
 ### CI Checks
 
-The `Pipeline` workflow runs on pull requests and pushes to `dev`, with typechecks, a production build, and integration tests. Push the final release commit to `dev` and wait for `Pipeline` to pass for that exact commit before tagging it. The separate `Release` workflow runs on `v*` tags, verifies the successful `Pipeline` run for the same commit, checks the package version, stages the Linux x64 archive, creates a SHA-256 file, and publishes both assets to the GitHub Release. Follow the [release skill](../.github/skills/release/SKILL.md) and [ticket 0127](tickets/0127-publish-a-verifiable-pilot-release.md). Commit all intended source changes before the dated changelog update; that changelog commit must be the release commit, and no source changes may follow its successful `Pipeline` run before tagging. If the commit changes, push it to `dev` and wait for `Pipeline` again. Do not build or upload release assets manually in the normal workflow. Track external operator, live-service, and production-deployment checks separately, and do not claim they passed based on CI.
+`Pipeline` runs type checks, a production build, and integration tests on pull requests and pushes to `dev`.
+
+To prepare a release, commit your source changes first, then commit the dated changelog update. Push that final commit to `dev` and wait for `Pipeline` to pass before tagging it. If the commit changes, push it and wait for `Pipeline` again.
+
+The `Release` workflow runs on `v*` tags. It checks the package version and confirms `Pipeline` passed on the tagged commit, then builds the Linux x64 archive and publishes it with its SHA-256 checksum. Let GitHub Actions build and upload the release files. See the [release skill](../.github/skills/release/SKILL.md) for the full process.
+
+A passing CI run does not verify that another operator can install the app, that live services work, or that production is ready. Check those separately.
 
 Run the same checks locally:
 

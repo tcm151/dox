@@ -345,7 +345,7 @@ Before merging architectural changes:
 
 The CI/API/browser test infrastructure, moderation/audit baseline, health checks, backup runbook, and API inventory have been delivered. Their existence is not proof that every current workflow or deployment has passed release acceptance.
 
-Remaining work is tracked in the [Roadmap](Roadmap.md) and [tickets](tickets/):
+The [Roadmap](Roadmap.md) summarizes the remaining milestones:
 - Close known media cleanup/category and confirmation-email abuse gaps.
 - Finish consistent personal filtering, bounded discovery/inbox queries, and account-dependent request isolation.
 - Align mutation/projection types, validation/error contracts, and complex domain workflow boundaries; polish core loading, retry, and edit behavior.
