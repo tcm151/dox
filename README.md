@@ -11,7 +11,7 @@ The internet works best when communities can be independently operatred, publicl
 - **Ownership**: run it on your own hardware or cloud server.
 - **Moderation**: moderate and manage your community how you want.
 - **Customization**: configure behavior, features, and branding for your needs.
-- **Versatility**: great for discussion boards, personal blogs, or old school classic forums.
+- **Versatility**: great for discussion boards, personal blogs, video game devlogs, or old school classic forums.
 
 ## What You Get
 
